@@ -1,0 +1,40 @@
+http://wincmd.ru/plugring/webshotswcx2.html - Архивный плагин для работы с архивами Webshots (WB0, WBO, WBD, WB1, SPV, WBC, WBP, WBZ)
+http://wincmd.ru/plugring/intrd.html - Архиваторный плагин для Total Commander, позволяющий работать с образами спектрумовских TR-DOS дисков (.TRD)
+http://wincmd.ru/plugring/MhtUnPack.html - Просмотр *.b64, *.uue, *.xxe файлов
+http://wincmd.ru/plugring/intrd.html - Архиваторный плагин для Total Commander, позволяющий работать с образами спектрумовских TR-DOS дисков (.TRD)
+http://wincmd.ru/plugring/ZPAQ.html - A packer plug-in (wcx) for Total Commander for the ZPAQ format
+http://wincmd.ru/plugring/intap.html - Архиваторный плагин для Total Commander для работы с магнитофонными образами (*.tap), используемыми в среде компьютера ZX Spectrum
+http://wincmd.ru/plugring/bsdos_bundle.html - Это набор плагинов для Total Commander, добавляющих поддержку образов дисков системы BS-DOS
+http://wincmd.ru/plugring/wcxlz8.html - Плагин для Total Commader, используемый для работы с авторским форматом Dark's LZ8COMP, рекомендуемом к использовании в DarkLib.
+http://wincmd.ru/plugring/wcxukrpack.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's UkrPack
+http://wincmd.ru/plugring/wcxapl.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's APL
+http://wincmd.ru/plugring/wcxabc.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's ABC, рекомендуемом к использовании в DarkLib
+http://wincmd.ru/plugring/wcxlzopack.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's LZOPack, рекомендуемом к использовании в DarkLib
+http://wincmd.ru/plugring/zar.html - Totalzar is a packer plugin for TotalCommander. The major function is to extract files have been compressed twice using zip and/or rar. 
+http://wincmd.ru/plugring/dar.html - Плагин для архивов dar [Disk ARchive]. Поддерживает распаковку/тестирование.
+http://wincmd.ru/plugring/wcxjustzip.html - Плагин для Total Commader, используемый для работы с авторским форматом Dark's JustZip
+http://wincmd.ru/plugring/wcxucc.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's UCComp
+http://wincmd.ru/plugring/wcxlzr.html- Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's LZRCompress
+http://wincmd.ru/plugring/elkatc.html - Плагин для Total Commader, используемый для работы с авторским форматом Dark's Elka
+http://wincmd.ru/plugring/sssrtc.html - Плагин для Total Commader, используемый для работы с авторским нестандартным форматом Dark's SSSR
+http://wincmd.ru/plugring/wcxppmp.html - Плагин PPMPack основан на высокоэффективном алгоритме сжатия PPMd Дмитрия Шкарина (1997)
+http://wincmd.ru/plugring/ensoniqunpacker.html - Распаковщик образов дисков Ensoniq
+http://wincmd.ru/plugring/wcx_PDB_PRC.html - Архиваторный плагин для баз данных Palm-OS: PRC и PDB
+http://wincmd.ru/plugring/WCX_PDB.html - WCX_PDB - wcx плагин для Total Commander. Позволяет открывать (Ctrl+PgDn) файлы БД Palm (*.pdb), просматривать записи, извлекать содержимое и создавать новые БД.
+http://wincmd.ru/plugring/z4.html - The Z4 is filesystem-based storage library. This plugin allows you to work with common Z4 file archives (reading, adding and deleting files)
+http://wincmd.ru/plugring/powerpacker.html - Архиваторный плагин для самого популярного архиватора для Amiga известного как "Power packer" автора Nico F.
+http://wincmd.ru/plugring/amigadx.html - Архиваторный плагин для извлечения и просмотра данных из файлов формата ADF, DMS, ADZ, HDF, HDZ, DMP эмуляторов Amiga (WinUAE, U*AE)
+http://wincmd.ru/plugring/msiplus.html - Упаковка/распаковка таблиц и потоков MSI-пакетов (Microsoft Installer). Предпросмотр диалоговых окон, включенный в MSI.
+http://wincmd.ru/plugring/targzbz2.html - Having an extra step to go through before getting at the contents of a .tar.gz or .tar.bz2 archived file was what prompted me to create this plugin. It's a readonly plugin for tar archives compressed with either gzip or bz2
+http://wincmd.ru/plugring/D64.html - Плагин работает с образами дисков Commodore 1541 (.D64)
+http://wincmd.ru/plugring/msi.html - Открывает файлы Microsoft Installer.
+http://wincmd.ru/plugring/tow.html - Архиваторный плагин для распаковки архивов TOW. TOW это файлы с ресурсами игры Tides of War, стратегии конца 1998 года.
+http://wincmd.ru/plugring/resextract.html - Декомпиляция 32-битных исполняемых файлов (EXE SCR) и библиотек (DLL OCX CPL BPL), ресурсных файлов (RES DCR)
+http://wincmd.ru/plugring/atr.html - Плагин для просмотра, извлечения и редактирования содержания 8-битовых образов дисков ATARI (.ATR)
+http://wincmd.ru/plugring/img2.html - Продвинутый плагин для работы с образами гибких дисков (diskimage, rawread и т.д.).
+http://wincmd.ru/plugring/trd.html - Плагин чтения образов дискет Spectrum в формате TRD
+http://wincmd.ru/plugring/scl.html - Плагин чтения образов дискет Spectrum в формате TRD
+http://wincmd.ru/plugring/lzop.html - Распаковывает файлы, созданные с помощью LZOP
+http://wincmd.ru/plugring/rpmcpio.html - Чтение инсталляционных файлов Linux
+http://wincmd.ru/plugring/sis.html - Открывает дистрибутивы SIS. (Psion)
+http://wincmd.ru/plugring/unimz.html - Просмотр и распаковка образов дискет, логических дисков и т.д. Поддержка FAT12,FAT16,FAT32, поддержка длинных имен.
