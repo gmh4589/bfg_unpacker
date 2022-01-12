@@ -26,7 +26,7 @@ Func OSLang()
 EndFunc
 
 Func SelectFolder()
-	$sFN = FileSelectFolder($tFolder1, $iLastDir)
+	$sFN = FileSelectFolder($tFolder1, '')
 		If @error <> 1 Then
 			$sFolderName = $sFN
 			IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Path', $sFolderName)
