@@ -196,6 +196,15 @@ Func LocalizeRead()
 		$tClick1 = $sLng[184], _
 		$tClick2 = $sLng[185], _
 		$H_W = $sLng[186], _
-		$AudioTrack = $sLng[187]
+		$AudioTrack = $sLng[187], _
+		$tShowEngine = $sLng[188], _
+		$tUseThemes = $sLng[189], _
+		$tLoadProgress = $sLng[190], _
+		$tGroupBy = $sLng[191], _
+		$tName = $sLng[192], _
+		$tYear = $sLng[193], _
+		$tSelColor = $sLng[194], _
+		$tOutFolder = $sLng[195], _
+		$tApply = $sLng[196]
 
 EndFunc
