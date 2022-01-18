@@ -4,6 +4,8 @@
 ;Стандартные библиотеки
 #include <WindowsConstants.au3>
 #include <GUIConstantsEx.au3>
+#include <APIGdiConstants.au3>
+#include <WinAPIGdi.au3>
 #include <StaticConstants.au3>
 #include <ComboConstants.au3>
 #include <Constants.au3>
@@ -64,8 +66,8 @@ $iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
 $iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000'), _
 $iPrOrSp = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'OnLoad', 'Progress')
 
-_WinAPI_AddFontResourceEx(@ScriptDir & '\data\ico\IconLib.ttf')
-GLobal $iFontColor = 0x000000, $iFontColor2 = 0x000000, $iColor1, $iColor2, $iColor3, $iFolderColor = 0xFFE68E, $iRecicleColor = 0x0099FF
+_WinAPI_AddFontResourceEx(@ScriptDir & '\data\ico\IconLib.otf', $FR_PRIVATE)
+GLobal $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor
 $bUseRGBColors = True
 
 ;Массивы для генерации меню
@@ -415,27 +417,50 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
 #EndRegion
 
+Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], [40, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, "Inno Setup Installer"], [40, $tVConv], [40, "Unreal Engine"], [40, "Unity Engine"], [40, "idTech Engine"], [30, "Source Engine"], [32, "Creation Engine"], [35, "Cry Engine"], [40, "Bink Converter"], [40, "Wwise Audio Unpacker"], [30, $cTFolder]]
+
+#Region //ImageButton
+	For $i = 1 to 15
+		$idButton[$i] = GUICtrlCreateLabel($abcArray[$i], 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
+		GUICtrlSetTip(-1, $iIconsArray[$i][1])
+		GUICtrlSetFont(-1, $iIconsArray[$i][0], 400, 0, "IconLib")
+		GUICtrlSetResizing ($idButton[$i], $GUI_DOCKALL)
+	Next
+#EndRegion
+
 _SetColor()
 
 #Region //Colors
 Func _SetColor()
-	If $iMenuColor <> 'Classic' then
-		If $iUseThemes = 4 Then
-			$ColorArray = StringRegExp(Hex($iMenuColor), '\N\N', 3)
+	$iFolderColor = 0xFFE68E
+	$iRecicleColor = 0x0099FF
+	If $iUseThemes = 4 Then
+		If BitAND(Not StringIsXDigit($iMenuColor), $iUseThemes = 4) Then $iMenuColor = 0xFFFFFF
+		$ColorArray = StringRegExp(Hex($iMenuColor), '\N\N', 3)
 
-			$rC = (Dec($ColorArray[1]) + Dec('66'))/2
-			$gC = (Dec($ColorArray[2]) + Dec('66'))/2
-			$bC = (Dec($ColorArray[3]) + Dec('66'))/2
+		$rC = (Dec($ColorArray[1]) + Dec('66'))/2
+		$gC = (Dec($ColorArray[2]) + Dec('66'))/2
+		$bC = (Dec($ColorArray[3]) + Dec('66'))/2
 
-			$iColor1 = $iMenuColor
-			$iColor2 = '0x' & Hex(Int($rC), 2) & Hex(Int($gC), 2) & Hex(Int($bC), 2)
-			$iColor3 = '0x' & Hex(Int($bC), 2) & Hex(Int($gC), 2) & Hex(Int($rC), 2)
-			If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor = 0xFFFFFF
-			If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor2 = 0xFFFFFF
-			If $iColor1 = $iColor3 Then $iColor3 = $iColor2
-		EndIf
-		
-		If $iUseThemes = 1 Then
+		$iColor1 = $iMenuColor
+		$iColor2 = '0x' & Hex(Int($rC), 2) & Hex(Int($gC), 2) & Hex(Int($bC), 2)
+		$iColor3 = '0x' & Hex(Int($bC), 2) & Hex(Int($gC), 2) & Hex(Int($rC), 2)
+		If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor = 0xFFFFFF
+		If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor2 = 0xFFFFFF
+		If BitOR($rC, $gC, $bC) > 0xFF / 2 Then $iFontColor = 0x000000
+		If BitOR($rC, $gC, $bC) > 0xFF / 2 Then $iFontColor2 = 0x000000
+		If $iColor1 = $iColor3 Then $iColor3 = $iColor2
+	EndIf
+	
+	If $iUseThemes = 1 Then
+		If BitAND($iMenuColor = '', $iUseThemes = 1) Then $iMenuColor = "Classic"
+		If $iMenuColor = 'Classic' then
+			$iColor1 = 0xFFFFFF
+			$iColor2 = 0xFFFFFF
+			$iColor3 = 0xC0C0C0
+			$iFontColor = 0x000000
+			$iFontColor2 = 0x000000
+		Else
 			$iColor1 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color1', 0xFFFFFF)
 			$iColor2 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color2', 0xFFFFFF)
 			$iColor3 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color3', 0xC0C0C0)
@@ -444,52 +469,43 @@ Func _SetColor()
 			$iFolderColor = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FolderColor', 0xFFE68E)
 			$iRecicleColor = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'RecicleColor', 0x0099FF)
 		EndIf
-		
-		GUISetBkColor($iColor2)
-		GUICtrlSetBkColor ($iEdit, $iColor1)
-		GUICtrlSetBkColor ($idTreeView_1, $iColor1)
-		_SetMenuBkColor ($iColor1)
-		_SetMenuIconBkColor($iColor2)
-		_SetMenuSelectBkColor($iColor3)
-		_SetMenuSelectTextColor($iFontColor)
-		_SetMenuTextColor($iFontColor)
-		GUICtrlSetColor($iEdit, $iFontColor)
-		GUICtrlSetColor($idTreeView_1, $iFontColor)
-		GUICtrlSetColor($iReimport_Checkbox, $iFontColor2)
-		GUICtrlSetColor($iHideOrShow, $iFontColor2)
-		GUICtrlSetColor($iAllGamesLabel, $iFontColor2)
-		
-		GUICtrlSetBkColor($iAll_Checkbox, $iColor1)
-		GUICtrlSetColor($iAll_Checkbox, $iFontColor)
-		GUICtrlSetBkColor($iFindBTN, $iColor1)
-		GUICtrlSetColor($iFindBTN, $iFontColor)
-		GUICtrlSetBkColor($iFavAdd, $iColor1)
-		GUICtrlSetColor($iFavAdd, $iFontColor)
-		GUICtrlSetBkColor($iFavDel, $iColor1)
-		GUICtrlSetColor($iFavDel, $iFontColor)
-		
-		DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iReimport_Checkbox), "wstr", 0, "wstr", 0)
-		GUICtrlSetColor(-1, $iFontColor)
-		DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iHideOrShow), "wstr", 0, "wstr", 0)
-		GUICtrlSetColor(-1, $iFontColor)
-	Else
-		$iColor1 = 0xFFFFFF
-		$iColor3 = 0xC0C0C0
 	EndIf
-EndFunc
-#EndRegion
-
-Global $iIconsArray = [[0, 0, 0], [30, $iFolderColor, $tQOpen], [30, $iFontColor, "Quick BMS"], [40, $iFontColor, $tUnpWith & @CRLF & "7z Archiver"], [40, $iFontColor, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, $iFontColor, "Inno Setup Installer"], [40, $iFontColor, $tVConv], [40, $iFontColor, "Unreal Engine"], [40, $iFontColor, "Unity Engine"], [40, $iFontColor, "idTech Engine"], [30, $iFontColor, "Source Engine"], [32, $iFontColor, "Creation Engine"], [35, $iFontColor, "Cry Engine"], [40, $iFontColor, "Bink Converter"], [40, $iFontColor, "Wwise Audio Unpacker"], [30, $iRecicleColor, $cTFolder]]
-
-#Region //ImageButton
+	
+	GUISetBkColor($iColor2, $hGUI)
+	GUICtrlSetBkColor ($iEdit, $iColor1)
+	GUICtrlSetBkColor ($idTreeView_1, $iColor1)
+	_SetMenuBkColor ($iColor1)
+	_SetMenuIconBkColor($iColor2)
+	_SetMenuSelectBkColor($iColor3)
+	_SetMenuSelectTextColor($iFontColor)
+	_SetMenuTextColor($iFontColor)
+	GUICtrlSetColor($iEdit, $iFontColor)
+	GUICtrlSetColor($idTreeView_1, $iFontColor)
+	GUICtrlSetColor($iReimport_Checkbox, $iFontColor2)
+	GUICtrlSetColor($iHideOrShow, $iFontColor2)
+	GUICtrlSetColor($iAllGamesLabel, $iFontColor2)
+	
+	GUICtrlSetBkColor($iAll_Checkbox, $iColor1)
+	GUICtrlSetColor($iAll_Checkbox, $iFontColor)
+	GUICtrlSetBkColor($iFindBTN, $iColor1)
+	GUICtrlSetColor($iFindBTN, $iFontColor)
+	GUICtrlSetBkColor($iFavAdd, $iColor1)
+	GUICtrlSetColor($iFavAdd, $iFontColor)
+	GUICtrlSetBkColor($iFavDel, $iColor1)
+	GUICtrlSetColor($iFavDel, $iFontColor)
+	
+	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iReimport_Checkbox), "wstr", 0, "wstr", 0)
+	GUICtrlSetColor(-1, $iFontColor)
+	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iHideOrShow), "wstr", 0, "wstr", 0)
+	GUICtrlSetColor(-1, $iFontColor)
+	
 	For $i = 1 to 15
-		$idButton[$i] = GUICtrlCreateLabel($abcArray[$i], 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
-		GUICtrlSetTip(-1, $iIconsArray[$i][2])
-		GUICtrlSetFont(-1, $iIconsArray[$i][0], 400, 0, "IconLib")
-		GUICtrlSetColor(-1, $iIconsArray[$i][1])
-		If $iColor1 <> 'Classic' then GUICtrlSetBkColor(-1, $iColor1)
-		GUICtrlSetResizing ($idButton[$i], $GUI_DOCKALL)
+		GUICtrlSetColor($idButton[$i], $iFontColor)
+		If $i = 1 Then GUICtrlSetColor($idButton[$i], $iFolderColor)
+		If $i = 15 Then GUICtrlSetColor($idButton[$i], $iRecicleColor)
+		GUICtrlSetBkColor($idButton[$i], $iColor1)
 	Next
+EndFunc
 #EndRegion
 
 #Region //Icon
