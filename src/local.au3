@@ -84,7 +84,7 @@ Func LocalizeRead()
 		$tClsd = $sLng[72], _
 		$tLNGSlct = $sLng[73], _
 		$tWRNNG = $sLng[74], _
-		$tDELAll = $sLng[75], _
+		$tDELAll1 = $sLng[75], _
 		$tAllFFF = $sLng[76], _
 		$tAlldel = $sLng[77], _
 		$tCrFld = $sLng[78], _
@@ -205,6 +205,13 @@ Func LocalizeRead()
 		$tYear = $sLng[193], _
 		$tSelColor = $sLng[194], _
 		$tOutFolder = $sLng[195], _
-		$tApply = $sLng[196]
+		$tApply = $sLng[196], _
+		$tNotFind = $sLng[197], _
+		$tWidth = $sLng[198], _
+		$tHight = $sLng[199], _
+		$tAudio = $sLng[200], _
+		$tVideo = $sLng[201], _
+		$tTextures = $sLng[202], _
+		$tDELAll2 = $sLng[203]
 
 EndFunc
