@@ -5,8 +5,8 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 
 	If $iEnginesName = '_Unreal' Then $iExtList = 'Unreal Engine File (*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2 (*.u*)|Unreal Engine 3 (*.u*;*.xxx;*.pcc)|Unreal Engine 4 (*.pak;*.locres)|'
 	If $iEnginesName = '_Unreal4' Then $iExtList = 'Unreal Engine 4 (*.pak;*.locres)|'
-	If $iEnginesName = '_Unity' Then $iExtList = 'All Unity 3D Engine File (*.assets;globalgamemanagers;level*;*unity*)|Unity 3D Engine Assets File (*.assets)|Globalgamemanagers File (globalgamemanagers)|Unity 3D Engine Level File (level*)|Unity* files (*unity*)|'
-	If $iEnginesName = '_idTech' Then $iExtList = 'idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.streamed;*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack)|DOOM\idTech 1 (*.wad)|Quake\idTech 2 (*.pak)|idTech 3 (*.pk3)|idTech 4 (*.pk4)|idTech 5, idTech 6 (*.*resource*;*.streamed;*.ptr;*.pages;*.vmtr;*.index;*.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|Rage Console Audio (*.msf; *.xma)|Quake 4 XBOX 360 Files (*.xpr)|Doomsday Engine Files (*.lib;*.pack)|'
+	If $iEnginesName = '_Unity' Then $iExtList = 'All Unity 3D Engine File (data.unity3d;*.assets;*globalgamemanagers*;level*;*unity*;*.resource)|Unity 3D Engine Assets File (*.assets)|Globalgamemanagers File (*globalgamemanagers*)|Unity 3D Engine Level File (level*)|Unity* files (*unity*)|resource files (*.resource)|data.unity3d File (data.unity3d)|'
+	If $iEnginesName = '_idTech' Then $iExtList = 'idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.streamed;*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack;*.sin)|DOOM\idTech 1 (*.wad)|Quake\idTech 2 (*.pak)|idTech 3 (*.pk3)|idTech 4 (*.pk4)|idTech 5, idTech 6 (*.*resource*;*.streamed;*.ptr;*.pages;*.vmtr;*.index;*.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|Rage Console Audio (*.msf; *.xma)|Quake 4 XBOX 360 Files (*.xpr)|Doomsday Engine Files (*.lib;*.pack)|Sin Gold SIN files (*.sin)|'
 	If $iEnginesName = '_Bethesda' Then $iExtList = 'Bethesda Files (*.bsa; *.ba2; *.esp; *.esm; *.esl; *.esx; *.snd; *.pex; TEXBSI.*;*.omod;*.fomod)|Bethesda Softwork Archives (*.bsa; *.ba2)|Plaugin and master files (*.esp, *.esm; *.esl)|Decompressed pligin files (*.esx)|Daggerfall sound archives (*.snd)|Compiled Papyrus Scripts (*.pex)|Redgaurd Textures Archives (texbsi.*)|Nexus Mod Files (*.omod;*.fomod)|'
 	If $iEnginesName = '_MTFramework' Then $iExtList = 'MT Framework Engine Files (*.arc;*.sngw)|'
 	If $iEnginesName = '_Chrome' Then $iExtList = 'Chrome Engine Files (*.csb; *.spb; *.rpack; *.pak)|'
@@ -71,11 +71,23 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					EndIf
 					
 				Case '_Unity'
-					GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
-					FileCopy ($iDrive & $iDir & $iName & "*", $sFolderName)
-					_OtherPRG ('', 'unityex.exe', ' export ', '', $sFolderName, $iName & $iExp)
-					DirCopy ($iDrive & $iDir & 'Unity_Assets_Files', $sFolderName)
-					FileDelete ($sFolderName & "\" & $iName & "*")
+					If $iExp = '.unity3d' Then
+						GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
+						FileCopy ($sFileName, $sFolderName)
+						$iTempTXT = FileOpen(@TempDir & '\list.bat', 10)
+						FileWrite($iTempTXT, '+FILE ' & $sFolderName & '\' & $iName & $iExp)
+						$iOutputWindow = ShellExecuteWait(@ScriptDir & '\data\unity_tools\AssetBundleExtractor.exe', ' -fd batchexport ' & @TempDir & '\list.bat')
+						Output_MSG($iOutputWindow, $sFileName)
+						FileClose ($iTempTXT)
+						FileDelete (@TempDir & '\list.bat')
+						FileDelete ($sFolderName & '\' & $iName & $iExp)
+					Else
+						GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
+						FileCopy ($iDrive & $iDir & $iName & "*", $sFolderName)
+						_OtherPRG ('', 'unityex.exe', ' export ', '', $sFolderName, $iName & $iExp)
+						DirCopy ($iDrive & $iDir & 'Unity_Assets_Files', $sFolderName)
+						FileDelete ($sFolderName & "\" & $iName & "*")
+					EndIf
 					
 				Case '_idTech'
 					Switch $iExp
@@ -130,6 +142,10 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							_QuickBMSRun('',@ScriptDir & "\data\scripts\rage_idxma.bms ", $sFileName)
 						Case ".xpr"
 							_QuickBMSRun('',@ScriptDir & "\data\scripts\Quake_4_X360_xpr.bms ", $sFileName)
+						Case ".sin"
+							FileCopy($sFileName, $sFolderName)
+							_OtherPRG('', 'PAKExtract.exe', '', '', $sFolderName, $sFolderName & '\' & $iName & $iExp)
+							FileDelete($sFolderName & '\' & $iName & $iExp)
 						Case Else
 							MsgBox($MB_SYSTEMMODAL, $tMessage, $tNoEngine & "idTech Engine")
 					EndSwitch
@@ -142,10 +158,10 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							ElseIf StringInStr($iDir, 'arena') > 0 Then
 								_QuickBMSRun('', @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
 							Else
-								_OtherPRG("Bethesda Softwork Archives (*.bsa; *.ba2)|", "BSAE\bsab.exe", ' -e ', $sFolderName, $sFolderName, $sFileName)
+								_OtherPRG("", "BSAE\bsab.exe", ' -e ', $sFolderName, $sFolderName, $sFileName)
 							EndIf
 						Case ".esp" , ".esm", ".esl"
-							_OtherPRG("Elder Scrolls Plugin (*.esp; *.esm; *.esl)|", "bethkit.exe ", 'decompress "', '" "' & $sFolderName & '\' & $iName & $iExp, $sFolderName, $iFileName)
+							_OtherPRG("", "bethkit.exe ", 'decompress "', '" "' & $sFolderName & '\' & $iName & $iExp, $sFolderName, $iFileName)
 							_OtherPRG("", "bethkit.exe ", 'convert "', '" "' & $sFolderName & '\' & $iName & '.esx', $sFolderName, $iFileName)
 						Case ".esx" 
 							_OtherPRG("", "bethkit.exe ", 'convert "', '" "' & $sFolderName & '\' & $iName & '.esp', $sFolderName, $iFileName)
@@ -293,8 +309,8 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							Else
 								_OtherPRG('', "gibbed\Gibbed.RED.Unpack.exe", '', $sFolderName, $sFolderName, $sFileName)
 							EndIf
-							;_QuickBMSRun("", @ScriptDir & "\data\scripts\witcher2.bms ", $sFileName) ;Прога вместо этого скрипта ^
-						;TODO: Добавить поддержку форматов ниже v
+							;_QuickBMSRun("", @ScriptDir & "\data\scripts\witcher2.bms ", $sFileName) ;РџСЂРѕРіР° РІРјРµСЃС‚Рѕ СЌС‚РѕРіРѕ СЃРєСЂРёРїС‚Р° ^
+						;TODO: Р”РѕР±Р°РІРёС‚СЊ РїРѕРґРґРµСЂР¶РєСѓ С„РѕСЂРјР°С‚РѕРІ РЅРёР¶Рµ ^
 						; Case $iName & ".w2speech" 
 							; Sleep(1)
 						; Case $iName & ".w2scripts" 
@@ -347,7 +363,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				Case '_RPGMaker'
 					Switch $iExp
 						Case ".rgss2a"
-							;TODO: Найти что-то консольное для этого формата, или сделать ковырялку самому
+							;TODO: РќР°Р№С‚Рё С‡С‚Рѕ-С‚Рѕ РєРѕРЅСЃРѕР»СЊРЅРѕРµ РґР»СЏ СЌС‚РѕРіРѕ С„РѕСЂРјР°С‚Р°, РёР»Рё СЃРґРµР»Р°С‚СЊ РєРѕРІС‹СЂСЏР»РєСѓ СЃР°РјРѕРјСѓ
 							ShellExecuteWait (@ScriptDir & '\data\RGSSAD - RGSS2A - RGSS3A Decrypter.exe')
 						Case ".rgss3a", ".rgssad"
 							_QuickBMSRun("", @ScriptDir &  "\data\scripts\rgssad.bms ", $sFileName)
@@ -366,12 +382,12 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				Case '_Glacier'
 					Switch $iExp
 						Case ".wav", ".whd", ".prm", ".tex", ".anm", ".lgt", ".spk"
-							If $iName = 'streams' Then Return(MsgBox(0, '', 'Error 404')) ;TODO: Добавить поддержку streams.wav
+							If $iName = 'streams' Then Return(MsgBox(0, '', 'Error 404')) ;TODO: Р”РѕР±Р°РІРёС‚СЊ РїРѕРґРґРµСЂР¶РєСѓ streams.wav
 							_QuickBMSRun("", @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
-							;TODO: Добавить поддержку форматов ниже v
-							;".wav", ".whd" - Работает только с Hitman Blood Money
-							;".prm", ".tex", ".anm" - c Hitman Blood Money - не работает
-							;".prm", ".tex"- c Hitman Codename 47 - не работает
+							;TODO: Р”РѕР±Р°РІРёС‚СЊ РїРѕРґРґРµСЂР¶РєСѓ С„РѕСЂРјР°С‚РѕРІ РЅРёР¶Рµ v
+							;".wav", ".whd" - Р Р°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ СЃ Hitman Blood Money
+							;".prm", ".tex", ".anm" - c Hitman Blood Money - РЅРµ СЂР°Р±РѕС‚Р°РµС‚
+							;".prm", ".tex" - c Hitman Codename 47 - РЅРµ СЂР°Р±РѕС‚Р°РµС‚
 						Case ".zip"
 							_QuickBMSRun("", @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
 						Case ".rpkg"
