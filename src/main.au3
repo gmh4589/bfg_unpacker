@@ -590,7 +590,6 @@ Func Main()
 				EndIf
 			Next
 		#EndRegion
-
 	   EndSwitch
 	Until False
 EndFunc
