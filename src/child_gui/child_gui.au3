@@ -189,8 +189,8 @@ Local $iCombo = StringSplit($iMenuData, '|')
 					If $iCombo[2] = "Atrac2WAV" Then $iLet = " -d "
 					If $iCombo[2] = "WAV2Atrac" Then $iLet = " -e "
 					If $iCombo[2] = "Atrac2WAV" Then $iFmt = "wav"
-					If $iCombo[1] = "PS3" or $iCombo[1] = "PSP" Then $iFmt = "at3"
-					If $iCombo[1] = "PS4" or $iCombo[1] = "PSVita" Then $iFmt = "at9"
+					If BitOR($iCombo[1] = "PS3", $iCombo[1] = "PSP") Then $iFmt = "at3"
+					If BitOR($iCombo[1] = "PS4", $iCombo[1] = "PSVita") Then $iFmt = "at9"
 					_OtherPRG('', $iPrg & ".exe", $iLet, ' "' & $nFolderName & "\" & $iName & "." & $iFmt & '"', $nFolderName, $sFilePath)
 			EndSwitch
 		
