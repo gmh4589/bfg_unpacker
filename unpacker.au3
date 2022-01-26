@@ -77,7 +77,7 @@ Global $yearArray = ['2022', '2021', '2020', '2019', '2018', '2017', '2016', '20
 GLobal $iArchiveArray = ["7z" & $tArchive, "ACE" & $tArchive, "ALZ" & $tArchive, "ARC" & $tArchive, "ARK" & $tArchive, "ARJ" & $tArchive, "BH" & $tArchive, "BLZ" & $tArchive, "BMA" & $tArchive, "BZIP" & $tArchive, "BZIP2" & $tArchive, "CAB" & $tArchive, "CPIO" & $tArchive, "DGCA" & $tArchive, "DZ" & $tArchive, "DZIP" & $tArchive, "EGG" & $tArchive, "FPRG" & $tArchive, "FreeARC" & $tArchive, "FZIP" & $tArchive, "GCA" & $tArchive, "GZIP" & $tArchive, "HA" & $tArchive, "HRUST" & $tArchive, "JAR" & $tArchive, "LHA/LZH" & $tArchive, "LZHAM" & $tArchive, "LZMA" & $tArchive, "LZIP" & $tArchive, "LZO" & $tArchive, "LZO PKG" & $tArchive, "LZO PVR" & $tArchive, "LZSS" & $tArchive, "LZX" & $tArchive, "MBR" & $tArchive, "MHTML Web" & $tArchive, "NanoZIP" & $tArchive, "NSIS" & $tArchive, "PPMD" & $tArchive, "RAR" & $tArchive, "RPM" & $tArchive, "RPMCPIO" & $tArchive, "SIS" & $tArchive, "SQX" & $tArchive, "SWM" & $tArchive, "TAZ\TZ" & $tArchive, "TAR" & $tArchive, "TAZ" & $tArchive, "TARZIP" & $tArchive, "WIM" & $tArchive, "XPI" & $tArchive, "XXZ" & $tArchive, "XZ" & $tArchive, "YZ1" & $tArchive, "YZ2" & $tArchive, "Z" & $tArchive, "ZIP" & $tArchive, "ZIPX" & $tArchive, "ZOO" & $tArchive]
 
 GLobal $iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", "Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", "Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder]
-Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $iArchiveItem[UBound($iArchiveArray)], $idButton[16]
+Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $iArchiveItem[UBound($iArchiveArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27]
 
 If $iPrOrSp = 'Splash' Then SplashImageOn("", @ScriptDir & "\data\ico\i.jpg", 256, 256, (@DesktopWidth/2)-128, (@DesktopHeight/2)-128, 19)
 If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
@@ -104,21 +104,18 @@ _ArraySort($iGameList, 0, 2)
 
 Global $iLoop = UBound($iGameList)-1, $iMenuItem[$iLoop+1], $iListFind[$iLoop+1], $iYearList[$iLoop+1]
 
-;Сортировка списка игр по названию либо году выпуска
-Switch $iGroupBy 
-	Case 'Year', 'Name'
-	Case Else
-		IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name')
-		$iGroupBy = 'Name'
-EndSwitch
-
 FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
 
-;Создает и наполняет список игр
 Global $idTreeView_1 = GUICtrlCreateTreeView(5, 65, 290, 525)
 
 GUICtrlSetTip(-1, $tListT)
 Global $idTreeItem = GUICtrlCreateTreeViewItem($tListT, $idTreeView_1)
+
+;Сортировка списка игр по названию либо году выпуска
+If $iGroupBy <> BitOR ('Name', 'Year') Then
+	IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name')
+	$iGroupBy = 'Name'
+EndIf
 
 If $iGroupBy = 'Name' Then
 		For $set = 0 to 26
@@ -134,13 +131,11 @@ ElseIf $iGroupBy = 'Year' Then
 	Global $idTreeItem1980 = GUICtrlCreateTreeViewItem("1970-1989", $idTreeItem)
 EndIf
 
+;Создает и наполняет список игр
 For $item = 2 to $iLoop
 	$iGameName = StringSplit($iGameList[$item], '	')
-	If $iGroupBy = 'Name' Then
-		$idItem = getChar(StringLeft($iGameName[1], 2))
-	ElseIf $iGroupBy = 'Year' Then
-		$idItem = getYear($iGameName[2])
-	EndIf
+	If $iGroupBy = 'Name' Then $idItem = getChar(StringLeft($iGameName[1], 2))
+	If $iGroupBy = 'Year' Then $idItem = getYear($iGameName[2])
 	$iMenuItem[$item] = GUICtrlCreateTreeViewItem($iGameName[1], $idItem)
 	$iListFind[$item] = $iGameName[1]
 	$iYearList[$item] = $iGameName[2]
@@ -158,7 +153,6 @@ Func getChar($iChar)
 	If StringIsASCII($iChar) = 1 Then 
 		$iChar = StringLeft(StringLower($iChar), 1)
 			Local $nChar = _ArraySearch($abcArray, $iChar)
-			;MsgBox (0, '', $idTreeItemABC[0])
 			If $nChar > -1 Then Return $idTreeItemABC[$nChar]
 			If StringIsInt($iChar) = 1 Then Return $idTreeItemABC[0]
 			If StringIsASCII($iChar) = 1 Then Return $idTreeItemOther
@@ -359,12 +353,12 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 #Region //Converter
 	$iConvMenu = GUICtrlCreateMenu($tConv)
-	$iConvMenu1 = _GUICtrlCreateODMenu("Video", $iConvMenu)
+	$iConvMenu1 = _GUICtrlCreateODMenu($tVideo, $iConvMenu)
 	$iConv_12 = _GUICtrlCreateODMenuItem("FFMPEG Video Converter" , $iConvMenu1)
 	$iBink2avi = _GUICtrlCreateODMenuItem("RAD Video Tools", $iConvMenu1)
 	$iMediaInfo = _GUICtrlCreateODMenuItem("MediaInfo", $iConvMenu1)
 
-	$iConvMenu2 = _GUICtrlCreateODMenu("Audio", $iConvMenu)
+	$iConvMenu2 = _GUICtrlCreateODMenu($tAudio, $iConvMenu)
 	$iConv_15 = _GUICtrlCreateODMenuItem("FFMPEG Sound Converter", $iConvMenu2)
 	$iConv_9 = _GUICtrlCreateODMenuItem("Video Game Sound Converter", $iConvMenu2)
 	$iFSBext = _GUICtrlCreateODMenuItem("FSBext (FSB " & $tTo & " WAV\MP3\OGG)", $iConvMenu2)
@@ -375,7 +369,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iConv_13 = _GUICtrlCreateODMenuItem("PlayStation Audio Converter", $iConvMenu2)
 	$iConv_18 = _GUICtrlCreateODMenuItem("XWM\WAV Audio Converter", $iConvMenu2)
 
-	$iConvMenu3 = _GUICtrlCreateODMenu("Textures", $iConvMenu)
+	$iConvMenu3 = _GUICtrlCreateODMenu($tTextures, $iConvMenu)
 	$iConv_14 = _GUICtrlCreateODMenuItem("FFMPEG Image Converter", $iConvMenu3)
 	$iConv_3 = _GUICtrlCreateODMenuItem($tTexturesIn & " PNG (SAU)", $iConvMenu3)
 	$iConv_4 = _GUICtrlCreateODMenuItem("nCovert Image Converter", $iConvMenu3)
@@ -406,8 +400,10 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 #EndRegion
 
 #Region //Checkbox
-	$iReimport_Checkbox = GUICtrlCreateCheckbox($tPack, 10, 590, 75, 20)
-	$iHideOrShow = GUICtrlCreateCheckbox($tShowCon, 90, 590, 200, 20)
+	$iReimport_Checkbox = GUICtrlCreateCheckbox('', 10, 590, 15, 20)
+	$iHideOrShow = GUICtrlCreateCheckbox('', 90, 590, 15, 20)
+	$iReimport_CheckboxTXT = GUICtrlCreateLabel($tPack, 25, 593, 55, 20)
+	$iHideOrShowTXT = GUICtrlCreateLabel($tShowCon, 105, 593, 120, 20)
 	GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
 	$iAllGamesLabel = GUICtrlCreateLabel($tAllGames & $iLoop, 300, 595, 200, 20)
 #EndRegion
@@ -417,15 +413,30 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
 #EndRegion
 
-Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], [40, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, "Inno Setup Installer"], [40, $tVConv], [40, "Unreal Engine"], [40, "Unity Engine"], [40, "idTech Engine"], [30, "Source Engine"], [32, "Creation Engine"], [35, "Cry Engine"], [40, "Bink Converter"], [40, "Wwise Audio Unpacker"], [30, $cTFolder]]
+Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], [40, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, "Inno Setup Installer"], [40, $tVConv], [40, "Unreal Engine"], [40, "Unity Engine"], [40, "idTech Engine"], [30, "Source Engine"], [32, "Creation Engine"], [35, "Cry Engine"], [40, "Bink Converter"], [40, "Wwise Audio Unpacker"], [30, 'PS Audio Converter'], [30, 'NCONVERT GUI'], [40, 'RED Engine'], [35, 'Godot Engine'], [20, 'RPG Maker'], [50, 'RenPy Engine'], [10, 'Unigene Engine'], [40, 'RAW to DDS'], [40, 'RAW to Atrac'], [40, 'RAW to WAV'], [30, $tSetting], [30, $cTFolder]]
 
 #Region //ImageButton
 	For $i = 1 to 15
-		$idButton[$i] = GUICtrlCreateLabel($abcArray[$i], 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
-		GUICtrlSetTip(-1, $iIconsArray[$i][1])
-		GUICtrlSetFont(-1, $iIconsArray[$i][0], 400, 0, "IconLib")
-		GUICtrlSetResizing ($idButton[$i], $GUI_DOCKALL)
+		$iBtnName = IniRead (@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
+		If $i = 1 Then $iBtnName = "A"
+		If $i = 15 Then $iBtnName = "Z"
+		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
+		$j = _ArraySearch($abcArray, $iBtnName)
+		GUICtrlSetTip(-1, $iIconsArray[$j][1])
+		GUICtrlSetFont(-1, $iIconsArray[$j][0], 400, 0, "IconLib")
+		GUICtrlSetResizing (-1, $GUI_DOCKALL)
 	Next
+	
+	For $i = 2 to 14
+		$iContMenu[$i] = GUICtrlCreateContextMenu ($idButton[$i])
+		$iChangeButton[$i] = GUICtrlCreateMenuItem ("Настроить кнопку", $iContMenu[$i])
+		GUICtrlCreateMenuItem ($tCancel, $iContMenu[$i])
+	Next
+	
+	$iContMenuTrash = GUICtrlCreateContextMenu ($idButton[15])
+	$iDeleteToTrash = GUICtrlCreateMenuItem ("Удалить в корзину", $iContMenuTrash)
+	$iDeleteFull = GUICtrlCreateMenuItem ("Удалить полностью", $iContMenuTrash)
+	GUICtrlCreateMenuItem ($tCancel, $iContMenuTrash)
 #EndRegion
 
 _SetColor()
@@ -494,10 +505,8 @@ Func _SetColor()
 	GUICtrlSetBkColor($iFavDel, $iColor1)
 	GUICtrlSetColor($iFavDel, $iFontColor)
 	
-	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iReimport_Checkbox), "wstr", 0, "wstr", 0)
-	GUICtrlSetColor(-1, $iFontColor)
-	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iHideOrShow), "wstr", 0, "wstr", 0)
-	GUICtrlSetColor(-1, $iFontColor)
+	GUICtrlSetColor($iReimport_CheckboxTXT, $iFontColor2)
+	GUICtrlSetColor($iHideOrShowTXT, $iFontColor2)
 	
 	For $i = 1 to 15
 		GUICtrlSetColor($idButton[$i], $iFontColor)
