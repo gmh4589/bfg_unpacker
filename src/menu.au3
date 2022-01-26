@@ -13,6 +13,9 @@ Func FolderProbe()
 	Global $sFolderName = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
 	If $sFolderName = '' Then 
 		SelectFolder()
+		For $i = 2 to 14
+			IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
+		Next
 	EndIf
 EndFunc
 
@@ -30,7 +33,7 @@ Func SelectFolder()
 		If @error <> 1 Then
 			$sFolderName = $sFN
 			IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Path', $sFolderName)
-			_ScriptRestart(100)
+			;_ScriptRestart(100)
 		EndIf
 EndFunc
 
@@ -56,7 +59,9 @@ Func SelectLang()
 			_ScriptRestart(100)
 EndFunc
 
-Func ClearFolder(); TODO: ТЕКСТ НА РУССКОМ!!!
+Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
+	If $iTrash = False Then $tDELAll = $tDELAll1
+	If $iTrash = True Then $tDELAll = $tDELAll2
 	$iAnswer = MsgBox(BitOR($MB_YESNO, $MB_SYSTEMMODAL), $tWRNNG, $tDELAll & @CRLF & $sFolderName & "?")
 		If $iAnswer = 6 Then
 			Local $iFileList1 = _FileListToArray ($sFolderName)
@@ -73,8 +78,9 @@ Func ClearFolder(); TODO: ТЕКСТ НА РУССКОМ!!!
 
 			ProgressOn ('', "Подождите...", '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 			For $i = 0 to $a - 1
-				FileDelete ($sFolderName & '\' & $iFileList1[$i])
-				DirRemove ($sFolderName & '\' & $iFileList1[$i], 1)
+				If $iTrash = False Then FileDelete ($sFolderName & '\' & $iFileList1[$i])
+				If $iTrash = False Then DirRemove ($sFolderName & '\' & $iFileList1[$i], 1)
+				If $iTrash = True Then FileRecycle ($sFolderName & '\' & $iFileList1[$i])
 				$Percent = (100/$a) * $i
 				$dif = TimerDiff($begin)
 				$elaps = (($dif/$i) * $a)
@@ -218,5 +224,29 @@ Func _Endian($Binary)
 		Next
 	FileClose ($txt)
 	Return ('0x' & FileReadLine (@TempDir & '\bindata.txt', 1))
+EndFunc
+
+Func _CursorMove($iGuiID)
+	$iCursorPos = GUIGetCursorInfo($iGuiID)
+	
+	If $iCursorPos[4] Then
+		Switch $iCursorPos[4]
+			Case $iAll_Checkbox, $iFindBTN, $iFavAdd, $iFavDel, $idButton[1] to $idButton[15], $setBTN[2] to $setBTN[26]
+				If $iMouseMove <> -1 Then
+					If $iMouseMove <> $iCursorPos[4] Then
+						GUICtrlSetBkColor($iMouseMove, $iColor1)
+					EndIf
+				EndIf
+				If $iMouseMove <> $iCursorPos[4] Then
+					$iMouseMove = $iCursorPos[4]
+					GUICtrlSetBkColor($iMouseMove, $iColor3)
+				EndIf
+			Case Else
+				If $iMouseMove <> -1 Then
+					GUICtrlSetBkColor($iMouseMove, $iColor1)
+					$iMouseMove = -1
+				EndIf
+		EndSwitch
+	EndIf
 EndFunc
  
