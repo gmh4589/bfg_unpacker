@@ -278,14 +278,19 @@ Switch $iExp
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\hogg.bms  ",$sFileName)
 	Case ".lfs"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
-		RE4HDQuick($sFileName)	
+		;PASS
+		;FileWriteLine ($hFile, $sFolderName & "\YZ2tool.exe -x """ & $sFolderName & "\" & $iName & """")
 	Case ".yz2", ".pack"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
 		GUICtrlSetData($iEdit, $tSelHand & @CRLF, 1)
-		YZQuick($sFileName)
+		;PASS
+		;FileWriteLine ($hFile, $sFolderName & "\yzdec.exe """ & $sFolderName & "\" & $sFullFileName & """")
 	Case ".rpkg"
 		GUICtrlSetData($iEdit, $tIFFG & " Hitman (2016)" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\hitman_2016.bms  ",$sFileName)
+	Case ".forge"
+		GUICtrlSetData($iEdit, $tIFFG & " Anvil Engine" & @CRLF, 1)
+		_QuickBMSRun('', @ScriptDir & "\data\scripts\scimitar.bms  ",$sFileName)
 	Case Else
 		Local $iAnswer = MsgBox($MB_SYSTEMMODAL, $tMessage, $tNotice3)
 		GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
@@ -337,43 +342,5 @@ Local $iFuncArray = [ _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\wcx\TotalObserver.wcx """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\agameengine.bms """ & $sFileName &""" """ & $sFolderName & ""]
 	_ScriptCreate($iFuncArray)
-EndFunc
-
-Func RE4HDQuick($sFileName); TODO: Удалить этот говнокод!!!
-	GUICtrlSetData($iEdit, $tWtAComv & @CRLF, 1)
-	ShellExecuteWait (@ScriptDir & "\data\quickbms.exe ", @ScriptDir & "\data\scripts\re4.bms """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
-	GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
-	_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-	$hFile = FileOpen (@TempDir & "\start.bat", 10)
-	FileWriteLine ($hFile, "chcp 65001")
-	FileWriteLine ($hFile, "copy """ & @ScriptDir & "\data\YZ2tool.exe"" """ & $sFolderName & """")
-	FileWriteLine ($hFile, $sFolderName & "\YZ2tool.exe -x """ & $sFolderName & "\" & $iName & """")
-	FileWriteLine ($hFile, "del """ & $sFolderName & "\YZ2tool.exe""")
-	FileWriteLine ($hFile, "del """ & $sFolderName & "\" & $iName & """")
-	FileWriteLine ($hFile, "pause")
-	FileClose ($hFile)
-	GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)
-	$iOutputWindow = ShellExecuteWait (@TempDir & "\start.bat", "", $sFolderName, "open")
-	FileDelete (@TempDir & "\start.bat")
-	Output_MSG($iOutputWindow)
-EndFunc
-
-Func YZQuick($sFileName); TODO: Удалить этот говнокод!!!
-	GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
-	_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-	$sFullFileName = ($iName & $iExp)
-	$hFile = FileOpen (@TempDir & "\start.bat", 10)
-	FileWriteLine ($hFile, "chcp 65001")
-	FileWriteLine ($hFile, "copy """ & @ScriptDir & "\data\yzdec.exe"" """ & $sFolderName & """")
-	FileWriteLine ($hFile, "copy """ & $sFileName & """ """ & $sFolderName & """")
-	FileWriteLine ($hFile, $sFolderName & "\yzdec.exe """ & $sFolderName & "\" & $sFullFileName & """")
-	FileWriteLine ($hFile, "del """ & $sFolderName & "\yzdec.exe""")
-	FileWriteLine ($hFile, "del """ & $sFolderName & "\" & $sFullFileName & """")
-	FileWriteLine ($hFile, "pause")
-	FileClose ($hFile)
-	GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)
-	$iOutputWindow = ShellExecuteWait (@TempDir & "\start.bat", "", $sFolderName, "open")
-	Output_MSG($iOutputWindow)	
-	FileDelete (@TempDir & "\start.bat")
 EndFunc
 
