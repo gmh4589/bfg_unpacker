@@ -1,20 +1,25 @@
 game_name	relise_year	func_name	ext_list	script_name	com1	com2
 - R E F L E C T E D -	2021	_Godot				
-007 Goldeneye Reloaded PS3	Page not found!	_QuickBMS		\data\scripts\007_goldeneye_ps3.bms		
-007 Quantum of Solace(PS3, Xbox 360)	Page not found!	_QuickBMS	FF Files (*.ff)|	\data\scripts\007_quantum_of_solace.bms		
+007 Goldeneye Reloaded PS3	2010	_QuickBMS		\data\scripts\007_goldeneye_ps3.bms		
+007 Quantum of Solace(PS3, Xbox 360)	2008	_QuickBMS	FF Files (*.ff)|	\data\scripts\007_quantum_of_solace.bms		
 1 vs 100	Page not found!	_QuickBMS	BIN File (*.bin)|	\data\scripts\bank.bin.bms		
-10 min Space Strategy	Page not found!	_QuickBMS	hgpk file (*.hgpk)|	\data\scripts\10minspacestrategy.bms		
+10 min Space Strategy	2011	_QuickBMS	hgpk file (*.hgpk)|	\data\scripts\10minspacestrategy.bms		
 1000 days to escape	2019	_Godot				
-102 Dalmatians	Page not found!	_QuickBMS		\data\scripts\102_dalmatians.bms		
+102 Dalmatians	2000	_QuickBMS		\data\scripts\102_dalmatians.bms		
 10mg: HANDMADEDEATHLABYRINTH issue 0	2020	_Godot				
 10mg: SNAAAK	2020	_Construct				
 10tons Ltd. Games	#Note: move to engine menu	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
 15 Days	2009	_QuickBMS		\data\scripts\15days.bms		
 171 PreAlpha		_Unreal4	0x5CB85BE0FE74FCEDFEA4FB89D089828C209533AC23CC23AF00D2B0E2BA7EDDA3			
 18 Wheeler: American Pro Trucker (PS2)	2000	_QuickBMS	(MUSIC.STR -r VOICES.STR)|	\data\scripts\18_wheeler.bms		
+18 Wheels of Steel: Across America		_ZIP				
+18 Wheels of Steel: Convoy		_ZIP				
+18 Wheels of Steel: Haulin		_ZIP				
+18 Wheels of Steel: Pedal to the Metal		_ZIP				
 187 Ride Or Die	2005	_QuickBMS	mfd file (*.mfd)|	\data\scripts\187_ride_or_die.bms		
 25 to life	2006	_QuickBMS		\data\scripts\25_to_life.bms		
 25 to Life (Xbox)	2006	_QuickBMS	HOG File (*.hog)|	\data\scripts\25_to_life_xbox.bms		
+2GIS		_ZIP				
 2Island Tribe 2	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 3 Ninjas Kick Back (Sega CD)	Page not found!	_QuickBMS		\data\scripts\sega_audio.bms		
 3, 2, 1, SURVIVE !	2018	_Godot				
@@ -58,6 +63,7 @@ game_name	relise_year	func_name	ext_list	script_name	com1	com2
 Ведьмак	2007	_Aurora				
 Ведьмак 2: Убийцы Королей	2011	_RedEngine				
 Ведьмак 3: Дикая Охота	2015	_RedEngine				
+Мор. Утопия	2005	_Mor				
 Полный привод 2: Даурский марафон	2008	_Chrome				
 Полный привод 2: Сибирский призыв	2008	_Chrome				
 Полный привод 2: УАЗ 4х4	2008	_Chrome				
@@ -65,6 +71,7 @@ game_name	relise_year	func_name	ext_list	script_name	com1	com2
 Полный привод: УАЗ 4х4. Уральский призыв	2007	_Chrome				
 Полный привод: УАЗ 4x4	2007	_Chrome				
 Полный привод. Трофи Мурманск — Владивосток 2	2010	_Chrome				
+Привидения из Букленда. Книжное приключение	2008	_LithTech				
 Экспедиция-Трофи: Мурманск — Владивосток	2006	_Chrome				
 A Clockwork Ley-Line: The Borderline of Dusk	Page not found!	_QuickBMS	DAT File (*.dat)|	\data\scripts\leyline_dat.bms		
 A Comfortable Burden	2021	_Godot				
@@ -73,6 +80,7 @@ A Prendre ou A Laisser (FR)	Page not found!	_QuickBMS	BIN File (*.bin)|	\data\sc
 A Raven Monologue	2018	_Construct				
 A.I.M. Racing	Page not found!	_QuickBMS		\data\scripts\aimracing.bms		
 A4-A8 engine	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\gamestudio.bms		
+Abbey of Crime Extensum, The		_ZIP				
 Abomination The Nemesis Project (awf)	1999	_QuickBMS	AWF file (*.awf)|	\data\scripts\Abomination_The_Nemesis_Project_AWF.bms		
 Abomination The Nemesis Project (clt)	1999	_QuickBMS	CLT file (*.clt)|	\data\scripts\Abomination_The_Nemesis_Project_CLT.bms		
 Absolutely Goode Championship	2020	_Godot				
@@ -155,8 +163,9 @@ Alien On The Run	Page not found!	_QuickBMS		\data\scripts\farc3.bms
 Alien Rage Unlimited	Page not found!	_QuickBMS	(SND*.AFB)|	\data\scripts\alien_rage_ultimited.bms		
 Alien Swarm	2010	_Source				
 Alien Swarm: Reactive Drop	2017	_Source				
-Alien vs Predator 2		_GAUP	REZ Files (*.REZ)|			
 Alien: Isolation	2014	_QuickBMS	pak file (*.pak)|	\data\scripts\alien_isolation.bms		
+Aliens versus Predator 2 	2001	_LithTech				
+Aliens versus Predator 2: Primal Hunt 	2002	_LithTech				
 Aliens vs. Predator (2010)	2010	_Asura				
 Aliens vs. Predator: Requiem	2007	_Asura				
 All out race	Page not found!	_QuickBMS		\data\scripts\alloutrace.bms		
@@ -169,6 +178,7 @@ Alone in the Dark 2	1993	_QuickBMS	pak file (*.pak)|	\data\scripts\alonedarkx.bm
 Alone in the Dark 3	1994	_QuickBMS	pak file (*.pak)|	\data\scripts\alonedarkx.bms		
 Alpacapaca Dash	2017	_Godot				
 Alpacapaca Double Dash	2020	_Godot				
+Alpha Black Zero		_ZIP				
 Alphabetical Order	2021	_Godot				
 Alphaman	2019	_Godot				
 Alundra 2	1999	_QuickBMS		\data\scripts\alundra.bms		
@@ -230,6 +240,7 @@ Are You Smarter Than A 5th Grader: Make the Mark (XBLA)	Page not found!	_QuickBM
 Are You Smarter than a 5th Grader?	2007	_QuickBMS	(Glob.bin)|	\data\scripts\glob.bin.bms		
 Area 51 (Audio Pakc)	Page not found!	_QuickBMS		\data\scripts\area51_audiopkg.bms		
 Arena of Fate	2016	_CryEngine				
+Arena Wars		_ZIP				
 Arena, Elder Scrolls I	1993	_Bethesda				
 Ariscomp Z	Page not found!	_QuickBMS		\data\scripts\ariscomp.bms		
 Arizona Derby	2019	_Unreal4	0x55753D40BC2F24135648DF4E10B4A7B39BB8297A3423BA468CDF2CB7330A2706			
@@ -239,6 +250,7 @@ ArmA: Armed Assault	2006	_QuickBMS	PBO File (*.pbo)|	\data\scripts\pbo.bms
 ArmA: Combat Operations	Page not found!	_QuickBMS	PBO File (*.pbo)|	\data\scripts\pbo.bms		
 ArmA: Queen's Gambit	2007	_QuickBMS	PBO File (*.pbo)|	\data\scripts\pbo.bms		
 Armageddon Riders Clutch	Page not found!	_QuickBMS		\data\scripts\clutch.bms		
+Armed Forces Corp 	2009	_LithTech				
 Armored Fist 3 (PFF)	2009	_QuickBMS		\data\scripts\PFF_PFF3.bms		
 Armored Warfare	2015	_CryEngine				
 Army Men	1998	_QuickBMS	pak file (*.pak)|	\data\scripts\army_man.bms		
@@ -249,8 +261,10 @@ Army Men: Toys In Space	Page not found!	_QuickBMS	ANM and ATL File (*.anm -r *.a
 Army Of Two	2008	_QuickBMS	bnk file (*.bnk)|	\data\scripts\armyoftwo.bms		
 Army Of Two 40th Day PSP Demo	Page not found!	_QuickBMS	dat file (*.dat)|	\data\scripts\armyoftwo_psp.bms		
 Army of Two: The Devil's Cartel	2013	_FrostBite	2			
+Army Rangers: Mogadishu	2005	_LithTech				
 Arsenal 2	Page not found!	_QuickBMS		\data\scripts\arsenal2.bms		
 Arslan: The Warriors of Legend	2015	_QuickBMS		\data\scripts\arslan.bms		
+Arthur's Quest: Battle for the Kingdom 	2002	_LithTech				
 Artifact Classic	2018	_Source				
 Artillerists	2017	_Construct				
 Arx Fatalis	2002	_OtherPRG	Arx Fatalis PAK File (*.pak)|	afunpak.exe	 	 
@@ -259,8 +273,22 @@ Ascendancy		_GAUP	COB Files (*.COB)|
 Asgard's Wrath		_Unreal4	0x64E9610C89AA1335A49CF94B9A4862FC0BEA20CA2752F20D8BFB872A99E24756			
 Ashes Cricket 2009	2009	_QuickBMS		\data\scripts\ashes_cricket_2009.bms		
 Ashes of Creation		_Unreal4	0x6F8C0589C6B44F33B60CA56E65F37836BE60C311963147291D6316DDD8A5DB88			
+Ashes: Afterglow	2021	_idTech				
 Asphyre Sphinx Engine	#Note: move to engine menu	_QuickBMS	Asphyre Engine File (*.data -r *.mini -r *.wd2 -r *.map)|	\data\scripts\asphyre.bms		
-Assassin's Creed 2	2009	_QuickBMS	big file (*.big)|	\data\scripts\assassin_creed2.bms		
+Assassin's Creed II (BIG)	2009	_QuickBMS	big file (*.big)|	\data\scripts\assassin_creed2.bms		
+Assassin's Creed Valhalla	2020	_Anvil				
+Assassin’s Creed	2007	_Anvil				
+Assassin’s Creed II	2009	_Anvil				
+Assassin’s Creed III	2012	_Anvil				
+Assassin’s Creed III: Liberation	2012	_Anvil				
+Assassin’s Creed IV: Black Flag	2013	_Anvil				
+Assassin’s Creed Odyssey	2018	_Anvil				
+Assassin’s Creed Origins	2017	_Anvil				
+Assassin’s Creed Rogue	2014	_Anvil				
+Assassin’s Creed Syndicate	2015	_Anvil				
+Assassin’s Creed Unity	2014	_Anvil				
+Assassin’s Creed: Brotherhood	2010	_Anvil				
+Assassin’s Creed: Revelations	2011	_Anvil				
 Assault Heroes	2006	_QuickBMS	pak file (*.pak)|	\data\scripts\assault_heroes.bms		
 Assault Heroes 2 (XBLA) 	Page not found!	_QuickBMS	PAK File (*.pak)|	\data\scripts\tongas.bms		
 Asset Flip Tycoon Simulator	2020	_Godot				
@@ -278,6 +306,7 @@ Astro Boy: The Video Game (PS2)	Page not found!	_QuickBMS	DATA.WAD/.DIR (DATA.WA
 Astrobatics	Page not found!	_QuickBMS		\data\scripts\astrobatics.bms		
 Astropop (XBLA)	2004	_QuickBMS	XPR File (*.xpr)|	\data\scripts\xpr2.bms		
 Asura Force Online	Page not found!	_QuickBMS		\data\scripts\asura_force_online.bms		
+Atlantis		_ZIP				
 Atlantis: Pearls of the Deep	Page not found!	_QuickBMS		\data\scripts\atlantis.bms		
 Atlantis: The Lost Tales	1997	_QuickBMS		\data\scripts\atlantis_lost_tales.bms		
 ATLAS	2019	_Godot				
@@ -322,13 +351,9 @@ Bagger Simulator		_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudi
 Bake 'n Switch	2020	_Unreal4	0xC40250B917281AC9874D93C53E429255177EA6E038A117054A1F1C5DA92AB26A			
 Balan Wonderworld		_Unreal4	0xD70E06CCC8AACF3FB4028F19E587B2F3E12C4D02BDE340DE3E1070CB297E13E7			
 BalanCity	2016	_Construct				
-Baldur's Gate (BIF)	1998	_QuickBMS	bif file (*.bif)|	\data\scripts\Baldurs_Gate_1_BIF.bms		
-Baldur's Gate (KEY)	1998	_SAU				
-Baldur's Gate 2	2000	_QuickBMS	bif file (*.bif)|	\data\scripts\Baldurs_Gate_2_BIF.bms		
-Baldur's Gate: Dark Alliance (GOB) (PS2)	2001	_QuickBMS	GOB File (*.gob)|	\data\scripts\baldurs_gate_da_gob.bms		
-Baldur's Gate: Dark Alliance (LMP)	2001	_QuickBMS		\data\scripts\LMP.bms		
-Baldur's Gate: Dark Alliance (LMP) (Gamecub)	2001	_QuickBMS	LMP File (*.lmp)|	\data\scripts\baldurs_gate_gc_lmp.bms		
-Baldur's Gate: Dark Alliance (LMP) (PS2)	2001	_QuickBMS	LMP File (*.lmp)|	\data\scripts\baldurs_gate_da_lmp.bms		
+Baldur's Gate 	1998	_Infinity				
+Baldur's Gate 2	2000	_Infinity				
+Baldur's Gate: Dark Alliance (PS2)	2001	_Infinity				
 Ballistic Tanks	2016	_Construct				
 Ballistics		_GAUP				
 Balls Of Steel	1997	_QuickBMS	bnk file (*.bnk)|	\data\scripts\BNK_2.bms		
@@ -347,6 +372,7 @@ Barkanoid 2 (GOB)	Page not found!	_QuickBMS		\data\scripts\GOB_GOB_3.bms
 Barking Lizards (n-gage)	Page not found!	_QuickBMS		\data\scripts\snakes_subsonic.bms		
 Basaltic Online	Page not found!	_QuickBMS		\data\scripts\basaltic_online.bms		
 Base64	Page not found!	_QuickBMS	#Note: move to…	\data\scripts\xml_base64_dumper.bms		
+Bat!, The (TBB)		_QuickBMS	TBB Files (*.tbb)|	\data\wcx\TotalObserver.wcx		
 Batman: Arkham Origins: Blackgate	2013	_QuickBMS	ara file (*.ara)|	\data\scripts\batman_ara.bms		
 Batman: Begins (MUSX)	Page not found!	_QuickBMS	MUSX File (*.musx)|	\data\scripts\batman_begins_musx.bms		
 Batman: The Telltale Series          	2016	_TellTale	60			
@@ -364,15 +390,19 @@ Battle Rush 		_Unreal4	0x775E79522A483345775F6240354064706A422A527652455E3D24564
 Battle Slots	2011	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 Battle Strike: The Road To Berlin	Page not found!	_QuickBMS	dpk file (*.dpk)|	\data\scripts\DPK_DPK4.bms		
 Battlefield 1	2016	_FrostBite	3			
+Battlefield 1942		_ZIP				
 Battlefield 1942 Demo	Page not found!	_QuickBMS	rfa file (*.rfa)|	\data\scripts\battlefield_2_modern_combat.bms		
+Battlefield 1942: Real Vision		_ZIP				
 Battlefield 1943	2009	_FrostBite	1			
 Battlefield 2		_GAUP	VIV Files (*.VIV)|			
 Battlefield 2 (PS2)	2005	_QuickBMS	big file (*.big)|	\data\scripts\BIG_BIGF.bms		
 Battlefield 2: Modern Combat (PS2)	2005	_QuickBMS		\data\scripts\Battlefield_1942_Demo_RFA.bms		
+Battlefield 2142		_ZIP				
 Battlefield 3	2011	_FrostBite	2			
 Battlefield 4	2013	_FrostBite	3			
 Battlefield Hardline	2015	_FrostBite	3			
 Battlefield V	2018	_FrostBite	3			
+Battlefield Vietnam		_ZIP				
 Battlefield: Bad Company	2008	_QuickBMS		\data\scripts\fbrb.bms		
 Battlefield: Bad Company	2008	_FrostBite	1			
 Battlefield: Bad Company (Low RAM)	2008	_QuickBMS		\data\scripts\fbrb_noram.bms		
@@ -385,6 +415,8 @@ battleMETAL	2020	_idTech
 Battleship: Surface Thunder	Page not found!	_QuickBMS		\data\scripts\battleship_mgf.bms		
 Battlespire, An Elder Scrolls Legend	1998	_Bethesda				
 Battlestrike: Force of Resistance	2007	_Chrome				
+Battlestrike: Force of Resistance 2 	2009	_LithTech				
+Battlestrike: Shadow of Stalingrad 	2009	_LithTech				
 BCC PSP Archive	Page not found!	_QuickBMS	bcc file (*.bcc)|	\data\scripts\bcc_psp.bms		
 Beans: The Coffee Shop Simulator	2017	_Construct				
 Bear Party: Adventure	2020	_Source				
@@ -426,12 +458,16 @@ Bioasshard Arena		_Unreal4	0x2D38EDCA5BED47ACBDCA3BB38B1A6A3C3D2D7DF03EF4D871DB5
 Biohazard 2: Remake	2019	_REEngine	re2_pak_names_release.list			
 Biohazard 3: Remake	2020	_REEngine	re3_pak_names_release.list			
 Biohazard 4 (AFS)	2005	_GAUP	AFS Files (*.AFS)|			
+Biohazard 4 (DAT)	2005	_QuickBMS	DAT Files (*.dat; *.gca)|	\data\wcx\gca.wcx		
 Biohazard 4 (ss_*.dat)	2005	_QuickBMS	(ss_*.dat)|	\data\scripts\re4_ss_file.bms		
-Biohazard 4 HD (LFS)	Page not found!	_QuickBMS	Resident Evil 4 HD LFS File (*.lfs)|	\data\scripts\re4.bms		
+Biohazard 4 HD (LFS)	2014	_QuickBMS	Resident Evil 4 HD LFS File (*.lfs)|	\data\scripts\re4.bms		
 Biohazard 5	2009	_MTFramework				
 Biohazard 6	2012	_MTFramework				
 Biohazard 6 (Xbox360)	Page not found!	_QuickBMS		\data\scripts\resident_evil_6_x360.bms		
 Biohazard 7: Biohazard	2017	_REEngine	re7_pak_names_release.list			
+Biohazard Code: Veronica X	2011	_MTFramework				
+Biohazard HD	2014	_MTFramework				
+Biohazard Zero HD	2008	_MTFramework				
 Biohazard: Code Veronica (AFS)	2000	_GAUP	AFS Files (*.AFS)|			
 Biohazard: Dead Aim (BIN)	Page not found!	_QuickBMS	BIN File(*.BIN)|	\data\scripts\resident_evil_bin_fpk.bms		
 Biohazard: Deadly Silence (NDS)	Page not found!	_QuickBMS		\data\scripts\resident_evil_cpac_nds.bms		
@@ -488,10 +524,12 @@ Blitzkrieg 2	2005	_ZIP	PAK file (*.pak)|
 Blitzkrieg Burning Horizon	2004	_ZIP	PAK file (*.pak)|			
 Blitzkrieg Rolling Thunder	2004	_ZIP	PAK file (*.pak)|			
 blocks	2019	_Construct				
+Blocktality		_ZIP				
 Blood	1998	_DosBox	Blood RFF File (*.RFF)|	barf.exe 	1	 -x 
 Blood Bowl 2	2015	_QuickBMS		\data\scripts\blood_bowl_2.bms		
 Blood Bowl 3 (beta) 		_Unreal4	0x2A070A04105594E6BEBA520E82149586C7A80977DB7E439C952F5DFEFB6F7B67			
-Blood II		_GAUP	REZ Files (*.REZ)|			
+Blood II: The Chosen 	1998	_LithTech				
+Blood II: The Chosen The Nightmare Levels 	1999	_LithTech				
 Blood Omen Legacy of Kain (PS1, PC)	1996	_QuickBMS	BIG File (*.big)	\data\scripts\cdat02_totaleclipse.bms		
 Blood: Fresh Supply (Remastered)	2019	_ZIP	KPF Files (*,kpf)|			
 Bloodbath Kavkaz	2015	_Construct				
@@ -528,6 +566,7 @@ Boundary (alpha test)		_Unreal4	0x2AD908A6BE1F5BFAF35B1CAE0FB49D9AC53E971B4C280C
 Bounty Hounds Online	2011	_QuickBMS		\data\scripts\bounty_hounds_online.bms		
 Boxoku!	2021	_Godot				
 BPM: Bullets Per Minute 	2020	_Unreal4	0x27DFBADBB537388ACDE27A7C5F3EBC3721AF0AE0A7602D2D7F8A16548F37D394			
+Brain Sanity		_ZIP				
 BrainBread 2	2016	_Source				
 Brathian	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Bratz Kidz: Party (DS) (BigFile.bin)	Page not found!	_QuickBMS	 (BigFile.bin)|	\data\scripts\bratz_bin_ds.bms		
@@ -610,6 +649,7 @@ Caladrius Blaze	2017	_QuickBMS		\data\scripts\mmarchiver.bms
 Caliper	2017	_Godot				
 Caliper 2	2019	_Godot				
 Call of Duty 	2003	_idTech				
+Call of Duty 2		_ZIP				
 Call of Duty 2: Big Red One	Page not found!	_QuickBMS		\data\scripts\cod2_kapf.bms		
 Call of Duty 4: Modern Warfare		_GAUP	IWI Files (*.IWI)|			
 Call of Duty: Big Red One (2005)	Page not found!	_QuickBMS		\data\scripts\cod_bro.bms		
@@ -665,6 +705,8 @@ Catwoman (VOL)	2004	_QuickBMS	pak file (*.pak)|	\data\scripts\Catwoman_VOL.bms
 Cauldron (GCM)	Page not found!	_QuickBMS		\data\scripts\ungcm.bms		
 Cave Story (PSP)	2011	_QuickBMS		\data\scripts\cave_story.bms		
 Celestia (exoplanet catalog)		_ExoPlanet	Celestia			
+Celestial Impact		_ZIP				
+Cellblock Squadrons		_ZIP				
 Centauri Production Resource File 3	Page not found!	_QuickBMS		\data\scripts\centauri.bms		
 Centauri Sector	2015	_Construct				
 Centifeed	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
@@ -716,6 +758,7 @@ Citystate	2018	_Construct
 Civilization IV		_GAUP	FPK Files (*.FPK)|			
 Civilization V	Page not found!	_QuickBMS		\data\scripts\civilization.bms		
 Civilization: Beyond Earth	Page not found!	_QuickBMS		\data\scripts\civilization.bms		
+Civilization: Call to Power		_ZIP				
 Civilization: Revolution	Page not found!	_QuickBMS		\data\scripts\civilization.bms		
 Civilization: RSC	Page not found!	_QuickBMS		\data\scripts\civilization_rsc.bms		
 Clash of Avatars	Page not found!	_QuickBMS		\data\scripts\clash_of_avatars.bms		
@@ -737,6 +780,8 @@ Coalesced		_Unreal4	0x93BB69DF37D53857B86B20E145CBA061DD7DCFED3AACF2DB2935916C27
 Coalesced (AES)	Page not found!	_QuickBMS	aes file (*.aes)|	\data\scripts\coalesced_aes.bms		
 Cobi Treasure	Page not found!	_QuickBMS		\data\scripts\cobi_treasure.bms		
 CocosCreator	Page not found!	_QuickBMS		\data\scripts\cocoscreator.bms		
+Code of Honor 2 	2008	_LithTech				
+Code of Honor 3: Desperate Measures 	2009	_LithTech				
 Code of Honor: The French Foreign Legion	2007	_ZIP	PAK file (*.pak)|			
 CODE: SOG (beta)		_Unreal4	0x566B59703373367639792F423F4528482B4D6251655468576D5A713474377721			
 CODE2040	2021	_Unreal4	0x5FEDEECCDD0627F163AC3C7A09269D3C304144A4A4D82782EB2EE908ACEB661D			
@@ -758,7 +803,9 @@ ColorTool	2018	_Godot
 Columbus: Ghost of the Mystery Stone	Page not found!	_QuickBMS		\data\scripts\vogat.bms		
 Comanche	2020	_Unreal4	0xD50864F17705C364E78C00EB914C09B0B2A3779FAED09E4A5C37F6C7FC8F4D7F			
 Comand and Conquer: Generals	Page not found!	_QuickBMS	big file (*.big)|	\data\scripts\C&C_Generals_BIG.bms		
+Combat Arms 	2008	_LithTech				
 Combat Mission	Page not found!	_QuickBMS		\data\scripts\combat_mission.bms		
+Comic Book		_ZIP				
 Comic Book Company Manager	2021	_Godot				
 Commanche 4		_GAUP	PFF Files (*.PFF)|			
 Command & Conquer: Generals		_GAUP	BIG Files (*.BIG)|			
@@ -773,10 +820,14 @@ Commandos 3	Page not found!	_QuickBMS		\data\scripts\commandos.bms
 Commandos Strike Force		_GAUP	PAK Files (*.PAK)|			
 Commandos: Behind the Enemy Lines		_GAUP	DIR Files (*.DIR)|			
 Commandos: Beyond the Call of Duty		_GAUP	DIR Files (*.DIR)|			
+Company of Heroes (BIG, SGA)		_QuickBMS	BIG\SGA Files (*.big; *.sga)|	\data\wcx\TotalObserver.wcx		
 Compost	2020	_Godot				
 Conan Exiles	2018	_Unreal4	0x5662557A7630783246395A4171674E486B34346F4A4F32437A6F6C6156554A74			
 Condemned 2 (Xbox360)	Page not found!	_QuickBMS		\data\scripts\condemned2.bms		
+Condemned 2: Bloodshot 	2008	_LithTech				
 Condemned 2: Bloodshot (REZ)	2008	_QuickBMS		\data\scripts\rez.bms		
+Condemned: Criminal Origins 	2005	_LithTech				
+Condemned: Criminal Origins 	2005	_LithTech				
 Conflict Freespace	дата	_QuickBMS	vp file (*.vp)|	\data\scripts\Conflict_Freespace_VP.bms		
 Conquest of the New World	2017	_idTech				
 Conquest Of The New World (PAK)	1996	_QuickBMS		\data\scripts\PAK_PACK.bms		
@@ -784,7 +835,7 @@ Conquest Of The New World (WAD)	1996	_QuickBMS	wad file (*.wad)|	\data\scripts\W
 CONSORTIUM	2014	_Source				
 Contagion	2014	_Source				
 Contra (XBLA)	1987	_QuickBMS	XPR File (*.xpr)|	\data\scripts\xpr2.bms		
-Contract JACK		_GAUP	REZ Files (*.REZ)|			
+Contract J.A.C.K.	2003	_LithTech				
 Cornflake Crisis	2020	_Construct				
 Coronarun	2020	_Construct				
 Corridor 7	1994	_idTech				
@@ -854,6 +905,7 @@ CSI 5 - Deadly Intent         	2009	_TellTale	28
 CSI 5 - Deadly Intent (demo)        	2009	_TellTale	32			
 CSI 6 - Fatal Conspiracy         	2010	_TellTale	40			
 CSIS		_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms		
+CTU Marine Sharpshooter	2003	_LithTech				
 CTW	Page not found!	_QuickBMS		\data\scripts\ctw.bms		
 Cubicolor	2016	_Godot				
 Culdcept Expansion Plus	Page not found!	_QuickBMS		\data\scripts\culdcept.bms		
@@ -950,6 +1002,7 @@ Dead Hospital	Page not found!	_QuickBMS	imageblock.bin file (imageblock.bin)|	\d
 Dead Island	2011	_Chrome				
 Dead Island: Riptide	2013	_Chrome				
 Dead Nations (sound.pck)	Page not found!	_QuickBMS	pck file (*.pck)|	\data\scripts\dead_nations_soundpck.bms		
+Dead or Alive		_ZIP				
 Dead Rising	2006	_MTFramework				
 Dead Rising 2	2010	_QuickBMS		\data\scripts\deadrising2_otr.bms		
 Dead Rising 2 (Xbox360 DLC)	2010	_QuickBMS		\data\scripts\deadrising2_dlc.bms		
@@ -957,12 +1010,15 @@ Dead To Right 2 (PS2) (PAK)	Page not found!	_QuickBMS		\data\scripts\PAK_22.bms
 Dead to Rights: Reckoning	2005	_Asura				
 Dead to Rights: Retribution	Page not found!	_QuickBMS		\data\scripts\blitz_games.bms		
 Deadlock	Page not found!	_QuickBMS		\data\scripts\cylbpc.bms		
+Deadly Dozen		_ZIP				
+Deadly Dozen 2: Pacific Theater		_ZIP				
 DeadlyStars	Page not found!	_QuickBMS	grp file (*.grp)|	\data\scripts\deadlystars_starsword.bms		
 DeadZ	Page not found!	_QuickBMS		\data\scripts\warinc.bms		
 Dear Esther	2012	_Source				
 Death Jump	2019	_Godot				
 Death Rally		_GAUP	BPA Files (*.BPA)|			
 Death Ski	2021	_Construct				
+Death Track: Resurrection		_ZIP				
 Death Track: Resurrection Demo		_GAUP	RR Files (*.RR)|			
 Deathgarden 	2018	_Unreal4	0xCC905E9CDC5C151D093CFB91631C09486421BA6EA3E72DA8959F49BC479C9AEA			
 Deathloop	2021	_idTech				
@@ -1025,6 +1081,7 @@ Descent 2 (HOG)	1996	_QuickBMS	hog file (*.hog)|	\data\scripts\HOG_DHF.bms
 Descent 3	1999	_QuickBMS		\data\scripts\HOG_HOG2.bms		
 Descent Freespace: The Great War	Page not found!	_QuickBMS		\data\scripts\VP_VPVP.bms		
 Desert Strike	дата	_QuickBMS	dat file (*.dat)|	\data\scripts\DAT_5.bms		
+Desperados: Wanted Dead or Alive		_ZIP				
 Destinata FULL RED	2020	_Construct				
 Destiny	2014	_QuickBMS		\data\scripts\destiny.bms		
 Destiny Child (KR)	Page not found!	_QuickBMS		\data\scripts\destiny_child_kr.bms		
@@ -1034,6 +1091,7 @@ Destroyed Aperture	2021	_Source
 Destruction Derby		_GAUP	000, 001 Files (*.; 000; 001)|			
 Destruction Derby 2		_GAUP	DIRINFO.* Files (DIRINFO.*)|			
 Desura MCF archives	Page not found!	_QuickBMS		\data\scripts\mcf.bms		
+Dethkarz		_ZIP				
 Deus Ex Machina, Game of the Year, 30th Anniversary Collector’s Edition	2016	_Construct				
 Deus Ex: Breach	2017	_Glacier				
 Deus Ex: Human Revolution (Xbox 360)	2011	_QuickBMS		\data\scripts\tomb_raider_legend_mul_xbox360.bms		
@@ -1046,10 +1104,13 @@ Devil May Cry 4: Special Edition	2015	_MTFramework
 Devil May Cry 5	2019	_REEngine	dmc5_pak_names_release			
 Devolverland Expo	2020	_Unreal4	0x66ADF8139B89F54453C45A380E9BAA5BADF489544482FBB8DF3C480D47A76192			
 Dexters Lab	Page not found!	_QuickBMS		\data\scripts\dexter_mandarks_lab.bms		
+Diablo	1996	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
+Diablo II	2000	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
+Diablo: Hellfire	1997	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
 Dialogue Designer	2020	_Godot				
 Die Already	2019	_Construct				
 Die by the Sword	1998	_QuickBMS	ATD File (*.atd)|	\data\scripts\die_by_the_sword_atd.bms		
-Die Hard Nakatomi Plaza		_GAUP	REZ Files (*.REZ)|			
+Die Hard: Nakatomi Plaza 	2002	_LithTech				
 Diesel Brothers 	2019	_Unreal4	0x476D83AE123A3503470C05A213A5DBF3B76C75E260B7AE5DB0FA4A7219318197			
 Difficult Platformer Game	2020	_Godot				
 Digimon	Page not found!	_QuickBMS		\data\scripts\digimon_vfs2.bms		
@@ -1057,8 +1118,10 @@ Dillion's Rolling Western	Page not found!	_QuickBMS		\data\scripts\dillion.bms
 Dino and Aliens	2004	_QuickBMS		\data\scripts\dino_aliens.bms		
 Dino D-Day	2011	_Source				
 Dino R-R-rage Defense	Page not found!	_QuickBMS	(data.dat)|	\data\scripts\dino_rrrage.bms		
+DinoHunters		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Dinosaur Resurrection	Page not found!	_QuickBMS		\data\scripts\falcom_lb.bms		
 Dinotopia	1995	_SAU				
+Dirty Little Helper		_ZIP				
 Disaster Report	2002	_QuickBMS		\data\scripts\disaster_report.bms		
 Disaster Report 4: Summer Memories	2020	_Unreal4	0x701D39C3D8F635448059AFFA0166C80FB4344DBAAE565BB50728F92F584745DA			
 Disciples II - Dark Prophecy		_GAUP	FF Files (*.FF)|			
@@ -1122,6 +1185,7 @@ DPS Telecom files	Page not found!	_QuickBMS		\data\scripts\dps_telecom.bms
 Dr Muto	дата	_QuickBMS		\data\scripts\dr_muto.bms		
 Dracula 2: The Last Sanctuary		_GAUP	DAT Files (*.DAT)|			
 Dracula Love Kills	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
+Dracula Twins		_ZIP				
 Drafting Tales	2020	_Godot				
 Dragon Age 2	2011	_Aurora				
 Dragon Age: Inquisition	2014	_FrostBite	3			
@@ -1167,6 +1231,7 @@ Duck in Town - A Rising Knight	2019	_Godot
 Duckman	дата	_QuickBMS		\data\scripts\duckman.bms		
 Duke Nukem 3D		_GAUP	GRP Files (*.GRP)|			
 Duke Nukem II		_GAUP	CMP Files (*.CMP)|			
+Duke Nukem: Manhatten Project		_ZIP				
 Duludubi Star	Page not found!	_QuickBMS		\data\scripts\duludubi_star.bms		
 Dune (DAT)	1992	_QuickBMS	dat file (*.dat)|	\data\scripts\Dune_DAT.bms		
 Dune 2 - Westwood	1992	_QuickBMS	pak file (*.pak)|	\data\scripts\Dune_2_PAK.bms		
@@ -1213,6 +1278,7 @@ EdMark - Mighty Math Carnival Countdown	Page not found!	_QuickBMS		\data\scripts
 Egg Returns Home	2015	_Godot				
 Egosoft X example	Page not found!	_QuickBMS		\data\scripts\egosoft_x.bms		
 Egyptian Ball	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
+El Airplane		_ZIP				
 Elasto Mania		_GAUP	ELMA.RES Files (ELMA.RES)|			
 Elder Scrolls 2: Daggerfall, The	1994	_Bethesda				
 Elder Scrolls Adventures: Redguard, The	1998	_Bethesda				
@@ -1221,6 +1287,7 @@ Elder Scrolls III: Morrowind, The	2002	_Bethesda
 Elder Scrolls III: Morrowind, The (cel\top create)	2002	_CelTop				
 Elder Scrolls IV: Oblivion	2007	_Bethesda				
 Elder Scrolls Legend Battlespire, An	1998	_Bethesda				
+Elder Scrolls Online, The	2014	_Bethesda				
 Elder Scrolls V: Skyrim LE\SE\AE, The	2011	_Bethesda				
 Electranoid	Page not found!	_QuickBMS		\data\scripts\Electranoid_RES.bms		
 Electronic Arts BGFA	#Note: move to engine menu	_QuickBMS	BGFA containers (*.bgfa)|	\data\scripts\eabgfa.bms		
@@ -1238,9 +1305,13 @@ Emil und Pauline bei den Piraten	Page not found!	_QuickBMS		\data\scripts\emil_u
 Emperor	Page not found!	_QuickBMS	pak file (*.pak)|	\data\scripts\emperor_pak.bms		
 Emperor: Battle for Dune		_GAUP	BAG Files (*.BAG)|			
 Empire 2	Page not found!	_QuickBMS	dat file (*.dat)|	\data\scripts\DAT.bms		
+Empire Earth 2		_ZIP				
+Empire Earth 3		_ZIP				
 Empire of the Ants	2000	_QuickBMS	dta file (*.dta)|	\data\scripts\empire_of_ants.bms		
 Empires	2008	_Source				
 Emptiness, The	Page not found!	_QuickBMS		\data\scripts\the_emptiness.bms		
+Enciclopedy of Pathiance, Vol.1 (game.*)		_ZIP				
+Enciclopedy of Pathiance, Vol.2 (game.*)		_ZIP				
 Encounters in Space (PS2)	Page not found!	_QuickBMS		\data\scripts\mb12cddvd.bms		
 End of Nations	2014	_QuickBMS		\data\scripts\petroglyph.bms		
 End Reach	2020	_Godot				
@@ -1263,6 +1334,7 @@ Epic Mickey 2	Page not found!	_QuickBMS		\data\scripts\epic_mickey.bms
 Epic Seven	Page not found!	_QuickBMS		\data\scripts\epic_seven.bms		
 Epic Space: Online	2014	_Construct				
 EPOC Operation System		_GAUP	SIS Files (*.SIS)|			
+EPUB Ebook		_ZIP				
 Escape alone	Page not found!	_QuickBMS	imageblock.bin file (imageblock.bin)|	\data\scripts\fps_creator_imageblock.bms		
 Escape Dead Island	2014	_QuickBMS		\data\scripts\escape_dead_island.bms		
 Escape From Monkey Island	2000	_QuickBMS	m4b file (*.m4b)|	\data\scripts\Escape_From_Monkey_Island_M4B.bms		
@@ -1285,6 +1357,7 @@ Ether Vapor	Page not found!	_QuickBMS		\data\scripts\edelweiss.bms
 Etherlords (RES)	2001	_QuickBMS		\data\scripts\Etherlords_RES.bms		
 Euro 2000	1999	_QuickBMS	big file (*.big)|	\data\scripts\BIG_BIGF.bms		
 Euro 2000		_GAUP	BIG Files (*.BIG)|			
+Euro Truck Simulator		_ZIP				
 Euro Truck Simulator 2	2012	_OtherPRG	SCS File (*.scs)|	scs_extractor.exe		FolderName
 Eve Online	2003	_QuickBMS		\data\scripts\eve_online.bms		
 Everspace 2 		_Unreal4	0x6512A13BA51FA83D6A8ADBEB35C0660EC631EFFB72ADC4C94976E73AB0071508			
@@ -1313,19 +1386,26 @@ F-16 Multirole Fighter (SBF)	Page not found!	_QuickBMS		\data\scripts\SBF_SBF0.b
 F-22 Lightning II (VDK)	Page not found!	_QuickBMS	VDK File (*.vdk)|	\data\scripts\f22_vdk.bms		
 F-22 Raptor (PFF)	Page not found!	_QuickBMS		\data\scripts\PFF.bms		
 F-33 Lightning 3 (PFF)	Page not found!	_QuickBMS		\data\scripts\PFF.bms		
-F.E.A.R.	2005	_GAUP	ARCH00 Files (*.ARCH00)|			
-F.E.A.R. 2: Project Origin	2009	_QuickBMS		\data\scripts\fear.bms		
-F.E.A.R. 3/F.3.A.R.	2011	_QuickBMS		\data\scripts\f12010_nefs.bms		
+F.3.A.R./F.E.A.R. 3	2011	_QuickBMS	не работает	\data\scripts\f3ar_prebuild.bms		
+F.E.A.R. 	2005	_LithTech				
+F.E.A.R. 2: Project Origin 	2009	_LithTech				
+F.E.A.R. 2: Reborn 	2009	_LithTech				
+F.E.A.R. 3/F.3.A.R.	2011	_QuickBMS	не работает	\data\scripts\f3ar_prebuild.bms		
+F.E.A.R. Extraction Point 	2006	_LithTech				
+F.E.A.R. Files 	2007	_LithTech				
+F.E.A.R. Perseus Mandate 	2007	_LithTech				
 F1 (2001)	2000	_QuickBMS	SDT File (*.sdt)|	\data\scripts\f1_2001_sdt.bms		
-F1 2010	2010	_QuickBMS		\data\scripts\codemasters_nefs.bms		
-F1 2010 Nefs	2009	_QuickBMS		\data\scripts\f3ar_prebuild.bms		
-F1 2013	2013	_QuickBMS		\data\scripts\codemasters_nefs.bms		
-F1 2014	2014	_QuickBMS		\data\scripts\codemasters_nefs.bms		
+F1 2010	2010	_QuickBMS		\data\scripts\f12010_nefs.bms		
+F1 2010 Nefs	2009	_QuickBMS		\data\scripts\f12010_nefs.bms		
+F1 2013	2013	_QuickBMS		\data\scripts\f12010_nefs.bms		
+F1 2014	2014	_QuickBMS		\data\scripts\f12010_nefs.bms		
 F1 2015 (config.bin)	2014	_QuickBMS	 (config.bin)|	\data\scripts\f12015_erp.bms		
-F1 2015 ERP	2014	_QuickBMS		\data\scripts\f460_config_bin.bms		
+F1 2015 ERP	2014	_QuickBMS		\data\scripts\f12010_nefs.bms		
 F1 2016 (Android)	2016	_QuickBMS	Android Cash (*.obb)|	\data\scripts\xpk2.bms		
-F1 Challenge (MAS)	Page not found!	_QuickBMS		\data\scripts\Mechwarrior_4_Merc_MW4.bms		
+F1 Challenge (MAS)	Page not found!	_QuickBMS		\data\scripts\f12010_nefs.bms		
+F3AR/FEAR 3	2011	_QuickBMS	не работает	\data\scripts\f3ar_prebuild.bms		
 Fable: The Lost Chapters		_GAUP	LUG, LUT, BIG, STB, WAD Files (*.LUG; *.LUT; *.BIG; *.STB; *.WAD)|			
+Face of Mankind	2006	_LithTech				
 Faces of War	2006	_ZIP	PAK file (*.pak)|			
 Faery Tale Adventure 2	1997	_SAU				
 Fahrenheit (Indigo Prophecy)	2004	_QuickBMS	Fahrenheit File (*.d0*; *.dat; *.idx; BigFile*.*)|	\data\scripts\quanticdream.bms		
@@ -1337,7 +1417,9 @@ Fairyland: Chronicle	2018	_Construct
 Fairyland: Fairy Power	2016	_Construct				
 Fairyland: Incursion	2016	_Construct				
 Fairyland: Manuscript	2017	_Construct				
+Falcon 4		_ZIP				
 Fall Trilogy Chapter 3 Revelation, The	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
+Fall: Last Days of Gaia, The		_ZIP				
 Fallen Doll 		_Unreal4	0x86661528D817A67B19CA10FEAC2998CE4DE2DB08455BC4737133CC583863B52D			
 Fallen Doll: Operation Lovecraft (Paralogue)		_Unreal4	0x11E351B904980896D05F3E6D578563EB146D835E98564E2CF362EC43C9FCEA49			
 Fallen Earth	2009	_QuickBMS		\data\scripts\fallen_earth_encryption_test.bms		
@@ -1348,6 +1430,7 @@ Fallout 2		_GAUP	DAT Files (*.DAT)|
 Fallout 3	2008	_Bethesda				
 Fallout 4	2015	_Bethesda				
 Fallout 76	2018	_Bethesda				
+Fallout Tactics		_ZIP				
 Fallout: A post nuclear role game	Page not found!	_QuickBMS	DAT File (*.dat)|	\data\scripts\fallout1.bms		
 Fallout: New Vegas	2010	_Bethesda				
 Fantastic Creatures	2019	_Godot				
@@ -1371,6 +1454,7 @@ Farming Simulator 2013 (LUB2LUA)	2012	_QuickBMS	LUB Files (*.lub)|	\data\scripts
 Farming Simulator 2015 (GAR)	2014	_QuickBMS	GAR Files (*.gar)|	\data\scripts\giants_software.bms		
 Farming Simulator 2018 (GAR)	2018	_QuickBMS	GAR Files (*.gar)|	\data\scripts\giants_software.bms		
 Farming Simulator 2022 (GAR)	2021	_QuickBMS	GAR Files (*.gar)|	\data\scripts\giants_software.bms		
+Farmming Simulator		_ZIP				
 Fashion Forward	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 Fast and Curious	2017	_Construct				
 Fast Detect	2016	_Source				
@@ -1380,6 +1464,12 @@ Fatal Frame	Page not found!	_QuickBMS		\data\scripts\fatal_frame.bms
 FatGS Group File	Page not found!	_QuickBMS		\data\scripts\fatgs_group_file.bms		
 FBI Hostage Rescue	2004	_QuickBMS	csa file (*.csa)|	\data\scripts\CSA_GEEK.bms		
 FBL Floorball League	Page not found!	_QuickBMS		\data\scripts\fbl.bms		
+FEAR 	2005	_LithTech				
+FEAR 2: Project Origin 	2009	_LithTech				
+FEAR 2: Reborn 	2009	_LithTech				
+FEAR 3/F3AR	2011	_QuickBMS	не работает	\data\scripts\f3ar_prebuild.bms		
+FEAR Extraction Point 	2006	_LithTech				
+FEAR Files 	2007	_LithTech				
 Fear for Sale: City Of The Past	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Fear for Sale: Endless Voyage	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Fear for Sale: Mystery of Mclnroy Manor	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
@@ -1387,6 +1477,7 @@ Fear for Sale: Nightmare Cinema	Page not found!	_QuickBMS		\data\scripts\cakesho
 Fear for Sale: Phantom Tide	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Fear for Sale: Sunnyvale Story	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Fear for Sale: The 13 Keys	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
+FEAR Perseus Mandate 	2007	_LithTech				
 Fearmonium	2021	_Construct				
 FeeSoeeD	2017	_Construct				
 Feng Yun	Page not found!	_QuickBMS		\data\scripts\feng_yun.bms		
@@ -1438,6 +1529,7 @@ Final Fantasy XV	2016	_QuickBMS	EARC File (*.earc)|	\data\scripts\ffxv_earc.bms
 Final Hope: The Plot	2020	_Godot				
 Final Storm	2017	_Godot				
 Finding Nemo	2003	_QuickBMS		\data\scripts\finding_nemo.bms		
+Fire Starter		_ZIP				
 FIREFIGHT RELOADED	2015	_Source				
 FireFly Studios	Page not found!	_QuickBMS		\data\scripts\firefly_studios.bms		
 Fireman's Adventures	дата	_QuickBMS		\data\scripts\firemans_adventures.bms		
@@ -1456,6 +1548,7 @@ Fix of Exit  series	Page not found!	_QuickBMS	imageblock.bin file (imageblock.bi
 Flagsplosion	2017	_Godot				
 Flame of Memory	2017	_Construct				
 Flare3D	Page not found!	_QuickBMS		\data\scripts\flare3d.bms		
+Flash Video (FLV,SWF,F4V)		_ZIP				
 Flashpoint 2 Dragon Rising	Page not found!	_QuickBMS		\data\scripts\opflash2_create.bms		
 FlatOut 2	2006	_QuickBMS		\data\scripts\flatout_bfs1.bms		
 FlatOut Ultimate Carnage		_GAUP	BFS Files (*.BFS)|			
@@ -1466,9 +1559,11 @@ Floigan Bros	Page not found!	_QuickBMS	BIN Files (*.bin)|	\data\scripts\floigan_
 Floria	Page not found!	_QuickBMS		\data\scripts\floria.bms		
 FLT: Faster than Light	Page not found!	_QuickBMS	DAT File (*.dat)|	\data\scripts\flt.bms		
 Focus on You		_Unreal4	0x36BA8AF0890628D7BD10273E8C752946322BA3287CA13E983F3ABA64525F61D5			
+For Honor	2017	_Anvil				
 Forbidden Siren	Page not found!	_QuickBMS		\data\scripts\siren.bms		
 Forbidden Siren 2	2006	_QuickBMS		\data\scripts\siren_2.bms		
 Force Unleashed 2 DLC	Page not found!	_QuickBMS		\data\scripts\force_unleashed_2.bms		
+Forge		_ZIP				
 Formula 1	1994	_QuickBMS	(*.pth -r *.dat)|	\data\scripts\formula1_pth_dat.bms		
 Formula 1 97	Page not found!	_QuickBMS		\data\scripts\old_bizarre_creations.bms		
 Forsaken Remastered (Remastered)	2018	_ZIP	KPF Files (*,kpf)|			
@@ -1486,12 +1581,17 @@ FPACTEX	Page not found!	_QuickBMS		\data\scripts\fpactex.bms
 Fracture Hell	2021	_Godot				
 Fractured Space 	2016	_Unreal4	0xC8FC3EDFEB345BA690A5F925E67EBBA8E494EE6730305238D266ED89A2B8DBF2			
 Fragile Fighter	2019	_Construct				
-Frank Herbert's Dune		_GAUP	DUN Files (*.DUN)|			
+Frank Herbert's Dune	2001	_GAUP	DUN Files (*.DUN)|			
+Freedom Fighters		_ZIP				
+Freedom Force vs. the 3rd Reich		_ZIP				
 Freedom Planet	2014	_QuickBMS		\data\scripts\freedom_planet.bms		
 FreeJack	Page not found!	_QuickBMS		\data\scripts\freejack.bms		
+Freelancer		_ZIP				
 FreeLang (FLG)	Page not found!	_QuickBMS	flg file (*.flg)|	\data\scripts\freelang_flg.bms		
 Freesia	Page not found!	_QuickBMS		\data\scripts\edelweiss.bms		
+FreeSpace		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Freespace 2	1999	_QuickBMS		\data\scripts\VP_VPVP.bms		
+FreeSpace Open		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Freestyle Football	Page not found!	_QuickBMS		\data\scripts\freestyle_football.bms		
 Freestyle Street Basketball 2	Page not found!	_QuickBMS		\data\scripts\freestyle_basketball.bms		
 Friday the 13th: The Game	2017	_Unreal4	0x3545393442413134363631443542433534333633323446424642444142363343			
@@ -1535,6 +1635,7 @@ Gacha Mecha Stadium Saru Battle	Page not found!	_QuickBMS	(dskimg.inf -r dskimg.
 Gachi run: Running of the slaves	2020	_Godot				
 Gal*Gun 2	2018	_Unreal4	0x644365507274734E454E33674F6E6A49304461693343336C7248564D706C366B			
 Galactic Bulwark Strike	2018	_Godot				
+Galactic Command: Echo Squad		_ZIP				
 Galactix	Page not found!	_QuickBMS		\data\scripts\galactix.bms		
 Galgun (PS3)	Page not found!	_QuickBMS		\data\scripts\galgun_ps3_vdm.bms		
 Galidor: Defenders of the Outer Dimension	Page not found!	_QuickBMS		\data\scripts\galidor.bms		
@@ -1601,6 +1702,7 @@ Giants Citizen Kabuto (GZP)	2000	_QuickBMS		\data\scripts\Giants_Citizen_Kabuto_
 GIANTS Software GAR archive	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\giants_software.bms		
 Gintama Yorozuya	Page not found!	_QuickBMS	bin file (*.bin)|	\data\scripts\add_pac.bms		
 Glob	дата	_QuickBMS		\data\scripts\glob.bms		
+Global Operations 	2002	_LithTech				
 GM Rally	2009	_Chrome				
 GMotor engine (MAS)	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\massive_assault.bms		
 Go Mission: Space Travel	2016	_Construct				
@@ -1616,6 +1718,7 @@ God Of War 1	2005	_QuickBMS		\data\scripts\god_of_war.bms
 God of War 2 (PS2)	2007	_QuickBMS	WAD File (*.wad)|	\data\scripts\god_of_war_wad.bms		
 God of War: Ghost of Sparta	2010	_QuickBMS	BIN File (*.bin)|	\data\scripts\god_of_war_bin.bms		
 God wont bless America	Page not found!	_QuickBMS		\data\scripts\godwontblessamerica.bms		
+Gods and Generals	2003	_LithTech				
 Gold Box	1987	_SAU				
 Golden Axe: Beast Rider (PKG)	Page not found!	_QuickBMS		\data\scripts\golden_axe_pkg.bms		
 Golden Trails 2 The Lost Legacy Collector's Edition	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
@@ -1629,10 +1732,12 @@ Gorgeous Elves of Ganassa	2019	_ZIP	Love2D Engine Files (*.love; *.exe)|
 Gorky 17	Page not found!	_QuickBMS		\data\scripts\gorky17.bms		
 Gorky Zero	Page not found!	_QuickBMS		\data\scripts\gorky_zero.bms		
 Gotcha!	2004	_QuickBMS		\data\scripts\gotcha.bms		
+Gotham City Impostors 	2012	_LithTech				
 Gothic		_GAUP	VDF Files (*.VDF)|			
 Gothic 4: Arcania (INT Version)	2010	_QuickBMS	PAK File (*.pak)|	\data\scripts\arcania.bms		
 Gothic 4: Arcania (POL+CZE Version)	2010	_QuickBMS	PAK File (*.pak)|	\data\scripts\arcania_pl.bms		
 Gothic 4: Arcania (RUS Version)	2010	_QuickBMS	PAK File (*.pak)|	\data\scripts\arcania_rus_full.bms		
+GP500		_ZIP				
 GPS device (WZP)	Page not found!	_QuickBMS		\data\scripts\yfgps_wzp.bms		
 Gran Saga (open beta)		_Unreal4	0x67AFE98CF0BD77A16C2B7072A0FDCADE3318792813DBEF32AD2752584C0EBB50			
 Gran Turismo	1997	_QuickBMS		\data\scripts\gran_turismo.bms		
@@ -1642,6 +1747,7 @@ Gran Turismo 2000(PS2)	Page not found!	_QuickBMS	(MTGPX.DAT -r MTGPX2.DAT -r GT2
 Gran Turismo 3(PS2)	2001	_QuickBMS		\data\scripts\polyphony_ps2vol.bms		
 Gran Turismo 4 Prologue(PS2)	Page not found!	_QuickBMS		\data\scripts\polyphony_ps2vol.bms		
 Gran Turismo Concept(PS2)	Page not found!	_QuickBMS		\data\scripts\polyphony_ps2vol.bms		
+Granado Espada		_ZIP				
 Granblue Fantasy Versus 	2020	_Unreal4	0x2A472D4B6150645367566B597033733676397924423F4528482B4D6251655468			
 Grand Prix Evolution	Page not found!	_QuickBMS		\data\scripts\gpeg.bms		
 Grand Prix II		_GAUP	CAT Files (*.CAT)|			
@@ -1650,10 +1756,9 @@ Grand Theft Auto III		_GAUP	IMG;DIR Files (*.IMG;*.DIR)|
 Grand Theft Auto San Andreas (PS2/XBOX)(SFX)	2004	_QuickBMS	SFX File (*.SFX)|	\data\scripts\gtasa_sfx.bms		
 Grand Theft Auto San Andreas (PS2/XBOX)(STREAMS)	2004	_QuickBMS	STREAMS (*.STREAMS)|	\data\scripts\gtasa_streams.bms		
 Grand Theft Auto: Action Mod Pack	Page not found!	_QuickBMS		\data\scripts\gta_action_mod.bms		
-Grand Theft Auto: San Andreas		_GAUP	IMG Files (*.IMG)|			
-Grand Theft Auto: San Andreas (IMG)	2004	_QuickBMS	img file (*.img)|	\data\scripts\IMG_VER2.bms		
-Grand Theft Auto: San Andreas (SFXZIP)	2004	_QuickBMS		\data\scripts\SFXZIP_GTASanAndreas.bms		
-Grand Theft Auto: Vice City [Deluxe]		_GAUP	IMG;DIR Files (*.IMG;*.DIR)|			
+Grand Theft Auto: San Andreas	2004	_GAUP	IMG Files (*.IMG)|			
+Grand Theft Auto: San Andreas (SFX)	2004	_QuickBMS		\data\scripts\SFXZIP_GTASanAndreas.bms		
+Grand Theft Auto: Vice City		_GAUP	IMG;DIR Files (*.IMG;*.DIR)|			
 GrandChase	Page not found!	_QuickBMS		\data\scripts\kom.bms		
 Grandia 2 (Dreamcast)		_GAUP	AFS Files (*.AFS)|			
 Granny Decompress Data Chunk	Page not found!	_QuickBMS		\data\scripts\grannydecompressdatachunk.bms		
@@ -1678,6 +1783,14 @@ Grotesque Tactics: Evil Heroes	2010	_QuickBMS		\data\scripts\vision8.bms
 Ground Control	2000	_QuickBMS		\data\scripts\ground_control_sdf.bms		
 Growlanser VI: Precarious World	Page not found!	_QuickBMS		\data\scripts\growlanser.bms		
 GSC NU20	Page not found!	_QuickBMS		\data\scripts\gsc_nu20.bms		
+GTA 2		_GAUP	RAW;SDT Files (*.RAW;*.SDT)|			
+GTA III		_GAUP	IMG;DIR Files (*.IMG;*.DIR)|			
+GTA: Action Mod Pack	Page not found!	_QuickBMS		\data\scripts\gta_action_mod.bms		
+GTA: San Andreas	2004	_GAUP	IMG Files (*.IMG)|			
+GTA: San Andreas (PS2/XBOX)(SFX)	2004	_QuickBMS	SFX File (*.SFX)|	\data\scripts\gtasa_sfx.bms		
+GTA: San Andreas (PS2/XBOX)(STREAMS)	2004	_QuickBMS	STREAMS (*.STREAMS)|	\data\scripts\gtasa_streams.bms		
+GTA: San Andreas (SFX)	2004	_QuickBMS		\data\scripts\SFXZIP_GTASanAndreas.bms		
+GTA: Vice City		_GAUP	IMG;DIR Files (*.IMG;*.DIR)|			
 GTI Racing	2006	_Chrome				
 GTR Demo		_GAUP	GTR Files (*.GTR)|			
 Gu Jianqi Tan online\古剑奇谭网络版	Page not found!	_QuickBMS		\data\scripts\gjol.bms		
@@ -1740,10 +1853,12 @@ Halo: Spartan Strike	2015	_QuickBMS		\data\scripts\halo_spartan_strike.bms
 Hamilton's Great Adventure	Page not found!	_QuickBMS		\data\scripts\hamilton.bms		
 Hands Of Fate (PAK)	Page not found!	_QuickBMS		\data\scripts\panzer_elite_action.bms		
 HangTogether	2021	_Godot				
+Hard Reset (BIN)		_ZIP				
 Hard Reset Redux	2016	_QuickBMS		\data\scripts\hard_reset_redux.bms		
 Hard Truck		_GAUP	RMP Files (*.RMP)|			
 Hard Truck 2: King of the Road	Page not found!	_QuickBMS		\data\scripts\hard_track_2.bms		
 Hard Truck 2: King of the Road (RES)	Page not found!	_QuickBMS	RES File (*.res)|	\data\scripts\ht2_king_road.bms		
+Hard Truck: 18 Wheels of Steel		_ZIP				
 Hardware: Online Arena	Page not found!	_QuickBMS		\data\scripts\hardware_arena.bms		
 Harry Potter And The Goblet Of Fire		_GAUP	BIG Files (*.BIG)|			
 Harry Potter And The Goblet Of Fire (PS2)	2005	_QuickBMS	big file (*.big)|	\data\scripts\BIG_BIGF.bms		
@@ -1780,6 +1895,7 @@ Hell Let Loose	2021	_Unreal4	0x06558C75E189A3CAFF1FF71988F7507F7C9613B29DDCCE2C4
 Hellbender		_GAUP	POD Files (*.POD)|			
 Helldorado	Page not found!	_QuickBMS		\data\scripts\helldorado.bms		
 Hellgate London	2007	_QuickBMS		\data\scripts\hellgate.bms		
+Hellhog XP		_ZIP				
 Hello Venice	Page not found!	_QuickBMS		\data\scripts\hello_venice.bms		
 Helper Cat	2021	_Godot				
 Hentai 2 3d	Page not found!	_QuickBMS		\data\scripts\thrixxx.bms		
@@ -1802,6 +1918,7 @@ Heroes of Might and Magic IV		_GAUP	H4C Files (*.H4C)|
 Heroes of Might and Magic V	2006	_ZIP	PAK file (*.pak)|			
 Heroes of Might and Magic: Quest for the Dragon Bone Staff (PS2)	Page not found!	_QuickBMS		\data\scripts\heroes_might_magic_ps2.bms		
 Heroes of The Multiverse		_Unreal4	0x3AC1F6F06151E1BD81AF630EDB42608C00D0C52D0EF5B86528AC4FB08DB4CCC9			
+Heroes Of the Pacific		_ZIP				
 Heroes of Thessalonica	Page not found!	_QuickBMS		\data\scripts\heroes_thessalonica.bms		
 Heroes Over Europe	2009	_QuickBMS	(toc.w32 -r big.w32)|	\data\scripts\trickstar.bms		
 Heroes Phantasia PSP (DLZ)	Page not found!	_QuickBMS	dlz file (*.dlz)|	\data\scripts\heroes_phantasia_dlz.bms		
@@ -1831,9 +1948,9 @@ Hitman (2016)	2016	_Glacier
 Hitman 2	2018	_Glacier				
 Hitman 2: Silent Assassin	2002	_Glacier				
 Hitman Blood Money	2006	_Glacier				
+Hitman: Absolution	2012	_Glacier				
 Hitman: Codename 47	2000	_Glacier				
 Hitman: Contracts	2004	_Glacier				
-Hitman: Absolution	2012	_Glacier				
 Hobbit, The	Page not found!	_QuickBMS		\data\scripts\the_hobbit.bms		
 HockeyDash	Page not found!	_QuickBMS		\data\scripts\hockeydash.bms		
 Holic 2 Online	Page not found!	_QuickBMS		\data\scripts\holic2.bms		
@@ -1853,6 +1970,7 @@ Horror of Moonstone Mansion	Page not found!	_QuickBMS		\data\scripts\horror_moon
 hOSHIs Elektronauts	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Hostile Waters (MBX)	Page not found!	_QuickBMS	mbx file (*.mbx)|	\data\scripts\Hostile_Waters_MBX.bms		
 Hostile Waters (MNG)	Page not found!	_QuickBMS	mng file (*.mng)|	\data\scripts\Hostile_Waters_MNG.bms		
+Hot Rod American Street Drag		_ZIP				
 Hot Wheels World Race	Page not found!	_QuickBMS		\data\scripts\hot_wheels_bark.bms		
 Hotel Dash 2: Lost Luxuries	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 Hotel on the Grate	2021	_Godot				
@@ -1862,6 +1980,8 @@ House of the Dead 3		_GAUP	AFS Files (*.AFS)|
 House of the Dead: Overkill, The	Page not found!	_QuickBMS		\data\scripts\blitz_games.bms		
 Hover 2030	2016	_Construct				
 How We Got Here	2021	_Construct				
+Hoyle Board Games 2005		_ZIP				
+Hoyle Card Games 2005		_ZIP				
 Hoyle Poker	Page not found!	_QuickBMS		\data\scripts\hoyle_poker.bms		
 Hugo	Page not found!	_QuickBMS		\data\scripts\ite_media_bigfile.bms		
 Human Diaspora	2020	_Godot				
@@ -1873,12 +1993,14 @@ Hunted	2020	_Godot
 Hunter Girls	2021	_Construct				
 Hunter, The	Page not found!	_QuickBMS		\data\scripts\the_hunter.bms		
 Hunter: Call of the Wild, The	Page not found!	_QuickBMS		\data\scripts\thehunter.bms		
+Hunting Unlimited 3		_ZIP				
 Hurricane of the Varstray, The	Page not found!	_QuickBMS		\data\scripts\hurricane_varstray.bms		
 Husky Express	Page not found!	_QuickBMS		\data\scripts\husky_express.bms		
 Hydro Thunder Hurricane	2010	_QuickBMS		\data\scripts\hydro_thunder.bms		
 Hype: The Time Quest	1999	_QuickBMS		\data\scripts\hype_time_quest.bms		
 Hyper Box	2016	_Construct				
 Hyper Cycles	Page not found!	_QuickBMS		\data\scripts\hyper_cycles.bms		
+Hyper Scape	2020	_Anvil				
 Hyperdimension: Neptunia ReBirth	Page not found!	_QuickBMS		\data\scripts\neptunia_rebirth1.bms		
 HYPERFIGHT	2019	_Godot				
 Hypergalactic Psychic Table Tennis 3000	2020	_Construct				
@@ -1888,7 +2010,7 @@ I - Ninja	Page not found!	_QuickBMS		\data\scripts\ininja.bms
 I — Zombie	2014	_QuickBMS	imageblock.bin file (imageblock.bin)|	\data\scripts\fps_creator_imageblock.bms		
 I Know Everything	2019	_Godot				
 I of the Dragon	2003	_QuickBMS		\data\scripts\i_dragon.bms		
-I, The Gangster		_GAUP	REZ Files (*.REZ)|			
+I Was an Atomic Mutant		_ZIP				
 I:SS	Page not found!	_QuickBMS		\data\scripts\warinc.bms		
 I.M.Meen	Page not found!	_QuickBMS		\data\scripts\i.m.meen.bms		
 iBomber Attack	Page not found!	_QuickBMS		\data\scripts\ibomber_attack.bms		
@@ -1898,7 +2020,8 @@ Icarus Online	Page not found!	_QuickBMS	BIN File (*.bin)|	\data\scripts\icarus_o
 Ice Age 4: Continental Drift (Xbox 360)	Page not found!	_QuickBMS	PAK File (*.pak)|	\data\scripts\tongas.bms		
 Ice Age: Dawn of the Dinosaurs	Page not found!	_QuickBMS		\data\scripts\gforce.bms		
 Ice Breaker	2004	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
-Icewind Dale (key)	2000	_SAU				
+Icewind Dale	2000	_infinity				
+Icewind Dale II	2002	_infinity				
 ICO	2001	_QuickBMS	DF File (*.df)|	\data\scripts\ico_df.bms		
 Iconoclasts	2018	_QuickBMS		\data\scripts\iconoclasts.bms		
 Icy Tower 	Page not found!	_QuickBMS		\data\scripts\icy_tower.bms		
@@ -1982,6 +2105,7 @@ Island of Dead	Page not found!	_QuickBMS	imageblock.bin file (imageblock.bin)|	\
 Island Wars		_GAUP	DAT Files (*.DAT)|			
 Island Xtreme Stunts Quest	Page not found!	_QuickBMS		\data\scripts\island_xtreme_stunts.bms		
 Island: The Lost Medallion	Page not found!	_QuickBMS		\data\scripts\specialbit.bms		
+Itch		_ZIP				
 ITE Media	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\ite_media.bms		
 Jack B. Nimble	2018	_Construct				
 Jack Keane	2008	_ZIP	dat file (*.dat)|			
@@ -2005,6 +2129,8 @@ Jane's Combat Simulation (CB8 demux)	Page not found!	_QuickBMS	CB8 Video (*.cb8)
 Janosik	2020	_Construct				
 jARC	Page not found!	_QuickBMS	#Note: move to archive menu	\data\scripts\jarc.bms		
 Jason Storm in Space Chase (SSP)	Page not found!	_QuickBMS	ssp file (*.ssp)|	\data\scripts\jason_storm_space.bms		
+Java Classs Compiled Files		_QuickBMS	CLASS Files (*.class)|	\data\wcx\JavaClassUnpacker.wcx		
+Java Exetutible File (JAR)		_ZIP				
 Jaws Of Extinction	2019	_Unreal4	0x7CDD5E0E38B610848476E5E7B2F979259DC9A96DFA4E98EF1992D9A2C91A8C97			
 Jeanne d'Arc (SPF)	Page not found!	_QuickBMS	spf file (*.spf)|	\data\scripts\jeanne_darc.bms		
 Jericho, Clive Barker's 	2007	_QuickBMS		\data\scripts\jericho.bms		
@@ -2064,6 +2190,7 @@ KartKraft	2018	_Unreal4	0x66E59E2301F3E61331BDB65E0E122790331064155E5F7CDE13DFFB
 Karu		_GAUP	PAK Files (*.PAK)|			
 Karu (PAK)	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
 Keep Out		_Unreal4	0xEC3E013FF51454622D9C295E22050CE227F6469624032F111B277ADCBF7FEAFA			
+Keepsake		_ZIP				
 Kenshin	Page not found!	_QuickBMS	bin file (*.bin)|	\data\scripts\add_pac.bms		
 Keroro Fighter	Page not found!	_QuickBMS		\data\scripts\keroro_fighter.bms		
 Kidou Senshi	Page not found!	_QuickBMS		\data\scripts\kidou_senshi_fhm.bms		
@@ -2110,10 +2237,12 @@ Kings Bounty: Wariors of the Nord/Bоин Cевера	2012	_ZIP	KFS file (*.KFS)
 Kiniro no Corda	Page not found!	_QuickBMS		\data\scripts\kiniro_no_corda.bms		
 Kirby's Epic Yarn	2010	_QuickBMS		\data\scripts\kirby_epic_yarn.bms		
 Kishin Hishou Demonbane	Page not found!	_QuickBMS		\data\scripts\nitro_plus.bms		
+KISS: Psycho Circus: The Nightmare Child 	2000	_LithTech				
 Kitsu Saga	проект	_QuickBMS	pkg file (*.pkg)|	\data\scripts\aeriagames.bms		
 Kitty Kitty Boing Boing: the Happy Adventure in Puzzle Garden!	2016	_Construct				
 Kitty Tactics	2021	_Godot				
 Kitty Trainer		_Unreal4	0x9955E9A8A5BB6911DF26432C448E9D500582EFF80D51FABFFB5DC18D58134D8B			
+Klabi (package.nw)		_ZIP				
 Klang	2016	_Construct				
 Klang 2	2021	_Construct				
 Klonoa 2	дата	_QuickBMS		\data\scripts\klonoa2.bms		
@@ -2128,6 +2257,7 @@ Knowledge Adventure	Page not found!	_QuickBMS		\data\scripts\knowledge_adventure
 Koezaru wa Akai Hana	Page not found!	_QuickBMS		\data\scripts\koezaru_wa_akai_hana.bms		
 Kohan (TGW)	Page not found!	_QuickBMS	tgw file (*.tgw)|	\data\scripts\Kohan_TGW.bms		
 Kohan: Immortal Sovereigns	2001	_SAU				
+Kong		_ZIP				
 Kotel Ne Gori: A Friend of Lena Boots	2020	_Godot				
 Kowloons Gate	Page not found!	_QuickBMS		\data\scripts\kowloons_gate.bms		
 KRAZ	2010	_Chrome				
@@ -2137,6 +2267,7 @@ Kritika Online	Page not found!	_QuickBMS		\data\scripts\kritika.bms
 Krush, Kill 'n' Destroy [Xtreme]		_GAUP	SLV Files (*.SLV)|			
 Kula World	Page not found!	_QuickBMS		\data\scripts\kula_world.bms		
 Kult - Heretic Kingdoms		_GAUP	DAT;IDX Files (*.DAT;*.IDX)|			
+Kuma\War		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Kuroko no Basuke	Page not found!	_QuickBMS		\data\scripts\kuroko_no_basuke.bms		
 Kuros	Page not found!	_QuickBMS		\data\scripts\kuros.bms		
 KurtzPel	2019	_Unreal4	0xE7BECFFD7B408516861CC0385934D286B004690D9013D8263951ACCEA3C888D3			
@@ -2160,6 +2291,7 @@ Last Kings		_Unreal4	0xC26B37D073CA35996899275E9828B58EA71687CB28623A79B09A21716
 Last Oasis	2020	_Unreal4	0xFED592820455B2B9A8CA3E85DD8CD37BB3BAC9D44116D4D32A6ED77CA75452D0			
 Last Year	2019	_Unreal4	0x828354E7A3A69144B06CAC10CFDF3E10E525F8F524E2755B565A6F730C76EE2F			
 Last Year: The Nightmare	2020	_Unreal4	0x813EDABA7C6E44A6EBD09CBC8F6C9F9B2CCB2242D654E14D5F762E1A079EEE69			
+Law and Order 3: Justice Is Served		_ZIP				
 Law and Order: Legacies          	2012	_TellTale	51			
 Layers of Fear 2	2019	_Unreal4	0xD0BAAAE538F6B96FBE77F4A1EF75DDEB62AAE6A54790B37F46AE055D2E787821			
 Lazeska - Sky Fantasy	Page not found!	_QuickBMS		\data\scripts\lazeska.bms		
@@ -2183,6 +2315,7 @@ Legend of the Galactic Heroes	Page not found!	_QuickBMS		\data\scripts\legend_ga
 Legend of the Run, The	Page not found!	_QuickBMS		\data\scripts\the_legend_of_the_run.bms		
 Legendary Champions	2009	_QuickBMS		\data\scripts\legendary_champions.bms		
 Legends	Page not found!	_QuickBMS		\data\scripts\legends.bms		
+Legends of Might and Magic 	2001	_LithTech				
 Legends of Persia	2014	_QuickBMS		\data\scripts\legends_of_persia.bms		
 Legends of Wrestling II (PS2) (ADB)	Page not found!	_QuickBMS		\data\scripts\legends_wrestling_2.bms		
 Legie	2009	_QuickBMS		\data\scripts\legie.bms		
@@ -2228,7 +2361,9 @@ Lifeline (A)	2017	_QuickBMS	A File (*.a)|	\data\scripts\lifeline_a.bms
 Lifeline (IS)	2017	_QuickBMS	IS Video File (*.is)|	\data\scripts\lifeline_is.bms		
 Light of Altair	2009	_QuickBMS		\data\scripts\light_of_altair.bms		
 lilGunBois	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
+Limbo (Android)	2010	_ZIP	OBB file (*.obb)|			
 Lime Odyssey	Page not found!	_QuickBMS		\data\scripts\lime_odissey.bms		
+Line of Sight: Vietnam		_ZIP				
 Lineage 2 (PC)		_Unreal4	0x36B7CC0299336C3A522B3A6E3205E3C2AC68DC3703AC0AAFEF56CF90972EAF3E			
 Lineage 2 (UE4 old ver.)		_Unreal4	0x1BB5D0EF79214A98B465001CAB62F1E077F2585612FC7613FBD39B99C97CD5D9			
 Lineage Eternal	Page not found!	_QuickBMS		\data\scripts\lineage_eternal.bms		
@@ -2250,6 +2385,7 @@ LongPath	2020	_Godot
 Looney Toons ACME Arsenal	Page not found!	_QuickBMS		\data\scripts\looney_toons_acme.bms		
 Looney Tunes Racing	Page not found!	_QuickBMS		\data\scripts\looney_tunes_racing.bms		
 Lord of Arcana	Page not found!	_QuickBMS		\data\scripts\lord_of_arcana.bms		
+Lord of Magic		_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
 Lord of the Rings: Conquest	Page not found!	_QuickBMS		\data\scripts\lotr_conquest.bms		
 Lord of the Rings: War in the North, The (WB/PAQ)	Page not found!	_QuickBMS		\data\scripts\lord_rings_paq.bms		
 Lord Of The Rings: War Of Ring		_GAUP	H2O Files (*.H2O)|			
@@ -2330,8 +2466,8 @@ Mandarks Lab	Page not found!	_QuickBMS		\data\scripts\dexter_mandarks_lab.bms
 Manga Fighter	2007	_QuickBMS		\data\scripts\onnet_pack.bms		
 Manhunt	2003	_QuickBMS		\data\scripts\manhunt.bms		
 Mar Heaven: Arm Fight Dream	Page not found!	_QuickBMS		\data\scripts\mar_heaven_yfs.bms		
-Marine Sharpshooter		_GAUP	REZ Files (*.REZ)|			
-Marine Sharpshooter II: Jungle Warfare		_GAUP	REZ Files (*.REZ)|			
+MARCH!: Offworld Recon	2003	_LithTech				
+Marine Sharpshooter II	2003	_LithTech				
 Mario & Luigi: Paper Jam	Page not found!	_QuickBMS		\data\scripts\mario_luigi_paper.bms		
 Mario & Sonic at the Olympic Games	Page not found!	_QuickBMS		\data\scripts\sonic_olympic_games.bms		
 Mario Forever		_GAUP	Info MF.exe, Mario Forever.exe Files (Info MF.exe; Mario Forever.exe)|			
@@ -2358,6 +2494,7 @@ Massive Assault Network	2004	_QuickBMS		\data\scripts\medievil.bms
 Master Levels of Doom II	1995	_idTech				
 Master Of Magic		_GAUP	LBX Files (*.LBX)|			
 Master of Orion		_GAUP	LBX Files (*.LBX)|			
+Master of Orion 3		_ZIP				
 Master Pyrox Wizard Smackdown	2018	_Godot				
 Master Theft TVs		_Godot				
 Matrix Online, The (REZ)	Page not found!	_QuickBMS		\data\scripts\rez.bms		
@@ -2367,11 +2504,14 @@ Max Stern	2016	_Construct
 Maximo - Ghosts to Glory	Page not found!	_QuickBMS	BEF File (*.bef)|	\data\scripts\maximo_bef.bms		
 Maximum Velocity		_GAUP	POD Files (*.POD)|			
 Maximus XV	Page not found!	_ZIP	PAK file (*.pak)|			
+MAXScript		_ZIP				
 Mayan Prophecies: Blood Moon	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Mayan Prophecies: Cursed Island	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Mayan Prophecies: Ship of Spirits	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms		
 Maypan	Page not found!	_QuickBMS		\data\scripts\maypan.bms		
+MBox containers		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Mcomp / LibMComp	Page not found!	_QuickBMS		\data\scripts\libmcomp.bms		
+MDK2		_ZIP				
 Mead Crafter	2020	_Godot				
 Meat Lead Fire	2021	_Godot				
 MeatPossible: Chapter 1.5	2018	_Construct				
@@ -2382,7 +2522,7 @@ Medal of Honor (online)	2010	_FrostBite	1
 Medal of Honor: Allied Assault 	2002	_idTech				
 Medal of Honor: Allied Assault Breakthrough 	2003	_idTech				
 Medal of Honor: Allied Assault Spearhead 	2003	_idTech				
-Medal of Honor: Pacific Assault		_GAUP	REZ Files (*.REZ)|			
+Medal of Honor: Pacific Assault	2004	_LithTech				
 Medal of Honor: Warfighter	2012	_FrostBite	2			
 Medarot 9	Page not found!	_QuickBMS		\data\scripts\medarot9.bms		
 Media Contact LLC games	Page not found!	_QuickBMS	grp file (*.grp)|	\data\scripts\deadlystars_starsword.bms		
@@ -2404,6 +2544,7 @@ Mercenary Kings	2014	_QuickBMS	pbn file (*.pbn)|	\data\scripts\mercenary_kings_p
 Merchant Prince II		_GAUP	ANM, BIN, IMG, MSK Files (*.ANM; *.BIN; *.IMG; *.MSK)|			
 Merlins Magic Break	Page not found!	_QuickBMS		\data\scripts\merlins_magic_break.bms		
 Metal Arms: Glitch in the System	Page not found!	_QuickBMS		\data\scripts\mettlearms_gc.bms		
+Metal Gear Solid		_ZIP				
 Metal Gear Solid (PS1)	2000	_QuickBMS	STP File (*.STP)|	\data\scripts\mgs1_dat.bms		
 Metal Gear Solid 2	2004	_QuickBMS		\data\scripts\mgs2_dat.bms		
 Metal Gear Solid 2 (MODULE.IPK)	2004	_QuickBMS	(MODULE.IPK)|	\data\scripts\module_ipk.bms		
@@ -2432,6 +2573,7 @@ Micro Machines V4	2006	_QuickBMS		\data\scripts\micro_machines_v4.bms
 Micro Platformer	2020	_Godot				
 Microbie Story, The	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 MicroMachines Xbox	Page not found!	_QuickBMS		\data\scripts\flpk.bms		
+Microsoft Flight Simulator 2004		_ZIP				
 Microsoft Train Simulator	Page not found!	_QuickBMS		\data\scripts\ms_train_sim.bms		
 Middle Earth: Shadow of Mordor	2014	_QuickBMS		\data\scripts\shadow_of_mordor.bms		
 Middle Earth: Shadow of War	2017	_QuickBMS		\data\scripts\shadow_of_mordor.bms		
@@ -2452,9 +2594,11 @@ Might & Magic 6	1998	_SAU
 Might & Magic 7	1999	_SAU				
 Might & Magic 8	2000	_SAU				
 Might & Magic Heroes VI	2011	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
+Might and Magic IX: Writ of Fate 	2002	_LithTech				
 Mii Maker (Wii U)	Page not found!	_QuickBMS		\data\scripts\mii_maker.bms		
 Milestone Old Mix Format	Page not found!	_QuickBMS		\data\scripts\msmixext_rebuilder.bms		
 Million Arthur: Arcana Blood	2019	_idTech				
+MIME containers		_QuickBMS	MIME Container (*.eml;*.etc;*.mime;*.mim)|	\data\wcx\TotalObserver.wcx		
 Mind Machine	Page not found!	_QuickBMS		\data\scripts\katgames_xpiral.bms		
 Mindsight	2017	_Godot				
 Minecraft	2011	_QuickBMS		\data\scripts\msscmp_knab.bms		
@@ -2468,6 +2612,7 @@ Mini Doom	Page not found!	_QuickBMS	Yoyo Games Files (data.win)|	\data\scripts\y
 Mini Doom 2	Page not found!	_QuickBMS	Yoyo Games Files (data.win)|	\data\scripts\yoyogames.bms		
 Mini Metro	2015	_QuickBMS		\data\scripts\mini_metro.bms		
 MiniFighter (DAT CRC)	Page not found!	_QuickBMS		\data\scripts\minifighter_dat_crc.bms		
+Minions of Mirth		_ZIP				
 Minna no Joushiki Ryoku TV	Page not found!	_QuickBMS		\data\scripts\minna_no_joushiki_ryoku.bms		
 Mir 4 (mobile version)		_Unreal4	0x86C7FF3309131F64AA1A2872444F3841281F7B82FEE14A54BF5CAD6C36F57377			
 Mir 4 (PC version)		_Unreal4	0xAD768F68B8795A776100525791F675E15341D565D9AB4B4B74C95F31B03310F3			
@@ -2489,6 +2634,7 @@ MLB Power Pros 2009	2008	_QuickBMS		\data\scripts\mlb_power_pros.bms
 MM Archiver 2.000	Page not found!	_QuickBMS	#Note: move to archive menu	\data\scripts\mmarchiver.bms		
 MMA Simulator	2018	_Godot				
 MMFW Pictures - School Puzzle	Page not found!	_QuickBMS		\data\scripts\mmfw_pictures.bms		
+Mob Enforcer	2004	_LithTech				
 Mobile Suit: Gundam Gihren's Greed	Page not found!	_QuickBMS		\data\scripts\gundam_gihren.bms		
 Mobile Suit: Operation Troy	Page not found!	_QuickBMS		\data\scripts\mobile_suit_operation_troy.bms		
 Modern Combat Versus	Page not found!	_QuickBMS		\data\scripts\gcbf_versus.bms		
@@ -2508,6 +2654,7 @@ Monkey Island 2 LeChucks Revenge Special Edition	Page not found!	_QuickBMS		\dat
 Monkey King: Hero is Back		_Unreal4	0xA1F2BA8EE1738213EF221D2AED4CB5895EDA0830FA026A85209E2ABF08FE6829			
 Monolith Bay		_Unreal4	0x96864A7839DDFDB99BA34047EF3F8A2525905386786CA621D43652B00CF16BE3			
 Monopoly (BDS)	Page not found!	_QuickBMS		\data\scripts\monopoly_bds.bms		
+Monopoly Delux (Avalon Interactive)		_ZIP				
 Monster Adventure	2021	_Godot				
 Monster Hunter	2000	_QuickBMS		\data\scripts\monster_hunter_nifs.bms		
 Monster Hunter Stories 2: Wings of Ruin	2021	_REEngine				
@@ -2554,6 +2701,7 @@ Mortal Kombat: Shaolin Monks (EWDF)	2005	_QuickBMS		\data\scripts\mksm_ewdf.bms
 Mortal Online 2 (beta)		_Unreal4	0x55A81AF35C641BBCB3C13C7E880B9C8FEB473CC8FA0F75CFE164452559218577			
 Mortyr (HAL)	Page not found!	_QuickBMS	hal file (*.hal)|	\data\scripts\HAL_APUK.bms		
 Mortyr 3	2007	_Chrome				
+Mortyr: Operation Thunderstorm 	2008	_LithTech				
 Moto Racer	1997	_QuickBMS	BKF File (*.bkf)|	\data\scripts\moto_racer_bkf.bms		
 Moto-X 2000	Page not found!	_QuickBMS		\data\scripts\e_biker.bms		
 Motocross Madness 2	2000	_QuickBMS		\data\scripts\TEX_RS2.bms		
@@ -2571,6 +2719,7 @@ Move or Die	2016	_ZIP	Love2D Engine Files (*.love; *.exe)|
 MPFS filesystem	Page not found!	_QuickBMS		\data\scripts\mpfs.bms		
 Mr Robot	2007	_QuickBMS		\data\scripts\mr_robot_moon.bms		
 MSG Seed Destiny Generation	Page not found!	_QuickBMS		\data\scripts\ppk.bms		
+MTH Railking Model Railroad Simulator 	2001	_LithTech				
 MTV Skateboarding	Page not found!	_QuickBMS		\data\scripts\mtv_skateboarding.bms		
 MTX Mototrax (WAD)	2004	_QuickBMS		\data\scripts\MTX_Mototrax_(BINK_Extractor)_WAD.bms		
 Mu Legend	2017	_QuickBMS	(coalesced_*.bin)|	\data\scripts\mu_legend_coalesced.bms		
@@ -2599,6 +2748,7 @@ My Tower, My Home	2016	_Construct
 MySpriteLE	Page not found!	_QuickBMS		\data\scripts\mysprite.bms		
 Myst		_Unreal4	0x249A9032E028530E7FB3B1C761EDF26293239656B08B95AD334BFEB0A811A64C			
 Mysteria Occult Shadows 	2020	_Unreal4	0xE8ACD09150D522C9E09557B658E0F5DB06E4BE459690A80CE47F7A716FA8B2ED			
+Mysterious Journey II: Chameleon	2003	_LithTech				
 Mystery Case Files: The Malgrave Incident (Wii)	Page not found!	_QuickBMS		\data\scripts\mystery_case_files.bms		
 Mystery of the Druids	Page not found!	_QuickBMS		\data\scripts\mystery_druids.bms		
 Mystery of the Missing Brigantine	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
@@ -2676,6 +2826,8 @@ Need for Speed: Shift 2 (BFF)	2011	_QuickBMS		\data\scripts\nfsshift.bms
 Need for Speed: The Run	2011	_FrostBite	2			
 Need for Speed: World (BUN/BIN/LZC)	Page not found!	_QuickBMS		\data\scripts\nfsu_bun.bms		
 Nehrim: At Fate’s Edge	2010	_Bethesda				
+Neighbours from Hell		_ZIP				
+Neighbours from Hell 2		_ZIP				
 Neko Puzzle	Page not found!	_QuickBMS		\data\scripts\neko_puzzle.bms		
 Nekopara	Page not found!	_QuickBMS		\data\scripts\nekopara.bms		
 Neo Dark Saver	Page not found!	_QuickBMS		\data\scripts\neo_dark_saver.bms		
@@ -2716,6 +2868,7 @@ Nightfall Hacker	2021	_Godot
 Nightmare Before Christmas: Oogie's Revenge, The	Page not found!	_QuickBMS	STM File (*.STM)|	\data\scripts\nightmare_bc_oogie.bms		
 Nikopol: Secrets of the Immortals	2008	_QuickBMS		\data\scripts\nikopol.bms		
 Nimble Bunn	2017	_Construct				
+Nina Agent Chronicles	2003	_LithTech				
 Nine to Five (demo) 		_Unreal4	0x81481AF62A02116F0AABB0F79885166B8D92471C97FD33F4ACE1248BAC9079F0			
 Nine Trials 		_Unreal4	0x8572A2F8370A6CA6B646E9AC6E3AF1D18175DF9BDBAA7C3058F69B700C2E61DD			
 Ninja Frog	2021	_Godot				
@@ -2733,8 +2886,8 @@ NITRO Archive 1	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scri
 Nitro+	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\nitro_plus.bms		
 No Body Home		_Construct				
 No More Room in Hell	2013	_Source				
-No One Lives Forever I		_GAUP	REZ Files (*.REZ)|			
-No One Lives Forever II		_GAUP	REZ Files (*.REZ)|			
+No One Lives Forever 	2000	_LithTech				
+No One Lives Forever 2: A Spy In H.A.R.M.'s Way	2002	_LithTech				
 No Parachute	2021	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Nobunaga's Ambition: Sphere Of Influence	Page not found!	_QuickBMS		\data\scripts\nobunaga_ambition.bms		
 Nolimits Fairground	2005	_QuickBMS		\data\scripts\nlfg.bms		
@@ -2759,7 +2912,7 @@ NZV executable	Page not found!	_QuickBMS	#Note: move to archive or consoles menu
 Obcidian Legacy 	2017	_Unreal4	0x5473696375786B6A696C656D65686C686B356B6B7868732E7252346A64766B77			
 Obliterate (PS2) (SFD to SS2)	Page not found!	_QuickBMS		\data\scripts\sdf2ss2.bms		
 Oblivion, The Elder Scrolls IV	2007	_Bethesda				
-Obscure	2004	_QuickBMS		\data\scripts\obscure_hvp.bms		
+Obscure 2	2007	_QuickBMS	HVP Files (*.hvp)|	\data\scripts\obscure_hvp.bms		
 Obsidian Conflict	2022	_Source				
 Octogeddon	2018	_QuickBMS		\data\scripts\octogeddon.bms		
 Oddworld: Munch's Oddysee (PS Vita)	2001	_QuickBMS		\data\scripts\oddworld_psvita.bms		
@@ -2770,6 +2923,7 @@ Off-Road Arena	Page not found!	_QuickBMS		\data\scripts\katgames_xpiral.bms
 Off-World Interceptor (3DO)	Page not found!	_QuickBMS	BIG File (*.big)	\data\scripts\cdat02_totaleclipse.bms		
 Off-World Interceptor Extreme (PS1)	Page not found!	_QuickBMS	Crystal Dynamics Archive Type 3 (BIGFILE.DAT)	\data\scripts\cdat03_owieps1.bms		
 Off-World Interceptor Extreme (SATURN)	Page not found!	_QuickBMS	BIG File (*.big)	\data\scripts\cdat02_totaleclipse.bms		
+Office 2007 File Format		_ZIP				
 Oil Rush	2012	_Unigene				
 Okage	Page not found!	_QuickBMS		\data\scripts\okage_pme.bms		
 OKAMI HD/大神 絶景版	2017	_QuickBMS		\data\scripts\okami_hd.bms		
@@ -2788,6 +2942,7 @@ Onimusha: Warlords	2001	_QuickBMS		\data\scripts\onimusha_link.bms
 OnNet	Page not found!	_QuickBMS		\data\scripts\onnet_pack.bms		
 Onset	2019	_Unreal4	0xD2845EB43483A1261044D94736BAC60C9CC80E703684F73B3C0E2B2C3130D854			
 Open Art 2019 Virtual Exhibition	2019	_Unreal4	0x99D01994074A64C0CC421790C2253DA643141AC322C56D9059621646404F9A86			
+Open Document File Format		_ZIP				
 OpenArena 	2005	_idTech				
 Operation Body Count	1994	_idTech				
 Operation Flashpoint		_GAUP	PBO Files (*.PBO)|			
@@ -2808,6 +2963,7 @@ Order of Magic Online	Page not found!	_QuickBMS		\data\scripts\order_magic_onlin
 Order of War	2009	_QuickBMS		\data\scripts\order_of_war.bms		
 Order Up!	Page not found!	_QuickBMS		\data\scripts\order_up.bms		
 Original Mulan	2001	_SAU				
+Origo Engine	Page not found!	_QuickBMS		\data\scripts\origo_engine.bms		
 ORIMON.1 - Bilfy & Krotroklon	2021	_Godot				
 Orneon Limited Games	Page not found!	_QuickBMS	#Note: move to engines menu	\data\scripts\orneon_limited_games.bms		
 Osomatsu-san no Hesokuri Wars	Page not found!	_QuickBMS		\data\scripts\hesokuriwars.bms		
@@ -2824,6 +2980,7 @@ Outlast 2 (PS4)(coalesced_*.bin)	Page not found!	_QuickBMS	(coalesced_*.bin)|	\d
 Outlaws (LAB)	1997	_QuickBMS		\data\scripts\LAB_LABN.bms		
 Outlive	дата	_QuickBMS	dat file (*.dat)|	\data\scripts\DAT_3.bms		
 Outlive (DAT)	дата	_QuickBMS		\data\scripts\Outlive_DAT.bms		
+Outlook databases (PST)		_QuickBMS	PST Files (*.pst)	\data\wcx\TotalObserver.wcx		
 Outriders		_Unreal4	0x7638792F423F4528482B4D6251655468576D5A7134743777397A24432646294A			
 Outriders (demo)		_Unreal4	0x9DC7A1C64DC8FC377D6085DE22760DA0A594D231770C5B10DBD0DBF47628EEDD			
 Over The Hedge	2006	_QuickBMS		\data\scripts\over_the_hedge.bms		
@@ -2831,6 +2988,7 @@ OverHIT 		_Unreal4	0x45314131463245344141303636433534424435303930463436334544444
 Overspeed	Page not found!	_QuickBMS		\data\scripts\la_street_racing.bms		
 Pa God\霸神	Page not found!	_QuickBMS		\data\scripts\pa_god.bms		
 Pac-Man World 3	Page not found!	_QuickBMS		\data\scripts\blitz_games.bms		
+Packmania 2		_ZIP				
 PacMan Pizza	Page not found!	_QuickBMS		\data\scripts\pacman_pizza_parlor.bms		
 Painkiller		_GAUP	DAT, PAK Files (*.DAT; *.PAK)|			
 Painkiller: Black Edition	2004	_QuickBMS		\data\scripts\necrovision.bms		
@@ -2862,6 +3020,7 @@ Party of Sin	2012	_QuickBMS		\data\scripts\party_of_sin.bms
 Patapon series	Page not found!	_QuickBMS		\data\scripts\patapon.bms		
 PatchKit pack1	Page not found!	_QuickBMS		\data\scripts\patchkit_pack1.bms		
 Patchwork Image	2021	_Construct				
+Pathologic	2005	_Mor				
 Patrician 2	Page not found!	_QuickBMS		\data\scripts\CPR_ASCARON.bms		
 Patrician III		_GAUP	CPR, SKS Files (*.CPR; *.SKS)|			
 Payday	Page not found!	_QuickBMS	All support (*.bundle -r *.pak)	\data\scripts\payday.bms		
@@ -2903,6 +3062,7 @@ Piranha	Page not found!	_QuickBMS		\data\scripts\piranha.bms
 Pirate101	Page not found!	_QuickBMS		\data\scripts\wizard101_kiwad.bms		
 Pirates of the Caribbean	2003	_QuickBMS		\data\scripts\gforce.bms		
 Pirates, Vikings, & Knights II	2010	_Source				
+Pirates: Battle For the Caribbean		_ZIP				
 Pit People	2018	_QuickBMS		\data\scripts\pit_people.bms		
 Pixel-Me	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Pixelstar Hero	2021	_Godot				
@@ -2915,7 +3075,7 @@ Plandzz 2	2017	_Construct
 Plane War	2018	_Construct				
 Planescape Torment (BIF)	1999	_QuickBMS		\data\scripts\Planescape_Torment_BIF.bms		
 Planet Alcatraz	2006	_QuickBMS		\data\scripts\planet_alcatraz.bms		
-Planetscape Torment	Page not found!	_QuickBMS	bif file (*.bif)|	\data\scripts\BIF_BIFFV1.bms		
+Planetscape Torment	1999	_Infinity				
 Plants vs. Zombie (Android) (DZ)	Page not found!	_QuickBMS	DZIP archives(*.dz)|	\data\scripts\vector.bms		
 Plants vs. Zombie 2 (BSR)	2013	_QuickBMS	BSR file (*.bsr -r  *.rsb -r  *. smf)|	\data\scripts\1bsr.bms		
 Plants vs. Zombie 2 (OBB)	2013	_QuickBMS	OBB file (*.obb)|	\data\scripts\1bsr_pgsr.bms		
@@ -2974,6 +3134,8 @@ Prey (2017)	2006	_CryEngine
 Prey Typhon Hunter	2018	_Unreal4	0xC28F80D4C23B7B4B43C6704CC65A96532FC392D0D123F7E777CC949817D40AA7			
 Primal Light	2020	_Godot				
 Prime World	2013	_QuickBMS		\data\scripts\pile.bms		
+Prince of Persia	2008	_Anvil				
+Prince of Persia: The Forgotten Sands	2010	_Anvil				
 Prince of Persia: The Sands of Time		_GAUP	BF Files (*.BF)|			
 Prince Of Persia: The Two Thrones	2005	_QuickBMS	bf file (*.bf)|	\data\scripts\BF.bms		
 Prince of Persia: Warrior Within		_GAUP	BIG, FAT Files (*.BIG;*.FAT)|			
@@ -3020,10 +3182,11 @@ Puppy Sanctuary	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfis
 Pure	2008	_QuickBMS		\data\scripts\splitsecond.bms		
 Pure Hold'em	Page not found!	_QuickBMS		\data\scripts\pure_holdem.bms		
 Pure Pool	2014	_QuickBMS		\data\scripts\voofoo.bms		
-Purge		_GAUP	REZ Files (*.REZ)|			
+Purge 	2002	_LithTech				
 Purge Sanity: Aikens Artifact (REZ)	Page not found!	_QuickBMS		\data\scripts\rez.bms		
 Purrgatory	2021	_Godot				
 Push Blox 2	2020	_ZIP	Love2D Engine Files (*.love; *.exe)|			
+Pusher		_ZIP				
 Put in	2019	_Godot				
 Puzkend	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
 Puzzle Agent - The Mystery of Scoggins       	2011	_TellTale	36			
@@ -3128,6 +3291,7 @@ Red Alert 2		_GAUP	BAG;IDX Files (*.BAG;*.IDX)|
 Red Baron 3D (VOD)	Page not found!	_QuickBMS		\data\scripts\VOL_RedBaron3D.bms		
 Red Faction		_GAUP	VPP Files (*.VPP)|			
 Red Man 1	2021	_Godot				
+Red Ocean		_ZIP				
 Redactem	2016	_Construct				
 Redd's Runaway	2020	_Godot				
 Redguard, The Elder Scrolls Adventures	1998	_Bethesda				
@@ -3157,13 +3321,17 @@ Reservoir Dogs (PS2)	2006	_QuickBMS		\data\scripts\reservoir_dogs.bms
 Resident Evil 2: Remake	2019	_REEngine	re2_pak_names_release.list			
 Resident Evil 3: Remake	2020	_REEngine	re3_pak_names_release.list			
 Resident Evil 4 (AFS)	2005	_GAUP	AFS Files (*.AFS)|			
-Resident Evil: Code Veronica (AFS)	2000	_GAUP	AFS Files (*.AFS)|			
+Resident Evil 4 (DAT)	2005	_QuickBMS	DAT Files (*.dat; *.gca)|	\data\wcx\gca.wcx		
 Resident Evil 4 (ss_*.dat)	2005	_QuickBMS	(ss_*.dat)|	\data\scripts\re4_ss_file.bms		
-Resident Evil 4 HD (LFS)	Page not found!	_QuickBMS	Resident Evil 4 HD LFS File (*.lfs)|	\data\scripts\re4.bms		
+Resident Evil 4 HD (LFS)	2014	_QuickBMS	Resident Evil 4 HD LFS File (*.lfs)|	\data\scripts\re4.bms		
 Resident Evil 5	2009	_MTFramework				
 Resident Evil 6	2012	_MTFramework				
 Resident Evil 6 (Xbox360)	2012	_QuickBMS		\data\scripts\resident_evil_6_x360.bms		
 Resident Evil 7: Biohazard	2017	_REEngine	re7_pak_names_release.list			
+Resident Evil Code: Veronica X	2011	_MTFramework				
+Resident Evil HD	2014	_MTFramework				
+Resident Evil Zero HD	2008	_MTFramework				
+Resident Evil: Code Veronica (AFS)	2000	_GAUP	AFS Files (*.AFS)|			
 Resident Evil: Dead Aim (BIN)	2003	_QuickBMS	BIN File(*.BIN)|	\data\scripts\resident_evil_bin_fpk.bms		
 Resident Evil: Deadly Silence (NDS)	Page not found!	_QuickBMS		\data\scripts\resident_evil_cpac_nds.bms		
 Resident Evil: Mercenaries (iPhone)	Page not found!	_QuickBMS		\data\scripts\resident_evil_mercenaries_iphone.bms		
@@ -3189,6 +3357,7 @@ Return Incredible Machine	Page not found!	_QuickBMS		\data\scripts\return_incred
 Return of The Incredible Machine Contraptions	Page not found!	_QuickBMS		\data\scripts\tbv.bms		
 Return to Castle Wolfenstein 	2001	_idTech				
 Revelations 2012	2012	_Source				
+Revenant		_ZIP				
 Revolution	2002	_QuickBMS		\data\scripts\funlabs.bms		
 Rex: Another Island	2017	_Construct				
 Rexaura	2014	_Source				
@@ -3196,7 +3365,9 @@ RezPack RedRocketGames	Page not found!	_QuickBMS		\data\scripts\rezpack.bms
 rFactor (MAS)	2005	_QuickBMS		\data\scripts\Master_of_Orion_2_LBX.bms		
 rFactor 2	2015	_QuickBMS		\data\scripts\rfactor2.bms		
 Rhythm Brawl	2021	_Godot				
+Richard Burns Rally		_ZIP				
 Ricochet	2000	_Source				
+Ricochet		_ZIP				
 Ricochet {Xtreme ; Lost Worlds}		_GAUP	FRAME, SEQUENCE Files (*.FRAME; *.SEQUENCE)|			
 Ride with The Reaper	2019	_Godot				
 Ridge Racer (PSVita)	Page not found!	_QuickBMS		\data\scripts\ntvi_psvita.bms		
@@ -3250,6 +3421,7 @@ Rory McIlroy PGA Tour	2015	_FrostBite	3
 Rounded Hills	2021	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Royal Trouble	Page not found!	_QuickBMS		\data\scripts\orchid_games.bms		
 RPG in a Box	2019	_Godot				
+Rubies of Eventide	2002	_LithTech				
 Rugby Challenge 2006	2006	_QuickBMS		\data\scripts\rugby_challenge_2006.bms		
 Rugby League Live 2	Page not found!	_QuickBMS		\data\scripts\rugby_league_live_2.bms		
 Rugby League Live 3	2015	_QuickBMS		\data\scripts\rugby_league_live_2.bms		
@@ -3263,6 +3435,11 @@ Runes of Fate	Page not found!	_QuickBMS		\data\scripts\cakeshop.bms
 Running With Rifles	2015	_ZIP	PAK file (*.pak)|			
 RUSH!!!	2021	_Godot				
 Ryse: Son of Rome	2013	_CryEngine				
+S.T.A.L.K.E.R.: Call of Pripiat		_QuickBMS	X-Ray Engine Archive (*.db*)	\data\wcx\stalker.wcx		
+S.T.A.L.K.E.R.: Clear Sky		_QuickBMS	X-Ray Engine Archive (*.db*)	\data\wcx\stalker.wcx		
+S.T.A.L.K.E.R.: Shadow of Chernobyl		_QuickBMS	X-Ray Engine Archive (*.db*)	\data\wcx\stalker.wcx		
+S.W.A.T. 3		_ZIP				
+Sabotain		_ZIP				
 Sabotaj 	2020	_Unreal4	0x3911EADF2B6411C537F0179593F87C091630B8190432D89ABA0252981210CCFE			
 Saboteur	2018	_QuickBMS		\data\scripts\saboteur.bms		
 Saboteur (kilopack)	2018	_QuickBMS		\data\scripts\saboteur_kilopack.bms		
@@ -3303,12 +3480,14 @@ Samurai Shodown (Reboot)		_Unreal4	0xDD65CE67FB67735547E32B3BB63FB97C6834EDCBA83
 Samurai Warriors Chronicles 3	Page not found!	_QuickBMS		\data\scripts\samurai_warriors_chronicles_3.bms		
 Sandra Fleming: Chronicles Crystal Skulls	Page not found!	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms		
 Sangokushi Legion	Page not found!	_QuickBMS	(G1T.GA)|	\data\scripts\sangokushi_legion.bms		
-Sanity Aikens Artifact		_GAUP	REZ Files (*.REZ)|			
+Sanity: Aiken's Artifact 	2000	_LithTech				
 SAS: Anti-Terror Force	Page not found!	_QuickBMS		\data\scripts\sas_anti_terror_force.bms		
+SAS: Secure Tomorrow 	2008	_LithTech				
 Satellite Repairman	2017	_Godot				
 Satisfactory	2020	_Unreal4	0x0A45EC8C0289ADF8CB28473CF3BF5F4D24BB16D82BAD6562F2F9FD2B2DF98251			
 Satisfactory 4.22/4.25		_Unreal4	0x0223D05ABC5B298CF29BB25E0E1FD6CD5C624D2DBBE825EBE1B090042217CBC8			
 Saturday of Piercing Screams	2019	_Godot				
+Savage		_ZIP				
 Saviors	Page not found!	_QuickBMS	XNB Files (*.xnb)|	\data\scripts\xnb.bms		
 Scania	2012	_OtherPRG	SCS File (*.scs)|	scs_extractor.exe		FolderName
 Scarface	Page not found!	_QuickBMS	ATD, RCF, ATG files(*.atd -r *.rcf*.atg)|	\data\scripts\atg_core_cement.bms		
@@ -3362,6 +3541,7 @@ Sengoku Basara HD Collection	Page not found!	_QuickBMS		\data\scripts\sengoku_ba
 Sengoku Basara: Samurai Heroes	2010	_MTFramework				
 Sengoku Musou	Page not found!	_QuickBMS		\data\scripts\sengoku_musou.bms		
 Senran Kagura Estival Versus	2015	_QuickBMS		\data\scripts\estivalversus.bms		
+Sentinel: Descendants in Time	2004	_LithTech				
 Septerra Core	Page not found!	_QuickBMS		\data\scripts\septerra_core.bms		
 Septic Savages	2016	_Construct				
 Serenade of the Sirens	2018	_Godot				
@@ -3388,7 +3568,9 @@ Shadow of Memories (XBOX)	Page not found!	_QuickBMS	(game.wad -r default.xbe)|	\
 Shadow of the Tomb Raider	2018	_QuickBMS	TIRER Files (*.tiger)|	\data\scripts\tomb_raider_tafs.bms		
 Shadow War	Page not found!	_QuickBMS		\data\scripts\waygames.bms		
 Shadow Warrior		_GAUP	WAD Files (*.WAD)|			
+Shadow Warrior		_ZIP				
 Shadow Warrior 2	2016	_QuickBMS		\data\scripts\shadow_warrior_2.bms		
+Shadowbane: Throne of Oblivion		_ZIP				
 Shadowcaster	1993	_idTech				
 Shadowrun	2007	_QuickBMS		\data\scripts\shadowrun.bms		
 Shadows: Heretic Kingdoms	2014	_QuickBMS		\data\scripts\shadows_hk.bms		
@@ -3398,8 +3580,10 @@ Shantae Half-Genie Hero	Page not found!	_QuickBMS		\data\scripts\shantae_halfgen
 Shaolin Plus Online	Page not found!	_QuickBMS		\data\scripts\shaolin_plus.bms		
 Shapium	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
 SHARK	2018	_Construct				
+Shark: Hunting the Great White		_ZIP				
 SharpShooter3D	2018	_idTech				
 Shattered Horizon	2009	_QuickBMS		\data\scripts\futuremark.bms		
+Shaun White Snowboarding	2008	_Anvil				
 Shawy Adventures	2019	_Godot				
 Sheep Raider	дата	_QuickBMS	SDW File (*.sdw)|	\data\scripts\sheep_raider_sdw.bms		
 Shell Out Showdown	2021	_ZIP	Love2D Engine Files (*.love; *.exe)|			
@@ -3415,10 +3599,10 @@ Sherlock Holmes: The Mystery of the Mummy		_GAUP	PAK Files (*.PAK)|
 Shin Megami Tensei Nocturne	2003	_QuickBMS		\data\scripts\shin_megami_tensei.bms		
 Shin Megami Tensei: Devil Summoner (PSP)	Page not found!	_QuickBMS	BIN File (*.bin)|	\data\scripts\shin_megami_tensei_bin.bms		
 Shinkon Gattai Godannar	Page not found!	_QuickBMS	bin file (*.bin)|	\data\scripts\add_pac.bms		
+Ship, The		_QuickBMS		\data\wcx\TotalObserver.wcx		
 Shockwave Director	Page not found!	_QuickBMS		\data\scripts\shockwave.bms		
 Shoecake games	Page not found!	_QuickBMS		\data\scripts\shoecake.bms		
-Shogo: Mobile Armor Division		_GAUP	REZ Files (*.REZ)|			
-Shogun		_GAUP	REZ Files (*.REZ)|			
+Shogo: Mobile Armor Division 	1998	_LithTech				
 Shonen Idle Z	Page not found!	_Chromium				
 Shoot Many Robots	2012	_QuickBMS		\data\scripts\shoot_many_robots.bms		
 Shooting Dangerous	Page not found!	_QuickBMS		\data\scripts\qp_shooting_dangerous.bms		
@@ -3475,6 +3659,7 @@ Sin & Punishment 2: Successor to the Sky (ARC)	Page not found!	_QuickBMS		\data\
 SiN Episodes: Emergence	2006	_Source				
 SiN: Wages of Sin 	1998	_idTech				
 Single legend/单机群侠传 (LUA)	Page not found!	_QuickBMS	LUA File (*.lua)|	\data\scripts\kdqht_lua.bms		
+Singles: Flirt Up Your Life		_ZIP				
 Sinistar Unleashed	1999	_QuickBMS		\data\scripts\sinistar_unleashed.bms		
 Sinister Halloween	2019	_Unreal4	0x2E59AB633B382345AF6AD4617A68C4C9536380C65CE10A8004FA8293951A4AB0			
 Siren	2003	_QuickBMS		\data\scripts\siren.bms		
@@ -3502,6 +3687,7 @@ Skyrim, The Elder Scrolls V LE\SE\AE	2011	_Bethesda
 SlackPackFile	Page not found!	_QuickBMS		\data\scripts\slackpackfile.bms		
 Slap The Rocks	2021	_Construct				
 Slash Roll	2020	_Godot				
+Slave Zero		_ZIP				
 Slaves of Rome		_Unreal4	0xC3AEC3423C1676D9CFA5A5F3CB81DDF95CE7DF7B79CCFB0DE58CF48A5947395A			
 Sleep Walkers	Page not found!	_QuickBMS		\data\scripts\sleep_walkers.bms		
 Sleeping Dogs	2012	_QuickBMS		\data\scripts\sleeping_dogs.bms		
@@ -3535,6 +3721,7 @@ Sniper Elite: Nazi Zombie Army 2	2012	_Asura
 Sniper: Art of Victory	2012	_Chrome				
 Sniper: Ghost Warrior	2010	_Chrome				
 Sniper: Ghost Warrior 3	2017	_CryEngine				
+Sniper: Path of Vengeance	2002	_LithTech				
 SNKRX	2021	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Snok		_GAUP	PAK Files (*.PAK)|			
 Snow Drop	2002	_QuickBMS		\data\scripts\snowdrop.bms		
@@ -3552,6 +3739,7 @@ Soldier of Fortune 	2000	_idTech
 Soldier of Fortune (PAK)	2000	_QuickBMS	All support (*.bundle -r *.pak)	\data\scripts\payday.bms		
 Soldier of Fortune II: Double Helix 	2002	_idTech				
 Soldier of Fortune Online	Page not found!	_QuickBMS		\data\scripts\soldier_fortune_online.bms		
+Soldiers of Anarchy		_ZIP				
 Soldiers: Heroes of World War 2	Page not found!	_ZIP	PAK file (*.pak)|			
 Sonic & Sega All-Stars Racing	Page not found!	_QuickBMS		\data\scripts\sonic_sega_allstars.bms		
 Sonic 2006	Page not found!	_QuickBMS		\data\scripts\sonic4.bms		
@@ -3581,6 +3769,7 @@ Space Engine (PAK)	2011	_ZIP	PAK file (*.pak)|
 Space Interceptor	Page not found!	_QuickBMS	dpk file (*.dpk)|	\data\scripts\DPK_DPK4.bms		
 Space Rangers		_GAUP	DAT, PKG Files (*.DAT; *.PKG)|			
 Space Strike	2007	_QuickBMS	imageblock.bin file (imageblock.bin)|	\data\scripts\fps_creator_imageblock.bms		
+Space Trader		_ZIP				
 Space Trader 	2007	_idTech				
 space vanguard	2020	_Godot				
 Sparkle	2007	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
@@ -3591,6 +3780,7 @@ Spartacus Legends	2013	_QuickBMS		\data\scripts\spartacus_legends.bms
 Spartan Total Warrior (PS2)	Page not found!	_QuickBMS		\data\scripts\spartan_total_war.bms		
 Spear of Destiny	1992	_idTech				
 Special Force Online	Page not found!	_QuickBMS		\data\scripts\special_force_mrg.bms		
+Special Forces 	2009	_LithTech				
 Speed Challenge	Page not found!	_QuickBMS		\data\scripts\speed_challenge_cfg.bms		
 Speedway Liga	2009	_Chrome				
 Spell of Gold		_GAUP	JDR, JSR, JTR Files (*.JDR; *.JSR; *.JTR)|			
@@ -3664,7 +3854,6 @@ Star Wars: Battlefront III	Page not found!	_QuickBMS		\data\scripts\swbf3.bms
 Star Wars: Battlefront: Renegade Squadron(PSP)	2006	_Asura				
 Star Wars: Empire at War [DEMO]		_GAUP	MEG Files (*.MEG)|			
 Star Wars: Galactic Battlegrounds	2001	_QuickBMS		\data\scripts\ensemble_studios_drs.bms		
-Star Wars: Knights Of The Old Republic	2003	_QuickBMS	bif file (*.bif)|	\data\scripts\Baldurs_Gate_1_BIF.bms		
 Star Wars: Knights Of The Old Republic	2003	_Aurora				
 Star Wars: Knights Of The Old Republic 2	2004	_Aurora				
 Star Wars: Obi-Wan	Page not found!	_QuickBMS		\data\scripts\starwars_obiwan_tx.bms		
@@ -3683,6 +3872,8 @@ STAR WARS™ Jedi Knight II: Jedi Outcast™	2002	_idTech
 STAR WARS™ Jedi Knight: Jedi Academy™	2003	_idTech				
 Star Wolves	2004	_ZIP	dat file (*.dat)|			
 Starbound	2016	_QuickBMS		\data\scripts\starbound.bms		
+StarCraft	1998	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
+Starcraft II	2010	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
 StargateZ	Page not found!	_QuickBMS		\data\scripts\warinc.bms		
 Stargaze Framework (PACK)	Page not found!	_QuickBMS		\data\scripts\sfgp.bms		
 Stargazer program	2018	_ZIP	Love2D Engine Files (*.love; *.exe)|			
@@ -3698,7 +3889,9 @@ State of Decay	2013	_ZIP	PAK file (*.pak)|
 Steam VZa package archive	Page not found!	_QuickBMS	#Note: move to archive menu	\data\scripts\steam_vza.bms		
 Steel Storm: A.M.M.O.	2013	_idTech				
 Steel Storm: Burning Retribution	2011	_idTech				
+Steep	2016	_Anvil				
 StellarHub	2017	_Godot				
+StepMania		_ZIP				
 Stick Knight Takes Over the Universe	2020	_Godot				
 Still Life		_GAUP	CMO, NMO, SL Files (*.CMO; *.NMO; *.SL)|			
 Still Life 2	2009	_QuickBMS		\data\scripts\stillife2.bms		
@@ -3709,6 +3902,7 @@ Stonekeep	1995	_SAU
 StormCE	Page not found!	_QuickBMS		\data\scripts\stormce.bms		
 Story of Fairy Place	2007	_QuickBMS		\data\scripts\cakeshop.bms		
 Strange Cases: The Secret of Grey Mist Lake	Page not found!	_QuickBMS	PFP File (*.pfp)|	\data\scripts\strimko.bms		
+Stranger		_ZIP				
 Street Fighter	1988	_QuickBMS		\data\scripts\sfex3_arika.bms		
 Street Fighter 30th Anniversary Collection	Page not found!	_QuickBMS		\data\scripts\sf30_mbundle.bms		
 Street Fighter V	2016	_Unreal4	0x5F6153346D665A4B384D3573354B5743324C7A325673466E474B4937617A676C			
@@ -3733,9 +3927,12 @@ Sublunar	2020	_Godot
 Submarine Titans	2000	_QuickBMS		\data\scripts\submarine_titans.bms		
 Substance (PS2/XBOX)	Page not found!	_QuickBMS		\data\scripts\mgs2_dat.bms		
 Subverse	2021	_Unreal4	0xB6B0763265C2365D4B035EC46936005D018FB4FE3427C3BC51BFDE1EDCBE6C95			
+Sudden Attack	2004	_LithTech				
 Sudden Strike		_GAUP	SUE Files (*.SUE)|			
 Sudden Strike 2 (RUS)	2002	_QuickBMS		\data\scripts\RUS.bms		
+Sudden Strike 3		_ZIP				
 Sudeki	2004	_QuickBMS		\data\scripts\sudeki.bms		
+Sudokuki		_ZIP				
 Suikoden V	Page not found!	_QuickBMS	(BTL_BG000_000.ROM)|	\data\scripts\suikoden_rom.bms		
 Summer Resort Mogul	Page not found!	_QuickBMS		\data\scripts\summer_resort.bms		
 Sumoman	2017	_Unigene				
@@ -3747,6 +3944,7 @@ Sunset Studio	Page not found!	_QuickBMS		\data\scripts\sunset_studio.bms
 Sunshine Acres	Page not found!	_QuickBMS		\data\scripts\sunshine_acres.bms		
 Sunshine Manor	2021	_Construct				
 Super 3D Noah's Ark	1994	_idTech				
+Super Bubble Pop 	2001	_LithTech				
 Super Chains	2019	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Super Destronaut	2016	_Construct				
 Super Laser Racer	2009	_QuickBMS		\data\scripts\super_laser_racer.bms		
@@ -3773,6 +3971,7 @@ SuperLuminauts	2017	_ZIP	Love2D Engine Files (*.love; *.exe)|
 Supernova		_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
 Superposition	2016	_Unigene				
 Supplice	2021	_idTech				
+Supreme Commander		_ZIP				
 Survarium	2022	_QuickBMS		\data\scripts\survarium.bms		
 Survivalist	2014	_QuickBMS		\data\scripts\survivalist.bms		
 Sven Bomwollen DL		_GAUP	DAT Files (*.DAT)|			
@@ -3791,6 +3990,7 @@ Switch Galaxy Ultra	2014	_QuickBMS		\data\scripts\switch_galaxy.bms
 Switchball	2007	_QuickBMS		\data\scripts\switchball.bms		
 Sword Art Online: Fatal Bullet	2018	_Unreal4	0x68363747726A583261474D67724151654E776639566D435962743530796C4A46			
 Sword Game	2020	_Godot				
+Sword of the Stars		_ZIP				
 Sword Slinger	2020	_Godot				
 Swordsman Love 2: Sword Song		_Unreal4	0x586C304B46326C66354F4B38616F566C74444758386D485259583943474C4B66			
 Syberia		_GAUP	CMO, NMO; Files (*.CMO; *.NMO;)|			
@@ -3798,6 +3998,7 @@ Syberia 2		_GAUP	NMO, SYB Files (*.NMO; *.SYB)|
 Syberia 2 (Android) (OBB)	2004	_QuickBMS		\data\scripts\syberia2_obb.bms		
 Syndicates of Arkon MMORPG	2010	_Unigene				
 Synergy	2008	_Source				
+System Shock 2		_ZIP				
 System Shock Remastered (demo)		_Unreal4	0xA7628FFD62C258B1CC5D3D27AE7238B2A39C2DB54CC77CCFFC006BF18B82D9EE			
 System Shock: Enhanced Edition 	2015	_ZIP	KPF Files (*,kpf)|			
 T^2.5	2021	_Godot				
@@ -3832,6 +4033,7 @@ Tao Feng: Fist of the Lotus	2003	_QuickBMS		\data\scripts\taofeng.bms
 Targem games	Page not found!	_QuickBMS		\data\scripts\clutch.bms		
 Tarim: Guardians	2017	_Construct				
 Taz: Wanted	2002	_QuickBMS		\data\scripts\blitz_games.bms		
+Team Factor		_ZIP				
 Team Fortress 2	2007	_Source				
 Team Fortress 2008	2008	_Source				
 Team Fortress Classic	1999	_Source				
@@ -3853,10 +4055,20 @@ Tenerezza	Page not found!	_QuickBMS		\data\scripts\tenerezza.bms
 Tennis in the Face	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
 Terminal Machine	2006	_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms		
 Terminal Velocity		_GAUP	POD Files (*.POD)|			
-Terminator Salvation	Page not found!	_QuickBMS	bundle file (*.bundle)|	\data\scripts\bundle.bms		
+Terminator 3	2003	_ZIP				
+Terminator Salvation	2009	_QuickBMS	bundle file (*.bundle)|	\data\scripts\bundle.bms		
+Terminator, The (EXE)	1990	_ZIP				
+Terminator: Future Shock 	1995	_Bethesda				
+Terminator: Rampage	1993	_Bethesda				
 Terraforming Earth	2020	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Terraria	2011	_QuickBMS	XNB Files (*.xnb)|	\data\scripts\xnb.bms		
+Terrawars: New York Invasion	2006	_LithTech				
 Terrorist Takedown	2004	_QuickBMS	dpk file (*.dpk)|	\data\scripts\DPK_DPK4.bms		
+Terrorist Takedown 2 	2008	_LithTech				
+Terrorist Takedown 3 	2010	_LithTech				
+Terrorist Takedown: Covert Operations		_ZIP				
+Test Drive 5		_ZIP				
+Test Drive 6		_ZIP				
 Test Drive Eve of Destruction	Page not found!	_QuickBMS		\data\scripts\testdrive_eve_destruction.bms		
 Test Drive Eve of Destruction (Xbox)	Page not found!	_QuickBMS		\data\scripts\testdriveevo.bms		
 Test Drive Off-Road 3	Page not found!	_QuickBMS		\data\scripts\testdrive_offroad_3.bms		
@@ -3865,6 +4077,7 @@ Test Drive: Ferrari Racing Legends (BFF)	2012	_QuickBMS		\data\scripts\nfsshift.
 Tetris (PS3/PSN)	Page not found!	_QuickBMS	PAK File (*.pak)|	\data\scripts\tongas.bms		
 Tetris Effect		_Unreal4	0x0635D5F4B20E2CF1708524223DB7F1C77E7C49C556C5B875A90132E88E91F734			
 Tetrix 3D	2021	_Godot				
+Tex Atomic's Big Bot Battles 	2001	_LithTech				
 Textreme 2	2021	_Godot				
 Thanatos	Page not found!	_QuickBMS	(DB.PAC)|	\data\scripts\thanatos_pac.bms		
 Thandor	дата	_QuickBMS		\data\scripts\thandor.bms		
@@ -3887,6 +4100,7 @@ The Elder Scrolls I Arena	1993	_Bethesda
 The Elder Scrolls III: Morrowind	2002	_Bethesda				
 The Elder Scrolls III: Morrowind (cel\top create)	2002	_CelTop				
 The Elder Scrolls IV: Oblivion	2007	_Bethesda				
+The Elder Scrolls Online	2014	_Bethesda				
 The Elder Scrolls V: Skyrim LE\SE\AE	2011	_Bethesda				
 The Evil Within	2014	_idTech				
 The Evil Within 2	2017	_idTech				
@@ -3952,6 +4166,8 @@ Theatre of War 2: Kursk 1943	2009	_QuickBMS		\data\scripts\sfs.bms
 Theme Hospital (DAT)	1997	_QuickBMS		\data\scripts\Theme_Hospital_DAT.bms		
 Theme Park World		_GAUP	SDT, WAD Files (*.SDT; *.WAD)|			
 Theyest Thou	2020	_Godot				
+Thief 2: The Metal Age		_ZIP				
+Thief: The Dark Age		_ZIP				
 Thimbleweed Park	2017	_QuickBMS		\data\scripts\thimbleweed_park.bms		
 Thinking with Time Machine	2014	_Source				
 Thirty Flights of Loving	2012	_idTech				
@@ -3996,6 +4212,9 @@ Tokyo Xtreme Racer series	Page not found!	_QuickBMS		\data\scripts\tokyo_xtreme_
 Tokyo Xtreme Racer Zero	Page not found!	_QuickBMS		\data\scripts\tokyo_xtreme_racer_zero.bms		
 Tom & Jerry House Trap	Page not found!	_QuickBMS		\data\scripts\tom_jerry_house_trap.bms		
 Tom Clancy's Ghost Recon		_GAUP	RSB Files (*.RSB)|			
+Tom Clancy’s Ghost Recon Breakpoint	2019	_Anvil				
+Tom Clancy’s Ghost Recon Wildlands	2017	_Anvil				
+Tom Clancy’s Rainbow Six: Siege	2015	_Anvil				
 Tomb Of Pharaohs	2021	_Godot				
 Tomb Raider (Sega Saturn)	1996	_QuickBMS		\data\scripts\sega_audio.bms		
 Tomb Raider 3 (SFX)	Page not found!	_QuickBMS	SFX File (*.sfx)|	\data\scripts\Tombraider_3_SFX.bms		
@@ -4027,6 +4246,7 @@ topatoi: The Pillar of Skies	Page not found!	_QuickBMS		\data\scripts\boolat_gam
 Toro To Kyuujitsu	Page not found!	_QuickBMS		\data\scripts\toro_kyuujitsu.bms		
 Tory's Shop N' Rush	Page not found!	_QuickBMS		\data\scripts\tory_shop.bms		
 Total Annihilation	1997	_QuickBMS		\data\scripts\SMK_JurassicParkTrespasser.bms		
+Total Commander Plugin		_ZIP				
 Total Eclipse (3DO)	Page not found!	_QuickBMS	BIG File (*.big)	\data\scripts\cdat02_totaleclipse.bms		
 Total War: Attila	2015	_QuickBMS		\data\scripts\total_war_attila.bms		
 Total War: Rome	Page not found!	_QuickBMS		\data\scripts\total_war_rome.bms		
@@ -4072,13 +4292,15 @@ Tree of Life: Beginning of a Journey	Page not found!	_QuickBMS		\data\scripts\od
 Tree of Life: Oddria (demo) 		_Unreal4	0xDC8D1A59C6C9814FCFA207C65C43EDD49CEC8C9FFFB18A64E5CF52DBFB403B55			
 Tremulous 	2006	_idTech				
 Triace	Page not found!	_QuickBMS		\data\scripts\triace.bms		
+Tribes 2		_ZIP				
 Trickstyle (PAK)	Page not found!	_QuickBMS	PBO File (*.pbo)|	\data\scripts\pbo.bms		
+Trine		_ZIP				
 Trine 2	2011	_QuickBMS		\data\scripts\trine2.bms		
 Trine 3	Page not found!	_QuickBMS		\data\scripts\trine2.bms		
 Trine: Enchanted Edition	2009	_QuickBMS		\data\scripts\trine2.bms		
 Trinity Dungeon	2017	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Trinity Online	2009	_QuickBMS		\data\scripts\trinity_online.bms		
-Tron 2.0		_GAUP	REZ Files (*.REZ)|			
+Tron 2.0	2003	_LithTech				
 Trophy Hunter 2003	дата	_QuickBMS		\data\scripts\trophy_hunter_2003.bms		
 Trouble Witches	Page not found!	_QuickBMS		\data\scripts\trouble_witches.bms		
 Trouserheart	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms		
@@ -4107,6 +4329,7 @@ Twin-Turbo Supercharged Nitro-Fueled Papamobile	2020	_Godot
 Twisted Metal 4	Page not found!	_QuickBMS		\data\scripts\twisted_metal_4.bms		
 Two Die	2021	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Two Worlds	Page not found!	_QuickBMS		\data\scripts\two_worlds.bms		
+TXTZ Electronic Book		_ZIP				
 TZ online	Page not found!	_QuickBMS		\data\scripts\tzonline.bms		
 UBERCOLD	2019	_Godot				
 Ubersoldier II	Page not found!	_QuickBMS		\data\scripts\clash_royale.bms		
@@ -4119,9 +4342,11 @@ UFC Sudden impact (PS2)	Page not found!	_QuickBMS		\data\scripts\ufc_gzmvs_rbb.b
 UFC Undisputed 2010	2010	_QuickBMS		\data\scripts\ufc_2010_ppk.bms		
 UFC Undisputed 3	Page not found!	_QuickBMS		\data\scripts\ufc2010_soundpck.bms		
 UFO (XBIG)	Page not found!	_QuickBMS		\data\scripts\ufo_xbig.bms		
+UFO: Alien Invasion		_ZIP				
 Ultima 7	1994	_SAU				
 Ultima 8	1997	_SAU				
 Ultima Online	1997	_SAU				
+Ultima Underworld: The Stygian Abyss		_ZIP				
 Ultimate Baseball Online	2005	_QuickBMS	dat file (*.dat)|	\data\scripts\DAT_UltimateBaseballOnline.bms		
 Ultimate Doom, The	1993	_idTech				
 Ultimate Marvel vs. Capcom 3	2011	_MTFramework				
@@ -4143,6 +4368,7 @@ Unfinished Swan, The (PS3)	Page not found!	_QuickBMS		\data\scripts\unfinished_s
 Unhex	Page not found!	_QuickBMS		\data\scripts\unhex.bms		
 UNISTAT (USW)	Page not found!	_QuickBMS		\data\scripts\unistat_decrypt.bms		
 Unity Web Player	Page not found!	_QuickBMS		\data\scripts\unity3d_webplayer.bms		
+Universal Combat: A World Apart		_ZIP				
 Universe For Sale - Prologue	2021	_Construct				
 Unknown Developer	Page not found!	_QuickBMS		\data\scripts\unknown_developer.bms		
 Unlimited Adventures	1996	_SAU				
@@ -4175,6 +4401,7 @@ Vancouver 2010	2010	_QuickBMS		\data\scripts\vancouver2010.bms
 Vandal Hearts	1996	_SAU				
 Vanpool	Page not found!	_QuickBMS		\data\scripts\dillion.bms		
 Vector (DZ)	2012	_QuickBMS	DZIP archives(*.dz)|	\data\scripts\vector.bms		
+Vector (Vector.s86)		_ZIP				
 Vector Prospector	2020	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Velocity	Page not found!	_QuickBMS		\data\scripts\splitsecond.bms		
 Vengeance of Franken-neet in Love	Page not found!	_QuickBMS		\data\scripts\hesokuriwars.bms		
@@ -4231,6 +4458,8 @@ War Islands: A Co-op Adventure	2020	_Unreal4	0x2CF1731793C36D01CF2DD0F74B817F18A
 War Train Normandie 1944	2004	_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms		
 Warcraft	1994	_SAU				
 WarCraft 2		_GAUP	CUD, INS, SUD, WAD Files (*.CUD; *.INS; *.SUD; *.WAD)|			
+Warcraft II: Battle.net Edition	1999	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
+Warcraft III	2002	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
 Warface	2012	_CryEngine				
 Warfork	2019	_idTech				
 Warhammer 40000: Dawn of War [DARK CRUSADE]		_GAUP	SGA Files (*.SGA)|			
@@ -4243,6 +4472,7 @@ WARP-TEK	2019	_Godot
 Warrior Beneath Heaven		_Unreal4	0x390EE88068C53AA1E7709800FE8C18B46941FBD184B7EFA037995D4927E6157E			
 We Went Back	2020	_Unreal4	0x5E4C50FA498E59C2D1F0B8289593F2F4C524806A0D00F8D22AB4BBB5E06F7F4C			
 Weakless	2020	_Unreal4	0x848CFCFB7B7374D838DBC9A9EF76A3976F2A0B82442E003E751078672D8C34DE			
+Western Outlaw: Wanted Dead or Alive 	2002	_LithTech				
 Westworld Awakening 	2019	_Unreal4	0xDDBBC3C3BEDEBFDACA935DB3368436444BB0CD1B2627BC2D785FFCEFD374DAE2			
 Whistler & Aspen		_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms		
 Wild Born		_Unreal4	0x50EF62F84B2AC08E8FB04F5468154EACEB661ED83864C9F3F77F7CD9C0D42289			
@@ -4266,24 +4496,36 @@ Wolfenstein: Spear of Destany	1992	_idTech
 Wolfenstein: The New Order 	2014	_idTech				
 Wolfenstein: The Old Blood 	2015	_idTech				
 Wolfenstein: Youngblood	2019	_idTech				
+Wolfschanze II 	2009	_LithTech				
+Wolfteam 	2007	_LithTech				
 Word Hunt Fever	2021	_Godot				
 WordTactics	2021	_Godot				
 World Boxing Manager	2016	_Godot				
 World of Padman: Standalone Complex 	2007	_idTech				
-World War 2 Normandy		_GAUP	REZ Files (*.REZ)|			
-World War 2 Sniper: Call To Victory		_GAUP	REZ Files (*.REZ)|			
+World of Warcraft	2004	_QuickBMS	Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|	\data\wcx\TotalObserver.wcx		
 World War 3 	2018	_Unreal4	0x189C0D1E0A10708A13796B5A59BFC2A06D36A4CB8392B5955B9F34F911D3AE66			
+World War II Sniper: Call to Victory	2004	_LithTech				
 World War Zero: Iron Storm (PS2)	2004	_Asura				
 Worms 2		_GAUP	DIR Files (*.DIR)|			
 Worms Armageddon		_GAUP	DIR Files (*.DIR)|			
 Worms Rumble	2020	_Unreal4	0x9E84B3B5BFA9C7F0EE9B3FB51E8F97B17E4DFDD9C0A8160B23121205A989137D			
 Worms World Party		_GAUP	DIR Files (*.DIR)|			
 WRATH: Aeon of Ruin	2019	_idTech				
+WWII: Iwo Jima 	2001	_LithTech				
+WWII: Normandy 	2001	_LithTech				
+X Rebirth		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
 X-Blades)	Page not found!	_QuickBMS		\data\scripts\xblades.bms		
+X-Men Legends 2		_ZIP				
 X-Men: Children of the Atom (Sega Saturn)	Page not found!	_QuickBMS		\data\scripts\sega_audio.bms		
 X-Men: The Ravages of Apocalypse 	1997	_idTech				
 X-Motor (TRC)	Page not found!	_QuickBMS		\data\scripts\xmotor.bms		
+X-Tension		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
 X-Treme Quads (PS2) (SFD to SS2)	Page not found!	_QuickBMS		\data\scripts\sdf2ss2.bms		
+X: Beyond the Frontier		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
+X²: The Threat		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
+X³: Albion Prelude		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
+X³: Reunion		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
+X³: Terran Conflict		_QuickBMS	X-CAT (*.cat;*.pck;*.pbd;*.pbb)|	\data\wcx\TotalObserver.wcx		
 Xanadu Next	2005	_QuickBMS		\data\scripts\xanadu_next.bms		
 XANARTHRAXIA	2019	_Godot				
 Xatax	1994	_QuickBMS		\data\scripts\RES_5.bms		
@@ -4306,7 +4548,9 @@ Xiang Long Zhi Jian	Page not found!	_QuickBMS		\data\scripts\xiang_long_zhi_jian
 XIII Century	Page not found!	_QuickBMS	PAK File (*.pak)|	\data\scripts\xiii_centure.bms		
 XOL	2020	_Godot				
 Xpand Rally	2004	_Chrome				
+XPand Rally		_ZIP				
 Xpand Rally Xtreme	2007	_Chrome				
+XS Mark (PK1,PK2)		_ZIP				
 Xuan Dou Zhi Wang	Page not found!	_QuickBMS	RES File (*.res)|	\data\scripts\king_of_combat_res.bms		
 Xuan-Yuan Sword VII 	2020	_Unreal4	0xA1A75DA6B6223810A76BFEA98DA4CE5CD8026AE0DEEECDCCEF1AC71740F2FC50			
 Xylith	2020	_Construct				
@@ -4369,7 +4613,9 @@ ZombiU	2012	_QuickBMS		\data\scripts\zombiu.bms
 Zone of the Enders (MODULE.IPK)	2001	_QuickBMS	(MODULE.IPK)|	\data\scripts\module_ipk.bms		
 Zone of the Enders: The 2nd Runner (MODULE.IPK)	2003	_QuickBMS	(MODULE.IPK)|	\data\scripts\module_ipk.bms		
 Zone of the Enders: The 2nd Runner M∀RS	Page not found!	_QuickBMS		\data\scripts\zoe2_cygames.bms		
+Zoo Tycoon		_ZIP				
 Zoo Tycoon 2	2004	_QuickBMS	Z2F File (*.z2f)|	\data\scripts\zoo_tycoon_2_z2f_enc.bms		
+Zoo Tycoon 2: Endangered Species		_ZIP				
 ZuGame	Page not found!	_QuickBMS		\data\scripts\zugame.bms		
 Zula: BattleRoyale	2016	_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms		
 ZuOnline	Page not found!	_QuickBMS		\data\scripts\zuonline.bms		
@@ -4379,4 +4625,5 @@ ZuOnline	Page not found!	_QuickBMS		\data\scripts\zuonline.bms
 星礼研究所 | Sighchology Research Lab	2019	_Godot				
 荣光的见证	2021	_Godot				
 飞花令 春饼	2021	_Godot				
-Ashes: Afterglow	2021	_idTech				
+Division, Tom Clancy’s	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
+Tom Clancy's The Division	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
