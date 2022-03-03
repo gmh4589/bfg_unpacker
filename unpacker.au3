@@ -208,6 +208,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iSubMenuEngine = _GUICtrlCreateODMenu($tEngine, $iFileMenu)
 	;Игровые движки
 	$iUnpack816 = _GUICtrlCreateODMenuItem("Acknex Engine", $iSubMenuEngine)
+	$iAnvil = _GUICtrlCreateODMenuItem("Anvil\Scimitar Engine", $iSubMenuEngine)
 	$iAsura = _GUICtrlCreateODMenuItem("Asura Engine", $iSubMenuEngine)
 	$iAurora = _GUICtrlCreateODMenuItem("Aurora Engine", $iSubMenuEngine)
 	$iChromeEngine = _GUICtrlCreateODMenuItem("Chrome Engine", $iSubMenuEngine)
@@ -216,37 +217,32 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iCryEngine = _GUICtrlCreateODMenuItem("Cry Engine", $iSubMenuEngine)
 	$iGameMaker = _GUICtrlCreateODMenuItem("GameMaker", $iSubMenuEngine)
 	$iGodot = _GUICtrlCreateODMenuItem("Godot Engine", $iSubMenuEngine)
-	$iUnpack888 = _GUICtrlCreateODMenuItem("Fox Engine", $iSubMenuEngine)
-	$iOpenF63 = _GUICtrlCreateODMenuItem("FPS Creator", $iSubMenuEngine)
+	;$iDunia = _GUICtrlCreateODMenuItem("Dunia Engine", $iSubMenuEngine)
+	$iFoxEngine = _GUICtrlCreateODMenuItem("Fox Engine", $iSubMenuEngine)
+	$iFPS_Creator = _GUICtrlCreateODMenuItem("FPS Creator", $iSubMenuEngine)
 	$iFrostBite = _GUICtrlCreateODMenuItem("FrostBite Engine", $iSubMenuEngine)
-	$iUnpack1213 = _GUICtrlCreateODMenuItem("Gameloft", $iSubMenuEngine) 
-	$iUnpack827 = _GUICtrlCreateODMenuItem("Glacier Engine", $iSubMenuEngine)
-	$iUnpack943 = _GUICtrlCreateODMenuItem("HuneX Engine", $iSubMenuEngine)
+	$iGameloft = _GUICtrlCreateODMenuItem("Gameloft", $iSubMenuEngine) 
+	$iGlacier = _GUICtrlCreateODMenuItem("Glacier Engine", $iSubMenuEngine)
+	$iHuneX = _GUICtrlCreateODMenuItem("HuneX Engine", $iSubMenuEngine) ; не удалось найти ни одной игры на этом движке, есть студия HuneX, и это явно их движок, судя по всему - игр на нем много, но... Hunex выпускает игры и на других движках, а на собственно HuneX Engine игры выпускают, вероятно, и другие разрабы.
 	$iDTech = _GUICtrlCreateODMenuItem("iDTech Engine", $iSubMenuEngine)
-	$Infinity = _GUICtrlCreateODMenuItem("Infinity Engine", $iSubMenuEngine) ; протестировать
-	$iLinTech = _GUICtrlCreateODMenuItem("LinTech Engine", $iSubMenuEngine)
+	$Infinity = _GUICtrlCreateODMenuItem("Infinity Engine", $iSubMenuEngine) 
+	$iLithTech = _GUICtrlCreateODMenuItem("LithTech Engine", $iSubMenuEngine)
 	$iMTFramework = _GUICtrlCreateODMenuItem("MT Framework", $iSubMenuEngine)
-	$iUnpack1060 = _GUICtrlCreateODMenuItem("Origo Engine", $iSubMenuEngine)
 	$iPopCapPackAll = _GUICtrlCreateODMenuItem("PopCap Games", $iSubMenuEngine)
 	$iReEngine = _GUICtrlCreateODMenuItem("RE Engine", $iSubMenuEngine)
 	$iRedEngine = _GUICtrlCreateODMenuItem("RED Engine", $iSubMenuEngine)
-	$iUnpack1106 = _GUICtrlCreateODMenuItem("Renderware", $iSubMenuEngine) ; ↓ - объединить
-	;$iUnpack1107 = _GUICtrlCreateODMenuItem("Renderware 2", $iSubMenuEngine) ; ↑ - объединить
 	$iRenPy = _GUICtrlCreateODMenuItem("RenPy Engine", $iSubMenuEngine)
 	$iRPGMaker = _GUICtrlCreateODMenuItem("RPG Maker", $iSubMenuEngine) ; добавить поддержку новых версий
-	$iUnpack1117 = _GUICtrlCreateODMenuItem("Scimitar Engine", $iSubMenuEngine) ; ↓ - объединить
-	;$iUnpack1118 = _GUICtrlCreateODMenuItem("Scimitar Engine (var. 2)", $iSubMenuEngine) ; ↑ - объединить
-	$iUnpack1134 = _GUICtrlCreateODMenuItem("ShiVa Engine", $iSubMenuEngine) ; протестировать
+	$iShiVa = _GUICtrlCreateODMenuItem("ShiVa Engine", $iSubMenuEngine) ; протестировать
 	$iOpenSWF = _GUICtrlCreateODMenuItem("Shockwave Flash", $iSubMenuEngine)
-	$iUnpack1205 = _GUICtrlCreateODMenuItem("Snowdrop Engine", $iSubMenuEngine) ; протестировать
 	$iSource = _GUICtrlCreateODMenuItem("Source Engine", $iSubMenuEngine) 
 	;$iUnpack1203 = _GUICtrlCreateODMenuItem("Ubisoft [Language] sorter", $iSubMenuEngine) ; что это вообще???
-	$iUnpack1151 = _GUICtrlCreateODMenuItem("Ubisoft Montreal - big/fat/000 archives", $iSubMenuEngine) ; ↓ - объединить
+	;$iUnpack1151 = _GUICtrlCreateODMenuItem("Ubisoft Montreal - big/fat/000 archives", $iSubMenuEngine) ; ↓ - объединить
 	;$iUnpack1204 = _GUICtrlCreateODMenuItem("Ubisoft Montreal - fat/000 archives", $iSubMenuEngine) ; ↑ - объединить
 	$iUnigenex = _GUICtrlCreateODMenuItem("Unigene", $iSubMenuEngine)
 	$iUnity = _GUICtrlCreateODMenuItem("Unity 3D Engine", $iSubMenuEngine)
 	$iUnreal = _GUICtrlCreateODMenuItem("Unreal Engine", $iSubMenuEngine)
-	$iOpenX14 = _GUICtrlCreateODMenuItem("XNA Framework", $iSubMenuEngine)
+	$iOpenXNA = _GUICtrlCreateODMenuItem("XNA Framework", $iSubMenuEngine)
 #EndRegion
 
 #Region //Installers
@@ -360,7 +356,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 	$iConvMenu2 = _GUICtrlCreateODMenu($tAudio, $iConvMenu)
 	$iConv_15 = _GUICtrlCreateODMenuItem("FFMPEG Sound Converter", $iConvMenu2)
-	$iConv_9 = _GUICtrlCreateODMenuItem("Video Game Sound Converter", $iConvMenu2)
+	$iVGM = _GUICtrlCreateODMenuItem("VGM Stream Tools", $iConvMenu2)
 	$iFSBext = _GUICtrlCreateODMenuItem("FSBext (FSB " & $tTo & " WAV\MP3\OGG)", $iConvMenu2)
 	$iToWAV = _GUICtrlCreateODMenuItem("ToWAV (FSB, XWB " & $toTo & " WAV\MP3\OGG )", $iConvMenu2)
 	$iConv_5 = _GUICtrlCreateODMenuItem("Wwise Converter", $iConvMenu2)
@@ -421,12 +417,11 @@ Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith 
 		If $i = 1 Then $iBtnName = "A"
 		If $i = 15 Then $iBtnName = "Z"
 		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
-		$j = _ArraySearch($abcArray, $iBtnName)
-		GUICtrlSetTip(-1, $iIconsArray[$j][1])
-		GUICtrlSetFont(-1, $iIconsArray[$j][0], 400, 0, "IconLib")
+		GUICtrlSetTip(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][1])
+		GUICtrlSetFont(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][0], 400, 0, "IconLib")
 		GUICtrlSetResizing (-1, $GUI_DOCKALL)
 	Next
-	
+	;TODO Текст на русском!
 	For $i = 2 to 14
 		$iContMenu[$i] = GUICtrlCreateContextMenu ($idButton[$i])
 		$iChangeButton[$i] = GUICtrlCreateMenuItem ("Настроить кнопку", $iContMenu[$i])
@@ -522,7 +517,7 @@ EndFunc
 	_GUICtrlODMenuItemSetIcon ($iChromeEngine, @ScriptDir & "\data\ico\chrome.ico")
 	_GUICtrlODMenuItemSetIcon ($iBethesda, @ScriptDir & "\data\ico\creation.ico")
 	_GUICtrlODMenuItemSetIcon ($iCryEngine, @ScriptDir & "\data\ico\cry.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenF63, @ScriptDir & "\data\ico\fps.ico")
+	_GUICtrlODMenuItemSetIcon ($iFPS_Creator, @ScriptDir & "\data\ico\fps.ico")
 	_GUICtrlODMenuItemSetIcon ($iFrostBite, @ScriptDir & "\data\ico\fb.ico")
 	_GUICtrlODMenuItemSetIcon ($iDTech, @ScriptDir & "\data\ico\id.ico")
 	_GUICtrlODMenuItemSetIcon ($Infinity, @ScriptDir & "\data\ico\Infinity.ico")
@@ -534,7 +529,7 @@ EndFunc
 	_GUICtrlODMenuItemSetIcon ($iSource, @ScriptDir & "\data\ico\source.ico")
 	_GUICtrlODMenuItemSetIcon ($iUnity, @ScriptDir & "\data\ico\unity.ico")
 	_GUICtrlODMenuItemSetIcon ($iUnreal, @ScriptDir & "\data\ico\unreal.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenX14, @ScriptDir & "\data\ico\xna.ico")
+	_GUICtrlODMenuItemSetIcon ($iOpenXNA, @ScriptDir & "\data\ico\xna.ico")
 	_GUICtrlODMenuItemSetIcon ($iTotal7zip, @ScriptDir & "\data\7zip\7zG.exe", 0)
 	_GUICtrlODMenuItemSetIcon ($iGAUP, @ScriptDir & "\data\ico\gaup_logo.ico")
 	_GUICtrlODMenuItemSetIcon ($iConv_12, @ScriptDir & "\Data\ico\ffmpeg.ico")
