@@ -166,8 +166,8 @@ Func AutoSearch()
 		
 			Local $iArr = [@CRLF & $tWaitList, @CRLF & $tSP_msg1, @CRLF & $tSP_msg2, @CRLF & $tSP_msg3, @CRLF & $tSP_msg4, "'it's not possible to create that file...'", "'...'", "'if you press ENTER a new name will be generated automatically'", "'OLD:'", "'NEW:'", $tSP_msg5, '']
 			
-			For $i = 0 to UBound($iArr)-1
-				GUICtrlSetData($iEdit, $iArr[$i] & @CRLF, 1)
+			For $iString in $iArr
+				GUICtrlSetData($iEdit, $iString & @CRLF, 1)
 			Next
 			
 			$iFile = FileOpen(@TempDir & "\bfgunpacker\list.bat", 10)
@@ -206,25 +206,6 @@ Func AutoSearch()
 			FileDelete (@TempDir & "\bfgunpacker\file_list.txt")
 			ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
 EndFunc
- 
-Func _Endian($Binary)
-	$Len = StringLen($Binary)
-		;MsgBox (0, '', $Binary)
-	If $Len < 6 or Mod($Len, 2) = 1 or StringIsXDigit(StringTrimLeft($Binary, 2)) = 0 Then
-		MsgBox (0, '', $Binary & " не является 16-ричным числом!")
-		Return
-	EndIf
-	
-	$BinaryArray = StringRegExp($Binary, '\N\N', 3)
-	$a = UBound($BinaryArray) - 1
-	$txt = FileOpen (@TempDir & '\bindata.txt', 10)
-	
-		For $i = $a to 1 Step -1
-			FileWrite ($txt, $BinaryArray[$i])
-		Next
-	FileClose ($txt)
-	Return ('0x' & FileReadLine (@TempDir & '\bindata.txt', 1))
-EndFunc
 
 Func _CursorMove($iGuiID)
 	$iCursorPos = GUIGetCursorInfo($iGuiID)
@@ -249,4 +230,3 @@ Func _CursorMove($iGuiID)
 		EndSwitch
 	EndIf
 EndFunc
- 

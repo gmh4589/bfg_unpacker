@@ -28,6 +28,11 @@ Func Main()
 			Else
 				$rI = ""
 			EndIf
+		
+		Case $iReimport_CheckboxTXT
+			GUICtrlSetState($iReimport_Checkbox, _Checker($iReimport_Checkbox))
+		Case $iHideOrShowTXT
+			GUICtrlSetState($iHideOrShow, _Checker($iHideOrShow))
 				
 		Case $iDeFi 
 			Defi()
@@ -121,7 +126,7 @@ Func Main()
 						Case 'R'
 							_Engine('_Godot')
 						Case 'S'
-							_Engine('_RPGMaker')
+							_Engine('_RPGMaker', 'pass')
 						Case 'T'
 							_Engine('_RenPy')
 						Case 'U'
@@ -186,33 +191,35 @@ Func Main()
 			_Engine('_ReEngine')
 		Case $iAurora
 			_Engine('_Aurora')
-		Case $iUnpack888
+		Case $iFoxEngine
 			_OtherPRG("FOX Engine files (*.dat; *.qar; *.fpk; *.pftxs; *.sbp; *.xml)|", "gzsTool\gzsTool.exe", ' ', '' )
-		Case $iOpenF63
+		Case $iFPS_Creator
 			_QuickBMSRun("imageblock.bin file (imageblock.bin)|", @ScriptDir & "\data\scripts\fps_creator_imageblock.bms  ", '')
-		Case $iLinTech
-			_QuickBMSRun('REZ Files (*.rez)', @ScriptDir &  '\data\wcx\gaup_pro.wcx ')
+		Case $iLithTech
+			_Engine('_LithTech')
 		Case $iFrostBite
 			_Engine('_Frostbite')
-		Case $iUnpack1213
+		Case $iGameloft
 			;_QuickBMSRun("", @ScriptDir & "\data\scripts\uno_gameloft_bin.bms ")
 			_QuickBMSRun("GLA File (*.gla)|", @ScriptDir & "\data\scripts\lz_sprites_gla.bms ")
-		Case $iUnpack827
+		Case $iGlacier
 			_Engine('_Glacier')
-		Case $iUnpack943
+		Case $iHuneX
 			_QuickBMSRun("", @ScriptDir & "\data\scripts\hunex.bms ")
 		Case $iDTech
 			idTech()	
-		Case $Infinity, $iConv_3, $iSAU
-			_SAU()
+		Case $Infinity 
+			_Engine('_Infinity')
+		Case $iConv_3, $iSAU
+			_OtherPRGExt('_SAU')
 		Case $iMTFramework
 			_Engine('_MTFramework')	
-		Case $iUnpack1060
-			_QuickBMSRun("", @ScriptDir & "\data\scripts\origo_engine.bms ")
+		; Case $iUnpack1060
+			; _QuickBMSRun("", @ScriptDir & "\data\scripts\origo_engine.bms ")
 		Case $iPopCapPackAll
 			_Engine('_PopCapPackAll')
-		Case $iUnpack1106
-			_QuickBMSRun("", @ScriptDir & "\data\scripts\rockstar_renderware.bms ")
+		; Case $iUnpack1106
+			; _QuickBMSRun("", @ScriptDir & "\data\scripts\rockstar_renderware.bms ")
 		; Case $iUnpack1107
 			; _QuickBMSRun("", @ScriptDir & "\data\scripts\rockstar_renderware_ver2.bms ")
 		Case $iGameMaker
@@ -220,30 +227,26 @@ Func Main()
 		Case $iGodot
 			_Engine('_Godot')
 		Case $iRPGMaker
-			_Engine('_RPGMaker')
+			_Engine('_RPGMaker', 'pass')
 		Case $iConstruct
 			_Engine('_Construct')
 		Case $iRenPy
 			_Engine('_RenPy')
-		Case $iUnpack1117
-			_QuickBMSRun("Scimitar Engine archive (*.forge)|", @ScriptDir & "\data\scripts\scimitar.bms ")
-		; Case $iUnpack1118
-			; _QuickBMSRun("", @ScriptDir & "\data\scripts\scimitar_compressed.bms ")
-		Case $iUnpack1134
+		Case $iAnvil
+			_Engine('_Anvil')
+		Case $iShiVa
 			_QuickBMSRun("Shiva Engine Files (S3DMain.smf;S3DMain.stk;S3DMain.ste)|", @ScriptDir & "\data\scripts\shiva.bms ")
 		Case $iOpenSWF
-			_QuickBMSRunWCX2 ('SWF ' & $tArchives & ' (*.swf)|', @ScriptDir & "\data\7zip\Total7zip.wcx ", '', 'swf')
-		Case $iUnpack1205
-			_QuickBMSRun("", @ScriptDir & "\data\scripts\ubisoft_sdf.bms ")
+			_Engine('_Flash')
 		; Case $iUnpack1203
 			; _QuickBMSRun("", @ScriptDir & "\data\scripts\ubisoft_bao_sorter.bms ")
-		Case $iUnpack1151
-			_QuickBMSRun("BIG & FAT Files (*.big; *.fat)|", @ScriptDir & "\data\scripts\sound_big_fat.bms ")
+		; Case $iUnpack1151
+			; _QuickBMSRun("BIG & FAT Files (*.big; *.fat)|", @ScriptDir & "\data\scripts\sound_big_fat.bms ")
 		; Case $iUnpack1204
 			; _QuickBMSRun("000 & FAT Files (*.000; *.fat)|", @ScriptDir & "\data\scripts\ubisoft_montreal_fat_000.bms ")
 		Case $iUnigenex
 			_Engine('_Unigene')
-		Case $iOpenX14
+		Case $iOpenXNA
 			_QuickBMSRun("XNB Files (*.xnb)|", @ScriptDir & "\data\scripts\xnb.bms ")
 		Case $iInstExpl1, $iInstExpl2, $iInstExpl3, $iInstExpl4
 			_QuickBMSRun("Windows Installer (*.exe)|", @ScriptDir & "\data\wcx\InstExpl.wcx ")
@@ -302,21 +305,13 @@ Func Main()
 			EndIf
 		Case $iArchiveItem[8]
 			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iFileName = FileSelectFolder("", $iLastDir)
-			If @error <> 1 then
-				_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-				_OtherPRG4Folder ("\bma.exe", ' a "' & $sFolderName & '\' & $iName & '.bma" "', '"', $sFolderName, $iFileName)
-			EndIf
+				_OtherPRG ("\bma.exe", ' a "' & $sFolderName & '\' & $iName & '.bma" "', '"', $sFolderName, '', False)
 			Else
 				_OtherPRG ('BMA ' & $tArchives & ' (*.bma)|', "\bma.exe", ' e "', '"')
 			EndIf
 		Case $iArchiveItem[13]
 			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iFileName = FileSelectFolder("", $iLastDir)
-			If @error <> 1 then
-				_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-				_OtherPRG4Folder ("\dgcac.exe", ' a "' & $sFolderName & '\' & $iName & '.dgca" "', '"', $sFolderName, $iFileName)
-			EndIf
+				_OtherPRG ("\dgcac.exe", ' a "' & $sFolderName & '\' & $iName & '.dgca" "', '"', $sFolderName, '', False)
 			Else
 				_OtherPRG ('DGCA ' & $tArchives & ' (*.dgca; *.dgc)|', "\dgcac.exe", ' e "', '" "' & $sFolderName & '"')
 			EndIf
@@ -407,7 +402,7 @@ Func Main()
 		Case $iArchiveItem[40]
 			_QuickBMSRun('RPM ' & $tArchives & ' (*.rpm*)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
 		Case $iArchiveItem[41]
-			_QuickBMSRunWCX2 ('RPM.CPIO ' & $tArchives & ' (*.cpio.rpm)|', @ScriptDir & "\data\7zip\Total7zip.wcx ", '', 'cpio')
+			_QuickBMSRun ('RPM.CPIO ' & $tArchives & ' (*.cpio.rpm)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
 		Case $iArchiveItem[42]
 			_QuickBMSRun('SIS ' & $tArchives & ' (*.sis)|', @ScriptDir & "\data\wcx\PDunSIS.wcx ")
 		Case $iArchiveItem[44]
@@ -419,7 +414,7 @@ Func Main()
 		Case $iArchiveItem[47]
 			_QuickBMSRun('TAZ ' & $tArchives & ' (*.taz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
 		Case $iArchiveItem[48]
-			_QuickBMSRunWCX2 ('TARZIP ' & $tArchives & ' (*.tar.*z*; *.t*z)|', @ScriptDir & "\data\7zip\Total7zip.wcx ", '', 'tar')
+			_QuickBMSRun ('TARZIP ' & $tArchives & ' (*.tar.*z*; *.t*z)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
 		Case $iArchiveItem[49]
 			_QuickBMSRun('WIM ' & $tArchives & ' (*.wim)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
 		Case $iArchiveItem[52]
@@ -510,8 +505,8 @@ Func Main()
 			_ChildGUI("NCONVERT GUI", $Format, "bmp|cur|dcx|dds|dib|dng|gif|jif|jpeg|pcd|pcx|pdf|png|psb|psd|raw|svg|tga|tiff|wbmp|--Other--|2bp|2d|3fr|411|a64|abmp|abr|abs|acc|ace|aces|acorn|adex|adt|afphoto|afx|ai|aim|aip|aipd|alias|ami|ani|anv|aphp|apx|arcib|arf|arn|art|artdir|arw|atk|att|aurora|avs|avw|az7|b16|b3d|bdr|bfli|bfx|bga|bias|bif|biorad|bip|bld|blp|bmc|bmg|bms|bmx|bob|bpr|brk|bsg|btn|bum|byusir|c4|cadc|cals|cam|can|car|cart|cat|cbmf|cdr|cdu|ce|ce1|cel|cft|cgm|che|cin|cip|ciph|cipt|cish|cism|cloe|clp|cmt|cmu|cmx|cncd|cnct|cp8|cpa|cpat|cpc|cpt|cr2|craw|crd|crg|crw|csv|ct|cut|cvp|cwg|d3d|dali|dbw|dcmp|dcpy|dcr|dd|degas|dicom|dkb|dol|doodle|dpx|drz|dsi|dta|dwg|dwg|ecc|efx|eidi|eif|emf|emz|epa|epi|eps|epsp|erf|esm|esmp|eyes|f96|face|fax|fbm|fcx|fff|fff|ffpg|fgs|fi|fit|fits|fli|fmag|fmap|fmf|fp2|fpg|fpr|fpt|fre|frm|frm2|fsh|fsy|ftf|fx3|fxs|g16|g3n|gaf|gbr|gcd|gem|geo|gfaray|gg|gicon|gig|gih|gm|gmf|god|gpat|gpb|grob|gun|hdri|hdru|hed|hf|hir|hpgl|hpi|hr|hru|hrz|hsi|hta|icb|icd|icl|icn|icns|ico|icon|iff|ifx|iim|iimg|ilab|im5|img|imgt|imi|imt|indd|info|ingr|ioca|ipg|ipl|ipl2|ipseq|iris|ish|iss|j6i|jbf|jbr|jig|jig2|jj|jls|jps|jtf|jxr|k25|k25b|kdc|kdc2|kfx|kntr|koa|kps|kqp|kro|kskn|lbm|lcel|lda|lff|lif|lsm|lss|lvp|lwi|m8|mac|mag|map|mbig|mdl|mef|mfrm|mgr|mh|miff|mil|mjpg|mkcf|mklg|mng|mon|mos|mph|mpo|mrc|mrf|mrw|msp|msx2|mtv|mtx|ncr|ncy|ncy|nef|neo|ngg|nifti|nist|nitf|nlm|nol|npm|nrw|nsr|oaz|ocp|of|ofx|ohir|oil|ols|orf|os2|otap|otb|p64|p7|pabx|palm|pam|pan|patps|pbm|pbt|pcl|pcp|pd|pdd|pds|pdx|pef|pegs|pfi|pfm|pfs|pgc|pgf|pgm|pi|pic|pict|pig|pixi|pixp|pld|pm|pm|pmg|pmp|pmsk|pnm|pp4|pp5|ppm|ppp|pps|ppt|prc|prf|prisms|prx|ps|psa|pseg|psf|psion3|psion5|psp|pspb|pspf|pspm|pspp|pspt|ptg|pwp|pxa|pxr|pzl|pzp|q0|qcad|qdv|qrt|qtif|rad|raf|ras|raw1|raw2|raw3|raw4|raw5|raw6|raw7|raw8|raw9|rawa|rawb|rawdvr|rawe|ray|rdc|rfa|rfax|ript|rix|rla|rlc2|rle|rp|rpm|rsb|rsrc|rw2|rwl|sar|sci|sct|sdg|sdt|sfax|sfw|sgi|sif|sir|sj1|skf|skn|skp|smp|soft|spc|spot|sps|spu|srf|srf2|srw|ssi|ssp|sst|st4|stad|star|stm|stw|stx|syj|synu|taac|tdi|tdim|teal|tg4|thmb|ti|til|tile|tim|tim2|tiny|tjp|tnl|trup|tsk|ttf|tub|txc|uni|upe4|upi|upst|uyvy|uyvyi|v|vda|vfx|vi|vicar|vid|vif|viff|vista|vit|vivid|vob|vort|vpb|wad|wal|wbc|wfx|winm|wmf|wmz|wpg|wrl|wzl|x3f|xar|xbm|xcf|xif|xim|xnf|xp0|xpm|xwd|xyz|yuv411|yuv422|yuv444|zbr|zmf|zxhob|zxscr|zxsna|zzrough", "png")
 		Case $iConv_6
 			_ChildGUI("Wav Headler Generator", $Frequency & '|' & $Channel & '|' & $Bit & '|' & $Format, "8000|12000|16000|22050|24000|36000|44100|48000|96000|192000|384000;1|2|3|4|5|6|7|8;8|12|16|24|32|48|64|96|128;ADPCM|ALAW|ANTEX_ADPCME|APTX|ATRAC|AUDIOFILE_AF10|AUDIOFILE_AF36|BTV_DIGITAL|CANOPUS_ATRAC|CIRRUS|CONTROL_RES_CR10|CONTROL_RES_VQLPC|CREATIVE_ADPCM|CREATIVE_FASTSPEECH10|CREATIVE_FASTSPEECH8|CS2|CS_IMAADPCM|CU_CODEC|DF_G726|DF_GSM610|DIALOGIC_OKI_ADPCM|DIGIADPCM|DIGIFIX|DIGIREAL|DIGISTD|DIGITAL_G723|DOLBY_AC2|DOLBY_AC3_SPDIF|DRM|DSAT_DISPLAY|DSPGROUP_TRUESPEECH|DTS|DVI_ADPCM|DVM|ECHOSC1|ECHOSC3|ESPCM|ESST_AC3|FM_TOWNS_SND|G721_ADPCM|G722_ADPCM|G723_ADPCM|G726ADPCM|G726_ADPCM|G728_CELP|G729A|GSM610|IBM_CVSD|IEEE_FLOAT|ILINK_VC|IMA_ADPCM|IPI_HSX|IPI_RPELP|IRAT|ISIAUDIO|LH_CODEC|LRC|LUCENT_G723|MALDEN_PHONYTALK|MEDIASONIC_G723|MEDIASPACE_ADPCM|MEDIAVISION_ADPCM|MP3|MPEG|MSAUDIO1|MSG723|MSNAUDIO|MSRT24|MULAW|MVI_MVI2|NMS_VBXADPCM|NORRIS|OKI_ADPCM|OLIADPCM|OLICELP|OLIGSM|OLIOPR|OLISBC|ONLIVE|PAC|PACKED|PCM|PHILIPS_LPCBB|PROSODY_1612|PROSODY_8KBPS|QDESIGN_MUSIC|QUALCOMM_HALFRATE|QUALCOMM_PUREVOICE|QUARTERDECK|RAW_SPORT|RHETOREX_ADPCM|ROCKWELL_ADPCM|ROCKWELL_DIGITALK|RT24|SANYO_LD_ADPCM|SBC24|SIERRA_ADPCM|SIPROLAB_ACELP4800|SIPROLAB_ACELP8V3|SIPROLAB_ACEPLNET|SIPROLAB_G729|SIPROLAB_G729A|SIPROLAB_KELVIN|SOFTSOUND|SONARC|SONY_SCX|SOUNDSPACE_MUSICOMPRESS|TPC|TUBGSM|UHER_ADPCM|UNISYS_NAP_16K|UNISYS_NAP_ADPCM|UNISYS_NAP_ALAW|UNISYS_NAP_ULAW|UNKNOWN(0000)|UNKNOWN(FFFF)|VIVO_G723|VIVO_SIREN|VME_VMPCM|VOXWARE|VOXWARE_AC10|VOXWARE_AC16|VOXWARE_AC20|VOXWARE_AC8|VOXWARE_BYTE_ALIGNED|VOXWARE_RT24|VOXWARE_RT29|VOXWARE_RT29HW|VOXWARE_TQ40|VOXWARE_TQ60|VOXWARE_VR12|VOXWARE_VR18|VSELP|XEBEC|YAMAHA_ADPCM|ZYXEL_ADPCM", "44100|2|32|PCM")
-		Case $iConv_9	
-			_OtherPRG('', 'VGSC\VGSC.exe', ' ', $sFolderName, $sFolderName, '', False)
+		Case $iVGM
+			_OtherPRGExt('_VGM')
 		Case $iConv_10
 			_ChildGUI("DDS Header Generator", $tWidth & '|' & $tHight & '|' & $Format & '|' & $Offset, "2|4|8|12|16|24|32|48|64|96|128|256|384|512|768|1024|1536|2048|3072|4096|8192;2|4|8|12|16|24|32|48|64|96|128|256|384|512|768|1024|1536|2048|3072|4096|8192;DXT1|DXT3|DXT5|DX10|BC4U|BC5U|BC4S|BC5S;0|8|16|32|64", '512|512|DXT5|0')
 		Case $iConv_11
@@ -557,7 +552,7 @@ Func Main()
 					Switch $iFuncCall[3]
 						Case '_QuickBMS'
 							_QuickBMSRun ($iFuncCall[4], @ScriptDir & $iFuncCall[5])
-						Case '_Unreal', '_Unity', '_RPGMaker', '_Bethesda', '_Aurora', '_RedEngine', '_Chrome', '_idTech', '_CryEngine', '_Construct', '_MTFramework', '_Source', '_RenPy', '_GameMaker', '_Asura', '_Chromium', '_Unigene', '_Godot', '_Glacier'
+						Case '_Unreal', '_Unity', '_RPGMaker', '_Bethesda', '_Aurora', '_RedEngine', '_Chrome', '_idTech', '_CryEngine', '_Construct', '_MTFramework', '_Source', '_RenPy', '_GameMaker', '_Asura', '_Chromium', '_Unigene', '_Godot', '_Glacier', '_Infinity', '_LithTech', '_Anvil', '_Dunia', '_Flash'
 							_Engine($iFuncCall[3])
 						Case '_Unreal4', '_ReEngine', '_TellTale'
 							_Engine($iFuncCall[3], '', $iFuncCall[4])
@@ -574,14 +569,18 @@ Func Main()
 							_DosBox($iFuncCall[4], $iFuncCall[5], $iFuncCall[6], $iFuncCall[7])
 						Case '_WithArray'
 							_WithArray($iFuncCall[1], $iFuncCall[4], $iFuncCall[5], $iFuncCall[6])
-						Case '_SAU'
-							_SAU()
+						Case '_SAU', '_VGM'
+							_OtherPRGExt($iFuncCall[3])
 						Case '_GAUP'
 							_QuickBMSRun($iFuncCall[4], @ScriptDir &  "\data\wcx\gaup_pro.wcx ")
 						Case '_ZIP'
 							_OtherPRG($iFuncCall[4], '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
 						Case '_CelTop'
 							_Engine('_Bethesda', 'folder')
+						Case '_Mor'
+							MorUnpacker()
+						Case '_OOAM'
+							OOAM_Unpacker()
 						Case '_ExoPlanet'
 							$file = FileOpenDialog($tSelectFile, " ", "Exoplanet catalog (exoplanet.eu_catalog.csv)|" & $tAllFile & " (*.*)", 1)
 							If $iFuncCall[4] = 'Celestia' Then CelestiaExo($file)

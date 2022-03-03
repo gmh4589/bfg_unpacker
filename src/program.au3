@@ -22,30 +22,24 @@ Func _QuickBMSRun($iExtList, $iScriptName, $sFileName = '', $sFolder = $sFolderN
 	Next
 EndFunc
 
-Func _QuickBMSRunWCX2($iExtList, $iScriptName, $sFileName, $iExt2) 
+Func _OtherPRGExt($iMode1, $sFileName = '')
+	If $iMode1 <> BitOR('_SAU', '_VGM') Then Return(MsgBox(0, '', 'Error 404'))
 	Switch $sFileName
 		Case '', ' ', '	', "", " ", "	"
-			$sFileName = FileOpenDialog ($tSelectFile, "", $iExtList & $tAllFile & " (*.*)", 1)
+			If $iMode1 = '_SAU' Then $sFileName = FileOpenDialog($tSelectFile, "", $tAllSupp & "(*.adf;*.agg;*.bdx;*.spr;*.pak;*.box;*.brig;*.chr;*.dat;*.bin;*.cam;*.cc;*.cmp;mas0*;*.df2;*.*c;*.rm;*.anm;*.4pp;*.epf;*.flx;*.gor;*.h4r;*.hrs;*.idx;*.ilb;*.key;*.lbx;*.lod;*.group;*.bin;*.mpq;*.dbi;*.ff;*.wdb;*.mul;*.nds;*.p00;*.p10;*.p99;*.pak;*.res;*.snd;*.tgw;*.tlb;*.uop;*.vid;*.vsr;*.war;*.xua;*.xub;*.jun;*.maa;*.jus;*.fan)|Amiga Disk File (*.adf)|Heroes of Might & Magic 1-2 (*.agg)|Black Moon Chronicles, Persian Wars (*.SPR)|Beats of Rage " & $tArchives & " (*.pak)|Beasts & Bumpkins " & $tArchives & " (*.box)|Brigandine (*.brig)|Beyond the Beyond (*CHR;*.DAT;*.BIN)|Cyberlore Library Manager (*.cam)|Kings Bounty " & $tAnd & " Might & Magic 3/4/5 " & $tArchives & " (*.cc)|Divine Divinity" & $tArchive & "(*.cmp)|Dark Seal 2: Wizard Fire (mas0*)|Tibia MMORPG (Tibia.dat)|Heroes of Might & Magic 4 sprite " & $tArchives & " (*.df2)|Divine Divinity sprite" & $tArchive & "(*.*c)|Dominus (*.rm;*anm;*.4pp;*.dat)|Realms of Arkania 2 (*.DAT)|East Point File System (*.epf)|Ultima 7, 8 " & $tAnd & " Crusader No Remorse " & $tArchives & " (*.flx)|Myth Fallen Lords " & $tArchives & " " & $tAnd & " Tagged Files (*.gor)|Stonekeep groupXX " & $tArchives & " (*.group)|Heroes of Might & Magic 4 " & $tArchives & " (*.h4r)|Heimdall (*.bin;*.dat)|Faery Tale Adventure 2 " & $tAnd & " Dinotopia " & $tArchives & " (*.hrs)|Jinyong Qunxia Zhuan " & $tArchives & " (*.idx)|Age of Wonders 1-2 image " & $tArchives & " (*.ilb)|Infinity Engine Directory (*.key)|Master of Magic " & $tArchives & " (*.lbx)|Lunar: Genesis / Dragon Song (*.dat)|Cyberlore Library (*.lib)|LOD " & $tArchives & " (*.lod)Majesty for IPhone/IPad (*.group.bin)|Blizzard MPQ " & $tArchives & " (*.mpq)|Disciples: Sacred Lands (*.DBI;*.FF;*.WDB)|Ultima Online" & $tArchive & "(*.mul)|Nintendo Nitro Filesystem " & $tAnd & " Formats (*.NDS)|Popolocrois" & $tArchive & "(*.p00;*.p1;*.p99)|Helbreath sprite " & $tArchives & " (*.pak)|Rage of Mages 1-2 (Allods) " & $tArchives & " (*.res)|Mystic Towers (rgmystus.dat)|SND " & $tArchives & " (*.snd)|Kohan: Immortal Sovereigns " & $tArchives & " (*.tgw)|SSI Tileset (*.tlb)|Ultima Online Mythic Package (*.uop)|Vandal Hearts (*.DAT)|VID " & $tArchives & " (*.vid)|Lemmings Paintball (*.vsr)|Warcraft 1 " & $tAnd & " 2 " & $tArchives & " (*.war)|Original Mulan " & $tArchives & " (*.XUA;*.XUB;*.JUN;*.MAA;*.JUS;*.FAN)|All Files (*.*)", 1+4)
+			
+			If $iMode1 = '_VGM' Then $sFileName = FileOpenDialog($tSelectFile, "", $tAllSupp & "(*.2dx9; *.aaap; *.aax; *.acm; *.adp; *.adpcm; *.ads; *.ss2; *.adx; *.adxkey; *.afc; *.agsc; *.ahx; *.ahxkey; *.aifc; *.aiff; *.aix; *.amts; *.asd; *.asf; *.as4; *.asr; *.ass; *.ast; *.ast; *.at3; *.aud; *.aus; *.baf; *.baka; *.bao; *.pk; *.bar; *.bg00; *.bgw; *.bh2pcm; *.bmdx; *.bns; *.bnsf; *.bnsfkey; *.bo2; *.brstm; *.caf; *.capdsp; *.ccc; *.cfn; *.cnk; *.dcs; *.dcsw; *.ddsp; *.dec; *.de2; *.dmsg; *.dsp; *.dvi; *.idvi; *.dxh; *.eam; *.emff; *.enth; *.fag; *.filp; *.fsb; *.wii; *.fsbkey; *.gca; *.gcm; *.gcsw; *.gcw; *.genh; *.gms; *.gsp; *.hca; *.hcakey; *.hgc1; *.his; *.hps; *.hwas; *.idsp; *.ikm; *.ild; *.int; *.ish; *.isd; *.ivaud; *.ivb; *.joe; *.kces; *.khv; *.kraw; *.leg; *.lps; *.lsf; *.lstm; *.lwav; *.matx; *.mc3; *.mca; *.mcg; *.mib; *.mi4; *.mic; *.mihb; *.mp4; *.lmp4; *.mpdsp; *.msa; *.msf; *.mss; *.msvp; *.mta2; *.mtaf; *.mus; *.musc; *.musx; *.mwv; *.myspd; *.ndp; *.npsf; *.nwa; *.ogg; *.logg; *.ogl; *.p3d; *.pcm; *.dvi; *.pcm; *.kcey; *.pcm; *.pdt; *.pnb; *.pos; *.ps2stm; *.psh; *.psw; *.raw; *.rkv; *.rnd; *.rrds; *.rsd; *.rsf; *.rstm; *.rwar; *.rwav; *.rws; *.rws; *.rwsd; *.rwx; *.rxw; *.s14; *.sss; *.sab; *.sad; *.sap; *.sb0; *.sb1; *.sb2; *.sb3; *.sb4; *.sb5; *.sb6; *.sb7; *.sc; *.scd; *.sd9; *.sdt; *.seg; *.sfl; *.sfs; *.sgd; *.sgb; *.sgh; *.sgx; *.sl3; *.sli; *.sm0; *.sm1; *.sm2; *.sm3; *.sm4; *.sm5; *.sm6; *.sm7; *.smp; *.smp; *.smpl; *.snd; *.snd; *.sng; *.sngw; *.sns; *.spd; *.sps; *.spsd; *.spt; *.spw; *.ssm; *.ster; *.sth; *.stm; *.stma; *.str; *.str; *.strm; *.sts; *.stx; *.svag; *.svs; *.swav; *.swd; *.tec; *.thp; *.tk5; *.txth; *.txtp; *.tydsp; *.ulw; *.um3; *.vag; *.vas; *.vgs; *.vig; *.vjdsp; *.voi; *.vpk; *.vs; *.vsf; *.waa; *.wac; *.wad; *.wam; *.was; *.wav; *.wavm; *.wb; *.wem; *.wp2; *.wsd; *.wsi; *.wvs; *.xa; *.xa2; *.xa30; *.xma; *.xmu; *.xss; *.xvas; *.xwav; *.xwb; *.xwb; *.xwh; *.xwh; *.ydsp; *.ymf; *.zsd; *.zwdsp)|All Files (*.*)", 1+4)
 				If @error = 1 then Return
 		EndSwitch
-	GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)
-	ShellExecuteWait (@ScriptDir & "\data\quickbms.exe ", $iScriptName & '"' & $sFileName & '" "' & $sFolderName & '"', @ScriptDir & "\data\wcx\", "open")
-	FileMove ($sFolderName & "\*." & $iExt2, $sFolderName & "\unpack." & $iExt2)
-	$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\quickbms.exe ", $iScriptName & '"' & $sFolderName & "\unpack."  & $iExt2 & '" "' & $sFolderName & '"', @ScriptDir & "\data\wcx\", "open")
-	FileDelete ($sFolderName & "\unpack."  & $iExt2)
-	Output_MSG($iOutputWindow, $sFileName)
-EndFunc
-
-Func _SAU($sFileName = '')
-	Switch $sFileName
-		Case '', ' ', '	', "", " ", "	"
-			$sFileName = FileOpenDialog($tSelectFile, "", $tAllSupp & "(*.adf;*.agg;*.bdx;*.spr;*.pak;*.box;*.brig;*.chr;*.dat;*.bin;*.cam;*.cc;*.cmp;mas0*;*.df2;*.*c;*.rm;*.anm;*.4pp;*.epf;*.flx;*.gor;*.h4r;*.hrs;*.idx;*.ilb;*.key;*.lbx;*.lod;*.group;*.bin;*.mpq;*.dbi;*.ff;*.wdb;*.mul;*.nds;*.p00;*.p10;*.p99;*.pak;*.res;*.snd;*.tgw;*.tlb;*.uop;*.vid;*.vsr;*.war;*.xua;*.xub;*.jun;*.maa;*.jus;*.fan)|Amiga Disk File (*.adf)|Heroes of Might & Magic 1-2 (*.agg)|Black Moon Chronicles, Persian Wars (*.SPR)|Beats of Rage " & $tArchives & " (*.pak)|Beasts & Bumpkins " & $tArchives & " (*.box)|Brigandine (*.brig)|Beyond the Beyond (*CHR;*.DAT;*.BIN)|Cyberlore Library Manager (*.cam)|Kings Bounty " & $tAnd & " Might & Magic 3/4/5 " & $tArchives & " (*.cc)|Divine Divinity" & $tArchive & "(*.cmp)|Dark Seal 2: Wizard Fire (mas0*)|Tibia MMORPG (Tibia.dat)|Heroes of Might & Magic 4 sprite " & $tArchives & " (*.df2)|Divine Divinity sprite" & $tArchive & "(*.*c)|Dominus (*.rm;*anm;*.4pp;*.dat)|Realms of Arkania 2 (*.DAT)|East Point File System (*.epf)|Ultima 7, 8 " & $tAnd & " Crusader No Remorse " & $tArchives & " (*.flx)|Myth Fallen Lords " & $tArchives & " " & $tAnd & " Tagged Files (*.gor)|Stonekeep groupXX " & $tArchives & " (*.group)|Heroes of Might & Magic 4 " & $tArchives & " (*.h4r)|Heimdall (*.bin;*.dat)|Faery Tale Adventure 2 " & $tAnd & " Dinotopia " & $tArchives & " (*.hrs)|Jinyong Qunxia Zhuan " & $tArchives & " (*.idx)|Age of Wonders 1-2 image " & $tArchives & " (*.ilb)|Infinity Engine Directory (*.key)|Master of Magic " & $tArchives & " (*.lbx)|Lunar: Genesis / Dragon Song (*.dat)|Cyberlore Library (*.lib)|LOD " & $tArchives & " (*.lod)Majesty for IPhone/IPad (*.group.bin)|Blizzard MPQ " & $tArchives & " (*.mpq)|Disciples: Sacred Lands (*.DBI;*.FF;*.WDB)|Ultima Online" & $tArchive & "(*.mul)|Nintendo Nitro Filesystem " & $tAnd & " Formats (*.NDS)|Popolocrois" & $tArchive & "(*.p00;*.p1;*.p99)|Helbreath sprite " & $tArchives & " (*.pak)|Rage of Mages 1-2 (Allods) " & $tArchives & " (*.res)|Mystic Towers (rgmystus.dat)|SND " & $tArchives & " (*.snd)|Kohan: Immortal Sovereigns " & $tArchives & " (*.tgw)|SSI Tileset (*.tlb)|Ultima Online Mythic Package (*.uop)|Vandal Hearts (*.DAT)|VID " & $tArchives & " (*.vid)|Lemmings Paintball (*.vsr)|Warcraft 1 " & $tAnd & " 2 " & $tArchives & " (*.war)|Original Mulan " & $tArchives & " (*.XUA;*.XUB;*.JUN;*.MAA;*.JUS;*.FAN)|", 1)
-				If @error = 1 then Return
-		EndSwitch
-		If @error <> 1 Then
-			_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-			_OtherPRG('', 'sau.exe', ' ', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
-		EndIf
+	$iFileList1 = StringSplit ($sFileName, '|')
+	Local $a1 = UBound($iFileList1) - 1, $fc1 = 2
+	If $a1 = 1 Then $fc1 = 1
+	For $i1 = $fc1 to $a1
+		If $iFileList1[0] > 1 Then $sFileName = $iFileList1[1] & '\' & $iFileList1[$i1]
+		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
+		If $iMode1 = '_SAU' Then _OtherPRG('', 'sau.exe', './', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
+		If $iMode1 = '_VGM' Then _OtherPRG('', 'vgmstream\test.exe', '-o ' & $sFolderName & '\' & $iName & '.wav ', '', $sFolderName, $sFileName)
+	Next
 EndFunc
 
 Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iFF = True) 
@@ -66,6 +60,7 @@ Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDi
 	If $a = 1 Then $fc = 1
 	For $i = $fc to $a
 		If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$i]
+		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
 		If GUICtrlRead($iHideOrShow) = 1 Then
 			$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\" & $iPRGName, $iCommand1 & '"' & $sFileName & '" ' & $iCommand2, $iWorkDir, "open")
 			Output_MSG($iOutputWindow, $sFileName)
@@ -79,24 +74,12 @@ Func _ScriptCreate($iStringArray, $iJobFolder = $sFolderName)
 	$hFile = FileOpen(@TempDir & "\temp.bat", 10)
 	FileWriteLine ($hFile, "chcp 65001")
 	If Not IsArray($iStringArray) Then FileWriteLine ($hFile, $iStringArray)
-	For $i = 0 to UBound($iStringArray)-1
-		FileWriteLine ($hFile, $iStringArray[$i])
+	For $String in $iStringArray
+		FileWriteLine ($hFile, $String)
 	Next
-	FileWriteLine ($hFile, "pause")
 	FileClose ($hFile)
 	ShellExecuteWait (@TempDir & "\temp.bat", "", $iJobFolder, "open")
 	FileDelete (@TempDir & "\temp.bat")
-EndFunc
-
-Func _OtherPRG4Folder($iPRGName, $iCommand1, $iCommand2, $iWorkDir, $sFileName = '')
-	Switch $sFileName
-		Case '', ' ', '	', "", " ", "	"
-			$sFileName = FileSelectFolder("", $iLastDir)
-				If @error = 1 then Return
-	EndSwitch
-			GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)
-			$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\" & $iPRGName, $iCommand1 & $sFileName & $iCommand2, $iWorkDir, "open")
-			Output_MSG($iOutputWindow, $sFileName)
 EndFunc
 
 Func _DosBox($iExtList, $iProgName, $iArg1, $iArg2, $sFileName = '') ;Для старых программ, работающих через DosBox: Список_расширений, Название_программы, Аргумент_имени_файла (1 или 0), Комманда
@@ -126,7 +109,7 @@ Func _DosBox($iExtList, $iProgName, $iArg1, $iArg2, $sFileName = '') ;Для с�
 			FileDelete ($sFolderName & "\dos4gw.exe")
 			FileDelete ($sFolderName & '\' & $iName & $iExp)
 			FileDelete ($sFolderName & "\dosbox.conf")
-			GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
+			GUICtrlSetData($iEdit, $tDone & ': ' & $sFileName & @CRLF, 1)
 EndFunc
 
 Func _WithArray($iGameName, $iFileArray, $iPRGName, $iSubFolder = '') ;Для программ, в которых нужно копировать файлы списком
