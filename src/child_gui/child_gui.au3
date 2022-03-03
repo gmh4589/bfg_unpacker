@@ -199,14 +199,12 @@ EndFunc
 
 Func BMSCreateAtrac($iFreq, $iChan, $iBitrate, $iFormat, $iOffset)
 	$hFile = FileOpen(@ScriptDir & "\data\scripts\atrac_script.bms", 10)
-	FileWriteLine ($hFile, 'include "func_header_' & $iFormat & '.bms"')
-	FileWriteLine ($hFile, 'set FREQ ' & $iFreq)
-	FileWriteLine ($hFile, 'set CH ' & $iChan)
-	FileWriteLine ($hFile, 'set OFFSET ' & $iOffset)
-	FileWriteLine ($hFile, 'set BITRATE ' & $iBitrate)
-	FileWriteLine ($hFile, 'get SIZE asize')
-	FileWriteLine ($hFile, 'math SIZE -= OFFSET')
-	FileWriteLine ($hFile, 'callfunction ' & $iFormat & ' 1')
+	Local $iBMSScript = ['include "func_header_' & $iFormat & '.bms"', 'set FREQ ' & $iFreq, 'set CH ' & $iChan, 'set OFFSET ' & $iOffset, 'set BITRATE ' & $iBitrate, 'get SIZE asize', 'math SIZE -= OFFSET', 'callfunction ' & $iFormat & ' 1']
+	
+	For $String in $iBMSScript
+		FileWriteLine ($hFile, $String)
+	Next
+	
 	FileClose ($hFile)
 EndFunc
 
@@ -230,9 +228,10 @@ Func BMSCreateWAV($iFreq, $iChan, $iBits, $iFormat)
 	$hFile = FileOpen(@ScriptDir & '\data\scripts\wav_script.bms', 10)
 	Local $iWAVScript = ["set FREQUENCY long " & $iFreq, "set CHANNELS long " & $iChan, "set BITS long " & $iBits, "set CODEC long " & $iCodec, "get SIZE asize", "get NAME filename", 'string NAME += ".wav"', 'set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"', "set RIFFSIZE long SIZE", "math RIFFSIZE += 36", "set BLOCKALIGN long BITS", "set AVGBYTES long FREQUENCY", "math BLOCKALIGN /= 8", "math BLOCKALIGN *= CHANNELS", "math AVGBYTES *= BLOCKALIGN", "putvarchr MEMORY_FILE 4 RIFFSIZE long", "putvarchr MEMORY_FILE 20 CODEC short", "putvarchr MEMORY_FILE 22 CHANNELS short", "putvarchr MEMORY_FILE 24 FREQUENCY long", "putvarchr MEMORY_FILE 28 AVGBYTES long", "putvarchr MEMORY_FILE 32 BLOCKALIGN short", "putvarchr MEMORY_FILE 34 BITS short", "putvarchr MEMORY_FILE 40 SIZE long", "log NAME 0 44 MEMORY_FILE", "append", "log NAME 0 SIZE", "append"]
 	
-	For $i = 0 to 26
-		FileWriteLine ($hFile, $iWAVScript[$i])
+	For $String in $iWAVScript
+		FileWriteLine ($hFile, $String)
 	Next
+	
 	FileClose ($hFile)
 	
 EndFunc

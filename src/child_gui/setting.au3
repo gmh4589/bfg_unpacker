@@ -52,7 +52,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 			GUICtrlSetState($iYearG, 1)
 		EndIf
 		
-	;TODO: Р”РѕР±Р°РІРёС‚СЊ Р°РґРµРєРІР°С‚РЅС‹Рµ С†РІРµС‚Р° РІ РіР°РјРјСѓ
+	;TODO: Добавить адекватные цвета в гамму
 	Local $iGamma = _
     [0xFFFFFF, 0x000000, 0xC0C0C0, 0x808080, _
      0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, _
@@ -90,7 +90,8 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 	EndIf
 
 	While 1
-		Switch GUIGetMsg($set_Gui)
+		$set_msg = GUIGetMsg($set_Gui)
+		Switch $set_msg
 			Case $GUI_EVENT_CLOSE, $iBTNSet2
 				GUISetState(@SW_HIDE, $set_Gui)
 					ExitLoop
@@ -116,7 +117,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', GUICtrlRead($iEngine4))
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', GUICtrlRead($iEngine5))
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', GUICtrlRead($iEngine6))
-			Case $iThemes, $Picker
+			Case $iThemes, $Picker ;TODO: баг - если поставить черный цвет меню, меню настроек остается белым до перезагрузки
 				$iUseThemes = GUICtrlRead($iThemes)
 				If $iUseThemes = 4 Then $iMenuColor = _GUIColorPicker_GetColor($Picker)
 				If $iUseThemes = 1 Then $iMenuColor = GUICtrlRead($Picker)
@@ -132,53 +133,32 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 					GUICtrlSetState($iYearG, $GUI_UNCHECKED)
 				EndIf
 			Case $iEngine1Lbl
-				If GUICtrlRead($iEngine1) = 1 Then 
-					GUICtrlSetState($iEngine1, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iEngine1) = 4 Then 
-					GUICtrlSetState($iEngine1, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iEngine1, _Checker($iEngine1))
 			Case $iEngine3Lbl
-				If GUICtrlRead($iEngine3) = 1 Then 
-					GUICtrlSetState($iEngine3, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iEngine1) = 4 Then 
-					GUICtrlSetState($iEngine3, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iEngine3, _Checker($iEngine3))
 			Case $iEngine4Lbl
-				If GUICtrlRead($iEngine4) = 1 Then 
-					GUICtrlSetState($iEngine4, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iEngine4) = 4 Then 
-					GUICtrlSetState($iEngine4, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iEngine4, _Checker($iEngine4))
 			Case $iEngine5Lbl
-				If GUICtrlRead($iEngine5) = 1 Then 
-					GUICtrlSetState($iEngine5, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iEngine5) = 4 Then 
-					GUICtrlSetState($iEngine5, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iEngine5, _Checker($iEngine5))
 			Case $iEngine6Lbl
-				If GUICtrlRead($iEngine6) = 1 Then 
-					GUICtrlSetState($iEngine6, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iEngine6) = 4 Then 
-					GUICtrlSetState($iEngine6, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iEngine6, _Checker($iEngine6))
 			Case $iThemesLbl
-				If GUICtrlRead($iThemes) = 1 Then 
-					GUICtrlSetState($iThemes, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iThemes) = 4 Then 
-					GUICtrlSetState($iThemes, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iThemes, _Checker($iThemes))
 			Case $iOnLaodLbl
-				If GUICtrlRead($iOnLaod) = 1 Then 
-					GUICtrlSetState($iOnLaod, $GUI_UNCHECKED)
-				ElseIf GUICtrlRead($iOnLaod) = 4 Then 
-					GUICtrlSetState($iOnLaod, $GUI_CHECKED)
-				EndIf
+				GUICtrlSetState($iOnLaod, _Checker($iOnLaod))
 		EndSwitch
 	WEnd
 EndFunc
 
-Func _ChangeButton($j)
-	
+Func _Checker($checkboxID)
+	If GUICtrlRead($checkboxID) = 1 Then 
+		Return($GUI_UNCHECKED)
+	ElseIf GUICtrlRead($checkboxID) = 4 Then 
+		Return($GUI_CHECKED)
+	EndIf
+EndFunc
+
+Func _ChangeButton($jBTN)
 Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $but_Gui)
@@ -212,15 +192,16 @@ Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 				Case $setBTN[2] to $setBTN[25]
 					For $i = 2 to 25
 						If $msg2 = $setBTN[$i] Then 
-							$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $j, $abcArray[$i]))][1]
+							$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i]))][1]
 							If _ArraySearch($btnArray, $abcArray[$i]) > -1 Then
-								MsgBox(0, $tMessage, 'РљРЅРѕРїРєР° "' & $iIconsArray[$i][1] & '" СѓР¶Рµ РґРѕР±Р°РІР»РµРЅР° РІ Р±С‹СЃС‚СЂС‹Р№ РґРѕСЃС‚СѓРї!')
+								MsgBox(0, $tMessage, 'Кнопка "' & $iIconsArray[$i][1] & '" уже добавлена в быстрый доступ!')
 							Else
-								IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $j, $abcArray[$i])
-								GUICtrlSetData($idButton[$j], $abcArray[$i])
-								GUICtrlSetFont($idButton[$j], $iIconsArray[$i][0], 400, 0, "IconLib")
-								$btnArray[$j-1][1] = $abcArray[$i]
-								MsgBox(0, $tMessage, 'РљРЅРѕРїРєР° "' & $btnName & '" Р·Р°РјРµРЅРµРЅР° РЅР° "' & $iIconsArray[$i][1] & '"')
+								IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$i])
+								GUICtrlSetData($idButton[$jBTN], $abcArray[$i])
+								GUICtrlSetFont($idButton[$jBTN], $iIconsArray[$i][0], 400, 0, "IconLib")
+								GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])
+								$btnArray[$jBTN-1][1] = $abcArray[$i]
+								MsgBox(0, $tMessage, 'Кнопка "' & $btnName & '" заменена на "' & $iIconsArray[$i][1] & '"')
 							EndIf
 						EndIf
 					Next
