@@ -1,5 +1,5 @@
 
-Func OOAM_Unpacker() ;Проверить
+Func OOAM_Unpacker() ;Исправлено
 	If GUICtrlRead($iReimport_Checkbox) = 1 Then  
 		OGG_Packer()
 	Else
@@ -7,16 +7,12 @@ Func OOAM_Unpacker() ;Проверить
 	EndIf
 EndFunc
 
-Func OGG_Unpacker()
-	$iFilePath = FileOpenDialog($tSelectFile, " ", "Of Orcs and Men files (*.spk;*.pgz)|" & $tAllFile & " (*.*)", 1+4)
+Func OGG_Unpacker() ;TODO: TEXT!!!
+	$iFilePath = FileOpenDialog($tSelectFile, " ", "Of Orcs and Men files (*.spk; *.pgz; *_*)|" & $tAllFile & " (*.*)", 1+4)
 		If @error = 1 then Return
 	_PathSplit($iFilePath, $iDrive, $iDir, $iName, $iExp)
-	$iFile = FileOpen ($iFilePath, 16)
-	$iFileHead = FileRead ($iFile, 3)
-		If $iFileHead = '0x1F8B08' Then
-			$iFile = FileClose ($iFilePath)
-			gzip_unpack()
-		ElseIf $iFileHead = '0x505353' Then
+		If $iExp = '' Then
+			$iFile = FileOpen ($iFilePath, 16)
 			FileSetPos ($iFile, 858+StringLen ($iName), 0)
 			$iOffset = FileRead ($iFile, 4)
 			$iFileSize = Dec (StringTrimLeft ($iOffset, 2))
@@ -31,22 +27,16 @@ Func OGG_Unpacker()
 			FileWrite ($iLIPFile, $iLIPSource)
 			FileClose ($iLIPFile)
 			FileClose ($iFile)
-			GUICtrlSetData($iEdit1, "Выполнено!" & @CRLF & "Файл " & $iName & ".lip" & " сохранен!" & @CRLF, 1)
-			GUICtrlSetData($iEdit1, "Выполнено!" & @CRLF & "Файл " & $iName & ".ogg" & " сохранен!" & @CRLF, 1)
+			GUICtrlSetData($iEdit, "Выполнено!" & @CRLF & "Файл " & $iName & ".lip" & " сохранен!" & @CRLF, 1)
+			GUICtrlSetData($iEdit, "Выполнено!" & @CRLF & "Файл " & $iName & ".ogg" & " сохранен!" & @CRLF, 1)
+		ElseIf $iExp = BitOR('.spk', '.pzg') Then
+			_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $iFilePath)
 		Else
-			GUICtrlSetData ($iEdit1, 'Ошибка! Файл ' & $iName & $iExp & ' не является аудио архивом из игры "Of orc and human"!' & @CRLF, 1)
+			GUICtrlSetData ($iEdit, 'Ошибка! Файл ' & $iName & $iExp & ' не является аудио архивом из игры "Of orc and human"!' & @CRLF, 1)
 		EndIf
 EndFunc
 
-Func gzip_unpack()
-	_PathSplit($iFilePath, $iDrive, $iDir, $iName, $iExp)
-	FileCopy ($iFilePath, @TempDir & '\ogg_tools\' &  $iName & '.gz')
-	ShellExecuteWait (@ScriptDir & "\data\gzip.exe", ' -d ' & @TempDir & '\ogg_tools\' &  $iName & '.gz', '', "open", @SW_HIDE)
-	$iFilePath = (@TempDir & '\ogg_tools\' & $iName)
-	OGG_Unpacker()
-EndFunc
-
-Func OGG_Packer()
+Func OGG_Packer() ;TODO: TEXT!!!
 	$iFilePath = FileOpenDialog($tSelectFile, " ", "OGG Audio Files (*.ogg)|" & $tAllFile & " (*.*)", 1+4)
 		If @error = 1 then Return
 	_PathSplit($iFilePath, $iDrive, $iDir, $iName, $iExp)
