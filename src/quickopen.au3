@@ -7,15 +7,17 @@ Switch $iExp
 		QuickPAK($sFileName)
 	Case ".dat"
 		QuickDAT($sFileName)
-	Case ".a2c", ".abg", ".abl", ".acm", ".adf", ".afs", ".age3scn", ".agg", ".ahm", ".al4", ".al8", ".ama", ".anm", ".arch00", ".ark", ".avix", ".awd", ".bag", ".bank1sbk", ".bar", ".bbk", ".bf", ".bfs", ".bgx", ".big", ".fat", ".bin", ".bpa", ".bpk", ".bun", ".cat", ".ceg", ".clz", ".cmo", ".cmp", ".cob", ".cpr", ".ctm", ".cts", ".cud", ".idx", ".pal", ".dbc", ".dbs", ".ddt", ".dir", ".dirinfo", ".drs", ".dta", ".dua", ".dun", ".dx1", ".dx2", ".dx3", ".ebm", ".editor_data", ".elmares", ".emi", ".exp", ".ezd", ".far", ".ff", ".fpk", ".fra", ".frame", ".fsh", ".fuk", ".gdp", ".gea", ".gfx", ".glb", ".grl", ".grp", ".gsc", ".gtr", ".h2o", ".h4c", ".h4d", ".h4r", ".hak", ".his", ".hog", ".ifx", ".img", ".dir", ".ins", ".iwi", ".jap", ".jaz", ".jdr", ".jsr", ".jtr", ".lbx", ".lgr", ".lgt", ".lmp", ".lod", ".lte", ".lud", ".lug", ".lut", ".lzc", ".map", ".md5", ".mdl", ".meg", ".mix", ".mjp", ".mjz", ".mod", ".msf", ".msk", ".mult", ".mus", ".nif", ".nmo", ".npk", ".pac", ".paq", ".pbo", ".pck", ".pcx", ".pff", ".pkg", ".poa", ".pod", ".prm", ".psk", ".psp", ".ptx", ".pvd", ".qar", ".qfs", ".r16", ".r24", ".r8", ".raw", ".act", ".sdt", ".res", ".rfd", ".rfh", ".rmp", ".rr", ".rs", ".rsb", ".rss", ".rts", ".s4m", ".sbf", ".sc3", ".sct", ".scx", ".sdf", ".sdt", ".sequence", ".sga", ".sh4", ".sks", ".sl", ".slf", ".slv", ".snd", ".spa", ".spk", ".spr", ".st3", ".stb", ".stg", ".str", ".sud", ".sue", ".swa", ".syb", ".syj", ".t24", ".tbf", ".tdu", ".ted", ".tf", ".thu", ".trc", ".twd", ".twt", ".txd", ".ucx", ".ugx", ".uka", ".ukx", ".unr", ".uvx", ".vdu", ".vfs", ".vid", ".viv", ".vmp", ".vol", ".vpp", ".vtf", ".whd", ".wd", ".wdt", ".wep", ".wtn", ".xcr", ".xfs", ".xmb", ".xpk", ".xti", ".xwb", ".pbd" 
+	Case ".a2c", ".abg", ".abl", ".acm", ".adf", ".afs", ".age3scn", ".agg", ".ahm", ".al4", ".al8", ".ama", ".anm", ".arch00", ".ark", ".avix", ".awd", ".bag", ".bank1sbk", ".bar", ".bbk", ".bf", ".bfs", ".bgx", ".big", ".fat", ".bpa", ".bpk", ".bun", ".cat", ".ceg", ".clz", ".cmo", ".cmp", ".cob", ".cpr", ".ctm", ".cts", ".cud", ".idx", ".pal", ".dbc", ".dbs", ".ddt", ".dir", ".dirinfo", ".drs", ".dta", ".dua", ".dun", ".dx1", ".dx2", ".dx3", ".ebm", ".editor_data", ".elmares", ".emi", ".exp", ".ezd", ".far", ".ff", ".fpk", ".fra", ".frame", ".fsh", ".fuk", ".gdp", ".gea", ".gfx", ".glb", ".grl", ".grp", ".gsc", ".gtr", ".h2o", ".h4c", ".h4d", ".h4r", ".hak", ".his", ".hog", ".ifx", ".img", ".dir", ".ins", ".iwi", ".jap", ".jaz", ".jdr", ".jsr", ".jtr", ".lbx", ".lgr", ".lgt", ".lmp", ".lod", ".lte", ".lud", ".lug", ".lut", ".lzc", ".map", ".md5", ".mdl", ".meg", ".mix", ".mjp", ".mjz", ".mod", ".msf", ".msk", ".mult", ".mus", ".nif", ".nmo", ".npk", ".pac", ".paq", ".pbo", ".pck", ".pcx", ".pff", ".pkg", ".poa", ".pod", ".prm", ".psk", ".psp", ".ptx", ".pvd", ".qar", ".qfs", ".r16", ".r24", ".r8", ".raw", ".act", ".sdt", ".res", ".rfd", ".rfh", ".rmp", ".rr", ".rs", ".rsb", ".rss", ".rts", ".s4m", ".sbf", ".sc3", ".sct", ".scx", ".sdf", ".sdt", ".sequence", ".sga", ".sh4", ".sks", ".sl", ".slf", ".slv", ".snd", ".spa", ".spk", ".spr", ".st3", ".stb", ".stg", ".str", ".sud", ".sue", ".swa", ".syb", ".syj", ".t24", ".tbf", ".tdu", ".ted", ".tf", ".thu", ".trc", ".twd", ".twt", ".txd", ".ucx", ".ugx", ".uka", ".ukx", ".unr", ".uvx", ".vdu", ".vid", ".viv", ".vmp", ".vol", ".vpp", ".vtf", ".whd", ".wd", ".wdt", ".wep", ".wtn", ".xcr", ".xfs", ".xmb", ".xpk", ".xti", ".xwb", ".pbd"
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\gaup_pro.wcx ', $sFileName)
+	Case ".vfs"
+		_fileReaper(MorUnpacker, "", $sFileName)
 	Case ".pbb", ".mpq", ".S2MA", ".SC2", ".mpqe", ".hdr", ".cache", ".etc", ".mime", ".mim", ".tbb", ".msi", ".msm", ".vp", ".pst", ".bsp", ".gcf", ".vbsp", ".vpk", ".xzp", ".udf", ".nrg", ".cue", ".isz", ".mdf", ".mds", ".eml", ".mht", ".mhtml"
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\TotalObserver.wcx ', $sFileName)
 	Case ".bdx", "box", ".brig", ".chr", ".cam", ".cc", ".df2", ".c", ".rm", ".4pp", ".epf", ".flx", ".gor", ".group", ".hrs", ".ilb", ".key", ".lbx", ".dbi", ".wdb", ".mul", ".nds", ".p00", ".p10", ".p99", ".tgw", ".tlb", ".uop", ".vsr", ".war", ".xua", ".xub", ".jun", ".maa", ".jus", ".fan" 
 		_SAU($sFileName)
-	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love"
+	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love", ".bin", ".pgz"
 		GUICtrlSetData($iEdit, $tIFA & @CRLF, 1)
-		_OtherPRG($iFuncCall[4], '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
+		_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 	Case ".u", ".upk", ".uax", ".umx", ".xxx", ".unr", ".utx", ".ugx", ".un2", ".upx", ".usa", ".usx", ".ut2", ".uvx", ".pcc"
 		GUICtrlSetData($iEdit, $tIFFGO & " Unreal Engine" & @CRLF, 1)
 		_Engine('_Unreal', $sFileName)
@@ -24,7 +26,7 @@ Switch $iExp
 		_Engine('_RPGMaker', $sFileName)
 	Case ".toc", ".sb"
 		GUICtrlSetData($iEdit, $tIFFGO & " FrostBite Engine" & @CRLF, 1)
-		_QuickBMSRun('', @ScriptDir &  "\data\scripts\frostbite.bms ")
+		_Engine('_Frostbite', $sFileName)
 	Case ".bsa", ".ba2", "*.esp", "*.esm", "*.esl", "*.esx", "*.pex"
 		GUICtrlSetData($iEdit, $tIFFGB & " Bethesda Game Studio" & @CRLF, 1)
 		_Engine('_Bethesda', $sFileName)
@@ -40,7 +42,7 @@ Switch $iExp
 	Case ".rez"
 		GUICtrlSetData($iEdit, $tIFFGO & " LinTech Engine" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\gaup_pro.wcx ', $sFileName)
-	Case ".assets"
+	Case ".assets", '.resS'
 		GUICtrlSetData($iEdit, $tIFFGO & " Unity Engine" & @CRLF, 1)
 		_Engine('_Unity', $sFileName)
 	Case ".resources", ".wad", ".index", ".streamed", ".bimage", ".idwav", ".mega2", ".ptr", ".pages", ".vmtr", "*.wl6", "*.msf", "*.xma", "*.xpr"
@@ -209,46 +211,36 @@ Switch $iExp
 		GUICtrlSetData($iEdit, $tIFFG & " Asura Engine" & @CRLF, 1)
 		_Engine('_Asura', $sFileName)
 	Case ".ung"
+		GUICtrlSetData($iEdit, $tItsfile & " Unigene Engine" & @CRLF, 1) 
 		_Engine('_Unigene', $sFileName)
 	Case ".swf"
 		GUICtrlSetData($iEdit, $tItsfile & " ShockWave Flash" & @CRLF, 1) 
-		ShellExecuteWait (@ScriptDir & "\data\quickbms.exe", @ScriptDir &  "\data\7zip\Total7zip.wcx """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
-		FileMove ($sFolderName & "\*~.swf", $sFolderName & "\unpack.swf")
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\quickbms.exe", @ScriptDir &  "\data\wcx\Total7zip.wcx """ & $sFolderName &"\unpack.swf"" """ & $sFolderName & """")
-		FileDelete ($sFolderName & "\unpack.swf")
+		_Engine('_Flash', $sFileName)
 	Case ".dz"
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\vector.bms ", $sFileName)
-	Case ".bik", ".bk2", ".smk"
-		GUICtrlSetData($iEdit, $tIFV & " Smasher" & @CRLF, 1) 
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\radvideo\binkconv.exe",'"' & $sFileName & '"' & " " & $sFolderName & "\" & $iName & ".avi", @ScriptDir & "\data\scripts\", "open")
 	Case ".class"
 		GUICtrlSetData($iEdit, $tItsfile & " Java" & @CRLF, 1) 
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\JavaClassUnpacker.wcx ", $sFileName)
-		Output_MSG($iOutputWindow)
 	Case ".gca"
 		GUICtrlSetData($iEdit, $tIFA & "  GCA" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\gca.wcx ", $sFileName)
-		Output_MSG($iOutputWindow)
 	Case ".fb2"
 		GUICtrlSetData($iEdit, $tIFEB & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\wcx_fb2.wcx ", $sFileName)
-		Output_MSG($iOutputWindow)
 	Case ".ha"
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\HA.wcx ", $sFileName)
-		Output_MSG($iOutputWindow)
 	Case ".alz", ".egg", ".bh"
 		GUICtrlSetData($iEdit, $tIFA & "  BlackHole" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\UnArkWCX.wcx ', $sFileName)
 	Case ".hrp", ".hrip"
 		GUICtrlSetData($iEdit, $tIFA & " Hrust" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\inhrust.wcx ", $sFileName)
-		Output_MSG($iOutputWindow)
 	Case ".dgc", ".dgca"
 		GUICtrlSetData($iEdit, $tIFA & " DGCA" & @CRLF, 1)
 		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\dgcac", "e """ & $sFileName & """ """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
-	Case ".tiger"
+	Case ".tiger" ;TODO - Something Wrong
 		GUICtrlSetData($iEdit, $tIFFG & " Rise of Tomb Raider" & @CRLF, 1)
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\gibbed\bin_tr9\Gibbed.TombRaider9.Unpack.exe -o ")
+		$iOutputWindow = ShellExecuteWait (@ScriptDir & '\data\gibbed\Gibbed.TombRaider9.Unpack.exe', '"' & $sFileName & '" "' & $sFolderName & '"')
 	Case ".blz"
 		GUICtrlSetData($iEdit, $tIFA & " BLZ" & @CRLF, 1)
 		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\blzpack.exe ", " d """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\", "open")
@@ -291,13 +283,15 @@ Switch $iExp
 	Case ".forge"
 		GUICtrlSetData($iEdit, $tIFFG & " Anvil Engine" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\scimitar.bms  ",$sFileName)
+	Case ".exo"
+		_fileReaper(_mp3, "", $sFileName)
 	Case Else
 		Local $iAnswer = MsgBox($MB_SYSTEMMODAL, $tMessage, $tNotice3)
 		GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
 		EndSwitch
 EndFunc
 
-Func QuickPAK($sFileName)
+Func QuickPAK($sFileName); TODO: Дописать!!!
 Local $iFuncArray = [ _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\7zip\Total7zip.wcx """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\wcx\gaup_pro.wcx """ & $sFileName &""" """ & $sFolderName & "", _
@@ -344,3 +338,34 @@ Local $iFuncArray = [ _
 	_ScriptCreate($iFuncArray)
 EndFunc
 
+Func QuickBIN($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickCache($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickWAD($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickEXE($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickDZIP($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickPGZ($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickARC($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc
+
+Func QuickBIF($sFileName); TODO: Дописать!!!
+	;PASS
+EndFunc

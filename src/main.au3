@@ -8,6 +8,9 @@ Func Main()
 		Switch $msg
 			Case $GUI_EVENT_CLOSE
 				ExitLoop
+				
+		Case $GUI_EVENT_DROPPED
+			QuickOpen(@GUI_DragFile)
 
 		Case $iAll_Checkbox
 			If $iFavPlus = 0 Then
@@ -177,7 +180,7 @@ Func Main()
 
 		#Region //Menu
 
-		Case $iObserver, $ObserverMSI, $iOpenUDF
+		Case $iObserver, $ObserverMSI, $iOpenUDF, $iInstallShield
 			_QuickBMSRun($tAllSupp & "(*.exe;*.msi;*.msm;*.vp;*.big;*.sga;*.pst;*.bsp;*.gcf;*.vbsp;*.vpk;*.pak;*.xzp;*.wad;*.udf;*.iso;*.cat;*.pck;*.pbd;*.pbb;*.mpq;*.S2MA;*.SC2*;*.mpqe;*.hdr;*.cab;*.z;*.cache;*.nrg;*.bin;*.cue;*.isz;*.mdf;*.mds;*.eml;*.mht;*.mhtml;*.etc;*.mime;*.mim;*.tbb;*.big)|Blizzard MPQ (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2*;*.mpqe)|MHTML Web" & $tArchive & "(*.mht;*.mhtml)|MIME Container (*.eml;*.etc;*.mime;*.mim)|" & $tDImage & " (*.iso;*.udf;*.nrg;*.bin;*.cue;*.isz;*.mdf;*.mds)|Install Shield (*.hdr;*.cab;*.z;*.exe)|PST " & $tFiles & " (*.pst)|Source Engine " & $tFiles & " (*.gcf;*.wad;*.pak;*.vpk;*.bsp;*.cache;*.vbsp;*.xzp)|Volition Pack V2 (*.vp)|Windows Installer (*.exe;*.msi;*.msm)|X-CAT (*.cat;*.pck;*.pbd;*.pbb)|MS Outlook databases (*.pst)|The Bat! databases (*.tbb)|Relic Games SGA\BIG " & $tFiles & " (*.sga;*.big)|Blizzard MPQ File (*.mpq;*.exe;*.S2MA;*.SC2Data;*.SC2Map;*.SC2Mod;*.SC2Assets;*.SC2Archive;*.mpqe)|", @ScriptDir & "\data\wcx\TotalObserver.wcx ")
 		Case $iUnpack816
 			_QuickBMSRun("Gamestudio WRS File (*.wrs)|", @ScriptDir & "\data\scripts\gamestudio.bms ")
@@ -250,14 +253,12 @@ Func Main()
 			_QuickBMSRun("XNB Files (*.xnb)|", @ScriptDir & "\data\scripts\xnb.bms ")
 		Case $iInstExpl1, $iInstExpl2, $iInstExpl3, $iInstExpl4
 			_QuickBMSRun("Windows Installer (*.exe)|", @ScriptDir & "\data\wcx\InstExpl.wcx ")
-		Case $FreeArcEXE, $iArchiveItem[18]
+		Case $FreeArcEXE
 			_OtherPRG ('FreeARC' & $tArchive & ' (*.exe;*.arc;*.bin*;*.dat*;*cat*;setup*.*)|', 'unarc.exe', ' x -dp"' & $sFolderName & '" ', '', $sFolderName, '')
 		Case $iOpenGadget
 			OpenGadget()
 		Case $iOpenI20
 			OpenI20()
-		Case $iInstallShield
-			_QuickBMSRun("InstallShield Files (*.hdr;*.exe;*.cab)|", @ScriptDir & "\data\wcx\TotalObserver.wcx ")
 		Case $iOpenIOS
 			OpenIOS()
 		Case $iSISUnpack
@@ -271,185 +272,37 @@ Func Main()
 		Case $iOpenZ9
 			OpenZ9()
 			
-		;Archives (через программы)
-		;TODO: Сделать архивы также как и список игр, через внешнюю табличку и цикл
- 		Case $iArchiveItem[1]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iAnswer = MsgBox($MB_SYSTEMMODAL, $tMessage, $tNotSupport)
-			Else
-				_OtherPRG ('ACE ' & $tArchives & ' (*.ace)|', "unace.exe", ' x ')
-			EndIf
-		Case $iArchiveItem[3]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iFileName = FileOpenDialog ($tSelectFile, " ", $tAllFile & " (*.*)", 1)
-			If @error <> 1 then
-				_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-				_OtherPRG ('', "arc.exe", ' a "' & $sFolderName & '\' & $iName & '.arc" "', '"', $sFolderName, $iFileName)
-			EndIf
-			Else
-				_OtherPRG ('ARC ' & $tArchives & ' (*.arc)|', "\arc.exe", ' e "', '"')
-			EndIf
-		Case $iArchiveItem[7]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iFileName = FileOpenDialog ($tSelectFile, " ", $tAllFile & " (*.*)", 1)
-				If @error <> 1 then
-					_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-					_OtherPRG ('', "\blzpack.exe", ' c "', '" "' & $sFolderName & '\' & $iName & '.blz"', $sFolderName, $iFileName)
+		;Archives
+		Case $iArchiveItem[2] To $iArchiveItem[$iArcCount]
+			For $itemA = 1 to $iArcCount
+				If $msg = $iArchiveItem[$itemA] Then 
+					If StringInStr($iArchiveItem[$itemA], 'FolderName') > 0 Then StringReplace($iArchiveItem[$itemA], 'FolderName', $sFolderName)
+					$iArchCall = StringSplit($iArchiveArray[$itemA], '	')
+					Switch $iArchCall[2]
+						Case '_7Zip'
+							_OtherPRG($iArchCall[3], '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
+						Case '_OtherPRG'
+							If GUICtrlRead($iReimport_Checkbox) = 1 Then
+								If $iArchCall[7] = 'not' Then
+									MsgBox($MB_SYSTEMMODAL, $tMessage, $tNotSupport)
+								Else		
+									$ArchiveName = InputBox('', 'Enter Archive name', 'new_archive')
+									Switch $iArchCall[11]
+										Case '1'
+											_OtherPRG ('', $iArchCall[4], $iArchCall[7] & $ArchiveName & $iArchCall[9], $iArchCall[8], $sFolderName, '', _Bool($iArchCall[11]))
+										Case '2'
+											_OtherPRG ('', $iArchCall[4], $iArchCall[7], $iArchCall[8] & $ArchiveName & $iArchCall[9], $sFolderName, '', _Bool($iArchCall[11]))
+									EndSwitch
+								EndIf
+							Else
+								_OtherPRG ($iArchCall[3], $iArchCall[4], $iArchCall[5], '', $sFolderName, '')
+							EndIf
+						Case '_QickBMS'
+							_QuickBMSRun($iArchCall[3], @ScriptDir & $iArchCall[4])
+					EndSwitch
 				EndIf
-			Else
-				$iFileName = FileOpenDialog ($tSelectFile, " ",'BLZ ' & $tArchives & ' (*.blz)|' & $tAllFile & " (*.*)", 1)
-				If @error <> 1 then
-					_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-					_OtherPRG ('', "\blzpack.exe", ' d "', '" "' & $sFolderName & '\' & $iName & '.dat"', $sFolderName, $iFileName)
-				EndIf
-			EndIf
-		Case $iArchiveItem[8]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				_OtherPRG ("\bma.exe", ' a "' & $sFolderName & '\' & $iName & '.bma" "', '"', $sFolderName, '', False)
-			Else
-				_OtherPRG ('BMA ' & $tArchives & ' (*.bma)|', "\bma.exe", ' e "', '"')
-			EndIf
-		Case $iArchiveItem[13]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				_OtherPRG ("\dgcac.exe", ' a "' & $sFolderName & '\' & $iName & '.dgca" "', '"', $sFolderName, '', False)
-			Else
-				_OtherPRG ('DGCA ' & $tArchives & ' (*.dgca; *.dgc)|', "\dgcac.exe", ' e "', '" "' & $sFolderName & '"')
-			EndIf
-		Case $iArchiveItem[36]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then
-				$iFileName = FileSelectFolder("", $iLastDir)
-				If @error <> 1 then
-					$iArchiveName = InputBox ($tMessage, "Введите название архива; ", "archive")
-					If @error <> 1 then
-						_OtherPRG ('', "\nz.exe", ' a "' & $sFolderName, '', $iFileName, '\' & $iArchiveName)
-					EndIf
-				EndIf
-			Else
-				$iFileName = FileOpenDialog ($tSelectFile, " ",'NanoZIP Archives (*.nz)|' & $tAllFile & " (*.*)", 1)
-				If @error <> 1 then
-					_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-					_ScriptCreate(@ScriptDir & '\data\nz.exe x "' & $iFileName & '"')
-				EndIf
-			EndIf
-		Case $iArchiveItem[58]
-			$iFileName = FileOpenDialog ($tSelectFile, " ",'ZOO Archives (*.zoo)|' & $tAllFile & " (*.*)", 1)
-			If @error <> 1 then
-				_PathSplit($iFileName, $iDrive, $iDir, $iName, $iExp)
-				_ScriptCreate(@ScriptDir & '\data\unzoo.exe -x "' & $iFileName & '"')
-			EndIf
-		Case $iArchiveItem[15]
-			If GUICtrlRead($iReimport_Checkbox) = 1 Then  
-				_OtherPRG('', 'dzip.exe ', '', ' -o ' & $sFolderName & '\archive.dzip')
-			Else
-				_OtherPRG('DZIP ' & $tArchives & ' (*.dz,*.dzip)|', 'dzip.exe ', ' -x ')
-			EndIf
+			Next
 		
-		;TODO: Починить архивы YZ
-		Case $iArchiveItem[53]
-			MsgBox (0, '', 'Здесь должен быть архив YZ1')
-		Case $iArchiveItem[54]
-			MsgBox (0, '', 'Здесь должен быть архив YZ2')
-			
-		;(через WCX)
-		Case $iArchiveItem[0]
-			_QuickBMSRun('7zip ' & $tArchives & ' (*.7z; *.7zip; *.cb7; *.cb7z; *.omod; *.fomod)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[2]
-			_QuickBMSRun('ALZ ' & $tArchives & ' (*.alz)|', @ScriptDir & "\data\wcx\UnArkWCX.wcx ")
-		Case $iArchiveItem[4]
-			_QuickBMSRun('ARK ' & $tArchives & ' (*.ark)|', @ScriptDir & "\data\wcx\UnArkWCX.wcx ")
-		Case $iArchiveItem[5]
-			_QuickBMSRun('ARJ ' & $tArchives & ' (*.arj)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[6]
-			_QuickBMSRun('BH ' & $tArchives & ' (*.bh)|', @ScriptDir & "\data\wcx\UnArkWCX.wcx ")
-		Case $iArchiveItem[9]
-			_QuickBMSRun('BZIP ' & $tArchives & ' (*.bzip; *.bz; *.tbz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[10]
-			_QuickBMSRun('BZIP2 ' & $tArchives & ' (*.bzip2; *.bz2; *.tbz2)|', @ScriptDir & "\data\wcx\UnArkWCX.wcx ")
-		Case $iArchiveItem[11]
-			_QuickBMSRun('CAB ' & $tArchives & ' (*.cab)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[12]
-			_QuickBMSRun('CPIO ' & $tArchives & ' (*.cpio)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[16]
-			_QuickBMSRun('EGG ' & $tArchives & ' (*.egg)|', @ScriptDir & "\data\wcx\UnArkWCX.wcx ")
-		Case $iArchiveItem[20]
-			_QuickBMSRun('GCA ' & $tArchives & ' (*.gca; *.dat)|', @ScriptDir & "\data\wcx\gca.wcx ")
-		Case $iArchiveItem[21]
-			_QuickBMSRun('GZIP ' & $tArchives & ' (*.gzip; *.gz; *.tgz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[22]
-			_QuickBMSRun('HA ' & $tArchives & ' (*.ha)|', @ScriptDir & "\data\wcx\HA.wcx ")
-		Case $iArchiveItem[23]
-			_QuickBMSRun('HRUST ' & $tArchives & ' (*.hrp; *.hrip)|', @ScriptDir & "\data\wcx\inhrust.wcx ")
-		Case $iArchiveItem[24]
-			_QuickBMSRun('JAR ' & $tArchives & ' (*.jar)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[25], $iTotal7zip01
-			_QuickBMSRun('LHA\LZH ' & $tArchives & ' (*.lha; *.lzh)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[27]
-			_QuickBMSRun('LZMA ' & $tArchives & ' (*.lzma; *.lz; *.tlz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[29]
-			_QuickBMSRun('LZO ' & $tArchives & ' (*.lzo)|', @ScriptDir & "\data\wcx\lzopacktc.wcx ")
-		Case $iArchiveItem[33]
-			_QuickBMSRun('LZX ' & $tArchives & ' (*.lzx)|', @ScriptDir & "\data\wcx\unlzx.wcx ")
-		Case $iArchiveItem[34]
-			_QuickBMSRun('MBR ' & $tArchives & ' (*.mbr)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[35]
-			_QuickBMSRun('MHTML Web ' & $tArchives & ' (*.mht;*.mhtml)|', @ScriptDir & "\data\wcx\TotalObserver.wcx ")
-		Case $iArchiveItem[37]
-			_QuickBMSRun('NSIS ' & $tArchives & ' (*.nsis)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[38]
-			_QuickBMSRun('PPMD ' & $tArchives & ' (*.ppmd; *.pmd)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[39]
-			_QuickBMSRun('RAR ' & $tArchives & ' (*.rar; *.r00; *.rar5)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[40]
-			_QuickBMSRun('RPM ' & $tArchives & ' (*.rpm*)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[41]
-			_QuickBMSRun ('RPM.CPIO ' & $tArchives & ' (*.cpio.rpm)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[42]
-			_QuickBMSRun('SIS ' & $tArchives & ' (*.sis)|', @ScriptDir & "\data\wcx\PDunSIS.wcx ")
-		Case $iArchiveItem[44]
-			_QuickBMSRun('SWM ' & $tArchives & ' (*.swm)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[45]
-			_QuickBMSRun('T*Z ' & $tArchives & ' (*.taz; *.tz; *.tbz; *.tbz2; *.tgz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[46], $OpenTAR
-			_QuickBMSRun('TAR ' & $tArchives & ' (*.tar; *.tbz; *.cbt)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[47]
-			_QuickBMSRun('TAZ ' & $tArchives & ' (*.taz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[48]
-			_QuickBMSRun ('TARZIP ' & $tArchives & ' (*.tar.*z*; *.t*z)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[49]
-			_QuickBMSRun('WIM ' & $tArchives & ' (*.wim)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[52]
-			_QuickBMSRun('XZ ' & $tArchives & ' (*.xz; *.xzip; *.txz)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[50]
-			_QuickBMSRun('XPI ' & $tArchives & ' (*.xpi)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[55]
-			_QuickBMSRun('Z ' & $tArchives & ' (*.z)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-		Case $iArchiveItem[56]
-			_QuickBMSRun('ZIP ' & $tArchives & ' (*.zip; *.bin; *.bsp; *.bza; *.cbz; *.dat; *.dazip; *.docx; *.dotx; *.epub; *.fods; *.fodt; *.fomod; *.gro; *.jar; *.kfs; *.lp; *.nob; *.odb; *.ods; *.odt; *.omod; *.ots; *.ott; *.pak; *.piz; *.pk3; *.pk4; *.potm; *.ppsx; *.pptx; *.txtz; *.xlsm; *.xlsx; *.xpi; *.zipx)|', @ScriptDir & "\data\scripts\zip.bms ")
-		Case $iArchiveItem[57]
-			_QuickBMSRun('ZIPX ' & $tArchives & ' (*.zipx)|', @ScriptDir & "\data\7zip\Total7zip.wcx ")
-
-		;(через BMS)
-		Case $iArchiveItem[14]
-			_QuickBMSRun ('DZ ' & $tArchives & ' (*.dz; *.dzip)|', @ScriptDir & "\data\scripts\vector.bms ")
-		Case $iArchiveItem[17]
-			_QuickBMSRun ('FRPG ' & $tArchives & ' (*.frpg)|', @ScriptDir & "\data\scripts\fprg.bms ")
-		Case $iArchiveItem[19]
-			_QuickBMSRun ('FZIP ' & $tArchives & ' (*.fzip)|', @ScriptDir & "\data\scripts\fzip_zlib.bms ")
-		Case $iArchiveItem[26]
-			_QuickBMSRun ('LZHAM ' & $tArchives & ' (*.lzh; *.lza; *.lzm)|', @ScriptDir & "\data\scripts\lzhamtest.bms ")
-		Case $iArchiveItem[28]
-			_QuickBMSRun ('LZIP ' & $tArchives & ' (*.lzip; *.lz; *.lzp)|', @ScriptDir & "\data\scripts\lzip.bms ")
-		Case $iArchiveItem[32]
-			_QuickBMSRun ('LZSS ' & $tArchives & ' (*.lzss)|', @ScriptDir & "\data\scripts\pure_lzss_script_only.bms ")
-		Case $iArchiveItem[30]
-			_QuickBMSRun ('PKG LZO ' & $tArchives & ' (*.lzo; *.pkg)|', @ScriptDir & "\data\scripts\pkg_lzo.bms ")
-		Case $iArchiveItem[31]
-			_QuickBMSRun ('PVR LZO ' & $tArchives & ' (*.lzo; *.pvr)|', @ScriptDir & "\data\scripts\pvrlzo.bms ")
-		Case $iArchiveItem[43]
-			_QuickBMSRun ('SQX ' & $tArchives & ' (*.sqx)|', @ScriptDir & "\data\scripts\sqx.bms ")
-		Case $iArchiveItem[51]
-			_QuickBMSRun ('XXZ ' & $tArchives & ' (*.xxz)|', @ScriptDir & "\data\scripts\xxz.bms ") 
-
 		;Disc images
 		Case $iISOCompressor1, $iISOCompressor2
 			$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\isocompressor.exe ", "", $sFolderName, "open")
@@ -499,10 +352,10 @@ Func Main()
 			_OtherPRG("FSB files (*.fsb)|", "fsbext.exe", ' -d "' & $sFolderName & '" ')
 		Case $iToWAV
 			_OtherPRG($tAllSupp & "(*.fsb;*.xwb;*.ms;*.mus;*.vag;*.xma;*.aif;*.asf;*.emt;*.cmp;*.dat;*.fss;*.kvs;*.bag;*.cxs;*.waf;*.msv;*.str;*.sab;*.vms;*.wp2;*.eam;*.wwb;*.rib;*.zsm;*.zss;*.mib;*.mih;audio.idx;*.mic;*.aps;*.snd;*.seg;*.snu;*.adp;.vag;*.vpk;*.waa;*.wac;*.wad;*.wam;*.wav;*.xa)|FSB Audio Package (*.fsb)|XWB Audio File (*.xwb)|MS File (*.ms)|MUS File (*.mus)|PS2\PSX VAG File (*.vag)|XMA Xbox360 Audio (*.xma)|AIF Audio File (*.aif)|ASF Audio File (*.asf)|25 to Life EMT File(*.emt)|Crime Life; Gang Wars (*.CMP)|DAT File (*.dat)|Dead to Rights 2 (*.FSS)|Dynasty Warriors 4 (*.KVS)|Emperor; Battle for Dune (*.BAG)|Eternal Sonata (*.CXS)|Ever 17; Out of Infinity (*.WAF)|Fight Club (*.MSV)|Hitman; Blood Money (*.STR)|Just Cause (*.SAB)|Knight Rider 2 (*.VMS)|London Racer (*.WP2)|Madden NFL 07-08 (*.EAM)|Made Man (*.WWB)|Manhunt (*.RIB)|Marvel; Ultimate Alliance (*.ZSM;*.ZSS)|MIB\MIH File (*.mib;*.mih)|Nox (audio.idx)|Rogue Trooper (*.MIC)|Shadow of Rome (*.APS)|SND File (*.snd)|SEG File (*.seg)|SNU Audio File (*.snu)|Tony Tough and the Night of Roasted Moths (*.ADP)|VAG\VPK File (.VAG;*.VPK)|WA* File (*.waa;*.wac;*.wad;*.wam)|WAV File (*.wav)|XA Audio File (*.xa)|", "towav.exe")
-		Case $iConv_3
-			Conv_3()
 		Case $iConv_4
 			_ChildGUI("NCONVERT GUI", $Format, "bmp|cur|dcx|dds|dib|dng|gif|jif|jpeg|pcd|pcx|pdf|png|psb|psd|raw|svg|tga|tiff|wbmp|--Other--|2bp|2d|3fr|411|a64|abmp|abr|abs|acc|ace|aces|acorn|adex|adt|afphoto|afx|ai|aim|aip|aipd|alias|ami|ani|anv|aphp|apx|arcib|arf|arn|art|artdir|arw|atk|att|aurora|avs|avw|az7|b16|b3d|bdr|bfli|bfx|bga|bias|bif|biorad|bip|bld|blp|bmc|bmg|bms|bmx|bob|bpr|brk|bsg|btn|bum|byusir|c4|cadc|cals|cam|can|car|cart|cat|cbmf|cdr|cdu|ce|ce1|cel|cft|cgm|che|cin|cip|ciph|cipt|cish|cism|cloe|clp|cmt|cmu|cmx|cncd|cnct|cp8|cpa|cpat|cpc|cpt|cr2|craw|crd|crg|crw|csv|ct|cut|cvp|cwg|d3d|dali|dbw|dcmp|dcpy|dcr|dd|degas|dicom|dkb|dol|doodle|dpx|drz|dsi|dta|dwg|dwg|ecc|efx|eidi|eif|emf|emz|epa|epi|eps|epsp|erf|esm|esmp|eyes|f96|face|fax|fbm|fcx|fff|fff|ffpg|fgs|fi|fit|fits|fli|fmag|fmap|fmf|fp2|fpg|fpr|fpt|fre|frm|frm2|fsh|fsy|ftf|fx3|fxs|g16|g3n|gaf|gbr|gcd|gem|geo|gfaray|gg|gicon|gig|gih|gm|gmf|god|gpat|gpb|grob|gun|hdri|hdru|hed|hf|hir|hpgl|hpi|hr|hru|hrz|hsi|hta|icb|icd|icl|icn|icns|ico|icon|iff|ifx|iim|iimg|ilab|im5|img|imgt|imi|imt|indd|info|ingr|ioca|ipg|ipl|ipl2|ipseq|iris|ish|iss|j6i|jbf|jbr|jig|jig2|jj|jls|jps|jtf|jxr|k25|k25b|kdc|kdc2|kfx|kntr|koa|kps|kqp|kro|kskn|lbm|lcel|lda|lff|lif|lsm|lss|lvp|lwi|m8|mac|mag|map|mbig|mdl|mef|mfrm|mgr|mh|miff|mil|mjpg|mkcf|mklg|mng|mon|mos|mph|mpo|mrc|mrf|mrw|msp|msx2|mtv|mtx|ncr|ncy|ncy|nef|neo|ngg|nifti|nist|nitf|nlm|nol|npm|nrw|nsr|oaz|ocp|of|ofx|ohir|oil|ols|orf|os2|otap|otb|p64|p7|pabx|palm|pam|pan|patps|pbm|pbt|pcl|pcp|pd|pdd|pds|pdx|pef|pegs|pfi|pfm|pfs|pgc|pgf|pgm|pi|pic|pict|pig|pixi|pixp|pld|pm|pm|pmg|pmp|pmsk|pnm|pp4|pp5|ppm|ppp|pps|ppt|prc|prf|prisms|prx|ps|psa|pseg|psf|psion3|psion5|psp|pspb|pspf|pspm|pspp|pspt|ptg|pwp|pxa|pxr|pzl|pzp|q0|qcad|qdv|qrt|qtif|rad|raf|ras|raw1|raw2|raw3|raw4|raw5|raw6|raw7|raw8|raw9|rawa|rawb|rawdvr|rawe|ray|rdc|rfa|rfax|ript|rix|rla|rlc2|rle|rp|rpm|rsb|rsrc|rw2|rwl|sar|sci|sct|sdg|sdt|sfax|sfw|sgi|sif|sir|sj1|skf|skn|skp|smp|soft|spc|spot|sps|spu|srf|srf2|srw|ssi|ssp|sst|st4|stad|star|stm|stw|stx|syj|synu|taac|tdi|tdim|teal|tg4|thmb|ti|til|tile|tim|tim2|tiny|tjp|tnl|trup|tsk|ttf|tub|txc|uni|upe4|upi|upst|uyvy|uyvyi|v|vda|vfx|vi|vicar|vid|vif|viff|vista|vit|vivid|vob|vort|vpb|wad|wal|wbc|wfx|winm|wmf|wmz|wpg|wrl|wzl|x3f|xar|xbm|xcf|xif|xim|xnf|xp0|xpm|xwd|xyz|yuv411|yuv422|yuv444|zbr|zmf|zxhob|zxscr|zxsna|zzrough", "png")
+		Case $iConv_5
+			_ChildGUI("Wwise Converter", $Mode & '|' & $Codebook, "WWISE_Unpacker|wwise2wav|wwise2vorbis;packed_codebooks_aoTuV_603.bin|packed_codebooks3.bin", "WWISE_Unpacker|packed_codebooks3.bin", "All supported (*.pck;*.bnk;*.afc;*.akpk*.wav;*wwise*;*.lwav;*.pcm;*.wem;*.03f;*.0b2*;*.ogg;*.oga)|")
 		Case $iConv_6
 			_ChildGUI("Wav Headler Generator", $Frequency & '|' & $Channel & '|' & $Bit & '|' & $Format, "8000|12000|16000|22050|24000|36000|44100|48000|96000|192000|384000;1|2|3|4|5|6|7|8;8|12|16|24|32|48|64|96|128;ADPCM|ALAW|ANTEX_ADPCME|APTX|ATRAC|AUDIOFILE_AF10|AUDIOFILE_AF36|BTV_DIGITAL|CANOPUS_ATRAC|CIRRUS|CONTROL_RES_CR10|CONTROL_RES_VQLPC|CREATIVE_ADPCM|CREATIVE_FASTSPEECH10|CREATIVE_FASTSPEECH8|CS2|CS_IMAADPCM|CU_CODEC|DF_G726|DF_GSM610|DIALOGIC_OKI_ADPCM|DIGIADPCM|DIGIFIX|DIGIREAL|DIGISTD|DIGITAL_G723|DOLBY_AC2|DOLBY_AC3_SPDIF|DRM|DSAT_DISPLAY|DSPGROUP_TRUESPEECH|DTS|DVI_ADPCM|DVM|ECHOSC1|ECHOSC3|ESPCM|ESST_AC3|FM_TOWNS_SND|G721_ADPCM|G722_ADPCM|G723_ADPCM|G726ADPCM|G726_ADPCM|G728_CELP|G729A|GSM610|IBM_CVSD|IEEE_FLOAT|ILINK_VC|IMA_ADPCM|IPI_HSX|IPI_RPELP|IRAT|ISIAUDIO|LH_CODEC|LRC|LUCENT_G723|MALDEN_PHONYTALK|MEDIASONIC_G723|MEDIASPACE_ADPCM|MEDIAVISION_ADPCM|MP3|MPEG|MSAUDIO1|MSG723|MSNAUDIO|MSRT24|MULAW|MVI_MVI2|NMS_VBXADPCM|NORRIS|OKI_ADPCM|OLIADPCM|OLICELP|OLIGSM|OLIOPR|OLISBC|ONLIVE|PAC|PACKED|PCM|PHILIPS_LPCBB|PROSODY_1612|PROSODY_8KBPS|QDESIGN_MUSIC|QUALCOMM_HALFRATE|QUALCOMM_PUREVOICE|QUARTERDECK|RAW_SPORT|RHETOREX_ADPCM|ROCKWELL_ADPCM|ROCKWELL_DIGITALK|RT24|SANYO_LD_ADPCM|SBC24|SIERRA_ADPCM|SIPROLAB_ACELP4800|SIPROLAB_ACELP8V3|SIPROLAB_ACEPLNET|SIPROLAB_G729|SIPROLAB_G729A|SIPROLAB_KELVIN|SOFTSOUND|SONARC|SONY_SCX|SOUNDSPACE_MUSICOMPRESS|TPC|TUBGSM|UHER_ADPCM|UNISYS_NAP_16K|UNISYS_NAP_ADPCM|UNISYS_NAP_ALAW|UNISYS_NAP_ULAW|UNKNOWN(0000)|UNKNOWN(FFFF)|VIVO_G723|VIVO_SIREN|VME_VMPCM|VOXWARE|VOXWARE_AC10|VOXWARE_AC16|VOXWARE_AC20|VOXWARE_AC8|VOXWARE_BYTE_ALIGNED|VOXWARE_RT24|VOXWARE_RT29|VOXWARE_RT29HW|VOXWARE_TQ40|VOXWARE_TQ60|VOXWARE_VR12|VOXWARE_VR18|VSELP|XEBEC|YAMAHA_ADPCM|ZYXEL_ADPCM", "44100|2|32|PCM")
 		Case $iVGM
@@ -523,12 +376,15 @@ Func Main()
 			_ChildGUI("DDS Tools GUI nVidia", $Format, "dxt1c|dxt1a|dxt3|dxt5|u1555|u4444|u565|u8888|u888|u555|p8c|p8a|p4c|p4a|a8|cxv8u8|v8u8|v16u16|A8L8|fp32x4|fp32|fp16x4|dxt5nm|g16r16|g16r16f", "dxt5", 'Image File (*.png;*.jpg;*.dds;*.tga;*.jpeg)|') 
 		Case $iConv_18
 			_ChildGUI("XWMA Tool GUI", $Frequency & '|' & $Format, '20000|32000|48000|64000|96000|160000|192000;wav|xwm', '48000|wav', 'Audio Files (*.wma; *xwm; *.wav)|') 
+		Case $iConv_mp3
+			_fileReaper(_mp3)
 		Case $iMediaInfo
 			$sFilePath = FileOpenDialog("", "", "All file(*.*)", 1)
 			If @error <> 1 Then
 				_Console(@ScriptDir & '\data\ffprobe.exe "' & $sFilePath & '"', @ScriptDir & '\data\')
 			EndIf
-			
+		Case $iBink2avi
+			ShellExecute (@ScriptDir & "\data\RADVideo\RADVideo64.exe", "", $sFolderName, "open")
 		Case $iCubeMapCreator
 			CubeMapCreator()
 		#EndRegion
@@ -544,7 +400,7 @@ Func Main()
 					;3 = функция для запуска
 					;4 = список расширений, для WithArray - список файлов для копирования, для Unreal - код от архива в Unreal Engine 4, для TellTale - код игры, для RE Engine - список файлов
 					;5 = для QuickBMS - название скрипта, для OtherPRG, WithArray и DosBox - название программы
-					;6 и 7 = для аргументы командной строки до и после имени файла, для WithArray - 6 подпапка в выходной папке
+					;6 и 7 = для аргументов командной строки до и после имени файла, для WithArray - 6 подпапка в выходной папке
 					If $iFuncCall[0] > 5 Then
 						$iFuncCall[6] = StringReplace($iFuncCall[6], 'FolderName', $sFolderName)
 						$iFuncCall[7] = StringReplace($iFuncCall[7], 'FolderName', $sFolderName)
@@ -578,18 +434,18 @@ Func Main()
 						Case '_CelTop'
 							_Engine('_Bethesda', 'folder')
 						Case '_Mor'
-							MorUnpacker()
+							_fileReaper(MorUnpacker, "Pathologic Files (*.vfs)|")
 						Case '_OOAM'
 							OOAM_Unpacker()
 						Case '_ExoPlanet'
-							$file = FileOpenDialog($tSelectFile, " ", "Exoplanet catalog (exoplanet.eu_catalog.csv)|" & $tAllFile & " (*.*)", 1)
+							_getFile('', "Exoplanet catalog (exoplanet.eu_catalog.csv)|")
+								If @error = 1 then Return
 							If $iFuncCall[4] = 'Celestia' Then CelestiaExo($file)
 							If $iFuncCall[4] = 'SpaceEngine' Then SpaceEngineExo($file)
 					EndSwitch
 				EndIf
 			Next
 		#EndRegion
-
 	   EndSwitch
 	Until False
 EndFunc

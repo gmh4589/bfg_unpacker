@@ -65,21 +65,13 @@ Func SpaceEngineExo($file)
 		For $i = 2 to $iStringCount
 			$tab = StringSplit($line[$i],',')
 			Local $name = $tab[1], $mass = $tab[3], $radius = $tab[9], $orbital_period = $tab[12], $semi_major_axis = $tab[15], $eccentricity = $tab[18], $discovery_date = $tab[25], $epoch = $tab[30], $detection_type = $tab[64], $star_name = $tab[69]
+			Local $iDiscoverMethod = [['Radial Velocity, RadVel'], ['Imaging, Imaging'], ['Astrometry, Astrometry'], ['Controversial, Transit'], ['Microlensing, MicroLens'], ['Other, Transit'], ['Primary Transit, Transit'], ['Primary Transit, TTV, Transit'], ['Timing, Pulsar'], ['TTV, TTV']]
 				FileWriteLine ($iFile1, 'Planet "' & $name & '"')
 				FileWriteLine ($iFile1, '{')
 				FileWriteLine ($iFile1, 'ParentBody "' & $star_name & '"')
 					If $mass  = '' Then $mass = _MassCalc($radius)
 				FileWriteLine ($iFile1, 'Msini ' & $mass*317.8)
-					If $detection_type = 'Radial Velocity' then $detection_type = 'RadVel'
-					If $detection_type = 'Imaging' then $detection_type = 'Imaging'
-					If $detection_type = 'Astrometry' then $detection_type = 'Astrometry'
-					If $detection_type = 'Controversial' then $detection_type = 'Transit'
-					If $detection_type = 'Microlensing' then $detection_type = 'MicroLens'
-					If $detection_type = 'Other' then $detection_type = 'Transit'
-					If $detection_type = 'Primary Transit' then $detection_type = 'Transit'
-					If $detection_type = 'Primary Transit, TTV' then $detection_type = 'Transit'
-					If $detection_type = 'Timing' then $detection_type = 'Pulsar'
-					If $detection_type = 'TTV' then $detection_type = 'TTV'
+				$detection_type = $iDiscoverMethod[_ArraySearch($iDiscoverMethod, $detection_type)][1]
 				FileWriteLine ($iFile1, 'DiscMethod     "' & $detection_type & '"')
 				FileWriteLine ($iFile1, 'DiscDate       "' & $discovery_date & '"')
 				FileWriteLine ($iFile1, 'Orbit')

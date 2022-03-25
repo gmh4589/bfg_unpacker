@@ -1,4 +1,18 @@
-;Содержит функции, вызываемых из интерфейса программы
+;Содержит функции, вызываемые из интерфейса программы
+
+Func _getFile($sFileName, $iExtList = '')
+	Switch $sFileName
+		Case '', ' ', '	', "", " ", "	"
+			$sFileName = FileOpenDialog($tSelectFile, " ", $iExtList & $tAllFile & " (*.*)", 1+4)
+				If @error = 1 then SetError(1)
+		Case 'folder'
+			$sFileName = FileSelectFolder ('', $iLastDir)
+				If @error = 1 then SetError(1)
+		Case Else
+			$sFileName = $sFileName
+	EndSwitch
+	Return($sFileName)
+EndFunc
 
 Func AppClose()
 	FileDelete (@TempDir & "\start.bat")
@@ -83,12 +97,12 @@ Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
 				If $iTrash = True Then FileRecycle ($sFolderName & '\' & $iFileList1[$i])
 				$Percent = (100/$a) * $i
 				$dif = TimerDiff($begin)
-				$elaps = (($dif/$i) * $a)
+				$elaps = (($dif/$i) * $a) - $dif
 				_TicksToTime(Int($dif), $Hour, $Mins, $Secs)
 				$time = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
 				_TicksToTime(Int($elaps), $Hour, $Mins, $Secs)
 				$elaps = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
-				ProgressSet ($Percent, 'Удаление: ' & $iFileList1[$i] & @CRLF & 'Осталось ' & $i & ' из ' & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & "Прошло: " & $time & @TAB & "Осталось: " & $elaps)
+				If Mod($i, 10) = 0 Then ProgressSet ($Percent, 'Удаление: ' & $iFileList1[$i] & @CRLF & 'Осталось ' & $i & ' из ' & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & "Прошло: " & $time & @TAB & "Осталось: " & $elaps)
 			Next
 			
 		$dif = TimerDiff($begin)

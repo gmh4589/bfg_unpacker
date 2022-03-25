@@ -4,7 +4,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	Local $iExtListArray = [['_Asura', 'All Asura Engine File (*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|ASR Filese (*.asr)|Localization Files (*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz)|GUI Files (*.gui)|HDR Files (*.hdr)|PC Files (*.pc)|'], _
 	['_Anvil', "Forge file (*.forge)|"], _
 	['_Aurora', "(*.erf;*.dzip;*.bif;*.rim)|ERF Files (*.erf)|BIF Files (*.bif)|RIM Files (*.rim)|DZIP files (*.dzip)|"], _
-	['_Bethesda', 'Bethesda Files (*.bsa; *.ba2; *.esp; *.esm; *.esl; *.esx; *.snd; *.pex; TEXBSI.*;*.omod;*.fomod; *.mnf)|Bethesda Softwork Archives (*.bsa; *.ba2)|Plaugin and master files (*.esp, *.esm; *.esl)|Decompressed pligin files (*.esx)|TESO Data files (*.mnf)|Daggerfall sound archives (*.snd)|Compiled Papyrus Scripts (*.pex)|Redgaurd Textures Archives (texbsi.*)|Nexus Mod Files (*.omod;*.fomod)|'], _
+	['_Bethesda', 'Bethesda Files (*.bsa; *.ba2; *.esp; *.esm; *.esl; *.esx; *.snd; *.pex; TEXBSI.*;*.omod;*.fomod; *.mnf)|Bethesda Softwork Archives (*.bsa; *.ba2)|Plaugin and master files (*.esp; *.esm; *.esl)|Decompressed pligin files (*.esx)|TESO Data files (*.mnf)|Daggerfall sound archives (*.snd)|Compiled Papyrus Scripts (*.pex)|Redgaurd Textures Archives (texbsi.*)|Nexus Mod Files (*.omod;*.fomod)|'], _
 	['_Chrome', 'Chrome Engine Files (*.csb; *.spb; *.rpack; *.pak)|'], _
 	['_Chromium', 'PAK Files (*.pak)|'], _
 	['_Construct', 'Construct Engine Files (*.exe;*.dll;;*.pak)|'], _
@@ -12,9 +12,9 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	['_Flash', 'SWF Files (*.swf)|'], _
 	['_FrostBite', 'SB and TOC Files (*.sb;*.toc)|'], _
 	['_GameMaker', 'data.win File (data.win)|'], _
-	['_Glacier', 'Glacier Engine Files (*.wav; *.whd; *.prm; *.tex; *.anm; *.*_binkvid; *.zip; *.rpkg; *.bin; *.lgt"; *.spk; *.*_resourcelib; *.dcx; *.archive; *.str)|'], _
+	['_Glacier', 'Glacier Engine Files (*.wav; *.whd; *.prm; *.tex; *.anm; *.*_binkvid; *.zip; *.rpkg; *.bin; *.lgt; *.spk; *.*_resourcelib; *.dcx; *.archive; *.str)|'], _
 	['_Godot', 'Godot package files (*.pck; *.exe)|'], _
-	['_idTech', 'idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.streamed;*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack;*.sin)|DOOM\idTech 1 (*.wad)|Quake\idTech 2 (*.pak)|idTech 3 (*.pk3)|idTech 4 (*.pk4)|idTech 5, idTech 6 (*.*resource*;*.streamed;*.ptr;*.pages;*.vmtr;*.index;*.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|Rage Console Audio (*.msf; *.xma)|Quake 4 XBOX 360 Files (*.xpr)|Doomsday Engine Files (*.lib;*.pack)|Sin Gold SIN files (*.sin)|'], _
+	['_idTech', 'idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.streamed;*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack;*.sin)|DOOM\idTech 1 (*.wad)|Quake\idTech 2 (*.pak)|idTech 3 (*.pk3)|idTech 4 (*.pk4)|idTech 5, idTech 6 (*.*resource*; *юtangoresource; *.streamed;*.ptr;*.pages;*.vmtr;*.index;*.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|Rage Console Audio (*.msf; *.xma)|Quake 4 XBOX 360 Files (*.xpr)|Doomsday Engine Files (*.lib;*.pack)|Sin Gold SIN files (*.sin)|'], _
 	['_Infinity', 'Infinity Engine Files (*.key; *.gob; *.lmp)|'], _
 	['_LithTech',  'LithTech Engine Files (*.rez; *.Arch*)|'], _
 	['_MTFramework', 'MT Framework Engine Files (*.arc;*.sngw)|'], _
@@ -31,6 +31,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	['_Unreal', 'Unreal Engine File (*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2 (*.u*)|Unreal Engine 3 (*.u*;*.xxx;*.pcc)|Unreal Engine 4 (*.pak;*.locres)|'], _
 	['_Unreal4', 'Unreal Engine 4 (*.pak;*.locres)|']]
 	
+	;TODO: Зачем нужен этот кусок говнокода, если можно сделать просто разные "методы" для FB1 и FB2+3
 	If $iEnginesName = '_FrostBite' Then 
 		If $iOther = '' Then $iOther = InputBox ($tEnterFBV, $tVer123, '3', '', '250', '125')
 			If $iOther = '' Then Return
@@ -45,18 +46,13 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				EndSwitch
 	EndIf
 	
+	Local $iScriptsArray = [['_Source', "\data\wcx\TotalObserver.wcx "], ['_RenPy', "\data\scripts\rpa_renpy_nopython.bms "], ['_GameMaker', "\data\scripts\yoyogames.bms "], ['_Asura', "\data\scripts\asura.bms "], ['_Anvil', "\data\scripts\scimitar.bms "], ['_Snowdrop', "\data\scripts\ubisoft_sdf.bms "]]
+		
 	$iExtList = $iExtListArray [_ArraySearch($iExtListArray, $iEnginesName)][1]
+	If _ArraySearch($iScriptsArray, $iEnginesName) > -1 Then $iScriptName = $iScriptsArray [_ArraySearch($iScriptsArray, $iEnginesName)][1]
 	
-	Switch $sFileName
-		Case '', ' ', '	', "", " ", "	"
-			$sFileName = FileOpenDialog($tSelectFile, " ", $iExtList & $tAllFile & " (*.*)", 1+4)
-				If @error = 1 then Return
-		Case 'folder'
-			$sFileName = FileSelectFolder ('', $iLastDir)
-				If @error = 1 then Return
-		Case 'pass'
-			Sleep(0)
-	EndSwitch
+	$sFileName = _getFile($sFileName, $iExtList)
+		If @error = 1 then Return
 		
 	$iFileList1 = StringSplit ($sFileName, '|')
 	Local $a = UBound($iFileList1) - 1, $fc = 2
@@ -87,9 +83,9 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					FileCopy ($sFileName, $sFolderName)
 					$iTempTXT = FileOpen(@TempDir & '\list.bat', 10)
 					FileWrite($iTempTXT, '+FILE ' & $sFolderName & '\' & $iName & $iExp)
+					FileClose ($iTempTXT)
 					$iOutputWindow = ShellExecuteWait(@ScriptDir & '\data\unity_tools\AssetBundleExtractor.exe', ' -fd batchexport ' & @TempDir & '\list.bat')
 					Output_MSG($iOutputWindow, $sFileName)
-					FileClose ($iTempTXT)
 					FileDelete (@TempDir & '\list.bat')
 					FileDelete ($sFolderName & '\' & $iName & $iExp)
 				Else
@@ -111,8 +107,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						If StringInStr ($iDir, "champions") Then
 							_QuickBMSRun('', @ScriptDir & "\data\scripts\quake_champions.bms ", $sFileName)
 						Else
-							$iHead = FileRead($sFileName, 2)
-							If $iHead = 'PK' Then
+							If _headRead($sFileName) = 'PK' Then
 								_QuickBMSRun('', @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
 							Else
 								_QuickBMSRun('', @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
@@ -188,7 +183,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						ElseIf StringInStr($iDir, 'fallout') Then
 							_OtherPRG("PEX scripts (*.pex)|", "Champollion_f4.exe ", '', '', $sFolderName, $sFileName)
 						Else
-							MsgBox(0, $tMessage, 'Скрипт должен находиться в папке игры!') ;TODO: TEXT!!!
+							MsgBox(0, $tMessage, 'Файл должен находиться в папке игры!') ;TODO: TEXT!!!
 						EndIf
 					Case ".omod", ".fomod"
 						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
@@ -232,7 +227,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							$iF = FileOpen($sFileName, 16)
 							FileSetPos($iF, 20, 0)
 							$iOffset = _BinaryToInt16(FileRead($iF, 4))
-							;MsgBox (0, '', $iOffset)
+							FileClose($iF)
 							_OtherPRG('', "offzip.exe ", ' -a ', $sFolderName & ' ' & $iOffset, $sFolderName, $sFileName)
 						Else
 							_OtherPRG('', "gibbed\Gibbed.Chrome.ResourceUnpack.exe", '', $sFolderName, $sFolderName, $sFileName) 
@@ -245,22 +240,21 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					EndSwitch
 					
 			Case '_CryEngine'
-				$iHead = FileRead($sFileName, 2)
-					If $iHead = 'PK' Then
-						_QuickBMSRun('', @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
+				If _headRead($sFileName) = 'PK' Then
+					_QuickBMSRun('', @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
+				Else
+					If StringInStr ($iDir, "far cry") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\Far_Cry_PAK.bms ", $sFileName)
+					If StringInStr ($iDir, "archeage") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\archeage.bms ", $sFileName)
+					If StringInStr ($iDir, "crysis") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\crysis2.bms ", $sFileName)
+					If StringInStr ($iDir, "prey") > 0 Then 
+						_OtherPRG ('','PreyConvert.exe', '', $sFolderName & '\temp.zip', $sFolderName, $sFileName)
+						_QuickBMSRun('', @ScriptDir & '\data\scripts\zip.bms ', $sFolderName & '\temp.zip')
+						FileDelete ($sFolderName & "\temp.zip")
 					Else
-						If StringInStr ($iDir, "far cry") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\Far_Cry_PAK.bms ", $sFileName)
-						If StringInStr ($iDir, "archeage") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\archeage.bms ", $sFileName)
-						If StringInStr ($iDir, "crysis") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\crysis2.bms ", $sFileName)
-						If StringInStr ($iDir, "prey") > 0 Then 
-							_OtherPRG ('','PreyConvert.exe', '', $sFolderName & '\temp.zip', $sFolderName, $sFileName)
-							_QuickBMSRun('', @ScriptDir & '\data\scripts\zip.bms ', $sFolderName & '\temp.zip')
-							FileDelete ($sFolderName & "\temp.zip")
-						Else
-							MsgBox($MB_SYSTEMMODAL, $tMessage, $tNoEngine & "CryEngine")
-							Output_MSG(1, $sFileName)
-						EndIf
+						MsgBox($MB_SYSTEMMODAL, $tMessage, $tNoEngine & "CryEngine")
+						Output_MSG(1, $sFileName)
 					EndIf
+				EndIf
 					
 			Case '_PopCapPackAll'
 				Switch $iExp
@@ -360,7 +354,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						If StringInStr ($iDir, "jade") > 0 Then
 							_QuickBMSRun('', @ScriptDir & "\data\scripts\RIM_RIMV10.bms ", $sFileName)
 						Else
-							ERFUnpacker($sFileName)
+							_fileReaper(ERFUnpacker, "", $sFileName)
 						EndIf
 					Case ".dzip" 
 						If StringInStr ($iDir, "dragon") > 0 Then _QuickBMSRun("", @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
@@ -412,12 +406,6 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						If StringInStr($iExp, '_resourcelib') > 1 Then _QuickBMSRun("", @ScriptDir & "\data\scripts\hitman_absolution.bms ", $sFileName)
 				EndSwitch
 				
-			Case '_Source'
-				_QuickBMSRun($iExtList, @ScriptDir &  "\data\wcx\TotalObserver.wcx ", $sFileName)
-				
-			Case '_TellTale'
-				_OtherPRG($iExtList, 'ttarchext.exe ', '-m ' & $iOther & ' ', '"' & $sFolderName & '"', @ScriptDir & '\data', $sFileName)
-				
 			Case '_Infinity'
 				Switch $iExp
 					Case '.key'
@@ -438,14 +426,12 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						_QuickBMSRun("", @ScriptDir & "\data\scripts\shadow_of_mordor.bms ", $sFileName)
 				EndSwitch
 				
-			Case '_RenPy'
-				_QuickBMSRun($iExtList, @ScriptDir &  "\data\scripts\rpa_renpy_nopython.bms ", $sFileName)
+			Case '_Flash'
+				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
+				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & '\' & $iName & '~.swf')
 				
-			Case '_GameMaker'
-				_QuickBMSRun($iExtList, @ScriptDir &  "\data\scripts\yoyogames.bms ", $sFileName)
-				
-			Case '_Asura'
-				_QuickBMSRun($iExtList, @ScriptDir &  "\data\scripts\asura.bms ", $sFileName)
+			Case '_Source', '_RenPy', '_GameMaker', '_Asura', '_Anvil', '_Snowdrop'
+				_QuickBMSRun($iExtList, @ScriptDir &  $iScriptName, $sFileName)
 				
 			Case '_Chromium'
 				_OtherPRG($iExtList, 'pak_mingw64.exe ', ' -u ', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
@@ -456,19 +442,9 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 			Case '_Godot'
 				_OtherPRG ($iExtList, "godot\godotdec.exe ", ' -c ', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
 				
-			Case '_Anvil'
-				_QuickBMSRun("Scimitar Engine archive (*.forge)|", @ScriptDir & "\data\scripts\scimitar.bms ", $sFileName)
+			Case '_TellTale'
+				_OtherPRG($iExtList, 'ttarchext.exe ', '-m ' & $iOther & ' ', '"' & $sFolderName & '"', @ScriptDir & '\data', $sFileName)
 				
-			Case '_Dunia' 
-				;PASS
-			
-			Case '_Flash'
-				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
-				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & '\' & $iName & '~.swf')
-				
-			Case '_Snowdrop'
-				_QuickBMSRun("", @ScriptDir & "\data\scripts\ubisoft_sdf.bms ", $sFileName)
-			
 		EndSwitch
 	Next
 EndFunc

@@ -70,7 +70,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 					$iMenuData = _ArrayToString($iRead, "|", 1)
 						
 					If $iChMsg = $OpenFileBTN Then
-						$sFilePath = FileOpenDialog("", "", $iExtList & "All file(*.*)", 1+4)
+						$sFilePath = _getFile("", $iExtList)
 							If @error = 1 Then ContinueLoop
 							
 							$iFileList1 = StringSplit ($sFilePath, '|')
@@ -83,7 +83,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 								Next
 					
 					ElseIf $iChMsg = $OpenFolderBTN Then
-						$sFilePath = FileSelectFolder("", $iLastDir)
+						$sFilePath = _getFile("folder")
 							If @error = 1 Then ContinueLoop
 								$sFileList = _FileList($sFilePath)
 								For $j = 1 to $sFileList[0]
@@ -128,6 +128,7 @@ Local $iCombo = StringSplit($iMenuData, '|')
 			_OtherPRG('', $iProg, ' -f ' & $iCombo[1] & ' -o "' & $nFolderName & '" ', '', $nFolderName, $sFilePath)
 		
 		Case "FFMPEG GUI"
+			GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
 			_OtherPRG('*.*', 'ffmpeg.exe ', ' -i ', ' -vcodec ' & $iCombo[1] & " -vb " & $iCombo[3] & " -vf scale=" & $iCombo[6] & " -acodec " & $iCombo[2] & " -ab " & $iCombo[4] & " -map 0:0 -map 0:" & $iCombo[7] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[5] & '"', $nFolderName, $sFilePath)
 		
 		Case "FFMPEG AUDIO"
