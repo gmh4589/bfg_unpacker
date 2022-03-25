@@ -1,0 +1,57 @@
+Archives Name	Function	Ext List	Program Name	Comand1	Comand2	Comand3	Comand4		ff	
+7z	_7Zip	7zip Archives (*.7z; *.7zip; *.lzma; *.cb7; *.cb7z; *.exe)|								
+ARJ	_7Zip	ARJ Archives (*.arj)|								
+BZIP	_7Zip	BZIP Archives (*.bzip; *.bz; *.tbz)|								
+Cabinet	_7Zip	Cabinet Archives (*.cab)|								
+CPIO	_7Zip	CPIO Archives (*.cpio; *.rpm.cpio)|								
+GZIP	_7Zip	GZIP Archives (*.gzip; *.gz; *.tgz)|								
+JAR	_7Zip	JAR Archives (*.jar; *.jad)|								
+LHA	_7Zip	LHA Archives (*.lha; *.lzh)|								
+LZH	_7Zip	LZH Archives (*.lzh; *.lha)|								
+LZMA	_7Zip	LZMA Archives (*.lzma; *.lzm)|								
+MBR	_7Zip	Master Boot Record File (*.mbr)|								
+PPMD	_7Zip	PPMD Archives (*.ppmd; *.pmd)|								
+RAR	_7Zip	RAR Archives (*.rar)|								
+RPM	_7Zip	RPM Archives (*.rpm; *.rpm.cpio)|								
+TAR	_7Zip	TAR Archives (*.tar; *.tbz; *.cbt)|								
+TAZ	_7Zip	TAZ Archives (*.taz)|								
+TZ	_7Zip	TARZIP Archives (*.taz; *.tz; *.tbz; *.tbz2; *.tgz ;*.tar.*z*; *.t*z)|								
+UUE	_7Zip	UUE Archives (*.uue)|								
+XPI	_7Zip	XPI Plugins (*.xpi; *.zip)|								
+XZ	_7Zip	XZ Archives (*.xz; *.xzip; *.txz)|								
+Z	_7Zip	Z Archives (*.z)|								
+ZIP	_7Zip	ZIP Archives (*.zip; *.bin; *.bsp; *.bza; *.cbz; *.dat; *.dazip; *.docx; *.dotx; *.epub; *.fods; *.fodt; *.fomod; *.gro; *.jar; *.kfs; *.lp; *.nob; *.odb; *.ods; *.odt; *.omod; *.ots; *.ott; *.pak; *.piz; *.pk3; *.pk4; *.potm; *.ppsx; *.pptx; *.txtz; *.xlsm; *.xlsx; *.xpi; *.zipx)|'								
+ZIPX	_7Zip	ZIPX Archives (*.zipx; *.zip)|								
+ACE	_OtherPRG	ACE Archives (*.ace)|	unace.exe	 x 	 	not	 	 		
+ARC	_OtherPRG	ARC Archives (*.arc)|	arc.exe	 e 	 	 a 	 	.arc	True	1
+BLZ	_OtherPRG	BLZ Archives (*.blz)|	blzpack.exe	 d 	 	 c 	 	.blz	True	1
+BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	bma.exe	 e 	 	 a 	 	.bma	True	1
+DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	dgcac.exe	 e 	FolderName	 a 	 	.dgc	False	1
+DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	dzip.exe	 -x 	 	 	 -o 	.dzip	False	2
+FreeARC	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	 x -dp"FolderName" 	 	not	 	 		
+NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	nz.exe	 x 	 	 a "FolderName" 	 	.nz	False	1
+YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	yzdec.exe	 -d 	 	not	 	 		
+YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	yz2tool.exe	 -x	 	 -c	 	.yz2	False	1
+ZOO	_OtherPRG	ZOO Archives (*.zoo)|	unzoo.exe	 -x 	 	not	 	 		
+ALZ	_QickBMS	ALZ Archves (*.alz)|	\data\wcx\UnArkWCX.wcx 							
+ARK	_QickBMS	ARK Archives (*.ark)|	\data\wcx\UnArkWCX.wcx 							
+BlackHole	_QickBMS	BlackHole Archives (*.bh)|	\data\wcx\UnArkWCX.wcx 							
+BZIP2	_QickBMS	BZIP2 Archives (*.bzip2; *.bz2; *.tbz2)|	\data\wcx\UnArkWCX.wcx 							
+DZ	_QickBMS	DZ Archives (*.dz; *.dzip)|	\data\scripts\vector.bms 							
+EGG	_QickBMS	EGG Archives (*.egg)|	\data\wcx\UnArkWCX.wcx 							
+FPRG	_QickBMS	FPRG Archives (*.fprg)|	\data\scripts\fprg.bms 							
+FZIP	_QickBMS	FZIP Archives (*.fzip)|	\data\scripts\fzip_zlib.bms 							
+GCA	_QickBMS	GCA Archives (*.gca; *.dat)|	\data\wcx\gca.wcx 							
+HA	_QickBMS	HA Archives (*.ha)|	\data\wcx\HA.wcx 							
+HRUST	_QickBMS	Hrust Archives (*.hrp; *.hrip)|	\data\wcx\inhrust.wcx 							
+LZHAM	_QickBMS	LZHAM Archives (*.lzh; *.lza; *.lzm)|	\data\scripts\lzhamtest.bms 							
+LZIP	_QickBMS	LZIP Archives (*.lzip; *.lz; *.lzp)|	\data\scripts\lzip.bms 							
+LZO	_QickBMS	LZO Archives (*.lzo)|	\data\wcx\lzopacktc.wcx 							
+LZO PKG	_QickBMS	LZO PKG Archives (*.lzo; *.pkg)|	\data\scripts\pkg_lzo.bms 							
+LZO PVR	_QickBMS	LZO PVR Archives (*.lzo; *.pvr)|	\data\scripts\pvrlzo.bms 							
+LZSS	_QickBMS	LZSS Archives (*.lzss)|	\data\scripts\pure_lzss_script_only.bms 							
+LZX	_QickBMS	LZX Archives (*.lzx)|	\data\wcx\unlzx.wcx 							
+MHTML Web	_QickBMS	Web Archives (*.mht; *.mhtml. *.mime)	\data\wcx\TotalObserver.wcx 							
+SIS	_QickBMS	SIS Archives (*.sis)|	\data\wcx\PDunSIS.wcx 							
+SQX	_QickBMS	SQX Archives (*.sqx)|	\data\scripts\sqx.bms 							
+XXZ	_QickBMS	XXZ Archives (*.xxz)|	\data\scripts\xxz.bms 							

@@ -1141,6 +1141,7 @@ Divine Divinity	2002	_SAU
 Divinia Chronicles: Relics of Gan-Ti	2015	_Source				
 Divinity 2	Page not found!	_QuickBMS	Divinity 2 archives (*.dv2)|	\data\scripts\dv2.bms		
 Divinity: Original Sin	2014	_QuickBMS		\data\scripts\lspk.bms		
+Division, Tom Clancy’s	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
 DJ Hero (Wii)	2009	_QuickBMS	far file (*.far)|	\data\scripts\djhero_far.bms		
 DJ Hero 2 (Xbox360)	2010	_QuickBMS	img file (*.img)|	\data\scripts\djhero2.bms		
 Do You Like Horny Bunnies	2002	_QuickBMS		\data\scripts\horny_bunnies.bms		
@@ -2919,6 +2920,7 @@ Oddworld: Munch's Oddysee (PS Vita)	2001	_QuickBMS		\data\scripts\oddworld_psvit
 Oddworld: Munch's Oddysse	2001	_QuickBMS		\data\scripts\oddworld.bms		
 Odin: Valhalla Rising		_Unreal4	0x7949D1EF8E679E71AEB7526566CC072F0748E7C1109DD8C29813E1EDD16FF9BC			
 Of Bird And Cage	2021	_Unreal4	0x02037CACD0A24C20482545F6C9334ECB736EF66F576A08579ED08CBF88061170			
+Of orcs and men (SPK, PGZ)	2012	_OOAM	Of Orcs and Men files (*.spk; *.pgz; *_*)|			
 Off-Road Arena	Page not found!	_QuickBMS		\data\scripts\katgames_xpiral.bms		
 Off-World Interceptor (3DO)	Page not found!	_QuickBMS	BIG File (*.big)	\data\scripts\cdat02_totaleclipse.bms		
 Off-World Interceptor Extreme (PS1)	Page not found!	_QuickBMS	Crystal Dynamics Archive Type 3 (BIGFILE.DAT)	\data\scripts\cdat03_owieps1.bms		
@@ -4212,6 +4214,7 @@ Tokyo Xtreme Racer series	Page not found!	_QuickBMS		\data\scripts\tokyo_xtreme_
 Tokyo Xtreme Racer Zero	Page not found!	_QuickBMS		\data\scripts\tokyo_xtreme_racer_zero.bms		
 Tom & Jerry House Trap	Page not found!	_QuickBMS		\data\scripts\tom_jerry_house_trap.bms		
 Tom Clancy's Ghost Recon		_GAUP	RSB Files (*.RSB)|			
+Tom Clancy's The Division	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
 Tom Clancy’s Ghost Recon Breakpoint	2019	_Anvil				
 Tom Clancy’s Ghost Recon Wildlands	2017	_Anvil				
 Tom Clancy’s Rainbow Six: Siege	2015	_Anvil				
@@ -4625,5 +4628,3 @@ ZuOnline	Page not found!	_QuickBMS		\data\scripts\zuonline.bms
 星礼研究所 | Sighchology Research Lab	2019	_Godot				
 荣光的见证	2021	_Godot				
 飞花令 春饼	2021	_Godot				
-Division, Tom Clancy’s	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
-Tom Clancy's The Division	2016	_QuickBMS	SDF Files (*sdf*)|	\data\scripts\ubisoft_sdf.bms		
