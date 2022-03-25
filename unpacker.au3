@@ -35,6 +35,7 @@
 #include <src\program.au3>
 #include <src\engines.au3>
 #include <src\quickopen.au3>
+#include <src\ArrayPlus.au3>
 #include <src\child_gui\child_gui.au3>
 #include <src\child_gui\setting.au3>
 
@@ -43,10 +44,8 @@
 #include <src\file_format\rdr.au3>
 
 ;Инструменты от автора
-#include <src\file_format\erf_format.au3>
 #include <src\file_format\spacesim.au3>
-#include <src\file_format\ooam.au3>
-#include <src\file_format\dds_tools.au3>
+#include <src\file_format\file_reaper.au3>
 
 LocalizeRead() ;Читает локализацию, читает текст
 
@@ -71,13 +70,13 @@ GLobal $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $
 $bUseRGBColors = True
 
 ;Массивы для генерации меню
-Global $iGameList, $iUnrealList[1] = [0], $iUnrealKeys[1] = [0], $iUnityList[1] = [0], $iGMList[1] = [0], $iRPGMList[1] = [0], $iRenPyList[1] = [0]
-GLobal $abcArray = ['0-9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-Global $yearArray = ['2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009', '2008', '2007', '2006', '2005', '2004', '2003', '2002', '2001', '2000', '1999', '1998', '1997', '1996', '1995', '1994', '1993', '1992', '1991', '1990']
-GLobal $iArchiveArray = ["7z" & $tArchive, "ACE" & $tArchive, "ALZ" & $tArchive, "ARC" & $tArchive, "ARK" & $tArchive, "ARJ" & $tArchive, "BH" & $tArchive, "BLZ" & $tArchive, "BMA" & $tArchive, "BZIP" & $tArchive, "BZIP2" & $tArchive, "CAB" & $tArchive, "CPIO" & $tArchive, "DGCA" & $tArchive, "DZ" & $tArchive, "DZIP" & $tArchive, "EGG" & $tArchive, "FPRG" & $tArchive, "FreeARC" & $tArchive, "FZIP" & $tArchive, "GCA" & $tArchive, "GZIP" & $tArchive, "HA" & $tArchive, "HRUST" & $tArchive, "JAR" & $tArchive, "LHA/LZH" & $tArchive, "LZHAM" & $tArchive, "LZMA" & $tArchive, "LZIP" & $tArchive, "LZO" & $tArchive, "LZO PKG" & $tArchive, "LZO PVR" & $tArchive, "LZSS" & $tArchive, "LZX" & $tArchive, "MBR" & $tArchive, "MHTML Web" & $tArchive, "NanoZIP" & $tArchive, "NSIS" & $tArchive, "PPMD" & $tArchive, "RAR" & $tArchive, "RPM" & $tArchive, "RPMCPIO" & $tArchive, "SIS" & $tArchive, "SQX" & $tArchive, "SWM" & $tArchive, "TAZ\TZ" & $tArchive, "TAR" & $tArchive, "TAZ" & $tArchive, "TARZIP" & $tArchive, "WIM" & $tArchive, "XPI" & $tArchive, "XXZ" & $tArchive, "XZ" & $tArchive, "YZ1" & $tArchive, "YZ2" & $tArchive, "Z" & $tArchive, "ZIP" & $tArchive, "ZIPX" & $tArchive, "ZOO" & $tArchive]
+Global $iGameList, $iArchiveArray, $iUnrealList[1] = [0], $iUnrealKeys[1] = [0], $iUnityList[1] = [0], $iGMList[1] = [0], $iRPGMList[1] = [0], $iRenPyList[1] = [0]
+GLobal $abcArray = _letterArray(False, 2)
+GLobal $year = StringSplit(_NowDate(), '.')
+GLobal $yearArray = _digitArray($year[3], 1990, -1)
 
 GLobal $iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", "Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", "Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder]
-Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $iArchiveItem[UBound($iArchiveArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27]
+Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26)
 
 If $iPrOrSp = 'Splash' Then SplashImageOn("", @ScriptDir & "\data\ico\i.jpg", 256, 256, (@DesktopWidth/2)-128, (@DesktopHeight/2)-128, 19)
 If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
@@ -85,6 +84,7 @@ If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, 
 ;Запуск интерфейса
 $hGui = GUICreate("BFG Unpacker", 600, 630, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_EX_ACCEPTFILES, $WS_EX_ACCEPTFILES)
 GUISetIcon (@ScriptDir & "\data\ico\i.ico")
+TraySetIcon (@ScriptDir & "\data\ico\i.ico")
 
 ;Чтение списка игр из таблиц
 _FileReadToArray(@ScriptDir & '\game_list\main_list.csv', $iGameList)
@@ -102,7 +102,9 @@ _ArrayConcatenate($iGameList, $iRenPyList, 2)
 
 _ArraySort($iGameList, 0, 2)
 
-Global $iLoop = UBound($iGameList)-1, $iMenuItem[$iLoop+1], $iListFind[$iLoop+1], $iYearList[$iLoop+1]
+_FileReadToArray(@ScriptDir & '\game_list\archives_list.csv', $iArchiveArray)
+
+Global $iLoop = UBound($iGameList)-1, $iMenuItem[$iLoop+1], $iListFind[$iLoop+1], $iYearList[$iLoop+1], $iArcCount = UBound($iArchiveArray) - 1, $iArchiveItem[$iArcCount+1]
 
 FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
 
@@ -170,7 +172,7 @@ Func getYear($iYear)
 	EndIf
 EndFunc
 
-GUICtrlSetState($idTreeItem, $GUI_EXPAND + $GUI_DROPACCEPTED)
+GUICtrlSetState($idTreeItem, $GUI_EXPAND)
 
 ;Создает остальной интерфейс
 $iAll_Checkbox = GUICtrlCreateLabel($tFav2, 5, 42, 43, 20, $SS_CENTER+$SS_CENTERIMAGE)
@@ -283,15 +285,22 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 			$iSubmenuArchiveABC[$set] = _GUICtrlCreateODMenu($abcArray[$set], $iSubmenuArchive)
 		Next
 	
-		For $arc = 0 to UBound($iArchiveArray)-1
-			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchiveArray[$arc], getCharArc(StringLeft($iArchiveArray[$arc], 1)))
+		For $arc = 2 to $iArcCount
+			$iArchName = StringSplit($iArchiveArray[$arc], '	')
+			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], getCharArc(StringLeft($iArchName[1], 1)))
 		Next
 	
 	Func getCharArc($iChar)
-		If StringIsInt($iChar) = 1 Then Return $iSubmenuArchiveABC[0]
-		Return $iSubmenuArchiveABC[_ArraySearch($abcArray, $iChar)]
+		$index = _ArraySearch($abcArray, $iChar)
+		If StringIsInt($iChar) = 1 Then $index = 0
+		$iZeros[$index] += 1
+		Return $iSubmenuArchiveABC[$index]
 	EndFunc
-
+	
+	For $i = 0 to 26
+		If $iZeros[$i] = 0 Then GUICtrlSetState($iSubmenuArchiveABC[$i], $GUI_DISABLE)
+	Next
+	
 #EndRegion
 
 #Region //Consoles
@@ -324,6 +333,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iTotal7zip5 = _GUICtrlCreateODMenuItem("SquashFS Image", $iSubmenuDiscImage)
 	$iOpenUDF = _GUICtrlCreateODMenuItem("UDF Disc Image", $iSubmenuDiscImage)
 	$iTotal7zip6 = _GUICtrlCreateODMenuItem("VHD Disc Image", $iSubmenuDiscImage)
+	$iWIM = _GUICtrlCreateODMenuItem("WIM Disc Image", $iSubmenuDiscImage)
 #EndRegion
 
 	$iSubmenu3 = _GUICtrlCreateODMenu($tCompFormat, $iFileMenu)
@@ -333,6 +343,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 	$iSubmenuSearch = _GUICtrlCreateODMenu($tFSerch, $iFileMenu)
 	$iWavSearch = _GUICtrlCreateODMenuItem("WAV", $iSubmenuSearch)
+	
 	; $iOGGSearch = _GUICtrlCreateODMenuItem("OGG", $iSubmenuSearch)
 	; $iDDSSearch = _GUICtrlCreateODMenuItem("DDS", $iSubmenuSearch)
 	; $iBinkSearch = _GUICtrlCreateODMenuItem("Bink", $iSubmenuSearch)
@@ -362,6 +373,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iConv_5 = _GUICtrlCreateODMenuItem("Wwise Converter", $iConvMenu2)
 	$iConv_6 = _GUICtrlCreateODMenuItem("RAW " & $tTo & "WAV", $iConvMenu2)
 	$iConv_11 = _GUICtrlCreateODMenuItem("RAW " & $tTo & "Atrac", $iConvMenu2)
+	$iConv_mp3 = _GUICtrlCreateODMenuItem("RAW " & $tTo & "MP3", $iConvMenu2)
 	$iConv_13 = _GUICtrlCreateODMenuItem("PlayStation Audio Converter", $iConvMenu2)
 	$iConv_18 = _GUICtrlCreateODMenuItem("XWM\WAV Audio Converter", $iConvMenu2)
 
@@ -406,6 +418,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 #Region //OutWindow
 	$iEdit = GUICtrlCreateEdit($tAction & @CRLF, 300, 65, 295, 525, $ES_AUTOVSCROLL + $WS_VSCROLL + $ES_NOHIDESEL + $ES_WANTRETURN)
+		GUICtrlSetState($iEdit, $GUI_DROPACCEPTED)
 		GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
 #EndRegion
 
@@ -549,7 +562,6 @@ EndFunc
 #EndRegion
 
 	GUISetState(@SW_SHOW)
-	;GUIRegisterMsg(0x0111, 'Main') ;Нужно для ассинхронных функций
 
 Main()
 
