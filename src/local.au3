@@ -3,8 +3,8 @@ Func LocalizeRead()
 	Global $sLanguage = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Language', '')
 	
 		If $sLanguage = '' or Not FileExists(@ScriptDir & '\data\local\' & $sLanguage & '.loc') Then 
-			IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Language', OSLang())
 			$sLanguage = OSLang()
+			IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Language', $sLanguage)
 		EndIf
 		
 		Local $sLng
