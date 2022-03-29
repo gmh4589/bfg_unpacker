@@ -342,9 +342,7 @@ Func Main()
 			_OtherPRG('', 'comtype_scan2.bat', ' ' & @ScriptDir & '\data\scripts\comtype_scan2.bms ', '"' & $sFolderName & '"', @ScriptDir & "\data")
 		Case $iFileList
 			$iFolderList = FileSelectFolder($tFileList, $iLastDir)
-				If @error <> 1 Then
-					_FileList($iFolderList, $sFolderName)
-				EndIf
+				If @error <> 1 Then _FileList($iFolderList, $sFolderName)
 		Case $iExit
 			AppClose()
 			
