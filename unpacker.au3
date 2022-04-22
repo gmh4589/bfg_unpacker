@@ -1,4 +1,12 @@
 
+#pragma compile(Icon, data\ico\i.ico)
+#pragma compile(x64, false)
+#pragma compile(FileVersion, 1.0.22.7, 18.04.2022)
+#pragma compile(ProductVersion, 1.0.22.7, 18.04.2022)
+#pragma compile(ProductName, BFG Unpacker)
+#pragma compile(Out, BFGUnpacker.exe)
+#pragma compile(FileDescription, BFG Unpacker - Multifunctional Game Resource Unpacker, Packer and Converter.)
+
 #Include-once
 
 ;Стандартные библиотеки
@@ -22,11 +30,13 @@
 #include <Date.au3>
 #include <Color.au3>
 #include <String.au3>
+#include <GuiButton.au3>
 
 ;Дополнительные библиотеки
 #include <ModernMenu.au3>
 #include <Binary.au3>
 #include <ColorPicker.au3>
+#include <StringSize.au3>
 
 ;Внешние файлы
 #include <src\main.au3>
@@ -36,6 +46,7 @@
 #include <src\engines.au3>
 #include <src\quickopen.au3>
 #include <src\ArrayPlus.au3>
+#include <src\ext_gui.au3>
 #include <src\child_gui\child_gui.au3>
 #include <src\child_gui\setting.au3>
 
@@ -51,6 +62,10 @@ LocalizeRead() ;Читает локализацию, читает текст
 
 ;Основные глобальные переменные
 Global $iDrive, $iDir, $iName, $iExp, $iOutputWindow, $rI, $iFavPlus = 1, $iInvert = 0, $iMouseMove = -1
+;Переменные для прогресс бара
+Global $progressGUI, $hGraphic, $hPen, $Label, $Label2, $W, $iProgressFlagStart = True
+
+_GDIPlus_Startup ()
 
 ;Чтение основных настроек интерфейса программы
 GLobal $FavIni = @ScriptDir & "\data\favorites.ini", $iFavorites = FileRead($FavIni)
@@ -65,21 +80,20 @@ $iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
 $iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000'), _
 $iPrOrSp = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'OnLoad', 'Progress')
 
-_WinAPI_AddFontResourceEx(@ScriptDir & '\data\ico\IconLib.otf', $FR_PRIVATE)
+_WinAPI_AddFontResourceEx(@ScriptDir & '\data\fonts\IconLib.otf', $FR_PRIVATE)
 GLobal $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor
 $bUseRGBColors = True
 
 ;Массивы для генерации меню
 Global $iGameList, $iArchiveArray, $iUnrealList[1] = [0], $iUnrealKeys[1] = [0], $iUnityList[1] = [0], $iGMList[1] = [0], $iRPGMList[1] = [0], $iRenPyList[1] = [0]
 GLobal $abcArray = _letterArray(False, 2)
-GLobal $year = StringSplit(_NowDate(), '.')
-GLobal $yearArray = _digitArray($year[3], 1990, -1)
+GLobal $yearArray = _digitArray(@YEAR, 1990, -1)
 
 GLobal $iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", "Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", "Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder]
-Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26)
+Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26), $mButton1, $mButton2, $mButton3
 
 If $iPrOrSp = 'Splash' Then SplashImageOn("", @ScriptDir & "\data\ico\i.jpg", 256, 256, (@DesktopWidth/2)-128, (@DesktopHeight/2)-128, 19)
-If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
+;If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 
 ;Запуск интерфейса
 $hGui = GUICreate("BFG Unpacker", 600, 630, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_EX_ACCEPTFILES, $WS_EX_ACCEPTFILES)
@@ -133,45 +147,6 @@ ElseIf $iGroupBy = 'Year' Then
 	Global $idTreeItem1980 = GUICtrlCreateTreeViewItem("1970-1989", $idTreeItem)
 EndIf
 
-;Создает и наполняет список игр
-For $item = 2 to $iLoop
-	$iGameName = StringSplit($iGameList[$item], '	')
-	If $iGroupBy = 'Name' Then $idItem = getChar(StringLeft($iGameName[1], 2))
-	If $iGroupBy = 'Year' Then $idItem = getYear($iGameName[2])
-	$iMenuItem[$item] = GUICtrlCreateTreeViewItem($iGameName[1], $idItem)
-	$iListFind[$item] = $iGameName[1]
-	$iYearList[$item] = $iGameName[2]
-	$Percent = (100/$iLoop) * $item
-	If $iPrOrSp = 'Progress' Then 
-		If Mod($item, 1000) = 0 Then ProgressSet ($Percent, $item & '\' & $iLoop)
-	EndIf
-Next
-	
-Global $iLST = _ArrayToString($iListFind)
-If $iPrOrSp = 'Progress' Then ProgressOff()
-If $iPrOrSp = 'Splash' Then SplashOff()
-
-Func getChar($iChar)
-	If StringIsASCII($iChar) = 1 Then 
-		$iChar = StringLeft(StringLower($iChar), 1)
-			Local $nChar = _ArraySearch($abcArray, $iChar)
-			If $nChar > -1 Then Return $idTreeItemABC[$nChar]
-			If StringIsInt($iChar) = 1 Then Return $idTreeItemABC[0]
-			If StringIsASCII($iChar) = 1 Then Return $idTreeItemOther
-	Else
-		Return $idTreeItemOther
-	EndIf
-EndFunc
-
-Func getYear($iYear)
-	If StringIsInt($iYear) = 1 Then 
-		If $iYear < 1990 Then Return $idTreeItem1980
-		If $iYear > 1989 Then Return $idTreeItemYear[_ArraySearch($yearArray, $iYear)]
-	Else
-		Return $idTreeItemUnk
-	EndIf
-EndFunc
-
 GUICtrlSetState($idTreeItem, $GUI_EXPAND)
 
 ;Создает остальной интерфейс
@@ -194,17 +169,17 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	GUICtrlSetTip(-1, $tD2Fav)
 	GUICtrlSetResizing ($iFavDel, $GUI_DOCKSIZE)
 	
-#Region //Menu
 #Region //File
 	Global $iFileMenu = GUICtrlCreateMenu($tFile)
 	$iOpenQuick = _GUICtrlCreateODMenuItem($tQOpen, $iFileMenu)
 
 	$iSubmenu1 = _GUICtrlCreateODMenu($tUnpWith, $iFileMenu)
 	;Распаковать с помощью
-	$iTotal7zip = _GUICtrlCreateODMenuItem("Total 7z Archiver", $iSubmenu1)
+	$iTotal7zip = _GUICtrlCreateODMenuItem("7z Archiver", $iSubmenu1)
 	$iGAUP = _GUICtrlCreateODMenuItem("Game Archive Unpacker Plugin", $iSubmenu1)
 	$iObserver = _GUICtrlCreateODMenuItem("Total Observer", $iSubmenu1)
 	$iSAU = _GUICtrlCreateODMenuItem("Sprite and Archive Utility", $iSubmenu1)
+#EndRegion
 
 #Region //Engine
 	$iSubMenuEngine = _GUICtrlCreateODMenu($tEngine, $iFileMenu)
@@ -247,47 +222,28 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iOpenXNA = _GUICtrlCreateODMenuItem("XNA Framework", $iSubMenuEngine)
 #EndRegion
 
-#Region //Installers
-	$iSubmenuInstaller = _GUICtrlCreateODMenu ($tInstaller, $iFileMenu)
-	;Инсталляторы
-	$iTotal7zip01 = _GUICtrlCreateODMenuItem("Amiga OS Installer (LHA)", $iSubmenuInstaller)
-	$iOpenAPK = _GUICtrlCreateODMenuItem("Android Installer", $iSubmenuInstaller)
-	$iTotal7zip06 = _GUICtrlCreateODMenuItem("Debian Installer (DEB)", $iSubmenuInstaller)
-	$iInstExpl1 = _GUICtrlCreateODMenuItem("Eschalon Installer", $iSubmenuInstaller)
-	$FreeArcEXE = _GUICtrlCreateODMenuItem("FreeArc Installer", $iSubmenuInstaller)
-	$iOpenGadget = _GUICtrlCreateODMenuItem("Gadget Windows Installer", $iSubmenuInstaller)
-	$iTotal7zip02 = _GUICtrlCreateODMenuItem("GCW-Zero Installer (OPK)", $iSubmenuInstaller)
-	$iInstExpl2 = _GUICtrlCreateODMenuItem("Gentee Installer", $iSubmenuInstaller)
-	$iInnoUnpacker = _GUICtrlCreateODMenuItem("Inno Setup Installer", $iSubmenuInstaller)
-	$iOpenI20 = _GUICtrlCreateODMenuItem("Install4j Installer", $iSubmenuInstaller)
-	$iInstallShield = _GUICtrlCreateODMenuItem("InstallShield Installer", $iSubmenuInstaller)
-	$iOpenIOS = _GUICtrlCreateODMenuItem("iOS Installer", $iSubmenuInstaller)
-	$iTotal7zip03 = _GUICtrlCreateODMenuItem("Java Installer", $iSubmenuInstaller)
-	$iTotal7zip04 = _GUICtrlCreateODMenuItem("Linux Installer (TAR)", $iSubmenuInstaller)
-	$OpenTAR = _GUICtrlCreateODMenuItem("Linux Installer (TARZIP)", $iSubmenuInstaller)
-	$iOpenDMG = _GUICtrlCreateODMenuItem("Mac OS Installer (DMG)", $iSubmenuInstaller)
-	$ObserverMSI = _GUICtrlCreateODMenuItem("MSI Windows Installer", $iSubmenuInstaller)
-	$iInstExpl3 = _GUICtrlCreateODMenuItem("Nullsoft Installer", $iSubmenuInstaller)
-	$iObserver_ = _GUICtrlCreateODMenuItem("Setup Factory Installer", $iSubmenuInstaller)
-	$Total7zipEXE = _GUICtrlCreateODMenuItem("SFX Archive Installer", $iSubmenuInstaller)
-	$iSISUnpack = _GUICtrlCreateODMenuItem("Symbian SIS Installer", $iSubmenuInstaller)
-	$iSMIUnpack = _GUICtrlCreateODMenuItem("Smart Install Maker Installer", $iSubmenuInstaller)
-	$iOpenXAP = _GUICtrlCreateODMenuItem("Windows Mobile Installer (XAP)", $iSubmenuInstaller)
-	$iInstExpl4 = _GUICtrlCreateODMenuItem("Vise Installer", $iSubmenuInstaller)
-	$iObserver_ = _GUICtrlCreateODMenuItem("Wise Installer", $iSubmenuInstaller)
-	$iTotal7zip05 = _GUICtrlCreateODMenuItem("ZIP Installer", $iSubmenuInstaller)
-	$iOpenZ9 = _GUICtrlCreateODMenuItem("ZLB Installer", $iSubmenuInstaller)
-#EndRegion
-
 #Region //Archives
 	$iSubmenuArchive = _GUICtrlCreateODMenu($tArchives, $iFileMenu)
+	$iSubmenuConsoles = _GUICtrlCreateODMenu($tConsoles, $iFileMenu)
+	$iSubmenuDiscImage = _GUICtrlCreateODMenu($tDImage, $iFileMenu)
+	$iSubmenuInstaller = _GUICtrlCreateODMenu ($tInstaller, $iFileMenu)
+	_ArraySort($iArchiveArray, 0, 2)
+	
 		For $set = 0 to 26
 			$iSubmenuArchiveABC[$set] = _GUICtrlCreateODMenu($abcArray[$set], $iSubmenuArchive)
 		Next
 	
 		For $arc = 2 to $iArcCount
 			$iArchName = StringSplit($iArchiveArray[$arc], '	')
-			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], getCharArc(StringLeft($iArchName[1], 1)))
+			If $iArchName[11] = BitOR('3', 3) Then
+				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuDiscImage)
+			ElseIf $iArchName[11] = BitOR('4', 4) Then
+				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuConsoles)
+			ElseIf $iArchName[11] = BitOR('5', 5) Then
+				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuInstaller)
+			Else
+				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], getCharArc(StringLeft($iArchName[1], 1)))
+			EndIf
 		Next
 	
 	Func getCharArc($iChar)
@@ -304,38 +260,19 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 #EndRegion
 
 #Region //Consoles
-	$iSubmenuConsoles = _GUICtrlCreateODMenu($tConsoles, $iFileMenu)
 	;Игровые консоли
 	$iSubmenuPSARC = _GUICtrlCreateODMenu("PS3 - PSARC Archive", $iSubmenuConsoles)
 	$iPSARC_zlib = _GUICtrlCreateODMenuItem("ZLIB", $iSubmenuPSARC)
 	$iPSARC_lzma = _GUICtrlCreateODMenuItem("LZMA", $iSubmenuPSARC)
-	$iISOCompressor1 = _GUICtrlCreateODMenuItem("PSP - CSO Disc Image", $iSubmenuConsoles)
-	$iTotal7zip7 = _GUICtrlCreateODMenuItem("PS Vita - VPK Disc Image", $iSubmenuConsoles)
-	$iNSPSwitch = _GUICtrlCreateODMenuItem("Switch - NSP Disc Image", $iSubmenuConsoles)
-	$iISOCompressor2 = _GUICtrlCreateODMenuItem("Wii - ISO Disc Image", $iSubmenuConsoles)
-	$iWiiISO = _GUICtrlCreateODMenuItem("Wii\DreamCube - ISO Disc Image", $iSubmenuConsoles)
-	$iXboxISO = _GUICtrlCreateODMenuItem("Xbox - ISO Disc Image", $iSubmenuConsoles)
+	;$iTotal7zip7 = _GUICtrlCreateODMenuItem("PS Vita - VPK Disc Image", $iSubmenuConsoles)
 #EndRegion
 
 #Region //Disc Image
-	$iSubmenuDiscImage = _GUICtrlCreateODMenu($tDImage, $iFileMenu)
 	;Образы дисков
-	$iObserver_ = _GUICtrlCreateODMenuItem("BIN Disc Image (CUE/BIN)", $iSubmenuDiscImage)
-	$iCDImage = _GUICtrlCreateODMenuItem("CDI\CDR Disc Image", $iSubmenuDiscImage)
-	$iTotal7zip1 = _GUICtrlCreateODMenuItem("CramFS Image", $iSubmenuDiscImage)
-	$iTotal7zip2 = _GUICtrlCreateODMenuItem("FAT File System Image", $iSubmenuDiscImage)
-	$iTotal7zip3 = _GUICtrlCreateODMenuItem("FHS File System Image", $iSubmenuDiscImage)
-	$iOpenISO = _GUICtrlCreateODMenuItem("ISO Disc Image", $iSubmenuDiscImage)
-	$iISZconv = _GUICtrlCreateODMenuItem("ISZ Disc Image", $iSubmenuDiscImage)
-	$iObserver_ = _GUICtrlCreateODMenuItem("MDF Disc Image (MDF/MDS)", $iSubmenuDiscImage)
-	$iObserver_ = _GUICtrlCreateODMenuItem("NRG Disc Image", $iSubmenuDiscImage)
-	$iTotal7zip4 = _GUICtrlCreateODMenuItem("NTFS File System Image", $iSubmenuDiscImage)
-	$iTotal7zip5 = _GUICtrlCreateODMenuItem("SquashFS Image", $iSubmenuDiscImage)
-	$iOpenUDF = _GUICtrlCreateODMenuItem("UDF Disc Image", $iSubmenuDiscImage)
-	$iTotal7zip6 = _GUICtrlCreateODMenuItem("VHD Disc Image", $iSubmenuDiscImage)
-	$iWIM = _GUICtrlCreateODMenuItem("WIM Disc Image", $iSubmenuDiscImage)
+	$iISZconv = _GUICtrlCreateODMenuItem("ISZ Disc Image (Full Unpack)", $iSubmenuDiscImage)
 #EndRegion
 
+#Region //MainMenuEnd
 	$iSubmenu3 = _GUICtrlCreateODMenu($tCompFormat, $iFileMenu)
 	;Форматы сжатия
 	$iZLib = _GUICtrlCreateODMenuItem("ZLib, Deflate", $iSubmenu3)
@@ -405,7 +342,6 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iAbout = _GUICtrlCreateODMenuItem($tAP, $iAboutMenu)
 
 #EndRegion
-#EndRegion
 
 #Region //Checkbox
 	$iReimport_Checkbox = GUICtrlCreateCheckbox('', 10, 590, 15, 20)
@@ -448,6 +384,85 @@ Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith 
 #EndRegion
 
 _SetColor()
+
+#Region //Icon
+	_GUICtrlODMenuItemSetIcon ($iOpenQuick, "shell32.dll", 5)
+	_GUICtrlODMenuItemSetIcon ($iChromeEngine, @ScriptDir & "\data\ico\chrome.ico")
+	_GUICtrlODMenuItemSetIcon ($iBethesda, @ScriptDir & "\data\ico\creation.ico")
+	_GUICtrlODMenuItemSetIcon ($iCryEngine, @ScriptDir & "\data\ico\cry.ico")
+	_GUICtrlODMenuItemSetIcon ($iFPS_Creator, @ScriptDir & "\data\ico\fps.ico")
+	_GUICtrlODMenuItemSetIcon ($iFrostBite, @ScriptDir & "\data\ico\fb.ico")
+	_GUICtrlODMenuItemSetIcon ($iDTech, @ScriptDir & "\data\ico\id.ico")
+	_GUICtrlODMenuItemSetIcon ($Infinity, @ScriptDir & "\data\ico\Infinity.ico")
+	_GUICtrlODMenuItemSetIcon ($iMTFramework, @ScriptDir & "\data\ico\mtf.ico")
+	_GUICtrlODMenuItemSetIcon ($iPopCapPackAll, @ScriptDir & "\data\ico\popcap.ico")
+	_GUICtrlODMenuItemSetIcon ($iRenPy, @ScriptDir & "\data\ico\renpy.ico")
+	_GUICtrlODMenuItemSetIcon ($iRPGMaker, @ScriptDir & "\data\ico\rpgm.ico")
+	_GUICtrlODMenuItemSetIcon ($iOpenSWF, @ScriptDir & "\data\ico\flash.ico")
+	_GUICtrlODMenuItemSetIcon ($iSource, @ScriptDir & "\data\ico\source.ico")
+	_GUICtrlODMenuItemSetIcon ($iUnity, @ScriptDir & "\data\ico\unity.ico")
+	_GUICtrlODMenuItemSetIcon ($iUnreal, @ScriptDir & "\data\ico\unreal.ico")
+	_GUICtrlODMenuItemSetIcon ($iOpenXNA, @ScriptDir & "\data\ico\xna.ico")
+	_GUICtrlODMenuItemSetIcon ($iTotal7zip, @ScriptDir & "\data\7zip\7zG.exe", 0)
+	_GUICtrlODMenuItemSetIcon ($iGAUP, @ScriptDir & "\data\ico\gaup_logo.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_12, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon ($iBink2avi, @ScriptDir & "\data\RADVideo\radvideo64.exe", 0)
+	_GUICtrlODMenuItemSetIcon ($iMediaInfo, @ScriptDir & "\data\ico\MediaInfo.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_15, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_5, @ScriptDir & "\data\ico\wwise.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_11, @ScriptDir & "\data\ico\ps.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_13, @ScriptDir & "\data\ico\ps.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_14, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_4, @ScriptDir & "\data\ico\xn.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_16, @ScriptDir & "\Data\ico\directx.ico")
+	_GUICtrlODMenuItemSetIcon ($iConv_17, @ScriptDir & "\Data\ico\nvidia.ico")
+	_GUICtrlODMenuItemSetIcon ($iRedEngine, @ScriptDir & "\data\ico\red_engine.ico")
+	_GUICtrlODMenuItemSetIcon ($iReEngine, @ScriptDir & "\data\ico\re_engine.ico")
+	_GUICtrlODMenuItemSetIcon ($iGodot, @ScriptDir & "\data\ico\godot.ico")
+#EndRegion
+
+;Создает и наполняет список игр
+For $item = 2 to $iLoop
+	$iGameName = StringSplit($iGameList[$item], '	')
+	If $iGroupBy = 'Name' Then $idItem = getChar(StringLeft($iGameName[1], 2))
+	If $iGroupBy = 'Year' Then $idItem = getYear($iGameName[2])
+	$iMenuItem[$item] = GUICtrlCreateTreeViewItem($iGameName[1], $idItem)
+	$iListFind[$item] = $iGameName[1]
+	$iYearList[$item] = $iGameName[2]
+	$Percent = (100/$iLoop) * $item
+	If $iPrOrSp = 'Progress' Then 
+		If Mod($item, 1000) = 0 Then _BarCreate($Percent, $tLoad, $item & '\' & $iLoop, 300, 95)
+	EndIf
+Next
+
+Global $iLST = _ArrayToString($iListFind)
+If $iPrOrSp = 'Progress' Then _BarOFF()
+If $iPrOrSp = 'Splash' Then SplashOff()
+
+GUISetState(@SW_SHOW, $hGUI)
+	
+Main()
+
+Func getChar($iChar)
+	If StringIsASCII($iChar) = 1 Then 
+		$iChar = StringLeft(StringLower($iChar), 1)
+			Local $nChar = _ArraySearch($abcArray, $iChar)
+			If $nChar > -1 Then Return $idTreeItemABC[$nChar]
+			If StringIsInt($iChar) = 1 Then Return $idTreeItemABC[0]
+			If StringIsASCII($iChar) = 1 Then Return $idTreeItemOther
+	Else
+		Return $idTreeItemOther
+	EndIf
+EndFunc
+
+Func getYear($iYear)
+	If StringIsInt($iYear) = 1 Then 
+		If $iYear < 1990 Then Return $idTreeItem1980
+		If $iYear > 1989 Then Return $idTreeItemYear[_ArraySearch($yearArray, $iYear)]
+	Else
+		Return $idTreeItemUnk
+	EndIf
+EndFunc
 
 #Region //Colors
 Func _SetColor()
@@ -524,46 +539,6 @@ Func _SetColor()
 	Next
 EndFunc
 #EndRegion
-
-#Region //Icon
-	_GUICtrlODMenuItemSetIcon ($iOpenQuick, "shell32.dll", 5)
-	_GUICtrlODMenuItemSetIcon ($iChromeEngine, @ScriptDir & "\data\ico\chrome.ico")
-	_GUICtrlODMenuItemSetIcon ($iBethesda, @ScriptDir & "\data\ico\creation.ico")
-	_GUICtrlODMenuItemSetIcon ($iCryEngine, @ScriptDir & "\data\ico\cry.ico")
-	_GUICtrlODMenuItemSetIcon ($iFPS_Creator, @ScriptDir & "\data\ico\fps.ico")
-	_GUICtrlODMenuItemSetIcon ($iFrostBite, @ScriptDir & "\data\ico\fb.ico")
-	_GUICtrlODMenuItemSetIcon ($iDTech, @ScriptDir & "\data\ico\id.ico")
-	_GUICtrlODMenuItemSetIcon ($Infinity, @ScriptDir & "\data\ico\Infinity.ico")
-	_GUICtrlODMenuItemSetIcon ($iMTFramework, @ScriptDir & "\data\ico\mtf.ico")
-	_GUICtrlODMenuItemSetIcon ($iPopCapPackAll, @ScriptDir & "\data\ico\popcap.ico")
-	_GUICtrlODMenuItemSetIcon ($iRenPy, @ScriptDir & "\data\ico\renpy.ico")
-	_GUICtrlODMenuItemSetIcon ($iRPGMaker, @ScriptDir & "\data\ico\rpgm.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenSWF, @ScriptDir & "\data\ico\flash.ico")
-	_GUICtrlODMenuItemSetIcon ($iSource, @ScriptDir & "\data\ico\source.ico")
-	_GUICtrlODMenuItemSetIcon ($iUnity, @ScriptDir & "\data\ico\unity.ico")
-	_GUICtrlODMenuItemSetIcon ($iUnreal, @ScriptDir & "\data\ico\unreal.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenXNA, @ScriptDir & "\data\ico\xna.ico")
-	_GUICtrlODMenuItemSetIcon ($iTotal7zip, @ScriptDir & "\data\7zip\7zG.exe", 0)
-	_GUICtrlODMenuItemSetIcon ($iGAUP, @ScriptDir & "\data\ico\gaup_logo.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_12, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iBink2avi, @ScriptDir & "\data\RADVideo\radvideo64.exe", 0)
-	_GUICtrlODMenuItemSetIcon ($iMediaInfo, @ScriptDir & "\data\ico\MediaInfo.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_15, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_5, @ScriptDir & "\data\ico\wwise.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_11, @ScriptDir & "\data\ico\ps.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_13, @ScriptDir & "\data\ico\ps.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_14, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_4, @ScriptDir & "\data\ico\xn.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_16, @ScriptDir & "\Data\ico\directx.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_17, @ScriptDir & "\Data\ico\nvidia.ico")
-	_GUICtrlODMenuItemSetIcon ($iRedEngine, @ScriptDir & "\data\ico\red_engine.ico")
-	_GUICtrlODMenuItemSetIcon ($iReEngine, @ScriptDir & "\data\ico\re_engine.ico")
-	_GUICtrlODMenuItemSetIcon ($iGodot, @ScriptDir & "\data\ico\godot.ico")
-#EndRegion
-
-	GUISetState(@SW_SHOW)
-
-Main()
 
 #cs
 Пароли
