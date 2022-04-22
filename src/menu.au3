@@ -14,15 +14,6 @@ Func _getFile($sFileName, $iExtList = '')
 	Return($sFileName)
 EndFunc
 
-Func AppClose()
-	FileDelete (@TempDir & "\start.bat")
-		Exit
-EndFunc
-
-Func _CloseWin()
-	GUISetState(@SW_HIDE, @GUI_WinHandle)
-EndFunc
-
 Func FolderProbe()
 	Global $sFolderName = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
 	If $sFolderName = '' Then 
@@ -47,7 +38,6 @@ Func SelectFolder()
 		If @error <> 1 Then
 			$sFolderName = $sFN
 			IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Path', $sFolderName)
-			;_ScriptRestart(100)
 		EndIf
 EndFunc
 
@@ -76,21 +66,16 @@ EndFunc
 Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
 	If $iTrash = False Then $tDELAll = $tDELAll1
 	If $iTrash = True Then $tDELAll = $tDELAll2
-	$iAnswer = MsgBox(BitOR($MB_YESNO, $MB_SYSTEMMODAL), $tWRNNG, $tDELAll & @CRLF & $sFolderName & "?")
+	$iAnswer = _MsgBox(4, $tWRNNG, $tDELAll & @CRLF & $sFolderName & "?")
 		If $iAnswer = 6 Then
+		
 			Local $iFileList1 = _FileListToArray ($sFolderName)
-			;_ArrayDisplay($iFileList1, "$FileList")
 			$a = UBound ($iFileList1)
-			
-			If $a = 0 Then 
-				MsgBox($MB_SYSTEMMODAL, $tMessage, "Папка пуста!")
-				Return
-			EndIf
+			If $a = 0 Then Return(_MsgBox(0, $tMessage, "Папка пуста!"))
 			
 			Dim $Hour, $Mins, $Secs
 			$begin = TimerInit()
 
-			ProgressOn ('', "Подождите...", '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 			For $i = 0 to $a - 1
 				If $iTrash = False Then FileDelete ($sFolderName & '\' & $iFileList1[$i])
 				If $iTrash = False Then DirRemove ($sFolderName & '\' & $iFileList1[$i], 1)
@@ -102,51 +87,57 @@ Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
 				$time = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
 				_TicksToTime(Int($elaps), $Hour, $Mins, $Secs)
 				$elaps = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
-				If Mod($i, 10) = 0 Then ProgressSet ($Percent, 'Удаление: ' & $iFileList1[$i] & @CRLF & 'Осталось ' & $i & ' из ' & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & "Прошло: " & $time & @TAB & "Осталось: " & $elaps)
+				If BitOr(Mod($i, 10) = 0, $a < 20) Then _BarCreate($Percent, "Подождите...", 'Удаление: ' & $iFileList1[$i] & @CRLF & 'Осталось ' & $i & ' из ' & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & "Прошло: " & $time & @TAB & "Осталось: " & $elaps, 300, 120)
 			Next
 			
 		$dif = TimerDiff($begin)
 		_TicksToTime(Int($dif), $Hour, $Mins, $Secs)
 		$dif = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
-		ProgressSet(100, "Готово!" & @CRLF & "Прошло: "  & $dif)
 		Sleep (1000)
-		ProgressOff()
+		_BarOff()
 		GUICtrlSetData($iEdit, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel & @CRLF, 1)
 		EndIf
 EndFunc
 
+Func DeFo()
+	$iAnswer = _MsgBox(4, $tWRNNG, $tDAEFFF & @CRLF & $sFolderName & "?" & @CRLF & $tNote & @CRLF & $tUIFIDW & @CRLF & $tFOSAF)
+		If $iAnswer = 6 then
+		
+			If UBound (_FileListToArray($sFolderName)) = 0 Then Return(_MsgBox(0, $tMessage, "Папка пуста!"))
+			
+			ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
+			_MsgBox(0, $tMessage, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel)
+			GUICtrlSetData($iEdit, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel & @CRLF, 1)
+		EndIf
+EndFunc
+
+Func DeFi()
+	$iAnswer = _MsgBox(4, $tWRNNG, $tDFWS0BFF & @CRLF & $sFolderName & "?" & @CRLF & $tFISAND & @CRLF & @CRLF & $tNote & @CRLF & $tUIFIDW & @CRLF & $tFOTFSOA)
+		If $iAnswer = 6 Then
+		
+			Local $iFileList1 = _FileListToArray ($sFolderName)
+			$a = UBound ($iFileList1)
+			If $a = 0 Then Return(_MsgBox(0, $tMessage, "Папка пуста!"))
+			
+			For $i = 1 to $a - 1
+				$iSize = FileGetSize($sFolderName & '\' & $iFileList1[$i])
+				If $iSize = 0 Then FileDelete($sFolderName & '\' & $iFileList1[$i])
+			Next
+			
+			_MsgBox(0, $tMessage, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel)
+			GUICtrlSetData($iEdit, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel & @CRLF, 1)
+		EndIf
+EndFunc
+
 Func MakeFolder()
-	MsgBox(BitOR($MB_YESNO, $MB_SYSTEMMODAL), $tWRNNG, $tCrFld & @CRLF & $sFolderName & "?")
+	_MsgBox(4, $tWRNNG, $tCrFld & @CRLF & $sFolderName & "?")
 		If $iAnswer = 6 Then
 			DirCreate ($sFolderName)
 			GUICtrlSetData($iEdit, $tFolder2 & @CRLF & $sFolderName & @CRLF & $tCreated & @CRLF, 1)
 		EndIf
 EndFunc
 
-Func DeFo()
-	$iAnswer = MsgBox(BitOR($MB_YESNO, $MB_SYSTEMMODAL), $tWRNNG, $tDAEFFF & @CRLF & $sFolderName & "?" & @CRLF & $tNote & @CRLF & $tUIFIDW & @CRLF & $tFOSAF)
-		If $iAnswer = 6 then
-			ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
-			MsgBox($MB_SYSTEMMODAL, $tMessage, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel)
-			GUICtrlSetData($iEdit, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel & @CRLF, 1)
-		EndIf
-EndFunc
-
-Func DeFi()
-	$iAnswer = MsgBox(BitOR($MB_YESNO, $MB_SYSTEMMODAL), $tWRNNG, $tDFWS0BFF & @CRLF & $sFolderName & "?" & @CRLF & $tFISAND & @CRLF & @CRLF & $tNote & @CRLF & $tUIFIDW & @CRLF & $tFOTFSOA)
-		If $iAnswer = 6 Then
-			Local $iFileList1 = _FileListToArray ($sFolderName)
-			For $i = 1 to $iFileList1[0]
-				$iSize = FileGetSize($sFolderName & '\' & $iFileList1[$i])
-				If $iSize = 0 Then FileDelete($sFolderName & '\' & $iFileList1[$i])
-			Next
-			MsgBox($MB_SYSTEMMODAL, $tMessage, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel)
-			GUICtrlSetData($iEdit, $tAllFFF & @CRLF & $sFolderName & @CRLF & $tAlldel & @CRLF, 1)
-		EndIf
-EndFunc
-
 Func Output_MSG($iOutputWindow, $iFName = '') ;Исправлено
-
 	If $iInvert = 1 then
 		If $iOutputWindow = 1 then
 			$iOutputMsg = ($tDone)
@@ -161,7 +152,6 @@ Func Output_MSG($iOutputWindow, $iFName = '') ;Исправлено
 			$iOutputMsg = ($tError)
 		EndIf
 	EndIf
-
 		GUICtrlSetData($iEdit, $iOutputMsg & ': ' & $iFName & '!' & @CRLF, 1)
 EndFunc
 
@@ -198,7 +188,6 @@ Func AutoSearch()
 	
 			Local $iStringCount = _FileCountLines(@TempDir & "\bfgunpacker\file_list.txt")
 			
-			ProgressOn($tWaitList, '', "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 			For $a = 1 to $iStringCount
 				$iScriptName = FileReadLine (@TempDir & "\bfgunpacker\file_list.txt", $a)
 				_PathSplit($iScriptName, $iDrive, $iDir, $iName, $iExp)
@@ -208,9 +197,9 @@ Func AutoSearch()
 							FileWriteLine ($hFile, @ScriptDir & "\data\quickbms.exe " & $iScriptName & ' "' & $sFileName & '" "' & $sFolderName & "\" & $iName & '"')
 					EndSwitch
 				$Percent = (100/$iStringCount) * $a
-				If Mod($a, 100) = 0 Then ProgressSet ($Percent, $a & '\' & $iStringCount)
+				If Mod($a, 100) = 0 Then _BarCreate($Percent, "Подождите...", $a & '\' & $iStringCount, 300, 90)
 			Next
-			ProgressOff()
+			_BarOff()
 			
 			FileWriteLine ($hFile, "Pause")
 			FileClose ($hFile)
@@ -219,28 +208,4 @@ Func AutoSearch()
 			FileDelete (@TempDir & "\bfgunpacker\search_plugin.bat")
 			FileDelete (@TempDir & "\bfgunpacker\file_list.txt")
 			ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
-EndFunc
-
-Func _CursorMove($iGuiID)
-	$iCursorPos = GUIGetCursorInfo($iGuiID)
-	
-	If $iCursorPos[4] Then
-		Switch $iCursorPos[4]
-			Case $iAll_Checkbox, $iFindBTN, $iFavAdd, $iFavDel, $idButton[1] to $idButton[15], $setBTN[2] to $setBTN[26]
-				If $iMouseMove <> -1 Then
-					If $iMouseMove <> $iCursorPos[4] Then
-						GUICtrlSetBkColor($iMouseMove, $iColor1)
-					EndIf
-				EndIf
-				If $iMouseMove <> $iCursorPos[4] Then
-					$iMouseMove = $iCursorPos[4]
-					GUICtrlSetBkColor($iMouseMove, $iColor3)
-				EndIf
-			Case Else
-				If $iMouseMove <> -1 Then
-					GUICtrlSetBkColor($iMouseMove, $iColor1)
-					$iMouseMove = -1
-				EndIf
-		EndSwitch
-	EndIf
 EndFunc

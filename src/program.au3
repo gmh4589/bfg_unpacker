@@ -14,7 +14,7 @@ Func _QuickBMS($sFileName, $iScriptName)
 EndFunc
 
 Func _OtherPRGExt($iMode1, $sFileName = '')
-	If $iMode1 <> BitOR('_SAU', '_VGM') Then Return(MsgBox(0, '', 'Error 404'))
+	If $iMode1 <> BitOR('_SAU', '_VGM') Then Return(_MsgBox(0, '', 'Error 404'))
 	
 	If $iMode1 = '_SAU' Then $iExtList = $tAllSupp & "(*.adf;*.agg;*.bdx;*.spr;*.pak;*.box;*.brig;*.chr;*.dat;*.bin;*.cam;*.cc;*.cmp;mas0*;*.df2;*.*c;*.rm;*.anm;*.4pp;*.epf;*.flx;*.gor;*.h4r;*.hrs;*.idx;*.ilb;*.key;*.lbx;*.lod;*.group;*.bin;*.mpq;*.dbi;*.ff;*.wdb;*.mul;*.nds;*.p00;*.p10;*.p99;*.pak;*.res;*.snd;*.tgw;*.tlb;*.uop;*.vid;*.vsr;*.war;*.xua;*.xub;*.jun;*.maa;*.jus;*.fan)|Amiga Disk File (*.adf)|Heroes of Might & Magic 1-2 (*.agg)|Black Moon Chronicles, Persian Wars (*.SPR)|Beats of Rage " & $tArchives & " (*.pak)|Beasts & Bumpkins " & $tArchives & " (*.box)|Brigandine (*.brig)|Beyond the Beyond (*CHR;*.DAT;*.BIN)|Cyberlore Library Manager (*.cam)|Kings Bounty " & $tAnd & " Might & Magic 3/4/5 " & $tArchives & " (*.cc)|Divine Divinity" & $tArchive & "(*.cmp)|Dark Seal 2: Wizard Fire (mas0*)|Tibia MMORPG (Tibia.dat)|Heroes of Might & Magic 4 sprite " & $tArchives & " (*.df2)|Divine Divinity sprite" & $tArchive & "(*.*c)|Dominus (*.rm;*anm;*.4pp;*.dat)|Realms of Arkania 2 (*.DAT)|East Point File System (*.epf)|Ultima 7, 8 " & $tAnd & " Crusader No Remorse " & $tArchives & " (*.flx)|Myth Fallen Lords " & $tArchives & " " & $tAnd & " Tagged Files (*.gor)|Stonekeep groupXX " & $tArchives & " (*.group)|Heroes of Might & Magic 4 " & $tArchives & " (*.h4r)|Heimdall (*.bin;*.dat)|Faery Tale Adventure 2 " & $tAnd & " Dinotopia " & $tArchives & " (*.hrs)|Jinyong Qunxia Zhuan " & $tArchives & " (*.idx)|Age of Wonders 1-2 image " & $tArchives & " (*.ilb)|Infinity Engine Directory (*.key)|Master of Magic " & $tArchives & " (*.lbx)|Lunar: Genesis / Dragon Song (*.dat)|Cyberlore Library (*.lib)|LOD " & $tArchives & " (*.lod)Majesty for IPhone/IPad (*.group.bin)|Blizzard MPQ " & $tArchives & " (*.mpq)|Disciples: Sacred Lands (*.DBI;*.FF;*.WDB)|Ultima Online" & $tArchive & "(*.mul)|Nintendo Nitro Filesystem " & $tAnd & " Formats (*.NDS)|Popolocrois" & $tArchive & "(*.p00;*.p1;*.p99)|Helbreath sprite " & $tArchives & " (*.pak)|Rage of Mages 1-2 (Allods) " & $tArchives & " (*.res)|Mystic Towers (rgmystus.dat)|SND " & $tArchives & " (*.snd)|Kohan: Immortal Sovereigns " & $tArchives & " (*.tgw)|SSI Tileset (*.tlb)|Ultima Online Mythic Package (*.uop)|Vandal Hearts (*.DAT)|VID " & $tArchives & " (*.vid)|Lemmings Paintball (*.vsr)|Warcraft 1 " & $tAnd & " 2 " & $tArchives & " (*.war)|Original Mulan " & $tArchives & " (*.XUA;*.XUB;*.JUN;*.MAA;*.JUS;*.FAN)|"
 	
@@ -34,7 +34,7 @@ Func _OtherPRGExt($iMode1, $sFileName = '')
 	Next
 EndFunc
 
-Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iFF = True) 
+Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False) 
 ;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
 ; Исправлено!
 	$sFileName = _getFile($sFileName, $iExtList)
@@ -45,12 +45,19 @@ Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDi
 	If $a = 1 Then $fc = 1
 	For $i = $fc to $a
 		If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$i]
+		If $iMove Then
+			_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
+			FileCopy($sFileName, $sFolderName)
+			$sFileName = $sFolderName & '\' & $iName & $iExp
+		EndIf
+		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
 		If GUICtrlRead($iHideOrShow) = 1 Then
 			$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\" & $iPRGName, $iCommand1 & '"' & $sFileName & '" ' & $iCommand2, $iWorkDir, "open")
 			Output_MSG($iOutputWindow, $sFileName)
 		Else
 			_Console (@ScriptDir & "\data\" & $iPRGName & " " & $iCommand1 & '"' & $sFileName & '" ' & $iCommand2, $iWorkDir)
 		EndIf
+		If $iMove Then FileDelete($sFolderName & '\' & $iName & $iExp)
 	Next
 EndFunc
 
@@ -105,14 +112,14 @@ Func _WithArray($iGameName, $iFileArray, $iPRGName, $iSubFolder = '') ;Для п
 				DirCreate ($sFolderName & $iSubFolder)
 			EndIf
 			$a = UBound($iFileArray)
-			ProgressOn('', $tWtCoping, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 			For $i = 0 to $a - 1
 				FileCopy ($sFolderPath & $iFileArray[$i], $sFolderName & $iSubFolder)
 				GUICtrlSetData($iEdit, $tCopied & " " & $i & "/" & $a & @CRLF, 1)
-				ProgressSet((100/$a) * $i, $tCopied & " " & $i & "/" & $a )
+				;ProgressSet((100/$a) * $i, $tCopied & " " & $i & "/" & $a )
+				_BarCreate((100/$a) * $i, $tWtCoping, $tCopied & " " & $i & "/" & $a, 300, 120)
 			Next			
 			ProgressSet(100, $tDone)
-			ProgressOff()
+			_BarOFF()
 			FileCopy (@ScriptDir & "\Data\" & $iPRGName, $sFolderName)
 			GUICtrlSetData($iEdit, $tCopied & " " & $a & "/" & $a  & @CRLF, 1)
 			$iOutputWindow = ShellExecuteWait ($sFolderName & '\' & $iPRGName, "", $sFolderName, "open")

@@ -50,7 +50,7 @@ Func CubeMapCreator()
 		FileClose($hOutFile)
 	Else
 		$tCBMSG = (@CRLF & "CubeMap Creator" & @CRLF & @CRLF & $tCBMSG1 & @CRLF & $tCBMSG2 & @CRLF & $tCBMSG3 & @CRLF & $tCBMSG4 & @CRLF & $tCBMSG5 & @CRLF & $tCBMSG6 & @CRLF & $tCBMSG7 & @CRLF & $tCBMSG8)
-		MsgBox($MB_SYSTEMMODAL, $tUsing, $tCBMSG)
+		_MsgBox($MB_SYSTEMMODAL, $tUsing, $tCBMSG)
 		GUICtrlSetData($iEdit, $tCBMSG, 1)
 	EndIf
 EndFunc
@@ -74,7 +74,6 @@ Func MorUnpacker($sFileName)
 
 	$iFileC = _BinaryToInt32(FileRead($iFile, 4))
 
-	ProgressOn('', $tWtSaving, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 		For $i = 1 to $iFileC
 			$iNameLong = FileRead($iFile, 1)
 			$iNameFile = BinaryToString(FileRead($iFile, $iNameLong))
@@ -88,11 +87,10 @@ Func MorUnpacker($sFileName)
 			FileClose ($iNewFile)
 			FileSetPos ($iFile, $iPos + 16, 0)
 			GUICtrlSetData($iEdit,  $tSave & ' ' & $i & "/" & $iFileC & ' ' & $iNameFile  & @CRLF, 1)
-			ProgressSet((100/$iFileC) * $i, $tSave & @TAB & $iNameFile & @CRLF & $i & "/" & $iFileC)
+			If Mod($i, 10) = 0 Then _BarCreate((100/$iFileC) * $i, $tWtSaving, $tSave & @CRLF & $iNameFile & @CRLF & $i & "/" & $iFileC, 300, 120)
 		Next
-	ProgressSet(100, $tDone)
 	GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
-	ProgressOff()	
+	_BarOff()
 EndFunc
 
 Func OOAM_Unpacker() ;Исправлено
@@ -213,7 +211,8 @@ Func ERFUnpacker($sFileName = '')
 							_ArrayAdd($FileExtArray, $fEXT)
 						Next
 					FileSetPos ($iFile, $iERFLst, 0)
-					ProgressOn('', $tWtSaving, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
+					;ProgressOn('', $tWtSaving, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
+					
 						For $j = 1 to $iFileCount
 							$data1 = FileRead ($iFile, 4)
 								$data1 = _BinaryToInt32($data1)
@@ -229,11 +228,11 @@ Func ERFUnpacker($sFileName = '')
 							FileClose ($iNewFile)
 							FileSetPos ($iFile, $c, 0)
 							GUICtrlSetData($iEdit,  $tSave & ' ' & $j & "/" & $iFileCount & ' ' & $fName  & @CRLF, 1)
-							ProgressSet((100/$iFileCount) * $j, $tSave & @TAB & $fName & @CRLF & $j & "/" & $iFileCount)
+							If Mod($j, 10) = 0 Then _BarCreate((100/$iFileCount) * $j, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $j & "/" & $iFileCount, 300, 110)
 						Next
 					ProgressSet(100, $tDone)
 					GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
-					ProgressOff()
+					_BarOff()
 					FileClose ($iFile)
 			Else
 				FileSetPos($iFile, 8, 0)
@@ -244,7 +243,6 @@ Func ERFUnpacker($sFileName = '')
 								$iFileCount = FileRead ($iFile, 4)
 								$iFileCount = _BinaryToInt32($iFileCount)
 							FileSetPos ($iFile, 32, 0)
-						ProgressOn('', $tWtSaving, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 							For $i = 0 to $iFileCount
 								$RName = FileRead ($iFile, 64)
 								$iOffs = FileRead ($iFile, 4)
@@ -261,18 +259,18 @@ Func ERFUnpacker($sFileName = '')
 								FileClose ($iNewFile)
 								FileSetPos ($iFile, $c, 0)
 								GUICtrlSetData($iEdit,  $tSave & ' ' & $i & "/" & $iFileCount & ' ' & $fName  & @CRLF, 1)
-								ProgressSet((100/$iFileCount) * $i, $tSave & @TAB & $fName & @CRLF & $i & "/" & $iFileCount)								
+								If Mod($i, 10) = 0 Then _BarCreate((100/$iFileCount) * $i, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $i & "/" & $iFileCount, 300, 110)
 							Next
 						ProgressSet(100, $tDone)
 						GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
-						ProgressOff()						
+						_BarOff()						
 						Return
 					ElseIf $iVer = '0x56003300' Then
-						MsgBox($MB_SYSTEMMODAL, $tMessage, "v3")
+						;MsgBox($MB_SYSTEMMODAL, $tMessage, "v3")
 						FileClose ($iFile)
 						_QuickBMSRun('', @ScriptDir & "\data\scripts\dragon_age__2.bms ", $sFileName)
 					Else
-						MsgBox($MB_SYSTEMMODAL, $tMessage, $tNoGame & "Aurora Engine")
+						_MsgBox($MB_SYSTEMMODAL, $tMessage, $tNoGame & "Aurora Engine")
 						
 					EndIf
 			EndIf

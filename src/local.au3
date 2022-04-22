@@ -212,6 +212,13 @@ Func LocalizeRead()
 		$tAudio = $sLng[200], _
 		$tVideo = $sLng[201], _
 		$tTextures = $sLng[202], _
-		$tDELAll2 = $sLng[203]
+		$tDELAll2 = $sLng[203], _
+		$tyes = $sLng[204], _
+		$tno = $sLng[205], _
+		$tabort = $sLng[206], _
+		$tretry = $sLng[207], _
+		$tignore = $sLng[208], _
+		$tagain = $sLng[209], _
+		$tcontinue = $sLng[210]
 
 EndFunc

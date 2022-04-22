@@ -10,8 +10,7 @@ $iComboData = StringSplit($iComboList, ';'), _
 $iCombo[$iItemSize+1], _
 $iLabel[$iItemSize+1], _
 $iRead[$iItemSize+1], _
-$GUIH = $iItemSize*42
-If $GUIH < 90 Then $GUIH = 90
+$GUIH = $iItemSize*42 < 90 ? 90 : $iItemSize*42
 
 GUICtrlSetState($iHideOrShow, $GUI_UNCHECKED)
 
@@ -33,7 +32,6 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 		$Argum += 40
 	Next
 	
-	;Я против дискриминации цикла Do! Почему везде и все используют только While и For?
 	Do 
 		$iChMsg = GUIGetMsg($NewGui)
 		$iLastDir = $iDrive & $iDir
@@ -44,6 +42,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 				Case $GUI_EVENT_CLOSE
 					GUISetState(@SW_HIDE, $NewGui)
 					GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
+					GUIDelete($NewGui)
 						ExitLoop
 						
 				Case $iCombo[1]
@@ -94,7 +93,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 								Next
 							ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
 					EndIf
-					MsgBox (0, "", $tDone & '!')
+					_MsgBox (0, "", $tDone & '!')
 					
 			EndSwitch
 	Until False

@@ -1,7 +1,7 @@
 Func SettingMenu()
 	
 Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
-	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
+	If BitOR($iMenuColor <> 'Classic', $iMenuColor = 0) then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $set_Gui)
 	GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
 	
@@ -27,7 +27,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 	Local $iEngine6Lbl = GUICtrlCreateLabel("RenPy (" & _FileCountLines(@ScriptDir & '\game_list\renpy_list.csv')-1 & ")", 25, 148, 100)
 	Local $iEngine6 = GUICtrlCreateCheckbox("", 10, 145, 15, 20)
 	GUICtrlSetState(-1, $iRenPyBuild)
-		
+	
 	Local $iThemesLbl = GUICtrlCreateLabel($tUseThemes, 35, 173, 100)
 	Local $iThemes = GUICtrlCreateCheckbox('', 20, 170, 15, 20)
 	GUICtrlSetState(-1, $iUseThemes)
@@ -51,14 +51,14 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 		ElseIf  $iGroupBy = 'Year' Then
 			GUICtrlSetState($iYearG, 1)
 		EndIf
-		
+
 	;TODO: Добавить адекватные цвета в гамму
 	Local $iGamma = _
-    [0xFFFFFF, 0x000000, 0xC0C0C0, 0x808080, _
-     0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, _
-     0xFF99CC, 0xFF80FF, 0x993366, 0xD74060, _
-     0xCCFFFF, 0x99CCFF, 0x33CCCC, 0x666699, _
-     0xCCFFCC, 0x66C850, 0x339966, 0x66CC99]
+    [0xFFFFFF, 0x000000, 0x303030, 0x808080, 0xC0C0C0, _
+     0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, 0xA69E40, _
+     0xFF99CC, 0xFF80FF, 0x993366, 0xD74060, 0x821E55, _
+     0xCCFFFF, 0x99CCFF, 0x33CCCC, 0x666699, 0x1E5A82, _
+     0xCCFFCC, 0x66C850, 0x339966, 0x66CC99, 0x00BE32]
 	 
 	If GUICtrlRead($iThemes) = 1 Then
 		$ThemList = StringReplace(_ArrayToString(_FileListToArray(@ScriptDir & '\data\themes', '*.ini'), '|', 1), '.ini', '')
@@ -66,7 +66,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 		If $ThemList = -1 Then $ThemList = ''
 		GUICtrlSetData(-1, 'Classic|' & $ThemList, $iMenuColor)	
 	ElseIf GUICtrlRead($iThemes) = 4 Then
-		Local $Picker = _GUIColorPicker_Create('', 140, 110, 100, 25, $iColor1, BitOR($CP_FLAG_CHOOSERBUTTON, $CP_FLAG_DEFAULT, $CP_FLAG_ARROWSTYLE, $CP_FLAG_TIP), $iGamma, 4, 5, 1, '', 'More...')
+		Local $Picker = _GUIColorPicker_Create('', 140, 110, 100, 25, $iColor1, BitOR($CP_FLAG_CHOOSERBUTTON, $CP_FLAG_DEFAULT, $CP_FLAG_ARROWSTYLE, $CP_FLAG_TIP), $iGamma, 5, 5, 1, '', 'More...')
 		GUICtrlSetTip(-1, $tSelColor)
 	EndIf
 		
@@ -74,7 +74,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 	Local $iBTNSet2 = GUICtrlCreateButton($tCancel, 140, 160, 100, 25)
 	Local $iBTNSet3 = GUICtrlCreateButton($tApply, 140, 185, 100, 25)
 	
-	If $iMenuColor <> 'Classic' Then
+	If BitOR($iMenuColor <> 'Classic', $iMenuColor = 0) Then
 		GUICtrlSetColor($iEngine1Lbl, $iFontColor)
 		GUICtrlSetColor($iEngine3Lbl, $iFontColor)
 		GUICtrlSetColor($iEngine4Lbl, $iFontColor)
@@ -94,6 +94,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 		Switch $set_msg
 			Case $GUI_EVENT_CLOSE, $iBTNSet2
 				GUISetState(@SW_HIDE, $set_Gui)
+				GUIDelete($set_Gui)
 					ExitLoop
 			Case $iBTNSet1
 				SelectFolder()
@@ -117,7 +118,19 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', GUICtrlRead($iEngine4))
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', GUICtrlRead($iEngine5))
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', GUICtrlRead($iEngine6))
-			Case $iThemes, $Picker ;TODO: баг - если поставить черный цвет меню, меню настроек остается белым до перезагрузки
+				
+				$iUnrealBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unreal', 4)
+				$iUnityBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unity', 4)
+				$iGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', 4)
+				$iRPGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', 4)
+				$iRenPyBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4)
+				$iGroupBy = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name')
+				$iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4)
+				$iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
+				$iPrOrSp = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'OnLoad', 'Progress')
+				
+			Case $iThemes, $Picker, $iThemesLbl
+				If $set_msg = $iThemesLbl Then GUICtrlSetState($iThemes, _Checker($iThemes))
 				$iUseThemes = GUICtrlRead($iThemes)
 				If $iUseThemes = 4 Then $iMenuColor = _GUIColorPicker_GetColor($Picker)
 				If $iUseThemes = 1 Then $iMenuColor = GUICtrlRead($Picker)
@@ -142,8 +155,6 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 				GUICtrlSetState($iEngine5, _Checker($iEngine5))
 			Case $iEngine6Lbl
 				GUICtrlSetState($iEngine6, _Checker($iEngine6))
-			Case $iThemesLbl
-				GUICtrlSetState($iThemes, _Checker($iThemes))
 			Case $iOnLaodLbl
 				GUICtrlSetState($iOnLaod, _Checker($iOnLaod))
 		EndSwitch
@@ -188,20 +199,21 @@ Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 			Switch $msg2
 				Case $GUI_EVENT_CLOSE, $setBTN[26]
 					GUISetState(@SW_HIDE, $but_Gui)
+					GUIDelete($but_Gui)
 						ExitLoop
 				Case $setBTN[2] to $setBTN[25]
 					For $i = 2 to 25
 						If $msg2 = $setBTN[$i] Then 
-							$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i]))][1]
+							$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$jBTN]))][1]
 							If _ArraySearch($btnArray, $abcArray[$i]) > -1 Then
-								MsgBox(0, $tMessage, 'Кнопка "' & $iIconsArray[$i][1] & '" уже добавлена в быстрый доступ!')
+								_MsgBox(0, $tMessage, 'Кнопка "' & $iIconsArray[$i][1] & '" уже добавлена в быстрый доступ!')
 							Else
 								IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$i])
 								GUICtrlSetData($idButton[$jBTN], $abcArray[$i])
 								GUICtrlSetFont($idButton[$jBTN], $iIconsArray[$i][0], 400, 0, "IconLib")
 								GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])
 								$btnArray[$jBTN-1][1] = $abcArray[$i]
-								MsgBox(0, $tMessage, 'Кнопка "' & $btnName & '" заменена на "' & $iIconsArray[$i][1] & '"')
+								_MsgBox(0, $tMessage, 'Кнопка "' & $btnName & '" заменена на "' & $iIconsArray[$i][1] & '"')
 							EndIf
 						EndIf
 					Next

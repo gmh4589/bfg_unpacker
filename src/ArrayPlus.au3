@@ -90,3 +90,12 @@ Func _Bool($Bool)
 	If $Bool = 'True' Then Return True
 	If $Bool = 'False' Then Return False
 EndFunc
+
+Func _BinaryToArray($iBin)
+	$iBin = StringTrimLeft($iBin, 2)
+	Local $BinArr = [StringLen($iBin)/2]
+	For $i = 1 to StringLen($iBin) Step 2
+		_ArrayAdd($BinArr, StringMid($iBin, $i, 2))
+	Next
+	Return ($BinArr)
+EndFunc

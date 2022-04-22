@@ -2,20 +2,22 @@
 Func QuickOpen($sFileName)
 _PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
 Switch $iExp
-;TODO: Добавить новые расширения
+;TODO: Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІС‹Рµ СЂР°СЃС€РёСЂРµРЅРёСЏ
 	Case ".pak" 
 		QuickPAK($sFileName)
 	Case ".dat"
 		QuickDAT($sFileName)
-	Case ".a2c", ".abg", ".abl", ".acm", ".adf", ".afs", ".age3scn", ".agg", ".ahm", ".al4", ".al8", ".ama", ".anm", ".arch00", ".ark", ".avix", ".awd", ".bag", ".bank1sbk", ".bar", ".bbk", ".bf", ".bfs", ".bgx", ".big", ".fat", ".bpa", ".bpk", ".bun", ".cat", ".ceg", ".clz", ".cmo", ".cmp", ".cob", ".cpr", ".ctm", ".cts", ".cud", ".idx", ".pal", ".dbc", ".dbs", ".ddt", ".dir", ".dirinfo", ".drs", ".dta", ".dua", ".dun", ".dx1", ".dx2", ".dx3", ".ebm", ".editor_data", ".elmares", ".emi", ".exp", ".ezd", ".far", ".ff", ".fpk", ".fra", ".frame", ".fsh", ".fuk", ".gdp", ".gea", ".gfx", ".glb", ".grl", ".grp", ".gsc", ".gtr", ".h2o", ".h4c", ".h4d", ".h4r", ".hak", ".his", ".hog", ".ifx", ".img", ".dir", ".ins", ".iwi", ".jap", ".jaz", ".jdr", ".jsr", ".jtr", ".lbx", ".lgr", ".lgt", ".lmp", ".lod", ".lte", ".lud", ".lug", ".lut", ".lzc", ".map", ".md5", ".mdl", ".meg", ".mix", ".mjp", ".mjz", ".mod", ".msf", ".msk", ".mult", ".mus", ".nif", ".nmo", ".npk", ".pac", ".paq", ".pbo", ".pck", ".pcx", ".pff", ".pkg", ".poa", ".pod", ".prm", ".psk", ".psp", ".ptx", ".pvd", ".qar", ".qfs", ".r16", ".r24", ".r8", ".raw", ".act", ".sdt", ".res", ".rfd", ".rfh", ".rmp", ".rr", ".rs", ".rsb", ".rss", ".rts", ".s4m", ".sbf", ".sc3", ".sct", ".scx", ".sdf", ".sdt", ".sequence", ".sga", ".sh4", ".sks", ".sl", ".slf", ".slv", ".snd", ".spa", ".spk", ".spr", ".st3", ".stb", ".stg", ".str", ".sud", ".sue", ".swa", ".syb", ".syj", ".t24", ".tbf", ".tdu", ".ted", ".tf", ".thu", ".trc", ".twd", ".twt", ".txd", ".ucx", ".ugx", ".uka", ".ukx", ".unr", ".uvx", ".vdu", ".vid", ".viv", ".vmp", ".vol", ".vpp", ".vtf", ".whd", ".wd", ".wdt", ".wep", ".wtn", ".xcr", ".xfs", ".xmb", ".xpk", ".xti", ".xwb", ".pbd"
+	Case ".a2c", ".abg", ".abl", ".acm", ".adf", ".afs", ".age3scn", ".agg", ".ahm", ".al4", ".al8", ".ama", ".anm", '.Arch00', '.Arch01', '.Arch02', '.Arch03', '.Arch04', '.Arch05', ".ark", ".avix", ".awd", ".bag", ".bank1sbk", ".bar", ".bbk", ".bf", ".bfs", ".bgx", ".big", ".fat", ".bpa", ".bpk", ".bun", ".cat", ".ceg", ".clz", ".cmo", ".cmp", ".cob", ".cpr", ".ctm", ".cts", ".cud", ".idx", ".pal", ".dbc", ".dbs", ".ddt", ".dir", ".dirinfo", ".drs", ".dta", ".dua", ".dun", ".dx1", ".dx2", ".dx3", ".ebm", ".editor_data", ".elmares", ".emi", ".exp", ".ezd", ".far", ".ff", ".fpk", ".fra", ".frame", ".fsh", ".fuk", ".gdp", ".gea", ".gfx", ".glb", ".grl", ".grp", ".gsc", ".gtr", ".h2o", ".h4c", ".h4d", ".h4r", ".hak", ".his", ".hog", ".ifx", ".img", ".ins", ".iwi", ".jap", ".jaz", ".jdr", ".jsr", ".jtr", ".lbx", ".lgr", ".lgt", ".lmp", ".lod", ".lte", ".lud", ".lug", ".lut", ".lzc", ".map", ".md5", ".mdl", ".meg", ".mix", ".mjp", ".mjz", ".mod", ".msf", ".msk", ".mult", ".mus", ".nif", ".nmo", ".npk", ".pac", ".paq", ".pbo", ".pck", ".pcx", ".pff", ".poa", ".pod", ".prm", ".psk", ".psp", ".ptx", ".pvd", ".qar", ".qfs", ".r16", ".r24", ".r8", ".raw", ".act", ".sdt", ".res", ".rfd", ".rfh", ".rmp", ".rr", ".rs", ".rsb", ".rss", ".rts", ".s4m", ".sbf", ".sc3", ".sct", ".scx", ".sdf", ".sdt", ".sequence", ".sga", ".sh4", ".sks", ".sl", ".slf", ".slv", ".snd", ".spa", ".spk", ".spr", ".st3", ".stb", ".stg", ".str", ".sud", ".sue", ".swa", ".syb", ".syj", ".t24", ".tbf", ".tdu", ".ted", ".tf", ".thu", ".trc", ".twd", ".twt", ".txd", ".ucx", ".ugx", ".uka", ".ukx", ".unr", ".uvx", ".vdu", ".vid", ".viv", ".vmp", ".vol", ".vpp", ".vtf", ".whd", ".wd", ".wdt", ".wep", ".wtn", ".xcr", ".xfs", ".xmb", ".xpk", ".xti", ".xwb", ".pbd"
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\gaup_pro.wcx ', $sFileName)
+	Case '.Arch06'
+		_QuickBMSRun("", @ScriptDir & "\data\scripts\shadow_of_mordor.bms ", $sFileName)
 	Case ".vfs"
 		_fileReaper(MorUnpacker, "", $sFileName)
-	Case ".pbb", ".mpq", ".S2MA", ".SC2", ".mpqe", ".hdr", ".cache", ".etc", ".mime", ".mim", ".tbb", ".msi", ".msm", ".vp", ".pst", ".bsp", ".gcf", ".vbsp", ".vpk", ".xzp", ".udf", ".nrg", ".cue", ".isz", ".mdf", ".mds", ".eml", ".mht", ".mhtml"
+	Case ".pbb", ".mpq", ".S2MA", ".SC2", ".mpqe", ".hdr", ".cache", ".etc", ".mime", ".mim", ".tbb", ".msm", ".vp", ".pst", ".bsp", ".gcf", ".vbsp", ".vpk", ".xzp", ".udf", ".nrg", ".cue", ".isz", ".mdf", ".mds", ".eml", ".mht", ".mhtml"
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\TotalObserver.wcx ', $sFileName)
 	Case ".bdx", "box", ".brig", ".chr", ".cam", ".cc", ".df2", ".c", ".rm", ".4pp", ".epf", ".flx", ".gor", ".group", ".hrs", ".ilb", ".key", ".lbx", ".dbi", ".wdb", ".mul", ".nds", ".p00", ".p10", ".p99", ".tgw", ".tlb", ".uop", ".vsr", ".war", ".xua", ".xub", ".jun", ".maa", ".jus", ".fan" 
 		_SAU($sFileName)
-	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love", ".bin", ".pgz"
+	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love", ".bin", ".pgz", ".exe", ".msi"
 		GUICtrlSetData($iEdit, $tIFA & @CRLF, 1)
 		_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 	Case ".u", ".upk", ".uax", ".umx", ".xxx", ".unr", ".utx", ".ugx", ".un2", ".upx", ".usa", ".usx", ".ut2", ".uvx", ".pcc"
@@ -286,12 +288,12 @@ Switch $iExp
 	Case ".exo"
 		_fileReaper(_mp3, "", $sFileName)
 	Case Else
-		Local $iAnswer = MsgBox($MB_SYSTEMMODAL, $tMessage, $tNotice3)
+		Local $iAnswer = _MsgBox(0, $tMessage, $tNotice3)
 		GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
 		EndSwitch
 EndFunc
 
-Func QuickPAK($sFileName); TODO: Дописать!!!
+Func QuickPAK($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 Local $iFuncArray = [ _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\7zip\Total7zip.wcx """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\wcx\gaup_pro.wcx """ & $sFileName &""" """ & $sFolderName & "", _
@@ -318,7 +320,6 @@ Local $iFuncArray = [ _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\azangara.bms """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\carrier_command.bms """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\Catwoman_VOL.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\chromium_cef_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\datamt.bms """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\emperor_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\igp_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
@@ -329,7 +330,7 @@ Local $iFuncArray = [ _
 	_ScriptCreate($iFuncArray)
 EndFunc
 
-Func QuickDAT($sFileName); TODO: Дописать!!!
+Func QuickDAT($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 Local $iFuncArray = [ _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\7zip\Total7zip.wcx """ & $sFileName &""" """ & $sFolderName & "", _
 	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\wcx\gaup_pro.wcx """ & $sFileName &""" """ & $sFolderName & "", _
@@ -338,34 +339,74 @@ Local $iFuncArray = [ _
 	_ScriptCreate($iFuncArray)
 EndFunc
 
-Func QuickBIN($sFileName); TODO: Дописать!!!
+Func QuickBIN($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickCache($sFileName); TODO: Дописать!!!
+Func QuickCache($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickWAD($sFileName); TODO: Дописать!!!
+Func QuickWAD($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickEXE($sFileName); TODO: Дописать!!!
+Func QuickEXE($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickDZIP($sFileName); TODO: Дописать!!!
+Func QuickDZIP($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickPGZ($sFileName); TODO: Дописать!!!
+Func QuickPGZ($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickARC($sFileName); TODO: Дописать!!!
+Func QuickARK($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
 
-Func QuickBIF($sFileName); TODO: Дописать!!!
+Func QuickARC($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickBIF($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickBIG($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickFAT($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickKEY($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickVOL($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickPKG($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS GAUP+ZIP
+EndFunc
+
+Func QuickSPK($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickVID($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickVIV($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
+	;PASS
+EndFunc
+
+Func QuickMOD($sFileName); TODO: Р”РѕРїРёСЃР°С‚СЊ!!!
 	;PASS
 EndFunc
