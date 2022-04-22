@@ -967,7 +967,7 @@ Dark Parables Curse of Briar Rose	Page not found!	_QuickBMS		\data\scripts\dark_
 Dark Reign 2	2000	_QuickBMS	zwp file (*.zwp)|	\data\scripts\Dark_Reign_2_ZWP.bms		
 Dark Seal 2: Wizard Fire	1992	_SAU				
 Dark Sheep	2021	_Godot				
-Dark Souls: Prepaire to Die Edition	Page not found!	_QuickBMS	Dark Souls Resource (*.bdt -r *.bhd5)|	\data\scripts\dark_soul.bms		
+Dark Souls: Prepaire to Die Edition	Page not found!	_QuickBMS	Dark Souls Resource (*.bdt; *.bhd5)|	\data\scripts\dark_soul.bms		
 Dark Wish	2019	_ZIP	Love2D Engine Files (*.love; *.exe)|			
 Darkeden	2008	_QuickBMS	dpk file (*.dpk)|	\data\scripts\darkeden.bms		
 Darkest of Days	2009	_QuickBMS		\data\scripts\darkest_of_days.bms		
