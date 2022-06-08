@@ -220,5 +220,4 @@ Func LocalizeRead()
 		$tignore = $sLng[208], _
 		$tagain = $sLng[209], _
 		$tcontinue = $sLng[210]
-
 EndFunc

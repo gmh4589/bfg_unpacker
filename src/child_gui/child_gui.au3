@@ -12,8 +12,6 @@ $iLabel[$iItemSize+1], _
 $iRead[$iItemSize+1], _
 $GUIH = $iItemSize*42 < 90 ? 90 : $iItemSize*42
 
-GUICtrlSetState($iHideOrShow, $GUI_UNCHECKED)
-
 Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $NewGui)
@@ -29,6 +27,8 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 		If $iMenuColor <> 'Classic' then GUICtrlSetColor(-1, $iFontColor)
 		$iCombo[$i] = GUICtrlCreateCombo("", 10, 20+$Argum, 120, 100)
 		GUICtrlSetData(-1, $iComboData[$i], $iDefaultData[$i])
+		GUICtrlSetBkColor(-1, $iColor1)
+		GUICtrlSetColor(-1, $iFontColor)
 		$Argum += 40
 	Next
 	
@@ -41,7 +41,6 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 			Switch $iChMsg
 				Case $GUI_EVENT_CLOSE
 					GUISetState(@SW_HIDE, $NewGui)
-					GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
 					GUIDelete($NewGui)
 						ExitLoop
 						
@@ -93,7 +92,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 								Next
 							ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
 					EndIf
-					_MsgBox (0, "", $tDone & '!')
+					_MsgBox (0, $tMessage, $tDone & '!')
 					
 			EndSwitch
 	Until False
@@ -105,11 +104,9 @@ Local $iCombo = StringSplit($iMenuData, '|')
 	Switch $iGUIName
 	
 		Case "Atrac Headler Generator"
-			;_Console(@ScriptDir & '\Data\quickbms.exe ' & @ScriptDir & "\data\scripts\atrac_script.bms " & ' "' & $sFilePath & '" "' & $nFolderName & '"')
 			_QuickBMSRun('', @ScriptDir & "\data\scripts\atrac_script.bms ", $sFilePath, $nFolderName)
 			
 		Case "Wav Headler Generator"
-			;_Console(@ScriptDir & '\Data\quickbms.exe ' & @ScriptDir & "\data\scripts\wav_script.bms " & ' "' & $sFilePath & '" "' & $nFolderName & '"')
 			_QuickBMSRun('', @ScriptDir & "\data\scripts\wav_script.bms ", $sFilePath, $nFolderName)
 			
 		Case "ZLIB GUI"
@@ -127,7 +124,6 @@ Local $iCombo = StringSplit($iMenuData, '|')
 			_OtherPRG('', $iProg, ' -f ' & $iCombo[1] & ' -o "' & $nFolderName & '" ', '', $nFolderName, $sFilePath)
 		
 		Case "FFMPEG GUI"
-			GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
 			_OtherPRG('*.*', 'ffmpeg.exe ', ' -i ', ' -vcodec ' & $iCombo[1] & " -vb " & $iCombo[3] & " -vf scale=" & $iCombo[6] & " -acodec " & $iCombo[2] & " -ab " & $iCombo[4] & " -map 0:0 -map 0:" & $iCombo[7] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[5] & '"', $nFolderName, $sFilePath)
 		
 		Case "FFMPEG AUDIO"

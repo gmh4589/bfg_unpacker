@@ -1,16 +1,17 @@
 
 Func _QuickBMSRun($iExtList, $iScriptName, $sFileName = '') ;Для скриптов BMS: Список_расширений, Название_скрипта, Имя_файла
-	_fileReaper(_QuickBMS, $iExtList, $sFileName, $iScriptName)
+	_fileReaper(_Console, $iExtList, $sFileName, $iScriptName)
 EndFunc
 
-Func _QuickBMS($sFileName, $iScriptName)
-	_PathSplit($iScriptName, $iDrive, $iDir, $iName, $iExp)
-	If GUICtrlRead($iHideOrShow) = 1 Then
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\quickbms.exe ", $rI & $iScriptName & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, "open")
-		Output_MSG($iOutputWindow, $sFileName)
-	Else
-		_Console (@ScriptDir & "\data\quickbms.exe " &  $rI & $iScriptName & '"' & $sFileName & '" "' & $sFolderName & '"')
-	EndIf
+Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False) 
+;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
+; Исправлено!
+	Local $iParray = [$iPRGName, $iCommand1 , $iCommand2, $iWorkDir, $iMove]
+	_fileReaper(_Console, $iExtList, $sFileName, $iParray)
+EndFunc
+
+Func _7z($iExtList, $sFileName = '')
+	;PASS
 EndFunc
 
 Func _OtherPRGExt($iMode1, $sFileName = '')
@@ -19,10 +20,10 @@ Func _OtherPRGExt($iMode1, $sFileName = '')
 	If $iMode1 = '_SAU' Then $iExtList = $tAllSupp & "(*.adf;*.agg;*.bdx;*.spr;*.pak;*.box;*.brig;*.chr;*.dat;*.bin;*.cam;*.cc;*.cmp;mas0*;*.df2;*.*c;*.rm;*.anm;*.4pp;*.epf;*.flx;*.gor;*.h4r;*.hrs;*.idx;*.ilb;*.key;*.lbx;*.lod;*.group;*.bin;*.mpq;*.dbi;*.ff;*.wdb;*.mul;*.nds;*.p00;*.p10;*.p99;*.pak;*.res;*.snd;*.tgw;*.tlb;*.uop;*.vid;*.vsr;*.war;*.xua;*.xub;*.jun;*.maa;*.jus;*.fan)|Amiga Disk File (*.adf)|Heroes of Might & Magic 1-2 (*.agg)|Black Moon Chronicles, Persian Wars (*.SPR)|Beats of Rage " & $tArchives & " (*.pak)|Beasts & Bumpkins " & $tArchives & " (*.box)|Brigandine (*.brig)|Beyond the Beyond (*CHR;*.DAT;*.BIN)|Cyberlore Library Manager (*.cam)|Kings Bounty " & $tAnd & " Might & Magic 3/4/5 " & $tArchives & " (*.cc)|Divine Divinity" & $tArchive & "(*.cmp)|Dark Seal 2: Wizard Fire (mas0*)|Tibia MMORPG (Tibia.dat)|Heroes of Might & Magic 4 sprite " & $tArchives & " (*.df2)|Divine Divinity sprite" & $tArchive & "(*.*c)|Dominus (*.rm;*anm;*.4pp;*.dat)|Realms of Arkania 2 (*.DAT)|East Point File System (*.epf)|Ultima 7, 8 " & $tAnd & " Crusader No Remorse " & $tArchives & " (*.flx)|Myth Fallen Lords " & $tArchives & " " & $tAnd & " Tagged Files (*.gor)|Stonekeep groupXX " & $tArchives & " (*.group)|Heroes of Might & Magic 4 " & $tArchives & " (*.h4r)|Heimdall (*.bin;*.dat)|Faery Tale Adventure 2 " & $tAnd & " Dinotopia " & $tArchives & " (*.hrs)|Jinyong Qunxia Zhuan " & $tArchives & " (*.idx)|Age of Wonders 1-2 image " & $tArchives & " (*.ilb)|Infinity Engine Directory (*.key)|Master of Magic " & $tArchives & " (*.lbx)|Lunar: Genesis / Dragon Song (*.dat)|Cyberlore Library (*.lib)|LOD " & $tArchives & " (*.lod)Majesty for IPhone/IPad (*.group.bin)|Blizzard MPQ " & $tArchives & " (*.mpq)|Disciples: Sacred Lands (*.DBI;*.FF;*.WDB)|Ultima Online" & $tArchive & "(*.mul)|Nintendo Nitro Filesystem " & $tAnd & " Formats (*.NDS)|Popolocrois" & $tArchive & "(*.p00;*.p1;*.p99)|Helbreath sprite " & $tArchives & " (*.pak)|Rage of Mages 1-2 (Allods) " & $tArchives & " (*.res)|Mystic Towers (rgmystus.dat)|SND " & $tArchives & " (*.snd)|Kohan: Immortal Sovereigns " & $tArchives & " (*.tgw)|SSI Tileset (*.tlb)|Ultima Online Mythic Package (*.uop)|Vandal Hearts (*.DAT)|VID " & $tArchives & " (*.vid)|Lemmings Paintball (*.vsr)|Warcraft 1 " & $tAnd & " 2 " & $tArchives & " (*.war)|Original Mulan " & $tArchives & " (*.XUA;*.XUB;*.JUN;*.MAA;*.JUS;*.FAN)|"
 	
 	If $iMode1 = '_VGM' Then  $iExtList =$tAllSupp & "(*.2dx9; *.aaap; *.aax; *.acm; *.adp; *.adpcm; *.ads; *.ss2; *.adx; *.adxkey; *.afc; *.agsc; *.ahx; *.ahxkey; *.aifc; *.aiff; *.aix; *.amts; *.asd; *.asf; *.as4; *.asr; *.ass; *.ast; *.ast; *.at3; *.aud; *.aus; *.baf; *.baka; *.bao; *.pk; *.bar; *.bg00; *.bgw; *.bh2pcm; *.bmdx; *.bns; *.bnsf; *.bnsfkey; *.bo2; *.brstm; *.caf; *.capdsp; *.ccc; *.cfn; *.cnk; *.dcs; *.dcsw; *.ddsp; *.dec; *.de2; *.dmsg; *.dsp; *.dvi; *.idvi; *.dxh; *.eam; *.emff; *.enth; *.fag; *.filp; *.fsb; *.wii; *.fsbkey; *.gca; *.gcm; *.gcsw; *.gcw; *.genh; *.gms; *.gsp; *.hca; *.hcakey; *.hgc1; *.his; *.hps; *.hwas; *.idsp; *.ikm; *.ild; *.int; *.ish; *.isd; *.ivaud; *.ivb; *.joe; *.kces; *.khv; *.kraw; *.leg; *.lps; *.lsf; *.lstm; *.lwav; *.matx; *.mc3; *.mca; *.mcg; *.mib; *.mi4; *.mic; *.mihb; *.mp4; *.lmp4; *.mpdsp; *.msa; *.msf; *.mss; *.msvp; *.mta2; *.mtaf; *.mus; *.musc; *.musx; *.mwv; *.myspd; *.ndp; *.npsf; *.nwa; *.ogg; *.logg; *.ogl; *.p3d; *.pcm; *.dvi; *.pcm; *.kcey; *.pcm; *.pdt; *.pnb; *.pos; *.ps2stm; *.psh; *.psw; *.raw; *.rkv; *.rnd; *.rrds; *.rsd; *.rsf; *.rstm; *.rwar; *.rwav; *.rws; *.rws; *.rwsd; *.rwx; *.rxw; *.s14; *.sss; *.sab; *.sad; *.sap; *.sb0; *.sb1; *.sb2; *.sb3; *.sb4; *.sb5; *.sb6; *.sb7; *.sc; *.scd; *.sd9; *.sdt; *.seg; *.sfl; *.sfs; *.sgd; *.sgb; *.sgh; *.sgx; *.sl3; *.sli; *.sm0; *.sm1; *.sm2; *.sm3; *.sm4; *.sm5; *.sm6; *.sm7; *.smp; *.smp; *.smpl; *.snd; *.snd; *.sng; *.sngw; *.sns; *.spd; *.sps; *.spsd; *.spt; *.spw; *.ssm; *.ster; *.sth; *.stm; *.stma; *.str; *.str; *.strm; *.sts; *.stx; *.svag; *.svs; *.swav; *.swd; *.tec; *.thp; *.tk5; *.txth; *.txtp; *.tydsp; *.ulw; *.um3; *.vag; *.vas; *.vgs; *.vig; *.vjdsp; *.voi; *.vpk; *.vs; *.vsf; *.waa; *.wac; *.wad; *.wam; *.was; *.wav; *.wavm; *.wb; *.wem; *.wp2; *.wsd; *.wsi; *.wvs; *.xa; *.xa2; *.xa30; *.xma; *.xmu; *.xss; *.xvas; *.xwav; *.xwb; *.xwb; *.xwh; *.xwh; *.ydsp; *.ymf; *.zsd; *.zwdsp)|"
-		
+	
 	$sFileName = _getFile($sFileName, $iExtList)
 		If @error = 1 then Return
-		
+
 	$iFileList1 = StringSplit ($sFileName, '|')
 	Local $a1 = UBound($iFileList1) - 1, $fc1 = 2
 	If $a1 = 1 Then $fc1 = 1
@@ -31,33 +32,6 @@ Func _OtherPRGExt($iMode1, $sFileName = '')
 		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
 		If $iMode1 = '_SAU' Then _OtherPRG('', 'sau.exe', './', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
 		If $iMode1 = '_VGM' Then _OtherPRG('', 'vgmstream\test.exe', '-o ' & $sFolderName & '\' & $iName & '.wav ', '', $sFolderName, $sFileName)
-	Next
-EndFunc
-
-Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False) 
-;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
-; Исправлено!
-	$sFileName = _getFile($sFileName, $iExtList)
-		If @error = 1 then Return
-		
-	$iFileList = StringSplit ($sFileName, '|')
-	Local $a = UBound($iFileList) - 1, $fc = 2
-	If $a = 1 Then $fc = 1
-	For $i = $fc to $a
-		If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$i]
-		If $iMove Then
-			_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-			FileCopy($sFileName, $sFolderName)
-			$sFileName = $sFolderName & '\' & $iName & $iExp
-		EndIf
-		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-		If GUICtrlRead($iHideOrShow) = 1 Then
-			$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\" & $iPRGName, $iCommand1 & '"' & $sFileName & '" ' & $iCommand2, $iWorkDir, "open")
-			Output_MSG($iOutputWindow, $sFileName)
-		Else
-			_Console (@ScriptDir & "\data\" & $iPRGName & " " & $iCommand1 & '"' & $sFileName & '" ' & $iCommand2, $iWorkDir)
-		EndIf
-		If $iMove Then FileDelete($sFolderName & '\' & $iName & $iExp)
 	Next
 EndFunc
 
@@ -137,8 +111,8 @@ Func _StringChange($sScriptName, $iString, $X) ;Путь к файлу, в ко�
 	_FileWriteFromArray ($sScriptName, $iStringScript, 1)
 EndFunc
 
-Func _headRead($iFN, $num = 2)
-	$iF = FileOpen($iFN)
+Func _headRead($iFN, $num = 2, $mode = 0)
+	$iF = FileOpen($iFN, $mode)
 	$iHead = FileRead($iF, $num)
 	FileClose($iF)
 	Return($iHead)
@@ -178,29 +152,34 @@ Func Xenus2();TODO: Удалить этот говнокод!!!
 			FileDelete (@TempDir & "\start.bat")
 EndFunc
 
-Func _Console($Cmd, $WorkDir = $sFolderName, $iSHowFlag = True)
-
-	If $iSHowFlag = True Then GUICtrlSetData($iEdit, @CRLF & $Cmd & @CRLF, 1)
-	$iOutputWindow = Run($Cmd, $WorkDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-
-	StdinWrite($iOutputWindow)
-	Local $iLineAll = ''
-
-	While 1
-		$line = StdoutRead($iOutputWindow)
-		If @error Then ExitLoop
-		If $iSHowFlag = True Then GUICtrlSetData($iEdit, $line, 1)
-		$iLineAll = $iLineAll & $line
-	Wend
-
-	While 1
-		$line1 = StderrRead($iOutputWindow)
-		If @error Then ExitLoop
-		If $iSHowFlag = True Then GUICtrlSetData($iEdit, $line1, 1)	
-		$iLineAll = $iLineAll & $line1
-	Wend
+Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHideConsole = GUICtrlRead($iHideOrShow) = 1 ? False : True)
+	Local $SH = $iHideConsole = True ? @SW_HIDE : @SW_SHOW, $line
 	
-		If $iSHowFlag = True Then GUICtrlSetData($iEdit, @CRLF & $tDone & @CRLF, 1)
-		Return ($iLineAll)
+	If $iHideConsole Then 
+		$iOutputWindow = Run($Cmd & $Cmd1, $WorkDir, $SH, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+		GUICtrlSetData($iEdit, @CRLF & $Cmd & @CRLF, 1)
+
+		StdinWrite($iOutputWindow)
+
+		While True
+			$line = StdoutRead($iOutputWindow)
+			If @error Then ExitLoop
+			GUICtrlSetData($iEdit, $line, 1)
+			;MsgBox(0, '', '1: ' & _WinAPI_OemToChar($line))
+		Wend 
+
+		While True
+			$line1 = StderrRead($iOutputWindow)
+			If @error Then ExitLoop
+			GUICtrlSetData($iEdit, $line1, 1)	
+			; MsgBox(0, '', '2: ' & _WinAPI_OemToChar($line1))
+		Wend
+
+		ProcessClose($iOutputWindow)
+		GUICtrlSetData($iEdit, @CRLF & $tDone & @CRLF, 1)
+	Else
+		$iOutputWindow = ShellExecuteWait ($Cmd, $Cmd1, $WorkDir)
+		Output_MSG($iOutputWindow, $sFileName)
+	EndIf
 	
 EndFunc

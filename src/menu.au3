@@ -1,19 +1,5 @@
 ;Содержит функции, вызываемые из интерфейса программы
 
-Func _getFile($sFileName, $iExtList = '')
-	Switch $sFileName
-		Case '', ' ', '	', "", " ", "	"
-			$sFileName = FileOpenDialog($tSelectFile, " ", $iExtList & $tAllFile & " (*.*)", 1+4)
-				If @error = 1 then SetError(1)
-		Case 'folder'
-			$sFileName = FileSelectFolder ('', $iLastDir)
-				If @error = 1 then SetError(1)
-		Case Else
-			$sFileName = $sFileName
-	EndSwitch
-	Return($sFileName)
-EndFunc
-
 Func FolderProbe()
 	Global $sFolderName = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
 	If $sFolderName = '' Then 

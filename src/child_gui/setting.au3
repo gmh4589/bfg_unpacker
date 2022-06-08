@@ -52,7 +52,6 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 			GUICtrlSetState($iYearG, 1)
 		EndIf
 
-	;TODO: Добавить адекватные цвета в гамму
 	Local $iGamma = _
     [0xFFFFFF, 0x000000, 0x303030, 0x808080, 0xC0C0C0, _
      0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, 0xA69E40, _
@@ -87,6 +86,10 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 		GUICtrlSetColor($iYearGLbl, $iFontColor)
 		GUICtrlSetColor($iEngineGroup, $iFontColor)
 		GUICtrlSetColor($iGroupByGroup, $iFontColor)
+		GUICtrlSetBkColor($iLang, $iColor1)
+		GUICtrlSetColor($iLang, $iFontColor)
+		If GUICtrlRead($iThemes) = 1 Then GUICtrlSetBkColor($Picker, $iColor1)
+		If GUICtrlRead($iThemes) = 1 Then GUICtrlSetColor($Picker, $iFontColor)
 	EndIf
 
 	While 1

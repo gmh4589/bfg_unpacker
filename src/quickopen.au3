@@ -17,7 +17,7 @@ Switch $iExp
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\TotalObserver.wcx ', $sFileName)
 	Case ".bdx", "box", ".brig", ".chr", ".cam", ".cc", ".df2", ".c", ".rm", ".4pp", ".epf", ".flx", ".gor", ".group", ".hrs", ".ilb", ".key", ".lbx", ".dbi", ".wdb", ".mul", ".nds", ".p00", ".p10", ".p99", ".tgw", ".tlb", ".uop", ".vsr", ".war", ".xua", ".xub", ".jun", ".maa", ".jus", ".fan" 
 		_SAU($sFileName)
-	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love", ".bin", ".pgz", ".exe", ".msi"
+	Case ".zip", ".pk4", ".pk3", ".xap", ".7z", ".rar", ".tar", ".wim", ".gz", ".bz", ".gzip", ".bzip", ".gz2", ".bz2", ".lzma", ".iso", ".cab", ".xz", ".nob", ".txz", ".txtz", ".cpio", ".tbz", ".tbz2", ".tgz", ".tgz2", ".tpz", ".taz", ".z", ".lzh", ".lha", ".rpm", ".deb", ".lzm", ".arj", ".vhd", ".swm", ".dmg", ".hfs", ".xar", ".chm", ".squashfs", ".dll", ".ocx", ".cbz", ".cbr", ".cb7", ".cbt", ".cb7z", ".dgdat", ".obb", ".bza", ".docx", ".dotx", ".epub", ".fods", ".fodt", ".jar", ".odb", ".ods", ".odt", ".ots", ".ott", ".piz", ".potm", ".ppsx", ".pptx", ".xlsm", ".xlsx", ".xpi", ".gro", ".lp", ".apk", ".ipa", ".ipg", ".gadget", ".kfs", ".dazip", ".love", ".bin", ".pgz", ".exe", ".msi", ".unitypackage"
 		GUICtrlSetData($iEdit, $tIFA & @CRLF, 1)
 		_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 	Case ".u", ".upk", ".uax", ".umx", ".xxx", ".unr", ".utx", ".ugx", ".un2", ".upx", ".usa", ".usx", ".ut2", ".uvx", ".pcc"
@@ -272,12 +272,12 @@ Switch $iExp
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\hogg.bms  ",$sFileName)
 	Case ".lfs"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
-		;PASS
+		;TODO PASS
 		;FileWriteLine ($hFile, $sFolderName & "\YZ2tool.exe -x """ & $sFolderName & "\" & $iName & """")
 	Case ".yz2", ".pack"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
 		GUICtrlSetData($iEdit, $tSelHand & @CRLF, 1)
-		;PASS
+		;TODO PASS
 		;FileWriteLine ($hFile, $sFolderName & "\yzdec.exe """ & $sFolderName & "\" & $sFullFileName & """")
 	Case ".rpkg"
 		GUICtrlSetData($iEdit, $tIFFG & " Hitman (2016)" & @CRLF, 1)
@@ -290,44 +290,64 @@ Switch $iExp
 	Case Else
 		Local $iAnswer = _MsgBox(0, $tMessage, $tNotice3)
 		GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
-		EndSwitch
+	EndSwitch
 EndFunc
 
 Func QuickPAK($sFileName); TODO: Дописать!!!
-Local $iFuncArray = [ _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\7zip\Total7zip.wcx """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\wcx\gaup_pro.wcx """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\unreal_tournament_4.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\re7_pak_unpack.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\PopCapPack.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\payday.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\afunpak.exe "" """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\arcania.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\arcania_pl.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\arcania_rus_full.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\1242.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\buzz_ps2.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\full_mojo.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\hl2_ps2.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\tongas.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\xiii_centure.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\zak_n_jack.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\agameengine.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\alonedarkx.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\army_man.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\assault_heroes.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\awem.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\azangara.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\carrier_command.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\Catwoman_VOL.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\datamt.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\emperor_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\igp_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\risen.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\sega_classics.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\treasure_series.bms """ & $sFileName &""" """ & $sFolderName & "", _
-	@ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\agameengine.bms """ & $sFileName &""" """ & $sFolderName & ""]
-	_ScriptCreate($iFuncArray)
+; Local $iFuncArray = [ _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\payday.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\arcania_pl.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\arcania_rus_full.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\buzz_ps2.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\hl2_ps2.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\xiii_centure.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\zak_n_jack.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\agameengine.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\alonedarkx.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\army_man.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\assault_heroes.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\awem.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\azangara.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\carrier_command.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\Catwoman_VOL.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\datamt.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\emperor_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\igp_pak.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\sega_classics.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\treasure_series.bms """ & $sFileName &""" """ & $sFolderName & "", _
+	; @ScriptDir & "\data\quickbms.exe " & @ScriptDir & "\data\scripts\agameengine.bms """ & $sFileName &""" """ & $sFolderName & ""]
+	; _ScriptCreate($iFuncArray)
+	
+	Switch _headRead($sFileName, 3, 16)
+		Case '0x504B03', '0x526172', '0x377ABC', '0x050000' ; Archives
+			_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
+		Case '0x000000' ; UE4
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\unreal_tournament_4.bms ", $sFileName)
+		Case '0x4B504B' ; RE
+			_OtherPRG('', "retools\REtool.exe", ' -x ', '', $sFolderName, $sFileName)
+		Case '0x37BD37' ; PopCapPack
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\7x7m.bms ", $sFileName)
+		Case '0x61D119', '0xF93103', '0x30D302', '0xE9D580', '0xF308B1', '0x6A9C12', '0x7C32DF', '0x1ABBC3', '0xDA4F03', '0xE666A5', '0x2F4D03', '0xBC4B03', '0xFA9463', '0xF0E781', '0xFD8D02' ; Arx Fatalis
+			_OtherPRG('', "afunpak.exe ", '', '', $sFolderName, $sFileName)
+		Case '0x534250' ; Arcania
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\arcania.bms ", $sFileName)
+		Case '0x010000' ; Risen
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\risen.bms ", $sFileName)
+		Case '0x504143' ; 1242
+			If $iName & $iExp = 'data.000.pak' Then _QuickBMSRun('', @ScriptDir & "\data\scripts\1242.bms ", $sFileName)
+			If $iName & $iExp = 'data.pak' Then _QuickBMSRun('', @ScriptDir & "\data\scripts\azangara.bms ", $sFileName)
+		Case '0x4B4341' ; Full Mojo Rampage
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\full_mojo.bms ", $sFileName)
+		Case '0x746F6E' ; Tongas - TODO: проверить
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\tongas.bms ", $sFileName)
+		
+			
+		Case Else
+			Local $iAnswer = _MsgBox(0, $tMessage, $tNotice3)
+			GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
+			;_QuickBMSRun('', @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
+			
+	EndSwitch
 EndFunc
 
 Func QuickDAT($sFileName); TODO: Дописать!!!
@@ -409,4 +429,8 @@ EndFunc
 
 Func QuickMOD($sFileName); TODO: Дописать!!!
 	;PASS
+EndFunc
+
+Func QuickBundle($sFileName); TODO: Дописать!!!
+	;PASS The Witcher 3, PayDay 2
 EndFunc

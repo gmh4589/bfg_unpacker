@@ -27,22 +27,22 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	['_Snowdrop', 'sdfdata files (*.sdfdata)|'], _
 	['_TellTale', 'TellTale' & $tArchive & '(*.ttarch;*.ttarch2)|'], _
 	['_Unigene', 'UNG File (*.ung)|'], _
-	['_Unity', 'All Unity 3D Engine File (data.unity3d;*.assets;*globalgamemanagers*;level*;*unity*;*.resource)|Unity 3D Engine Assets File (*.assets)|Globalgamemanagers File (*globalgamemanagers*)|Unity 3D Engine Level File (level*)|Unity* files (*unity*)|resource files (*.resource)|data.unity3d File (data.unity3d)|'], _
+	['_Unity', 'All Unity 3D Engine File (data.unity3d; *.assets; *globalgamemanagers*; level*; *unity*; *.resource; *.unitypackage)|Unity 3D Engine Assets File (*.assets)|Globalgamemanagers File (*globalgamemanagers*)|Unity 3D Engine Level File (level*)|Unity* files (*unity*)|resource files (*.resource)|data.unity3d File (data.unity3d)|'], _
 	['_Unreal', 'Unreal Engine File (*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2 (*.u*)|Unreal Engine 3 (*.u*;*.xxx;*.pcc)|Unreal Engine 4 (*.pak;*.locres)|'], _
 	['_Unreal4', 'Unreal Engine 4 (*.pak;*.locres)|']]
 	
-	;TODO: Зачем нужен этот кусок говнокода, если можно сделать просто разные "методы" для FB1 и FB2+3
 	If $iEnginesName = '_FrostBite' Then 
-		If $iOther = '' Then $iOther = InputBox ($tEnterFBV, $tVer123, '3', '', '250', '125')
-			If $iOther = '' Then Return
+		If $iOther = '' Then $iOther = _InputBox($tEnterFBV, $tVer123, 3, 200, 125, True)
 				Switch $iOther
 					Case 1
 						$sFileName = ''
 					Case 2, 3 
 						$sFileName = 'folder'
+					Case ''
+						Return
 					Case Else
 						_MsgBox(0, '', $tVer123_2)
-						Return (_Engine('_FrostBite', 'folder'))
+						Return (_Engine('_FrostBite'))
 				EndSwitch
 	EndIf
 	
@@ -74,7 +74,10 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					_StringChange(@ScriptDir & "\data\scripts\unreal_tournament_4.bms", 'set AES_KEY binary "' & $iOther & '"', 11)
 					_QuickBMSRun('', @ScriptDir & "\data\scripts\unreal_tournament_4.bms ", $sFileName)
 				Else
-					_OtherPRG ('', 'extract.exe', ' -extract -out="' & $sFolderName & '" ', '', @ScriptDir & '\Data', $sFileName)
+					;_OtherPRG ('', 'extract.exe', ' -extract -out="' & $sFolderName & '" ', '', @ScriptDir & '\Data', $sFileName)
+					$iOutputWindow = Run(@ScriptDir & '\data\extract.exe -extract -out="' & $sFolderName & '" "' & $sFileName & '"', $sFolderName, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+
+					_EnginePB($iOutputWindow, 'Done', 95)
 				EndIf
 				
 			Case '_Unity'
@@ -88,6 +91,10 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					Output_MSG($iOutputWindow, $sFileName)
 					FileDelete (@TempDir & '\list.bat')
 					FileDelete ($sFolderName & '\' & $iName & $iExp)
+				ElseIf $iExp = '.unitypackage' Then
+					_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
+					_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & '\archtemp.tar')
+					FileDelete ($sFolderName & '\archtemp.tar')
 				Else
 					GUICtrlSetData($iEdit, $tWtCoping & @CRLF, 1)
 					FileCopy ($iDrive & $iDir & $iName & "*", $sFolderName)
@@ -100,9 +107,30 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				Switch $iExp
 					Case $iExp = ".wad" 
 						DirCreate ($sFolderName & "\" & $iName)
-						FileCopy (@ScriptDir & "\Data\wadext.exe", $sFolderName & "\" & $iName)
-						_OtherPRG('', 'wadext', '', '', $sFolderName & "\" & $iName, $sFileName)
-						FileDelete ($sFolderName & "\" & $iName & "\wadext.exe")
+						; _OtherPRG('', 'wadext', '', '', $sFolderName & "\" & $iName, $sFileName)
+						
+						$iOutputWindow = Run(@ScriptDir & '\data\wadext.exe "' & $sFileName & '"', $sFolderName & "\" & $iName, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+
+							Local $ln[0], $per
+							While 1
+								$line = StdoutRead($iOutputWindow)
+								If @error Then 
+									For $i = 1 to $ln[0] Step 10
+										$iMSGU = StringReplace($ln[$i],'processing', $tDone)
+										$per = 100/$ln[0] * $i
+										_BarCreate($per, "Распаковка", $iMSGU, 300, 100, 45, True)
+										GUICtrlSetData($iEdit, $iMSGU & @CRLF, 1)
+									Next
+									ExitLoop
+								EndIf
+								
+								If $line <> '' Then
+									_ArrayConcatenate($ln, StringSplit($line, @CRLF))
+								EndIf
+							Wend
+
+							_BarOff()
+							
 					Case ".pak" 
 						If StringInStr ($iDir, "champions") Then
 							_QuickBMSRun('', @ScriptDir & "\data\scripts\quake_champions.bms ", $sFileName)
@@ -114,7 +142,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							EndIf
 						EndIf
 					Case ".pk3", ".pk4", ".pkz", ".lib", ".pack"
-						_QuickBMSRun('', @ScriptDir & "\data\scripts\zip.bms ", $sFileName)
+						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 					Case ".resources" 
 						If StringInStr ($iDir, "doom") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\doom3BFG.bms ", $sFileName)
 						If StringInStr ($iDir, "rage") > 0 Then _QuickBMSRun('', @ScriptDir & "\data\scripts\RAGE_RESOURCES_files.bms ", $sFileName)
@@ -164,8 +192,12 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						ElseIf BitOR(StringInStr($iDir, 'arena'), StringInStr($iDir, 'battle'), StringInStr($iDir, 'terminator')) > 0 Then
 							_QuickBMSRun('', @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
 						Else
-							_OtherPRG("", "BSAE\bsab.exe", ' -e ', $sFolderName, $sFolderName, $sFileName)
+							;_OtherPRG("", "BSAE\bsab.exe", ' -e ', $sFolderName, $sFolderName, $sFileName)
+							
+							$iOutputWindow = Run(@ScriptDir & '\data\BSAE\bsab.exe -e "' & $sFileName & '" "' & $sFolderName & '"', $sFolderName, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+							_EnginePB($iOutputWindow, 'Extracting', 115)
 						EndIf
+						
 					Case ".esp" , ".esm", ".esl"
 						_OtherPRG("", "bethkit.exe ", 'decompress "', '" "' & $sFolderName & '\' & $iName & $iExp, $sFolderName, $iFileName)
 						_OtherPRG("", "bethkit.exe ", 'convert "', '" "' & $sFolderName & '\' & $iName & '.esx', $sFolderName, $iFileName)
@@ -425,14 +457,57 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				_QuickBMSRun($iExtList, @ScriptDir &  $iScriptName, $sFileName)
 								
 			Case '_Unigene'
-				_OtherPRG ($iExtList, "uniginex.exe ", '', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
+				;_OtherPRG ($iExtList, "uniginex.exe ", '', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
+				$size = FileGetSize($sFileName)
+				$iOutputWindow = Run(@ScriptDir & "\data\uniginex.exe " & ' -o "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+				_EnginePB($iOutputWindow, '', 115, $size)
 				
 			Case '_Godot'
 				_OtherPRG ($iExtList, "godot\godotdec.exe ", ' -c ', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
 				
 			Case '_TellTale'
-				_OtherPRG($iExtList, 'ttarchext.exe ', '-m ' & $iOther & ' ', '"' & $sFolderName & '"', @ScriptDir & '\data', $sFileName)
+				;_OtherPRG($iExtList, 'ttarchext.exe ', '-m ' & $iOther & ' ', '"' & $sFolderName & '"', @ScriptDir & '\data', $sFileName)
+				$size = FileGetSize($sFileName)
+				$iOutputWindow = Run(@ScriptDir & "\data\ttarchext.exe " & '-o -m ' & $iOther & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+				_EnginePB($iOutputWindow, '', 110, $size)
 				
 		EndSwitch
 	Next
+EndFunc
+
+Func _EnginePB($iOutputWindow, $rpText, $iSize, $mode = 1)
+	Local $per, $per1
+	While 1
+		$line = StdoutRead($iOutputWindow)
+		If @error Then ExitLoop
+		If GUIGetMsg($progressGUI) = $exitBTN Then
+			ProcessClose($iOutputWindow)
+			ExitLoop
+		EndIf
+		If $mode = 1 Then
+			$per = StringSplit($line, @CRLF)
+			If $per[0] > 2 Then 
+				$per1 = StringSplit($per[UBound($per) - 3], ' /\')
+				If $per1[0] > 2 Then 
+					$iMSGU = StringReplace($per[UBound($per) - 3], $rpText, $tDone)
+					_BarCreate(100/$per1[3] * $per1[2], "Распаковка", $iMSGU, 300, $iSize, 45, True)
+					GUICtrlSetData($iEdit, $iMSGU & @CRLF, 1)
+				EndIf
+			EndIf
+		ElseIf $mode > 1 Then
+			$per = StringSplit($line, @CRLF)
+			If $per[0] > 2 Then 
+				For $i = 0 to UBound($per) - 2
+					$per1 = StringSplit($per[$i], ' ' & @TAB)
+					If $per1[0] > 7 Then 
+						$str = $per1[UBound($per1) - 1]
+						$prc = StringLeft(100/$mode * Dec($per1[3]), 4)
+						_BarCreate($prc, "Распаковка", $str, 300, $iSize, 45, True)
+						GUICtrlSetData($iEdit, $str & @CRLF, 1)
+					EndIf
+				Next
+			EndIf
+		EndIf
+	Wend
+	_BarOff()
 EndFunc

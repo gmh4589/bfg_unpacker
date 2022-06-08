@@ -60,7 +60,7 @@ Func Main()
 				QuickOpen($sFileName)
 			EndIf
 		Case $iTotal7zip
-			_OtherPRG($tAllFile & " (*.*)|" & $tAllSupFile & " (*.zip;*.7z;*.rar;*.pak;*.dat;*.exe;*.tar;*.wim;*.gz;*.bz;*.gzip;*.bzip;*.gz2;*.bz2;*.lzma;*.iso;*.cab;*.xz;*.txz;*.cpio;*.tbz;*.tbz2;*.tgz;*.tgz2;*.tpz;*.taz;*.z;*.lzh;*.lha;*.rpm;*.deb;*.lzm;*.pk3;*.pk4;*.arj;*.vhd;*.swm;*.dmg;*.hfs;*.xar;*.chm;*.squashfs;*.dll;*.ocx;*.xpi;*.crf;*.epub;*.txtz;*.7zip;*.cb7;*.cb7z;*.omod;*.fomod;*.so1;*.phar;*.phr;*.lzma2;*.lzm2;*.lz4;*.lz5;*.zstd;*.nsz;*.xcz;*e01;*ex01;*.l01;*.lx01;*.aff;*.ad1;*.whx;*.ccs;*.cdi;*.img;*.chd;*.cso;*.bin;*.cue;*.ecm;*.gdi;*.isz;*.mds;*.mdf;*.nrg;*.ZiSofs)|Zip  " & $tArchives & "  (*.zip)|7z  " & $tArchives & "  (*.7z)|RAR  " & $tArchives & "  (*.rar)|PAK  " & $tArchives & "  (*.pak)|DAT " & $tFiles & " (*.dat)|" & $tExeFile & " (*.exe)|TAR  " & $tArchives & "  (*.tar)|WIM  " & $tArchives & "  (*.win;*.swm)|GZIP  " & $tArchives & "  (*.gz;*.gzip;*.gz2;*.tgz;*.tgz2)|BZIP  " & $tArchives & "  (*.bz;*.bzip;*.bz2;*.tbz;*.tbz2)|LZMA  " & $tArchives & "  (*.lzma;*.lzm)|" & $tDImage & " (*.iso;*.vhd)|Cabinet  " & $tArchives & "  (*.cab)|XZ  " & $tArchives & "  (*.xz;*.txz)|CPIO  " & $tArchives & "  (*.cpio)|TAZ  " & $tArchives & "  (*.tpz;*.taz;*.z)|LZH  " & $tArchives & "  (*.lzh)|LHA  " & $tArchives & "  (*.lha)|RPM  " & $tArchives & "  (*.rpm)|DEB Installer (*.deb)|idTech Plugin (*.pk3;*.pk4)|ARJ  " & $tArchives & "  (*.arj)|DMG Installer (*.dmg)|HFS " & $tFiles & "  (*.hfs)|XAR  " & $tArchives & "  (*.xar)|CHM " & $tFiles & " (*.chm)|squashfs " & $tFiles & " (*.squashfs)|" & $tDLL & " (*.dll;*.ocx)|XPI Archive\Firefox Plugin (*.xpi)|System Shock 2 (*.crf)|" & $teBooks & " (*.epub;*.txtz)", '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', "")
+			_OtherPRG($tAllFile & " (*.*)|" & $tAllSupFile & " (*.zip;*.7z;*.rar;*.pak;*.dat;*.exe;*.tar;*.wim;*.gz;*.bz;*.gzip;*.bzip;*.gz2;*.bz2;*.lzma;*.iso;*.cab;*.xz;*.txz;*.cpio;*.tbz;*.tbz2;*.tgz;*.tgz2;*.tpz;*.taz;*.z;*.lzh;*.lha;*.rpm;*.deb;*.lzm;*.pk3;*.pk4;*.arj;*.vhd;*.swm;*.dmg;*.hfs;*.xar;*.chm;*.squashfs;*.dll;*.ocx;*.xpi;*.crf;*.epub;*.txtz;*.7zip;*.cb7;*.cb7z;*.omod;*.fomod;*.so1;*.phar;*.phr;*.lzma2;*.lzm2;*.lz4;*.lz5;*.zstd;*.nsz;*.xcz;*e01;*ex01;*.l01;*.lx01;*.aff;*.ad1;*.whx;*.ccs;*.cdi;*.img;*.chd;*.cso;*.bin;*.cue;*.ecm;*.gdi;*.isz;*.mds;*.mdf;*.nrg;*.ZiSofs)|Zip  " & $tArchives & "  (*.zip)|7z  " & $tArchives & "  (*.7z)|RAR  " & $tArchives & "  (*.rar)|PAK  " & $tArchives & "  (*.pak)|DAT " & $tFiles & " (*.dat)|" & $tExeFile & " (*.exe)|TAR  " & $tArchives & "  (*.tar)|WIM  " & $tArchives & "  (*.win;*.swm)|GZIP  " & $tArchives & "  (*.gz;*.gzip;*.gz2;*.tgz;*.tgz2)|BZIP  " & $tArchives & "  (*.bz;*.bzip;*.bz2;*.tbz;*.tbz2)|LZMA  " & $tArchives & "  (*.lzma;*.lzm)|" & $tDImage & " (*.iso;*.vhd)|Cabinet  " & $tArchives & "  (*.cab)|XZ  " & $tArchives & "  (*.xz;*.txz)|CPIO  " & $tArchives & "  (*.cpio)|TAZ  " & $tArchives & "  (*.tpz;*.taz;*.z)|LZH  " & $tArchives & "  (*.lzh)|LHA  " & $tArchives & "  (*.lha)|RPM  " & $tArchives & "  (*.rpm)|DEB Installer (*.deb)|idTech Plugin (*.pk3;*.pk4)|ARJ  " & $tArchives & "  (*.arj)|DMG Installer (*.dmg)|HFS " & $tFiles & "  (*.hfs)|XAR  " & $tArchives & "  (*.xar)|CHM " & $tFiles & " (*.chm)|squashfs " & $tFiles & " (*.squashfs)|" & $tDLL & " (*.dll;*.ocx)|XPI Archive\Firefox Plugin (*.xpi)|System Shock 2 (*.crf)|" & $teBooks & " (*.epub;*.txtz)", '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
 		Case $iGAUP
 			_QuickBMSRun($tAllFile & " (*.*)|AFS File (*.afs)|Age of Empires 1-3 (*.DRS;*.AGE3SCN;*.BAR)|BAG File (*.bag)|Bethesda BSA File (*.bsa)|BIG/VIV Files (*.big;*.viv)|BIN File (*.bin)|CAT File (*.cat)|COB File (*.cob)|DAT File (*.dat)|Earth 21*0 (*.WD)|F.E.A.R. (*.ARCH00)|Gothic 1-3 (*.vdf;*.pak)|GTA 2-4 (*.RAW;*.SDT;*.IMG;*.DIR)|DAT File (*.dat)|DIR File (*.dir)|Heroes of M&M 2-4 (*.AGG;*.LOD;*.SND;*.VID;*.H4C)|Hitman 1-4 (*.LGT;*.SPK;*.PRM;*.WAV;*.WHD)|idTech File (*.wad;*.pak)|IDX File (*.idx)|IMG File (*.img)|Lintech REZ File (*.rez)|Master Of Magic/Orion (*.LBX)|Neverwinter Nights 1-2 (*.ERF;*.MOD;*.HAK)|PAC File (*.pac)|PAK File (*.pak)|PBO File (*.pbo)|PFF File (*.pff)|PKG File (*.pkg)|POD File (*.pod)|Postal 2 (*.FUK;*.PSK)|RES File (*.res)|Unreal Engine 1-2 (*.u;*.u*)|WarCraft 2 (*.CUD;*.INS;*.SUD)|Windows Installer (*.exe;*.msi)|Age of Mythology (*.BAR;*.SCX;*.XMB)|Age of Wonders II (*.A2C;*.ACM;*.AHM)|Air Strike 3D (*.APK)|AirXonix (*.MUS)|Alpha Ball (*.ABL)|Aura; Fate Of The Ages (*.PSP;*.PVD)|Battle Realms (*.H2O)|Beach Head 2002 (*.*24)|Black and White 2 (*.LUD)|Bricks of Egypt (*.GFX)|Brothers in Arms (*.GBXMAP;*.LTE)|Call of Duty 4 (*.IWI)|Call of Duty; World at War (*.IWI)|Carmageddon II (*.TWT)|Championsheep Rally (*.DBC)|Civilization IV (*.FPK)|Colin McRae Rally 3 (*.BGX;*.PCX;*.TBF)|Color Eggs (*.STG)|Command & Conquer (*.MIX;*.DBS;*.THU)|Commandos 2; Men of Courage (*.PCK)|Corsairs (*.TF)|Cossacks (*.GSC)|Crash Time 2 (*.PTX)|Crimsonland (*.FRAME;*.JAZ;*.SEQUENCE)|Crysis (*.RAW)|Death Rally (*.BPA)|Death Track; Resurrection Demo (*.RR)|Demonstar (*.GLB)|Destruction Derby (*.000;*.001)|Destruction Derby 2 (DIRINFO.*)|Disciples II (*.FF)|Dragonshard (*.H2O)|Duke Nukem II (*.CMP)|Duke Nukem 3D (*.GRP;*.RTS)|Dune 2000 (*.R*)|Dungeon Lords (*.AL4;*.AL8;*.TWD)|Earth 21*0 (*.WD)|EPOC Operation System (*.SIS)|ExMachina (*.GDP)|Fable; The Lost Chapters (*.LUG;*.LUT;*.STB)|FlatOut (*.BFS)|Frank Herbert's Dune (*.DUN)|Fresco Wizard (*.SDF)|Giza (*.MJZ)|Gooka; The Mystery of Janatris (*.SAV)|Gunbound (*.XFS)|Hard Truck (*.RMP)|Jagged Alliance 2  (*.SLF)|Earth (*.0000)|Krush, Kill 'n' Destroy (*.SLV)|Knight Rider (*.NIF)|LOTR; War Of Ring (*.H2O)|Luxor (*.MJZ)|Mad Cars (*.FRAME;*.SEQUENCE)|Mafia (*.DTA)|Merchant Prince II (*.ANM;*.MSK)|Metal Gear Solid 2 (*.QAR)|MIG-29 Fulcrum (*.SBF)|Moorhuhn (*.WTN)|Mor.Utopia (*.VFS)|MotoGP 3 (*.ARK)|Nancy Drew (*.HIS)|Nuclear Titbit (*.EZD)|Patrician III (*.CPR;*.SKS)|Perimeter (*.AVIX)|Petka 2-4 (*.STR;*.MULT;*.RSS)|Pharaon (*.555)|Pocket Tanks (*.BBK;*.EMI;*.WEP)|Pool'm Up (*.MSF)|Primitive Wars (*.TRC)|Prince of Persia (*.FAT;*.BIK;*.BF)|Ragnarok (*.EBM;*.RAW;*.XPK)|Red Faction (*.VPP)|Ricochet (*.FRAME;*.SEQUENCE)|Rise of the Triad (*.RTS)|Roll'm Up (*.MSF)|Silent Hill 3 (*.ARC)|Silent Hill 4 (*.bin;*.pak;*.sh4)|SimCity 3000 (*.IFX;*.SC3;*.SCT;*.ST3)|Spell of Gold (*.JDR;*.JSR;*.JTR)|SpellForce Order of Dawn (*.MAP)|Standofood (*.MJP)|Starlancer (*.HOG)|Star Heritage 1 (*.BPK)|Star Wars; Empire at War (*.MEG)|Star Wars; Republic Commando (*.CTM;*.CTS)|Starsiege; TRIBES (*.TED;*.VOL)|Still Life (*.CMO;*.NMO;*.SL)|Sudden Strike (*.SUE)|SWAT 4 (*.S4M)|Syberia (*.CMO;*.NMO;*.SYJ)|Syberia 2 (*.NMO;*.SYB)|Test Drive Unlimited (*.BNK;*.2DB)|The Bard's Tale (*.LMP)|The Punisher (*.CEG;*.VPP)|The Sims Makin Magic (*.FAR)|The Suffering (*.TDU;*.VDU)|The Sum Of All Fears (*.RSB)|Theme Park World (*.SDT)|Ghost Recon (*.RSB)|Tomb Raider (*.TRC;*.CLZ;*.AWD)|Tzar (*.WDT)|Warhammer 40000; Dawn of War (*.SGA)|Warlords Battlecry III (*.XCR)|Z Expansion (*.EXP)", @ScriptDir & "\data\wcx\gaup_pro.wcx ")
 		Case $iConv_12
@@ -245,9 +245,10 @@ Func Main()
 							If GUICtrlRead($iReimport_Checkbox) = 1 Then
 								If $iArchCall[7] = 'not' Then
 									_MsgBox(0, $tMessage, $tNotSupport)
-								Else		
-									$ArchiveName = InputBox('', 'Enter Archive name', 'new_archive')
-									Switch $iArchCall[11]
+								Else
+									$ArchiveName = _InputBox('Enter Archive name', '', 'new_archive') ;TODO Text
+									If $ArchiveName = '' Then ContinueLoop
+									Switch $iArchCall[11] ;TODO Проверить упаковку!
 										Case '1'
 											_OtherPRG ('', $iArchCall[4], $iArchCall[7] & $ArchiveName & $iArchCall[9], $iArchCall[8], $sFolderName, '', _Bool($iArchCall[11]))
 										Case '2'
@@ -271,6 +272,7 @@ Func Main()
 					_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & "\" & $iName & '.iso"')
 					FileDelete($sFolderName & "\" & $iName & '.iso"')
 				EndIf
+				
 		Case $iPSARC_lzma
 			_OtherPRG('PlayStation 2 PSARC Archives (*.psarc)|', 'PSARC.exe ', ' extract --lzma ', '', $sFolderName, '')
 		Case $iPSARC_zlib
@@ -321,7 +323,7 @@ Func Main()
 			_fileReaper(_mp3)
 		Case $iMediaInfo
 			$sFilePath = FileOpenDialog("", "", "All file(*.*)", 1)
-				If @error <> 1 Then _Console(@ScriptDir & '\data\ffprobe.exe "' & $sFilePath & '"', @ScriptDir & '\data\')
+				If @error <> 1 Then _Console(@ScriptDir & '\data\ffprobe.exe "' & $sFilePath & '"', '', @ScriptDir & '\data\')
 		Case $iBink2avi
 			ShellExecute (@ScriptDir & "\data\RADVideo\RADVideo64.exe", "", $sFolderName, "open")
 		Case $iCubeMapCreator
@@ -377,8 +379,8 @@ Func Main()
 						Case '_ExoPlanet'
 							_getFile('', "Exoplanet catalog (exoplanet.eu_catalog.csv)|")
 								If @error = 1 then Return
-							If $iFuncCall[4] = 'Celestia' Then CelestiaExo($file)
-							If $iFuncCall[4] = 'SpaceEngine' Then SpaceEngineExo($file)
+								If $iFuncCall[4] = 'Celestia' Then CelestiaExo($file)
+								If $iFuncCall[4] = 'SpaceEngine' Then SpaceEngineExo($file)
 					EndSwitch
 				EndIf
 			Next

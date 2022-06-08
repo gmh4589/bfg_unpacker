@@ -9,9 +9,38 @@ Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
 		GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)	
 			For $j = $fc to $a
 				If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$j]
-				If $iPar1 = '' Then $iFunc($sFileName)
-				If $iPar1 <> '' Then $iFunc($sFileName, $iPar1)
+				If IsArray($iPar1) Then
+					_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
+					If $iPar1[4] Then
+						FileCopy($sFileName, $sFolderName & '\')
+						$sFileName = $sFolderName & '\' & $iName & $iExp
+					EndIf
+					_Console (@ScriptDir & "\data\" & $iPar1[0], " " & $iPar1[1] & ' "' & $sFileName & '" ' & $iPar1[2], $iPar1[3], $sFileName)
+					If $iPar1[4] Then FileDelete($sFolderName & '\' & $iName & $iExp)
+				ElseIf $iPar1 <> '' Then
+					_PathSplit($iPar1, $iDrive, $iDir, $iName, $iExp)
+					; _Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, $sFileName)
+					$size = FileGetSize($sFileName)
+					$iOutputWindow = Run(@ScriptDir & "\data\quickbms.exe " & $rI & ' -K ' & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+					_EnginePB($iOutputWindow, '', 110, $size)
+				ElseIf $iPar1 = '' Then
+					$iFunc($sFileName)
+				EndIf
 			Next
+EndFunc
+
+Func _getFile($sFileName, $iExtList = '')
+	Switch $sFileName
+		Case '', ' ', '	', "", " ", "	"
+			$sFileName = FileOpenDialog($tSelectFile, " ", $iExtList & $tAllFile & " (*.*)", 1+4)
+				If @error = 1 then SetError(1)
+		Case 'folder'
+			$sFileName = FileSelectFolder ('', $iLastDir)
+				If @error = 1 then SetError(1)
+		Case Else
+			$sFileName = $sFileName
+	EndSwitch
+	Return($sFileName)
 EndFunc
 
 Func DDSSaving($dwHeight, $dwWidth, $iMediaFile_dds, $iOffset, $DDSOpenFile)
@@ -31,28 +60,30 @@ EndFunc
 
 Func CubeMapCreator()
 	$sFilePath = _getFile('folder')
-		If @error = 1 then Return
-	If FileExists ($sFilePath & "\1.dds") and FileExists ($sFilePath & "\2.dds") and FileExists ($sFilePath & "\3.dds") and FileExists ($sFilePath & "\4.dds") and FileExists ($sFilePath & "\5.dds") and FileExists ($sFilePath & "\6.dds") then
-		$hFile = FileOpen($sFilePath & "\1.dds", 16)
-		$hOutFile = FileOpen($sFolderName & "\out.dds", 25)
-		$hText = FileRead($hFile, 112)
-		FileWrite($hOutFile, $hText)
-		FileWrite($hOutFile, "0x00FE0000000000000000000000000000")
-		FileClose($hFile)
-			For $a = 1 to 6
-				$hFile = FileOpen($sFilePath & "\" & $a & ".dds", 16)
-				FileSetPos ($hFile, 128, 0)
-				$sSourceCode = FileRead($hFile)
-				FileWrite($hOutFile, $sSourceCode)
-				FileClose($hFile)
-			Next
-		GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
-		FileClose($hOutFile)
-	Else
-		$tCBMSG = (@CRLF & "CubeMap Creator" & @CRLF & @CRLF & $tCBMSG1 & @CRLF & $tCBMSG2 & @CRLF & $tCBMSG3 & @CRLF & $tCBMSG4 & @CRLF & $tCBMSG5 & @CRLF & $tCBMSG6 & @CRLF & $tCBMSG7 & @CRLF & $tCBMSG8)
-		_MsgBox($MB_SYSTEMMODAL, $tUsing, $tCBMSG)
-		GUICtrlSetData($iEdit, $tCBMSG, 1)
-	EndIf
+		If @error Then Return
+	
+	$tCBMSG = (@CRLF & "CubeMap Creator" & @CRLF & @CRLF & $tCBMSG1 & @CRLF & $tCBMSG2 & @CRLF & $tCBMSG3 & @CRLF & $tCBMSG4 & @CRLF & $tCBMSG5 & @CRLF & $tCBMSG6 & @CRLF & $tCBMSG7 & @CRLF & $tCBMSG8)
+	For $i = 1 to 6
+		If Not FileExists ($sFilePath & "\" & $i & ".dds") Then BitAND(_MsgBox(0, $tUsing, $tCBMSG), GUICtrlSetData($iEdit, $tCBMSG, 1), SetError(1))
+		If @error Then Return
+	Next
+
+	_PathSplit ($sFilePath, $iDrive, $iDir, $iName, $iExp)
+	$hFile = FileOpen($sFilePath & "\1.dds", 16)
+	$hOutFile = FileOpen($sFolderName & "\" & $iName & ".dds", 25)
+	$hText = FileRead($hFile, 112)
+	FileWrite($hOutFile, $hText)
+	FileWrite($hOutFile, "0x00FE0000000000000000000000000000")
+	FileClose($hFile)
+		For $a = 1 to 6
+			$hFile = FileOpen($sFilePath & "\" & $a & ".dds", 16)
+			FileSetPos ($hFile, 128, 0)
+			$sSourceCode = FileRead($hFile)
+			FileWrite($hOutFile, $sSourceCode)
+			FileClose($hFile)
+		Next
+	GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
+	FileClose($hOutFile)
 EndFunc
 
 Func _mp3($sFileName)
@@ -75,6 +106,7 @@ Func MorUnpacker($sFileName)
 	$iFileC = _BinaryToInt32(FileRead($iFile, 4))
 
 		For $i = 1 to $iFileC
+			If GUIGetMsg($progressGUI) = $exitBTN Then ExitLoop
 			$iNameLong = FileRead($iFile, 1)
 			$iNameFile = BinaryToString(FileRead($iFile, $iNameLong))
 			$iPos = FileGetPos ($iFile)
@@ -87,7 +119,7 @@ Func MorUnpacker($sFileName)
 			FileClose ($iNewFile)
 			FileSetPos ($iFile, $iPos + 16, 0)
 			GUICtrlSetData($iEdit,  $tSave & ' ' & $i & "/" & $iFileC & ' ' & $iNameFile  & @CRLF, 1)
-			If Mod($i, 10) = 0 Then _BarCreate((100/$iFileC) * $i, $tWtSaving, $tSave & @CRLF & $iNameFile & @CRLF & $i & "/" & $iFileC, 300, 120)
+			If Mod($i, 10) = 0 Then _BarCreate((100/$iFileC) * $i, $tWtSaving, $tSave & @CRLF & $iNameFile & @CRLF & $i & "/" & $iFileC, 300, 120, 45, True)
 		Next
 	GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
 	_BarOff()
@@ -189,7 +221,7 @@ Func ERFUnpacker($sFileName = '')
 				;MsgBox($MB_SYSTEMMODAL, $tMessage, "v1")
 					FileSetPos ($iFile, 16, 0)
 						$iFileCount = FileRead ($iFile, 4)
-						$iFileCount = _BinaryToInt32($iFileCount)
+						$iFileCount = _BinaryToInt32($iFileCount) - 1
 					FileSetPos ($iFile, 24, 0)
 						$iOff2Lst = FileRead ($iFile, 4)
 						$iOff2Lst = _BinaryToInt32($iOff2Lst)
@@ -211,9 +243,9 @@ Func ERFUnpacker($sFileName = '')
 							_ArrayAdd($FileExtArray, $fEXT)
 						Next
 					FileSetPos ($iFile, $iERFLst, 0)
-					;ProgressOn('', $tWtSaving, '', (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 					
 						For $j = 1 to $iFileCount
+							If GUIGetMsg($progressGUI) = $exitBTN Then ExitLoop
 							$data1 = FileRead ($iFile, 4)
 								$data1 = _BinaryToInt32($data1)
 							$data2 = FileRead ($iFile, 4)
@@ -228,7 +260,7 @@ Func ERFUnpacker($sFileName = '')
 							FileClose ($iNewFile)
 							FileSetPos ($iFile, $c, 0)
 							GUICtrlSetData($iEdit,  $tSave & ' ' & $j & "/" & $iFileCount & ' ' & $fName  & @CRLF, 1)
-							If Mod($j, 10) = 0 Then _BarCreate((100/$iFileCount) * $j, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $j & "/" & $iFileCount, 300, 110)
+							If Mod($j, 10) = 0 Then _BarCreate((100/$iFileCount) * $j, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $j & "/" & $iFileCount, 300, 110, 45, True)
 						Next
 					ProgressSet(100, $tDone)
 					GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
@@ -241,9 +273,10 @@ Func ERFUnpacker($sFileName = '')
 						;MsgBox($MB_SYSTEMMODAL, $tMessage, "v2")
 							FileSetPos ($iFile, 16, 0)
 								$iFileCount = FileRead ($iFile, 4)
-								$iFileCount = _BinaryToInt32($iFileCount)
+								$iFileCount = _BinaryToInt32($iFileCount) - 1
 							FileSetPos ($iFile, 32, 0)
 							For $i = 0 to $iFileCount
+								If GUIGetMsg($progressGUI) = $exitBTN Then ExitLoop
 								$RName = FileRead ($iFile, 64)
 								$iOffs = FileRead ($iFile, 4)
 									$iOffs = _BinaryToInt32($iOffs)
@@ -259,7 +292,7 @@ Func ERFUnpacker($sFileName = '')
 								FileClose ($iNewFile)
 								FileSetPos ($iFile, $c, 0)
 								GUICtrlSetData($iEdit,  $tSave & ' ' & $i & "/" & $iFileCount & ' ' & $fName  & @CRLF, 1)
-								If Mod($i, 10) = 0 Then _BarCreate((100/$iFileCount) * $i, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $i & "/" & $iFileCount, 300, 110)
+								If Mod($i, 10) = 0 Then _BarCreate((100/$iFileCount) * $i, $tWtSaving, $tSave & @TAB & $fName & @CRLF & $i & "/" & $iFileCount, 300, 110, 45, True)
 							Next
 						ProgressSet(100, $tDone)
 						GUICtrlSetData($iEdit, $tDone & @CRLF, 1)
