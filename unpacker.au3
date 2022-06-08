@@ -25,6 +25,7 @@
 #include <ButtonConstants.au3>
 #include <GuiTreeView.au3>
 #include <TreeviewConstants.au3>
+#include <UpdownConstants.au3>
 #include <GuiMenu.au3>
 #include <GuiComboBox.au3>
 #include <Date.au3>
@@ -90,10 +91,9 @@ GLobal $abcArray = _letterArray(False, 2)
 GLobal $yearArray = _digitArray(@YEAR, 1990, -1)
 
 GLobal $iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", "Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", "Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder]
-Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26), $mButton1, $mButton2, $mButton3
+Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26)
 
 If $iPrOrSp = 'Splash' Then SplashImageOn("", @ScriptDir & "\data\ico\i.jpg", 256, 256, (@DesktopWidth/2)-128, (@DesktopHeight/2)-128, 19)
-;If $iPrOrSp = 'Progress' Then ProgressOn('', $tLoad, "", (@DesktopWidth/2)-150, (@DesktopHeight/2)-62, 18)
 
 ;Запуск интерфейса
 $hGui = GUICreate("BFG Unpacker", 600, 630, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_EX_ACCEPTFILES, $WS_EX_ACCEPTFILES)
@@ -217,7 +217,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	;$iUnpack1151 = _GUICtrlCreateODMenuItem("Ubisoft Montreal - big/fat/000 archives", $iSubMenuEngine) ; ↓ - объединить
 	;$iUnpack1204 = _GUICtrlCreateODMenuItem("Ubisoft Montreal - fat/000 archives", $iSubMenuEngine) ; ↑ - объединить
 	$iUnigenex = _GUICtrlCreateODMenuItem("Unigene", $iSubMenuEngine)
-	$iUnity = _GUICtrlCreateODMenuItem("Unity 3D Engine", $iSubMenuEngine)
+	$iUnity = _GUICtrlCreateODMenuItem("Unity Engine", $iSubMenuEngine)
 	$iUnreal = _GUICtrlCreateODMenuItem("Unreal Engine", $iSubMenuEngine)
 	$iOpenXNA = _GUICtrlCreateODMenuItem("XNA Framework", $iSubMenuEngine)
 #EndRegion
@@ -232,7 +232,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 		For $set = 0 to 26
 			$iSubmenuArchiveABC[$set] = _GUICtrlCreateODMenu($abcArray[$set], $iSubmenuArchive)
 		Next
-	
+
 		For $arc = 2 to $iArcCount
 			$iArchName = StringSplit($iArchiveArray[$arc], '	')
 			If $iArchName[11] = BitOR('3', 3) Then
@@ -337,10 +337,8 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 #EndRegion
 
 #Region //About
-
 	$iAboutMenu = GUICtrlCreateMenu ($tAbout)
 	$iAbout = _GUICtrlCreateODMenuItem($tAP, $iAboutMenu)
-
 #EndRegion
 
 #Region //Checkbox
@@ -527,6 +525,8 @@ Func _SetColor()
 	GUICtrlSetColor($iFavAdd, $iFontColor)
 	GUICtrlSetBkColor($iFavDel, $iColor1)
 	GUICtrlSetColor($iFavDel, $iFontColor)
+	GUICtrlSetBkColor($iFindMenu, $iColor1)
+	GUICtrlSetColor($iFindMenu, $iFontColor)
 	
 	GUICtrlSetColor($iReimport_CheckboxTXT, $iFontColor2)
 	GUICtrlSetColor($iHideOrShowTXT, $iFontColor2)
