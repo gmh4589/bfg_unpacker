@@ -22,7 +22,7 @@ Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
 					; _Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, $sFileName)
 					$size = FileGetSize($sFileName)
 					$iOutputWindow = Run(@ScriptDir & "\data\quickbms.exe " & $rI & ' -K ' & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-					_EnginePB($iOutputWindow, '', 110, $size)
+					_EnginePB($iOutputWindow, 110, $size)
 				ElseIf $iPar1 = '' Then
 					$iFunc($sFileName)
 				EndIf

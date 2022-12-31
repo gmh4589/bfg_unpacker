@@ -1,25 +1,29 @@
 
 Func _ChildGUI($iGUIName, $iLabelList, $iComboList, $iDefaultList, $iExtList = '') 
-;$iGUIName - заголовок меню, $GUIW - ширина окна, $GUIH - высота окна, $iComboStep - количество комбо, $iLabelList - список лейблов над комбиками, $iComboList - список значений комбо, $iDefaultList - список дефолтов комбо
+;$iGUIName - заголовок меню, $iLabelList - список лейблов над комбиками, $iComboList - список значений комбо, $iDefaultList - список дефолтов комбо
 
 Local $Argum = 0, _
 $iLabelName = StringSplit($iLabelList, '|'), _
 $iItemSize = $iLabelName[0], _
 $iDefaultData = StringSplit($iDefaultList, '|'), _
 $iComboData = StringSplit($iComboList, ';'), _
-$iCombo[$iItemSize+1], _
-$iLabel[$iItemSize+1], _
-$iRead[$iItemSize+1], _
-$GUIH = $iItemSize*42 < 90 ? 90 : $iItemSize*42
+$iCombo[$iItemSize + 1], _
+$iLabel[$iItemSize + 1], _
+$iRead[$iItemSize + 1], _
+$GUIH = $iItemSize * 42 < 90 ? 90 : $iItemSize * 42
 
 Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $NewGui)
 	GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
 	
-	$OpenFileBTN = GUICtrlCreateButton($OpenFile, 140, ($GUIH/2)-40, 100, 30)
+	_SetBorder(138, ($GUIH/2)-42, 104, 34)
+	$OpenFileBTN = GUICtrlCreateLabel($OpenFile, 140, ($GUIH/2)-40, 100, 30, $SS_CENTER+$SS_CENTERIMAGE)
+		GUICtrlSetColor(-1, $iFontColor)
 
-	$OpenFolderBTN = GUICtrlCreateButton($OpenFolder, 140, $GUIH/2, 100, 30)
+	_SetBorder(138, ($GUIH/2)-2, 104, 34)
+	$OpenFolderBTN = GUICtrlCreateLabel($OpenFolder, 140, $GUIH/2, 100, 30, $SS_CENTER+$SS_CENTERIMAGE)
+		GUICtrlSetColor(-1, $iFontColor)
 	
 	For $i = 1 to $iItemSize
 		$iLabel[$i] = GUICtrlCreateLabel($iLabelName[$i], 15, 5+$Argum, 120, 14)
@@ -34,6 +38,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 	
 	Do 
 		$iChMsg = GUIGetMsg($NewGui)
+		_CursorMove($NewGui)
 		$iLastDir = $iDrive & $iDir
 		For $i = 1 to $iItemSize
 			$iRead[$i] = GUICtrlRead($iCombo[$i]) 
@@ -93,7 +98,6 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 							ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
 					EndIf
 					_MsgBox (0, $tMessage, $tDone & '!')
-					
 			EndSwitch
 	Until False
 EndFunc

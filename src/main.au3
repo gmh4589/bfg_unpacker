@@ -1,7 +1,9 @@
 Func Main()
 	Do
-		Global $iLastDir = $iDrive & $iDir
+		$iLastDir = $iDrive & $iDir
 		$msg = GUIGetMsg($hGui)
+		
+		$iShowFlag = GUICtrlRead($iHideOrShow) = 4 ? @SW_HIDE : GUICtrlRead($iHideOrShow) = 1 ? @SW_SHOW
 		
 		_CursorMove($hGui)
 		
@@ -126,7 +128,7 @@ Func Main()
 						Case 'R'
 							_Engine('_Godot')
 						Case 'S'
-							_Engine('_RPGMaker', 'pass')
+							_Engine('_RPGMaker')
 						Case 'T'
 							_Engine('_RenPy')
 						Case 'U'
@@ -202,13 +204,15 @@ Func Main()
 		Case $iHuneX
 			_QuickBMSRun("", @ScriptDir & "\data\scripts\hunex.bms ")
 		Case $iDTech
-			idTech()	
+			idTech()
 		Case $Infinity 
 			_Engine('_Infinity')
 		Case $iConv_3, $iSAU
 			_OtherPRGExt('_SAU')
 		Case $iMTFramework
 			_Engine('_MTFramework')	
+		Case $iPhyre
+			_QuickBMSRun('Phyre Engine Files (*.phyre)|', @ScriptDir & "\data\scripts\PhyreEngine_PTexture2D_phyre.bms  ")
 		Case $iPopCapPackAll
 			_Engine('_PopCapPackAll')
 		Case $iGameMaker
@@ -216,7 +220,7 @@ Func Main()
 		Case $iGodot
 			_Engine('_Godot')
 		Case $iRPGMaker
-			_Engine('_RPGMaker', 'pass')
+			_Engine('_RPGMaker')
 		Case $iConstruct
 			_Engine('_Construct')
 		Case $iRenPy
@@ -246,7 +250,7 @@ Func Main()
 								If $iArchCall[7] = 'not' Then
 									_MsgBox(0, $tMessage, $tNotSupport)
 								Else
-									$ArchiveName = _InputBox('Enter Archive name', '', 'new_archive') ;TODO Text
+									$ArchiveName = _InputBox($tArchiveName, '', 'new_archive')
 									If $ArchiveName = '' Then ContinueLoop
 									Switch $iArchCall[11] ;TODO Проверить упаковку!
 										Case '1'
@@ -328,6 +332,8 @@ Func Main()
 			ShellExecute (@ScriptDir & "\data\RADVideo\RADVideo64.exe", "", $sFolderName, "open")
 		Case $iCubeMapCreator
 			CubeMapCreator()
+		Case $iIcoSplitter
+			_QuickBMSRun("ICO Files (*.ico)|", @ScriptDir & "\data\scripts\ico_splitter.bms ")
 			
 		Case $iMenuItem[2] To $iMenuItem[$iLoop]
 			For $item = 1 to $iLoop
@@ -349,7 +355,7 @@ Func Main()
 							_QuickBMSRun ($iFuncCall[4], @ScriptDir & $iFuncCall[5])
 						Case '_Unreal', '_Unity', '_RPGMaker', '_Bethesda', '_Aurora', '_RedEngine', '_Chrome', '_idTech', '_CryEngine', '_Construct', '_MTFramework', '_Source', '_RenPy', '_GameMaker', '_Asura', '_Chromium', '_Unigene', '_Godot', '_Glacier', '_Infinity', '_LithTech', '_Anvil', '_Dunia', '_Flash'
 							_Engine($iFuncCall[3])
-						Case '_Unreal4', '_ReEngine', '_TellTale'
+						Case '_Unreal4', '_ReEngine', '_TellTale', '_Sen'
 							_Engine($iFuncCall[3], '', $iFuncCall[4])
 						Case '_Frostbite'
 							Switch $iFuncCall[4]

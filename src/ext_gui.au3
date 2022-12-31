@@ -1,11 +1,11 @@
-Global $mButton[4], $exitBTN, $okButton, $cancelButton
+Global $mButton[4], $exitBTN, $okButton, $cancelButton, $OpenFolderBTN, $OpenFileBTN
 
 Func _CursorMove($iGuiID, $c1 = $iColor1, $c2 = $iColor2)
 	$iCursorPos = GUIGetCursorInfo($iGuiID)
 	
 	If $iCursorPos[4] Then
 		Switch $iCursorPos[4]
-			Case $iAll_Checkbox, $iFindBTN, $iFavAdd, $iFavDel, $idButton[1] to $idButton[15], $setBTN[2] to $setBTN[26], $mButton[1] to $mButton[3], $exitBTN, $okButton, $cancelButton
+			Case $iAll_Checkbox, $iFindBTN, $iFavAdd, $iFavDel, $idButton[1] to $idButton[15], $setBTN[2] to $setBTN[26], $mButton[1] to $mButton[3], $exitBTN, $okButton, $cancelButton, $OpenFolderBTN, $OpenFileBTN
 				If $iMouseMove <> -1 Then
 					If $iMouseMove <> $iCursorPos[4] Then
 						GUICtrlSetBkColor($iMouseMove, $c1)
@@ -27,7 +27,8 @@ EndFunc
 Func _BarCreate($percent, $txt = "Test", $txt2 = 'Test', $W = 250, $H = 90, $iSize = 45, $iShowClose = False, $iColor = '0xff' & StringTrimLeft($iColor2, 2), $iGuiColor = $iColor1, $fColor = $iFontColor)
 
 	If $iProgressFlagStart = True Then
-		$progressGUI = GUICreate('', $W, $H, -1, -1,  $WS_POPUP+$WS_BORDER, -1, $hGUI)
+		$progressGUI = GUICreate('', $W, $H, -1, -1,  $WS_POPUP + $WS_BORDER, -1, $hGUI)
+		GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
 		GUISetState()
 		GUISetBkColor($iGuiColor)
 		$Label = GUICtrlCreateLabel ('', 15, 5, $W - 30, 20)
@@ -50,8 +51,6 @@ Func _BarCreate($percent, $txt = "Test", $txt2 = 'Test', $W = 250, $H = 90, $iSi
 		$long = $percent*($W/100)-10 < 10 ? 10 : $percent*($W/100)-10
 		
 		_GDIPlus_GraphicsDrawLine ($hGraphic, 10, $iSize/2+25, $long, $iSize/2+25, $hPen)
-	Else
-		
 	EndIf
 	
 	GUICtrlSetData($Label, $txt)
@@ -75,6 +74,7 @@ Func _MsgBox($flag, $title, $text, $c1 = $iColor2, $c2 = $iColor1, $fcolor = $iF
 	EndIf
 	
 	$MsgGUI = GUICreate($title, $W + 15, $H + 80, -1, -1, $WS_POPUP+$WS_BORDER)
+	GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
 	GUISetBkColor($c2, $MsgGUI)
 	GUICtrlCreateLabel(StringUpper($title), 10, 10, 285, 30, $SS_CENTERIMAGE, $GUI_WS_EX_PARENTDRAG)
 	GUICtrlSetColor(-1, $fcolor)
@@ -157,6 +157,7 @@ EndFunc
 
 Func _InputBox($title, $text, $default, $wSize = 150, $hSize = 100, $UD = False, $limitMax = 3, $limitMin = 1, $c1 = $iColor2, $c2 = $iColor1, $fcolor = $iFontColor)
 	$InpGUI = GUICreate($title, $wSize, $hSize, -1, -1, $WS_POPUP+$WS_BORDER)
+	GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
 	GUISetBkColor($c2, $InpGUI)
 	GUICtrlCreateLabel(StringUpper($title), 10, 5, $wSize - 20, 30, $SS_CENTERIMAGE, $GUI_WS_EX_PARENTDRAG)
 	GUICtrlSetColor(-1, $fcolor)
@@ -171,9 +172,10 @@ Func _InputBox($title, $text, $default, $wSize = 150, $hSize = 100, $UD = False,
 	EndIf
 	
 	$btnSize = ($wSize/2) - 5
-	$okButton = GUICtrlCreateLabel("OK", 5, $hSize - 30, $btnSize, 25, BitOR($SS_CENTER, $SS_CENTERIMAGE), -1)
+
+	$okButton = GUICtrlCreateLabel("OK", 7, $hSize - 30, $btnSize - 6, 25, BitOR($SS_CENTER, $SS_CENTERIMAGE), -1)
 	GUICtrlSetColor(-1, $fcolor)
-	$cancelButton = GUICtrlCreateLabel("Cancel", $btnSize + 5, $hSize - 30, $btnSize, 25, BitOR($SS_CENTER, $SS_CENTERIMAGE), -1)
+	$cancelButton = GUICtrlCreateLabel(StringUpper($tcancel), $btnSize + 7, $hSize - 30, $btnSize - 6, 25, BitOR($SS_CENTER, $SS_CENTERIMAGE), -1)
 	GUICtrlSetColor(-1, $fcolor)
 	
 	GUISetState(@SW_SHOW, $InpGUI)
@@ -194,5 +196,10 @@ Func _InputBox($title, $text, $default, $wSize = 150, $hSize = 100, $UD = False,
 	
 EndFunc
 
-
+Func _SetBorder($xPos, $yPos, $xSize, $ySize, $color=$iColor2)
+	GUICtrlCreateGraphic($xPos, $yPos, $xSize, $ySize)
+    GUICtrlSetBkColor(-1, $color)
+    GUICtrlSetColor(-1, $color)
+	GUICtrlSetState(-1,$GUI_DISABLE)
+EndFunc
 

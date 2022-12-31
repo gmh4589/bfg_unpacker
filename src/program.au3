@@ -156,6 +156,8 @@ Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHide
 	Local $SH = $iHideConsole = True ? @SW_HIDE : @SW_SHOW, $line
 	
 	If $iHideConsole Then 
+		$logFile = @ScriptDir & '\log.txt'
+		$iLog = FileOpen($logFile, 10)
 		$iOutputWindow = Run($Cmd & $Cmd1, $WorkDir, $SH, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
 		GUICtrlSetData($iEdit, @CRLF & $Cmd & @CRLF, 1)
 
@@ -165,17 +167,16 @@ Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHide
 			$line = StdoutRead($iOutputWindow)
 			If @error Then ExitLoop
 			GUICtrlSetData($iEdit, $line, 1)
-			;MsgBox(0, '', '1: ' & _WinAPI_OemToChar($line))
-		Wend 
-
-		While True
+			If $line <> '' Then FileWriteLine($iLog, $line)
+			
 			$line1 = StderrRead($iOutputWindow)
 			If @error Then ExitLoop
-			GUICtrlSetData($iEdit, $line1, 1)	
-			; MsgBox(0, '', '2: ' & _WinAPI_OemToChar($line1))
+			GUICtrlSetData($iEdit, $line1, 1)
+			If $line1 <> '' Then FileWriteLine($iLog, $line1)
 		Wend
 
 		ProcessClose($iOutputWindow)
+		StdioClose($iOutputWindow)
 		GUICtrlSetData($iEdit, @CRLF & $tDone & @CRLF, 1)
 	Else
 		$iOutputWindow = ShellExecuteWait ($Cmd, $Cmd1, $WorkDir)

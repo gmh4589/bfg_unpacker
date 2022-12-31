@@ -22,8 +22,9 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	['_RedEngine', $tAllSupp & "(*.bundle;*.w3strings;texture.cache;*.w3speech;*.archive;*.w2strings;*.dzip;*.xml)|"], _
 	['_ReEngine', 'RE Engine File (*.pak; *.tex; *.dds)|'], _
 	['_RenPy', 'RPA File (*.rpa)|'], _
-	['_RPGMaker', 'RPG Maker Archives(*.rgssad;*.rgss2a;*.rgss3a)|'], _
+	['_RPGMaker', 'RPG Maker Archives(*.rgssad;*.rgss2a;*.rgss3a; *.rpgmvp; *.rpgmvo; *.rpgmvm; *.pak)|'], _
 	['_Source', 'Source Engine File (*.gcf;*.wad;*.pak;*_dir.vpk;*.bsp;*.cache;*.vbsp;*.xzp)|GCF File (*.gcf)|Valve Package File (*.vpk)|Valve Package File Vol. 1 (*_dir.vpk)|Valve Map File (*.bsp;*.vbsp)|'], _
+	['_Sen', 'All supported (*.dat; *. pkg; *. phyre)|DAT Scripts (*.dat)|PKG Files (*.pkg)|PHYRE2D Files (*.phyre)|'], _
 	['_Snowdrop', 'sdfdata files (*.sdfdata)|'], _
 	['_TellTale', 'TellTale' & $tArchive & '(*.ttarch;*.ttarch2)|'], _
 	['_Unigene', 'UNG File (*.ung)|'], _
@@ -77,7 +78,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					;_OtherPRG ('', 'extract.exe', ' -extract -out="' & $sFolderName & '" ', '', @ScriptDir & '\Data', $sFileName)
 					$iOutputWindow = Run(@ScriptDir & '\data\extract.exe -extract -out="' & $sFolderName & '" "' & $sFileName & '"', $sFolderName, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
 
-					_EnginePB($iOutputWindow, 'Done', 95)
+					_EnginePB($iOutputWindow, 95)
 				EndIf
 				
 			Case '_Unity'
@@ -195,7 +196,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 							;_OtherPRG("", "BSAE\bsab.exe", ' -e ', $sFolderName, $sFolderName, $sFileName)
 							
 							$iOutputWindow = Run(@ScriptDir & '\data\BSAE\bsab.exe -e "' & $sFileName & '" "' & $sFolderName & '"', $sFolderName, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-							_EnginePB($iOutputWindow, 'Extracting', 115)
+							_EnginePB($iOutputWindow, 115)
 						EndIf
 						
 					Case ".esp" , ".esm", ".esl"
@@ -215,7 +216,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						ElseIf StringInStr($iDir, 'fallout') Then
 							_OtherPRG("PEX scripts (*.pex)|", "Champollion_f4.exe ", '', '', $sFolderName, $sFileName)
 						Else
-							_MsgBox(0, $tMessage, 'Файл должен находиться в папке игры!') ;TODO: TEXT!!!
+							_MsgBox(0, $tMessage, $tIntoFolder)
 						EndIf
 					Case ".omod", ".fomod"
 						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
@@ -397,12 +398,6 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						Output_MSG(1, $sFileName)	
 				EndSwitch
 				
-			Case '_RPGMaker'
-				; TODO: Найти что-то консольное для этого формата, или сделать ковырялку самому
-				ShellExecuteWait (@ScriptDir & '\data\RGSSAD - RGSS2A - RGSS3A Decrypter.exe')
-				Local $iArr = ["move " & @ScriptDir & '\data\extract ' & $sFolderName]
-				_ScriptCreate($iArr)
-				
 			Case '_Construct', '_Chromium', '_Flash'
 				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 				If $iEnginesName = '_Flash' Then _OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & '\' & $iName & '~.swf')
@@ -460,54 +455,96 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				;_OtherPRG ($iExtList, "uniginex.exe ", '', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
 				$size = FileGetSize($sFileName)
 				$iOutputWindow = Run(@ScriptDir & "\data\uniginex.exe " & ' -o "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-				_EnginePB($iOutputWindow, '', 115, $size)
+				_EnginePB($iOutputWindow, 115, $size)
 				
 			Case '_Godot'
-				_OtherPRG ($iExtList, "godot\godotdec.exe ", ' -c ', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
+				; _OtherPRG ($iExtList, "godot\godotdec.exe ", ' -c ', ' "' & $sFolderName & '"', $sFolderName, $sFileName)
+				$size = FileGetSize($sFileName)
+				$iOutputWindow = Run(@ScriptDir & "\data\godot\godotdec.exe " & '-c "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+				_EnginePB($iOutputWindow, 110, 1, '[]/\')
 				
 			Case '_TellTale'
 				;_OtherPRG($iExtList, 'ttarchext.exe ', '-m ' & $iOther & ' ', '"' & $sFolderName & '"', @ScriptDir & '\data', $sFileName)
 				$size = FileGetSize($sFileName)
 				$iOutputWindow = Run(@ScriptDir & "\data\ttarchext.exe " & '-o -m ' & $iOther & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-				_EnginePB($iOutputWindow, '', 110, $size)
+				_EnginePB($iOutputWindow, 110, $size)
+			
+			Case '_RPGMaker'
+				;ShellExecuteWait (@ScriptDir & '\data\RgssDecrypter.exe ', ' -o "' & $sFolderName & '" "' & $sFileName & '"')
+				;_OtherPRG ($iExtList, "RgssDecrypter.exe ", ' -o "' & $sFolderName & '"', '', $sFolderName, $sFileName)
+				Switch $iExp
+					Case '.rgssad', '.rgss2a', '.rgss3a'
+						$size = FileGetSize($sFileName)
+						$iOutputWindow = Run(@ScriptDir & "\data\RgssDecrypter.exe " & '-o "' & $sFolderName & '" "' & $sFileName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+						_EnginePB($iOutputWindow, 110, 1, '[]\/', 4, 3)
+					Case '.rpgmvp', '.rpgmvo', '.rpgmvm'
+						;TODO Make with rmvdec
+						_MsgBox(0, '', 'Work in process')
+					Case '.pak'
+						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
+				EndSwitch
 				
+			Case '_Sen'
+				Switch $iExp
+					Case '.pkg'	
+						_QuickBMSRun("", @ScriptDir & "\data\scripts\legend_of_heroes.bms ", $sFileName)
+					Case '.phyre'
+						_QuickBMSRun("", @ScriptDir & "\data\scripts\PhyreEngine_PTexture2D_phyre.bms ", $sFileName)
+					Case '.dat'
+						_OtherPRG('', 'SSD\SenScriptsDecompiler.exe ', $iOther, $sFolderName, $sFolderName, $sFileName)
+				EndSwitch
 		EndSwitch
+		;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
 	Next
 EndFunc
 
-Func _EnginePB($iOutputWindow, $rpText, $iSize, $mode = 1)
+Func _EnginePB($iOutputWindow, $iSize, $mode = 1, $delimeter = ' /\', $id1 = 3, $id2 = 2)
+;Процесс, Высота прогресс-бара, режим, разделитель строки (для замены и подстановки), текущее кол-во файлов в архиве, общее кол-во файлов в архиве
 	Local $per, $per1
+	$iLog = FileOpen(@ScriptDir & '\log.txt', 8+2)
 	While 1
 		$line = StdoutRead($iOutputWindow)
-		If @error Then ExitLoop
-		If GUIGetMsg($progressGUI) = $exitBTN Then
+		$line1 = StderrRead($iOutputWindow)
+		
+		If BitOR(@error, GUIGetMsg($progressGUI) = $exitBTN) Then 
 			ProcessClose($iOutputWindow)
 			ExitLoop
+		Else
+			If $line <> '' Then FileWriteLine($iLog, $line)
+			If $line1 <> '' Then FileWriteLine($iLog, $line1)
 		EndIf
+
 		If $mode = 1 Then
 			$per = StringSplit($line, @CRLF)
 			If $per[0] > 2 Then 
-				$per1 = StringSplit($per[UBound($per) - 3], ' /\')
+				$per1 = StringSplit($per[UBound($per) - 3], $delimeter)
 				If $per1[0] > 2 Then 
-					$iMSGU = StringReplace($per[UBound($per) - 3], $rpText, $tDone)
-					_BarCreate(100/$per1[3] * $per1[2], "Распаковка", $iMSGU, 300, $iSize, 45, True)
+					$iMSGU = $tDone & ': ' & $per1[$id2] & '/' & $per1[$id1]
+					_BarCreate(100/$per1[$id1] * $per1[$id2], $tUnpacking, $iMSGU, 300, $iSize, 45, True) 
+					;if $per1[$id2] > 100 Then MsgBox(0, '', 100/$per1[$id1] * $per1[$id2])
 					GUICtrlSetData($iEdit, $iMSGU & @CRLF, 1)
 				EndIf
 			EndIf
+			
 		ElseIf $mode > 1 Then
 			$per = StringSplit($line, @CRLF)
 			If $per[0] > 2 Then 
 				For $i = 0 to UBound($per) - 2
 					$per1 = StringSplit($per[$i], ' ' & @TAB)
 					If $per1[0] > 7 Then 
-						$str = $per1[UBound($per1) - 1]
 						$prc = StringLeft(100/$mode * Dec($per1[3]), 4)
-						_BarCreate($prc, "Распаковка", $str, 300, $iSize, 45, True)
+						$str = $per1[UBound($per1) - 1]
+						If BitOR(StringInStr($str, '\'), StringInStr($str, '.')) < 1 Then $str = $line
+						_BarCreate($prc, $tUnpacking, $str, 300, $iSize, 45, True)
 						GUICtrlSetData($iEdit, $str & @CRLF, 1)
 					EndIf
 				Next
 			EndIf
+			
 		EndIf
+
 	Wend
+	FileClose($iLog)
+	GUICtrlSetData($iEdit, $tDone & '!' & @CRLF, 1)
 	_BarOff()
 EndFunc

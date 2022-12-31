@@ -49,7 +49,7 @@ Func SelectLang()
 			_ScriptRestart(100)
 EndFunc
 
-Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
+Func ClearFolder($iTrash = False)
 	If $iTrash = False Then $tDELAll = $tDELAll1
 	If $iTrash = True Then $tDELAll = $tDELAll2
 	$iAnswer = _MsgBox(4, $tWRNNG, $tDELAll & @CRLF & $sFolderName & "?")
@@ -57,7 +57,7 @@ Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
 		
 			Local $iFileList1 = _FileListToArray ($sFolderName)
 			$a = UBound ($iFileList1)
-			If $a = 0 Then Return(_MsgBox(0, $tMessage, "Папка пуста!"))
+			If $a = 0 Then Return(_MsgBox(0, $tMessage, $tFolderEmpty))
 			
 			Dim $Hour, $Mins, $Secs
 			$begin = TimerInit()
@@ -73,9 +73,9 @@ Func ClearFolder($iTrash = False); TODO: ТЕКСТ НА РУССКОМ!!!
 				$time = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
 				_TicksToTime(Int($elaps), $Hour, $Mins, $Secs)
 				$elaps = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)
-				If BitOr(Mod($i, 10) = 0, $a < 20) Then _BarCreate($Percent, "Подождите...", 'Удаление: ' & $iFileList1[$i] & @CRLF & 'Осталось ' & $i & ' из ' & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & "Прошло: " & $time & @TAB & "Осталось: " & $elaps, 300, 120)
+				If BitOr(Mod($i, 10) = 0, $a < 20) Then _BarCreate($Percent, $tWait, $tDeleting & $iFileList1[$i] & @CRLF & $tLeft & $i & $tFrom & $a - 1 & @TAB & StringLeft ($Percent, 4) & ' %' & @CRLF & $tPassed & $time & @TAB & $tElapsed & $elaps, 300, 120)
 			Next
-			
+
 		$dif = TimerDiff($begin)
 		_TicksToTime(Int($dif), $Hour, $Mins, $Secs)
 		$dif = StringFormat("%02i:%02i:%02i", $Hour, $Mins, $Secs)

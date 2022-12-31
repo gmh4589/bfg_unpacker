@@ -219,5 +219,23 @@ Func LocalizeRead()
 		$tretry = $sLng[207], _
 		$tignore = $sLng[208], _
 		$tagain = $sLng[209], _
-		$tcontinue = $sLng[210]
+		$tcontinue = $sLng[210], _
+		$tChangeBTN = $sLng[211], _
+		$tTarsh = $sLng[212], _
+		$tDelete = $sLng[213], _
+		$tIntoFolder = $sLng[214], _
+		$tUnpacking = $sLng[215], _
+		$tArchiveName = $sLng[216], _
+		$tWait = $sLng[217], _
+		$tDeleting = $sLng[218], _
+		$tLeft = $sLng[219], _
+		$tPassed = $sLng[220], _
+		$tElapsed = $sLng[221], _
+		$tFolderEmpty = $sLng[222], _
+		$tFrom = $sLng[223], _
+		$tRunAsAdm = $sLng[224], _
+		$tBTN = $sLng[225], _
+		$tBTN1 = $sLng[226], _
+		$tBTN2 = $sLng[227], _
+		$tREG = $sLng[228]
 EndFunc

@@ -63,37 +63,51 @@ LocalizeRead() ;Читает локализацию, читает текст
 
 ;Основные глобальные переменные
 Global $iDrive, $iDir, $iName, $iExp, $iOutputWindow, $rI, $iFavPlus = 1, $iInvert = 0, $iMouseMove = -1
-;Переменные для прогресс бара
-Global $progressGUI, $hGraphic, $hPen, $Label, $Label2, $W, $iProgressFlagStart = True
 
-_GDIPlus_Startup ()
+;Переменные для прогресс бара
+Global $progressGUI, $hGraphic, $hPen, $Label, $Label2, $W, $iProgressFlagStart = True, $iLastDir, $iShowFlag
+
+_GDIPlus_Startup()
 
 ;Чтение основных настроек интерфейса программы
-GLobal $FavIni = @ScriptDir & "\data\favorites.ini", $iFavorites = FileRead($FavIni)
+Global $FavIni = @ScriptDir & "\data\favorites.ini", _
+	$iFavorites = FileRead($FavIni), _
+	$iUnrealBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unreal', 4), _
+	$iUnityBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unity', 4), _
+	$iGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', 4), _
+	$iRPGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', 4), _
+	$iRenPyBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4), _
+	$iGroupBy = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
+	$iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
+	$iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
 
-Global $iUnrealBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unreal', 4), _
-$iUnityBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unity', 4), _
-$iGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', 4), _
-$iRPGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', 4), _
-$iRenPyBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4), _
-$iGroupBy = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
-$iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
-$iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000'), _
-$iPrOrSp = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'OnLoad', 'Progress')
-
+;Цвета и шрифты меню
 _WinAPI_AddFontResourceEx(@ScriptDir & '\data\fonts\IconLib.otf', $FR_PRIVATE)
-GLobal $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor
+Global $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor
 $bUseRGBColors = True
 
 ;Массивы для генерации меню
-Global $iGameList, $iArchiveArray, $iUnrealList[1] = [0], $iUnrealKeys[1] = [0], $iUnityList[1] = [0], $iGMList[1] = [0], $iRPGMList[1] = [0], $iRenPyList[1] = [0]
-GLobal $abcArray = _letterArray(False, 2)
-GLobal $yearArray = _digitArray(@YEAR, 1990, -1)
-
-GLobal $iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", "Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", "Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder]
-Global $idTreeItemABC[27], $iSubmenuArchiveABC[27], $idTreeItemYear[UBound($yearArray)], $idButton[16], $iContMenu[16], $iChangeButton[16], $setBTN[27], $iZeros = _numArray(26)
-
-If $iPrOrSp = 'Splash' Then SplashImageOn("", @ScriptDir & "\data\ico\i.jpg", 256, 256, (@DesktopWidth/2)-128, (@DesktopHeight/2)-128, 19)
+Global $iGameList, _
+	$iArchiveArray, _
+	$iUnrealList[1] = [0], _
+	$iUnrealKeys[1] = [0], _
+	$iUnityList[1] = [0], _
+	$iGMList[1] = [0], _
+	$iRPGMList[1] = [0], _
+	$iRenPyList[1] = [0], _
+	$abcArray = _letterArray(False, 2), _
+	$yearArray = _digitArray(@YEAR, 1990, -1), _
+	$iButtonTextArray = ['', $tQOpen, "Quick BMS", $tUnpWith & @CRLF & "7z Archiver", $tUnpWith & @CRLF & "Game Archive Unpacker Plugin", _
+					"Inno Setup Installer", $tVConv, "Unreal Engine", "Unity Engine", "idTech Engine", "Source Engine", _
+					"Creation Engine", "Cry Engine", "Bink Converter", "Wwise Audio Unpacker", $cTFolder], _
+	$idTreeItemABC[27], _
+	$iSubmenuArchiveABC[27], _
+	$idTreeItemYear[UBound($yearArray)], _
+	$idButton[16], _
+	$iContMenu[16], _
+	$iChangeButton[16], _
+	$setBTN[27], _
+	$iZeros = _numArray(26)
 
 ;Запуск интерфейса
 $hGui = GUICreate("BFG Unpacker", 600, 630, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_EX_ACCEPTFILES, $WS_EX_ACCEPTFILES)
@@ -104,21 +118,26 @@ TraySetIcon (@ScriptDir & "\data\ico\i.ico")
 _FileReadToArray(@ScriptDir & '\game_list\main_list.csv', $iGameList)
 
 If $iUnrealBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\unreal_list.csv', $iUnrealList)
-_ArrayConcatenate($iGameList, $iUnrealList, 2)
+	_ArrayConcatenate($iGameList, $iUnrealList, 2)
 If $iUnityBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\unity_list.csv', $iUnityList)
-_ArrayConcatenate($iGameList, $iUnityList, 2)
+	_ArrayConcatenate($iGameList, $iUnityList, 2)
 If $iGMBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\gamemaker_list.csv', $iGMList)
-_ArrayConcatenate($iGameList, $iGMList, 2)
+	_ArrayConcatenate($iGameList, $iGMList, 2)
 If $iRPGMBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\rpgmaker_list.csv', $iRPGMList)
-_ArrayConcatenate($iGameList, $iRPGMList, 2)
+	_ArrayConcatenate($iGameList, $iRPGMList, 2)
 If $iRenPyBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\renpy_list.csv', $iRenPyList)
-_ArrayConcatenate($iGameList, $iRenPyList, 2)
+	_ArrayConcatenate($iGameList, $iRenPyList, 2)
 
 _ArraySort($iGameList, 0, 2)
 
 _FileReadToArray(@ScriptDir & '\game_list\archives_list.csv', $iArchiveArray)
 
-Global $iLoop = UBound($iGameList)-1, $iMenuItem[$iLoop+1], $iListFind[$iLoop+1], $iYearList[$iLoop+1], $iArcCount = UBound($iArchiveArray) - 1, $iArchiveItem[$iArcCount+1]
+Global $iLoop = UBound($iGameList) - 1, _
+	$iMenuItem[$iLoop + 1], _
+	$iListFind[$iLoop + 1], _
+	$iYearList[$iLoop + 1], _
+	$iArcCount = UBound($iArchiveArray) - 1, _
+	$iArchiveItem[$iArcCount + 1]
 
 FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
 
@@ -205,6 +224,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$Infinity = _GUICtrlCreateODMenuItem("Infinity Engine", $iSubMenuEngine) 
 	$iLithTech = _GUICtrlCreateODMenuItem("LithTech Engine", $iSubMenuEngine)
 	$iMTFramework = _GUICtrlCreateODMenuItem("MT Framework", $iSubMenuEngine)
+	$iPhyre = _GUICtrlCreateODMenuItem("Phyre Engine", $iSubMenuEngine)
 	$iPopCapPackAll = _GUICtrlCreateODMenuItem("PopCap Games", $iSubMenuEngine)
 	$iReEngine = _GUICtrlCreateODMenuItem("RE Engine", $iSubMenuEngine)
 	$iRedEngine = _GUICtrlCreateODMenuItem("RED Engine", $iSubMenuEngine)
@@ -229,30 +249,23 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iSubmenuInstaller = _GUICtrlCreateODMenu ($tInstaller, $iFileMenu)
 	_ArraySort($iArchiveArray, 0, 2)
 	
-		For $set = 0 to 26
-			$iSubmenuArchiveABC[$set] = _GUICtrlCreateODMenu($abcArray[$set], $iSubmenuArchive)
-		Next
+	For $set = 0 to 26
+		$iSubmenuArchiveABC[$set] = _GUICtrlCreateODMenu($abcArray[$set], $iSubmenuArchive)
+	Next
 
-		For $arc = 2 to $iArcCount
-			$iArchName = StringSplit($iArchiveArray[$arc], '	')
-			If $iArchName[11] = BitOR('3', 3) Then
-				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuDiscImage)
-			ElseIf $iArchName[11] = BitOR('4', 4) Then
-				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuConsoles)
-			ElseIf $iArchName[11] = BitOR('5', 5) Then
-				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuInstaller)
-			Else
-				$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], getCharArc(StringLeft($iArchName[1], 1)))
-			EndIf
-		Next
-	
-	Func getCharArc($iChar)
-		$index = _ArraySearch($abcArray, $iChar)
-		If StringIsInt($iChar) = 1 Then $index = 0
-		$iZeros[$index] += 1
-		Return $iSubmenuArchiveABC[$index]
-	EndFunc
-	
+	For $arc = 2 to $iArcCount
+		$iArchName = StringSplit($iArchiveArray[$arc], '	')
+		If $iArchName[11] = BitOR('3', 3) Then
+			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuDiscImage)
+		ElseIf $iArchName[11] = BitOR('4', 4) Then
+			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuConsoles)
+		ElseIf $iArchName[11] = BitOR('5', 5) Then
+			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuInstaller)
+		Else
+			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], getCharArc(StringLeft($iArchName[1], 1)))
+		EndIf
+	Next
+
 	For $i = 0 to 26
 		If $iZeros[$i] = 0 Then GUICtrlSetState($iSubmenuArchiveABC[$i], $GUI_DISABLE)
 	Next
@@ -322,6 +335,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iConv_17 = _GUICtrlCreateODMenuItem("Image to DDS converter (by nVidia)", $iConvMenu3)
 	$iConv_10 = _GUICtrlCreateODMenuItem("DDS Header Generator", $iConvMenu3)
 	$iCubeMapCreator = _GUICtrlCreateODMenuItem("CubeMap Creator", $iConvMenu3)
+	$iIcoSplitter = _GUICtrlCreateODMenuItem("ICO Icon Splitter", $iConvMenu3)
 
 #EndRegion
 
@@ -356,28 +370,34 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
 #EndRegion
 
-Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], [40, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, "Inno Setup Installer"], [40, $tVConv], [40, "Unreal Engine"], [40, "Unity Engine"], [40, "idTech Engine"], [30, "Source Engine"], [32, "Creation Engine"], [35, "Cry Engine"], [40, "Bink Converter"], [40, "Wwise Audio Unpacker"], [30, 'PS Audio Converter'], [30, 'NCONVERT GUI'], [40, 'RED Engine'], [35, 'Godot Engine'], [20, 'RPG Maker'], [50, 'RenPy Engine'], [10, 'Unigene Engine'], [40, 'RAW to DDS'], [40, 'RAW to Atrac'], [40, 'RAW to WAV'], [30, $tSetting], [30, $cTFolder]]
+Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], _
+			[40, $tUnpWith & @CRLF & "Game Archive Unpacker Plugin"], [40, "Inno Setup Installer"], _
+			[40, $tVConv], [40, "Unreal Engine"], [40, "Unity Engine"], [40, "idTech Engine"], [30, "Source Engine"], _
+			[32, "Creation Engine"], [35, "Cry Engine"], [40, "Bink Converter"], [40, "Wwise Audio Unpacker"], _
+			[30, 'PS Audio Converter'], [30, 'NCONVERT GUI'], [40, 'RED Engine'], [35, 'Godot Engine'], _
+			[20, 'RPG Maker'], [50, 'RenPy Engine'], [10, 'Unigene Engine'], [40, 'RAW to DDS'], [40, 'RAW to Atrac'], _
+			[40, 'RAW to WAV'], [30, $tSetting], [30, $cTFolder]]
 
 #Region //ImageButton
 	For $i = 1 to 15
 		$iBtnName = IniRead (@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
 		If $i = 1 Then $iBtnName = "A"
 		If $i = 15 Then $iBtnName = "Z"
-		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40*$i-40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
+		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40 * $i - 40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSetTip(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][1])
 		GUICtrlSetFont(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][0], 400, 0, "IconLib")
 		GUICtrlSetResizing (-1, $GUI_DOCKALL)
 	Next
-	;TODO Текст на русском!
+
 	For $i = 2 to 14
 		$iContMenu[$i] = GUICtrlCreateContextMenu ($idButton[$i])
-		$iChangeButton[$i] = GUICtrlCreateMenuItem ("Настроить кнопку", $iContMenu[$i])
+		$iChangeButton[$i] = GUICtrlCreateMenuItem ($tChangeBTN, $iContMenu[$i])
 		GUICtrlCreateMenuItem ($tCancel, $iContMenu[$i])
 	Next
 	
 	$iContMenuTrash = GUICtrlCreateContextMenu ($idButton[15])
-	$iDeleteToTrash = GUICtrlCreateMenuItem ("Удалить в корзину", $iContMenuTrash)
-	$iDeleteFull = GUICtrlCreateMenuItem ("Удалить полностью", $iContMenuTrash)
+	$iDeleteToTrash = GUICtrlCreateMenuItem ($tTarsh, $iContMenuTrash)
+	$iDeleteFull = GUICtrlCreateMenuItem ($tDelete, $iContMenuTrash)
 	GUICtrlCreateMenuItem ($tCancel, $iContMenuTrash)
 #EndRegion
 
@@ -428,18 +448,23 @@ For $item = 2 to $iLoop
 	$iListFind[$item] = $iGameName[1]
 	$iYearList[$item] = $iGameName[2]
 	$Percent = (100/$iLoop) * $item
-	If $iPrOrSp = 'Progress' Then 
-		If Mod($item, 1000) = 0 Then _BarCreate($Percent, $tLoad, $item & '\' & $iLoop, 300, 95)
-	EndIf
+	If Mod($item, 1000) = 0 Then _BarCreate($Percent, $tLoad, $item & '\' & $iLoop, 300, 95)
 Next
 
 Global $iLST = _ArrayToString($iListFind)
-If $iPrOrSp = 'Progress' Then _BarOFF()
-If $iPrOrSp = 'Splash' Then SplashOff()
+_BarOFF()
 
-GUISetState(@SW_SHOW, $hGUI)
-	
-Main()
+If $CmdLine[0] > 0 Then
+	_PathSplit($CmdLine[1], $iDrive, $iDir, $iName, $iExp)
+	If $iExp = '.bms' or $iExp = '.wcx' Then
+		Run (@ScriptDir & '\data\QuickBMS.exe "' & $CmdLine[1] & '"')
+	Else
+		QuickOpen($CmdLine[1])
+	EndIf
+Else
+	GUISetState(@SW_SHOW, $hGUI)
+	Main()
+EndIf
 
 Func getChar($iChar)
 	If StringIsASCII($iChar) = 1 Then 
@@ -460,6 +485,13 @@ Func getYear($iYear)
 	Else
 		Return $idTreeItemUnk
 	EndIf
+EndFunc
+
+Func getCharArc($iChar)
+	$index = _ArraySearch($abcArray, $iChar)
+	If StringIsInt($iChar) = 1 Then $index = 0
+	$iZeros[$index] += 1
+	Return $iSubmenuArchiveABC[$index]
 EndFunc
 
 #Region //Colors
