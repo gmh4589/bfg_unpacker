@@ -326,7 +326,6 @@ Func QuickPAK($sFileName); TODO: Дописать GAUP (Quake и др.)!!!
 		Case Else
 			_MsgBox(0, $tMessage, $tNotice3)
 			GUICtrlSetData($iEdit, $tNotice3 & @CRLF, 1)
-			;_QuickBMSRun('', @ScriptDir & "\data\wcx\gaup_pro.wcx ", $sFileName)
 			
 	EndSwitch
 EndFunc

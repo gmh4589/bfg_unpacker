@@ -56,7 +56,10 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 							Case 'PS2'
 								_GUICtrlComboBox_ResetContent($iCombo[2])
 								GUICtrlSetData($iCombo[2], 'VAG2WAV|WAV2VAG|PS2_SoundBank', 'VAG2WAV')
-							Case 'PS3' , 'PSP', 'PSVita'
+							Case 'PS3'
+								_GUICtrlComboBox_ResetContent($iCombo[2])
+								GUICtrlSetData($iCombo[2], 'Atrac2WAV|WAV2Atrac|MSF2Atrac', 'Atrac2WAV')
+							Case 'PSP', 'PSVita'
 								_GUICtrlComboBox_ResetContent($iCombo[2])
 								GUICtrlSetData($iCombo[2], 'Atrac2WAV|WAV2Atrac', 'Atrac2WAV')
 							Case 'PS4'
@@ -192,6 +195,8 @@ Local $iCombo = StringSplit($iMenuData, '|')
 					If BitOR($iCombo[1] = "PS3", $iCombo[1] = "PSP") Then $iFmt = "at3"
 					If BitOR($iCombo[1] = "PS4", $iCombo[1] = "PSVita") Then $iFmt = "at9"
 					_OtherPRG('', $iPrg & ".exe", $iLet, ' "' & $nFolderName & "\" & $iName & "." & $iFmt & '"', $nFolderName, $sFilePath)
+				Case "MSF2Atrac"
+					_QuickBMSRun('MSF Audio (*.msf)|', @ScriptDir & "\data\scripts\msf_convert.bms ")
 			EndSwitch
 		
 	EndSwitch

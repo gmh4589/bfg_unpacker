@@ -3,12 +3,11 @@ Func Main()
 		$iLastDir = $iDrive & $iDir
 		$msg = GUIGetMsg($hGui)
 		
-		$iShowFlag = GUICtrlRead($iHideOrShow) = 4 ? @SW_HIDE : GUICtrlRead($iHideOrShow) = 1 ? @SW_SHOW
-		
 		_CursorMove($hGui)
 		
 		Switch $msg
-			Case $GUI_EVENT_CLOSE, $iExit 
+			Case $GUI_EVENT_CLOSE, $iExit
+				IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', GUICtrlRead($iHideOrShow))
 				ExitLoop
 				
 		Case $GUI_EVENT_DROPPED
@@ -118,7 +117,7 @@ Func Main()
 						Case 'M'
 							ShellExecute (@ScriptDir & "\data\RADVideo\RADVideo64.exe", "", $sFolderName, "open")
 						Case 'N'
-							_ChildGUI("Wwise Converter", $Mode & '|' & $Codebook, "WWISE_Unpacker|wwise2wav|wwise2vorbis;packed_codebooks_aoTuV_603.bin|packed_codebooks3.bin", "WWISE_Unpacker|packed_codebooks3.bin", "All supported (*.pck;*.bnk;*.afc;*.akpk*.wav;*wwise*;*.lwav;*.pcm;*.wem;*.03f;*.0b2*;*.ogg;*.oga)|")
+							_ChildGUI("Wwise Converter", $Mode & '|' & $Codebook, "WWISE_Unpacker|wwise2wav|wwise2vorbis;packed_codebooks_aoTuV_603.bin|packed_codebooks3.bin", "WWISE_Unpacker|packed_codebooks3.bin", "All supported (*.pck;*.bnk;*.afc;*.akpk;*.wav;*wwise*;*.lwav;*.pcm;*.wem;*.03f;*.0b2*;*.ogg;*.oga)|")
 						Case 'O'
 							_ChildGUI("PS Audio Converter", $Platform & '|' & $Mode, "PS2|PS3|PSP|PSVita|PS4;Atrac2WAV|WAV2Atrac", "PS3|Atrac2WAV", "Atrac audio file (*.vag;*.at3;*.at3p;*.at9;*.wav;*.genh;*.pcm)|")
 						Case 'P'
@@ -281,6 +280,39 @@ Func Main()
 			_OtherPRG('PlayStation 2 PSARC Archives (*.psarc)|', 'PSARC.exe ', ' extract --lzma ', '', $sFolderName, '')
 		Case $iPSARC_zlib
 			_OtherPRG('PlayStation 2 PSARC Archives (*.psarc)|', 'PSARC.exe ', ' extract --zlib ', '', $sFolderName, '')
+		Case $iGDI_Image
+			_OtherPRG('GDI Disc Image (*.gdi)|', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
+		Case $iCSOImage, $iCSOImageWii
+			_OtherPRG('CSO Disc Image (*.cso)|', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
+		Case $iNSPImage
+			_OtherPRG('NSZ XCZ Disc Images (*.nsz; *.xcz; *.nsp)|', 'python_script\nspx.py ', ' -xf ', ' -o"' & $sFolderName & '"', $sFolderName)
+		Case $iISOImageWii
+			_OtherPRG('ISO Disc Image (*.iso)|', 'wit\wit.exe ', ' EXTRACT ', ' "' & $sFolderName & '"', $sFolderName)
+		Case $iWBFSImage
+			_OtherPRG('WDF, WIA, CISO, GCZ Disc Image (*.WDF;*.WIA;*.CISO;*.GCZ)|', 'wit\wdf.exe ', ' EXTRACT ', ' "' & $sFolderName & '"', $sFolderName)
+		Case $iWDFImage
+			_OtherPRG('WBFS Disc Image (*.wbfs)|', 'wit\wwt.exe ', ' EXTRACT ', ' "' & $sFolderName & '"', $sFolderName)
+		Case $iISOImageXbox
+			_QuickBMSRun('ISO Disc Image (*.iso)|', @ScriptDir & "\data\wcx\Xboxiso.wcx ")
+		Case $iAFSArchiveXbox
+			_QuickBMSRun('AFS Archive (*.afs)|', @ScriptDir & "\data\scripts\afs.bms ")
+		Case $iNinSARC
+			_QuickBMSRun('SARC Archive (*.sarc)|', @ScriptDir & "\data\scripts\splatoon_sarc.bms ")
+		Case $iNinSDAT
+			_QuickBMSRun('SDAT File (*.sdat)|', @ScriptDir & "\data\scripts\sdat.bms ")
+		Case $iXWSFile
+			_QuickBMSRun('XWS File (*.xws)|', @ScriptDir & "\data\scripts\extractXWS.bms ")
+		Case $iXWSFile
+			_QuickBMSRun('PKG CNT File (*.pkg)|', @ScriptDir & "\data\scripts\pkg_cnt.bms ")
+		Case $iXWSFile
+			_QuickBMSRun('PKG CNT File (*.pkg)|', @ScriptDir & "\data\scripts\pkg_cnt.bms ")
+		Case $iPSXA
+			_QuickBMSRun('', @ScriptDir & "\data\scripts\ps_xa.bms ")
+			
+			
+			
+	
+	$iISOImageXbox = _GUICtrlCreateODMenuItem("WDF, WIA, CISO and GCZ Disc Image", $iSubmenuXbox)
 		Case $iZLib
 			_ChildGUI("ZLIB GUI", $Mode & '|' & $Offset, "Scan_ZLIB|Cool_scan_ZLIB|Extract_ZLIB|Extract_Deflate|Reimport_ZLIB;", "Extract_ZLIB|")
 		Case $ilz4_decompress
@@ -312,7 +344,7 @@ Func Main()
 		Case $iConv_11
 			_ChildGUI("Atrac Headler Generator", $Frequency & '|' & $Channel & '|' & $AudioBitrate & '|' & $Format & '|' & $Offset, '8000|12000|16000|22050|24000|36000|44100|48000|96000|192000|384000;1|2;32|48|52|64|66|96|105|128|132|160|192|256|320|352;AT3|AT3Plus|AT9;0x0|0x10|0x20|0x30|0x40|0x50|0x60|0x70|0x80|0x90|0xA0|0xB0|0xC0|0xD0|0xE0|0xF0', '44100|2|132|AT3|0x0') 
 		Case $iConv_13
-			_ChildGUI("PS Audio Converter", $Platform & '|' & $Mode, "PS2|PS3|PSP|PSVita|PS4;Atrac2WAV|WAV2Atrac", "PS3|Atrac2WAV", "Atrac audio file (*.vag;*.at3;*.at3p;*.at9;*.wav;*.genh;*.pcm)|")
+			_ChildGUI("PS Audio Converter", $Platform & '|' & $Mode, "PS2|PS3|PSP|PSVita|PS4;Atrac2WAV|WAV2Atrac|MSF2Atrac", "PS3|Atrac2WAV", "Atrac audio file (*.vag;*.at3;*.at3p;*.at9;*.wav;*.genh;*.pcm)|")
 		Case $iConv_14
 			_ChildGUI("FFMPEG IMAGE", $Format, 'apng|bmp|dpx|gif|jpg|pcx|pgm|pix|png|ppm|sgi|tga|tiff|xbm|xwd', 'png') 
 		Case $iConv_15

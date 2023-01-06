@@ -6,7 +6,7 @@ EndFunc
 Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False) 
 ;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
 ; Исправлено!
-	Local $iParray = [$iPRGName, $iCommand1 , $iCommand2, $iWorkDir, $iMove]
+	Local $iParray = [$iPRGName, $iCommand1, $iCommand2, $iWorkDir, $iMove]
 	_fileReaper(_Console, $iExtList, $sFileName, $iParray)
 EndFunc
 
@@ -153,12 +153,17 @@ Func Xenus2();TODO: Удалить этот говнокод!!!
 EndFunc
 
 Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHideConsole = GUICtrlRead($iHideOrShow) = 1 ? False : True)
-	Local $SH = $iHideConsole = True ? @SW_HIDE : @SW_SHOW, $line
+	Local $SH = $iHideConsole = True ? @SW_HIDE : @SW_SHOW, $line, _
+	$iShell = StringInStr($Cmd, '.py') > 0 ? True : False
 	
-	If $iHideConsole Then 
 		$logFile = @ScriptDir & '\log.txt'
 		$iLog = FileOpen($logFile, 10)
-		$iOutputWindow = Run($Cmd & $Cmd1, $WorkDir, $SH, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+		$size = FileGetSize($sFileName)
+		FileWriteLine($iLog, $Cmd & $Cmd1)
+		
+	If $iHideConsole Then 
+		If Not $iShell Then $iOutputWindow = Run($Cmd & $Cmd1, $WorkDir, $SH, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+		If $iShell Then $iOutputWindow = ShellExecuteWait($Cmd, $Cmd1, $WorkDir, 'open', $SH);, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
 		GUICtrlSetData($iEdit, @CRLF & $Cmd & @CRLF, 1)
 
 		StdinWrite($iOutputWindow)
@@ -173,13 +178,16 @@ Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHide
 			If @error Then ExitLoop
 			GUICtrlSetData($iEdit, $line1, 1)
 			If $line1 <> '' Then FileWriteLine($iLog, $line1)
+			
+			_EnginePB($iOutputWindow, 110, $size)
 		Wend
 
 		ProcessClose($iOutputWindow)
 		StdioClose($iOutputWindow)
+		FileClose($iLog)
 		GUICtrlSetData($iEdit, @CRLF & $tDone & @CRLF, 1)
 	Else
-		$iOutputWindow = ShellExecuteWait ($Cmd, $Cmd1, $WorkDir)
+		$iOutputWindow = ShellExecuteWait($Cmd, $Cmd1, $WorkDir)
 		Output_MSG($iOutputWindow, $sFileName)
 	EndIf
 	

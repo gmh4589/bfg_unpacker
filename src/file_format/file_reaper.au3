@@ -19,10 +19,9 @@ Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
 					If $iPar1[4] Then FileDelete($sFolderName & '\' & $iName & $iExp)
 				ElseIf $iPar1 <> '' Then
 					_PathSplit($iPar1, $iDrive, $iDir, $iName, $iExp)
-					; _Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, $sFileName)
-					$size = FileGetSize($sFileName)
-					$iOutputWindow = Run(@ScriptDir & "\data\quickbms.exe " & $rI & ' -K ' & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-					_EnginePB($iOutputWindow, 110, $size)
+					_Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, $sFileName)
+					;$iOutputWindow = Run(@ScriptDir & "\data\quickbms.exe " & $rI & ' -K ' & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
+					;_EnginePB($iOutputWindow, 110, FileGetSize($sFileName))
 				ElseIf $iPar1 = '' Then
 					$iFunc($sFileName)
 				EndIf

@@ -24,7 +24,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 	['_RenPy', 'RPA File (*.rpa)|'], _
 	['_RPGMaker', 'RPG Maker Archives(*.rgssad;*.rgss2a;*.rgss3a; *.rpgmvp; *.rpgmvo; *.rpgmvm; *.pak)|'], _
 	['_Source', 'Source Engine File (*.gcf;*.wad;*.pak;*_dir.vpk;*.bsp;*.cache;*.vbsp;*.xzp)|GCF File (*.gcf)|Valve Package File (*.vpk)|Valve Package File Vol. 1 (*_dir.vpk)|Valve Map File (*.bsp;*.vbsp)|'], _
-	['_Sen', 'All supported (*.dat; *. pkg; *. phyre)|DAT Scripts (*.dat)|PKG Files (*.pkg)|PHYRE2D Files (*.phyre)|'], _
+	['_Sen', 'All supported (*.dat; *. pkg; *. phyre; *.xlsx)|DAT Scripts (*.dat)|PKG Files (*.pkg)|PHYRE2D Files (*.phyre)|Book Files (book*.dat)|Decompiled Scripts (*.xlsx)|'], _
 	['_Snowdrop', 'sdfdata files (*.sdfdata)|'], _
 	['_TellTale', 'TellTale' & $tArchive & '(*.ttarch;*.ttarch2)|'], _
 	['_Unigene', 'UNG File (*.ung)|'], _
@@ -423,7 +423,15 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 						_QuickBMSRun("", @ScriptDir & "\data\scripts\deus_ex_mankind_divided.bms ", $sFileName)
 					Case ".str"
 						_OtherPRG("", "towav.exe", ' ', '', $sFolderName, $sFileName)
+					Case ".ini", ".scrambled"
+						_OtherPRG("", "unscrambler.exe", ' ', '', $sFolderName, $sFileName)
 					Case Else
+						If StringInStr($iDir, 'Galaxy') > 1 Then 
+							Run(@ScriptDir & '\data\ResourceExtractor.exe', $sFolderName)
+							Sleep(1000)
+							ControlV($iDrive & $iDir)
+							ControlV($sFolderName)
+						EndIf
 						If StringInStr($iExp, '_binkvid') > 1 Then _QuickBMSRun("", @ScriptDir & "\data\scripts\binkvid.bms ", $sFileName)
 						If StringInStr($iExp, '_resourcelib') > 1 Then _QuickBMSRun("", @ScriptDir & "\data\scripts\hitman_absolution.bms ", $sFileName)
 				EndSwitch
@@ -483,7 +491,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					Case '.pak'
 						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 				EndSwitch
-				
+
 			Case '_Sen'
 				Switch $iExp
 					Case '.pkg'	
@@ -491,11 +499,23 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					Case '.phyre'
 						_QuickBMSRun("", @ScriptDir & "\data\scripts\PhyreEngine_PTexture2D_phyre.bms ", $sFileName)
 					Case '.dat'
+						If StringInStr($iName, 'book') > 0 Then 
+							If GUICtrlRead($iReimport_Checkbox) = 4 Then _OtherPRG('', 'python_script\tocs_book.py', '', $sFolderName, $sFolderName, $sFileName)
+							If GUICtrlRead($iReimport_Checkbox) = 1 Then _OtherPRG('', 'python_script\tocs_book2dat.py', '', $sFolderName, $sFolderName, $sFileName)
+						EndIf
+						If GUICtrlRead($iReimport_Checkbox) = 4 Then _OtherPRG('', 'SSD\SenScriptsDecompiler.exe ', $iOther, $sFolderName, $sFolderName, $sFileName)
+					Case '.xlsx'
 						_OtherPRG('', 'SSD\SenScriptsDecompiler.exe ', $iOther, $sFolderName, $sFolderName, $sFileName)
 				EndSwitch
 		EndSwitch
 		;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка (True - файл, False - папка))
 	Next
+EndFunc
+
+Func ControlV($clip)
+	ClipPut ($clip)
+	Send('^v')
+	Send('{ENTER}')
 EndFunc
 
 Func _EnginePB($iOutputWindow, $iSize, $mode = 1, $delimeter = ' /\', $id1 = 3, $id2 = 2)

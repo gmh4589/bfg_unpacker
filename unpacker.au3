@@ -65,7 +65,7 @@ LocalizeRead() ;Читает локализацию, читает текст
 Global $iDrive, $iDir, $iName, $iExp, $iOutputWindow, $rI, $iFavPlus = 1, $iInvert = 0, $iMouseMove = -1
 
 ;Переменные для прогресс бара
-Global $progressGUI, $hGraphic, $hPen, $Label, $Label2, $W, $iProgressFlagStart = True, $iLastDir, $iShowFlag
+Global $progressGUI, $hGraphic, $hPen, $Label, $Label2, $W, $iProgressFlagStart = True, $iLastDir
 
 _GDIPlus_Startup()
 
@@ -79,6 +79,7 @@ Global $FavIni = @ScriptDir & "\data\favorites.ini", _
 	$iRenPyBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4), _
 	$iGroupBy = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
 	$iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
+	$iHideOrShowState = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', 4), _
 	$iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
 
 ;Цвета и шрифты меню
@@ -274,9 +275,42 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 #Region //Consoles
 	;Игровые консоли
-	$iSubmenuPSARC = _GUICtrlCreateODMenu("PS3 - PSARC Archive", $iSubmenuConsoles)
-	$iPSARC_zlib = _GUICtrlCreateODMenuItem("ZLIB", $iSubmenuPSARC)
-	$iPSARC_lzma = _GUICtrlCreateODMenuItem("LZMA", $iSubmenuPSARC)
+	$iSubmenuDC = _GUICtrlCreateODMenu("DreamCast", $iSubmenuConsoles)
+	$iSubmenuNin = _GUICtrlCreateODMenu("Nintendo Other", $iSubmenuConsoles)
+	$iSubmenuPS1 = _GUICtrlCreateODMenu("PlayStation", $iSubmenuConsoles)
+	$iSubmenuPS3 = _GUICtrlCreateODMenu("PlayStation 3", $iSubmenuConsoles)
+	$iSubmenuPS4 = _GUICtrlCreateODMenu("PlayStation 4", $iSubmenuConsoles)
+	$iSubmenuPSP = _GUICtrlCreateODMenu("PlayStation Portatable", $iSubmenuConsoles)
+	$iSubmenuSwitch = _GUICtrlCreateODMenu("Switch", $iSubmenuConsoles)
+	$iSubmenuWii = _GUICtrlCreateODMenu("Wii\GameCube", $iSubmenuConsoles)
+	$iSubmenuXbox = _GUICtrlCreateODMenu("Xbox Classic", $iSubmenuConsoles)
+	
+	$iGDI_Image = _GUICtrlCreateODMenuItem("Gigabyte Disc Image", $iSubmenuDC)
+	
+	$iNinSARC = _GUICtrlCreateODMenuItem("Nintendo SARC", $iSubmenuNin)
+	$iNinSDAT = _GUICtrlCreateODMenuItem("Nintendo DS SDAT sound", $iSubmenuNin)
+	
+	$iPSXA = _GUICtrlCreateODMenuItem("Playstation XA", $iSubmenuPS1)
+	
+	$iPSARC_zlib = _GUICtrlCreateODMenuItem("PSARC Archive ZLIB", $iSubmenuPS3)
+	$iPSARC_lzma = _GUICtrlCreateODMenuItem("PSARC Archive LZMA", $iSubmenuPS3)
+	$iXWSFile = _GUICtrlCreateODMenuItem("XWS File", $iSubmenuPS3)
+	
+	$iPS4PKG = _GUICtrlCreateODMenuItem("PKG CNT File", $iSubmenuPS4)
+	
+	$iCSOImage = _GUICtrlCreateODMenuItem("CSO Disc Image", $iSubmenuPSP)
+	
+	$iNSPImage = _GUICtrlCreateODMenuItem("NSP Disc Image", $iSubmenuSwitch)
+	
+	$iCSOImageWii = _GUICtrlCreateODMenuItem("CSO Disc Image", $iSubmenuWii)
+	$iISOImageWii = _GUICtrlCreateODMenuItem("ISO Disc Image", $iSubmenuWii)
+	$iWBFSImage = _GUICtrlCreateODMenuItem("WBFS Disc Image", $iSubmenuWii)
+	$iWDFImage = _GUICtrlCreateODMenuItem("WDF, WIA, CISO and GCZ Disc Image", $iSubmenuWii)
+	
+	$iISOImageXbox = _GUICtrlCreateODMenuItem("ISO Disc Image", $iSubmenuXbox)
+	$iAFSArchiveXbox = _GUICtrlCreateODMenuItem("AFS Archive", $iSubmenuXbox)
+	
+	
 	;$iTotal7zip7 = _GUICtrlCreateODMenuItem("PS Vita - VPK Disc Image", $iSubmenuConsoles)
 #EndRegion
 
@@ -360,7 +394,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iHideOrShow = GUICtrlCreateCheckbox('', 90, 590, 15, 20)
 	$iReimport_CheckboxTXT = GUICtrlCreateLabel($tPack, 25, 593, 55, 20)
 	$iHideOrShowTXT = GUICtrlCreateLabel($tShowCon, 105, 593, 120, 20)
-	GUICtrlSetState($iHideOrShow, $GUI_CHECKED)
+	GUICtrlSetState($iHideOrShow, $iHideOrShowState)
 	$iAllGamesLabel = GUICtrlCreateLabel($tAllGames & $iLoop, 300, 595, 200, 20)
 #EndRegion
 
@@ -380,7 +414,7 @@ Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith 
 
 #Region //ImageButton
 	For $i = 1 to 15
-		$iBtnName = IniRead (@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
+		$iBtnName = IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
 		If $i = 1 Then $iBtnName = "A"
 		If $i = 15 Then $iBtnName = "Z"
 		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40 * $i - 40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
