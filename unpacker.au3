@@ -72,15 +72,18 @@ _GDIPlus_Startup()
 ;Чтение основных настроек интерфейса программы
 Global $FavIni = @ScriptDir & "\data\favorites.ini", _
 	$iFavorites = FileRead($FavIni), _
-	$iUnrealBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unreal', 4), _
-	$iUnityBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'Unity', 4), _
-	$iGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', 4), _
-	$iRPGMBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', 4), _
-	$iRenPyBuild = IniRead (@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4), _
-	$iGroupBy = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
-	$iUseThemes = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
-	$iHideOrShowState = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', 4), _
-	$iMenuColor = IniRead (@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
+	$iUnrealBuild = IniRead(@ScriptDir & '\unpacker.ini', 'Engine', 'Unreal', 4), _
+	$iUnityBuild = IniRead(@ScriptDir & '\unpacker.ini', 'Engine', 'Unity', 4), _
+	$iGMBuild = IniRead(@ScriptDir & '\unpacker.ini', 'Engine', 'GameMaker', 4), _
+	$iRPGMBuild = IniRead(@ScriptDir & '\unpacker.ini', 'Engine', 'RPGMaker', 4), _
+	$iRenPyBuild = IniRead(@ScriptDir & '\unpacker.ini', 'Engine', 'RenPy', 4), _
+	$iGroupBy = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
+	$iUseThemes = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
+	$iHideOrShowState = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', 4), _
+	$iMenuColor = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
+	
+Global $sFolderName = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
+	If $sFolderName = '' Then SelectFolder()
 
 ;Цвета и шрифты меню
 _WinAPI_AddFontResourceEx(@ScriptDir & '\data\fonts\IconLib.otf', $FR_PRIVATE)
@@ -112,8 +115,8 @@ Global $iGameList, _
 
 ;Запуск интерфейса
 $hGui = GUICreate("BFG Unpacker", 600, 630, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_EX_ACCEPTFILES, $WS_EX_ACCEPTFILES)
-GUISetIcon (@ScriptDir & "\data\ico\i.ico")
-TraySetIcon (@ScriptDir & "\data\ico\i.ico")
+GUISetIcon(@ScriptDir & "\data\ico\i.ico")
+TraySetIcon(@ScriptDir & "\data\ico\i.ico")
 
 ;Чтение списка игр из таблиц
 _FileReadToArray(@ScriptDir & '\game_list\main_list.csv', $iGameList)
@@ -140,7 +143,7 @@ Global $iLoop = UBound($iGameList) - 1, _
 	$iArcCount = UBound($iArchiveArray) - 1, _
 	$iArchiveItem[$iArcCount + 1]
 
-FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
+;FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
 
 Global $idTreeView_1 = GUICtrlCreateTreeView(5, 65, 290, 525)
 
@@ -148,7 +151,7 @@ GUICtrlSetTip(-1, $tListT)
 Global $idTreeItem = GUICtrlCreateTreeViewItem($tListT, $idTreeView_1)
 
 ;Сортировка списка игр по названию либо году выпуска
-If $iGroupBy <> BitOR ('Name', 'Year') Then
+If $iGroupBy <> BitOR('Name', 'Year') Then
 	IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name')
 	$iGroupBy = 'Name'
 EndIf
@@ -172,22 +175,22 @@ GUICtrlSetState($idTreeItem, $GUI_EXPAND)
 ;Создает остальной интерфейс
 $iAll_Checkbox = GUICtrlCreateLabel($tFav2, 5, 42, 43, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	GUICtrlSetTip(-1, $tClick1 & @CRLF & $tClick2)
-	GUICtrlSetResizing ($iAll_Checkbox, $GUI_DOCKSIZE)
+	GUICtrlSetResizing($iAll_Checkbox, $GUI_DOCKSIZE)
 
 $iFindMenu = GUICtrlCreateCombo('', 50, 42, 430, 20)
 	GUICtrlSetData($iFindMenu, $iFavorites, "")
 	
-$iFindBTN = GUICtrlCreateLabel ($tFind, 527, 42, 70, 20, $SS_CENTER+$SS_CENTERIMAGE)
+$iFindBTN = GUICtrlCreateLabel($tFind, 527, 42, 70, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	GUICtrlSetTip(-1, $tFind)
-	GUICtrlSetResizing ($iFindBTN, $GUI_DOCKSIZE)
+	GUICtrlSetResizing($iFindBTN, $GUI_DOCKSIZE)
 	
-$iFavAdd = GUICtrlCreateLabel ('+', 505, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
+$iFavAdd = GUICtrlCreateLabel('+', 505, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	GUICtrlSetTip(-1, $tA2Fav)
-	GUICtrlSetResizing ($iFavAdd, $GUI_DOCKSIZE)
+	GUICtrlSetResizing($iFavAdd, $GUI_DOCKSIZE)
 
-$iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
+$iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	GUICtrlSetTip(-1, $tD2Fav)
-	GUICtrlSetResizing ($iFavDel, $GUI_DOCKSIZE)
+	GUICtrlSetResizing($iFavDel, $GUI_DOCKSIZE)
 	
 #Region //File
 	Global $iFileMenu = GUICtrlCreateMenu($tFile)
@@ -230,7 +233,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iReEngine = _GUICtrlCreateODMenuItem("RE Engine", $iSubMenuEngine)
 	$iRedEngine = _GUICtrlCreateODMenuItem("RED Engine", $iSubMenuEngine)
 	$iRenPy = _GUICtrlCreateODMenuItem("RenPy Engine", $iSubMenuEngine)
-	$iRPGMaker = _GUICtrlCreateODMenuItem("RPG Maker", $iSubMenuEngine) ; добавить поддержку новых версий
+	$iRPGMaker = _GUICtrlCreateODMenuItem("RPG Maker", $iSubMenuEngine)
 	$iShiVa = _GUICtrlCreateODMenuItem("ShiVa Engine", $iSubMenuEngine) ; протестировать
 	$iOpenSWF = _GUICtrlCreateODMenuItem("Shockwave Flash", $iSubMenuEngine)
 	$iSource = _GUICtrlCreateODMenuItem("Source Engine", $iSubMenuEngine) 
@@ -247,7 +250,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iSubmenuArchive = _GUICtrlCreateODMenu($tArchives, $iFileMenu)
 	$iSubmenuConsoles = _GUICtrlCreateODMenu($tConsoles, $iFileMenu)
 	$iSubmenuDiscImage = _GUICtrlCreateODMenu($tDImage, $iFileMenu)
-	$iSubmenuInstaller = _GUICtrlCreateODMenu ($tInstaller, $iFileMenu)
+	$iSubmenuInstaller = _GUICtrlCreateODMenu($tInstaller, $iFileMenu)
 	_ArraySort($iArchiveArray, 0, 2)
 	
 	For $set = 0 to 26
@@ -316,7 +319,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 #Region //Disc Image
 	;Образы дисков
-	$iISZconv = _GUICtrlCreateODMenuItem("ISZ Disc Image (Full Unpack)", $iSubmenuDiscImage)
+	$iISZconv = _GUICtrlCreateODMenuItem("ISZ Disc Image(Full Unpack)", $iSubmenuDiscImage)
 #EndRegion
 
 #Region //MainMenuEnd
@@ -352,8 +355,8 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iConvMenu2 = _GUICtrlCreateODMenu($tAudio, $iConvMenu)
 	$iConv_15 = _GUICtrlCreateODMenuItem("FFMPEG Sound Converter", $iConvMenu2)
 	$iVGM = _GUICtrlCreateODMenuItem("VGM Stream Tools", $iConvMenu2)
-	$iFSBext = _GUICtrlCreateODMenuItem("FSBext (FSB " & $tTo & " WAV\MP3\OGG)", $iConvMenu2)
-	$iToWAV = _GUICtrlCreateODMenuItem("ToWAV (FSB, XWB " & $toTo & " WAV\MP3\OGG )", $iConvMenu2)
+	$iFSBext = _GUICtrlCreateODMenuItem("FSBext(FSB " & $tTo & " WAV\MP3\OGG)", $iConvMenu2)
+	$iToWAV = _GUICtrlCreateODMenuItem("ToWAV(FSB, XWB " & $toTo & " WAV\MP3\OGG )", $iConvMenu2)
 	$iConv_5 = _GUICtrlCreateODMenuItem("Wwise Converter", $iConvMenu2)
 	$iConv_6 = _GUICtrlCreateODMenuItem("RAW " & $tTo & "WAV", $iConvMenu2)
 	$iConv_11 = _GUICtrlCreateODMenuItem("RAW " & $tTo & "Atrac", $iConvMenu2)
@@ -363,10 +366,10 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 	$iConvMenu3 = _GUICtrlCreateODMenu($tTextures, $iConvMenu)
 	$iConv_14 = _GUICtrlCreateODMenuItem("FFMPEG Image Converter", $iConvMenu3)
-	$iConv_3 = _GUICtrlCreateODMenuItem($tTexturesIn & " PNG (SAU)", $iConvMenu3)
+	$iConv_3 = _GUICtrlCreateODMenuItem($tTexturesIn & " PNG(SAU)", $iConvMenu3)
 	$iConv_4 = _GUICtrlCreateODMenuItem("nCovert Image Converter", $iConvMenu3)
-	$iConv_16 = _GUICtrlCreateODMenuItem("Image to DDS converter (by Microsoft)", $iConvMenu3)
-	$iConv_17 = _GUICtrlCreateODMenuItem("Image to DDS converter (by nVidia)", $iConvMenu3)
+	$iConv_16 = _GUICtrlCreateODMenuItem("Image to DDS converter(by Microsoft)", $iConvMenu3)
+	$iConv_17 = _GUICtrlCreateODMenuItem("Image to DDS converter(by nVidia)", $iConvMenu3)
 	$iConv_10 = _GUICtrlCreateODMenuItem("DDS Header Generator", $iConvMenu3)
 	$iCubeMapCreator = _GUICtrlCreateODMenuItem("CubeMap Creator", $iConvMenu3)
 	$iIcoSplitter = _GUICtrlCreateODMenuItem("ICO Icon Splitter", $iConvMenu3)
@@ -374,7 +377,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 #EndRegion
 
 #Region //Setting
-	$iSettingMenu = GUICtrlCreateMenu ($tSetting)
+	$iSettingMenu = GUICtrlCreateMenu($tSetting)
 	$iSelectLang = _GUICtrlCreateODMenuItem($tLang, $iSettingMenu)
 	$iOpenINI = _GUICtrlCreateODMenuItem($tOpenINI, $iSettingMenu)
 	$iSelectFolder = _GUICtrlCreateODMenuItem($sTFolder, $iSettingMenu)
@@ -385,7 +388,7 @@ $iFavDel = GUICtrlCreateLabel ('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 #EndRegion
 
 #Region //About
-	$iAboutMenu = GUICtrlCreateMenu ($tAbout)
+	$iAboutMenu = GUICtrlCreateMenu($tAbout)
 	$iAbout = _GUICtrlCreateODMenuItem($tAP, $iAboutMenu)
 #EndRegion
 
@@ -420,57 +423,57 @@ Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith 
 		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40 * $i - 40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSetTip(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][1])
 		GUICtrlSetFont(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][0], 400, 0, "IconLib")
-		GUICtrlSetResizing (-1, $GUI_DOCKALL)
+		GUICtrlSetResizing(-1, $GUI_DOCKALL)
 	Next
 
 	For $i = 2 to 14
-		$iContMenu[$i] = GUICtrlCreateContextMenu ($idButton[$i])
-		$iChangeButton[$i] = GUICtrlCreateMenuItem ($tChangeBTN, $iContMenu[$i])
-		GUICtrlCreateMenuItem ($tCancel, $iContMenu[$i])
+		$iContMenu[$i] = GUICtrlCreateContextMenu($idButton[$i])
+		$iChangeButton[$i] = GUICtrlCreateMenuItem($tChangeBTN, $iContMenu[$i])
+		GUICtrlCreateMenuItem($tCancel, $iContMenu[$i])
 	Next
 	
-	$iContMenuTrash = GUICtrlCreateContextMenu ($idButton[15])
-	$iDeleteToTrash = GUICtrlCreateMenuItem ($tTarsh, $iContMenuTrash)
-	$iDeleteFull = GUICtrlCreateMenuItem ($tDelete, $iContMenuTrash)
-	GUICtrlCreateMenuItem ($tCancel, $iContMenuTrash)
+	$iContMenuTrash = GUICtrlCreateContextMenu($idButton[15])
+	$iDeleteToTrash = GUICtrlCreateMenuItem($tTarsh, $iContMenuTrash)
+	$iDeleteFull = GUICtrlCreateMenuItem($tDelete, $iContMenuTrash)
+	GUICtrlCreateMenuItem($tCancel, $iContMenuTrash)
 #EndRegion
 
 _SetColor()
 
 #Region //Icon
-	_GUICtrlODMenuItemSetIcon ($iOpenQuick, "shell32.dll", 5)
-	_GUICtrlODMenuItemSetIcon ($iChromeEngine, @ScriptDir & "\data\ico\chrome.ico")
-	_GUICtrlODMenuItemSetIcon ($iBethesda, @ScriptDir & "\data\ico\creation.ico")
-	_GUICtrlODMenuItemSetIcon ($iCryEngine, @ScriptDir & "\data\ico\cry.ico")
-	_GUICtrlODMenuItemSetIcon ($iFPS_Creator, @ScriptDir & "\data\ico\fps.ico")
-	_GUICtrlODMenuItemSetIcon ($iFrostBite, @ScriptDir & "\data\ico\fb.ico")
-	_GUICtrlODMenuItemSetIcon ($iDTech, @ScriptDir & "\data\ico\id.ico")
-	_GUICtrlODMenuItemSetIcon ($Infinity, @ScriptDir & "\data\ico\Infinity.ico")
-	_GUICtrlODMenuItemSetIcon ($iMTFramework, @ScriptDir & "\data\ico\mtf.ico")
-	_GUICtrlODMenuItemSetIcon ($iPopCapPackAll, @ScriptDir & "\data\ico\popcap.ico")
-	_GUICtrlODMenuItemSetIcon ($iRenPy, @ScriptDir & "\data\ico\renpy.ico")
-	_GUICtrlODMenuItemSetIcon ($iRPGMaker, @ScriptDir & "\data\ico\rpgm.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenSWF, @ScriptDir & "\data\ico\flash.ico")
-	_GUICtrlODMenuItemSetIcon ($iSource, @ScriptDir & "\data\ico\source.ico")
-	_GUICtrlODMenuItemSetIcon ($iUnity, @ScriptDir & "\data\ico\unity.ico")
-	_GUICtrlODMenuItemSetIcon ($iUnreal, @ScriptDir & "\data\ico\unreal.ico")
-	_GUICtrlODMenuItemSetIcon ($iOpenXNA, @ScriptDir & "\data\ico\xna.ico")
-	_GUICtrlODMenuItemSetIcon ($iTotal7zip, @ScriptDir & "\data\7zip\7zG.exe", 0)
-	_GUICtrlODMenuItemSetIcon ($iGAUP, @ScriptDir & "\data\ico\gaup_logo.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_12, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iBink2avi, @ScriptDir & "\data\RADVideo\radvideo64.exe", 0)
-	_GUICtrlODMenuItemSetIcon ($iMediaInfo, @ScriptDir & "\data\ico\MediaInfo.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_15, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_5, @ScriptDir & "\data\ico\wwise.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_11, @ScriptDir & "\data\ico\ps.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_13, @ScriptDir & "\data\ico\ps.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_14, @ScriptDir & "\Data\ico\ffmpeg.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_4, @ScriptDir & "\data\ico\xn.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_16, @ScriptDir & "\Data\ico\directx.ico")
-	_GUICtrlODMenuItemSetIcon ($iConv_17, @ScriptDir & "\Data\ico\nvidia.ico")
-	_GUICtrlODMenuItemSetIcon ($iRedEngine, @ScriptDir & "\data\ico\red_engine.ico")
-	_GUICtrlODMenuItemSetIcon ($iReEngine, @ScriptDir & "\data\ico\re_engine.ico")
-	_GUICtrlODMenuItemSetIcon ($iGodot, @ScriptDir & "\data\ico\godot.ico")
+	_GUICtrlODMenuItemSetIcon($iOpenQuick, "shell32.dll", 5)
+	_GUICtrlODMenuItemSetIcon($iChromeEngine, @ScriptDir & "\data\ico\chrome.ico")
+	_GUICtrlODMenuItemSetIcon($iBethesda, @ScriptDir & "\data\ico\creation.ico")
+	_GUICtrlODMenuItemSetIcon($iCryEngine, @ScriptDir & "\data\ico\cry.ico")
+	_GUICtrlODMenuItemSetIcon($iFPS_Creator, @ScriptDir & "\data\ico\fps.ico")
+	_GUICtrlODMenuItemSetIcon($iFrostBite, @ScriptDir & "\data\ico\fb.ico")
+	_GUICtrlODMenuItemSetIcon($iDTech, @ScriptDir & "\data\ico\id.ico")
+	_GUICtrlODMenuItemSetIcon($Infinity, @ScriptDir & "\data\ico\Infinity.ico")
+	_GUICtrlODMenuItemSetIcon($iMTFramework, @ScriptDir & "\data\ico\mtf.ico")
+	_GUICtrlODMenuItemSetIcon($iPopCapPackAll, @ScriptDir & "\data\ico\popcap.ico")
+	_GUICtrlODMenuItemSetIcon($iRenPy, @ScriptDir & "\data\ico\renpy.ico")
+	_GUICtrlODMenuItemSetIcon($iRPGMaker, @ScriptDir & "\data\ico\rpgm.ico")
+	_GUICtrlODMenuItemSetIcon($iOpenSWF, @ScriptDir & "\data\ico\flash.ico")
+	_GUICtrlODMenuItemSetIcon($iSource, @ScriptDir & "\data\ico\source.ico")
+	_GUICtrlODMenuItemSetIcon($iUnity, @ScriptDir & "\data\ico\unity.ico")
+	_GUICtrlODMenuItemSetIcon($iUnreal, @ScriptDir & "\data\ico\unreal.ico")
+	_GUICtrlODMenuItemSetIcon($iOpenXNA, @ScriptDir & "\data\ico\xna.ico")
+	_GUICtrlODMenuItemSetIcon($iTotal7zip, @ScriptDir & "\data\7zip\7zG.exe", 0)
+	_GUICtrlODMenuItemSetIcon($iGAUP, @ScriptDir & "\data\ico\gaup_logo.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_12, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon($iBink2avi, @ScriptDir & "\data\RADVideo\radvideo64.exe", 0)
+	_GUICtrlODMenuItemSetIcon($iMediaInfo, @ScriptDir & "\data\ico\MediaInfo.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_15, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_5, @ScriptDir & "\data\ico\wwise.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_11, @ScriptDir & "\data\ico\ps.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_13, @ScriptDir & "\data\ico\ps.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_14, @ScriptDir & "\Data\ico\ffmpeg.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_4, @ScriptDir & "\data\ico\xn.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_16, @ScriptDir & "\Data\ico\directx.ico")
+	_GUICtrlODMenuItemSetIcon($iConv_17, @ScriptDir & "\Data\ico\nvidia.ico")
+	_GUICtrlODMenuItemSetIcon($iRedEngine, @ScriptDir & "\data\ico\red_engine.ico")
+	_GUICtrlODMenuItemSetIcon($iReEngine, @ScriptDir & "\data\ico\re_engine.ico")
+	_GUICtrlODMenuItemSetIcon($iGodot, @ScriptDir & "\data\ico\godot.ico")
 #EndRegion
 
 ;Создает и наполняет список игр
@@ -481,7 +484,7 @@ For $item = 2 to $iLoop
 	$iMenuItem[$item] = GUICtrlCreateTreeViewItem($iGameName[1], $idItem)
 	$iListFind[$item] = $iGameName[1]
 	$iYearList[$item] = $iGameName[2]
-	$Percent = (100/$iLoop) * $item
+	$Percent =(100/$iLoop) * $item
 	If Mod($item, 1000) = 0 Then _BarCreate($Percent, $tLoad, $item & '\' & $iLoop, 300, 95)
 Next
 
@@ -491,7 +494,7 @@ _BarOFF()
 If $CmdLine[0] > 0 Then
 	_PathSplit($CmdLine[1], $iDrive, $iDir, $iName, $iExp)
 	If $iExp = '.bms' or $iExp = '.wcx' Then
-		Run (@ScriptDir & '\data\QuickBMS.exe "' & $CmdLine[1] & '"')
+		Run(@ScriptDir & '\data\QuickBMS.exe "' & $CmdLine[1] & '"')
 	Else
 		QuickOpen($CmdLine[1])
 	EndIf
@@ -536,9 +539,9 @@ Func _SetColor()
 		If BitAND(Not StringIsXDigit($iMenuColor), $iUseThemes = 4) Then $iMenuColor = 0xFFFFFF
 		$ColorArray = StringRegExp(Hex($iMenuColor), '\N\N', 3)
 
-		$rC = (Dec($ColorArray[1]) + Dec('66'))/2
-		$gC = (Dec($ColorArray[2]) + Dec('66'))/2
-		$bC = (Dec($ColorArray[3]) + Dec('66'))/2
+		$rC =(Dec($ColorArray[1]) + Dec('66'))/2
+		$gC =(Dec($ColorArray[2]) + Dec('66'))/2
+		$bC =(Dec($ColorArray[3]) + Dec('66'))/2
 
 		$iColor1 = $iMenuColor
 		$iColor2 = '0x' & Hex(Int($rC), 2) & Hex(Int($gC), 2) & Hex(Int($bC), 2)
@@ -559,20 +562,20 @@ Func _SetColor()
 			$iFontColor = 0x000000
 			$iFontColor2 = 0x000000
 		Else
-			$iColor1 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color1', 0xFFFFFF)
-			$iColor2 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color2', 0xFFFFFF)
-			$iColor3 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color3', 0xC0C0C0)
-			$iFontColor = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FontColor', 0x000000)
-			$iFontColor2 = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FontColor2', 0x000000)
-			$iFolderColor = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FolderColor', 0xFFE68E)
-			$iRecicleColor = IniRead (@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'RecicleColor', 0x0099FF)
+			$iColor1 = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color1', 0xFFFFFF)
+			$iColor2 = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color2', 0xFFFFFF)
+			$iColor3 = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'Color3', 0xC0C0C0)
+			$iFontColor = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FontColor', 0x000000)
+			$iFontColor2 = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FontColor2', 0x000000)
+			$iFolderColor = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'FolderColor', 0xFFE68E)
+			$iRecicleColor = IniRead(@ScriptDir & '\data\themes\' & $iMenuColor & '.ini', 'Main', 'RecicleColor', 0x0099FF)
 		EndIf
 	EndIf
 	
 	GUISetBkColor($iColor2, $hGUI)
-	GUICtrlSetBkColor ($iEdit, $iColor1)
-	GUICtrlSetBkColor ($idTreeView_1, $iColor1)
-	_SetMenuBkColor ($iColor1)
+	GUICtrlSetBkColor($iEdit, $iColor1)
+	GUICtrlSetBkColor($idTreeView_1, $iColor1)
+	_SetMenuBkColor($iColor1)
 	_SetMenuIconBkColor($iColor2)
 	_SetMenuSelectBkColor($iColor3)
 	_SetMenuSelectTextColor($iFontColor)

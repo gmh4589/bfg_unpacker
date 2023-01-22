@@ -65,11 +65,11 @@ Switch $iExp
 		GUICtrlSetData($iEdit, $tIFFGO & "  X-Ray Engine" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir &  '\data\wcx\stalker.wcx ', $sFileName)
 	Case ".cmp" 
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\ddcmpa.exe /u """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\ddcmpa.exe /u """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
 	Case ".orc", ".ork" 
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\orkdec.exe """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\orkdec.exe """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
 	Case ".csc" 
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\scs_extractor """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\scs_extractor """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
 	Case ".data", ".mini", ".wd2" 
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\asphyre.bms ", $sFileName)
 	Case ".atd" 
@@ -244,16 +244,16 @@ Switch $iExp
 		_QuickBMSRun('', @ScriptDir &  "\data\wcx\inhrust.wcx ", $sFileName)
 	Case ".dgc", ".dgca"
 		GUICtrlSetData($iEdit, $tIFA & " DGCA" & @CRLF, 1)
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\dgcac", "e """ & $sFileName & """ """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\dgcac", "e """ & $sFileName & """ """ & $sFolderName & """", @ScriptDir & "\data\scripts\", "open")
 	Case ".tiger" ;TODO - Something Wrong
 		GUICtrlSetData($iEdit, $tIFFG & " Rise of Tomb Raider" & @CRLF, 1)
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & '\data\gibbed\Gibbed.TombRaider9.Unpack.exe', '"' & $sFileName & '" "' & $sFolderName & '"')
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & '\data\gibbed\Gibbed.TombRaider9.Unpack.exe', '"' & $sFileName & '" "' & $sFolderName & '"')
 	Case ".blz"
 		GUICtrlSetData($iEdit, $tIFA & " BLZ" & @CRLF, 1)
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\blzpack.exe ", " d """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\blzpack.exe ", " d """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\", "open")
 	Case ".mnf"
 		GUICtrlSetData($iEdit, $tIFFG & " Elder Scrolls Online" & @CRLF, 1)
-		$iOutputWindow = ShellExecuteWait (@ScriptDir & "\data\EsoExtractData """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\", "open")
+		$iOutputWindow = ShellExecuteWait(@ScriptDir & "\data\EsoExtractData """ & $sFileName &""" """ & $sFolderName & """", @ScriptDir & "\data\", "open")
 	Case ".arcv"
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\3ds_arcv.bms ", $sFileName)
 	Case ".ctpk"
@@ -278,14 +278,14 @@ Switch $iExp
 	Case ".lfs"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
 		;TODO PASS
-		;FileWriteLine ($hFile, $sFolderName & "\YZ2tool.exe -x """ & $sFolderName & "\" & $iName & """")
+		;FileWriteLine($hFile, $sFolderName & "\YZ2tool.exe -x """ & $sFolderName & "\" & $iName & """")
 	Case ".yz2", ".pack"
 		GUICtrlSetData($iEdit, $tIFFG & " Resident Evil 4 HD Remastered" & @CRLF, 1)
 		GUICtrlSetData($iEdit, $tSelHand & @CRLF, 1)
 		;TODO PASS
-		;FileWriteLine ($hFile, $sFolderName & "\yzdec.exe """ & $sFolderName & "\" & $sFullFileName & """")
+		;FileWriteLine($hFile, $sFolderName & "\yzdec.exe """ & $sFolderName & "\" & $sFullFileName & """")
 	Case ".rpkg"
-		GUICtrlSetData($iEdit, $tIFFG & " Hitman (2016)" & @CRLF, 1)
+		GUICtrlSetData($iEdit, $tIFFG & " Hitman(2016)" & @CRLF, 1)
 		_QuickBMSRun('', @ScriptDir & "\data\scripts\hitman_2016.bms  ", $sFileName)
 	Case ".forge"
 		GUICtrlSetData($iEdit, $tIFFG & " Anvil Engine" & @CRLF, 1)
@@ -301,7 +301,7 @@ Switch $iExp
 	EndSwitch
 EndFunc
 
-Func QuickPAK($sFileName); TODO: Дописать GAUP (Quake и др.)!!!	
+Func QuickPAK($sFileName); TODO: Дописать GAUP(Quake и др.)!!!	
 	$iFind = _headRead($sFileName, 3, 16)
 	Switch $iFind
 		Case '0x504B03', '0x526172', '0x377ABC', '0x050000' ; Archives

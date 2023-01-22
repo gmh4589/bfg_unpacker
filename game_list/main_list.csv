@@ -355,7 +355,7 @@ Vigilance	1998	_CryEngine
 Warface	2012	_CryEngine				
 Winning Putt	2016	_CryEngine				
 Wolcen: Lords of Mayhem	2020	_CryEngine				
-Blood	1998	_DosBox	Blood RFF File (*.RFF)|	barf.exe	1	 -x
+Blood	1998	_Build	Blood RFF File (*.RFF)|	barf.exe	1	 -x
 Celestia (exoplanet catalog)		_ExoPlanet	Celestia			
 Space Engine (exoplanet catalog)		_ExoPlanet	SpaceEngine			
 Anthem	2019	_FrostBite	3			
@@ -453,7 +453,6 @@ Disciples II - Dark Prophecy		_GAUP	FF Files (*.FF)|
 Dracula 2: The Last Sanctuary		_GAUP	DAT Files (*.DAT)|			
 DragonBall Z: Budokai 3		_GAUP	AFS Files (*.AFS)|			
 Dragonshard		_GAUP	H2O Files (*.H2O)|			
-Duke Nukem 3D		_GAUP	GRP Files (*.GRP)|			
 Duke Nukem II		_GAUP	CMP Files (*.CMP)|			
 Dune 2000		_GAUP	R8, R16, RS Files (*.R8; *.R16; *.RS)|			
 Dungeon Lords		_GAUP	AL4, AL8, TWD Files (*.AL4; *.AL8; *.TWD)|			
@@ -600,7 +599,6 @@ Roll'm Up		_GAUP	MSF Files (*.MSF)|
 Rome - Total War		_GAUP	DAT;IDX Files (*.DAT;*.IDX)|			
 Settlers 2		_GAUP	DAT;IDX Files (*.DAT;*.IDX)|			
 Shade: Wrath of Angels		_GAUP	RES Files (*.RES)|			
-Shadow Warrior		_GAUP	WAD Files (*.WAD)|			
 Sherlock Holmes: The Mystery of the Mummy		_GAUP	PAK Files (*.PAK)|			
 Silent Hill 2 (AFS)	2001	_GAUP	AFS Files (*.AFS)|			
 Silent Hill 3		_GAUP	AFS, ARC, TEX Files (*.AFS; *.ARC; *.TEX)|			
@@ -1279,6 +1277,10 @@ Scania	2012	_OtherPRG	SCS File (*.scs)|	scs_extractor.exe		FolderName
 Supernova		_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
 Warhammer 40000: Mark of Chaos	2006	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
 Red Dead Redemption 2 (RPF Audio)	2018	_OtherPRG	RDR 2 RPF Audio Archive (*.rpf)|	python_script\rdr2audio.py	FolderName	
+The Legend of Heroes: Trails of Cold Steel II	2014	_Sen	CS2			
+The Legend of Heroes: Trails of Cold Steel III	2017	_Sen	CS3			
+The Legend of Heroes: Trails of Cold Steel IV	2018	_Sen	CS4			
+The Legend of Heroes: Trails of Cold Steel	2013	_Sen	CS1			
 <罗德岛战记> Record of Lodoss war WCM/WCR		_QuickBMS		\data\scripts\record_lodoss_war.bms		
 007 Goldeneye Reloaded PS3	2010	_QuickBMS		\data\scripts\007_goldeneye_ps3.bms		
 007 Quantum of Solace(PS3, Xbox 360)	2008	_QuickBMS	FF Files (*.ff)|	\data\scripts\007_quantum_of_solace.bms		
@@ -5036,3 +5038,19 @@ Your Music Puzzle	2020	_ZIP	Love2D Engine Files (*.love; *.exe)|
 Zoo Tycoon		_ZIP				
 Zoo Tycoon 2: Endangered Species		_ZIP				
 唤境引擎	2019	_ZIP	Love2D Engine Files (*.love; *.exe)|			
+Rock'n Shaolin: Legend of Seven Paladins 3D	1994	_Build				
+Witchaven	1995	_Build				
+William Shatner's TekWar 	1995	_Build				
+Duke Nukem 3D	1996	_Build				
+PowerSlave 	1996	_Build				
+Seireki 1999: Pharaoh no Fukkatsu	1996	_Build				
+Witchaven II: Blood Vengeance	1996	_Build				
+Shadow Warrior	1997	_Build				
+Redneck Rampage	1997	_Build				
+Redneck Rampage Rides Again	1998	_Build				
+Extreme Paintbrawl	1998	_Build				
+NAM	1998	_Build				
+Liquidator	1998	_Build				
+WWII GI	1999	_Build				
+Ion Fury	2019	_Build				
+A.W.O.L.	2022	_Build				

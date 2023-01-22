@@ -15,13 +15,13 @@ $GUIH = $iItemSize * 42 < 90 ? 90 : $iItemSize * 42
 Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $NewGui)
-	GUISetIcon (@ScriptDir & "\Data\ico\i.ico")
+	GUISetIcon(@ScriptDir & "\Data\ico\i.ico")
 	
-	_SetBorder(138, ($GUIH/2)-42, 104, 34)
-	$OpenFileBTN = GUICtrlCreateLabel($OpenFile, 140, ($GUIH/2)-40, 100, 30, $SS_CENTER+$SS_CENTERIMAGE)
+	_SetBorder(138,($GUIH/2)-42, 104, 34)
+	$OpenFileBTN = GUICtrlCreateLabel($OpenFile, 140,($GUIH/2)-40, 100, 30, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSetColor(-1, $iFontColor)
 
-	_SetBorder(138, ($GUIH/2)-2, 104, 34)
+	_SetBorder(138,($GUIH/2)-2, 104, 34)
 	$OpenFolderBTN = GUICtrlCreateLabel($OpenFolder, 140, $GUIH/2, 100, 30, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSetColor(-1, $iFontColor)
 	
@@ -79,7 +79,7 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 						$sFilePath = _getFile("", $iExtList)
 							If @error = 1 Then ContinueLoop
 							
-							$iFileList1 = StringSplit ($sFilePath, '|')
+							$iFileList1 = StringSplit($sFilePath, '|')
 							Local $fk = 2
 							If $iFileList1[0] = 1 Then $fk = 1
 								For $j = $fk to $iFileList1[0]
@@ -98,9 +98,9 @@ Global $NewGui = GUICreate($iGUIName, 250, $GUIH, -1, -1)
 									If Not FileExists($newFolder) Then DirCreate($newFolder)
 										_ButtonDo($sFileList[$j], $iMenuData, $iGUIName, $newFolder)
 								Next
-							ShellExecuteWait (@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
+							ShellExecuteWait(@ScriptDir & "\data\defo.bat", "", $sFolderName, "open")
 					EndIf
-					_MsgBox (0, $tMessage, $tDone & '!')
+					_MsgBox(0, $tMessage, $tDone & '!')
 			EndSwitch
 	Until False
 EndFunc
@@ -166,20 +166,20 @@ Local $iCombo = StringSplit($iMenuData, '|')
 				_OtherPRG('', "wwise_ima_adpcm.exe", ' -d ', '"' & $nFolderName & "\" & $iName & '.wav"', $nFolderName, $sFilePath)
 			ElseIf $iCombo[1] = 'wwise2vorbis' Then
 				_OtherPRG('', "ww2ogg.exe ", '', ' --pcb ' & @ScriptDir & '\data\' & $iCombo[2] & ' -o "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, $sFilePath)
-				ShellExecuteWait (@ScriptDir & '\data\revorb.exe', ' "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, 'open', @SW_HIDE)
+				ShellExecuteWait(@ScriptDir & '\data\revorb.exe', ' "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, 'open', @SW_HIDE)
 			EndIf
 			
 		Case "PS Audio Converter"
 		;TODO: Сделать проверку параметров входных файлов
 			Switch $iCombo[2] 
 				Case 'VAG2WAV'
-					FileCopy ($sFilePath, @TempDir)
+					FileCopy($sFilePath, @TempDir)
 					_OtherPRG('', "vagunpacker.exe", '', '' , $nFolderName, @TempDir & '\' & $iName & $iExp)
 					_Console(@ScriptDir & '\Data\quickbms.exe ' & @ScriptDir & "\data\scripts\wav_script.bms " & ' "' & @TempDir & '\' &  $iName & '.pcm' & '" "' & $nFolderName & '"')
 				Case 'WAV2VAG'
-					FileCopy ($sFilePath, $nFolderName)
+					FileCopy($sFilePath, $nFolderName)
 					_OtherPRG('', "vagpacker.exe", '', '' , $nFolderName, $nFolderName & '\' & $iName & $iExp)
-					FileDelete ($nFolderName & '\' & $iName & $iExp)
+					FileDelete($nFolderName & '\' & $iName & $iExp)
 				Case 'SXD2Atrac' 
 					_QuickBMSRun("", @ScriptDir & "\data\scripts\sxd_at9.bms ", $sFilePath)
 				Case 'PS2_SoundBank'
@@ -196,7 +196,7 @@ Local $iCombo = StringSplit($iMenuData, '|')
 					If BitOR($iCombo[1] = "PS4", $iCombo[1] = "PSVita") Then $iFmt = "at9"
 					_OtherPRG('', $iPrg & ".exe", $iLet, ' "' & $nFolderName & "\" & $iName & "." & $iFmt & '"', $nFolderName, $sFilePath)
 				Case "MSF2Atrac"
-					_QuickBMSRun('MSF Audio (*.msf)|', @ScriptDir & "\data\scripts\msf_convert.bms ")
+					_QuickBMSRun('MSF Audio(*.msf)|', @ScriptDir & "\data\scripts\msf_convert.bms ")
 			EndSwitch
 		
 	EndSwitch
@@ -207,18 +207,18 @@ Func BMSCreateAtrac($iFreq, $iChan, $iBitrate, $iFormat, $iOffset)
 	Local $iBMSScript = ['include "func_header_' & $iFormat & '.bms"', 'set FREQ ' & $iFreq, 'set CH ' & $iChan, 'set OFFSET ' & $iOffset, 'set BITRATE ' & $iBitrate, 'get SIZE asize', 'math SIZE -= OFFSET', 'callfunction ' & $iFormat & ' 1']
 	
 	For $String in $iBMSScript
-		FileWriteLine ($hFile, $String)
+		FileWriteLine($hFile, $String)
 	Next
 	
-	FileClose ($hFile)
+	FileClose($hFile)
 EndFunc
 
 Func GetModeZlib($iModeSet)
-	If $iModeSet = "Scan_ZLIB" Then Return (" -S ")
-	If $iModeSet = "Cool_scan_ZLIB" Then Return (" -S -x -Q ")
-	If $iModeSet = "Extract_ZLIB" Then Return ( " -a ")
-	If $iModeSet = "Extract_Deflate" Then Return (" -a -z -15 -Q ")
-	If $iModeSet = "Reimport_ZLIB" Then Return (" -a -r ")
+	If $iModeSet = "Scan_ZLIB" Then Return(" -S ")
+	If $iModeSet = "Cool_scan_ZLIB" Then Return(" -S -x -Q ")
+	If $iModeSet = "Extract_ZLIB" Then Return( " -a ")
+	If $iModeSet = "Extract_Deflate" Then Return(" -a -z -15 -Q ")
+	If $iModeSet = "Reimport_ZLIB" Then Return(" -a -r ")
 EndFunc
 
 Func BMSCreateWAV($iFreq, $iChan, $iBits, $iFormat)
@@ -227,17 +227,17 @@ Func BMSCreateWAV($iFreq, $iChan, $iBits, $iFormat)
 
 	Local $iArrCodecData = [0000, 0001, 0002, 0003, 0004, 0005, 0006, 0007, 0008, 0009, 0010, 0011, 0011, 0012, 0013, 0014, 0015, 0016, 0017, 0018, 0019, 0020, 0021, 0022, 0023, 0024, 0025, 0026, 0027, 0028, 0030, 0031, 0032, 0033, 0034, 0035, 0036, 0037, 0038, 0039, "003A", "003B", "003C", "003D", 0040, 0041, 0042, 0050, 0052, 0053, 0055, 0059, 0060, 0061, 0062, 0063, 0064, 0065, 0067, 0069, 0070, 0071, 0072, 0073, 0074, 0075, 0076, 0077, 0078, 0079, 0080, 0081, 0082, 0083, 0084, 0085, 0086, 0088, 0089, 0091, 0092, 0093, 0094, 0097, 0098, 0099, "00A0", 0100, 0101, 0111, 0112, 0123, 0125, 0130, 0131, 0132, 0133, 0134, 0135, 0140, 0150, 0151, 0155, 0160, 0170, 0171, 0172, 0173, 0200, 0202, 0203, 0210, 0220, 0230, 0240, 0241, 0250, 0251, 0260, 0270, 0300, 0400, 0450, 0680, 0681, 1000, 1001, 1002, 1003, 1004, 1100, 1400, 1500, 2000, "FFFE", "FFFF"]
 	
-	$iCodec = Dec ($iArrCodecData[_ArraySearch($iArrCodecList, $iFormat)])
+	$iCodec = Dec($iArrCodecData[_ArraySearch($iArrCodecList, $iFormat)])
 	If @error = 1 Then $iCodec = $iFormat
 	
 	$hFile = FileOpen(@ScriptDir & '\data\scripts\wav_script.bms', 10)
 	Local $iWAVScript = ["set FREQUENCY long " & $iFreq, "set CHANNELS long " & $iChan, "set BITS long " & $iBits, "set CODEC long " & $iCodec, "get SIZE asize", "get NAME filename", 'string NAME += ".wav"', 'set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"', "set RIFFSIZE long SIZE", "math RIFFSIZE += 36", "set BLOCKALIGN long BITS", "set AVGBYTES long FREQUENCY", "math BLOCKALIGN /= 8", "math BLOCKALIGN *= CHANNELS", "math AVGBYTES *= BLOCKALIGN", "putvarchr MEMORY_FILE 4 RIFFSIZE long", "putvarchr MEMORY_FILE 20 CODEC short", "putvarchr MEMORY_FILE 22 CHANNELS short", "putvarchr MEMORY_FILE 24 FREQUENCY long", "putvarchr MEMORY_FILE 28 AVGBYTES long", "putvarchr MEMORY_FILE 32 BLOCKALIGN short", "putvarchr MEMORY_FILE 34 BITS short", "putvarchr MEMORY_FILE 40 SIZE long", "log NAME 0 44 MEMORY_FILE", "append", "log NAME 0 SIZE", "append"]
 	
 	For $String in $iWAVScript
-		FileWriteLine ($hFile, $String)
+		FileWriteLine($hFile, $String)
 	Next
 	
-	FileClose ($hFile)
+	FileClose($hFile)
 	
 EndFunc
 
