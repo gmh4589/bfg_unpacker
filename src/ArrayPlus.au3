@@ -48,19 +48,23 @@ Example 2:
 #ce
 
 Func _numArray ($z, $num = 0)
-	local $_zeroArray[0]
-		for $i = 0 to $z
+	Local $_zeroArray[0]
+	
+		For $i = 0 to $z
 			_ArrayAdd($_zeroArray, $num)
 		Next
+		
 	Return ($_zeroArray)
 EndFunc
 
 Func _letterArray($lower = False, $digit = 0, $order = True)
+
 	If $lower = False Then Local $_letterArray = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 	If $lower = True Then Local $_letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 	If $digit = 0 Then Local $_digitArray = ['']
 	If $digit = 1 Then Local $_digitArray = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 	If $digit > 1 Then Local $_digitArray = ['0-9']
+	
 	If $order = True Then 
 		_ArrayConcatenate($_digitArray, $_letterArray)
 		Return ($_digitArray)
@@ -71,18 +75,22 @@ Func _letterArray($lower = False, $digit = 0, $order = True)
 EndFunc
 
 Func _digitArray($start = 0, $end = 100, $step = 1)
-	local $_digitArray[0]
-		for $i = $start to $end step $step
-			_ArrayAdd($_digitArray, $i)
-		Next
+	Local $_digitArray[0]
+	
+	For $i = $start to $end step $step
+		_ArrayAdd($_digitArray, $i)
+	Next
+		
 	Return ($_digitArray)
 EndFunc
 
 Func _randomArray($z, $int = True, $min = 0, $max = 100)
-	local $_randomArray[0]
-		for $i = 0 to $z
-			_ArrayAdd($_randomArray, Random($min, $max, $int))
-		Next
+	Local $_randomArray[0]
+	
+	For $i = 0 to $z
+		_ArrayAdd($_randomArray, Random($min, $max, $int))
+	Next
+		
 	Return ($_randomArray)
 EndFunc
 
@@ -94,8 +102,10 @@ EndFunc
 Func _BinaryToArray($iBin)
 	$iBin = StringTrimLeft($iBin, 2)
 	Local $BinArr = [StringLen($iBin)/2]
+	
 	For $i = 1 to StringLen($iBin) Step 2
 		_ArrayAdd($BinArr, StringMid($iBin, $i, 2))
 	Next
+	
 	Return ($BinArr)
 EndFunc

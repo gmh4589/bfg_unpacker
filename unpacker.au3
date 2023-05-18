@@ -83,7 +83,8 @@ Global $FavIni = @ScriptDir & "\data\favorites.ini", _
 	$iMenuColor = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
 	
 Global $sFolderName = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
-	If $sFolderName = '' Then SelectFolder()
+
+If $sFolderName = '' Then SelectFolder()
 
 ;Цвета и шрифты меню
 _WinAPI_AddFontResourceEx(@ScriptDir & '\data\fonts\IconLib.otf', $FR_PRIVATE)
@@ -123,12 +124,16 @@ _FileReadToArray(@ScriptDir & '\game_list\main_list.csv', $iGameList)
 
 If $iUnrealBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\unreal_list.csv', $iUnrealList)
 	_ArrayConcatenate($iGameList, $iUnrealList, 2)
+	
 If $iUnityBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\unity_list.csv', $iUnityList)
 	_ArrayConcatenate($iGameList, $iUnityList, 2)
+	
 If $iGMBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\gamemaker_list.csv', $iGMList)
 	_ArrayConcatenate($iGameList, $iGMList, 2)
+	
 If $iRPGMBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\rpgmaker_list.csv', $iRPGMList)
 	_ArrayConcatenate($iGameList, $iRPGMList, 2)
+	
 If $iRenPyBuild = 1 Then _FileReadToArray(@ScriptDir & '\game_list\renpy_list.csv', $iRenPyList)
 	_ArrayConcatenate($iGameList, $iRenPyList, 2)
 
@@ -143,11 +148,9 @@ Global $iLoop = UBound($iGameList) - 1, _
 	$iArcCount = UBound($iArchiveArray) - 1, _
 	$iArchiveItem[$iArcCount + 1]
 
-;FolderProbe() ;Проверяет выходную папку, предлагает создать ее, если ее нет
-
 Global $idTreeView_1 = GUICtrlCreateTreeView(5, 65, 290, 525)
-
 GUICtrlSetTip(-1, $tListT)
+
 Global $idTreeItem = GUICtrlCreateTreeViewItem($tListT, $idTreeView_1)
 
 ;Сортировка списка игр по названию либо году выпуска
@@ -157,17 +160,23 @@ If $iGroupBy <> BitOR('Name', 'Year') Then
 EndIf
 
 If $iGroupBy = 'Name' Then
+
 		For $set = 0 to 26
 			$idTreeItemABC[$set] = GUICtrlCreateTreeViewItem($abcArray[$set], $idTreeItem)
 		Next
+		
 	Global $idTreeItemOther = GUICtrlCreateTreeViewItem("Other", $idTreeItem) 
 	
 ElseIf $iGroupBy = 'Year' Then
+
 	Global $idTreeItemUnk = GUICtrlCreateTreeViewItem("Unknown", $idTreeItem)
+	
 		For $set = 0 to UBound($yearArray)-1
 			$idTreeItemYear[$set] = GUICtrlCreateTreeViewItem($yearArray[$set], $idTreeItem)
 		Next
+		
 	Global $idTreeItem1980 = GUICtrlCreateTreeViewItem("1970-1989", $idTreeItem)
+	
 EndIf
 
 GUICtrlSetState($idTreeItem, $GUI_EXPAND)
@@ -211,6 +220,7 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iAnvil = _GUICtrlCreateODMenuItem("Anvil\Scimitar Engine", $iSubMenuEngine)
 	$iAsura = _GUICtrlCreateODMenuItem("Asura Engine", $iSubMenuEngine)
 	$iAurora = _GUICtrlCreateODMenuItem("Aurora Engine", $iSubMenuEngine)
+	$iBuild = _GUICtrlCreateODMenuItem("Build Engine", $iSubMenuEngine)
 	$iChromeEngine = _GUICtrlCreateODMenuItem("Chrome Engine", $iSubMenuEngine)
 	$iConstruct = _GUICtrlCreateODMenuItem("Construct Engine", $iSubMenuEngine)
 	$iBethesda = _GUICtrlCreateODMenuItem("Creation Engine", $iSubMenuEngine)
@@ -259,6 +269,7 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 	For $arc = 2 to $iArcCount
 		$iArchName = StringSplit($iArchiveArray[$arc], '	')
+		
 		If $iArchName[11] = BitOR('3', 3) Then
 			$iArchiveItem[$arc] = _GUICtrlCreateODMenuItem($iArchName[1], $iSubmenuDiscImage)
 		ElseIf $iArchName[11] = BitOR('4', 4) Then
@@ -273,7 +284,6 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	For $i = 0 to 26
 		If $iZeros[$i] = 0 Then GUICtrlSetState($iSubmenuArchiveABC[$i], $GUI_DISABLE)
 	Next
-	
 #EndRegion
 
 #Region //Consoles
@@ -312,7 +322,6 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	
 	$iISOImageXbox = _GUICtrlCreateODMenuItem("ISO Disc Image", $iSubmenuXbox)
 	$iAFSArchiveXbox = _GUICtrlCreateODMenuItem("AFS Archive", $iSubmenuXbox)
-	
 	
 	;$iTotal7zip7 = _GUICtrlCreateODMenuItem("PS Vita - VPK Disc Image", $iSubmenuConsoles)
 #EndRegion
@@ -373,7 +382,6 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iConv_10 = _GUICtrlCreateODMenuItem("DDS Header Generator", $iConvMenu3)
 	$iCubeMapCreator = _GUICtrlCreateODMenuItem("CubeMap Creator", $iConvMenu3)
 	$iIcoSplitter = _GUICtrlCreateODMenuItem("ICO Icon Splitter", $iConvMenu3)
-
 #EndRegion
 
 #Region //Setting
@@ -403,8 +411,8 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 
 #Region //OutWindow
 	$iEdit = GUICtrlCreateEdit($tAction & @CRLF, 300, 65, 295, 525, $ES_AUTOVSCROLL + $WS_VSCROLL + $ES_NOHIDESEL + $ES_WANTRETURN)
-		GUICtrlSetState($iEdit, $GUI_DROPACCEPTED)
-		GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
+	GUICtrlSetState($iEdit, $GUI_DROPACCEPTED)
+	GUICtrlSendMsg($iEdit, $EM_LIMITTEXT, -1, 0)
 #EndRegion
 
 Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith & @CRLF & "7z Archiver"], _
@@ -418,8 +426,10 @@ Global $iIconsArray = [[0, 0], [30, $tQOpen], [30, "Quick BMS"], [40, $tUnpWith 
 #Region //ImageButton
 	For $i = 1 to 15
 		$iBtnName = IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
+		
 		If $i = 1 Then $iBtnName = "A"
 		If $i = 15 Then $iBtnName = "Z"
+		
 		$idButton[$i] = GUICtrlCreateLabel($iBtnName, 40 * $i - 40, 0, 40, 40, $SS_CENTER+$SS_CENTERIMAGE)
 		GUICtrlSetTip(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][1])
 		GUICtrlSetFont(-1, $iIconsArray[_ArraySearch($abcArray, $iBtnName)][0], 400, 0, "IconLib")
@@ -479,12 +489,15 @@ _SetColor()
 ;Создает и наполняет список игр
 For $item = 2 to $iLoop
 	$iGameName = StringSplit($iGameList[$item], '	')
+	
 	If $iGroupBy = 'Name' Then $idItem = getChar(StringLeft($iGameName[1], 2))
 	If $iGroupBy = 'Year' Then $idItem = getYear($iGameName[2])
+	
 	$iMenuItem[$item] = GUICtrlCreateTreeViewItem($iGameName[1], $idItem)
 	$iListFind[$item] = $iGameName[1]
 	$iYearList[$item] = $iGameName[2]
 	$Percent =(100/$iLoop) * $item
+	
 	If Mod($item, 1000) = 0 Then _BarCreate($Percent, $tLoad, $item & '\' & $iLoop, 300, 95)
 Next
 
@@ -493,11 +506,13 @@ _BarOFF()
 
 If $CmdLine[0] > 0 Then
 	_PathSplit($CmdLine[1], $iDrive, $iDir, $iName, $iExp)
+	
 	If $iExp = '.bms' or $iExp = '.wcx' Then
 		Run(@ScriptDir & '\data\QuickBMS.exe "' & $CmdLine[1] & '"')
 	Else
 		QuickOpen($CmdLine[1])
 	EndIf
+	
 Else
 	GUISetState(@SW_SHOW, $hGUI)
 	Main()
@@ -507,9 +522,13 @@ Func getChar($iChar)
 	If StringIsASCII($iChar) = 1 Then 
 		$iChar = StringLeft(StringLower($iChar), 1)
 			Local $nChar = _ArraySearch($abcArray, $iChar)
+			
 			If $nChar > -1 Then Return $idTreeItemABC[$nChar]
+			
 			If StringIsInt($iChar) = 1 Then Return $idTreeItemABC[0]
+			
 			If StringIsASCII($iChar) = 1 Then Return $idTreeItemOther
+			
 	Else
 		Return $idTreeItemOther
 	EndIf
@@ -522,6 +541,7 @@ Func getYear($iYear)
 	Else
 		Return $idTreeItemUnk
 	EndIf
+	
 EndFunc
 
 Func getCharArc($iChar)
@@ -532,9 +552,11 @@ Func getCharArc($iChar)
 EndFunc
 
 #Region //Colors
+
 Func _SetColor()
 	$iFolderColor = 0xFFE68E
 	$iRecicleColor = 0x0099FF
+	
 	If $iUseThemes = 4 Then
 		If BitAND(Not StringIsXDigit($iMenuColor), $iUseThemes = 4) Then $iMenuColor = 0xFFFFFF
 		$ColorArray = StringRegExp(Hex($iMenuColor), '\N\N', 3)
@@ -546,6 +568,7 @@ Func _SetColor()
 		$iColor1 = $iMenuColor
 		$iColor2 = '0x' & Hex(Int($rC), 2) & Hex(Int($gC), 2) & Hex(Int($bC), 2)
 		$iColor3 = '0x' & Hex(Int($bC), 2) & Hex(Int($gC), 2) & Hex(Int($rC), 2)
+		
 		If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor = 0xFFFFFF
 		If BitOR($rC, $gC, $bC) < 0xFF / 2 Then $iFontColor2 = 0xFFFFFF
 		If BitOR($rC, $gC, $bC) > 0xFF / 2 Then $iFontColor = 0x000000
@@ -555,6 +578,7 @@ Func _SetColor()
 	
 	If $iUseThemes = 1 Then
 		If BitAND($iMenuColor = '', $iUseThemes = 1) Then $iMenuColor = "Classic"
+		
 		If $iMenuColor = 'Classic' then
 			$iColor1 = 0xFFFFFF
 			$iColor2 = 0xFFFFFF
@@ -607,6 +631,7 @@ Func _SetColor()
 		GUICtrlSetBkColor($idButton[$i], $iColor1)
 	Next
 EndFunc
+
 #EndRegion
 
 #cs

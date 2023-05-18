@@ -1266,17 +1266,17 @@ Super Street Fighter IV 3D Edition	2011	_MTFramework
 Ultimate Marvel vs. Capcom 3	2011	_MTFramework				
 Ultimate Marvel vs. Capcom 3	2011	_MTFramework				
 Of orcs and men (SPK, PGZ)	2012	_OOAM	Of Orcs and Men files (*.spk; *.pgz; *_*)|			
-Arcanum (DAT)	2001	_OtherPRG	Arcanum DAT File (*.dat)|	undat.exe	 	FolderName
-Arx Fatalis	2002	_OtherPRG	Arx Fatalis PAK File (*.pak)|	afunpak.exe	 	 
-Euro Truck Simulator 2	2012	_OtherPRG	SCS File (*.scs)|	scs_extractor.exe		FolderName
-Heroes of Might and Magic  VI	2011	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
-Metal Gear Solid 5: The Phantom Pain	2014	_OtherPRG	FOX Engine files (*.dat; *.qar; *.fpk; *.pftxs; *.sbp; *.xml)|	gzsTool\gzsTool.exe	 	 
-Might & Magic Heroes VI	2011	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
-Sacred	2004	_OtherPRG	PAK Files (*.PAK)|	sacred_tex_extractor.exe		
-Scania	2012	_OtherPRG	SCS File (*.scs)|	scs_extractor.exe		FolderName
-Supernova		_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
-Warhammer 40000: Mark of Chaos	2006	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	orkdec.exe		FolderName
-Red Dead Redemption 2 (RPF Audio)	2018	_OtherPRG	RDR 2 RPF Audio Archive (*.rpf)|	python_script\rdr2audio.py	FolderName	
+Arcanum (DAT)	2001	_OtherPRG	Arcanum DAT File (*.dat)|	data\undat.exe	 	FolderName
+Arx Fatalis	2002	_OtherPRG	Arx Fatalis PAK File (*.pak)|	data\afunpak.exe	 	 
+Euro Truck Simulator 2	2012	_OtherPRG	SCS File (*.scs)|	data\scs_extractor.exe		FolderName
+Heroes of Might and Magic  VI	2011	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	data\orkdec.exe		FolderName
+Metal Gear Solid 5: The Phantom Pain	2014	_OtherPRG	FOX Engine files (*.dat; *.qar; *.fpk; *.pftxs; *.sbp; *.xml)|	data\gzsTool\gzsTool.exe	 	 
+Might & Magic Heroes VI	2011	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	data\orkdec.exe		FolderName
+Sacred	2004	_OtherPRG	PAK Files (*.PAK)|	data\sacred_tex_extractor.exe		
+Scania	2012	_OtherPRG	SCS File (*.scs)|	data\scs_extractor.exe		FolderName
+Supernova		_OtherPRG	ORC\ORK File (*.orc;*.ork)|	data\orkdec.exe		FolderName
+Warhammer 40000: Mark of Chaos	2006	_OtherPRG	ORC\ORK File (*.orc;*.ork)|	data\orkdec.exe		FolderName
+Red Dead Redemption 2 (RPF Audio)	2018	_OtherPRG	RDR 2 RPF Audio Archive (*.rpf)|	python\rdr2audio.py	FolderName	
 The Legend of Heroes: Trails of Cold Steel II	2014	_Sen	CS2			
 The Legend of Heroes: Trails of Cold Steel III	2017	_Sen	CS3			
 The Legend of Heroes: Trails of Cold Steel IV	2018	_Sen	CS4			

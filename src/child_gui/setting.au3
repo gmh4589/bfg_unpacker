@@ -1,7 +1,9 @@
 Func SettingMenu()
 	
-Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
+	Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
+
 	If BitOR($iMenuColor <> 'Classic', $iMenuColor = 0) then GUISetBkColor($iColor1)
+	
 	GUISetState(@SW_SHOW, $set_Gui)
 	GUISetIcon(@ScriptDir & "\Data\ico\i.ico")
 	
@@ -37,41 +39,47 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 	
 	RegRead("HKEY_CLASSES_ROOT\*\shell\BFGUnp\command", "")
 	
-		If Not @error Then 
-			$iCheck1 = 1
-		Else
-			$iCheck1 = 4
-		EndIf
+	If Not @error Then 
+		$iCheck1 = 1
+	Else
+		$iCheck1 = 4
+	EndIf
 		
 	GUICtrlSetState(-1, $iCheck1)
 	
 	$iGroupByGroup = GUICtrlCreateGroup($tGroupBy, 140, 50, 95, 60)
 	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iGroupByGroup), "wstr", 0, "wstr", 0)
+	
 	Local $iNameG = GUICtrlCreateRadio('', 150, 65, 15, 20)
 	Local $iYearG = GUICtrlCreateRadio('', 150, 85, 15, 20)
 	Local $iNameGLbl = GUICtrlCreateLabel($tName, 165, 68, 60)
 	Local $iYearGLbl = GUICtrlCreateLabel($tYear, 165, 88, 60)
 
-		If $iGroupBy = 'Name' Then
-			GUICtrlSetState($iNameG, 1)
-		ElseIf  $iGroupBy = 'Year' Then
-			GUICtrlSetState($iYearG, 1)
-		EndIf
+	If $iGroupBy = 'Name' Then
+		GUICtrlSetState($iNameG, 1)
+	ElseIf  $iGroupBy = 'Year' Then
+		GUICtrlSetState($iYearG, 1)
+	EndIf
 
 	Local $iGamma = _
-    [0xFFFFFF, 0x000000, 0x303030, 0x808080, 0xC0C0C0, _
-     0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, 0xA69E40, _
-     0xFF99CC, 0xFF80FF, 0x993366, 0xD74060, 0x821E55, _
-     0xCCFFFF, 0x99CCFF, 0x33CCCC, 0x666699, 0x1E5A82, _
-     0xCCFFCC, 0x66C850, 0x339966, 0x66CC99, 0x00BE32]
+		[0xFFFFFF, 0x000000, 0x303030, 0x808080, 0xC0C0C0, _
+		 0xFF9900, 0xFFCC00, 0xFFCC99, 0xFFFF99, 0xA69E40, _
+		 0xFF99CC, 0xFF80FF, 0x993366, 0xD74060, 0x821E55, _
+		 0xCCFFFF, 0x99CCFF, 0x33CCCC, 0x666699, 0x1E5A82, _
+		 0xCCFFCC, 0x66C850, 0x339966, 0x66CC99, 0x00BE32]
 	 
 	If GUICtrlRead($iThemes) = 1 Then
 		$ThemList = StringReplace(_ArrayToString(_FileListToArray(@ScriptDir & '\data\themes', '*.ini'), '|', 1), '.ini', '')
 		Local $Picker = GUICtrlCreateCombo("", 140, 113, 100, 25)
+		
 		If $ThemList = -1 Then $ThemList = ''
+		
 		GUICtrlSetData(-1, 'Classic|' & $ThemList, $iMenuColor)	
+		
 	ElseIf GUICtrlRead($iThemes) = 4 Then
-		Local $Picker = _GUIColorPicker_Create('', 140, 110, 100, 25, $iColor1, BitOR($CP_FLAG_CHOOSERBUTTON, $CP_FLAG_DEFAULT, $CP_FLAG_ARROWSTYLE, $CP_FLAG_TIP), $iGamma, 5, 5, 1, '', 'More...')
+		Local $Picker = _GUIColorPicker_Create('', 140, 110, 100, 25, $iColor1, _
+			BitOR($CP_FLAG_CHOOSERBUTTON, $CP_FLAG_DEFAULT, $CP_FLAG_ARROWSTYLE, $CP_FLAG_TIP), $iGamma, 5, 5, 1, '', 'More...')
+			
 		GUICtrlSetTip(-1, $tSelColor)
 	EndIf
 		
@@ -154,7 +162,9 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 				_SetColor()
 				GUISetState(@SW_HIDE, $set_Gui)
 				Return(SettingMenu())
+				
 			Case $iNameGLbl, $iYearGLbl
+			
 				If BitAND(GUICtrlRead($iNameG) = 1, GUICtrlRead($iYearG) = 4) Then 
 					GUICtrlSetState($iNameG, $GUI_UNCHECKED)
 					GUICtrlSetState($iYearG, $GUI_CHECKED)
@@ -162,19 +172,26 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 					GUICtrlSetState($iNameG, $GUI_CHECKED)
 					GUICtrlSetState($iYearG, $GUI_UNCHECKED)
 				EndIf
+				
 			Case $iEngine1Lbl
 				GUICtrlSetState($iEngine1, _Checker($iEngine1))
+				
 			Case $iEngine3Lbl
 				GUICtrlSetState($iEngine3, _Checker($iEngine3))
+				
 			Case $iEngine4Lbl
 				GUICtrlSetState($iEngine4, _Checker($iEngine4))
+				
 			Case $iEngine5Lbl
 				GUICtrlSetState($iEngine5, _Checker($iEngine5))
+				
 			Case $iEngine6Lbl
 				GUICtrlSetState($iEngine6, _Checker($iEngine6))
+				
 			Case $iOnLaodLbl
 				GUICtrlSetState($iOnLaod, _Checker($iOnLaod))
 				$iRunAsAdm = True
+				
 			Case $iOnLaod
 				$iRunAsAdm = True
 		EndSwitch
@@ -182,6 +199,7 @@ Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
 EndFunc
 
 Func _Checker($checkboxID)
+
 	If GUICtrlRead($checkboxID) = 1 Then 
 		Return($GUI_UNCHECKED)
 	ElseIf GUICtrlRead($checkboxID) = 4 Then 
@@ -190,7 +208,7 @@ Func _Checker($checkboxID)
 EndFunc
 
 Func _ChangeButton($jBTN)
-Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
+	Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $but_Gui)
 	GUISetIcon(@ScriptDir & "\Data\ico\i.ico")
@@ -202,6 +220,7 @@ Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 		GUICtrlSetTip(-1, $iIconsArray[$i][1])
 		GUICtrlSetColor(-1, $iFontColor)
 		$arg1 += 50
+		
 		If $arg1 = 250 Then
 			$arg1 = 0
 			$arg2 += 50
@@ -209,34 +228,37 @@ Local $but_Gui = GUICreate($tOpenINI, 250, 250, -1, -1)
 	Next
 	
 	$setBTN[26] = GUICtrlCreateLabel("@", $arg1, $arg2, 50, 50, $SS_CENTER+$SS_CENTERIMAGE)
-		GUICtrlSetFont(-1, 40, 400, 0, "IconLib")
-		GUICtrlSetTip(-1, $tCancel)
-		GUICtrlSetColor(-1, $iFontColor)
+	GUICtrlSetFont(-1, 40, 400, 0, "IconLib")
+	GUICtrlSetTip(-1, $tCancel)
+	GUICtrlSetColor(-1, $iFontColor)
 		
-		While 1
-			_CursorMove($but_Gui)
-			$msg2 = GUIGetMsg($but_Gui)
-			Switch $msg2
-				Case $GUI_EVENT_CLOSE, $setBTN[26]
-					GUISetState(@SW_HIDE, $but_Gui)
-					GUIDelete($but_Gui)
-						ExitLoop
-				Case $setBTN[2] to $setBTN[25]
-					For $i = 2 to 25
-						If $msg2 = $setBTN[$i] Then 
-							$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$jBTN]))][1]
-							If _ArraySearch($btnArray, $abcArray[$i]) > -1 Then
-								_MsgBox(0, $tMessage, $tBTN & $iIconsArray[$i][1] & $tBTN1) ;TODO!!!
-							Else
-								IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$i])
-								GUICtrlSetData($idButton[$jBTN], $abcArray[$i])
-								GUICtrlSetFont($idButton[$jBTN], $iIconsArray[$i][0], 400, 0, "IconLib")
-								GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])
-								$btnArray[$jBTN-1][1] = $abcArray[$i]
-								_MsgBox(0, $tMessage, $tBTN & $btnName & $tBTN2 & $iIconsArray[$i][1] & '"')  ;TODO!!!
-							EndIf
+	While 1
+		_CursorMove($but_Gui)
+		$msg2 = GUIGetMsg($but_Gui)
+		Switch $msg2
+			Case $GUI_EVENT_CLOSE, $setBTN[26]
+				GUISetState(@SW_HIDE, $but_Gui)
+				GUIDelete($but_Gui)
+					ExitLoop
+			Case $setBTN[2] to $setBTN[25]
+			
+				For $i = 2 to 25
+				
+					If $msg2 = $setBTN[$i] Then 
+						$btnName = $iIconsArray[_ArraySearch($abcArray, IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$jBTN]))][1]
+						
+						If _ArraySearch($btnArray, $abcArray[$i]) > -1 Then
+							_MsgBox(0, $tMessage, $tBTN & $iIconsArray[$i][1] & $tBTN1) ;TODO!!!
+						Else
+							IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$i])
+							GUICtrlSetData($idButton[$jBTN], $abcArray[$i])
+							GUICtrlSetFont($idButton[$jBTN], $iIconsArray[$i][0], 400, 0, "IconLib")
+							GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])
+							$btnArray[$jBTN-1][1] = $abcArray[$i]
+							_MsgBox(0, $tMessage, $tBTN & $btnName & $tBTN2 & $iIconsArray[$i][1] & '"')  ;TODO!!!
 						EndIf
-					Next
-			EndSwitch
-		WEnd
+					EndIf
+				Next
+		EndSwitch
+	WEnd
 EndFunc

@@ -1,11 +1,11 @@
 Archives Name	Function	Ext List	Program Name	Unpack com 1	Unpack com 2	Pack com	Archive move	Archive ext	ff	Столбец1
-ARC	_OtherPRG	ARC Archives (*.arc)|	arc.exe	 e	 	 a	true	.arc	True	1
-BLZ	_OtherPRG	BLZ Archives (*.blz)|	blzpack.exe	 d	 	 c	true	.blz	True	1
-BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	bma.exe	 e	 	 a	true	.bma	True	1
-DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	dgcac.exe	 e	 "FolderName"	 a	false	.dgc	False	1
-NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	nz.exe	 x	 	 a "FolderName"	true	.nz	False	1
-YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	yz2tool.exe	 -x	 	 -c	true	.yz2	False	1
-DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	dzip.exe	 -x	 	 -o	true	.dzip	False	2
+ARC	_OtherPRG	ARC Archives (*.arc)|	data\arc.exe	 e	 	 a	true	.arc	True	1
+BLZ	_OtherPRG	BLZ Archives (*.blz)|	data\blzpack.exe	 d	 	 c	true	.blz	True	1
+BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	\data\bma.exe	 e	 	 a	true	.bma	True	1
+DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	\data\dgcac.exe	 e	 "FolderName"	 a	false	.dgc	False	1
+NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	nz.exe\data\	 x	 	 a "FolderName"	true	.nz	False	1
+YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	\data\yz2tool.exe	 -x	 	 -c	true	.yz2	False	1
+DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	\data\dzip.exe	 -x	 	 -o	true	.dzip	False	2
 ExFAT File System Image	_7Zip	ExFAT Disc Images (*.fat;*.img)|								3
 AccessData FTK Imager Logical Image	_7Zip	AD1 Disc Images (*.ad1)|								3
 Advanced Forensics Format	_7Zip	AFF Disc Images (*.aff)|								3
@@ -46,8 +46,8 @@ MSI Windows Installer	_7Zip	MSI Installer (*.msi)|								5
 SFX Archive Installer	_7Zip	SFX Archive (*.exe; *.sfx; *.7z; *.zip;*.rar)|								5
 Windows Mobile Installer (XAP)	_7Zip	Wiindows Mobile Installer (*.xap)|								5
 ZIP Installer	_7Zip	EXE Installer (*.exe)|								5
-FreeArc Installer	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	 x -dp"FolderName"	 	not	false	 		5
-Inno Setup Installer	_OtherPRG	Inno Setup Installer (*.exe)|	innounp.exe	 -x -d"FolderName"		not	false			5
+FreeArc Installer	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	\data\unarc.exe	 x -dp"FolderName"	 	not	false	 		5
+Inno Setup Installer	_OtherPRG	Inno Setup Installer (*.exe)|	\data\innounp.exe	 -x -d"FolderName"		not	false			5
 Symbian SIS Installer	_OtherPRG	Simbian OS Installer (*.sis)|	\data\unsisX.exe							5
 Eschalon Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
 Gentee Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
@@ -92,10 +92,10 @@ Z	_7Zip	Z Archives (*.z)|
 Zstandart	_7Zip	Zstandart Archives (*.zstd; *.7z; *.deb; *.nsz; *.xcz)|								
 ZIP	_7Zip	ZIP Archives (*.zip; *.bin; *.bsp; *.bza; *.cbz; *.dat; *.dazip; *.docx; *.dotx; *.epub; *.fods; *.fodt; *.fomod; *.gro; *.jar; *.kfs; *.lp; *.nob; *.odb; *.ods; *.odt; *.omod; *.ots; *.ott; *.pak; *.piz; *.pk3; *.pk4; *.potm; *.ppsx; *.pptx; *.txtz; *.xlsm; *.xlsx; *.xpi; *.zipx)|'								
 ZIPX	_7Zip	ZIPX Archives (*.zipx; *.zip)|								
-ACE	_OtherPRG	ACE Archives (*.ace)|	unace.exe	 x	 	not	true	 		
-FreeARC	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	 x -dp"FolderName"	 	not	false	 		
-YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	yzdec.exe	 -d	 	not	true	 		
-ZOO	_OtherPRG	ZOO Archives (*.zoo)|	unzoo.exe	 -x	 	not	true	 		
+ACE	_OtherPRG	ACE Archives (*.ace)|	\data\unace.exe	 x	 	not	true	 		
+FreeARC	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	\data\unarc.exe	 x -dp"FolderName"	 	not	false	 		
+YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	\data\yzdec.exe	 -d	 	not	true	 		
+ZOO	_OtherPRG	ZOO Archives (*.zoo)|	\data\unzoo.exe	 -x	 	not	true	 		
 ALZ	_QickBMS	ALZ Archves (*.alz)|	\data\wcx\UnArkWCX.wcx							
 ARK	_QickBMS	ARK Archives (*.ark)|	\data\wcx\UnArkWCX.wcx							
 BlackHole	_QickBMS	BlackHole Archives (*.bh)|	\data\wcx\UnArkWCX.wcx							
