@@ -97,6 +97,8 @@ EndFunc
 Func _Bool($Bool)
 	If $Bool = 'True' Then Return True
 	If $Bool = 'False' Then Return False
+	If $Bool Then Return True
+	If Not $Bool Then Return False
 EndFunc
 
 Func _BinaryToArray($iBin)

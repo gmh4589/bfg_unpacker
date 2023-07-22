@@ -8,6 +8,8 @@ Func Main()
 		Switch $msg
 			Case $GUI_EVENT_CLOSE, $iExit
 				IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', GUICtrlRead($iHideOrShow))
+				IniWrite(@ScriptDir & '\unpacker.ini', 'Main', 'SubFolder', GUICtrlRead($iSubFolder_Checkbox))
+				
 				ExitLoop
 				
 		Case $GUI_EVENT_DROPPED
@@ -38,7 +40,10 @@ Func Main()
 			
 		Case $iHideOrShowTXT
 			GUICtrlSetState($iHideOrShow, _Checker($iHideOrShow))
-				
+			
+		Case $iSubFolder_CheckboxTXT
+			GUICtrlSetState($iSubFolder_Checkbox, _Checker($iSubFolder_Checkbox))
+		
 		Case $iDeFi 
 			Defi()
 			
@@ -293,30 +298,44 @@ Func Main()
 			For $itemA = 1 to $iArcCount
 				If $msg = $iArchiveItem[$itemA] Then 
 					StringReplace($iArchiveItem[$itemA], 'FolderName', $sFolderName)
-					$iArchCall = StringSplit($iArchiveArray[$itemA], '	')
-					Switch $iArchCall[2]
+					$iArchCall = StringSplit($iArchiveArray[$itemA], @TAB)
+					
+					$aFunc = $iArchCall[2]
+					$aExt = $iArchCall[3]
+					$aPrg = $iArchCall[4]
+					$aUnpCom1 = $iArchCall[5]
+					$aUnpCom2 = $iArchCall[6]
+					$aPackCom = $iArchCall[7]
+					$aMove = _Bool($iArchCall[8])
+					$aSaveExt = $iArchCall[9]
+					$aFolderPack = _Bool($iArchCall[10])
+					$aType = $iArchCall[11]
+					
+					Switch $aFunc
 						Case '_7Zip'
-							_OtherPRG($iArchCall[3], '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
+							_OtherPRG($aExt, '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
 							
 						Case '_OtherPRG'
 							If GUICtrlRead($iReimport_Checkbox) = 1 Then
-								If $iArchCall[7] = 'not' Then
+								If $aPackCom = 'not' Then
 									_MsgBox(0, $tMessage, $tNotSupport)
 								Else
 									$ArchiveName = _InputBox($tArchiveName, '', 'new_archive')
 									If $ArchiveName = '' Then ContinueLoop
-									Switch $iArchCall[11] ;TODO Проверить упаковку!
+									$fld = $aFolderPack ? 'folder' : ''
+									Switch $aType ;TODO Проверить упаковку!
+									;_OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False)
 										Case '1'
-											_OtherPRG('', $iArchCall[4], $iArchCall[7] & $ArchiveName & $iArchCall[9], $iArchCall[8], $sFolderName, '', _Bool($iArchCall[11]))
+											_OtherPRG('', $aPrg, $aPackCom & ' "' & $sFolderName & '\' & $ArchiveName & $aSaveExt & '"', '', $sFolderName, $fld, $aMove)
 										Case '2'
-											_OtherPRG('', $iArchCall[4], $iArchCall[7], $iArchCall[8] & $ArchiveName & $iArchCall[9], $sFolderName, '', _Bool($iArchCall[11]))
+											_OtherPRG('', $aPrg, $aPackCom, $sFolderName & '\' & $ArchiveName & $aSaveExt, $sFolderName, $fld, $aMove)
 									EndSwitch
 								EndIf
 							Else
-								_OtherPRG($iArchCall[3], $iArchCall[4], $iArchCall[5], $iArchCall[6], $sFolderName, '', _Bool($iArchCall[8]))
+								_OtherPRG($aExt, $aPrg, $aUnpCom1, $aUnpCom2, $sFolderName, '', $aMove)
 							EndIf
 						Case '_QickBMS'
-							_QuickBMSRun($iArchCall[3], @ScriptDir & $iArchCall[4])
+							_QuickBMSRun($aExt, @ScriptDir & $aPrg)
 					EndSwitch
 				EndIf
 			Next
@@ -344,7 +363,7 @@ Func Main()
 			_OtherPRG('CSO Disc Image(*.cso)|', '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip')
 			
 		Case $iNSPImage
-			_OtherPRG('NSZ XCZ Disc Images(*.nsz; *.xcz; *.nsp)|', 'python_script\nspx.py ', ' -xf ', ' -o"' & $sFolderName & '"', $sFolderName)
+			_OtherPRG('NSZ XCZ Disc Images(*.nsz; *.xcz; *.nsp)|', '\data\python_script\nspx.py ', ' -xf ', ' -o"' & $sFolderName & '"', $sFolderName)
 			
 		Case $iISOImageWii
 			_OtherPRG('ISO Disc Image(*.iso)|', '\data\wit\wit.exe ', ' EXTRACT ', ' "' & $sFolderName & '"', $sFolderName)
@@ -384,7 +403,7 @@ Func Main()
 			_ChildGUI("ZLIB GUI", $Mode & '|' & $Offset, "Scan_ZLIB|Cool_scan_ZLIB|Extract_ZLIB|Extract_Deflate|Reimport_ZLIB;", "Extract_ZLIB|")
 			
 		Case $ilz4_decompress
-			_OtherPRG('', 'lz4_decompress.exe ', ' ', $sFolderName & '\data\\lz4_decompress.dat')
+			_OtherPRG('', '\data\lz4_decompress.exe ', ' ', $sFolderName & '\data\lz4_decompress.dat')
 			
 		Case $iWavSearch
 			_QuickBMSRun('', @ScriptDir & "\data\scripts\wav_search.bms ")
@@ -493,7 +512,7 @@ Func Main()
 							EndSwitch
 							
 						Case '_OtherPRG'
-							_OtherPRG($iFuncCall[4], $iFuncCall[5], $iFuncCall[6], $iFuncCall[7])
+							_OtherPRG($iFuncCall[4], $iFuncCall[5], $iFuncCall[6], $iFuncCall[7], '', '', $iFuncCall[8])
 							
 						Case '_DosBox'
 							_DosBox($iFuncCall[4], $iFuncCall[5], $iFuncCall[6], $iFuncCall[7])
@@ -523,7 +542,7 @@ Func Main()
 							;$file = _getFile('', "Exoplanet catalog(exoplanet.eu_catalog.csv)|")
 							;	If @error = 1 then Return
 							;	If $iFuncCall[4] = 'Celestia' Then CelestiaExo($file)
-								If $iFuncCall[4] = 'Celestia' Then _Console(@ScriptDir & "\python\exo.py")
+								If $iFuncCall[4] = 'Celestia' Then _Console(@ScriptDir & "\data\python_script\exo.py")
 							;	If $iFuncCall[4] = 'SpaceEngine' Then SpaceEngineExo($file)
 					EndSwitch
 				EndIf

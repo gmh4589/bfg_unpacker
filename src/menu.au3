@@ -54,9 +54,9 @@ Func ClearFolder($iTrash = False)
 			$begin = TimerInit()
 
 			For $i = 0 to $a - 1
-				If $iTrash = False Then FileDelete($sFolderName & '\' & $iFileList1[$i])
-				If $iTrash = False Then DirRemove($sFolderName & '\' & $iFileList1[$i], 1)
-				If $iTrash = True Then FileRecycle($sFolderName & '\' & $iFileList1[$i])
+				If Not $iTrash Then FileDelete($sFolderName & '\' & $iFileList1[$i])
+				If Not $iTrash Then DirRemove($sFolderName & '\' & $iFileList1[$i], 1)
+				If $iTrash Then FileRecycle($sFolderName & '\' & $iFileList1[$i])
 				
 				$Percent =(100/$a) * $i
 				$dif = TimerDiff($begin)
@@ -181,7 +181,7 @@ Func AutoSearch()
                 EndSwitch
 
             $Percent =(100/$iStringCount) * $a
-            If Mod($a, 100) = 0 Then _BarCreate($Percent, "Подождите...", $a & '\' & $iStringCount, 300, 90)
+            If Mod($a, 100) = 0 Then _BarCreate($Percent, "Подождите...", $a & '\' & $iStringCount, 300, 90) ;TODO: TEXT!!!
         Next
 
     _BarOff()

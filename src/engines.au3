@@ -180,7 +180,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					Case ".wl6"
 						$iFolPath = $iDrive & StringReplace($iDir, '\base', '')
 						ShellExecuteWait(@ScriptDir & '\data\WolfExtractor.exe', "", $iFolPath, "open")
-						_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $iFolPath & '\base\wolf.pak')
+						_OtherPRG('', '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $iFolPath & '\base\wolf.pak')
 						FileDelete($iFolPath & '\base\wolf.pak')
 						
 					Case ".msf"
@@ -477,7 +477,7 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 				EndSwitch
 				
 			Case '_Construct', '_Chromium', '_Flash'
-				_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
+				_OtherPRG('', '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFileName)
 				If $iEnginesName = '_Flash' Then _OtherPRG('', '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $sFolderName & '\' & $iName & '~.swf')
 				
 			Case '_Glacier'
@@ -595,8 +595,8 @@ Func _Engine($iEnginesName, $sFileName = '', $iOther = '')
 					Case '.dat'
 					
 						If StringInStr($iName, 'book') > 0 Then 
-							If GUICtrlRead($iReimport_Checkbox) = 1 Then _Console(@ScriptDir & "\python\tocs_book.py")
-							If GUICtrlRead($iReimport_Checkbox) = 1 Then _Console(@ScriptDir & "\python\tocs_book2dat.py")
+							If GUICtrlRead($iReimport_Checkbox) = 1 Then _Console(@ScriptDir & "\data\python_script\tocs_book.py")
+							If GUICtrlRead($iReimport_Checkbox) = 1 Then _Console(@ScriptDir & "\data\python_script\tocs_book2dat.py")
 						EndIf
 						
 						If GUICtrlRead($iReimport_Checkbox) = 4 Then _OtherPRG('', '\data\SSD\SenScriptsDecompiler.exe ', $iOther, $sFolderName, $sFolderName, $sFileName)

@@ -6,12 +6,9 @@ EndFunc
 Func _OtherPRG($iExtList, $iPRGName, $iCommand1 = ' ', $iCommand2 = '', $iWorkDir = $sFolderName, $sFileName = '', $iMove = False) 
 ;Для прочих программ: Список_расширений, Название_программы, Комманда_перед_именем_файла, Комманда_после_имени_файла, Рабочая_папка, Имя_файла, Файл или папка(True - файл, False - папка))
 ; Исправлено!
+	$iMove = _Bool($iMove)
 	Local $iParray = [$iPRGName, $iCommand1, $iCommand2, $iWorkDir, $iMove]
 	_fileReaper(_Console, $iExtList, $sFileName, $iParray)
-EndFunc
-
-Func _7z($iExtList, $sFileName = '')
-	;PASS
 EndFunc
 
 Func _OtherPRGExt($iMode1, $sFileName = '')
@@ -34,8 +31,8 @@ Func _OtherPRGExt($iMode1, $sFileName = '')
 	For $i1 = $fc1 to $a1
 		If $iFileList1[0] > 1 Then $sFileName = $iFileList1[1] & '\' & $iFileList1[$i1]
 		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
-		If $iMode1 = '_SAU' Then _OtherPRG('', 'sau.exe', './', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
-		If $iMode1 = '_VGM' Then _OtherPRG('', 'vgmstream\test.exe', '-o ' & $sFolderName & '\' & $iName & '.wav ', '', $sFolderName, $sFileName)
+		If $iMode1 = '_SAU' Then _OtherPRG('', 'data\sau.exe', './', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
+		If $iMode1 = '_VGM' Then _OtherPRG('', 'data\vgmstream\test.exe', '-o ' & $sFolderName & '\' & $iName & '.wav ', '', $sFolderName, $sFileName)
 	Next
 EndFunc
 
@@ -130,15 +127,15 @@ Func _headRead($iFN, $num = 2, $mode = 0)
 	$iF = FileOpen($iFN, $mode)
 	$iHead = FileRead($iF, $num)
 	FileClose($iF)
+	
 	Return($iHead)
-
 EndFunc
 
 Func Xenus($iProg);TODO: Удалить этот говнокод!!!
 	$sFilePath = FileOpenDialog($tSelectFile, " ", "GRP File(*.grp)|" & $tAllFile & "(*.*)", 1)
 	If @error = 1 then Return
 	_PathSplit($sFilePath, $iDrive, $iDir, $iName, $iExp)
-	$sFullFileName =($iName & ".grp")
+	$sFullFileName = $iName & ".grp"
 	$sJobFolder = StringReplace($sFilePath, $sFullFileName, "")
 	$hFile = FileOpen(@TempDir & "\start.bat", 10)
 	FileWriteLine($hFile, "chcp 65001")
@@ -156,7 +153,7 @@ Func Xenus2();TODO: Удалить этот говнокод!!!
 	$sFilePath = FileOpenDialog($tSelectFile, " ", "GRP File(*.grp)|" & $tAllFile & "(*.*)", 1)
 	If @error = 1 then Return
 	_PathSplit($sFilePath, $iDrive, $iDir, $iName, $iExp)
-	$sFullFileName =($iName & ".grp")
+	$sFullFileName = $iName & ".grp"
 	$sJobFolder = StringReplace($sFilePath, $sFullFileName, "")
 	$hFile = FileOpen(@TempDir & "\start.bat", 10)
 	FileWriteLine($hFile, "chcp 65001")
@@ -175,7 +172,7 @@ Func _Console($Cmd, $Cmd1 = '', $WorkDir = $sFolderName, $sFileName = '', $iHide
 	$iLog = FileOpen($logFile, 10)
 	$size = FileGetSize($sFileName)
 	FileWriteLine($iLog, $Cmd & $Cmd1)
-		
+	
 	If $iHideConsole Then 
 		If Not $iShell Then $iOutputWindow = Run($Cmd & $Cmd1, $WorkDir, $SH, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
 		If $iShell Then $iOutputWindow = ShellExecuteWait($Cmd, $Cmd1, $WorkDir, 'open', $SH);, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)

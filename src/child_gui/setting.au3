@@ -14,19 +14,19 @@ Func SettingMenu()
 	
 	$iEngineGroup = GUICtrlCreateGroup($tShowEngine, 5, 50, 130, 120)
 	DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($iEngineGroup), "wstr", 0, "wstr", 0)
-	Local $iEngine1Lbl = GUICtrlCreateLabel("Unreal(" & _FileCountLines(@ScriptDir & '\game_list\unreal_list.csv')-1 & ")", 25, 68, 100)
+	Local $iEngine1Lbl = GUICtrlCreateLabel("Unreal(" & _FileCountLines(@ScriptDir & '\game_list\unreal_list.csv') - 1 & ")", 25, 68, 100)
 	Local $iEngine1 = GUICtrlCreateCheckbox("", 10, 65, 15, 20)
 	GUICtrlSetState(-1, $iUnrealBuild)
-	Local $iEngine3Lbl = GUICtrlCreateLabel("Unity(" & _FileCountLines(@ScriptDir & '\game_list\unity_list.csv')-1 & ")", 25, 88, 100)
+	Local $iEngine3Lbl = GUICtrlCreateLabel("Unity(" & _FileCountLines(@ScriptDir & '\game_list\unity_list.csv') - 1 & ")", 25, 88, 100)
 	Local $iEngine3 = GUICtrlCreateCheckbox("", 10, 85, 15, 20)
 	GUICtrlSetState(-1, $iUnityBuild)
-	Local $iEngine4Lbl = GUICtrlCreateLabel("RPG Maker(" & _FileCountLines(@ScriptDir & '\game_list\rpgmaker_list.csv')-1 & ")", 25, 108, 100)
+	Local $iEngine4Lbl = GUICtrlCreateLabel("RPG Maker(" & _FileCountLines(@ScriptDir & '\game_list\rpgmaker_list.csv') - 1 & ")", 25, 108, 100)
 	Local $iEngine4 = GUICtrlCreateCheckbox("", 10, 105, 15, 20)
 	GUICtrlSetState(-1, $iRPGMBuild)
-	Local $iEngine5Lbl = GUICtrlCreateLabel("Game Maker(" & _FileCountLines(@ScriptDir & '\game_list\gamemaker_list.csv')-1 & ")", 25, 128, 100)
+	Local $iEngine5Lbl = GUICtrlCreateLabel("Game Maker(" & _FileCountLines(@ScriptDir & '\game_list\gamemaker_list.csv') - 1 & ")", 25, 128, 100)
 	Local $iEngine5 = GUICtrlCreateCheckbox("", 10, 125, 15, 20)
 	GUICtrlSetState(-1, $iGMBuild)
-	Local $iEngine6Lbl = GUICtrlCreateLabel("RenPy(" & _FileCountLines(@ScriptDir & '\game_list\renpy_list.csv')-1 & ")", 25, 148, 100)
+	Local $iEngine6Lbl = GUICtrlCreateLabel("RenPy(" & _FileCountLines(@ScriptDir & '\game_list\renpy_list.csv') - 1 & ")", 25, 148, 100)
 	Local $iEngine6 = GUICtrlCreateCheckbox("", 10, 145, 15, 20)
 	GUICtrlSetState(-1, $iRenPyBuild)
 	
@@ -205,6 +205,7 @@ Func _Checker($checkboxID)
 	ElseIf GUICtrlRead($checkboxID) = 4 Then 
 		Return($GUI_CHECKED)
 	EndIf
+	
 EndFunc
 
 Func _ChangeButton($jBTN)

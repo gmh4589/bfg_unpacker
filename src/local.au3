@@ -237,5 +237,7 @@ Func LocalizeRead()
 		$tBTN = $sLng[225], _
 		$tBTN1 = $sLng[226], _
 		$tBTN2 = $sLng[227], _
-		$tREG = $sLng[228]
+		$tREG = $sLng[228], _
+		$tADD = $sLng[229], _
+		$tCreateSubFolder = $sLng[230]
 EndFunc

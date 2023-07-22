@@ -130,27 +130,27 @@ Func _ButtonDo($sFilePath, $iMenuData, $iGUIName, $nFolderName = $sFolderName)
 			Case "Wav Headler Generator"
 				_QuickBMSRun('', @ScriptDir & "\data\scripts\wav_script.bms ", $sFilePath, $nFolderName)
 			Case "ZLIB GUI"
-				_OtherPRG('', "offzip.exe ", $iCombo[1], $nFolderName & ' ' & $iCombo[2], $nFolderName, $sFilePath)
+				_OtherPRG('', "\data\offzip.exe ", $iCombo[1], $nFolderName & ' ' & $iCombo[2], $nFolderName, $sFilePath)
 			Case "XWMA Tool GUI"
-				_OtherPRG('', '\xWMAEncode.exe ', ' -b ' & $iCombo[1] & ' ', ' "' & $nFolderName & '\' & $iName & '.' & $iCombo[2] & '"', $nFolderName, $sFilePath)
+				_OtherPRG('', '\data\xWMAEncode.exe ', ' -b ' & $iCombo[1] & ' ', ' "' & $nFolderName & '\' & $iName & '.' & $iCombo[2] & '"', $nFolderName, $sFilePath)
 			Case "DDS Tools GUI nVidia"
-				_OtherPRG('', '\dds_tools\nvdxt.exe ', ' -file "', '" ' & '-' & $iCombo[1] & ' -output "' & $nFolderName & '\' & $iName & '.dds"', $nFolderName, $sFilePath)
+				_OtherPRG('', '\data\dds_tools\nvdxt.exe ', ' -file "', '" ' & '-' & $iCombo[1] & ' -output "' & $nFolderName & '\' & $iName & '.dds"', $nFolderName, $sFilePath)
 			Case "DDS Tools GUI Microsoft"
-				If $iCombo[2] = 'PC' then $iProg = "dds_tools\texconv.exe"
-				If $iCombo[2] = 'XBox One' then $iProg = "dds_tools\xtexconv.exe"
+				If $iCombo[2] = 'PC' then $iProg = "\data\dds_tools\texconv.exe"
+				If $iCombo[2] = 'XBox One' then $iProg = "\data\dds_tools\xtexconv.exe"
 				_OtherPRG('', $iProg, ' -f ' & $iCombo[1] & ' -o "' & $nFolderName & '" ', '', $nFolderName, $sFilePath)
 			Case "FFMPEG GUI"
-				_OtherPRG('*.*', 'ffmpeg.exe ', ' -i ', ' -vcodec ' & $iCombo[1] & " -vb " & $iCombo[3] & " -vf scale=" & $iCombo[6] & " -acodec " & $iCombo[2] & " -ab " & $iCombo[4] & " -map 0:0 -map 0:" & $iCombo[7] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[5] & '"', $nFolderName, $sFilePath)
+				_OtherPRG('*.*', '\data\ffmpeg.exe ', ' -i ', ' -vcodec ' & $iCombo[1] & " -vb " & $iCombo[3] & " -vf scale=" & $iCombo[6] & " -acodec " & $iCombo[2] & " -ab " & $iCombo[4] & " -map 0:0 -map 0:" & $iCombo[7] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[5] & '"', $nFolderName, $sFilePath)
 			Case "FFMPEG AUDIO"
-				_OtherPRG('', 'ffmpeg.exe', ' -i ', ' -vn -ab ' & $iCombo[3] & ' -ac ' & $iCombo[2] & " -af aresample=" & $iCombo[1] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[4] & '"', $nFolderName, $sFilePath)
+				_OtherPRG('', '\data\ffmpeg.exe', ' -i ', ' -vn -ab ' & $iCombo[3] & ' -ac ' & $iCombo[2] & " -af aresample=" & $iCombo[1] & ' "' & $nFolderName & "\" & $iName & "." & $iCombo[4] & '"', $nFolderName, $sFilePath)
 			Case "FFMPEG IMAGE"
-				_OtherPRG('', 'ffmpeg.exe', ' -i ', ' "' & $nFolderName & '\' & $iName & '.' & $iCombo[1] & '"', $nFolderName, $sFilePath)
+				_OtherPRG('', '\data\ffmpeg.exe', ' -i ', ' "' & $nFolderName & '\' & $iName & '.' & $iCombo[1] & '"', $nFolderName, $sFilePath)
 			Case "DDS Header Generator"
 				DDSSaving($iCombo[1], $iCombo[2], $iCombo[3], $iCombo[4], $sFilePath)
 				GUICtrlSetData($iEdit, $tDone & ' ' & $sFilePath & @CRLF, 1)
 			Case "NCONVERT GUI"
 				FileCopy($sFilePath, $nFolderName & '\' & $iName & $iExp)
-				_OtherPRG('', 'nconvert\nconvert.exe', ' -out ' & $iCombo[1] & ' ', '', $nFolderName, $nFolderName & '\' & $iName & $iExp, $sFilePath)
+				_OtherPRG('', '\data\nconvert\nconvert.exe', ' -out ' & $iCombo[1] & ' ', '', $nFolderName, $nFolderName & '\' & $iName & $iExp, $sFilePath)
 				FileDelete($nFolderName & '\' & $iName & $iExp)
 			Case "Wwise Converter"
 				If $iCombo[1] = 'WWISE_Unpacker' Then 
@@ -160,17 +160,17 @@ Func _ButtonDo($sFilePath, $iMenuData, $iGUIName, $nFolderName = $sFolderName)
 						Case ".bnk"
 							_QuickBMSRun('', @ScriptDir & '\data\scripts\wwsise_bnk.bms ', $sFilePath)
 						Case ".afc"
-							_OtherPRG('', 'afcextr.exe ', ' ', '', $nFolderName, $sFilePath)
+							_OtherPRG('', '\data\afcextr.exe ', ' ', '', $nFolderName, $sFilePath)
 						Case Else
 							_QuickBMSRun('', @ScriptDir & '\data\scripts\wwsise_pck_akpk.bms ', $sFilePath)
 							_QuickBMSRun('', @ScriptDir & '\data\scripts\wwsise_bnk.bms ', $sFilePath)
-							_OtherPRG('', 'afcextr.exe ', ' ', '', $nFolderName, $sFilePath)
+							_OtherPRG('', '\data\afcextr.exe ', ' ', '', $nFolderName, $sFilePath)
 					EndSwitch
 					
 				ElseIf $iCombo[1] = 'wwise2wav' Then
-					_OtherPRG('', "wwise_ima_adpcm.exe", ' -d ', '"' & $nFolderName & "\" & $iName & '.wav"', $nFolderName, $sFilePath)
+					_OtherPRG('', "\data\wwise_ima_adpcm.exe", ' -d ', '"' & $nFolderName & "\" & $iName & '.wav"', $nFolderName, $sFilePath)
 				ElseIf $iCombo[1] = 'wwise2vorbis' Then
-					_OtherPRG('', "ww2ogg.exe ", '', ' --pcb ' & @ScriptDir & '\data\' & $iCombo[2] & ' -o "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, $sFilePath)
+					_OtherPRG('', "\data\ww2ogg.exe ", '', ' --pcb ' & @ScriptDir & '\data\' & $iCombo[2] & ' -o "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, $sFilePath)
 					ShellExecuteWait(@ScriptDir & '\data\revorb.exe', ' "' & $nFolderName & "\" & $iName & '.ogg"', $nFolderName, 'open', @SW_HIDE)
 				EndIf
 			
@@ -179,11 +179,11 @@ Func _ButtonDo($sFilePath, $iMenuData, $iGUIName, $nFolderName = $sFolderName)
 				Switch $iCombo[2] 
 					Case 'VAG2WAV'
 						FileCopy($sFilePath, @TempDir)
-						_OtherPRG('', "vagunpacker.exe", '', '' , $nFolderName, @TempDir & '\' & $iName & $iExp)
-						_Console(@ScriptDir & '\Data\quickbms.exe ' & @ScriptDir & "\data\scripts\wav_script.bms " & ' "' & @TempDir & '\' &  $iName & '.pcm' & '" "' & $nFolderName & '"')
+						_OtherPRG('', "\data\vagunpacker.exe", '', '' , $nFolderName, @TempDir & '\' & $iName & $iExp)
+						_Console(@ScriptDir & '\data\quickbms.exe ' & @ScriptDir & "\data\scripts\wav_script.bms " & ' "' & @TempDir & '\' &  $iName & '.pcm' & '" "' & $nFolderName & '"')
 					Case 'WAV2VAG'
 						FileCopy($sFilePath, $nFolderName)
-						_OtherPRG('', "vagpacker.exe", '', '' , $nFolderName, $nFolderName & '\' & $iName & $iExp)
+						_OtherPRG('', "\data\vagpacker.exe", '', '' , $nFolderName, $nFolderName & '\' & $iName & $iExp)
 						FileDelete($nFolderName & '\' & $iName & $iExp)
 					Case 'SXD2Atrac' 
 						_QuickBMSRun("", @ScriptDir & "\data\scripts\sxd_at9.bms ", $sFilePath)
@@ -199,7 +199,7 @@ Func _ButtonDo($sFilePath, $iMenuData, $iGUIName, $nFolderName = $sFolderName)
 						If $iCombo[2] = "Atrac2WAV" Then $iFmt = "wav"
 						If BitOR($iCombo[1] = "PS3", $iCombo[1] = "PSP") Then $iFmt = "at3"
 						If BitOR($iCombo[1] = "PS4", $iCombo[1] = "PSVita") Then $iFmt = "at9"
-						_OtherPRG('', $iPrg & ".exe", $iLet, ' "' & $nFolderName & "\" & $iName & "." & $iFmt & '"', $nFolderName, $sFilePath)
+						_OtherPRG('', "\data\" & $iPrg & ".exe", $iLet, ' "' & $nFolderName & "\" & $iName & "." & $iFmt & '"', $nFolderName, $sFilePath)
 					Case "MSF2Atrac"
 						_QuickBMSRun('MSF Audio(*.msf)|', @ScriptDir & "\data\scripts\msf_convert.bms ")
 				EndSwitch

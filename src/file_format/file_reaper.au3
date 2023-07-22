@@ -1,5 +1,6 @@
 
 Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
+	Local $fDrive, $fDir, $fName, $fExp
 	$sFileName = _getFile($sFileName, $iExt)
 	If @error = 1 then Return
 	$iFileList = StringSplit($sFileName, '|')
@@ -10,24 +11,26 @@ Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
 	For $j = $fc to $a
 	
 		If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$j]
+		_PathSplit($sFileName, $fDrive, $fDir, $fName, $fExp)
+		_PathSplit($iPar1, $iDrive, $iDir, $iName, $iExp)
+		$pth = GUICtrlRead($iSubFolder_Checkbox) = 1 ? $sFolderName & '\' & $fName : $sFolderName
+		DirCreate($pth)
 		
 		If IsArray($iPar1) Then
-			_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
 			
 			If $iPar1[4] Then
 				FileCopy($sFileName, $sFolderName & '\')
-				$sFileName = $sFolderName & '\' & $iName & $iExp
+				$sFileName = $sFolderName & '\' & $fName & $fExp
 			EndIf
+			;TODO: Something wrong
+			; Local $iParray = [$iPRGName, $iCommand1, $iCommand2, $iWorkDir, $iMove]
+			; _fileReaper(_Console, $iExtList, $sFileName, $iParray)
+			_Console(@ScriptDir & '\' & $iPar1[0], " " & $iPar1[1] & ' "' & $sFileName & '" ' & $iPar1[2], $sFolderName, $sFileName)
 			
-			_Console(@ScriptDir & $iPar1[0], " " & $iPar1[1] & ' "' & $sFileName & '" ' & $iPar1[2], $iPar1[3], $sFileName)
-			
-			If $iPar1[4] Then FileDelete($sFolderName & '\' & $iName & $iExp)
+			If $iPar1[4] Then FileDelete($sFolderName & '\' & $fName & $fExp)
 			
 		ElseIf $iPar1 <> '' Then
-			_PathSplit($iPar1, $iDrive, $iDir, $iName, $iExp)
-			_Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, $sFileName)
-			;$iOutputWindow = Run(@ScriptDir & "\data\quickbms.exe " & $rI & ' -K ' & $iPar1 & ' "' & $sFileName & '" "' & $sFolderName & '"', $iDrive & $iDir, @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD + $STDIN_CHILD)
-			;_EnginePB($iOutputWindow, 110, FileGetSize($sFileName))
+			_Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $pth & '"', $iDrive & $iDir, $sFileName)
 			
 		ElseIf $iPar1 = '' Then
 			$iFunc($sFileName)
@@ -36,6 +39,7 @@ Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
 EndFunc
 
 Func _getFile($sFileName, $iExtList = '')
+
 	Switch $sFileName
 		Case '', ' ', '	', "", " ", "	"
 			$sFileName = FileOpenDialog($tSelectFile, " ", $iExtList & $tAllFile & "(*.*)", 1+4)
@@ -46,6 +50,7 @@ Func _getFile($sFileName, $iExtList = '')
 		Case Else
 			$sFileName = $sFileName
 	EndSwitch
+	
 	Return($sFileName)
 EndFunc
 
@@ -164,7 +169,7 @@ Func OGG_Unpacker($iFilePath) ;TODO: TEXT!!!
 		GUICtrlSetData($iEdit, "Выполнено!" & @CRLF & "Файл " & $iName & ".lip" & " сохранен!" & @CRLF, 1)
 		GUICtrlSetData($iEdit, "Выполнено!" & @CRLF & "Файл " & $iName & ".ogg" & " сохранен!" & @CRLF, 1)
 	ElseIf $iExp = BitOR('.spk', '.pzg') Then
-		_OtherPRG('', '7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $iFilePath)
+		_OtherPRG('', '\data\7zip\7z.exe ', ' x -o"' & $sFolderName & '" ', '', @ScriptDir & '\data\7zip', $iFilePath)
 	Else
 		GUICtrlSetData($iEdit, 'Ошибка! Файл ' & $iName & $iExp & ' не является аудио архивом из игры "Of orc and human"!' & @CRLF, 1)
 	EndIf

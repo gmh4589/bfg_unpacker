@@ -80,6 +80,7 @@ Global $FavIni = @ScriptDir & "\data\favorites.ini", _
 	$iGroupBy = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Group', 'Name'), _
 	$iUseThemes = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'UseThemes', 4), _
 	$iHideOrShowState = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'HideShow', 4), _
+	$iSubFolderState = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'SubFolder', 4), _
 	$iMenuColor = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Color', '0x000000')
 	
 Global $sFolderName = IniRead(@ScriptDir & '\unpacker.ini', 'Main', 'Path', '')
@@ -400,13 +401,16 @@ $iFavDel = GUICtrlCreateLabel('-', 483, 42, 20, 20, $SS_CENTER+$SS_CENTERIMAGE)
 	$iAbout = _GUICtrlCreateODMenuItem($tAP, $iAboutMenu)
 #EndRegion
 
-#Region //Checkbox
+#Region //DownPanel
 	$iReimport_Checkbox = GUICtrlCreateCheckbox('', 10, 590, 15, 20)
-	$iHideOrShow = GUICtrlCreateCheckbox('', 90, 590, 15, 20)
 	$iReimport_CheckboxTXT = GUICtrlCreateLabel($tPack, 25, 593, 55, 20)
-	$iHideOrShowTXT = GUICtrlCreateLabel($tShowCon, 105, 593, 120, 20)
+	$iHideOrShow = GUICtrlCreateCheckbox('', 90, 590, 15, 20)
+	$iHideOrShowTXT = GUICtrlCreateLabel($tShowCon, 105, 593, 95, 20)
+	$iSubFolder_Checkbox = GUICtrlCreateCheckbox('', 205, 590, 15, 20)
+	$iSubFolder_CheckboxTXT = GUICtrlCreateLabel($tCreateSubFolder, 220, 593, 200, 20)
 	GUICtrlSetState($iHideOrShow, $iHideOrShowState)
-	$iAllGamesLabel = GUICtrlCreateLabel($tAllGames & $iLoop, 300, 595, 200, 20)
+	GUICtrlSetState($iSubFolder_Checkbox, $iSubFolderState)
+	$iAllGamesLabel = GUICtrlCreateLabel($tAllGames & $iLoop, 451, 595, 200, 20)
 #EndRegion
 
 #Region //OutWindow
@@ -623,6 +627,7 @@ Func _SetColor()
 	
 	GUICtrlSetColor($iReimport_CheckboxTXT, $iFontColor2)
 	GUICtrlSetColor($iHideOrShowTXT, $iFontColor2)
+	GUICtrlSetColor($iSubFolder_CheckboxTXT, $iFontColor2)
 	
 	For $i = 1 to 15
 		GUICtrlSetColor($idButton[$i], $iFontColor)
