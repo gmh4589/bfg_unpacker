@@ -1,0 +1,37 @@
+QTreeView::item{
+  padding: 0px;
+  min-height: 20px;
+}
+
+QMenu::item {
+  height: 20px;
+  border: 1px solid transparent;
+}
+
+QMenuBar::item {
+  height: 15px;
+  padding: 5px;
+}
+
+QCheckBox {
+    spacing: 0px;
+    line-height: 14px;
+    height: 20px;
+    spacing: 5px;
+    font-size: 12px;
+}
+
+QCheckBox::indicator {
+  width: 20px;
+  height: 40px;
+  border-radius: 2px;
+ }
+
+QToolButton {
+    font-family: 'IconLib';
+    font-size: 30px;
+    border: 0px;
+    height: 20px;
+    margin: 0px;
+    padding: 2px;
+}
