@@ -60,8 +60,8 @@ class MainWindow(QMainWindow):
     def archive_list_create(self):
         archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
         archivesList = archivesList.sort_values(by='Archives Name')
-        abc = {arc[0].upper() for arc in archivesList['Archives Name']}
-        abc = list(abc)
+        abc = {arc[0].upper() for arc in archivesList['Archives Name'] if arc[0] not in '0123456789'}
+        abc = sorted(list(abc), key=lambda x: x[0])
         self.window.menu_5.removeAction(self.window.actionarchives_dummy)
         self.window.archive_list = {'0-9': self.window.menu_5.addMenu('0-9')}
 
