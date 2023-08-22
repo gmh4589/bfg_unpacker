@@ -87,9 +87,9 @@ YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	yzdec.exe	 -d	 	not	true
 YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	yz2tool.exe	 -x	 	 -c	true	.yz2	False	1
 ZOO	_OtherPRG	ZOO Archives (*.zoo)|	unzoo.exe	 -x	 	not	true	 		
 Switch - NSP Disc Image	_OtherPRG	NSZ XCZ Disc Images (*.nsz; *.xcz; *.nsp)|	python_script\nspx.py	 -xf	 -o "FolderName"	not	false			4
-Wii\DreamCube - ISO Disc Image	_OtherPRG	ISO Disc Image (*.iso; *.wbfs)|	wit\wit.exe	EXTRACT	 "FolderName"	not	false			4
-Wii\DreamCube - WDF, WIA, CISO and GCZ Disc Image	_OtherPRG	ISO Disc Image (*.WDF;*.WIA;*.CISO;*.GCZ)|	wit\wdf.exe	EXTRACT	 "FolderName"	not	false			4
-Wii\DreamCube - WBFS Disc Image	_OtherPRG	ISO Disc Image (*.wbfs)|	wit\wwt.exe	EXTRACT	 "FolderName"	not	false			4
+Wii\GameCube - ISO Disc Image	_OtherPRG	ISO Disc Image (*.iso; *.wbfs)|	wit\wit.exe	EXTRACT	 "FolderName"	not	false			4
+Wii\GameCube - WDF, WIA, CISO and GCZ Disc Image	_OtherPRG	ISO Disc Image (*.WDF;*.WIA;*.CISO;*.GCZ)|	wit\wdf.exe	EXTRACT	 "FolderName"	not	false			4
+Wii\GameCube - WBFS Disc Image	_OtherPRG	ISO Disc Image (*.wbfs)|	wit\wwt.exe	EXTRACT	 "FolderName"	not	false			4
 FreeArc Installer	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	 x -dp"FolderName"	 	not	false	 		5
 Inno Setup Installer	_OtherPRG	Inno Setup Installer (*.exe)|	innounp.exe	 -x -d"FolderName" 		not	false			5
 Symbian SIS Installer	_OtherPRG	Simbian OS Installer (*.sis)|	\data\unsisX.exe							5
