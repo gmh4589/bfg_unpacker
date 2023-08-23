@@ -1,7 +1,7 @@
 
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
@@ -57,13 +57,13 @@ class MainWindow(QMainWindow):
 
         for i in range(14):
             btn = QToolButton(text=self.abc[i])
-            btn.setIcon(QIcon(f'./source/ui/icons/{icon_list[i]}.svg'))
-            # btn.setStyleSheet(open('./source/ui/buttons.css').read())
+            btn.setStyleSheet(open('./source/ui/buttons.css').read())
+            btn.setToolTip(icon_list[i])
             self.window.upperButtons.addWidget(btn)
 
         trashBTN = QToolButton(text='Z')
-        trashBTN.setIcon(QIcon('./source/ui/icons/trashcan.svg'))
-        # trashBTN.setStyleSheet(open('./source/ui/buttons.css').read())
+        # trashBTN.setIcon(QIcon('./source/ui/icons/trashcan.svg'))
+        trashBTN.setStyleSheet(open('./source/ui/buttons.css').read())
         self.window.upperButtons.addWidget(trashBTN)
 
     # Наполняет списком меню "Архивы", "Образы дисков" и др.
@@ -134,6 +134,7 @@ class MainWindow(QMainWindow):
                 literal = 'Other'
 
             child = QStandardItem(name)
+            child.setToolTip(name)
             self.parent_list[literal].appendRow(child)
             all_games += 1
 
