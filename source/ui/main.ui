@@ -109,7 +109,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>ИЗБР.</string>
+     <string>ВСЕ</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBox_Reimport">
@@ -358,7 +358,7 @@
        </property>
        <addaction name="saturn_dummy"/>
       </widget>
-      <widget class="QMenu" name="menuOther">
+      <widget class="QMenu" name="menuSegaOther">
        <property name="title">
         <string>Other</string>
        </property>
@@ -367,9 +367,9 @@
       <addaction name="menuDreamcast"/>
       <addaction name="menuMegaDrive"/>
       <addaction name="menuSaturn"/>
-      <addaction name="menuOther"/>
+      <addaction name="menuSegaOther"/>
      </widget>
-     <widget class="QMenu" name="menuOther_2">
+     <widget class="QMenu" name="menuOtherConsoles">
       <property name="title">
        <string>Other</string>
       </property>
@@ -379,31 +379,31 @@
      <addaction name="menuMicrosoft"/>
      <addaction name="menuNintendo"/>
      <addaction name="menuSega"/>
-     <addaction name="menuOther_2"/>
+     <addaction name="menuOtherConsoles"/>
     </widget>
     <widget class="QMenu" name="menu_5">
      <property name="title">
       <string>Архивы</string>
      </property>
-     <addaction name="actionarchives_dummy"/>
+     <addaction name="archives_dummy"/>
     </widget>
     <widget class="QMenu" name="menu_6">
      <property name="title">
       <string>Игровые движки</string>
      </property>
-     <addaction name="actiongames_engines_dummy"/>
+     <addaction name="games_engines_dummy"/>
     </widget>
     <widget class="QMenu" name="menu_7">
      <property name="title">
       <string>Образы дисков</string>
      </property>
-     <addaction name="actiondisc_images_dummy"/>
+     <addaction name="disc_images_dummy"/>
     </widget>
     <widget class="QMenu" name="menu_8">
      <property name="title">
       <string>Инсталляторы</string>
      </property>
-     <addaction name="actioninstallers_dummy"/>
+     <addaction name="installers_dummy"/>
     </widget>
     <addaction name="quickOpen"/>
     <addaction name="unpackWith"/>
@@ -837,122 +837,122 @@
   </action>
   <action name="ps1_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="ps2_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="ps3_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="ps4_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="ps5_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="psp_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="vita_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="xbox_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="xbox1_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="xbox_series_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="gamecube_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="wii_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="wiiU_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="switch_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="nes_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="dreamcast_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="md_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="saturn_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="sega_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
   <action name="other_consoles_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
-  <action name="actionarchives_dummy">
+  <action name="archives_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
-  <action name="actiongames_engines_dummy">
+  <action name="games_engines_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
-  <action name="actiondisc_images_dummy">
+  <action name="disc_images_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
-  <action name="actioninstallers_dummy">
+  <action name="installers_dummy">
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </action>
  </widget>

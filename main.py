@@ -29,6 +29,12 @@ class MainWindow(QMainWindow):
         self.changeTheme(setting["Main"]["theme"])
         self.window.exitAction.triggered.connect(self.close)
 
+        for menu in self.window.menuBar().findChildren(QMenu):
+            dummy_actions = [action for action in menu.actions() if "dummy" in action.objectName()]
+
+            for dummy_action in dummy_actions:
+                menu.removeAction(dummy_action)
+
     # Создается список тем
     def themes_list_create(self):
         themes = list_themes()
@@ -46,35 +52,54 @@ class MainWindow(QMainWindow):
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
+        icon_list = ['folder', 'quickbms', '7zip', 'gaup', 'innosetup', 'ffmpeg', 'unreal', 'unity', 'idtech', 'source',
+                     'creation', 'wwise', 'bink', 'setting']
 
         for i in range(14):
             btn = QToolButton(text=self.abc[i])
-            btn.setStyleSheet(open('./source/ui/buttons.css').read())
+            btn.setIcon(QIcon(f'./source/ui/icons/{icon_list[i]}.svg'))
+            # btn.setStyleSheet(open('./source/ui/buttons.css').read())
             self.window.upperButtons.addWidget(btn)
 
         trashBTN = QToolButton(text='Z')
-        trashBTN.setStyleSheet(open('./source/ui/buttons.css').read())
+        trashBTN.setIcon(QIcon('./source/ui/icons/trashcan.svg'))
+        # trashBTN.setStyleSheet(open('./source/ui/buttons.css').read())
         self.window.upperButtons.addWidget(trashBTN)
 
     # Наполняет списком меню "Архивы", "Образы дисков" и др.
     def archive_list_create(self):
         archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
-        archivesList = archivesList.sort_values(by='Archives Name')
-        abc = {arc[0].upper() for arc in archivesList['Archives Name'] if arc[0] not in '0123456789'}
-        abc = sorted(list(abc), key=lambda x: x[0])
-        self.window.menu_5.removeAction(self.window.actionarchives_dummy)
+        archivesList = archivesList.sort_values(by='Archives Name', key=lambda x: x.str.lower()).reset_index(drop=True)
+        abc = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
+                           if archivesList['Index'][n] not in (3, 5) and archivesList['Archives Name'][n][0]
+                           not in '0123456789'}), key=lambda x: x)
+
         self.window.archive_list = {'0-9': self.window.menu_5.addMenu('0-9')}
 
         for liter in abc:
             self.window.archive_list[liter] = self.window.menu_5.addMenu(liter)
 
-        for archive in archivesList['Archives Name']:
-            liter = archive[0].upper()
+        for n in range(len(archivesList)):
+            liter = archivesList['Archives Name'][n][0].upper()
 
-            if liter in '0123456789':
-                self.window.archive_list['0-9'].addAction(archive)
+            if archivesList['Index'][n] == 3:
+                self.window.menu_7.addAction(archivesList['Archives Name'][n])
+            elif archivesList['Index'][n] == 5:
+                self.window.menu_8.addAction(archivesList['Archives Name'][n])
             else:
-                self.window.archive_list[liter].addAction(archive)
+
+                if liter in '0123456789':
+                    self.window.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
+                else:
+                    self.window.archive_list[liter].addAction(archivesList['Archives Name'][n])
+
+    def filter_list_create(self, items):
+
+        for action in self.window.comboBox_gameList.actions():
+            self.window.comboBox_gameList.removeAction(action)
+
+        self.window.comboBox_gameList.addItem('')
+        self.window.comboBox_gameList.addItems(items)
 
     # Создается список игр в три вью
     def tree_view_create(self):
@@ -94,9 +119,12 @@ class MainWindow(QMainWindow):
         root_item.appendRow(new_parent)
         all_games = 0
         mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
+        mainList = mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
         # pprint(self.mainList)
+        names = [n for n in mainList['game_name']]
+        self.filter_list_create(names)
 
-        for name in mainList['game_name']:
+        for name in names:
 
             if name[0].upper() in '0123456789':
                 literal = '0-9'
