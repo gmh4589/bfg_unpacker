@@ -233,9 +233,14 @@ QComboBox::down-arrow:disabled {
   margin-right: {{12|density(density_scale)}}px;
 }
 
-QDateEdit QAbstractItemView,
+QDateEdit QAbstractItemView {
+ background-color: {{secondaryColor}};
+ border: 2px solid {{secondaryLightColor}};
+ border-radius: 4px;
+}
+
 QComboBox QAbstractItemView {
-  background-color: {{secondaryColor}};
+  background-color: '#FFFFFF';
   border: 2px solid {{secondaryLightColor}};
   border-radius: 4px;
 }
