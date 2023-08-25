@@ -472,6 +472,7 @@
     </widget>
     <addaction name="action_Language"/>
     <addaction name="themes_list_2"/>
+    <addaction name="create_theme"/>
     <addaction name="action_Settings"/>
     <addaction name="action_SelectOutPath"/>
     <addaction name="action_ClearOutPath"/>
@@ -953,6 +954,11 @@
   <action name="installers_dummy">
    <property name="text">
     <string/>
+   </property>
+  </action>
+  <action name="create_theme">
+   <property name="text">
+    <string>Создать тему</string>
    </property>
   </action>
  </widget>

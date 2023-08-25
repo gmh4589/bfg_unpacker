@@ -11,7 +11,7 @@ setting.read('./setting.ini')
 
 class CBWindow(QMainWindow):
 
-    def __init__(self, letter='', style='dark_orange'):
+    def __init__(self, letter='A', style='dark_orange'):
         super(CBWindow, self).__init__()
         self.window = uic.loadUi('./source/ui/change_buttons.ui', self)
         apply_stylesheet(self.window, theme=f'{style}.xml')
@@ -24,8 +24,8 @@ class CBWindow(QMainWindow):
         alphabet = "BCDEFGHIJKLMNOPQRSTUVWXY1"
         row, col = 0, 0
 
-        for letter in alphabet:
-            button = QToolButton(text=letter)
+        for liter in alphabet:
+            button = QToolButton(text=liter)
             button.setStyleSheet(open('./source/ui/buttons.css').read())
             grid_layout.addWidget(button, row, col)
 
