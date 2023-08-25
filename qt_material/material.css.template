@@ -84,7 +84,7 @@ QGroupBox,
 QFrame {
   background-color: {{secondaryDarkColor}};
   border: 2px solid {{secondaryLightColor}};
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 QGroupBox.fill_background,
@@ -460,13 +460,17 @@ QTabBar::close-button:hover {
 /*  QGroupBox  */
 
 QGroupBox {
-  padding: {{16|density(density_scale)}}px;
+  padding: 0px;
   padding-top: 0px;
+  line-height: {{font_size}};
+  font-size: {{font_size}};
 }
 
 QGroupBox::title {
   color: {{secondaryTextColor|opacity(0.4)}};
-  padding: 0px;
+  subcontrol-origin: margin;
+  subcontrol-position: top left;
+  padding: 0;
   background-color: {{secondaryDarkColor}};
   background-color: transparent;
   height: {{36|density(density_scale)}}px;
