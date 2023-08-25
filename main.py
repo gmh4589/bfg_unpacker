@@ -10,6 +10,9 @@ from qt_material import list_themes
 import configparser
 import pandas
 
+from source import change_button_menu as cbm
+from source import setting as setting_ui
+
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
@@ -28,6 +31,8 @@ class MainWindow(QMainWindow):
         self.archive_list_create()
         self.changeTheme(setting["Main"]["theme"])
         self.window.exitAction.triggered.connect(self.close)
+        self.window.action_Settings.triggered.connect(
+            lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).show())
 
         for menu in self.window.menuBar().findChildren(QMenu):
             dummy_actions = [action for action in menu.actions() if "dummy" in action.objectName()]
@@ -52,19 +57,36 @@ class MainWindow(QMainWindow):
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
-        icon_list = ['folder', 'quickbms', '7zip', 'gaup', 'innosetup', 'ffmpeg', 'unreal', 'unity', 'idtech', 'source',
+        abc = 'ABCDEFGHIJKLMY'
+        tool_tips = ['folder', 'quickbms', '7zip', 'gaup', 'innosetup', 'ffmpeg', 'unreal', 'unity', 'idtech', 'source',
                      'creation', 'wwise', 'bink', 'setting']
 
         for i in range(14):
-            btn = QToolButton(text=self.abc[i])
-            btn.setIcon(QIcon(f'./source/ui/icons/{icon_list[i]}.svg'))
-            # btn.setStyleSheet(open('./source/ui/buttons.css').read())
+            btn = QToolButton(text=abc[i])
+            btn.setStyleSheet(open('./source/ui/buttons.css').read())
+            btn.setToolTip(tool_tips[i])
+
+            if i not in (0, 13):
+                context_menu = QMenu(self)
+                action1 = context_menu.addAction("Сменить кнопку")
+                context_menu.addAction("Отмена")
+                btn.setContextMenuPolicy(3)
+                btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
+                action1.triggered.connect(lambda: cbm.CBWindow(style=setting["Main"]["theme"], letter=abc[i]).show())
+
             self.window.upperButtons.addWidget(btn)
 
-        trashBTN = QToolButton(text='Z')
-        trashBTN.setIcon(QIcon('./source/ui/icons/trashcan.svg'))
-        # trashBTN.setStyleSheet(open('./source/ui/buttons.css').read())
-        self.window.upperButtons.addWidget(trashBTN)
+        trash_btn = QToolButton(text='Z')
+        trash_btn.setStyleSheet(open('./source/ui/buttons.css').read())
+        trash_btn.setToolTip('trash')
+        trash_menu = QMenu(self)
+        trash_action1 = trash_menu.addAction("Удалить в корзину")
+        trash_action2 = trash_menu.addAction("Удалить полностью")
+        trash_btn.setContextMenuPolicy(3)
+        trash_btn.customContextMenuRequested.connect(lambda pos, b=trash_btn: trash_menu.exec_(b.mapToGlobal(pos)))
+        trash_action1.triggered.connect(lambda: print('trash1'))
+        trash_action2.triggered.connect(lambda: print('trash2'))
+        self.window.upperButtons.addWidget(trash_btn)
 
     # Наполняет списком меню "Архивы", "Образы дисков" и др.
     def archive_list_create(self):
@@ -134,6 +156,7 @@ class MainWindow(QMainWindow):
                 literal = 'Other'
 
             child = QStandardItem(name)
+            child.setToolTip(name)
             self.parent_list[literal].appendRow(child)
             all_games += 1
 

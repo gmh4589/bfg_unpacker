@@ -10,8 +10,8 @@ setting.read('./setting.ini')
 
 class SettingWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, style='dark_orange'):
         super(SettingWindow, self).__init__()
         self.window = uic.loadUi('./source/ui/setting.ui', self)
-        apply_stylesheet(self.window, theme=f'dark_orange.xml')
+        apply_stylesheet(self.window, theme=f'{style}.xml')
         self.window.cancel_button.clicked.connect(self.close)

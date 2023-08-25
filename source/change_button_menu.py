@@ -13,7 +13,7 @@ class CBWindow(QMainWindow):
 
     def __init__(self, letter='', style='dark_orange'):
         super(CBWindow, self).__init__()
-        self.window = uic.loadUi('./ui/change_buttons.ui', self)
+        self.window = uic.loadUi('./source/ui/change_buttons.ui', self)
         apply_stylesheet(self.window, theme=f'{style}.xml')
         print(letter)
         central_widget = QWidget(self)
@@ -21,12 +21,12 @@ class CBWindow(QMainWindow):
 
         grid_layout = QGridLayout(central_widget)
 
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXY"
+        alphabet = "BCDEFGHIJKLMNOPQRSTUVWXY1"
         row, col = 0, 0
 
         for letter in alphabet:
             button = QToolButton(text=letter)
-            button.setStyleSheet(open('./ui/buttons.css').read())
+            button.setStyleSheet(open('./source/ui/buttons.css').read())
             grid_layout.addWidget(button, row, col)
 
             col += 1
@@ -34,9 +34,3 @@ class CBWindow(QMainWindow):
                 col = 0
                 row += 1
 
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = CBWindow()
-    window.show()
-    sys.exit(app.exec_())
