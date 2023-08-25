@@ -142,7 +142,7 @@ QTreeView,
 QListView,
 QLineEdit,
 QComboBox {
-  color: {{primaryTextColor}};
+  color: {{secondaryTextColor}};
   padding-left: {{16|density(density_scale)}}px;
   border-radius: 0px;
   border-radius: 0px;
@@ -240,7 +240,7 @@ QDateEdit QAbstractItemView {
 }
 
 QComboBox QAbstractItemView {
-  background-color: '#FFFFFF';
+  background-color: {{secondaryColor}};
   border: 2px solid {{secondaryLightColor}};
   border-radius: 4px;
 }
