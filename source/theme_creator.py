@@ -51,7 +51,7 @@ class ThemeCreateWindow(QMainWindow):
         style_name, ok = QInputDialog.getText(self, "Сохранить тему", "Введите название темы:")
 
         if ok and style_name:
-            theme_xml = f'./qt_material/themes/{style_name}.xml'
+            theme_xml = f'./qt_material/themes/{style_name.lower().replace(" ", "_")}.xml'
 
             with open(theme_xml, 'w') as file:
                 file.write('<!--?xml version="1.0" encoding="UTF-8"?-->\n')
