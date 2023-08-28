@@ -1,0 +1,967 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BFGUnpacker</class>
+ <widget class="QMainWindow" name="BFGUnpacker">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>BFGUnpacker</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">darkorange.stylesheet</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QComboBox" name="comboBox_gameList">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>40</y>
+      <width>375</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="toolButton_plus">
+    <property name="geometry">
+     <rect>
+      <x>455</x>
+      <y>40</y>
+      <width>30</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="toolButton_minus">
+    <property name="geometry">
+     <rect>
+      <x>485</x>
+      <y>40</y>
+      <width>30</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="logWindow">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>79</y>
+      <width>295</width>
+      <height>521</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="all_games_label">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>605</y>
+      <width>100</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Всего игр:</string>
+    </property>
+   </widget>
+   <widget class="QTreeView" name="gameList_treeView">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>79</y>
+      <width>295</width>
+      <height>521</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="toolButton_Find">
+    <property name="geometry">
+     <rect>
+      <x>515</x>
+      <y>40</y>
+      <width>85</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>НАЙТИ</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="btn_All_Favorite">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>40</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ВСЕ</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_Reimport">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>600</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Упаковать</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_ShowConsole">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>600</y>
+      <width>140</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Показать консоль</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_createSubfolders">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>600</y>
+      <width>150</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Создавать подпапки</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>601</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="upperButtons"/>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <widget class="QMenu" name="unpackWith">
+     <property name="title">
+      <string>Распаковать с помощью</string>
+     </property>
+     <addaction name="action7z_Archiver"/>
+     <addaction name="actionGame_Archive_Unpacker_Plugin"/>
+     <addaction name="actionTotal_Observer"/>
+     <addaction name="actionSprite_and_Archive_Utility"/>
+    </widget>
+    <widget class="QMenu" name="zippedFormats">
+     <property name="title">
+      <string>Форматы сжатия</string>
+     </property>
+     <addaction name="actionZlib_Deflate"/>
+     <addaction name="actionLZ4"/>
+    </widget>
+    <widget class="QMenu" name="formatSearch">
+     <property name="title">
+      <string>Поиск форматов</string>
+     </property>
+     <addaction name="actionWAV"/>
+    </widget>
+    <widget class="QMenu" name="additionalMenu">
+     <property name="title">
+      <string>Дополнительно</string>
+     </property>
+     <addaction name="autoSearchScripts"/>
+     <addaction name="actionArchiveScanner"/>
+     <addaction name="actionFileList"/>
+    </widget>
+    <widget class="QMenu" name="consolesMenu">
+     <property name="title">
+      <string>Консоли</string>
+     </property>
+     <widget class="QMenu" name="menuSony">
+      <property name="title">
+       <string>Sony</string>
+      </property>
+      <widget class="QMenu" name="menuPlayStation_1">
+       <property name="title">
+        <string>PlayStation 1</string>
+       </property>
+       <addaction name="ps1_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPlayStation_2">
+       <property name="title">
+        <string>PlayStation 2</string>
+       </property>
+       <addaction name="ps2_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPlayStation_3">
+       <property name="title">
+        <string>PlayStation 3</string>
+       </property>
+       <addaction name="ps3_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPlayStation_4">
+       <property name="title">
+        <string>PlayStation 4</string>
+       </property>
+       <addaction name="ps4_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPlayStation_5">
+       <property name="title">
+        <string>PlayStation 5</string>
+       </property>
+       <addaction name="ps5_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPSP">
+       <property name="title">
+        <string>PSP</string>
+       </property>
+       <addaction name="psp_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuPlayStation_Vita">
+       <property name="title">
+        <string>PlayStation Vita</string>
+       </property>
+       <addaction name="vita_dummy"/>
+      </widget>
+      <addaction name="menuPlayStation_1"/>
+      <addaction name="menuPlayStation_2"/>
+      <addaction name="menuPlayStation_3"/>
+      <addaction name="menuPlayStation_4"/>
+      <addaction name="menuPlayStation_5"/>
+      <addaction name="menuPSP"/>
+      <addaction name="menuPlayStation_Vita"/>
+     </widget>
+     <widget class="QMenu" name="menuMicrosoft">
+      <property name="title">
+       <string>Microsoft</string>
+      </property>
+      <widget class="QMenu" name="menuXBox_Classic">
+       <property name="title">
+        <string>XBox Classic</string>
+       </property>
+       <addaction name="xbox_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuXBox_One">
+       <property name="title">
+        <string>XBox One</string>
+       </property>
+       <addaction name="xbox1_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuXBox_Series">
+       <property name="title">
+        <string>XBox Series</string>
+       </property>
+       <addaction name="xbox_series_dummy"/>
+      </widget>
+      <addaction name="menuXBox_Classic"/>
+      <addaction name="menuXBox_One"/>
+      <addaction name="menuXBox_Series"/>
+     </widget>
+     <widget class="QMenu" name="menuNintendo">
+      <property name="title">
+       <string>Nintendo</string>
+      </property>
+      <widget class="QMenu" name="menuGameCube">
+       <property name="title">
+        <string>GameCube</string>
+       </property>
+       <addaction name="gamecube_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuWii">
+       <property name="title">
+        <string>Wii</string>
+       </property>
+       <addaction name="wii_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuWii_U">
+       <property name="title">
+        <string>Wii U</string>
+       </property>
+       <addaction name="wiiU_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuSwitch">
+       <property name="title">
+        <string>Switch</string>
+       </property>
+       <addaction name="switch_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuClassic_Consoles">
+       <property name="title">
+        <string>Classic Consoles</string>
+       </property>
+       <addaction name="nes_dummy"/>
+      </widget>
+      <addaction name="menuGameCube"/>
+      <addaction name="menuWii"/>
+      <addaction name="menuWii_U"/>
+      <addaction name="menuSwitch"/>
+      <addaction name="menuClassic_Consoles"/>
+     </widget>
+     <widget class="QMenu" name="menuSega">
+      <property name="title">
+       <string>Sega</string>
+      </property>
+      <widget class="QMenu" name="menuDreamcast">
+       <property name="title">
+        <string>Dreamcast</string>
+       </property>
+       <addaction name="dreamcast_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuMegaDrive">
+       <property name="title">
+        <string>MegaDrive</string>
+       </property>
+       <addaction name="md_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuSaturn">
+       <property name="title">
+        <string>Saturn</string>
+       </property>
+       <addaction name="saturn_dummy"/>
+      </widget>
+      <widget class="QMenu" name="menuSegaOther">
+       <property name="title">
+        <string>Other</string>
+       </property>
+       <addaction name="sega_dummy"/>
+      </widget>
+      <addaction name="menuDreamcast"/>
+      <addaction name="menuMegaDrive"/>
+      <addaction name="menuSaturn"/>
+      <addaction name="menuSegaOther"/>
+     </widget>
+     <widget class="QMenu" name="menuOtherConsoles">
+      <property name="title">
+       <string>Other</string>
+      </property>
+      <addaction name="other_consoles_dummy"/>
+     </widget>
+     <addaction name="menuSony"/>
+     <addaction name="menuMicrosoft"/>
+     <addaction name="menuNintendo"/>
+     <addaction name="menuSega"/>
+     <addaction name="menuOtherConsoles"/>
+    </widget>
+    <widget class="QMenu" name="menu_5">
+     <property name="title">
+      <string>Архивы</string>
+     </property>
+     <addaction name="archives_dummy"/>
+    </widget>
+    <widget class="QMenu" name="menu_6">
+     <property name="title">
+      <string>Игровые движки</string>
+     </property>
+     <addaction name="games_engines_dummy"/>
+    </widget>
+    <widget class="QMenu" name="menu_7">
+     <property name="title">
+      <string>Образы дисков</string>
+     </property>
+     <addaction name="disc_images_dummy"/>
+    </widget>
+    <widget class="QMenu" name="menu_8">
+     <property name="title">
+      <string>Инсталляторы</string>
+     </property>
+     <addaction name="installers_dummy"/>
+    </widget>
+    <addaction name="quickOpen"/>
+    <addaction name="unpackWith"/>
+    <addaction name="menu_5"/>
+    <addaction name="menu_6"/>
+    <addaction name="consolesMenu"/>
+    <addaction name="menu_7"/>
+    <addaction name="menu_8"/>
+    <addaction name="zippedFormats"/>
+    <addaction name="formatSearch"/>
+    <addaction name="additionalMenu"/>
+    <addaction name="separator"/>
+    <addaction name="exitAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Конвертировать</string>
+    </property>
+    <widget class="QMenu" name="videoConverters">
+     <property name="title">
+      <string>Видео</string>
+     </property>
+     <addaction name="actionFFMPEG_Video_Converter"/>
+     <addaction name="actionRad_Video_Tools"/>
+     <addaction name="actionMedia_Info"/>
+    </widget>
+    <widget class="QMenu" name="audioConverters">
+     <property name="title">
+      <string>Аудио</string>
+     </property>
+     <addaction name="actionFFMPEG_Sound_Converter"/>
+     <addaction name="actionVGM_Stream_Tools"/>
+     <addaction name="actionFSBext"/>
+     <addaction name="actionToWAV"/>
+     <addaction name="actionRAW_to_WAV"/>
+     <addaction name="actionRAW_to_Atrac"/>
+     <addaction name="actionPlayStation_Audio_Converter"/>
+     <addaction name="actionXWM_WAV_Audio_Converter"/>
+    </widget>
+    <widget class="QMenu" name="imageConverters">
+     <property name="title">
+      <string>Текстуры</string>
+     </property>
+     <addaction name="actionFFMPEG_Image_Converter"/>
+     <addaction name="actionSAU"/>
+     <addaction name="actionnConvert"/>
+     <addaction name="actionImage_to_DDS_Microsoft"/>
+     <addaction name="actionImage_to_DDS_nVidia"/>
+     <addaction name="actionDDS_Header_Generator"/>
+     <addaction name="actionCubeMap_Creator"/>
+     <addaction name="actionICO_Icon_Splitter"/>
+    </widget>
+    <addaction name="videoConverters"/>
+    <addaction name="audioConverters"/>
+    <addaction name="imageConverters"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <widget class="QMenu" name="themes_list_2">
+     <property name="title">
+      <string>Темы</string>
+     </property>
+     <addaction name="theme_dummy"/>
+    </widget>
+    <addaction name="action_Language"/>
+    <addaction name="themes_list_2"/>
+    <addaction name="create_theme"/>
+    <addaction name="action_Settings"/>
+    <addaction name="action_SelectOutPath"/>
+    <addaction name="action_ClearOutPath"/>
+    <addaction name="action_CreateOutPath"/>
+    <addaction name="action_DeleteEmptyFiles"/>
+    <addaction name="action_DeleteEmptySubfolders"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>О программе</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+  </widget>
+  <action name="quickOpen">
+   <property name="text">
+    <string>Открыть быстро</string>
+   </property>
+  </action>
+  <action name="exitAction">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="action_Language">
+   <property name="text">
+    <string>Язык\Language</string>
+   </property>
+  </action>
+  <action name="action_SelectOutPath">
+   <property name="text">
+    <string>Выбрать выходную папку</string>
+   </property>
+  </action>
+  <action name="action_ClearOutPath">
+   <property name="text">
+    <string>Очистить выходную папку</string>
+   </property>
+  </action>
+  <action name="action_CreateOutPath">
+   <property name="text">
+    <string>Создать выходную папку</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
+  <action name="action_DeleteEmptyFiles">
+   <property name="text">
+    <string>Удалить пустые файлы</string>
+   </property>
+  </action>
+  <action name="action_DeleteEmptySubfolders">
+   <property name="text">
+    <string>Удалить пустые подпапки</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>О программе...</string>
+   </property>
+  </action>
+  <action name="action7z_Archiver">
+   <property name="text">
+    <string>7z Archiver</string>
+   </property>
+  </action>
+  <action name="actionGame_Archive_Unpacker_Plugin">
+   <property name="text">
+    <string>Game Archive Unpacker Plugin</string>
+   </property>
+  </action>
+  <action name="actionTotal_Observer">
+   <property name="text">
+    <string>Total Observer</string>
+   </property>
+  </action>
+  <action name="actionSprite_and_Archive_Utility">
+   <property name="text">
+    <string>Sprite and Archive Utility</string>
+   </property>
+  </action>
+  <action name="action0_9">
+   <property name="text">
+    <string>0-9</string>
+   </property>
+  </action>
+  <action name="actionA">
+   <property name="text">
+    <string>A</string>
+   </property>
+  </action>
+  <action name="actionB">
+   <property name="text">
+    <string>B</string>
+   </property>
+  </action>
+  <action name="actionC">
+   <property name="text">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionD">
+   <property name="text">
+    <string>D</string>
+   </property>
+  </action>
+  <action name="actionE">
+   <property name="text">
+    <string>E</string>
+   </property>
+  </action>
+  <action name="actionF">
+   <property name="text">
+    <string>F</string>
+   </property>
+  </action>
+  <action name="actionG">
+   <property name="text">
+    <string>G</string>
+   </property>
+  </action>
+  <action name="actionH">
+   <property name="text">
+    <string>H</string>
+   </property>
+  </action>
+  <action name="actionI">
+   <property name="text">
+    <string>I</string>
+   </property>
+  </action>
+  <action name="actionJ">
+   <property name="text">
+    <string>J</string>
+   </property>
+  </action>
+  <action name="actionK">
+   <property name="text">
+    <string>K</string>
+   </property>
+  </action>
+  <action name="actionL">
+   <property name="text">
+    <string>L</string>
+   </property>
+  </action>
+  <action name="actionM">
+   <property name="text">
+    <string>M</string>
+   </property>
+  </action>
+  <action name="actionN">
+   <property name="text">
+    <string>N</string>
+   </property>
+  </action>
+  <action name="actionO">
+   <property name="text">
+    <string>O</string>
+   </property>
+  </action>
+  <action name="actionP">
+   <property name="text">
+    <string>P</string>
+   </property>
+  </action>
+  <action name="actionQ">
+   <property name="text">
+    <string>Q</string>
+   </property>
+  </action>
+  <action name="actionR">
+   <property name="text">
+    <string>R</string>
+   </property>
+  </action>
+  <action name="actionS">
+   <property name="text">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionT">
+   <property name="text">
+    <string>T</string>
+   </property>
+  </action>
+  <action name="actionU">
+   <property name="text">
+    <string>U</string>
+   </property>
+  </action>
+  <action name="actionV">
+   <property name="text">
+    <string>V</string>
+   </property>
+  </action>
+  <action name="actionW">
+   <property name="text">
+    <string>W</string>
+   </property>
+  </action>
+  <action name="actionX">
+   <property name="text">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionY">
+   <property name="text">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="actionZ">
+   <property name="text">
+    <string>Z</string>
+   </property>
+  </action>
+  <action name="actionZlib_Deflate">
+   <property name="text">
+    <string>Zlib, Deflate</string>
+   </property>
+  </action>
+  <action name="actionLZ4">
+   <property name="text">
+    <string>LZ4</string>
+   </property>
+  </action>
+  <action name="actionWAV">
+   <property name="text">
+    <string>WAV</string>
+   </property>
+  </action>
+  <action name="autoSearchScripts">
+   <property name="text">
+    <string>Автопоиск скрипта</string>
+   </property>
+  </action>
+  <action name="action_23">
+   <property name="text">
+    <string>Сканер архивов</string>
+   </property>
+  </action>
+  <action name="action_24">
+   <property name="text">
+    <string>Список файлов в папке</string>
+   </property>
+  </action>
+  <action name="actionFileList">
+   <property name="text">
+    <string>Список файлов в папке</string>
+   </property>
+  </action>
+  <action name="actionArchiveScanner">
+   <property name="text">
+    <string>Сканер архивов</string>
+   </property>
+  </action>
+  <action name="actionFFMPEG_Video_Converter">
+   <property name="text">
+    <string>FFMPEG Video Converter</string>
+   </property>
+  </action>
+  <action name="actionRad_Video_Tools">
+   <property name="text">
+    <string>Rad Video Tools</string>
+   </property>
+  </action>
+  <action name="actionMedia_Info">
+   <property name="text">
+    <string>Media Info</string>
+   </property>
+  </action>
+  <action name="actionFFMPEG_Sound_Converter">
+   <property name="text">
+    <string>FFMPEG Sound Converter</string>
+   </property>
+  </action>
+  <action name="actionVGM_Stream_Tools">
+   <property name="text">
+    <string>VGM Stream Tools</string>
+   </property>
+  </action>
+  <action name="actionFSBext">
+   <property name="text">
+    <string>FSBext </string>
+   </property>
+  </action>
+  <action name="actionToWAV">
+   <property name="text">
+    <string>ToWAV</string>
+   </property>
+  </action>
+  <action name="actionRAW_to_WAV">
+   <property name="text">
+    <string>RAW to WAV</string>
+   </property>
+  </action>
+  <action name="actionRAW_to_Atrac">
+   <property name="text">
+    <string>RAW to Atrac</string>
+   </property>
+  </action>
+  <action name="actionPlayStation_Audio_Converter">
+   <property name="text">
+    <string>PlayStation Audio Converter</string>
+   </property>
+  </action>
+  <action name="actionXWM_WAV_Audio_Converter">
+   <property name="text">
+    <string>XWM\WAV Audio Converter</string>
+   </property>
+  </action>
+  <action name="actionFFMPEG_Image_Converter">
+   <property name="text">
+    <string>FFMPEG Image Converter</string>
+   </property>
+  </action>
+  <action name="actionSAU">
+   <property name="text">
+    <string>SAU</string>
+   </property>
+  </action>
+  <action name="actionnConvert">
+   <property name="text">
+    <string>nConvert</string>
+   </property>
+  </action>
+  <action name="actionImage_to_DDS_Microsoft">
+   <property name="text">
+    <string>Image to DDS (Microsoft)</string>
+   </property>
+  </action>
+  <action name="actionImage_to_DDS_nVidia">
+   <property name="text">
+    <string>Image to DDS (nVidia)</string>
+   </property>
+  </action>
+  <action name="actionDDS_Header_Generator">
+   <property name="text">
+    <string>DDS Header Generator</string>
+   </property>
+  </action>
+  <action name="actionCubeMap_Creator">
+   <property name="text">
+    <string>CubeMap Creator</string>
+   </property>
+  </action>
+  <action name="actionICO_Icon_Splitter">
+   <property name="text">
+    <string>ICO Icon Splitter</string>
+   </property>
+  </action>
+  <action name="theme_dummy">
+   <property name="text">
+    <string>Без темы</string>
+   </property>
+  </action>
+  <action name="ps1_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="ps2_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="ps3_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="ps4_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="ps5_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="psp_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="vita_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="xbox_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="xbox1_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="xbox_series_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="gamecube_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="wii_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="wiiU_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="switch_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="nes_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="dreamcast_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="md_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="saturn_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="sega_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="other_consoles_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="archives_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="games_engines_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="disc_images_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="installers_dummy">
+   <property name="text">
+    <string/>
+   </property>
+  </action>
+  <action name="create_theme">
+   <property name="text">
+    <string>Создать тему</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
