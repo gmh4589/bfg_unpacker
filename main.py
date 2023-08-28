@@ -55,6 +55,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 new_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
 
     def add_button(self, btn, l_func=None, contexts=None):
+
         if contexts is not None:
             context_menu = QMenu(self)
 
@@ -74,24 +75,44 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
-        alpha = 'ABCDEFGHIJKLMYZ'
-        tool_tips = ['folder', 'quickbms', '7zip', 'gaup', 'innosetup', 'ffmpeg', 'unreal', 'unity', 'idtech', 'source',
-                     'creation', 'wwise', 'bink', 'setting', 'trashcan']
+        setting.read('./setting.ini')
+        alpha = ['A']
 
-        for i in range(15):
-            btn = QToolButton(text=alpha[i])
+        for j in range(1, 13):
+            alpha.append(setting["Buttons"][str(j)])
+
+        alpha.append('Y')
+        alpha.append('Z')
+
+        tool_tips = {'A': 'folder', 'B': 'quickbms', 'C': '7zip', 'D': 'gaup', 'E': 'innosetup', 'F': 'ffmpeg',
+                     'G': 'unreal', 'H': 'unity', 'I': 'idtech', 'J': 'source', 'K': 'creation', 'L': 'wwise',
+                     'M': 'bink', 'N': 'wwise', 'O': 'playstation', 'P': 'xnconvert', 'Q': 'red engine', 'R': 'godot',
+                     'S': 'rpg maker', 'T': 'renpy', 'U': 'unigen', 'V': 'raw2dds', 'W': 'raw2atrac', 'X': 'raw2wav',
+                     'Y': 'setting', 'Z': 'trashcan'}
+
+
+        for i in range(self.upperButtons.count()):
+            item = self.upperButtons.itemAt(i)
+            item.widget().deleteLater()
+
+        for i, a in enumerate(alpha):
+            btn = QToolButton(text=a)
             btn.setStyleSheet(open('./source/ui/buttons.css').read())
-            btn.setToolTip(tool_tips[i])
+            btn.setToolTip(tool_tips[a])
 
             if i not in (0, 13, 14, -1):
                 self.add_button(btn, contexts=[TL.change_button, TL.cancel],
-                                l_func=(lambda *args, l=alpha[i]:
-                                        cbm.CBWindow(style=setting["Main"]["theme"], letter=l).exec()))
+                                l_func=(lambda *args, l=i:
+                                        self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
                 self.add_button(btn, contexts=[TL.delete_to_trash, TL.full_delete, TL.cancel],
                                 l_func=[lambda: print('trash1'), lambda: print('trash2')])
             else:
                 self.add_button(btn)
+
+    def new_button(self, style, alpha):
+        cbm.CBWindow(style=style, letter=alpha).exec()
+        self.buttons_create()
 
     # Наполняет списком меню "Архивы", "Образы дисков" и др.
     def archive_list_create(self):
