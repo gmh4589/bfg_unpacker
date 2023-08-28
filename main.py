@@ -1,9 +1,11 @@
+
 import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
-from PyQt5 import uic
+
+import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
 import configparser
@@ -12,17 +14,18 @@ import pandas
 from source import change_button_menu as cbm
 from source import setting as setting_ui
 from source import theme_creator
+import source.ui.localize as TL
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def __init__(self):
-        super(MainWindow, self).__init__(flags=Qt.WindowFlags())
-
-        self.window = uic.loadUi('./source/ui/main.ui', self)
+        super().__init__()
+        self.setWindowTitle("BFGUnpacker")
+        self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.parent_list = {}
         self.themes_list_create()
@@ -30,28 +33,22 @@ class MainWindow(QMainWindow):
         self.tree_view_create()
         self.archive_list_create()
         self.changeTheme(setting["Main"]["theme"])
-        self.window.exitAction.triggered.connect(self.close)
-        self.window.action_Settings.triggered.connect(
-            lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).show())
-        self.window.create_theme.triggered.connect(
-            lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).show())
-
-        for menu in self.window.menuBar().findChildren(QMenu):
-            dummy_actions = [action for action in menu.actions() if "dummy" in action.objectName()]
-
-            for dummy_action in dummy_actions:
-                menu.removeAction(dummy_action)
+        self.exitAction.triggered.connect(self.close)
+        self.action_Settings.triggered.connect(
+            lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
+        self.create_theme.triggered.connect(
+            lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
+        self.archive_list = {}
 
     # Создается список тем
     def themes_list_create(self):
-        themes = list_themes()
 
-        for action in self.window.themes_list_2.actions():
-            self.window.themes_list_2.removeAction(action)
+        for action in self.themes_list_2.actions():
+            self.themes_list_2.removeAction(action)
 
-        for theme in themes:
+        for theme in list_themes():
             theme_name = theme.split('.')[0]
-            new_theme = self.window.themes_list_2.addAction(theme_name.replace('_', ' ').title())
+            new_theme = self.themes_list_2.addAction(theme_name.replace('_', ' ').title())
             new_theme.triggered.connect(lambda *args, x=theme_name: self.changeTheme(x))
 
             if theme_name == setting["Main"]["theme"]:
@@ -64,7 +61,7 @@ class MainWindow(QMainWindow):
             for i, action in enumerate(contexts):
                 context = context_menu.addAction(action)
 
-                if action != 'Отмена':
+                if action != TL.cancel:
                     if isinstance(l_func, list):
                         context.triggered.connect(l_func[i])
                     else:
@@ -73,7 +70,7 @@ class MainWindow(QMainWindow):
             btn.setContextMenuPolicy(3)
             btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
 
-        self.window.upperButtons.addWidget(btn)
+        self.upperButtons.addWidget(btn)
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
@@ -86,12 +83,12 @@ class MainWindow(QMainWindow):
             btn.setStyleSheet(open('./source/ui/buttons.css').read())
             btn.setToolTip(tool_tips[i])
 
-            if i not in (0, 13, 14):
-                self.add_button(btn, contexts=['Сменить кнопку', 'Отмена'],
+            if i not in (0, 13, 14, -1):
+                self.add_button(btn, contexts=[TL.change_button, TL.cancel],
                                 l_func=(lambda *args, l=alpha[i]:
-                                        cbm.CBWindow(style=setting["Main"]["theme"], letter=l).show()))
+                                        cbm.CBWindow(style=setting["Main"]["theme"], letter=l).exec()))
             elif i == 14:
-                self.add_button(btn, contexts=['Удалять в корзину', 'Удалять полностью', 'Отмена'],
+                self.add_button(btn, contexts=[TL.delete_to_trash, TL.full_delete, TL.cancel],
                                 l_func=[lambda: print('trash1'), lambda: print('trash2')])
             else:
                 self.add_button(btn)
@@ -104,34 +101,34 @@ class MainWindow(QMainWindow):
                            if archivesList['Index'][n] not in (3, 5) and archivesList['Archives Name'][n][0]
                            not in '0123456789'}), key=lambda x: x)
 
-        self.window.archive_list = {'0-9': self.window.menu_5.addMenu('0-9')}
+        self.archive_list = {'0-9': self.menu_5.addMenu('0-9')}
 
         for liter in abc:
-            self.window.archive_list[liter] = self.window.menu_5.addMenu(liter)
+            self.archive_list[liter] = self.menu_5.addMenu(liter)
 
         for n in range(len(archivesList)):
             liter = archivesList['Archives Name'][n][0].upper()
 
             if archivesList['Index'][n] == 3:
-                self.window.menu_7.addAction(archivesList['Archives Name'][n])
+                self.menu_7.addAction(archivesList['Archives Name'][n])
             elif archivesList['Index'][n] == 5:
-                self.window.menu_8.addAction(archivesList['Archives Name'][n])
+                self.menu_8.addAction(archivesList['Archives Name'][n])
             else:
 
                 if liter in '0123456789':
-                    self.window.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
+                    self.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
                 else:
-                    self.window.archive_list[liter].addAction(archivesList['Archives Name'][n])
+                    self.archive_list[liter].addAction(archivesList['Archives Name'][n])
 
     def filter_list_create(self, items):
 
-        for action in self.window.comboBox_gameList.actions():
-            self.window.comboBox_gameList.removeAction(action)
+        for action in self.comboBox_gameList.actions():
+            self.comboBox_gameList.removeAction(action)
 
-        self.window.comboBox_gameList.addItem('')
-        self.window.comboBox_gameList.addItems(items)
+        self.comboBox_gameList.addItem('')
+        self.comboBox_gameList.addItems(items)
 
-    # Создается список игр в три вью
+    # Создается список игр в три-вью
     def tree_view_create(self):
         model = QStandardItemModel()
         root_item = model.invisibleRootItem()
@@ -144,13 +141,12 @@ class MainWindow(QMainWindow):
             self.parent_list[item] = new_parent
             root_item.appendRow(new_parent)
 
-        new_parent = QStandardItem('Other')
-        self.parent_list['Other'] = new_parent
+        new_parent = QStandardItem(TL.other)
+        self.parent_list[TL.other] = new_parent
         root_item.appendRow(new_parent)
         all_games = 0
         mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
         mainList = mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
-        # pprint(self.mainList)
         names = [n for n in mainList['game_name']]
         self.filter_list_create(names)
 
@@ -161,7 +157,7 @@ class MainWindow(QMainWindow):
             elif name[0].upper() in self.abc:
                 literal = name[0].upper()
             else:
-                literal = 'Other'
+                literal = TL.other
 
             child = QStandardItem(name)
             child.setToolTip(name)
@@ -169,12 +165,12 @@ class MainWindow(QMainWindow):
             all_games += 1
 
         # pprint(self.parent_list)
-        self.window.gameList_treeView.setModel(model)
-        model.setHeaderData(0, Qt.Horizontal, "Выберите игру, приложение или тип файла")
-        self.window.all_games_label.setText(f'Всего игр: {all_games}')
+        self.gameList_treeView.setModel(model)
+        model.setHeaderData(0, Qt.Horizontal, TL.select_something)
+        self.all_games_label.setText(f'{TL.all_games} {all_games}')
 
     def changeTheme(self, theme_name):
-        apply_stylesheet(self.window, theme=f'{theme_name}.xml')
+        apply_stylesheet(self, theme=f'{theme_name}.xml')
         setting.read('./setting.ini')
         setting.set('Main', 'theme', theme_name)
 

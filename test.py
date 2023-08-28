@@ -1,13 +1,13 @@
-
+import sys
 from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
 
 
-class CBWindow(QDialog):
+class ChildWindow(QDialog):
 
     def __init__(self, letter='A', style='dark_orange'):
         super().__init__()
-        self.setWindowTitle("Change buttons")
+        self.setWindowTitle("Child Window")
         self.resize(255, 255)
         apply_stylesheet(self, theme=f'{style}.xml')
         print(letter)
@@ -29,3 +29,22 @@ class CBWindow(QDialog):
                 col = 0
                 row += 1
 
+
+class MainWindow(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Main Window")
+        self.setGeometry(300, 200, 600, 400)
+
+        self.button = QPushButton("Open Child Window", self)
+        self.button.setGeometry(200, 150, 200, 50)
+        self.button.clicked.connect(lambda: ChildWindow().exec_())
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    main_win = MainWindow()
+    main_win.show()
+    sys.exit(app.exec())
