@@ -189,7 +189,7 @@ QLineEdit:disabled {
 
 QDateEdit,
 QComboBox {
-  color: {{primaryTextColor}};
+  color: {{secondaryTextColor}};
   border: 2px solid {{primaryColor}};
   border-radius: 0px;
   border-top-left-radius: 4px;
