@@ -1,5 +1,6 @@
 {
     "lang_name": "English",
+    "lang_code": "en",
     "all_games": "All games:",
     "find": "FIND",
     "all_caps": "ALL",
@@ -40,5 +41,21 @@
     "change_button": "Change Button",
     "cancel": "Cancel",
     "delete_to_trash": "Delete to trash",
-    "full_delete": "Full delete"
+    "full_delete": "Full delete",
+    "show_on": "Show game used engine:",
+    "by_name": "By name",
+    "by_years": "By years",
+    "context_menu": "Check in context menu",
+    "sort_by": "Sort by:",
+    "out_folder": "Out folder",
+    "apply": "Apply",
+    "save_theme": "Save Theme",
+    "primary_color": "Primary Color",
+    "primary_light": "Primary Light",
+    "second_color": "Second Color",
+    "second_light": "Second Light",
+    "second_dark": "Second Dark",
+    "font_color_1": "Font Color 1",
+    "font_color_2": "Font Color 2",
+    "enter_theme_name": "Enter Theme Name:"
 }

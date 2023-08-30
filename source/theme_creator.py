@@ -8,6 +8,8 @@ from qt_material import apply_stylesheet
 import configparser
 import xml.etree.ElementTree as ET
 
+import source.ui.localize as TL
+
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
@@ -84,14 +86,14 @@ class ThemeCreateWindow(QDialog):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "Theme Creator"))
-        self.saveButton.setText(_translate("MainWindow", "Сохранить тему"))
-        self.toolButton_1.setText(_translate("MainWindow", "Основной цвет"))
-        self.toolButton_2.setText(_translate("MainWindow", "Основной светлый"))
-        self.toolButton_3.setText(_translate("MainWindow", "Второй цвет"))
-        self.toolButton_4.setText(_translate("MainWindow", "Второй светлый"))
-        self.toolButton_5.setText(_translate("MainWindow", "Второй темный"))
-        self.toolButton_6.setText(_translate("MainWindow", "Цвет текста 1"))
-        self.toolButton_7.setText(_translate("MainWindow", "Цвет текста 2"))
+        self.saveButton.setText(_translate("MainWindow", TL.save_theme))
+        self.toolButton_1.setText(_translate("MainWindow", TL.primary_color))
+        self.toolButton_2.setText(_translate("MainWindow", TL.primary_light))
+        self.toolButton_3.setText(_translate("MainWindow", TL.second_color))
+        self.toolButton_4.setText(_translate("MainWindow", TL.second_light))
+        self.toolButton_5.setText(_translate("MainWindow", TL.second_dark))
+        self.toolButton_6.setText(_translate("MainWindow", TL.font_color_1))
+        self.toolButton_7.setText(_translate("MainWindow", TL.font_color_2))
 
     @staticmethod
     def color_picker(element):
@@ -99,7 +101,7 @@ class ThemeCreateWindow(QDialog):
         element.setStyleSheet(f"background-color: {color.name()}")
 
     def save_theme(self):
-        style_name, ok = QInputDialog.getText(self, "Сохранить тему", "Введите название темы:")
+        style_name, ok = QInputDialog.getText(self, TL.save_theme, TL.enter_theme_name)
 
         if ok and style_name:
             theme_xml = f'./qt_material/themes/{style_name.lower().replace(" ", "_")}.xml'

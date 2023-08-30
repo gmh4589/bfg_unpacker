@@ -1,5 +1,7 @@
-
+import json
+import os
 import sys
+import importlib
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -24,11 +26,13 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def __init__(self):
         super().__init__()
+        self.model = None
         self.setWindowTitle("BFGUnpacker")
         self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.parent_list = {}
         self.themes_list_create()
+        self.lang_list_create()
         self.buttons_create()
         self.tree_view_create()
         self.archive_list_create()
@@ -54,7 +58,22 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             if theme_name == setting["Main"]["theme"]:
                 new_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
 
-    def add_button(self, btn, l_func=None, contexts=None):
+    def lang_list_create(self):
+        lang_files = [file for file in os.listdir('./source/local/') if file.endswith('.json')]
+        lang_list = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
+        lang_codes = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
+
+        for action in self.action_Language.actions():
+            self.action_Language.removeAction(action)
+
+        for i, lang in enumerate(lang_list):
+            new_lang = self.action_Language.addAction(lang)
+            new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.changeLang(x))
+
+            if lang_codes[i] == setting["Main"]["lang"]:
+                new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
+
+    def add_button(self, btn, l_func=None, contexts=None, action=''):
 
         if contexts is not None:
             context_menu = QMenu(self)
@@ -71,6 +90,35 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             btn.setContextMenuPolicy(3)
             btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
 
+        match action:
+            case '7zip': pass
+            case 'bink': pass
+            case 'creation': pass
+            case 'cry engine': pass
+            case 'ffmpeg': pass
+            case 'folder': pass
+            case 'gaup': pass
+            case 'godot': pass
+            case 'idtech': pass
+            case 'innosetup': pass
+            case 'playstation': pass
+            case 'quickbms': pass
+            case 'raw2atrac': pass
+            case 'raw2dds': pass
+            case 'raw2wav': pass
+            case 'red engine': pass
+            case 'renpy': pass
+            case 'rpg maker': pass
+            case 'setting':
+                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
+            case 'source': pass
+            case 'trashcan': pass
+            case 'unreal': pass
+            case 'unigen': pass
+            case 'unity': pass
+            case 'wwise': pass
+            case 'xnconvert': pass
+
         self.upperButtons.addWidget(btn)
 
     # Создаются кнопки в верхнем меню
@@ -85,11 +133,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         alpha.append('Z')
 
         tool_tips = {'A': 'folder', 'B': 'quickbms', 'C': '7zip', 'D': 'gaup', 'E': 'innosetup', 'F': 'ffmpeg',
-                     'G': 'unreal', 'H': 'unity', 'I': 'idtech', 'J': 'source', 'K': 'creation', 'L': 'wwise',
+                     'G': 'unreal', 'H': 'unity', 'I': 'idtech', 'J': 'source', 'K': 'creation', 'L': 'cry engine',
                      'M': 'bink', 'N': 'wwise', 'O': 'playstation', 'P': 'xnconvert', 'Q': 'red engine', 'R': 'godot',
                      'S': 'rpg maker', 'T': 'renpy', 'U': 'unigen', 'V': 'raw2dds', 'W': 'raw2atrac', 'X': 'raw2wav',
                      'Y': 'setting', 'Z': 'trashcan'}
-
 
         for i in range(self.upperButtons.count()):
             item = self.upperButtons.itemAt(i)
@@ -101,14 +148,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             btn.setToolTip(tool_tips[a])
 
             if i not in (0, 13, 14, -1):
-                self.add_button(btn, contexts=[TL.change_button, TL.cancel],
+                self.add_button(btn, contexts=[TL.change_button, TL.cancel], action=tool_tips[a],
                                 l_func=(lambda *args, l=i:
                                         self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
-                self.add_button(btn, contexts=[TL.delete_to_trash, TL.full_delete, TL.cancel],
+                self.add_button(btn, contexts=[TL.delete_to_trash, TL.full_delete, TL.cancel], action=tool_tips[a],
                                 l_func=[lambda: print('trash1'), lambda: print('trash2')])
             else:
-                self.add_button(btn)
+                self.add_button(btn, action=tool_tips[a])
 
     def new_button(self, style, alpha):
         cbm.CBWindow(style=style, letter=alpha).exec()
@@ -151,8 +198,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     # Создается список игр в три-вью
     def tree_view_create(self):
-        model = QStandardItemModel()
-        root_item = model.invisibleRootItem()
+        self.model = QStandardItemModel()
+        root_item = self.model.invisibleRootItem()
         new_parent = QStandardItem('0-9')
         self.parent_list['0-9'] = new_parent
         root_item.appendRow(new_parent)
@@ -186,8 +233,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             all_games += 1
 
         # pprint(self.parent_list)
-        self.gameList_treeView.setModel(model)
-        model.setHeaderData(0, Qt.Horizontal, TL.select_something)
+        self.gameList_treeView.setModel(self.model)
+        self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
         self.all_games_label.setText(f'{TL.all_games} {all_games}')
 
     def changeTheme(self, theme_name):
@@ -199,6 +246,19 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             setting.write(config_file)
 
         self.themes_list_create()
+
+    def changeLang(self, lang):
+        setting.read('./setting.ini')
+        setting.set('Main', 'lang', lang)
+
+        with open('./setting.ini', "w") as config_file:
+            setting.write(config_file)
+
+        self.lang_list_create()
+        importlib.reload(TL)
+        self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
+        self.retranslateUi()
+
 
 
 if __name__ == "__main__":

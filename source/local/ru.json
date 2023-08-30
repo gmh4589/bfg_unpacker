@@ -1,5 +1,6 @@
 {
     "lang_name": "Русский",
+    "lang_code": "ru",
     "all_games": "Всего игр:",
     "find": "НАЙТИ",
     "all_caps": "ВСЕ",
@@ -40,5 +41,21 @@
     "change_button": "Сменить кнопку",
     "cancel": "Отмена",
     "delete_to_trash": "Удалять в корзину",
-    "full_delete": "Удалять полностью"
+    "full_delete": "Удалять полностью",
+    "show_on": "Показывать игры на:",
+    "by_name": "Названию",
+    "by_years": "Году выхода",
+    "context_menu": "Пункт в контекстном меню",
+    "sort_by": "Сортировать по:",
+    "out_folder": "Выходная папка",
+    "apply": "Применить",
+    "save_theme": "Сохранить Тему",
+    "primary_color": "Основной цвет",
+    "primary_light": "Основной светлый",
+    "second_color": "Второй цвет",
+    "second_light": "Второй светлый",
+    "second_dark": "Второй темный",
+    "font_color_1": "Цвет текста 1",
+    "font_color_2": "Цвет текста 2",
+    "enter_theme_name": "Введите название темы:"
 }
