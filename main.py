@@ -62,6 +62,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         lang_files = [file for file in os.listdir('./source/local/') if file.endswith('.json')]
         lang_list = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
         lang_codes = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
+        print(len(lang_files))
 
         for action in self.action_Language.actions():
             self.action_Language.removeAction(action)
@@ -235,7 +236,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         # pprint(self.parent_list)
         self.gameList_treeView.setModel(self.model)
         self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
-        self.all_games_label.setText(f'{TL.all_games} {all_games}')
+        self.all_games_count.setText(str(all_games))
 
     def changeTheme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
@@ -258,7 +259,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         importlib.reload(TL)
         self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
         self.retranslateUi()
-
 
 
 if __name__ == "__main__":
