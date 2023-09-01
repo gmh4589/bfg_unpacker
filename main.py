@@ -1,22 +1,23 @@
+import configparser
+import importlib
 import json
 import os
 import sys
-import importlib
+from pprint import pprint
+
+import pandas
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 
+import source.ui.localize as TL
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
-import configparser
-import pandas
-
 from source import change_button_menu as cbm
 from source import setting as setting_ui
 from source import theme_creator
-import source.ui.localize as TL
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -62,17 +63,33 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         lang_files = [file for file in os.listdir('./source/local/') if file.endswith('.json')]
         lang_list = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
         lang_codes = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
-        print(len(lang_files))
+        main_list = ['ru', 'ua', 'pl', 'tr', 'de', 'it', 'fr', 'en', 'es', 'es_la',
+                     'pt_br', 'ar', 'jp', 'ko', 'id', 'zh', 'zh_tw', 'th', 'vn', 'fi']
+
+        # print(len(lang_files))
 
         for action in self.action_Language.actions():
             self.action_Language.removeAction(action)
 
+        other_submenu = QMenu(self)
+        other_submenu.setTitle('...')
+
         for i, lang in enumerate(lang_list):
-            new_lang = self.action_Language.addAction(lang)
+
+            if lang_codes[i] in main_list or lang_codes[i] == setting["Main"]["lang"]:
+                new_lang = self.action_Language.addAction(lang)
+            else:
+                new_lang = other_submenu.addAction(lang)
+
             new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.changeLang(x))
 
             if lang_codes[i] == setting["Main"]["lang"]:
                 new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
+
+                if lang_codes[i] not in main_list:
+                    main_list.append(lang_codes[i])
+
+        self.action_Language.addMenu(other_submenu)
 
     def add_button(self, btn, l_func=None, contexts=None, action=''):
 
@@ -83,6 +100,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 context = context_menu.addAction(action)
 
                 if action != TL.cancel:
+
                     if isinstance(l_func, list):
                         context.triggered.connect(l_func[i])
                     else:
@@ -215,6 +233,26 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         root_item.appendRow(new_parent)
         all_games = 0
         mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
+
+        if int(setting['Engines']['unity']) > 0:
+            unity_list = pandas.read_csv('./game_list/unity_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, unity_list], axis=0, ignore_index=True)
+        if int(setting['Engines']['unreal']) > 0:
+            unreal_list = pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, unreal_list], axis=0, ignore_index=True)
+        if int(setting['Engines']['renpy']) > 0:
+            renpy_list = pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, renpy_list], axis=0, ignore_index=True)
+        if int(setting['Engines']['game_maker']) > 0:
+            gamemaker_list = pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, gamemaker_list], axis=0, ignore_index=True)
+        if int(setting['Engines']['rpg_maker']) > 0:
+            rpgmaker_list = pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, rpgmaker_list], axis=0, ignore_index=True)
+        if int(setting['Engines']['godot']) > 0:
+            godot_list = pandas.read_csv('./game_list/godot_list.csv', delimiter='\t')
+            mainList = pandas.concat([mainList, godot_list], axis=0, ignore_index=True)
+
         mainList = mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
         names = [n for n in mainList['game_name']]
         self.filter_list_create(names)
