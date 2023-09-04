@@ -1,0 +1,21 @@
+# Quake Arena Arcade Xbox 360 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.1"
+
+comtype xmemdecompress
+endian big
+get VER long
+get FILES long
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET long
+    get SIZE long
+    get ZIP long
+    get ZSIZE long
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE  # this is done automatically by quickbms but doesn't work at the moment
+    endif
+next i

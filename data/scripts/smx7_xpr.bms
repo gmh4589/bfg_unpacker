@@ -1,0 +1,53 @@
+# Marvel Avengers Battle For Earth XPR
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "SMX7"
+get SOME_OFF1 long
+get SOME_SIZE1 long
+get SOME_OFF2 long
+get DUMMY long
+get FILES long
+get FILES2 long
+get FILES3 long
+
+math BASE_OFF = 0
+callfunction EXTRACT 1
+
+math FILES = FILES2
+goto SOME_OFF1
+savepos BASE_OFF
+callfunction EXTRACT 1
+
+math FILES = FILES3
+math SOME_OFF1 + SOME_SIZE1
+goto SOME_OFF1
+savepos BASE_OFF
+callfunction EXTRACT 1
+
+math OFFSET + SIZE
+get SIZE asize
+math SIZE - OFFSET
+log "" OFFSET SIZE
+
+startfunction EXTRACT
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get OFFSET long
+        get SIZE long
+        get NAME_OFF long
+        get URN_OFF long
+
+        math OFFSET   + BASE_OFF
+        math NAME_OFF + BASE_OFF
+        math URN_OFF  + BASE_OFF
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        math OFFSET + 8
+        log NAME OFFSET SIZE
+    next i
+endfunction

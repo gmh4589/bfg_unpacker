@@ -1,0 +1,25 @@
+# Playrix - Incaball
+
+get VER long
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get FILES long
+    string PATH + NAME
+    string PATH + /
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        string FNAME p "%s%s" PATH NAME
+        log FNAME OFFSET SIZE
+    next i
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction

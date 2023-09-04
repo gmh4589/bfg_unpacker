@@ -1,0 +1,29 @@
+# Mario & Sonic at the Olympic Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get FILES long
+get BASE_OFF long
+savepos TMP
+xmath NAME_OFF "TMP + (FILES * 0x14)"
+for i = 0 < FILES
+    get OFFSET long
+    get ZIP long
+    get SIZE long
+    get ZSIZE long
+    get NAMESZ long
+    math OFFSET += BASE_OFF
+    math NAME_OFF += NAMES_OFF
+
+    savepos TMP
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+    savepos NAME_OFF
+    goto TMP
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

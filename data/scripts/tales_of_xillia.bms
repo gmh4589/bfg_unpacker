@@ -1,0 +1,123 @@
+# Tales of Xillia / Zestiria / Tales of the Abyss (script 0.1.2b)
+#   script from Chrrox  http://forum.xentax.com/viewtopic.php?p=59251#p59251
+#   updated and rewritten by aluigi
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+print "If you get a file error then select the other files (usually TLFILE.TLDAT)"
+
+string TMP p "FILEHEADER.%s" EXT
+open FDSE TMP 0 EXISTS
+if EXISTS == 0
+    string TMP p "FILEHEADER.%s" "TOFHDB"
+    open FDSE TMP 0
+    set EXT string "TLDAT"
+endif
+
+string TMP p "TLFILE.%s" EXT
+open FDSE TMP 1
+
+endian big
+
+get DUMMY long  # 0x9ae71c1a
+get DUMMY long
+get DUMMY long
+get HASHES long
+endian guess HASHES
+get HASH_SIZE long
+get ZERO long
+get DUMMY long
+get FILES long
+get DUMMY_SIZE long
+get ZERO long
+for i = 0 < HASHES
+    get HASH_KEY long
+    get HASH_VALUE long
+next i
+for i = 0 < FILES
+    get SIZE longlong
+    get ZSIZE longlong
+    get OFFSET longlong
+    get HASH long
+    getdstring EXT 8
+    get DUMMY long
+
+    string NAME p= "%s/." EXT   # autoguess
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE 1
+    else
+        endian save CURRENT_ENDIAN
+        endian little
+        goto OFFSET 1
+        math DIFF_OFFSET = OFFSET
+        get TLZC long 1
+        if TLZC == 0x435a4c54   # TLZC
+            get TVER long 1
+            get TZSIZE long 1
+            get TSIZE long 1
+            if TVER == 0x0201   # Tales of the Abyss
+                comtype deflate
+                getdstring DUMMY 8 1
+                savepos OFFSET 1
+                xmath TZSIZE "TZSIZE - (OFFSET - DIFF_OFFSET)"
+                clog NAME OFFSET TZSIZE TSIZE 1
+
+            elif TVER == 0x0401   # Tales of Symphonia IS NOT SUPPORTED: unknown lzma files and encrypted files
+                #comtype lzma_dynamic    # doesn't work!!!
+                comtype copy    # better than nothing
+
+                getdstring DUMMY 8 1
+                savepos OFFSET 1
+                xmath TZSIZE "TZSIZE - (OFFSET - DIFF_OFFSET)"
+                clog NAME OFFSET TZSIZE TSIZE 1
+
+            else
+                comtype MSF # lzma_0
+                getdstring DUMMY 9 1
+                get CHUNK_SIZE long 1
+
+                xmath CHUNKS "TSIZE / CHUNK_SIZE"
+                xmath TMP "CHUNKS * CHUNK_SIZE"
+                if TMP != TSIZE
+                    math CHUNKS + 1
+                endif
+                for x = 0 < CHUNKS
+                    get CHUNK_ZSIZE short 1
+                    putarray 0 x CHUNK_ZSIZE
+                next x
+                savepos OFFSET 1
+
+                /*
+                putvarchr MEMORY_FILE TSIZE 0
+                log MEMORY_FILE 0 0
+                append
+                for x = 0 < CHUNKS
+                    getarray CHUNK_ZSIZE 0 x
+                    clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                    math OFFSET + CHUNK_ZSIZE
+                next x
+                append
+                log NAME 0 TSIZE MEMORY_FILE
+                */
+
+                log NAME 0 0
+                append
+                for x = 0 < CHUNKS
+                    getarray CHUNK_ZSIZE 0 x
+                    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                    math OFFSET + CHUNK_ZSIZE
+                next x
+                append
+
+            endif
+        else
+            string NAME p "%s/%s" "unsupported" NAME
+            log NAME OFFSET TZSIZE 1 
+        endif
+        if CURRENT_ENDIAN != 0
+            endian big
+        endif
+    endif
+next i

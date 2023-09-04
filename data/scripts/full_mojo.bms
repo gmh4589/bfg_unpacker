@@ -1,0 +1,27 @@
+# extract the DataPC.pak of "Full Mojo Rampage" (PC, 2013)
+# (c) 2013-10-06 by AlphaTwentyThree of XeNTaX
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring KCAP
+endian big
+goto 0xc
+get FILES long
+set BIAS FILES
+math BIAS *= 0x120
+math BIAS += 0x20
+get OFF asize
+math OFF -= BIAS
+goto OFF
+for i = 1 <= FILES
+   getDstring NAME 0x100
+   get ZSIZE long
+   get SIZE long
+   get OFFSET long
+   get IDENT long
+   getDstring DUMMY 0x10
+   if IDENT == 1
+      clog NAME OFFSET SIZE ZSIZE
+   else
+      log NAME OFFSET SIZE
+   endif
+next i

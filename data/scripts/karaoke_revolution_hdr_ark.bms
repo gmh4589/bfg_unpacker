@@ -1,0 +1,26 @@
+# Karaoke Revolution Presents: American Idol Encore! [PS2]
+#   no HDR handling
+#   no filenames
+
+open FDSE "MAIN.HDR"
+open FDSE "MAIN_0.ARK" 1
+
+get DUMMY long  # 3
+get DUMMY long  # 1
+get DUMMY long  # 1
+get ARK_SIZE long
+get NAMES_SIZE long
+savepos OFFSET
+log MEMORY_FILE OFFSET NAMES_SIZE
+goto NAMES_SIZE 0 SEEK_CUR
+
+goto 0x8743f
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get FILE_SOMETHING long
+    get FOLDER_SOMETHING long
+    get SIZE long
+    get ZERO long
+    log "" OFFSET SIZE 1
+next i

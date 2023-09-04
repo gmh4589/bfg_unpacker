@@ -1,0 +1,14 @@
+# Hyper Cycles
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring DUMMY 15
+get FILES long
+math FILES / 23
+math FILES - 1
+goto 0
+for i = 0 < FILES
+    getdstring DUMMY 15
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

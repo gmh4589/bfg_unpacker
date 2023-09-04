@@ -1,0 +1,21 @@
+# Runaway
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x0b"
+for i = 0
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

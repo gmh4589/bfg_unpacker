@@ -1,0 +1,341 @@
+# ZIP files example 0.4.12
+# more info: http://www.pkware.com/documents/casestudies/APPNOTE.TXT
+#   note that with some archives like those created by Stuff-it on MacOSX is
+#   not possible to use this script because they are wrongly built, practically
+#   they set the comp_size and uncomp_size fields of the "Local file header" at
+#   0 and they set them only in the relative "Central directory structure" which
+#   means that it's necesary to read this one first for extracting the files
+#   contained in the local header... senseless and stupid
+# script for QuickBMS http://quickbms.aluigi.org
+
+# put the password here, it supports both ZipCrypto and AES
+set ZIP_PASSWORD string ""
+
+quickbmsver "0.7.4"
+
+get EXE_SIGN long
+goto 0
+if EXE_SIGN == 0x00905a4d
+    get EXT extension
+    if EXT == "exe" || EXT == "dll"
+        findloc OFFSET string "PK\x03\x04"
+        goto OFFSET
+    endif
+elif EXE_SIGN == 0x02014b50
+    findloc OFFSET binary "\x50\x4b\x03\x04"
+    goto OFFSET
+endif
+
+savepos OFFSET
+set ZIP_SIGN short 0x0403
+goto OFFSET
+getdstring ZIP_CENTRAL_SEARCH 6 # PK_sign + sign + ver
+goto OFFSET
+get DUMMY short
+get ZIP_SIGN short
+
+math ALTERNATIVE_MODE = 0   # in reality this is the real correct mode to read the ZIP archives
+
+math FIRST_FILE = 1
+goto OFFSET
+get zip_filesize asize
+for offset = offset < zip_filesize
+    #idstring "PK\x03\x04"
+    get PK_sign short       # so it works also with modified ZIP files!
+    get sign short
+    if sign == ZIP_SIGN     # Local file header
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if FIRST_FILE != 0
+            math FIRST_FILE = 0
+
+            if flag & 8
+            if zip_crc == 0
+            if comp_size == 0
+            #if uncomp_size == 0    # needs to be commented out
+                goto -0x16
+                get PK_sign short
+                idstring "\x05\x06"
+                get disk_num        short
+                get disk_start      short
+                get central_entries short
+                get central_entries short
+                get central_size    long
+                get central_offset  long
+                get comm_len        short   # let's think it's zero
+                getdstring comment  comm_len
+
+                math ALTERNATIVE_MODE   = 1
+                math ALTERNATIVE_OFFSET = central_offset
+                math ALTERNATIVE_comp_size = 0
+                math ALTERNATIVE_uncomp_size = 0
+                math ALTERNATIVE_zip_crc = 0
+
+                set NAME string "/"     # skip this file
+                math uncomp_size = 0    # skip this file
+            #endif
+            endif
+            endif
+            endif
+        endif
+
+        if ALTERNATIVE_MODE != 0
+            math comp_size   = ALTERNATIVE_comp_size
+            math uncomp_size = ALTERNATIVE_uncomp_size
+            math zip_crc     = ALTERNATIVE_zip_crc
+        endif
+
+        # zip64
+        if extra_len >= 20
+            getvarchr extra_id extra 0 short
+            if extra_id == 0x0001
+            if comp_size == 0xffffffff
+                getvarchr uncomp_size 4 longlong
+                getvarchr comp_size 12 longlong
+            endif
+            endif
+        endif
+
+        # possible lame tricks used by games
+        if comp_size & 0x80000000 # < 0
+        if comp_size u> zip_filesize
+            math comp_size ^= 0xffffffff
+            math uncomp_size ^= 0xffffffff
+        endif
+        endif
+        if name_len & 0x80000000 # < 0
+            math name_len ^= 0xffffffff
+        endif
+        if extra_len & 0x80000000 # < 0
+            math extra_len ^= 0xffffffff
+        endif
+
+        if flag & 1
+            if ZIP_PASSWORD == ""
+                print "the file is encrypted, you must set ZIP_PASSWORD in the script!"
+                #cleanexit
+            endif
+            math method_backup = method
+            if method == 99
+                getvarchr AES_EXTRA1 extra 0 short  # Extra field header ID (0x9901)
+                getvarchr AES_EXTRA2 extra 2 short  # Data size (currently 7, but subject to possible increase in the future)
+                getvarchr AES_EXTRA3 extra 4 short  # Integer version number specific to the zip vendor
+                getvarchr AES_EXTRA4 extra 6 short  # 2-character vendor ID
+                getvarchr AES_EXTRA5 extra 8 byte   # Integer mode value indicating AES encryption strength
+                getvarchr AES_EXTRA6 extra 9 short  # The actual compression method used to compress the file
+                math method = AES_EXTRA6
+                if AES_EXTRA5 == 0x01
+                    math AES_KEY_SIZE = 8
+                    set AES_ALGO string "ZIP_AES128"
+                elif AES_EXTRA5 == 0x02
+                    math AES_KEY_SIZE = 12
+                    set AES_ALGO string "ZIP_AES192"
+                elif AES_EXTRA5 == 0x03
+                    math AES_KEY_SIZE = 16
+                    set AES_ALGO string "ZIP_AES256"
+                else
+                    print "Error: invalid AES_EXTRA5 %AES_EXTRA5%"
+                    cleanexit
+                endif
+                getdstring AES_SALT AES_KEY_SIZE
+                xmath offset    "offset    + (AES_KEY_SIZE + 2)"
+                xmath comp_size "comp_size - (AES_KEY_SIZE + 2 + 10)"
+                strlen ZIP_PASSWORD_LEN ZIP_PASSWORD
+                encryption AES_ALGO ZIP_PASSWORD AES_SALT 0 ZIP_PASSWORD_LEN    # long story short, set the password length or use "Set binary"
+            else
+                encryption zipcrypto ZIP_PASSWORD 1
+            endif
+        endif
+
+        if method == 0
+            Log name offset comp_size   # was uncomp_size before AES
+        else
+            if method == 8
+                ComType deflate
+            elif method == 1
+                ComType shrink
+            elif method == 2
+                ComType reduce1
+            elif method == 3
+                ComType reduce2
+            elif method == 4
+                ComType reduce3
+            elif method == 5
+                ComType reduce4
+            elif method == 6
+                ComType pkware      # ???
+            elif method == 9
+                ComType deflate64
+            elif method == 10
+                ComType pkware      # ???
+            elif method == 12
+                ComType bzip2
+            elif method == 13
+                ComType XMemDecompress
+            elif method == 14
+                ComType lzmaefs
+            elif method == 15       # New World game?
+                ComType oodle
+            elif method == 18
+                ComType terse       # ???
+            elif method == 21
+                ComType XMemDecompress
+            elif method == 24
+                comtype lzma86dechead
+            elif method == 28
+                ComType lz4f
+            elif method == 34
+                ComType brotli
+            elif method == 64
+                ComType darksector
+            elif method == 95
+                comtype LZMA2_EFS0
+                getdstring XZ_MAGIC 6
+                get XZ_FLAGS0 byte
+                get XZ_FLAGS byte
+                get XZ_CRC32 long
+                xmath DUMMY "1 << ((((XZ_FLAGS & 0xf) - 1) / 3) + 2)"
+                getdstring DUMMY DUMMY
+                savepos tmp
+                xmath comp_size "comp_size - (tmp - offset)"
+                math offset = tmp
+            elif method == 96       # compressed jpeg
+                ComType copy
+                math uncomp_size = comp_size
+                string name + ".jpg"
+            elif method == 97       # wavpack
+                ComType copy
+                math uncomp_size = comp_size
+                string name + ".wv"
+            elif method == 98
+                ComType ppmd
+            elif method == 99
+                ComType lzfse
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+        endif
+
+        if flag & 1
+            encryption "" ""
+            if method_backup == 99
+                math offset += 10
+            endif
+        endif
+
+        math offset += comp_size
+        goto offset
+
+        if ALTERNATIVE_MODE != 0
+            goto ALTERNATIVE_OFFSET
+        endif
+
+    elif sign == 0x0806     # Archive extra data record
+        get extra_len       long
+        getdstring extra    extra_len
+
+    elif sign == 0x0201     # Central directory structure
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+
+        if ALTERNATIVE_MODE != 0
+            math ALTERNATIVE_comp_size = comp_size
+            math ALTERNATIVE_uncomp_size = uncomp_size
+            math ALTERNATIVE_zip_crc = zip_crc
+            savepos ALTERNATIVE_OFFSET
+            goto rel_offset
+        endif
+
+    elif sign == 0x0505     # Digital Signature
+        get sign_len        long
+        getdstring sign     sign_len
+
+    elif sign == 0x0606     # Zip64 end of central directory record
+        get dir_record      longlong
+        get ver_made        short
+        get ver_need        short
+        get num_disk        long
+        get num_disk2       long
+        get tot_entries     longlong
+        get tot_entries2    longlong
+        get central_size    longlong
+        get central_offset  longlong
+        print "Error: zip64 extensible data sector not implemented, contact me"
+        cleanexit
+
+    elif sign == 0x0706     # Zip64 end of central directory locator
+        get start_central   long
+        get end_central     longlong
+        get disks           long
+
+    elif sign == 0x0605     # End of central directory record
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+
+    elif sign == 0x0807     # Data Descriptor
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+
+    elif sign == 0x3030     # disk spanning
+        # nothing?
+
+    else
+        # A ZIP archive should be read from the end and not sequentially because in some rare cases
+        # we may have some "gaps" between the various directories, this is a basic way to guess
+        # the beginning of the next directory
+
+        # ZIP_CENTRAL_SEARCH contains zeroes that will not be considered, not a problem
+        print "...search ZIP signature..."
+        findloc NEW_OFFSET binary ZIP_CENTRAL_SEARCH ""
+        if NEW_OFFSET == ""
+            xmath COVERAGE "offset / (zip_filesize / 100)"   # "(offset*100)/zip_filesize" may go in overflow on 32bit
+            set COVERAGE_OK string "not fully covered, lot of data remaining"
+            if COVERAGE >= 90
+                set COVERAGE_OK string "fully covered, probably no remaining data"
+            endif
+            print "\nError: unknown ZIP signature %sign|x% at offset %offset|x%\n       if the other files have been extracted correctly it's all ok,\n       maybe this is just the end of file:\n\n       OFFSET   %offset|x%\n       ZIP SIZE %zip_filesize|x%\n       COVERAGE %COVERAGE% / 100   (%COVERAGE_OK%)"
+            cleanexit
+        endif
+        goto NEW_OFFSET
+    endif
+
+    savepos offset
+next

@@ -1,0 +1,20 @@
+# Sid Meier's Starships
+
+idstring "\x5c\x08\x3f\x07"
+get FILES long
+get OFFSET long
+get DUMMY long
+goto OFFSET
+for i = 0 < FILES
+    get NAME_CRC long
+    get XSIZE long
+    get FLAGS long
+    get SIZE long
+    get OFFSET long
+    string NAME p "%08x." NAME_CRC
+    if XSIZE == 0   # or FLAGS 0
+        log NAME OFFSET SIZE 
+    else            # or FLAGS 0xff
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

@@ -1,0 +1,110 @@
+# Yomawari: Night Alone (script 0.2)
+#   experimental and incomplete compression
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "arc"
+
+    idstring "DSARC FL"
+    get FILES long
+    get ZERO long
+    for i = 0 < FILES
+        getdstring NAME 0x28
+        get SIZE long
+        get OFFSET long
+
+        # the LZS files are compressed with a XOR obfuscation
+        # applied to some opcodes/bytes, the key is the value
+        # at offset 0xc (or is it part of the compressed data?)
+        log NAME OFFSET SIZE
+    next i
+
+elif EXT == "lzs"
+
+    getdstring EXT 4
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    print "Error: compressed LZS files are currently not supported"
+    cleanexit
+
+elif EXT == "fad"
+
+    /* old version
+    get ZERO long
+    get DUMMY long  # ever 1: is it an entry or VER?
+    get FILES long
+    math FILES + DUMMY
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get OFFSET long
+    get ZERO long
+    for i = 0 < FILES
+        getdstring NAME 8
+        get SIZE long
+        get ZERO long
+        get OFFSET long
+        get ZERO long
+        get ZERO long
+        get ZERO long
+
+        log "" OFFSET SIZE
+    next i
+    */
+
+    # Nippon Ichi FAD (experimental)
+
+    codepage 932
+
+    get FLAGS long  # in Yomawari it was zero, in others 0x66 or 0x6a
+    get FILES1 long # folders?
+    get FILES2 long # ???
+    get FILES3 long # files?
+    xmath FILES "FILES1 + FILES2 + FILES3"
+
+    get DUMMY long
+    get DUMMY long
+    get ZERO long
+    get ZERO long
+
+    if FLAGS & 8    # 0x6a
+        get ZERO long
+        get SOME_OFF long
+        get ZERO long
+        get ZERO long
+    endif
+
+    if FLAGS & 0x60 # 0x20? 0x40? Yomawari had 0, I don't have other samples
+        get NAMES_OFF long
+        get ZERO long
+        get ZERO long
+        get ZERO long
+    endif
+
+    for i = 0 < FILES
+        getdstring NAME 8
+        get SIZE long
+        get TYPE long   # 0, 1, 2, 3
+        get OFFSET long
+        get NAME_OFF long
+        get ZERO long
+        get ZERO long
+
+        if TYPE == 0
+            savepos TMP
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get NAME string
+            goto TMP
+        endif
+
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    print "Error: extension %EXT% not supported"
+    cleanexit
+
+endif

@@ -1,0 +1,48 @@
+# Dragon Sword / Repair Rakshasa
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # just to be 100% sure to handle non-compressed chunks too (don't know the format)
+
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 32
+
+    savepos TMP
+    goto OFFSET
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get ZSIZE long
+    get CHUNKS_INFO_OFF long
+    get DUMMY long
+    get CHUNKS long
+    get DUMMY long
+    get ZSIZE long
+    math CHUNKS_INFO_OFF += OFFSET
+    goto CHUNKS_INFO_OFF
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        getdstring DUMMY 0x10
+        get CHUNK_SIZE short
+        math CHUNK_SIZE *= 2
+        getdstring DUMMY 0x6
+        get CHUNK_OFFSET long
+        get CHUNK_ZSIZE long
+        getdstring DUMMY 0xc
+        getdstring DUMMY CHUNK_SIZE
+        math CHUNK_SIZE *= 0x100
+        math CHUNK_OFFSET += OFFSET
+        clog MEMORY_FILE CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    next i
+    append
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+    goto TMP
+next i

@@ -1,0 +1,23 @@
+# game: Secrets of the Ark (PC, 2007)
+# file types: *.pak
+#
+# script for QuickBMS http://quickbms.aluigi.org
+# written by AlphaTwentyThree of Zenhax
+
+idstring "EmPackFi"
+goto 0xc
+get DATASTART long
+get FILES long
+get UNK long # 4
+for i = 1 <= FILES
+	savepos GO
+	get NAMEOFF long
+	get SIZE long
+	get OFFSET long
+	xmath GO "GO + NAMEOFF"
+	savepos MYOFF
+	goto GO
+	get NAME string
+	goto MYOFF
+	log NAME OFFSET SIZE
+next i

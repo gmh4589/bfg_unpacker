@@ -1,0 +1,25 @@
+# Leftway .mp
+
+comtype deflate
+idstring "MPCK"
+goto -16
+savepos OFFSET
+get SIZE longlong
+get ZSIZE longlong
+math ZSIZE - 2
+math OFFSET - ZSIZE
+math ZSIZE - 4
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+math OFFSET = 4
+get FILES longlong MEMORY_FILE
+for i = 0 < FILES
+    get SIZE longlong MEMORY_FILE
+    get ZSIZE longlong MEMORY_FILE
+    math ZSIZE - 2
+    get NAME string MEMORY_FILE
+    math ZSIZE - 4
+    clog NAME OFFSET ZSIZE SIZE
+    math ZSIZE + 4
+    math OFFSET + ZSIZE
+next i

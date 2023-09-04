@@ -1,0 +1,12 @@
+endian big
+get BIN_SIZE asize
+for OFFSET = 0 < BIN_SIZE
+    goto OFFSET
+    get DUMMY long
+    get SIZE long
+    get SIZE long
+    get DUMMY long
+    savepos OFFSET
+    log "" OFFSET SIZE
+    math OFFSET += SIZE
+next

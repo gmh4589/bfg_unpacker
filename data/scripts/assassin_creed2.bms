@@ -1,0 +1,66 @@
+# Assassin's Creed 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get ARCHIVE_NAME filename
+get ARCHIVE_SIZE asize
+set OFFSET long 0
+for PACK = 0
+    if OFFSET u>= ARCHIVE_SIZE
+        cleanexit
+    endif
+    set CORRECT_SIGN binary "\x10\x04\xFA\x99\x57\xFB\xAA\x33"
+    getdstring SIGN 8
+    if SIGN != CORRECT_SIGN
+        math OFFSET += 4
+        goto OFFSET  # skip the initial 00000000
+        getdstring SIGN 8
+        if SIGN != CORRECT_SIGN
+            cleanexit
+        endif
+    endif
+
+    get VERSION short
+    get ZTYPE byte
+    if ZTYPE == 0x01
+        comtype lzo1x
+    elif ZTYPE == 0x02
+        comtype lzo2a
+    elif ZTYPE == 0x03
+        comtype xmemdecompress
+    else
+        print "Error: unknown compression type %ZTYPE%"
+        cleanexit
+    endif
+    get MAX_SIZE short
+    get MAX_ZSIZE short
+    get CHUNKS short
+
+    for i = 0 < CHUNKS
+        get SIZE short
+        get ZSIZE short
+        putarray 0 i SIZE
+        putarray 1 i ZSIZE
+    next i
+
+    set NAME string ARCHIVE_NAME
+    string NAME += "_"
+    string NAME += PACK
+
+    log NAME 0 0
+    append
+    for i = 0 < CHUNKS
+        getarray SIZE  0 i
+        getarray ZSIZE 1 i
+        get CRC long
+        savepos OFFSET
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET += ZSIZE
+        goto OFFSET
+    next i
+    append
+next PACK

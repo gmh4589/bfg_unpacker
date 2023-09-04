@@ -1,0 +1,5 @@
+get SIZE asize
+get NAME basename
+string NAME += ".zip"
+filexor 0x8c
+log NAME 0 SIZE

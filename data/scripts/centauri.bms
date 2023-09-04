@@ -1,0 +1,42 @@
+# Centauri Production Resource File 3 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set use_unicode long 0
+getdstring SIGN 35
+if SIGN == "Centauri Production Resource File 3"
+    goto 41
+else
+    goto 0
+    getdstring SIGN 70
+    set SIGN unicode SIGN
+    if SIGN == "Centauri Production Resource File 3"
+        set use_unicode long 1
+        goto 82
+    else
+        cleanexit
+    endif
+endif
+get FilesCount long
+get TOCOffset long
+
+goto TOCOffset
+for i = 1 to FilesCount
+    if use_unicode == 0
+        get FileName string
+    else
+        get FileName unicode
+    endif
+    get FileTime long
+    get dunno long
+    get isPacked long
+    get Offset long
+    get UnpackedSize long
+    get PackedSize long
+    get dunno long
+
+    if isPacked == 0
+        log FileName Offset UnpackedSize
+    else
+        clog FileName Offset PackedSize UnpackedSize
+    endif
+next i

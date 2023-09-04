@@ -1,0 +1,119 @@
+# Futuremark CRAE (script 0.3.1a)
+#   3DMark (all versions like 11, Vantage and so on)
+#   Shattered Horizon
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.17"
+
+get EXT extension
+if EXT == "gz"  # fake gzip
+    getdstring SIGN 4
+    goto 0
+    if SIGN u!= "CRAE"
+        log TEMPORARY_FILE 0 0
+        comtype zlib_noerror
+        append
+        for
+            get SIZE long
+            if SIZE == 0
+                break
+            endif
+            savepos OFFSET
+            clog TEMPORARY_FILE OFFSET SIZE SIZE
+            goto SIZE 0 SEEK_CUR
+        next
+        append
+        open "." TEMPORARY_FILE
+    endif
+endif
+comtype zlib    # restore
+
+math IS_ENCRYPTED = 0
+getdstring SIGN 4
+goto 0
+if SIGN u!= "CRAE"
+    math IS_ENCRYPTED = 1
+endif
+
+math ZSIZE = 0  # disabled, I can use VER too
+
+callfunction SET_ENCRYPTION 1
+filecrypt 1
+idstring "CRAE"
+get VER long
+
+if VER < 0x2a   # found only version 2
+
+    get DATA_SIZE long
+    get INFO_OFF long
+    get HEAD_SIZE long
+    get FILES long
+    get DUMMY long  # 6
+    goto INFO_OFF
+
+    math NAMESZ = 0x40  # VER 2
+    if VER <= 1
+        math NAMESZ = 0x30
+    endif
+    xmath NAMESZ "(HEAD_SIZE / FILES) - (4 + 4)"
+
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getdstring NAME NAMESZ
+        callfunction DUMP_FILE 1
+    next i
+
+else    # 0x2a, 0x2b and so on
+
+    get FILES variable4
+    savepos START_OFF
+    for EXTRACT = 0 < 2
+        for i = 0 < FILES
+            get NAMESZ variable4
+            getdstring NAME NAMESZ
+            get SIZE long
+            if VER >= 0x2b
+                # all the files are compressed even if their size will be bigger
+                get ZSIZE long
+            endif
+            if EXTRACT != 0
+                callfunction DUMP_FILE 1
+            endif
+        next i
+        if EXTRACT == 0
+            savepos OFFSET
+            goto START_OFF
+        endif
+    next EXTRACT
+
+endif
+
+startfunction DUMP_FILE
+    if SIZE != 0    # skip dummy files
+        filecrypt ""    # bypass a QuickBMS bug (not sure if it's a bug)
+        if ZSIZE == 0
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE  # compatible with sequential files
+        else
+            # zlib is not encrypted ...
+            filexor ""
+            encryption "" ""
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+            # ... while the decompressed data is encrypted
+            callfunction SET_ENCRYPTION 1
+            log NAME 0 SIZE MEMORY_FILE
+            math OFFSET + ZSIZE # compatible with sequential files
+        endif
+        callfunction SET_ENCRYPTION 1
+        filecrypt 1
+    endif
+endfunction
+
+startfunction SET_ENCRYPTION
+    if IS_ENCRYPTED != 0
+        filexor 0xad
+        encryption rotate 4
+        #filecrypt 1 # better to not enable it here
+    endif
+endfunction

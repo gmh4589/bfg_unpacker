@@ -1,0 +1,185 @@
+# LEGO Universe (script 0.3.2)
+#
+#   HOW TO USE THIS SCRIPT
+#   The best way is using this script on the file versions\primary.pki
+#   It will automatically extract everything from all the pk archives.
+#   Alternatively you can use it on the single pk archives and on the sd0 files.
+#   Note: the duplicate files are perfectly normal, press 'a' to ovewrite all of them.
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TOTAL_FILES = -1
+math HAS_TRUNK_TXT = 0
+
+get EXT extension
+
+if EXT == "pki"
+
+    callfunction EXTRACT_PKI 1
+
+elif EXT == "pk"
+
+    callfunction EXTRACT_PK 1
+
+elif EXT == "txt"
+
+    open FDSE "primary.pki"
+    callfunction EXTRACT_PKI 1
+
+else
+
+    getdstring SIGN 3
+    if SIGN == "sd0"
+        math OFFSET = 0
+        get ZSIZE asize
+        callfunction DUMP_SD0 1
+    else
+        print "Error: extension %EXT% is not supported"
+        cleanexit
+    endif
+
+endif
+
+startfunction COLLECT_TRUNK_TXT
+    open FDSE "trunk.txt"
+    math HAS_TRUNK_TXT = 1
+    do
+        get INPUT line
+    while INPUT != "[files]"
+    get TXT_SIZE asize
+    for i = 0
+        savepos TMP
+        if TMP >= TXT_SIZE
+            break
+        endif
+        get INPUT line
+        string INPUT R " " "_"  # avoids spaces
+        string ELEMENTS S INPUT NAME SIZE HASH1 ZSIZE HASH2 HASH3
+        putarray 2 i NAME
+        string HASH1 p " %s" HASH1  # long story short: grant quickbms numeric compatibility
+        string HASH2 p " %s" HASH2
+        putarray 3 i HASH1
+        putarray 4 i HASH2
+    next i
+    # trunk.txt contains more files than TOTAL_FILES
+    #if TOTAL_FILES < 0
+        math TOTAL_FILES = i
+    #endif
+endfunction
+
+startfunction EXTRACT_PKI
+    get VER long    # 3
+    get ARCHIVES long
+    for i = 0 < ARCHIVES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        putarray 0 i NAME
+    next i
+    get TOTAL_FILES long
+    for i = 0 < TOTAL_FILES
+        get SOME_CRC long
+        get DUMMY longlong  # -1
+        get ARCHIVE_NUM long
+        get FLAGS long  # ???
+    next i
+
+    callfunction COLLECT_TRUNK_TXT 1
+
+    for ARCHIVE = 0 < ARCHIVES
+        getarray TMP 0 ARCHIVE
+        string TMP R \ /
+        set NAME string "../"   # versions/primary.pki ../client/*
+        string NAME + TMP
+        open FDSE NAME 0 EXISTS # the first time the FDSE path is primary.pki but then it's the pk ones!
+        if EXISTS == 0
+            string NAME ! /
+            open FDSE NAME 0 EXISTS
+        endif
+        if EXISTS != 0          # skip if doesn't exists
+            callfunction EXTRACT_PK 1
+        endif
+    next ARCHIVE
+endfunction
+
+startfunction EXTRACT_PK
+    goto -8
+    get OFFSET long
+    get DELETED_FILES long
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY1 long
+        get DUMMY2 long
+        get DUMMY3 long
+        get SIZE long
+        getdstring HASH1 32
+        get DUMMY5 long
+        get ZSIZE long  # used only for the sd0 compressed files
+        getdstring HASH2 32
+        get DUMMY7 long
+        get OFFSET long
+        get DUMMY9 long
+
+        # long story short: grant quickbms numeric compatibility
+        string HASH1 p " %s" HASH1
+        string HASH2 p " %s" HASH2
+
+        set NAME string ""
+        if HAS_TRUNK_TXT != 0
+            for x = 0 < TOTAL_FILES
+                getarray TMP 3 x    # SIZE hash
+                if TMP == HASH1
+                    getarray TMP 4 x
+                    if TMP == HASH2 # ZSIZE hash
+                        getarray NAME 2 x
+
+                        putarray 2 x "" # remove them
+                        putarray 3 x ""
+                        putarray 4 x ""
+
+                        math x = TOTAL_FILES    # do not use break
+                    endif
+                endif
+            next x
+        endif
+
+        savepos TMP_OFF
+        goto OFFSET
+        getdstring SIGN 3
+        if SIGN == "sd0"
+            goto OFFSET
+            callfunction DUMP_SD0 1
+        else
+            log NAME OFFSET SIZE
+        endif
+        goto TMP_OFF
+    next i
+endfunction
+
+startfunction DUMP_SD0
+    savepos OFFSET
+    math CHUNK_LIMIT = OFFSET
+    math CHUNK_LIMIT + ZSIZE
+    idstring "sd0"
+    get DUMMY byte  # 1
+    get DUMMY byte  # 0xff
+    savepos CHUNK_OFF
+    math CHUNK_SIZE = 0x00040000
+    log MEMORY_FILE 0 0
+    append
+    for CHUNK_OFF = CHUNK_OFF != CHUNK_LIMIT
+        get CHUNK_ZSIZE long
+        savepos CHUNK_OFF
+        if CHUNK_ZSIZE == 0 || CHUNK_ZSIZE == CHUNK_SIZE    # ???
+            log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+            math CHUNK_OFF + CHUNK_SIZE
+        else
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            math CHUNK_OFF + CHUNK_ZSIZE
+        endif
+        goto CHUNK_OFF
+    next
+    append
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+endfunction

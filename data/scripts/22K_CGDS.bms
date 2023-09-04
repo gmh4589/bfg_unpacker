@@ -1,0 +1,14 @@
+<bms games="'Esoteria'" platforms="'PC'" ext="22K">
+IDString 0 cgds ;
+Get FNum Long 0 ;
+Math FNum -= 1 ;
+For T = 1 To FNum ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos ST 0 ;
+Get FS Long 0 ;
+Math FS -= FO ;
+Log "" FO FS FOO 0 ;
+GoTo ST 0 ;
+Next T ;
+</bms>

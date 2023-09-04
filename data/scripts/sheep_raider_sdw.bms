@@ -1,0 +1,12 @@
+# Sheep Raider (SDW) (script 0.1.1)
+
+get DUMMY long  # 0x301
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY byte  # ever 1
+    getdstring NAME 0xf
+    log NAME OFFSET SIZE
+next i

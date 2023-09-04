@@ -1,0 +1,111 @@
+# Fatal Frame / Project Zero: Maiden of Black Water / Dead or Alive 5 (script 0.2.2)
+#   you must select the (big) archive file, not the "bin" one!
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+get EXT extension
+if EXT == "vcpk"
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+getdstring SIGN8 8
+goto 0
+if SIGN8 == "WHD1.0"
+    idstring "WHD1.0\0\0"
+    get DUMMY long
+    get INFO_OFF long
+    endian guess INFO_OFF
+    get SED_SIZE long
+    get FILES long
+    get FILES long
+    get ZERO long
+    get INFO_OFF long
+    get DUMMY long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getdstring ZERO 8
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+open FDSE "lfm_order.bin" 1 EXISTS
+if EXISTS == 0
+    open FDDE "bin" 1 EXISTS
+endif
+if EXISTS != 0
+    idstring 1 "LFMO"
+    get DUMMY long 1
+    get FILES long 1
+    endian guess FILES
+    get DUMMY_OFF long 1
+    get INFO_OFF long 1
+    get ARCHIVE_NAME_OFF long 1
+    get NAMES_OFF long 1
+    goto INFO_OFF 1
+    for i = 0 < FILES
+        get ZERO long 1
+        get ID long 1
+        get NAME_OFF long 1
+
+        savepos TMP 1
+        goto NAME_OFF 1
+        get NAME string 1
+        putarray 0 ID NAME
+        goto TMP 1
+    next i
+endif
+
+getdstring SIGN 4   # it can be "LNS5", "CHCM", "COSQ" and so on!
+get ZERO long
+get FILES longlong
+endian guess FILES
+get ARCHIVE_SIZE longlong
+get ALIGN longlong
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZIP longlong
+
+    if EXISTS != 0
+        getarray NAME 0 i
+    else
+        set NAME string ""
+    endif
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        savepos BACK_OFF
+        goto OFFSET
+        log MEMORY_FILE 0 0
+        append
+        do
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            if CHUNK_ZSIZE & 0x8000
+                math CHUNK_ZSIZE & 0x7fff
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0x10000
+            else
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            goto OFFSET
+            padding 0x10
+            get TMP asize MEMORY_FILE
+        while TMP != SIZE
+        append
+        log NAME 0 SIZE MEMORY_FILE
+        goto BACK_OFF
+    endif
+next i

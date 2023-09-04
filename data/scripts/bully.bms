@@ -1,0 +1,19 @@
+# Bully (PS2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bin"
+open FDDE "lst" 1 EXISTS
+
+idstring "Hash"
+get FILES long
+for i = 0 < FILES
+    get DUMMY_CRC long
+    get OFFSET long
+    get SIZE long
+    if EXISTS == 0
+        set NAME string ""
+    else
+        get NAME line 1
+    endif
+    log NAME OFFSET SIZE
+next i

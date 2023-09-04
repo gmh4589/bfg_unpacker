@@ -1,0 +1,38 @@
+# Moorhuhn Kart 2 
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring GAME 0x20
+get FILES long
+goto 0x40
+for i = 0 < FILES
+    getdstring NAME 0x68
+    set EXT extension NAME
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 0x10
+    if EXT == "txt"
+        log MEMORY_FILE OFFSET SIZE
+        callfunction DECRYPT 1
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction DECRYPT
+    math ESI = 0x1234
+    for j = 0 < SIZE
+        getvarchr T MEMORY_FILE j
+        math T ^= ESI
+        math T2 = T
+        math T <<= 1
+        math T3 = T
+        math T2 >>= 1
+        math T2 ^= T3
+        math T2 &= 0x55
+        math T ^= T2
+        math ESI *= 3
+        math ESI += 2
+        putvarchr MEMORY_FILE j T
+    next j
+endfunction

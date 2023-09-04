@@ -1,0 +1,17 @@
+# Disorder (Messiah Game Engine) files decompressor
+
+getdstring ALGO 4
+if ALGO == "ZZZ4"
+    comtype lz4
+elif ALGO == "LZMA"
+    comtype lzma
+else
+    print "Error: unknown algorithm %ALGO%, probably not compressed"
+    cleanexit
+endif
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME filename
+clog NAME OFFSET ZSIZE SIZE

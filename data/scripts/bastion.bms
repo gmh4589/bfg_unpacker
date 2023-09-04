@@ -1,0 +1,37 @@
+# Bastion
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY long  # 5
+get PKG_SIZE asize
+for OFFSET = 4 != PKG_SIZE
+    get TYPE byte
+    if TYPE == 0xde
+        get ENTRY_SIZE long
+        savepos ENTRY_OFF
+        /*
+        # totally useless
+        get ELEMENTS long
+        for x = 0 < ELEMENTS
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+            getdstring DUMMY 0x28
+        next x
+        */
+        math ENTRY_OFF + ENTRY_SIZE
+        goto ENTRY_OFF
+        get DUMMY byte
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    elif TYPE == 0xbe
+        padding 0x800000
+    elif TYPE == 0xff
+        break
+    endif
+    savepos OFFSET
+next

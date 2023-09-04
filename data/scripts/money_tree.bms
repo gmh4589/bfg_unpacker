@@ -1,0 +1,26 @@
+# Money Tree
+# requires QuickBMS >= 0.2.1
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TOTAL_SIZE asize
+log MEMORY_FILE 0 TOTAL_SIZE
+
+set XORNUM long 0xba3abca7
+for i = 0 < TOTAL_SIZE
+    getvarchr BYTE MEMORY_FILE i
+    set TMP long XORNUM
+    math BYTE ^= TMP
+    putvarchr MEMORY_FILE i BYTE
+    math XORNUM l 1
+next i
+
+idstring MEMORY_FILE "ARC"
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

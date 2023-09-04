@@ -1,0 +1,33 @@
+# NyxQuest
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.4.6
+getdstring SIGN 4
+if SIGN == KCAP
+    endian big
+elif SIGN == PACK
+    endian little
+else
+    cleanexit
+endif
+get DUMMY long
+get FILES long
+
+math INFO_OFF = FILES
+math INFO_OFF *= 0x120
+math INFO_OFF n= INFO_OFF
+goto INFO_OFF 0 SEEK_END
+
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get ZIP long
+    getdstring DUMMY 16
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

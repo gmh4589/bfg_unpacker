@@ -1,0 +1,12 @@
+# Renegade Paintball
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

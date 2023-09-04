@@ -1,0 +1,142 @@
+# Call of Duty: Black Ops III KAPI/IPAK (script 0.3.2)
+#   Notes: this format is all guessed and, so, unstable and experimental.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get KAPI_NAME basename
+string KAPI_NAME_TXT p "%s.txt" KAPI_NAME
+math BASE_OFF = 0
+idstring "KAPI" # or IPAK
+get ZERO short
+get VER short
+if VER < 10
+
+    get KAPI_SIZE long
+    get SECTIONS long
+    for SECTION = 0 < SECTIONS
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get FILES long
+        savepos SECTION_OFF
+
+        if SECTION & 1
+            goto OFFSET
+            for i = 0 < FILES
+                get DUMMY long
+                get DUMMY long
+                get OFFSET long
+                get SIZE long
+                math OFFSET + BASE_OFF
+                callfunction UNPACK 1
+            next i
+        else
+            math BASE_OFF = OFFSET
+        endif
+
+        goto SECTION_OFF
+    next SECTION
+
+else
+
+    get DUMMY longlong
+    get KAPI_SIZE longlong
+    for SECTION = 0
+        get FILES longlong
+        get OFFSET longlong
+        get SIZE longlong
+        if OFFSET == 0 || OFFSET u> KAPI_SIZE
+            break
+        endif
+        savepos SECTION_OFF
+
+        math TMP = SIZE
+        math TMP / FILES
+        if TMP > 0x18
+            goto OFFSET
+            get DUMMY long
+            if DUMMY u> 0xffff
+                for i = 0 < FILES
+                    goto OFFSET
+                    get DUMMY longlong
+                    get SIZE longlong
+                    savepos OFFSET
+                    slog KAPI_NAME_TXT OFFSET SIZE
+                    math OFFSET + SIZE
+                next i
+            else
+                callfunction UNPACK 1
+            endif
+        endif
+
+        goto SECTION_OFF
+    next SECTION
+
+endif
+
+startfunction UNPACK
+    savepos TMP_OFF
+    goto OFFSET
+    xmath OFFSET_LIMIT "OFFSET + SIZE"
+    for OFFSET = OFFSET u< OFFSET_LIMIT
+        set NAME string ""
+        get CHUNKS long
+        if CHUNKS == 0xa7a7a7a7
+            break
+        endif
+        if CHUNKS == 0x93939393
+            break
+        endif
+        if CHUNKS u>= 0x01000000
+            math CHUNKS u>> 24
+        endif
+        if VER >= 10
+            get DUMMY long  # yeah, it's an useless 32bit
+        endif
+        for x = 0 < CHUNKS
+            get CHUNK_SIZE long
+            putarray 10 x CHUNK_SIZE
+        next x
+        padding 0x80
+        savepos OFFSET
+        xmath TMP "CHUNKS * 0x8000"
+        putvarchr MEMORY_FILE TMP 0
+        log MEMORY_FILE 0 0
+        append
+        for x = 0 < CHUNKS
+            getarray CHUNK_SIZE 10 x
+            math FLAGS = CHUNK_SIZE
+            math FLAGS u>> 24
+            math CHUNK_SIZE & 0xffffff
+            if FLAGS == 0xcf     # sequence of useless 0xcd bytes
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+            elif FLAGS == 1
+                comtype lzo1x
+                clog MEMORY_FILE OFFSET CHUNK_SIZE 0x8000
+            elif FLAGS == 3
+                comtype lz4
+                clog MEMORY_FILE OFFSET CHUNK_SIZE 0x8000
+            elif FLAGS == 8
+                comtype oodle
+                goto OFFSET
+                get CHUNK_XSIZE long
+                math OFFSET + 4
+                math CHUNK_SIZE - 4
+                clog MEMORY_FILE OFFSET CHUNK_SIZE CHUNK_XSIZE
+            elif FLAGS == 0
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+            else
+                print "Error: unknown FLAGS %FLAGS|X%, contact me"
+                cleanexit
+            endif
+            math OFFSET + CHUNK_SIZE
+        next x
+        append
+        get MEM_SIZE asize MEMORY_FILE
+        log NAME 0 MEM_SIZE MEMORY_FILE
+        goto OFFSET
+        padding 0x80
+        savepos OFFSET
+    next
+    goto TMP_OFF
+    savepos OFFSET
+endfunction

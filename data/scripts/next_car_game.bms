@@ -1,0 +1,1529 @@
+# Next Car Game
+#	tested with tge Free Technology Demo (Technology Sneak Peek 2.0)
+#
+#	NOTE that this script is experimental because the extraction is filename-based
+#	which means "NO filename = NO extraction" and the filenames are NOT archived
+#
+#	use the following to specify a filename
+#	quickbms -a "data/Database/Game.db" next_car_game.bms 00__nextcargame__
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+
+# decrypt the whole archive
+set MEMORY_FILE3 binary "\x55\x8b\xec\x56\x8b\x75\x10\x83\xfe\x01\x0f\x8e\x94\x00\x00\x00\x8b\x55\x08\x8b\x4c\xb2\xfc\x4e\x53\x33\xc0\x57\x89\x75\x10\x85\xf6\x7e\x46\x8b\x74\x82\x04\x8b\xfe\x8b\xd9\xc1\xee\x05\xc1\xe7\x04\xc1\xeb\x03\x33\xfb\x8d\x1c\x8d\x00\x00\x00\x00\x33\xf3\x8b\x5d\x0c\x03\xfe\x8b\xf0\x83\xf6\xfe\x83\xe6\x03\x8b\x34\xb3\x33\x74\x82\x04\x81\xf1\xb9\x79\x37\x9e\x03\xf1\x33\xfe\x29\x3c\x82\x8b\x0c\x82\x40\x3b\x45\x10\x7c\xba\x8b\x32\x8b\xfe\xc1\xe7\x04\xc1\xee\x05\x8b\xd9\xc1\xeb\x03\x33\xfb\x8d\x1c\x8d\x00\x00\x00\x00\x33\xf3\x8b\x5d\x0c\x03\xfe\x8b\xf0\x83\xf6\xfe\x83\xe6\x03\x8b\x34\xb3\x33\x32\x81\xf1\xb9\x79\x37\x9e\x03\xf1\x33\xfe\x29\x3c\x82\x5f\x5b\x5e\x5d\xc3"
+set MEMORY_FILE2 binary "\x7D\x21\x12\xDD\xA6\x4F\x3E\x28\x50\xC3\x3C\xD9\x99\x45\x37\xC9"	# key
+
+get SIZE asize
+putvarchr MEMORY_FILE4 SIZE 0
+log MEMORY_FILE4 0 0
+math BLOCK_SIZE = 0x8000
+for OFFSET = 0 < SIZE
+	log MEMORY_FILE OFFSET BLOCK_SIZE
+	math TMP = BLOCK_SIZE
+	math TMP /= 4
+	calldll MEMORY_FILE3 0 cdecl RET MEMORY_FILE MEMORY_FILE2 TMP
+	append
+	log MEMORY_FILE4 0 BLOCK_SIZE MEMORY_FILE
+	append
+	math OFFSET += BLOCK_SIZE
+next
+
+
+get FULL_SIZE asize MEMORY_FILE4
+goto 0 MEMORY_FILE4
+idstring MEMORY_FILE4 "bbfs"
+get DUMMY long MEMORY_FILE4
+get SIZE long MEMORY_FILE4
+get FILES long MEMORY_FILE4
+get DUMMY long MEMORY_FILE4
+savepos OFFSET MEMORY_FILE4
+
+# decrypt the information
+set MEMORY_FILE6 binary "\x55\x8b\xec\x83\xec\x08\x57\x8b\x7d\x10\x83\xff\x01\x0f\x86\xbf\x00\x00\x00\x33\xd2\xb8\x34\x00\x00\x00\xf7\xf7\x53\x56\x8b\x75\x08\x8b\x16\x83\xc0\x06\x69\xc0\xb9\x79\x37\x9e\x89\x45\xfc\x90\xc1\xe8\x02\x83\xe0\x03\x8d\x4f\xff\x89\x45\xf8\x85\xc9\x74\x44\x8b\x44\x8e\xfc\x8b\xf8\x8b\xda\xc1\xe8\x05\xc1\xe7\x04\xc1\xeb\x03\x33\xfb\x8d\x1c\x95\x00\x00\x00\x00\x33\x55\xfc\x33\xc3\x8b\x5d\x0c\x03\xf8\x8b\xc1\x83\xe0\x03\x33\x45\xf8\x8b\x04\x83\x33\x44\x8e\xfc\x03\xc2\x33\xf8\x29\x3c\x8e\x49\x8b\x54\x8e\x04\x75\xbf\x8b\x7d\x10\x8b\x44\xbe\xfc\x8b\xd8\x8b\xfa\xc1\xe3\x04\xc1\xef\x03\x33\xdf\xc1\xe8\x05\x8d\x3c\x95\x00\x00\x00\x00\x33\xc7\x8b\x7d\x10\x83\xe1\x03\x33\x4d\xf8\x03\xd8\x8b\x45\x0c\x8b\x0c\x88\x8b\x45\xfc\x33\x4c\xbe\xfc\x33\xd0\x03\xca\x33\xd9\x29\x1e\x8b\x16\x05\x47\x86\xc8\x61\x89\x45\xfc\x0f\x85\x60\xff\xff\xff\x5e\x5b\x5f\x8b\xe5\x5d\xc3"
+set MEMORY_FILE5 binary "\x39\xD4\xB1\x2E\x9C\x49\xCD\x40\x12\x17\xF7\x8B\xF8\x43\xF4\xB1"	# key
+
+math ENCRYPTED = SIZE	# I have not checked if this means encrypted
+math ENCRYPTED &= 0x80000000
+
+math SIZE &= 0x7fffffff
+math SIZE -= OFFSET
+log MEMORY_FILE OFFSET SIZE MEMORY_FILE4
+if ENCRYPTED != 0
+	math TMP = SIZE
+	math TMP /= 4
+	calldll MEMORY_FILE6 0 cdecl RET MEMORY_FILE MEMORY_FILE5 TMP
+endif
+
+
+
+get ENTRIES long MEMORY_FILE
+for i = 0 < ENTRIES
+	get INFO_OFF long MEMORY_FILE
+	get INFO_TYPE long MEMORY_FILE
+	if INFO_OFF == 0
+		putarray 0 i -1
+		putarray 1 i -1
+	else
+		math INFO_OFF += 4
+		math INFO_OFF -= 0x18
+
+		savepos TMP MEMORY_FILE
+		goto INFO_OFF MEMORY_FILE
+		get TYPE short MEMORY_FILE
+		get TYPE2 short MEMORY_FILE
+		get OFFSET long MEMORY_FILE
+		get SIZE long MEMORY_FILE
+		get ZSIZE long MEMORY_FILE
+		get NAME_CRC64 longlong MEMORY_FILE
+		goto TMP MEMORY_FILE
+
+		putarray 0 i INFO_OFF
+		putarray 1 i INFO_TYPE
+		putarray 2 i TYPE
+		putarray 3 i TYPE2
+		putarray 4 i OFFSET
+		putarray 5 i SIZE
+		putarray 6 i ZSIZE
+		putarray 7 i NAME_CRC64
+	endif
+next i
+
+
+
+set PATH string ""
+if quickbms_arg1 & "quickbms_arg"	# lame solution
+else
+	set NAME string quickbms_arg1
+	set DO_EXTRACT = 1
+	callfunction EXTRACT
+	cleanexit
+endif
+
+
+
+set PATH string "data/Database/"
+
+set NAME string "Game.db"
+set DO_EXTRACT = 1
+callfunction EXTRACT
+
+set NAME string "databases.ini"
+set DO_EXTRACT = 1
+callfunction EXTRACT
+
+set NAME string "databases.ini"
+set DO_EXTRACT = 0
+callfunction EXTRACT
+get TMP asize MEMORY_FILE12
+log MEMORY_FILE13 0 TMP MEMORY_FILE12
+for
+	savepos TMP2 MEMORY_FILE13
+	if TMP2 >= TMP
+		break
+	endif
+	get NAME line MEMORY_FILE13
+	if NAME & " = \""
+		string NAME |= " = \""
+		string NAME -= "\","
+		set DO_EXTRACT = 1
+		callfunction EXTRACT
+	endif
+next
+
+set DO_EXTRACT = 1
+set NAME string "data/localization/languages.dat"
+callfunction EXTRACT
+set NAME string "data/localization/language0.dat"
+callfunction EXTRACT
+set NAME string "data/localization/version.ini"
+callfunction EXTRACT
+
+set PATH string ""
+set NAME string "data/localization/language0.dat"
+callfunction EXTRACT
+set NAME string "data/localization/language0.dat"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian_ssao.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian_ssao.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_copy.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_copy.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_blur_depth_dependant.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_blur_depth_dependant.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_finalcompose.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_finalcompose.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_streak.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_streak.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_cubemip.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_cubemip.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_cubeblur.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_cubeblur.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample2x.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample2x.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample4x.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample4x.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloompassfilter.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloompassfilter.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloompassfilter_hdr.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloompassfilter_hdr.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloomsum.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_bloomsum.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian5x1.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian5x1.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian1x5.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian1x5.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsampledepth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsampledepth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsampledepthminmax.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsampledepthminmax.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_inv_prj_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_inv_prj_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_particlecombine.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_particlecombine.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofcombine.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofcombine.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofdownsample.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofdownsample.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofneardownsample.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofneardownsample.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofnearblur.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_dofnearblur.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_motionblur.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_motionblur.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample2x_mb.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_downsample2x_mb.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_luminance_predicate.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_luminance_predicate.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_tonemap.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_tonemap.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing_prefilter.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing_prefilter.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing_fxaa.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_antialiasing_fxaa.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_filter_13.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_filter_13.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_linearize_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_linearize_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_ambient_depth_fill.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_ambient_depth_fill.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian_generic_1d.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/image_gaussian_generic_1d.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightprepass_omni.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightprepass_omni.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_spot.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_spot.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightprepass_sun.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightprepass_sun.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_unlit.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_unlit.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_ssao.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_ssao.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_unlit_nossao.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_unlit_nossao.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_stencil.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/deferred_stencil.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud_color.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud_color.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud_hdr.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/hud_hdr.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_billboard.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_billboard.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_screen.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_screen.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/skybox_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/skidmark.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/skidmark.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/skidmark_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/skidmark_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/ragetrail.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/ragetrail.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_ns_d_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_albedo_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_d_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/terrain_blend_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/water.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/water.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/water_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_basic_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_skin_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/uber_uv_anim_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightmapped_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/self_illum_mask_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/decal_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/foliage_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/clutter_noanim_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_no_deform_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_window_no_deform_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_diffuse_nd_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_metal_no_deform_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_no_deform_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_lights_r_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_interior_no_deform_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_tire_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_rageshield_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/particle_mesh_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/rope_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_cube.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/lightcone_cube.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/aof.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/aof.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_ao.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/car_ao.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_postex_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_postex_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_depth.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_depth.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_depth_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_depth_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_velocity.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_velocity.ps"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_velocity_alpha_test.vs"
+callfunction EXTRACT
+set NAME string "data/shader/common/base_packed16_velocity_alpha_test.ps"
+callfunction EXTRACT
+set NAME string "data/gameflow/gameflow.bsm"
+callfunction EXTRACT
+set NAME string "data/art/debug/fonts/fonts_minimal.bed"
+callfunction EXTRACT
+set NAME string "data/art/debug/fonts/ms_sans_serif_8.abc"
+callfunction EXTRACT
+set NAME string "data/art/debug/fonts/ms_sans_serif_8.dds"
+callfunction EXTRACT
+set NAME string "data/menu/textures/main/legal/disclaimer0_pc.bmap"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/init.bnk"
+callfunction EXTRACT
+set NAME string "data/database/client/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/server/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/career/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/upgradeparts/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/upgradebundles/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/track/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/devlauncher/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/ai/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/clienttemplates/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_alwaysloaded.bnk"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_events.bnk"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_menu_controls.bnk"
+callfunction EXTRACT
+set NAME string "data/database/data/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_menumusic.bnk"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_vo_career.bnk"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_vo_game.bnk"
+callfunction EXTRACT
+set NAME string "data/menu/textures/dynamic/loadingscreen_generic.jpg"
+callfunction EXTRACT
+set NAME string "data/database/servertemplates/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/beds/songs.bed"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/settings/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/geometry/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/gameplay/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/objectproperties/database.xml"
+callfunction EXTRACT
+set NAME string "data/art/effects/flares/new_flare_glow_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/flares/new_flare_flares_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/postprocess/filters/colorcube_default.tga"
+callfunction EXTRACT
+set NAME string "data/art/postprocess/filters/colorcube_desaturation.tga"
+callfunction EXTRACT
+set NAME string "data/art/effects/skybox/vp_hdri_v2_03_crop_b.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skybox/vp_hdri_v2_03_crop_f.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skybox/vp_hdri_v2_03_crop_l.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skybox/vp_hdri_v2_03_crop_r.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skybox/vp_hdri_v2_03_crop_u.bmap"
+callfunction EXTRACT
+set NAME string "data/art/debug/texture/default_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/debug/texture/default_d.bmap"
+callfunction EXTRACT
+set NAME string "data/art/debug/texture/default_ao_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/lights/falloff_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skidmarks/skidmark_ca.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/skidmarks/skidmark_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/particles_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/particles_glow_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/screen_particles_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/particlesmesh_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/particlesmesh_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/tiresurface/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/gameplay/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/decompose/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/contact/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/wakeup/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/car/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/active/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/event/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/ftt_ballsocket/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_bumper1_phase2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_loader1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/construct_conveyor1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/prop_gastowerwithrope/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/constr_sh1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_lightpole2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/dyn_wreckingball/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_excavator1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/camera_event_forward/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/volumetriggertest/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/rwa_wallbreak/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/ftt_universal_joint/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/event_miningtruck/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_truck1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_start_lightpole1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_machine3/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_gascontainer1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/prop_gastower/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/event_excavator/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_machine2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/mod_dyn_building7/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/wrecker_barrack_tower/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_machine1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_crowd/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_bumper_big1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_bumper1_phase3/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_pickup1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/volume_bumper1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/start_dynamic_animations/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/start_colliding_animations/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/start_ambient_animations/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_silo4_gassilo/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/dyn_wreckingball/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/ftt_fixedjoint/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_miningtruck/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_excavator2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/traffic_test_a_box/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_car_van_01/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/camera_event_backward/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/prop_gastower1b/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_barracks1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/trigger_animation/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/test_trigger/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/shockwave/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/prop_falling_crane1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/prop_crane3_dyn/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/lshapejointtest_box/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/hide_collision/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/ftt_hinge/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_silo4/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/crushers/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/crane_container_swing/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/mod_dyn_walldoore1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_big_shack1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prefabold/tabletest_box/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/camera_event/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/building_barracks2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/mod_dyn_building6/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/prop_conveyor_breakable1/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/crushers/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/prefab/construct_cover2/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/advancedmode/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/cars/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/cars/demo/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/collisionmatrix/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/carcommon/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/visualdamagerules/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/deform/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/profile/localplayer/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/routemarkers/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/effect/tire/database.xml"
+callfunction EXTRACT
+set NAME string "data/menu/as3/hud_i5.dds"
+callfunction EXTRACT
+set NAME string "data/database/settings/collisionhelper/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/controller/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/settings/gameplay/tricks/database.xml"
+callfunction EXTRACT
+set NAME string "data/art/effects/particles/particlesmesh.scne"
+callfunction EXTRACT
+set NAME string "data/surfaces/surfaces.bed"
+callfunction EXTRACT
+set NAME string "data/art/editor_advanced/object/start_grid_object.scne"
+callfunction EXTRACT
+set NAME string "data/art/debug/texture/default_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker_demo/wrecker_demo.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/tmp_ghost_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/invisible_texture.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_orange_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_border_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_static2_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/asset_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/nextcargame_demo_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_ground_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_static_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/bumper1.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_danger_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/bumper1_phase2.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/bumper1_phase3.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/bumper_big1.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/car_drop.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/texture_ghost_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/gameplay_resetpoint.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/textures/default_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/jump_test_01.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_colors_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_barrelpile3.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_dyn_barrel1.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_color_dynamic_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/textures/wrecker_dyn_barrel2_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_barrelpile4.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_barreltrap.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_boxpile2.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_dyn_box1.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_boxpile3.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_cannon.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_crusher1.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/nextcargame_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_crusher2.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_crusher3.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/industrialpress_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_crusher6.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_dyn_pillar1.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/ground_crispsand_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_hole_jump_01.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_joyride1.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_jump_twist_01.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_prop_highjump.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_highjump_platform1.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_prop_longjump.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_tirepile1.scne"
+callfunction EXTRACT
+set NAME string "data/art/textures/prop_fence3_tire_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_pusher3.scne"
+callfunction EXTRACT
+set NAME string "data/art/levels/experimentsset/wrecker/wrecker_stunttrack.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_tirepile3.scne"
+callfunction EXTRACT
+set NAME string "data/art/objects/wrecker_tirepile4.scne"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_game_generic.bnk"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/noisemap_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/rageshield_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/rageshield_glow_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/empty.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/skin_bugbear2_damaged_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/skin_bugbear2_damaged_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_damaged_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_damaged_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_glow_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_glowlit_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/windows_damaged_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/windows_damaged_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/body.vhcl"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/frame_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/undercarriage_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/interior_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/ao_body_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/badge_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/rollcage_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/net_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/dashboard_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/steering_wheel_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/windows_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/driver_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_cylheads_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_intake_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/exhaust_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/grille_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/license_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/gearbox_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/suspension_c1.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/seats_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/tire_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/rim_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/shared/ao_tire_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/brakes_c.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/skin_bugbear2_c5.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/skin_bugbear2_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/frame_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/undercarriage_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/lights_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/interior_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/badge_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/rollcage_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/net_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/dashboard_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/steering_wheel_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_cylheads_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/engine_intake_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/exhaust_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/grille_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/license_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/gearbox_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/suspension_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/seats_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/tire_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/rim_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/art/vehicles/american/brakes_ns.bmap"
+callfunction EXTRACT
+set NAME string "data/database/data/upgradeparts/engine/titan_v6_2995cc_145hp/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_player_camaro.bnk"
+callfunction EXTRACT
+set NAME string "data/database/settings/camera/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/cars/demo/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_player_surfaces.bnk"
+callfunction EXTRACT
+set NAME string "data/database/settings/carreset/database.xml"
+callfunction EXTRACT
+set NAME string "data/database/data/cars/demo/audio/database.xml"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_player_nitro.bnk"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/sb_music.bnk"
+callfunction EXTRACT
+set NAME string "data/menu/as3/buttons_i6.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/buttons_i1.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/prerace_i1.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/pause_i4.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/options_i12.dds"
+callfunction EXTRACT
+set NAME string "data/sound/soundevents/1071237345.wem"
+callfunction EXTRACT
+set NAME string "data/menu/as3/buttons_i6.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/buttons_i1.dds"
+callfunction EXTRACT
+set NAME string "data/menu/as3/popups/sneakpeakquitad_i1.dds"
+callfunction EXTRACT
+
+
+startfunction EXTRACT
+	log MEMORY_FILE12 0 0
+	set EXTRACT_OK = 0
+
+	# rc4_set_key
+	set MEMORY_FILE7 binary "\x55\x8b\xec\x8b\x45\x10\x83\xec\x14\x33\xd2\x8d\x48\x08\x8b\xff\x88\x14\x11\x42\x81\xfa\x00\x01\x00\x00\x7c\xf4\xba\xf9\xff\xff\xff\x2b\xd0\x89\x55\xf4\x53\xba\xfa\xff\xff\xff\x2b\xd0\x56\x89\x55\xf0\x57\xba\xfb\xff\xff\xff\x2b\xd0\xbf\xf8\xff\xff\xff\x33\xdb\x2b\xf8\x8b\xf1\x89\x55\xec\x89\x7d\xf8\xeb\x06\x8d\x49\x00\x8b\x7d\xf8\x0f\xb6\x06\x88\x45\xff\x8d\x04\x37\x99\xf7\x7d\x0c\x8b\x45\x08\x0f\xb6\x14\x02\x8a\x45\xff\x03\xd3\x0f\xb6\xf8\x03\xfa\x81\xe7\xff\x00\x00\x00\x0f\xb6\x14\x39\x88\x16\x88\x04\x39\x8b\x45\xf4\x03\xc6\x99\xf7\x7d\x0c\x8a\x5e\x01\x8b\x45\x08\x88\x5d\xff\x0f\xb6\xdb\x0f\xb6\x14\x02\x03\xd7\x03\xda\x0f\xb6\x55\xff\x81\xe3\xff\x00\x00\x00\x0f\xb6\x04\x19\x88\x46\x01\x88\x14\x19\x0f\xb6\x46\x02\x88\x45\xff\x8b\x45\xf0\x8d\x04\x30\x99\xf7\x7d\x0c\x8b\x45\x08\x0f\xb6\x14\x02\x8a\x45\xff\x03\xd3\x0f\xb6\xf8\x03\xfa\x81\xe7\xff\x00\x00\x00\x0f\xb6\x14\x39\x88\x56\x02\x88\x04\x39\x8b\x45\xec\x03\xc6\x99\xf7\x7d\x0c\x8a\x5e\x03\x8b\x45\x08\x88\x5d\xff\x0f\xb6\xdb\x83\xc6\x04\x0f\xb6\x14\x02\x03\xd7\x03\xda\x0f\xb6\x55\xff\x81\xe3\xff\x00\x00\x00\x0f\xb6\x04\x19\x88\x46\xff\x8b\x45\xf8\x03\xc6\x88\x14\x19\x3d\x00\x01\x00\x00\x0f\x8c\x29\xff\xff\xff\x33\xf6\x33\xd2\xbf\x80\x00\x00\x00\x46\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xc3\x03\xc2\x25\xff\x00\x00\x00\x0f\xb6\x14\x01\x88\x14\x31\x88\x1c\x01\x46\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xd3\x03\xd0\x81\xe2\xff\x00\x00\x00\x0f\xb6\x04\x11\x88\x04\x31\x88\x1c\x11\x46\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xc3\x03\xc2\x25\xff\x00\x00\x00\x0f\xb6\x14\x01\x88\x14\x31\x88\x1c\x01\x46\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xd3\x03\xd0\x81\xe2\xff\x00\x00\x00\x0f\xb6\x04\x11\x88\x04\x31\x88\x1c\x11\x46\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xc3\x03\xc2\x25\xff\x00\x00\x00\x0f\xb6\x14\x01\x88\x14\x31\x46\x88\x1c\x01\x81\xe6\xff\x00\x00\x00\x8a\x1c\x31\x0f\xb6\xd3\x03\xd0\x81\xe2\xff\x00\x00\x00\x4f\x0f\xb6\x04\x11\x88\x04\x31\x88\x1c\x11\x0f\x85\x42\xff\xff\xff\x8b\x45\x10\x5f\x89\x30\x5e\x89\x50\x04\x5b\x8b\xe5\x5d\xc3"
+	# get offset from info
+	set MEMORY_FILE8 binary "\x55\x8b\xec\x83\xec\x08\x53\x57\x8b\x7d\x0c\x0f\xb7\x5f\x02\x66\x85\xdb\x75\x2c\x8b\x4d\x10\x0f\xb6\x41\x03\x0f\xb6\x51\x02\xc1\xe0\x08\x0b\xc2\x0f\xb6\x51\x01\x0f\xb6\x09\xc1\xe0\x08\x0b\xc2\xc1\xe0\x08\x0b\xc1\x33\x47\x04\x5f\x5b\x8b\xe5\x5d\xc2\x0c\x00\x56\x8b\x75\x10\x0f\xb6\x46\x03\x0f\xb6\x56\x02\x0f\xb6\x4e\x01\xc1\xe0\x08\x0b\xc2\x0f\xb6\x16\xc1\xe0\x08\x0b\xc1\xc1\xe0\x08\x0b\xc2\x33\x47\x04\xba\x0c\x00\x00\x00\x8b\xc8\x2b\x4d\x08\xc7\x45\x10\x00\x00\x00\x00\x89\x4d\xfc\x8b\xcb\x89\x4d\xf8\x85\xc9\x7e\x5e\xeb\x0f\xeb\x0a\x8d\xa4\x24\x00\x00\x00\x00\x8d\x49\x00\x8b\x7d\x0c\x0f\xb6\x4c\x32\x03\x0f\xb6\x5c\x32\x02\xc1\xe1\x08\x0b\xcb\x0f\xb6\x5c\x32\x01\xc1\xe1\x08\x0b\xcb\x0f\xb6\x1c\x32\xc1\xe1\x08\x0b\xcb\x8b\x5d\x10\x33\x4c\x9f\x18\x83\xc2\x04\x8b\xf9\x2b\x7d\x08\x81\xe2\xff\x00\x00\x00\x3b\x7d\xfc\x73\x05\x8b\xc1\x89\x7d\xfc\x8b\x4d\x10\x41\x89\x4d\x10\x3b\x4d\xf8\x7c\xb0\x5e\x5f\x5b\x8b\xe5\x5d\xc2\x0c\x00"
+	# decrypt file
+	set MEMORY_FILE9 binary "\x55\x8b\xec\x83\x7d\x10\x00\x8b\x45\x14\x8b\x08\x56\x8b\x70\x04\x7e\x59\x8b\x55\x0c\x53\x57\x8b\x7d\x08\x2b\xd7\x89\x55\x14\x8b\x55\x10\x89\x55\x10\x41\x81\xe1\xff\x00\x00\x00\x8a\x54\x08\x08\x0f\xb6\xda\x03\xf3\x81\xe6\xff\x00\x00\x00\x8a\x5c\x30\x08\x88\x5c\x08\x08\x88\x54\x30\x08\x0f\xb6\xdb\x0f\xb6\xd2\x03\xda\x81\xe3\xff\x00\x00\x00\x0f\xb6\x54\x03\x08\x8b\x5d\x14\x32\x14\x3b\x47\xff\x4d\x10\x88\x57\xff\x75\xbc\x5f\x5b\x89\x70\x04\x89\x08\x5e\x5d\xc3"
+
+	set TMP string PATH
+	string TMP += NAME
+	set NAME string TMP
+	
+	string NAME l= NAME		# tolower
+	encryption crc 0x04c11db7 "32 0 0 0 1 0"
+	string DUMMY E= NAME
+
+	math IDX = QUICKBMS_CRC
+	math IDX u%= ENTRIES
+	getarray INFO_OFF 0 IDX
+	getarray INFO_TYPE 1 IDX
+
+	if INFO_OFF >= 0
+		# unused, it requires quickbms_4gb_files to work and it's needed to verify that the index is correct
+		encryption crc 0x42f0e1eba9ea3693 "64 -1 -1 1 0 0"
+		string DUMMY E= NAME
+		
+		getarray TYPE 2 IDX
+		getarray TYPE2 3 IDX
+		getarray OFFSET 4 IDX
+		getarray SIZE 5 IDX
+		getarray ZSIZE 6 IDX
+		getarray NAME_CRC64 7 IDX
+
+		strlen NAMESZ NAME
+		log MEMORY_FILE 0 0
+		putvarchr MEMORY_FILE 0x200 0	# log to clear and putvarchr to set it to zero
+		calldll MEMORY_FILE7 0 cdecl RET NAME NAMESZ MEMORY_FILE
+		
+		goto 0 MEMORY_FILE
+		get DUMMY long MEMORY_FILE
+		get DUMMY long MEMORY_FILE
+		get KEY1 long MEMORY_FILE
+		get KEY2 long MEMORY_FILE
+		get KEY3 long MEMORY_FILE
+		math OFFSET ^= KEY1
+		math SIZE ^= KEY2
+		math ZSIZE ^= KEY3
+
+		#print "DEBUG %OFFSET|x% %SIZE|x% %ZSIZE|x%"
+		if OFFSET u< FULL_SIZE
+		math TMP = OFFSET
+		math TMP += ZSIZE
+		if TMP u< FULL_SIZE
+			log MEMORY_FILE11 0 0
+			putvarchr MEMORY_FILE11 ZSIZE 0
+			log MEMORY_FILE10 OFFSET ZSIZE MEMORY_FILE4
+			goto 0 MEMORY_FILE
+			calldll MEMORY_FILE9 0 cdecl RET MEMORY_FILE11 MEMORY_FILE10 ZSIZE MEMORY_FILE
+
+			comtype unzip_dynamic	# I ignore the flag and let quickbms to automatically unzip or non-unzip the compressed and non-compressed data
+			if DO_EXTRACT == 0
+				clog MEMORY_FILE12 0 ZSIZE SIZE MEMORY_FILE11
+			else
+				clog NAME 0 ZSIZE SIZE MEMORY_FILE11
+			endif
+			set EXTRACT_OK = 1
+		endif
+		endif
+	endif
+
+	if EXTRACT_OK == 0
+		print "Error: the file is not available in the archive: %NAME%"
+		#cleanexit
+	endif
+endfunction
+
+
+

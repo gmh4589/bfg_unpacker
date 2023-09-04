@@ -1,0 +1,10 @@
+get FILES long
+for i = 0 < FILES
+    filexor 0xff
+    getdstring NAME 0x80
+    filexor ""
+    get OFFSET long
+    get END_OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

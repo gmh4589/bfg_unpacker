@@ -1,0 +1,31 @@
+# Eternal magic KFS
+#   info https://zenhax.com/viewtopic.php?p=52981#p52981
+
+goto -16
+get ID long //0xFF0D2C3A
+get FILES long
+get SIZE long
+get OFFSET long
+
+encryption rot "Z.j^eihLui4e923@91WkBN19f_3x?Ubq" "" 1
+log MEMORY_FILE OFFSET SIZE
+encryption "" ""
+
+for i = 0 < FILES
+    get ZERO byte MEMORY_FILE
+    get NAMESZ short MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SOME_CRC long MEMORY_FILE
+
+    math NAMESZ * 2
+    getdstring NAME NAMESZ MEMORY_FILE
+    set NAME unicode NAME
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

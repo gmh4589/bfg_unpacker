@@ -1,0 +1,25 @@
+# SCE JAPAN STUDIO WPX GENERIC
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "WpX"
+get DUMMY byte
+get DUMMY long
+get ZSIZE long
+get SIZE long
+clog MEMORY_FILE 0x800 ZSIZE SIZE
+
+idstring MEMORY_FILE "WILL"
+get DUMMY long MEMORY_FILE
+get SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAME_OFF long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY long MEMORY_FILE  # probably used for compressed size?
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

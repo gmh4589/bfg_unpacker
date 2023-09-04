@@ -1,0 +1,29 @@
+# Ratchet and Clank
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILESIZE asize
+get MAX_OFF long
+math EXPECT = MAX_OFF
+math EXPECT x= 0x800
+math EXPECT /= 0x800
+for
+    do
+        savepos INFO_OFF
+        if INFO_OFF > MAX_OFF
+            cleanexit
+        endif
+        get OFFSET long
+    while OFFSET != EXPECT
+    get SIZE long
+    math EXPECT = OFFSET
+    math EXPECT += SIZE
+    math OFFSET *= 0x800
+    math SIZE *= 0x800
+    math TMP = OFFSET
+    math TMP += SIZE
+    if TMP > FILESIZE
+        math SIZE = FILESIZE
+        math SIZE -= OFFSET
+    endif
+    log "" OFFSET SIZE
+next

@@ -1,0 +1,112 @@
+# EA UK/EA Bright Light - .sdt
+
+open FDDE "sdt" 0
+
+get FILES short
+get IND short
+if IND == 0
+	for i = 0 < FILES
+		get OFFSET long
+		putarray 0 i OFFSET
+	next i
+	for i = 0 < FILES
+		getarray OFFSET 0 i
+		goto OFFSET
+		get DUMMY1 long
+		get SIZE long
+		getdstring NAME 0x10
+		get FREQUENCY short
+		get BITS byte
+		get CODEC byte
+		get DUMMY3 long
+		get DUMMY4 long
+		get DUMMY5 long
+		savepos OFFSET
+		set FNAME basename NAME
+		putarray 1 i FNAME
+		if CODEC == 0x02
+			string FNAME += ".wav"
+			set NAME string FNAME
+			math CHANNELS == 1
+			callfunction PCM 1
+		elif CODEC == 0x24 || CODEC == 0x25
+			string FNAME += ".mp2"
+			set NAME string FNAME
+			log NAME OFFSET SIZE
+		elif CODEC == 0x80
+			string FNAME += ".vag"
+			set NAME string FNAME
+			callfunction VAG 1
+		else
+			log NAME OFFSET SIZE
+		endif
+	next i
+else
+	for i = 0 < FILES
+		get OFFSET long
+		putarray 0 i OFFSET
+	next i
+	for i = 0 < FILES
+		getarray OFFSET 0 i
+		get DUMMY1 long
+		get SIZE long
+		getdstring NAME 0x10
+		get FREQUENCY short
+		get BITS byte
+		get CODEC byte
+		get DUMMY3 long
+		get DUMMY4 long
+		get DUMMY5 long
+		set FNAME basename NAME
+		putarray 1 i FNAME
+		if CODEC == 0x24 || CODEC == 0x25
+			string FNAME += ".mp2"
+		endif
+		set NAME string FNAME
+		log NAME OFFSET SIZE
+	next i
+endif
+
+startfunction PCM
+	set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+	
+	set RIFFSIZE long SIZE
+	math RIFFSIZE += 0x2c
+	set BLOCKALIGN long BITS
+	set AVGBYTES long BLOCKALIGN
+	math BLOCKALIGN == FREQUENCY
+	math BLOCKALIGN /= 8
+	math AVGBYTES *= BLOCKALIGN
+	
+	putvarchr MEMORY_FILE 4 RIFFSIZE long
+	putvarchr MEMORY_FILE 20 1 short
+	putvarchr MEMORY_FILE 22 CHANNELS short
+	putvarchr MEMORY_FILE 24 FREQUENCY short
+	putvarchr MEMORY_FILE 28 AVGBYTES long
+	putvarchr MEMORY_FILE 32 BLOCKALIGN short
+	putvarchr MEMORY_FILE 34 BITS byte
+	putvarchr MEMORY_FILE 40 SIZE long
+	append
+	log MEMORY_FILE OFFSET SIZE
+	append
+	
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction
+
+startfunction VAG
+	endian big
+	set MEMORY_FILE binary "\x56\x41\x47\x70\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+	set VERSION long 0x20
+	set VAGSIZE long SIZE
+	putvarchr MEMORY_FILE 4 VERSION long
+	putvarchr MEMORY_FILE 12 VAGSIZE long
+	putvarchr MEMORY_FILE 18 FREQUENCY short
+	endian little
+	append
+	log MEMORY_FILE OFFSET SIZE
+	append
+	
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction

@@ -1,0 +1,60 @@
+# Mcomp / LibMComp
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.8"
+
+idstring "MCM"
+get SIGN4 byte
+get FLAGS long
+get ALGO long
+if SIGN4 != 'P'
+    get DUMMY long
+endif
+get SIZE longlong
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+
+if ALGO == 0
+    comtype MCOMP0
+elif ALGO == 1
+    comtype MCOMP1
+elif ALGO == 2
+    comtype MCOMP2
+elif ALGO == 3
+    comtype MCOMP3
+elif ALGO == 4
+    comtype MCOMP4
+elif ALGO == 5
+    comtype MCOMP5
+elif ALGO == 6
+    comtype MCOMP6
+elif ALGO == 7
+    comtype MCOMP7
+elif ALGO == 8
+    comtype MCOMP8
+elif ALGO == 9
+    comtype MCOMP9
+elif ALGO >= 10 && ALGO <= 12
+    comtype MCOMP0  # mcomp -f
+elif ALGO == 13
+    comtype MCOMP13
+elif ALGO == 14
+    comtype MCOMP14
+elif ALGO == 15
+    comtype MCOMP15
+elif ALGO == 16
+    comtype MCOMP16
+elif ALGO == 17
+    comtype MCOMP17
+elif ALGO >= 18 && ALGO <= 20
+    comtype MCOMP1  # mcomp -f3
+else
+    print "Error: unknown algorithm %ALGO%"
+    cleanexit
+endif
+
+get NAME basename
+get EXT extension
+string NAME p "%s_unpack.%s" NAME EXT
+clog NAME OFFSET ZSIZE SIZE

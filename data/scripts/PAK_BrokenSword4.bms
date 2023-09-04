@@ -1,0 +1,30 @@
+<bms ext="pak" games="'Broken Sword 4: The Angel of Death'" platforms="'PC'" version="1.0" author="Mr.Mouse" silence="no" verbose="no">
+ImpType Standard ;
+GetDString MW 12 0 ;
+Get DataEnd Long 0 ;
+Get FNum Long 0 ;
+Get Version Long 0 ;
+SavePos S 0 ;
+Math DataEnd /= 256 ;
+Math DataEnd += 1 ;
+Math DataEnd *= 256 ;
+Set DataOff Long DataEnd ;
+Set D Long 12 ;
+Math D *= FNum ;
+Math S += D ;
+SavePos P 0 ;
+For T = 1 To FNum ;
+GoTo P 0 ;
+Get RFNO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Set J Long P ;
+Math J += RFNO ;
+SavePos P 0 ;
+GoTo J 0 ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+</bms> 

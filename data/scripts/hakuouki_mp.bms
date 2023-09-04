@@ -1,0 +1,15 @@
+# Hakuouki Reimeiroku Nagorigusa *.mp_
+
+endian big
+idstring "MP_ONE_DATA"
+goto 0x100
+get MP_SIZE long
+get FILES long
+get DUMMY long  # 1
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    log NAME OFFSET SIZE
+next i

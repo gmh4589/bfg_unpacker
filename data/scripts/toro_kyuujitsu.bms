@@ -1,0 +1,60 @@
+# Toro to Kyuujitsu (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "bnd"
+
+    idstring "BIND"
+    get FILES long
+    get INFO_OFF long
+    goto INFO_OFF
+    for i = 0 < FILES
+        getdstring NAME 0x80
+        get OFFSET long
+        get SIZE long
+        get DUMMY long  # 0x90
+        get ZERO long
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    open FDDE "inf"
+
+    idstring "PACK"
+    get DUMMY long
+    get DUMMY long
+    get INF_SIZE long
+    get FILES long
+    get DUMMY long
+    savepos TMP
+    xmath NAMES_OFF "TMP + (FILES * (6 * 4))"
+    math LAST_PACK_NUM = -1
+    for i = 0 < FILES
+        get PACK_NUM long
+        get OFFSET long
+        get XSIZE long
+        get SIZE long
+        get NAME_OFF long
+        get SOME_CRC long
+
+        math NAME_OFF + NAMES_OFF
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        if PACK_NUM != LAST_PACK_NUM
+            math LAST_PACK_NUM = PACK_NUM
+            get TMP basename
+            string TMP p "%s%d.PAK" TMP PACK_NUM
+            open FDSE TMP 1
+        endif
+
+        math OFFSET * 0x800
+        math XSIZE  * 0x800
+
+        log NAME OFFSET SIZE 1
+    next i
+
+endif

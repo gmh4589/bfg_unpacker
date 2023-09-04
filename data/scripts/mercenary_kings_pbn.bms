@@ -1,0 +1,44 @@
+# Mercenary Kings pbn
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PBN_SIZE asize
+for OFFSET = 0 != PBN_SIZE
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+
+    math BITS = 16
+    math CHANNELS = 2
+    math FREQUENCY = 44100
+    string NAME p "%08x.wav" OFFSET
+    callfunction DUMP_WAV 1
+
+next OFFSET + SIZE
+
+startfunction DUMP_WAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    math RIFFSIZE = SIZE
+    math RIFFSIZE + 36
+    math BLOCKALIGN = BITS
+    math BLOCKALIGN / 8
+    math BLOCKALIGN * CHANNELS
+    math AVGBYTES = FREQUENCY
+    math AVGBYTES * BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log NAME 0 0
+    append
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    log NAME OFFSET SIZE
+    append    
+endfunction

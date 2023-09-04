@@ -1,0 +1,48 @@
+# ToCA Race Driver 3
+
+math FILENUM = 0
+
+get EXT extension
+if EXT == "lzs"
+    comtype lzss0
+    idstring "LZSS"
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    math ZSIZE - OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math FILENUM = -1
+endif
+
+callfunction JPAK_DUMP 1
+
+startfunction JPAK_DUMP
+    idstring FILENUM "JPAK"
+    get ZERO long FILENUM
+    get FILES long FILENUM
+    get DUMMY long FILENUM
+    get ZERO long FILENUM
+    get DUMMY long FILENUM
+    get DUMMY longlong FILENUM
+    for i = 0 < FILES
+        get NAME_OFF long FILENUM
+        get SIZE long FILENUM
+        get OFFSET long FILENUM
+        get SIZE2 long FILENUM  # both the SIZE values were the same in the sample
+        get DUMMY longlong FILENUM
+        get ZERO long FILENUM
+        get ZERO long FILENUM
+
+        if SIZE != SIZE2
+            print "Error: SIZE (%SIZE%) != SIZE2 (%SIZE2%), contact me"
+            cleanexit
+        endif
+
+        savepos TMP FILENUM
+        goto NAME_OFF FILENUM
+        get NAME string FILENUM
+        goto TMP FILENUM
+
+        log NAME OFFSET SIZE FILENUM
+    next i
+endfunction

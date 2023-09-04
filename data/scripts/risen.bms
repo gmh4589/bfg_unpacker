@@ -1,0 +1,129 @@
+# Risen (script 0.2.3)
+# partially based on the documentation on http://www.bendlins.de/nico/gothic3/
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "PAK "
+    # thanks NicoDE https://zenhax.com/viewtopic.php?p=27625#p27625
+    idstring "PAK "
+    getdstring VER 4    # "V001"
+    getdstring ZERO 8
+    get INFO_OFF longlong
+    get INFO_SIZE long
+    goto INFO_OFF
+    idstring "VOL "
+    get DUMMY long  # 1
+    get NAMES_OFF long
+    get NAMES_SIZE long
+    get FILES_OFF long
+    get FILES long
+    get JOUR_OFF long
+    get JOURS long
+    math NAMES_OFF + INFO_OFF
+    math FILES_OFF + INFO_OFF
+    math JOUR_OFF  + INFO_OFF
+    goto FILES_OFF
+    for i = 0 < FILES
+        savepos FILES_OFF
+        idstring "FILE"
+        get ZERO long
+        get FILENAME_OFF long
+        get NAME_OFF long
+        get OFFSET longlong
+        get FLAGS long
+        get ZERO long
+        get CTIME longlong
+        get MTIME longlong
+        get SIZE long
+        get ZSIZE long
+        getdstring ZALGO 4
+        getdstring ZERO 12
+        if ZALGO == "ZLIB"
+            comtype deflate
+        elif ZALGO == ""
+            comtype copy    # useless
+        else
+            print "Error: unsupported compression type %ZALGO%, contact me"
+            cleanexit
+        endif
+
+        savepos TMP
+        math NAME_OFF + FILES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    cleanexit
+endif
+
+comtype unzip_dynamic   # deflate + zlib
+
+get Version long
+idstring "G3V0" # Product
+get Revision long
+get Encryption long
+get Compression long
+get Reserved long
+get OffsetToFiles longlong
+get OffsetToFolders longlong
+get OffsetToVolume longlong
+
+set FULLPATH string ""
+
+goto OffsetToFolders
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get Attributes long
+    if Attributes == 0  # root
+        math Attributes = 0x10
+        set FileName string ""
+    else
+        get TMP long
+        math TMP += 1
+        getdstring FileName TMP
+    endif
+
+    if Attributes & 0x10
+        getdstring FileTime 24
+        get Attributes2 long
+        get FileCount long
+
+        string FULLPATH += FileName
+        string FULLPATH += /
+        for i = 0 < FileCount
+            callfunction EXTRACT
+        next i
+    else
+        get Offset longlong
+        getdstring FileTime 24
+        get Attributes2 long
+        get Encryption long
+        get Compression long
+        get ZSize long
+        get Size long
+
+        set FULLNAME string FULLPATH
+        string FULLNAME += FileName
+
+        if Attributes & 0x800
+            set Compression long 2
+        endif
+        if Attributes & 0x4000
+            print "Error: this file seems to use encryption which is not supported at the moment, contact me"
+            #cleanexit
+        endif
+        if Compression == 0
+            log FULLNAME Offset Size
+        else
+            clog FULLNAME Offset ZSize Size
+        endif
+    endif
+endfunction

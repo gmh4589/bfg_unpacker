@@ -1,0 +1,21 @@
+# Assault Heroes (data.pak must be decrypted first with ActiveMARKDecrypter)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+
+idstring "00#%&W&N$(0FLRu|32"
+get FILES long
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+
+    if NAME & ".wzm"
+        string NAME -= ".wzm"
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

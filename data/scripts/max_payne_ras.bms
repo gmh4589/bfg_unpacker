@@ -1,0 +1,112 @@
+# Max Payne (script 0.3.1)
+#   encryption function by Ekey https://zenhax.com/viewtopic.php?f=17&t=2717
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.4"
+
+set MEMORY_FILE10 string "
+void DecryptWithSeed(unsigned char *pBuffer, int dwSize, int dwSeed)
+{
+   if (!dwSeed)
+      dwSeed = 1;
+
+   if (dwSize > 0)
+   {
+      char wSeed = 18;
+      char pTemp;
+      for (int i = 0; i < dwSize; ++i)
+      {
+         dwSeed = -2 * (dwSeed / 177) + 171 * (dwSeed % 177);
+         pTemp = ((pBuffer[i] << i % 5) | ((signed int)pBuffer[i] >> (8 - i % 5))) ^ wSeed;
+         wSeed += 6;
+         pBuffer[i] = pTemp + dwSeed;
+      }
+   }
+}
+"
+
+idstring "RAS\0"
+get dwSeed long
+savepos OFFSET
+
+encryption calldll "MEMORY_FILE10 DecryptWithSeed tcc RET #INPUT# #INPUT_SIZE# dwSeed"
+
+log MEMORY_FILE OFFSET 0x24
+
+get FILES long MEMORY_FILE
+get FOLDERS long MEMORY_FILE
+get INFO_SIZE long MEMORY_FILE
+get FOLDERS_SIZE long MEMORY_FILE
+# http://wiki.xentax.com/index.php/User_talk:Dinoguy1000#.ras.2F.mpm_Format_description_.26_source_code
+get VER long MEMORY_FILE
+string VER p "%f" VER   # float in quickbms supports the integer part only
+get HeaderCRC32 long MEMORY_FILE
+get FileTableCRC32 long MEMORY_FILE
+get FolderTableCRC32 long MEMORY_FILE
+if VER >= 1.2
+    get SubVersion long MEMORY_FILE  # try to guess it...
+endif
+savepos TMP MEMORY_FILE
+math OFFSET + TMP
+
+log MEMORY_FILE OFFSET INFO_SIZE
+math OFFSET + INFO_SIZE
+
+log MEMORY_FILE2 OFFSET FOLDERS_SIZE
+math OFFSET + FOLDERS_SIZE
+
+encryption "" ""
+
+comtype lzss0
+for i = 0 < FOLDERS
+    get PATH string MEMORY_FILE2
+    if VER >= 1.3   # SubVersion 4?
+        # nothing, just a list of names
+    else
+        get DUMMY long MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+        get DUMMY short MEMORY_FILE2
+    endif
+    putarray 0 i PATH
+next i
+
+for i = 0 < FILES
+    get NAME string MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    if VER >= 1.3
+        get OFFSET long MEMORY_FILE
+        get FOLDER_ID long MEMORY_FILE
+        math ZSIZE = SIZE
+    else
+        get ZSIZE long MEMORY_FILE
+        get ZERO long MEMORY_FILE   # probably decompressed CRC
+        get FOLDER_ID long MEMORY_FILE
+        get ZERO long MEMORY_FILE   # probably compressed CRC
+        get DUMMY2 long MEMORY_FILE
+        get DUMMY3 long MEMORY_FILE
+        get DUMMY4 long MEMORY_FILE
+        get DUMMY5 long MEMORY_FILE
+        get DUMMY6 long MEMORY_FILE
+    endif
+
+    getarray PATH 0 FOLDER_ID
+
+    string FNAME p "%s%s" PATH NAME
+    if ZSIZE == SIZE
+        log FNAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        idstring "RA->"
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        goto TMP
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+next i

@@ -1,0 +1,21 @@
+# The Gunstringer: Dead Man Running
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_ZSIZE long
+get INFO_SIZE long
+savepos INFO_OFF
+if INFO_ZSIZE == INFO_SIZE  # invented, don't have samples with different values
+    log MEMORY_FILE INFO_OFF INFO_SIZE
+else
+    clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE
+endif
+math BASE_OFF = INFO_OFF
+math BASE_OFF + INFO_ZSIZE
+for TMP = 0 != INFO_SIZE
+    get NAME string MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos TMP MEMORY_FILE
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,35 @@
+# Sunshine Acres
+
+set KEY binary "d5v6f3g4e5"
+string KEY2 r KEY
+strlen KEYSZ KEY
+
+get OFFSET long
+math MAX_OFF = OFFSET
+math OFFSET + 4
+for
+    savepos TMP
+    if TMP > MAX_OFF
+        break
+    endif
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+
+    log MEMORY_FILE 0 0
+    append
+    encryption xor KEY
+    log MEMORY_FILE OFFSET KEYSZ
+    math OFFSET + KEYSZ
+    xmath TMP "SIZE - (KEYSZ * 2)"
+    encryption "" ""
+    log MEMORY_FILE OFFSET TMP
+    math OFFSET + TMP
+    encryption xor KEY2
+    log MEMORY_FILE OFFSET KEYSZ
+    math OFFSET + KEYSZ
+    append
+
+    encryption "" ""
+    log NAME 0 SIZE MEMORY_FILE
+next

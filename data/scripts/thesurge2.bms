@@ -1,0 +1,47 @@
+# The Surge 2
+
+comtype lz4f
+open FDDE "toc"
+get DUMMY long          # 0xa3c589fc
+get SOME_CRC long
+callfunction GET_INFO 1 # no name
+get SIZE long
+endian big
+
+get SOME_CRC long
+callfunction GET_INFO 1 # ResourcePackageTOC
+
+get SOME_CRC long
+callfunction GET_INFO 1 # ResourcePackageTOC64
+
+callfunction GET_INFO 1 # data_bin
+get DUMMY byte  # 1
+get DUMMY byte  # 1
+get FILES long
+
+string NAME p "%s_%d.dat" NAME 0
+open FDSE NAME 1
+
+for i = 0 < FILES
+    get SOME_CRC long
+    callfunction GET_INFO 1
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long  # compressed CRC?
+    get DUMMY long  # uncompressed CRC?
+    get DUMMY short # 0x0c00
+    clog NAME OFFSET ZSIZE SIZE 1
+next i
+
+startfunction GET_INFO
+    get ZERO long
+    get DUMMY long  # usually 1
+    savepos TMP
+    get NAMESZ long
+    if NAMESZ & 0x80000000  # what if it's positive?
+        math NAMESZ & 0x7fffffff
+    endif
+    getdstring NAME NAMESZ
+    padding 4 0 TMP
+endfunction

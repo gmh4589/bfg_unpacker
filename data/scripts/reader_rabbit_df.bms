@@ -1,0 +1,23 @@
+# Reader Rabbit DF
+
+idstring "DF"
+goto 8
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+savepos BASE_OFF
+    get OFFSET asize
+    math OFFSET - BASE_OFF
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    if SIZE != 0
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    endif
+next

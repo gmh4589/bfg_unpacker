@@ -1,0 +1,28 @@
+# SMSI WWAN (WwanCoreSdk.dll) DeviceManager.xml.RC4 decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+math REM = SIZE
+math CHUNK = 0x1000
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+append
+for OFFSET = 0 < SIZE
+    if REM < CHUNK
+        math CHUNK = REM
+    endif
+    encryption CryptDecrypt "hjkdfh93y4d9834ho3if9384yu8934jfkwehjf9348ur8934r0807329835cn89347oiurfm103498" "CALG_MD5 CALG_RC4 MS_ENHANCED_PROV"
+    log MEMORY_FILE OFFSET CHUNK
+    math OFFSET += CHUNK
+    math REM    -= CHUNK
+next
+append
+encryption "" ""
+
+get NAME basename
+get EXT extension
+if EXT != "RC4"
+    string NAME += "_decrypt."
+    string NAME += EXT
+endif
+log NAME 0 SIZE MEMORY_FILE

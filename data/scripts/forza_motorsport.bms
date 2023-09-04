@@ -1,0 +1,33 @@
+# Forza Motorsport CAB
+# script for QuickBMS http://quickbms.aluigi.org
+
+# in case there are some files that are not compressed
+comtype unzip_dynamic
+
+idstring "\xaa\xaa\xc0\xc0"
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+math INFO_OFF = 0x132
+goto INFO_OFF
+xmath NAMES_OFF "INFO_OFF + (FILES * 24)"
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get NAME_OFF long
+    get ZERO long
+    get DUMMY long
+
+    savepos TMP
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    clog NAME OFFSET ZSIZE SIZE
+next i

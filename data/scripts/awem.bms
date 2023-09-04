@@ -1,0 +1,68 @@
+# AWEM Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AWEM"
+get VER long
+get OFFSET long
+goto OFFSET
+get ZERO long
+get SIZE long
+get ZSIZE long
+savepos OFFSET
+
+set KEY string "resources.pak"      # hardcoded even if the name is assets.dat
+callfunction DECRYPT 1
+log MEMORY_FILE3 0 SIZE MEMORY_FILE2
+
+get FILES long MEMORY_FILE3
+for i = 0 < FILES
+    get ZIP long MEMORY_FILE3
+    get OFFSET long MEMORY_FILE3
+    get SIZE long MEMORY_FILE3
+    get ZSIZE long MEMORY_FILE3
+    get NAME string MEMORY_FILE3
+
+    if ZIP == 0 # makes things easier
+        comtype copy
+    else
+        comtype zlib
+    endif
+
+    set KEY string NAME
+    callfunction DECRYPT 1
+    log NAME 0 SIZE MEMORY_FILE2
+next i
+
+startfunction DECRYPT
+    callfunction SET_KEY 1
+    encryption zipcrypto KEY
+
+    log MEMORY_FILE OFFSET 0x10
+    math OFFSET + 0x10
+    getvarchr ENC_SIZE MEMORY_FILE 0xc long
+    log MEMORY_FILE OFFSET ENC_SIZE
+    math OFFSET + ENC_SIZE
+    xmath TMP "ZSIZE - ENC_SIZE"
+    encryption "" ""
+    append
+    log MEMORY_FILE OFFSET TMP
+    append
+    clog MEMORY_FILE2 0 ZSIZE SIZE MEMORY_FILE
+endfunction
+
+startfunction SET_KEY
+    strlen KEYSZ KEY
+    for x = 0 < KEYSZ
+        getvarchr TMP KEY x
+        if x & 1
+            math TMP2 = x
+        else
+            xmath TMP2 "(x >> 1) + 0x11"
+        endif
+        math TMP + TMP2
+        if TMP == 0
+            math TMP = 0x21
+        endif
+        putvarchr KEY x TMP
+    next x
+endfunction

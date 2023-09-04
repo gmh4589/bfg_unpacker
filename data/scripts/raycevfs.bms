@@ -1,0 +1,42 @@
+# RayceVFS
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+math BASE_OFF = OFFSET
+math BASE_OFF + ZSIZE
+
+idstring MEMORY_FILE "RayceVFS[2]"
+get FOLDERS long MEMORY_FILE
+get FOLDERS_SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+get FILES_SIZE long MEMORY_FILE
+get INFO_SIZE longlong MEMORY_FILE
+get VFS_SIZE longlong MEMORY_FILE
+
+get ZERO byte MEMORY_FILE
+get NAMESZ long MEMORY_FILE
+getdstring ROOT_FOLDER NAMESZ MEMORY_FILE
+
+get ZERO long MEMORY_FILE
+for i = 1 < FOLDERS
+    get ID short MEMORY_FILE
+    get NAMESZ short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    putarray 1 ID NAME
+next i
+
+for i = 0 < FILES
+    get FILE_ID short MEMORY_FILE
+    get FOLDER_ID short MEMORY_FILE
+    get NAMESZ short MEMORY_FILE
+    get OFFSET longlong MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    getarray FOLDER 1 ID MEMORY_FILE
+    string NAME p "%s%s%s" ROOT_FOLDER FOLDER NAME
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,19 @@
+# 3d Frog Frenzy (Webfoot Technologies)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -9
+get OFFSET long
+get FILES long
+getdstring KEY 1
+goto OFFSET
+for i = 0 < FILES
+    filexor KEY
+    get NAME string
+    get NAME string
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    getdstring FILE_KEY 1
+    filexor FILE_KEY
+    log NAME OFFSET SIZE
+next i

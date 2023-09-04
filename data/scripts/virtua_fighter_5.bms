@@ -1,0 +1,43 @@
+# Virtua Fighter 5 FARC (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.31a -I"
+
+comtype gzip
+endian big
+getdstring SIGN 4
+get LIMIT long  # plus something (8?), doesn't matter
+get DUMMY long
+math ZSIZE = 0
+math XSIZE = 0
+if SIGN u== "FArC"
+elif SIGN u== "FArc"
+elif SIGN u== "FARC"
+    get DUMMY long
+    get XSIZE long
+    getdstring DUMMY 8
+else
+    print "unknown magic value %SIGN%"
+    cleanexit
+endif
+savepos CURR_OFF
+for CURR_OFF = CURR_OFF < LIMIT
+    get NAME string
+    get OFFSET long
+    if SIGN u!= "FArc"
+        get ZSIZE long
+    endif
+    get SIZE long
+    if SIGN u== "FARC"
+        encryption aes "project_diva.bin"
+    endif
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE 0 XSIZE
+    else
+        endian little   # for gzip
+        clog NAME OFFSET ZSIZE SIZE 0 XSIZE
+        endian big
+    endif
+    encryption "" ""
+    savepos CURR_OFF
+next

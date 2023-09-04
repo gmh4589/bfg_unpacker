@@ -1,0 +1,50 @@
+# Shantae Half-Genie Hero (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "vol"
+    comtype deflate
+    endian big
+    get DUMMY long
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+    open "." TEMPORARY_FILE
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long  # 0x1c
+    get FILES long
+    get OFFSET long
+    goto OFFSET
+    for i = 0 < FILES
+        get SOME_CRC long
+        get NAME_OFF long
+        get OFFSET long
+        get ZERO long   # maybe it's a ZSIZE, 0 if unset?
+        get SIZE long
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+get BASE_OFF long
+endian guess BASE_OFF
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get OFFSET long
+    get SIZE long
+    get NAME string
+    padding 8
+    math OFFSET + BASE_OFF
+    math OFFSET + 0x40  # "MANAGEDFILE_DATABLOCK_USED_IN_ENGINE_________________________END"
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,12 @@
+# Shin Megami Tensei: Devil Summoner PSP BIN
+
+get FILES long
+for i = 0 < FILES
+    get SIZE[i] long
+next i
+padding 0x10
+savepos OFFSET
+for i = 0 < FILES
+    log "" OFFSET SIZE[i]
+    math OFFSET + SIZE[i]
+next i

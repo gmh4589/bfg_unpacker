@@ -1,0 +1,12 @@
+# Darklands
+#   the MSG files are not compressed but I'm not sure about the content of all the other files
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 0xc
+    get TSTAMP long # ???
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

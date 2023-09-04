@@ -1,0 +1,13 @@
+# Don't Starve
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KLFA"
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    get DUMMY byte
+    log NAME OFFSET SIZE
+next i

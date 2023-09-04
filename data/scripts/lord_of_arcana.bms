@@ -1,0 +1,96 @@
+# Lord of Arcana / Apocalypse RZL/RZP (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "PBP" # EBOOT.PBP
+    idstring "\0PBP"
+    get DUMMY short
+    get DUMMY short
+    get FILES long
+    xmath FILES "(FILES - 8) / 4"
+    goto -4 0 SEEK_CUR
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+    cleanexit
+endif
+
+# there is an archive without RZL index in INSDIR but it seems encrypted, not supported
+open FDDE "RZL"
+open FDDE "RZP" 1
+
+idstring "RGF1"
+get VER short   # 1
+get FOLDERS short
+get DUMMY long
+get FOLDERS_OFF long
+get INFO_OFF long
+get END_OF_RZL long
+
+# guess if filenames are available or not
+math OFFSET = END_OF_RZL
+do
+    math OFFSET - 1
+    goto OFFSET
+    get TMP byte
+while TMP == 0
+math OFFSET + 1
+math TEST_OFFSET = OFFSET
+do
+    math OFFSET - 1
+    goto OFFSET
+    get TMP byte
+while TMP >= '.' && TMP < 'z'
+math TEST = TMP
+math TEST - 1
+math TMP = TEST_OFFSET
+math TMP - OFFSET
+if TEST == TMP
+    math USE_FILENAMES = 1
+else
+    math USE_FILENAMES = 0
+endif
+
+for i = 0 < FOLDERS
+    goto FOLDERS_OFF
+    get OFFSET long
+    savepos FOLDERS_OFF
+
+    goto OFFSET
+    get FILES long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if USE_FILENAMES != 0
+        get NAMESZ byte
+        math NAMESZ - 1
+        getdstring PATH NAMESZ
+    endif
+    clog MEMORY_FILE OFFSET ZSIZE SIZE 1
+    math OFFSET = 0
+    for x = 0 < FILES
+        get SIZE long
+        get ID short
+        if USE_FILENAMES != 0
+            get NAMESZ byte
+            math NAMESZ - 1
+            getdstring NAME NAMESZ
+            string NAME p "%s/%s" PATH NAME
+        else
+            get DUMMY short
+            set NAME string ""
+        endif
+        log NAME OFFSET SIZE MEMORY_FILE
+        math OFFSET + SIZE
+    next x
+next i

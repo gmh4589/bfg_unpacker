@@ -1,0 +1,52 @@
+# Teenage Mutant Ninja Turtles: Mutant Melee ARC/DAT
+
+open FDDE "arc"
+open FDDE "dat" 1
+
+getdstring NAME 100 # idstring "archive\0"
+get ARC_SIZE long
+get FOLDERS long
+get FILES long
+get SKIP long
+get NAMES_OFF long
+get INFO_OFF long
+
+xmath TMP "INFO_OFF - NAMES_OFF"
+log MEMORY_FILE NAMES_OFF TMP
+
+for i = 0 < FOLDERS
+    callfunction GET_INFO 1
+
+    putarray 0 i NAME
+    putarray 1 i PREV_ID
+next i
+
+goto INFO_OFF
+for i = 0 < FILES
+    callfunction GET_INFO 1
+
+    set FNAME string ""
+    for FILE_ID = FILE_ID >= 0
+        getarray TMP     0 FILE_ID
+        string FNAME p "%s/%s" TMP FNAME
+        getarray FILE_ID 1 FILE_ID
+    next
+    string FNAME + NAME
+    string FNAME + .
+    string FNAME + TYPE
+    string FNAME + .    # extensions are painful, skip them
+
+    log FNAME OFFSET SIZE 1
+next i
+
+startfunction GET_INFO
+    get NAME_OFF long
+    get PREV_ID long
+    get OFFSET long
+    get SIZE long
+    get FILE_ID signed_short
+    get TYPE signed_short   # ???
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+endfunction

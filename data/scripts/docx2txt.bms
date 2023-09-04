@@ -1,0 +1,69 @@
+# simple docx to txt (script 0.1.1)
+#   just an experiment for testing and teaching some features
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "xml"
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    callfunction DOCX2TXT 1
+    cleanexit
+endif
+
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    idstring "PK"
+    get sign short
+    if sign != 0x0403
+        break
+    endif
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get zip_crc         long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    if method == 0
+        comtype copy
+    elif method == 8
+        ComType deflate
+    else
+        print "unsupported compression method %method%"
+        cleanexit
+    endif
+
+    string name R \ /
+    if name == "word/document.xml"
+        CLog MEMORY_FILE offset comp_size uncomp_size
+        callfunction DOCX2TXT 1
+        cleanexit
+    endif
+
+    math offset += comp_size
+    goto offset
+next
+
+startfunction DOCX2TXT
+    encryption replace "</w:p>" "<br>  "
+    get SIZE asize MEMORY_FILE
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+
+    set NBSP binary "\xa0<w: "
+    encryption replace "<w:t " NBSP
+    get SIZE asize MEMORY_FILE
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+
+    comtype de_html
+    get SIZE asize MEMORY_FILE
+    get NAME filename
+    string NAME + ".txt"
+    clog NAME 0 SIZE SIZE MEMORY_FILE
+endfunction

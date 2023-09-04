@@ -1,0 +1,80 @@
+# Forza Horizon 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -0x16
+savepos END_OFFSET
+idstring "PK\x05\x06"       # End of central directory record
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+
+goto central_offset
+for central_offset = central_offset != END_OFFSET
+    idstring "PK\x01\x02"   # Central directory structure
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+
+        savepos central_offset
+        math offset = rel_offset
+        # ui.zip has a PK header for each file while bin.zip directly the data
+        # the extra field contains 2 32bit numbers but I prefer this way
+        savepos TMP
+        goto rel_offset
+        get SIGN long
+        if SIGN == 0x04034b50
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+        endif
+        goto TMP
+
+        if method == 0
+            Log name offset comp_size   # was uncomp_size before AES
+        else
+            if method == 8
+                ComType deflate
+            elif method == 13
+                ComType XMemDecompress
+            elif method == 15
+                ComType XMemDecompress
+            elif method == 21
+                ComType XMemDecompress
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+        endif
+next

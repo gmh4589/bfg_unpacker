@@ -1,0 +1,26 @@
+# Outlaws (LAB)
+
+ImpType Standard ;
+IDString 0 LABN ;
+Get D Long 0 ;
+Get FC Long 0 ;
+Set FJ Long FC ;
+Math FJ *= 16 ;
+Math FJ += 16 ;
+Get D Long 0 ;
+SavePos FT 0 ;
+For T = 1 To FC ;
+GoTo FT 0 ;
+Get D Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get D Long 0 ;
+SavePos FT 0 ;
+GoTo FJ 0 ;
+Get FN String 0 ;
+SavePos FJ 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+

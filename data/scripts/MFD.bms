@@ -1,0 +1,12 @@
+<bms ext="mdf" games="'187 Ride or Die'" platforms="'PC'" author="PXR" version="1.0" silence="no" verbose="no">
+ImpType Standard ;
+Get FILENUM Long 0 ;
+For F = 1 To FILENUM ;
+Get FID Long 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next F ;
+</bms>

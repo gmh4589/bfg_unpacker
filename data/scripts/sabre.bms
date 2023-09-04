@@ -1,0 +1,20 @@
+# Sabre 倚天屠龙记 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_OFF long
+get FILES long  # ENTRIES rather than FILES, last FILES don't exist (placeholders for patches?)
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long  # 0x101 to ignore since FLAGS&1 with SIZE==ZSIZE is non-compressed
+    if NAME != ""
+        if ZSIZE != SIZE
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i

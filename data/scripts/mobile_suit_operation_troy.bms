@@ -1,0 +1,21 @@
+open FDDE header 0
+open FDDE package 1
+
+for
+    findloc NAME string "Name="
+    math NAME += 6
+    goto NAME
+    getct NAME string 0x22
+
+    findloc OFFSET string "Offset="
+    math OFFSET += 8
+    goto OFFSET
+    getct OFFSET string 0x22
+
+    findloc SIZE string "Size="
+    math SIZE += 6
+    goto SIZE
+    getct SIZE string 0x22
+
+    log NAME OFFSET SIZE 1
+next

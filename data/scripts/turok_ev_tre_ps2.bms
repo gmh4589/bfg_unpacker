@@ -1,0 +1,38 @@
+# extracts *.TRE archives from Turok: Evolution (PS2)
+# note: for the main STREE.TRE use my other script!
+# (c) 2012-10-02 by AlphaTwentyThree of XeNTaX
+
+include "func_getTYPE.bms"
+get FILES long
+for i = 0 < FILES
+   get OFFSET long
+   get SIZE long
+   get DATA_CRC long
+   get NAME_CRC long
+   putArray 0 i OFFSET
+   putArray 1 i SIZE
+   putarray 2 i NAME_CRC
+next i
+print "sorting array"
+sortarray 0 1
+get BNAME basename
+string BNAME += "_"
+for i = 0 < FILES
+   getArray OFFSET 0 i
+   getArray SIZE 1 i
+   getArray CRC 2 i
+   putVarChr MEMORY_FILE SIZE 0
+   log MEMORY_FILE 0 0
+   append
+   log MEMORY_FILE OFFSET SIZE
+   append
+   string CRC p= "_0x%08x" CRC
+   set NAME BNAME
+   string NAME += i
+   string NAME += CRC
+   callfunction getTYPE 1
+   if EXT != ""
+      string NAME += EXT
+   endif
+   log NAME 0 SIZE MEMORY_FILE
+next i

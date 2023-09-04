@@ -1,0 +1,44 @@
+# Sandlot Games encrypted dat archives
+#   some examples of games that use this simple format:
+#   CakeMania, CakeMania 2, CakeMania BacktoBackery
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZSIZE long
+encryption cryptdecrypt "Error reading stream file data pcK" "CALG_MD5 CALG_RC4"
+savepos OFFSET
+math SIZE = ZSIZE
+math SIZE *= 20
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+math OFFSET += ZSIZE
+
+for
+    findloc name string "name=" MEMORY_FILE
+    math name += 6
+    goto name MEMORY_FILE
+    getct name string 0x22 MEMORY_FILE
+
+    findloc real_size string "real_size=" MEMORY_FILE
+    math real_size += 11
+    goto real_size MEMORY_FILE
+    getct real_size string 0x22 MEMORY_FILE
+
+    findloc size string "size=" MEMORY_FILE
+    math size += 6
+    goto size MEMORY_FILE
+    getct size string 0x22 MEMORY_FILE
+
+    findloc position string "position=" MEMORY_FILE
+    math position += 10
+    goto position MEMORY_FILE
+    getct position string 0x22 MEMORY_FILE
+
+    findloc path string "path=" MEMORY_FILE
+    math path += 6
+    goto path MEMORY_FILE
+    getct path string 0x22 MEMORY_FILE
+
+    set fullname string path
+    string fullname += name
+    math position += OFFSET
+    clog fullname position size real_size
+next

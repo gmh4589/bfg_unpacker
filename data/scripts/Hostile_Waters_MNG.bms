@@ -1,0 +1,16 @@
+# Hostile Waters (MNG)
+
+IDString 0 ZGWH ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILENAME String 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

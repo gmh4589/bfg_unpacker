@@ -1,0 +1,18 @@
+# Switch Planetarian PAK
+
+get BASE_OFF long
+get FILES long
+get VER long    # 1
+get ALIGN long
+getdstring ZERO 0x10
+get DUMMY long  # 0x200
+for i = 0 < FILES
+    get OFFSET[i] long
+    get SIZE[i] long
+next i
+get NAMES long
+for i = 0 < NAMES
+    get NAME string
+    math OFFSET[i] * ALIGN
+    log NAME OFFSET[i] SIZE[i]
+next i

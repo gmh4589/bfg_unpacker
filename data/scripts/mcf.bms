@@ -1,0 +1,74 @@
+# Desura MCF archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype bzip2_file
+
+idstring "LMCF"
+get VER byte
+get ENTRIES long
+get DUMMY long
+get DUMMY byte
+get OFFSET longlong
+get SIZE long
+get ZIP byte
+get DUMMY long
+get DUMMY long
+
+if ZIP == 0
+    log MEMORY_FILE OFFSET SIZE
+else
+    clog MEMORY_FILE OFFSET SIZE SIZE
+endif
+
+for
+    findloc OFFSET string "<file>" MEMORY_FILE
+    math OFFSET += 6
+    goto OFFSET MEMORY_FILE
+
+    findloc LIMIT string "</file>" MEMORY_FILE
+
+    set XML_STRING string "<name>"
+    callfunction GET_XML_STRING 1
+    set NAME string XML_STRING
+
+    set XML_STRING string "<path>"
+    callfunction GET_XML_STRING 1
+    set PATH string XML_STRING
+
+    set XML_STRING string "<offset>"
+    callfunction GET_XML_STRING 1
+    set OFFSET string XML_STRING
+
+    set XML_STRING string "<size>"
+    callfunction GET_XML_STRING 1
+    set SIZE string XML_STRING
+
+    set XML_STRING string "<csize>"
+    callfunction GET_XML_STRING 1
+    set ZSIZE string XML_STRING
+
+    set FNAME string PATH
+    string FNAME += NAME
+    if ZSIZE == ""
+        log FNAME OFFSET SIZE
+    else
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+next
+
+startfunction GET_XML_STRING
+    strlen XML_STRSZ XML_STRING
+    findloc TMP string XML_STRING MEMORY_FILE ""
+    set XML_STRING string ""
+    if TMP != ""
+        if TMP < LIMIT
+            math TMP += XML_STRSZ
+            savepos TMP_OFF MEMORY_FILE
+            goto TMP MEMORY_FILE
+            findloc XML_STRSZ string "<" MEMORY_FILE
+            math XML_STRSZ -= TMP
+            getdstring XML_STRING XML_STRSZ MEMORY_FILE
+            goto TMP_OFF MEMORY_FILE
+        endif
+    endif
+endfunction

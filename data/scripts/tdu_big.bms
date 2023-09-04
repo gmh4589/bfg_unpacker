@@ -1,0 +1,42 @@
+# Test Drive Unlimited (DLC BIG)
+# script for QuickBMS http://quickbms.aluigi.org
+
+/*
+open FDDE "map"
+idstring "MAP4\0"
+get MAP_SIZE asize
+for i = 0
+    savepos TMP
+    if TMP == MAP_SIZE
+        break
+    endif
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY short
+    get DUMMY byte
+    get DUMMY long
+next i
+*/
+
+open FDDE "big"
+get BIG_SIZE asize
+endian big
+for OFFSET = 0 != BIG_SIZE
+    idstring ".ZC\0"
+    get SIZE long
+    log MEMORY_FILE 0 0
+    append
+    for MEM_SIZE = 0 != SIZE
+        get CHUNK_ZSIZE short
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0xff78
+        math OFFSET + CHUNK_ZSIZE
+        goto OFFSET
+        get MEM_SIZE asize MEMORY_FILE
+    next
+    append
+    log "" 0 SIZE MEMORY_FILE
+next

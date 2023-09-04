@@ -1,0 +1,9 @@
+# Cruise Party
+
+comtype lzss
+idstring "\x21\x43\x65\x87"
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

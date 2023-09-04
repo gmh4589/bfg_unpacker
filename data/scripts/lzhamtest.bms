@@ -1,0 +1,12 @@
+comtype lzham
+idstring "LZH0\x1a"
+get SIZE longlong
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+clog NAME OFFSET ZSIZE SIZE

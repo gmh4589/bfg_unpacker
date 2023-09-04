@@ -1,0 +1,35 @@
+# Mystery Case Files: The Malgrave Incident Wii
+#   You will get an error but that's all ok because this script is just
+#   experimental and it tries to extract everything (99% coverage)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# "FORM"
+get SAN_SIZE asize
+for NEXT_CHUNK = 0 != SAN_SIZE
+    getdstring CHUNK_NAME 4
+    savepos CHUNK_OFF
+    get CHUNK_SIZE long
+    xmath NEXT_CHUNK "CHUNK_OFF + CHUNK_SIZE"
+
+    if CHUNK_NAME == "INDX"
+        get DUMMY float
+        for
+            savepos TMP
+            if TMP >= NEXT_CHUNK
+                break
+            endif
+
+            do
+                get TYPE long
+            while TYPE == 0
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get OFFSET long
+            get SIZE long
+            get DUMMY long
+            log NAME OFFSET SIZE
+        next
+    endif
+
+    goto NEXT_CHUNK
+next

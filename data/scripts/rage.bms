@@ -1,0 +1,117 @@
+# RAGE (PS3/XBOX360/PC) - gameresources.resources/streamed.resources/*.streamed
+
+# set this to 1 if you want to extract only the available files (The Scorchers DLC)
+math AVOID = 0
+
+comtype deflate_noerror
+get RESOURCE_NAME basename
+get RESOURCE_SIZE asize
+
+endian big
+
+get DUMMY1 long
+get INFO_OFF long
+get INFO_SIZE long
+get DUMMY4 long
+goto INFO_OFF
+get DUMMY5 long
+do
+	endian little
+	get ENTRIES1 short
+	get ENTRIES2 short
+	get DUMMY2-01 long
+	getdstring NAME1 DUMMY2-01
+	get DUMMY2-02 long
+	getdstring NAME2 DUMMY2-02
+	get DUMMY2-03 long
+	getdstring NAME3 DUMMY2-03
+	
+	endian big
+	get OFFSET long
+	get ZSIZE long
+	get XSIZE long
+	get EXTRA long
+	if AVOID == 1
+		if ENTRIES1 == 0xffff
+			if XSIZE == 0
+			elif XSIZE == ZSIZE
+				log NAME3 OFFSET XSIZE
+			else
+				clog NAME3 OFFSET XSIZE ZSIZE
+			endif
+		endif
+	elif AVOID == 0
+		if XSIZE == 0
+		elif XSIZE == ZSIZE
+			log NAME3 OFFSET XSIZE
+		else
+			clog NAME3 OFFSET XSIZE ZSIZE
+		endif
+	endif
+	if EXTRA == 0
+		get DUMMY2-07 long
+		get DUMMY2-08 long
+		get DUMMY2-09 long
+		get DUMMY2-10 long
+		get DUMMY2-11 long
+	elif EXTRA == 1
+		getdstring EXTRA1 16
+		get STREAMED_OFFSET long
+		get STREAMED_SIZE long
+		get DUMMY2-14 long
+		get DUMMY2-15 long
+		get DUMMY2-16 long
+		get DUMMY2-17 long
+		get DUMMY2-18 long
+		if DUMMY2-17 == 0x01000000
+			open FDSE "streamed.resources" 1 EXISTS
+			if AVOID == 1
+				if ENTRIES1 == 0xffff
+					if EXISTS == 1
+						log NAME2 STREAMED_OFFSET STREAMED_SIZE 1
+					endif
+				endif
+			elif AVOID == 0
+				if EXISTS == 1
+					log NAME2 STREAMED_OFFSET STREAMED_SIZE 1
+				endif
+			endif
+		else
+		endif
+	else
+		for i = 0 < EXTRA
+			getdstring EXTRA2 0x10
+			get LANGUAGESTREAMED_OFFSET long
+			get LANGUAGESTREAMED_SIZE long
+			
+			if AVOID == 1
+				if ENTRIES1 == 0xffff
+					string EXTRA2 += ".streamed"
+					open FDSE EXTRA2 2 EXISTS
+					if EXISTS == 2
+						log NAME2 LANGUAGESTREAMED_OFFSET LANGUAGESTREAMED_SIZE 2
+					endif
+				endif
+			elif AVOID == 0
+				string EXTRA2 += ".streamed"
+				open FDSE EXTRA2 2 EXISTS
+				if EXISTS == 2
+					log NAME2 LANGUAGESTREAMED_OFFSET LANGUAGESTREAMED_SIZE 2
+				endif
+			endif
+		next i
+		get DUMMY2-21 long
+		get DUMMY2-22 long
+		get DUMMY2-23 long
+		get DUMMY2-24 long
+		get DUMMY2-25 long
+	endif
+	
+	savepos CURR_OFF
+while CURR_OFF > INFO_SIZE
+
+savepos POS
+
+if POS != RESOURCE_SIZE
+	cleanexit
+endif

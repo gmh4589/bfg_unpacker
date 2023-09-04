@@ -1,0 +1,13 @@
+# Freestyle Street Basketball 2 (script 0.1.1)
+
+idstring "PACK"
+get FILES long  # probably VER
+get INFO_SIZE long
+math NAMESZ = 0x80
+xmath FILES "INFO_SIZE / (NAMESZ + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

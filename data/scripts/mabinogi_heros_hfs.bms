@@ -1,0 +1,33 @@
+ComType deflate
+for
+    idstring "HF\x01\x02"
+    get ver         short
+    get flag        short
+    if flag != 0
+        break
+    endif
+    get method      short
+    get timedate    long
+    get crc         long
+    get comp_size   long
+    get uncomp_size long
+    get name_len    short
+    get extra_len   short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    set name string ""  # filenames are encrypted!
+
+    if method == 0
+        Log name offset uncomp_size
+    elif method == 8
+        CLog name offset comp_size uncomp_size
+    else
+        print "unsupported compression method %method%"
+        cleanexit
+    endif
+
+    math offset += comp_size
+    goto offset
+next

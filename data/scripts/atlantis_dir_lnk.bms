@@ -1,0 +1,41 @@
+# Atlantis The Lost Tales PS1 DIR/LNK
+
+open FDDE "DIR"
+open FDDE "LNK" 1
+
+get DUMMY long  # 0x8.......
+get DUMMY long  # 0x8....... + 0x28
+get DUMMY long  # or ZERO
+get ZERO long
+get FOLDERS_OFF long
+get FILES_OFF long
+if FOLDERS_OFF != 0
+    goto FOLDERS_OFF
+    for FOLDERS_OFF = FOLDERS_OFF < FILES_OFF
+        getdstring PATH 20
+        get OFFSET long
+        savepos FOLDERS_OFF
+
+        callfunction DUMP 1
+    next
+endif
+
+set PATH string ""
+math OFFSET = FILES_OFF
+callfunction DUMP 1
+
+startfunction DUMP
+    savepos TMP
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        getdstring NAME 16
+        get NEXT_OFF long
+        goto -4 0 SEEK_CUR
+        xmath SIZE "NEXT_OFF - OFFSET"
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE 1
+    next i
+    goto TMP
+endfunction

@@ -1,0 +1,32 @@
+# Add GENH header to data.
+# Needed variables: OFFSET, SIZE, CHANNELS, INTERLEAVE, FREQUENCY,
+#                   LOOPSTART. LOOPEND, GENH_CODEC, STARTOFFSET, AT3MODE, XMAMODE,
+#					DATASIZE, ORIGINALSIZE
+
+startfunction GENH
+	putvarchr MEMORY_FILE 0 0x484e4547 long
+#	putvarchr MEMORY_FILE 0 0x47454e48 long
+	putvarchr MEMORY_FILE 0x04 CHANNELS long
+	putvarchr MEMORY_FILE 0x08 INTERLEAVE long
+	putvarchr MEMORY_FILE 0x0c FREQUENCY long
+	putvarchr MEMORY_FILE 0x10 LOOPSTART long
+	putvarchr MEMORY_FILE 0x14 LOOPEND long
+	putvarchr MEMORY_FILE 0x18 GENH_CODEC long
+	putvarchr MEMORY_FILE 0x1c STARTOFFSET long
+	putvarchr MEMORY_FILE 0x20 HEADERSIZE long
+	putvarchr MEMORY_FILE 0x48 AT3MODE byte
+	putvarchr MEMORY_FILE 0x49 XMAMODE byte
+	putvarchr MEMORY_FILE 0x50 DATASIZE long
+	putvarchr MEMORY_FILE 0x300 ORIGINALSIZE long
+#	putvarchr MEMORY_FILE 0x304 0x56473032 long
+	putvarchr MEMORY_FILE 0x304 0x32304756 long
+	putvarchr MEMORY_FILE 0xfff 0 byte
+	append
+	log MEMORY_FILE OFFSET SIZE
+	append
+	get NAME basename
+	string NAME += ".genh"
+	
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction

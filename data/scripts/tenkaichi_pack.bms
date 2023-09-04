@@ -1,0 +1,27 @@
+# Dragon Ball Z - Tenkaichi Tag Team (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+idstring "PacK"
+get FILES long
+get ZERO long
+get ZERO long
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 0x10)"
+math BASE_OFF x 0x1000
+for i = 0 < FILES
+    filexor "0x50 0x61 0x63 0x4b 0 0 0 0" "PacK\0\0\0\0"
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    filexor ""
+
+    math OFFSET * 0x800
+    math OFFSET + BASE_OFF
+    if ZSIZE == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

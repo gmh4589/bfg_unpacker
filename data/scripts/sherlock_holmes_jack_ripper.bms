@@ -1,0 +1,96 @@
+# Sherlock Holmes vs Jack the Ripper (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MYFILEEXT extension
+if MYFILEEXT == "xml"
+    open FDDE PAK 0
+endif
+
+open FDDE XML 1 EXISTS
+if EXISTS == 0
+    goto -4
+    get OFFSET long
+    callfunction PAK_ENTRY 1
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+    get MEM_SIZE asize MEMORY_FILE
+    do
+        get FILES long MEMORY_FILE
+        for i = 0 < FILES
+            get FLAGS short MEMORY_FILE
+            get ID short MEMORY_FILE
+            get NAMESZ short MEMORY_FILE
+            getdstring NAME NAMESZ MEMORY_FILE
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            get ZERO long MEMORY_FILE
+            get TSTAMP longlong MEMORY_FILE
+
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i NAME
+            putarray 3 i FLAGS
+        next i
+
+            get NAMESZ short MEMORY_FILE
+            getdstring EXT_VERBOSE NAMESZ MEMORY_FILE
+            get NAMESZ short MEMORY_FILE
+            getdstring EXT NAMESZ MEMORY_FILE
+            get NAMESZ short MEMORY_FILE
+            getdstring PATH NAMESZ MEMORY_FILE
+            get NAMESZ short MEMORY_FILE
+            getdstring DUMMY NAMESZ MEMORY_FILE # just "@" somtimes
+
+        for i = 0 < FILES
+            getarray OFFSET 0 i
+            getarray SIZE   1 i
+            getarray NAME   2 i
+            getarray FLAGS  3 i
+
+            string NAME p "%s/%s%s" PATH NAME EXT
+
+            if FLAGS & 1    # both 1 and 3
+                log NAME OFFSET SIZE
+            else            # usually zero
+                callfunction PAK_ENTRY 1
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        next i
+
+        savepos TMP MEMORY_FILE
+    while TMP != MEM_SIZE
+
+    cleanexit
+endif
+
+for
+    findloc NAME_OFF string "src='" 1
+    if NAME_OFF == 0
+        cleanexit
+    endif
+
+    math NAME_OFF += 5
+    goto NAME_OFF 1
+    getdstring DUMMY 3 1    # skip the r:\ stuff
+    getct NAME string 0x27 1
+
+    findloc SIZE_OFF string "size='" 1
+    math SIZE_OFF += 6
+    goto SIZE_OFF 1
+    getct SIZE string 0x27 1
+
+    findloc OFFSET_OFF string "offset='" 1
+    math OFFSET_OFF += 8
+    goto OFFSET_OFF 1
+    getct OFFSET string 0x27 1
+
+    log NAME OFFSET SIZE
+next
+
+startfunction PAK_ENTRY
+    goto OFFSET
+    get ZIP byte
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+endfunction

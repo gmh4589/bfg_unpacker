@@ -1,0 +1,191 @@
+# KOM archives (Elsword, GrandChase) 0.1.3
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.1"
+idstring "KOG "
+get SIGN string
+set VER string SIGN
+string VER &= "V."
+string VER -= -5
+string SIGN >>= " MASSFILE"
+goto 0x34
+get FILES long
+
+math V06_MODE = 0
+if VER == "V.0.1"   # it's the same of 0.2
+    set VER string "V.0.2"
+endif
+
+if SIGN == "THINCLIENT"
+    if VER == "V.0.2"
+        get DUMMY long
+        get SIZE long
+        get DUMMY long
+        savepos OFFSET
+        math OFFSET += SIZE
+        for i = 0 < FILES
+            get DUMMY long
+        next i
+    else
+        print "Error: unsupported KOM version (%VER% / %SIGN%)"
+        cleanexit
+    endif
+
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get SIZE long
+        get ZSIZE long
+        get ZIP byte
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET += ZSIZE
+    next i
+else
+    if VER == "V.0.2"
+        get DUMMY long
+        savepos BASE_OFF
+        math TMP = FILES
+        math TMP *= 0x48
+        math BASE_OFF += TMP
+    elif VER == "V.0.3"
+        get DUMMY long
+        getdstring DUMMY 8
+        get XMLSZ long
+        savepos OFFSET
+        log MEMORY_FILE OFFSET XMLSZ
+        math OFFSET += XMLSZ
+    elif VER == "V.0.4"
+        get KEY long
+        getdstring DUMMY 8
+        get XMLSZ long
+        savepos OFFSET
+        if KEY == 0xb290207
+            set KEY long 0x6e0acdeb # 64bit number (%lld)
+        else
+            print "Error: unkown relative key value (%KEY%)"
+            cleanexit
+        endif
+        encryption sha1 ""
+        string KEY E= KEY
+        encryption bf_ecb QUICKBMS_HASH "" 0 20
+        log MEMORY_FILE OFFSET XMLSZ
+        encryption "" ""
+        math OFFSET += XMLSZ
+    elif VER == "V.0.6"
+        get DUMMY long
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+        # compiled xml
+        idstring MEMORY_FILE "KML "
+        #findloc TMP string "\x04\x00File\0" MEMORY_FILE
+        findloc TMP string "\x00File\0" MEMORY_FILE
+        math TMP - 1
+        goto TMP MEMORY_FILE
+        get TMP_SHORT short MEMORY_FILE
+        if TMP_SHORT != 0   # 4
+            math V06_MODE = 0
+        else
+            math TMP - 2
+            math V06_MODE = 1
+        endif
+        goto TMP MEMORY_FILE
+    else
+        print "Error: unsupported KOM version (%VER% / %SIGN%)"
+        cleanexit
+    endif
+
+    for i = 0 < FILES
+        if VER == "V.0.2"
+            getdstring NAME 0x3c
+            get SIZE long
+            get ZSIZE long
+            get OFFSET long
+            math OFFSET += BASE_OFF
+            set ALGO long 0
+        elif VER == "V.0.6"
+            if i == 0
+                callfunction GET_V06_INT 1
+                math DUMMYSZ = DUMMY
+                math DUMMYSZ += 1
+                getdstring DUMMY DUMMYSZ MEMORY_FILE
+            endif
+            callfunction GET_V06_INT 1
+            math DUMMYSZ = DUMMY
+            for x = 0 < DUMMYSZ
+                callfunction GET_V06_INT 1
+                callfunction GET_V06_INT 1
+            next x
+
+            callfunction KML_STRING 1
+            set NAME string DUMMY
+
+            callfunction KML_STRING 1
+            set SIZE string DUMMY
+
+            callfunction KML_STRING 1
+            set ZSIZE string DUMMY
+
+            callfunction KML_STRING 1   # ADLER
+
+            callfunction KML_STRING 1   # SHA
+
+            callfunction KML_STRING 1   # ALGORITHM
+            set ALGO string DUMMY
+
+        else
+            findloc TMP string "Name=" MEMORY_FILE
+            math TMP += 4
+            goto TMP MEMORY_FILE
+            for j = 0 < 6
+                findloc TMP string "=" MEMORY_FILE
+                math TMP += 2   # ="
+                goto TMP MEMORY_FILE
+                getct TMP string 0x22 MEMORY_FILE   # "
+                putarray 0 j TMP
+            next j
+
+            getarray NAME 0 0
+            getarray SIZE 0 1
+            getarray ZSIZE 0 2
+            getarray ALGO 0 5
+        endif
+
+        if ALGO == 0
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            print "unknown algorithm %ALGO% at offset %OFFSET|x% (%ZSIZE% -> %SIZE%)"
+            #cleanexit
+            string TMP p= "%s.algo%d.%d" NAME ALGO SIZE
+            log TMP OFFSET ZSIZE
+        endif
+        math OFFSET += ZSIZE
+    next i
+endif
+
+startfunction GET_V06_INT
+    if V06_MODE == 0
+        get DUMMY short MEMORY_FILE
+    else
+        get DUMMY long MEMORY_FILE
+    endif
+endfunction
+
+startfunction KML_STRING
+    if i == 0
+        callfunction GET_V06_INT 1
+        math DUMMYSZ = DUMMY
+        math DUMMYSZ += 1
+        getdstring DUMMY DUMMYSZ MEMORY_FILE
+    endif
+        callfunction GET_V06_INT 1
+        math DUMMYSZ = DUMMY
+        math DUMMYSZ += 1
+        getdstring DUMMY DUMMYSZ MEMORY_FILE
+endfunction

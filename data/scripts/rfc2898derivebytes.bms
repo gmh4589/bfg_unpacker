@@ -1,0 +1,20 @@
+# Rfc2898DeriveBytes BMS example
+#   you must set both SECRET and SALT first
+
+set SECRET binary ""
+set SALT   binary ""
+
+encryption PKCS5_PBKDF2_HMAC_sha1 SECRET SALT 1000
+
+log MEMORY_FILE 0 0
+putdstring QUICKBMS_HASH 64 MEMORY_FILE
+goto 0 MEMORY_FILE
+getdstring KEY 32 MEMORY_FILE
+getdstring IV 32 MEMORY_FILE
+
+encryption mcrypt_rijndael-256_cbc KEY IV 0 32
+math OFFSET = 0
+get SIZE asize
+math SIZE - OFFSET
+log "dump.dat" OFFSET SIZE
+

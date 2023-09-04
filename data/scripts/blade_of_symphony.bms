@@ -1,0 +1,12 @@
+# Blade of Symphony
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VBSP"
+get DUMMY long
+do
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    get ZERO long
+    log "" OFFSET SIZE
+while TYPE != 0x10

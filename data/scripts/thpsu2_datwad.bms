@@ -1,0 +1,66 @@
+# Tony Hawk's series Xbox dat/wad (script 0.1.1)
+#   Tony Hawk's Underground
+#   Tony Hawk's Underground 2
+#   Tony Hawk's American Wasteland
+#   Tony Hawk's Project 8
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dat"
+open FDDE "wad" 1
+
+getdstring TEST 4 1
+
+set NAME string ""
+get FILES long
+for i = 0 < FILES
+    if TEST == "RIFF"
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE 1
+    else
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get CODEC short # 0x69 is the Xbox adpcm
+        get CHANNELS short
+        get FREQUENCY long
+        get FREQUENCY2 long
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        math BITS = 16
+        callfunction TOWAV
+    endif
+next i
+
+# Requirements: CODEC, BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 CODEC short      # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE 1
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction
+

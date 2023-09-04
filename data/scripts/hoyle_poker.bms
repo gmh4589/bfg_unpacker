@@ -1,0 +1,32 @@
+# Hoyle Poker / Dell Magazines Crosswords (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY short
+get DUMMY short
+idstring "PRF\0"
+get DUMMY long
+get DUMMY long
+get INFO_SIZE long
+get INFO_OFF long
+goto INFO_OFF
+get FILES short
+get DUMMY short
+get NUM long # ???
+for i = 0 < NUM
+    get DUMMY long
+next i
+get DUMMY long
+get DUMMY long
+get DUMMY long
+math FILES - 1
+for i = 0 < FILES
+    getdstring TYPE 4
+    get DUMMY short
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+    string TYPE + /
+    if SIZE != 0
+        log TYPE OFFSET SIZE
+    endif
+next i

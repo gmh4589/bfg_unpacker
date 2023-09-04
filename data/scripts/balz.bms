@@ -1,0 +1,13 @@
+# BALZ decompressor
+
+comtype balz
+idstring "\xba"
+get SIZE longlong
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+
+get NAME basename
+get EXT extension
+string NAME p "%s_unpack.%s" NAME EXT
+clog NAME OFFSET ZSIZE SIZE

@@ -1,0 +1,40 @@
+# The Guild SBF
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto 0x134
+get FILES long
+get DUMMY long
+get ZERO long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    getdstring NAME 0x30
+    get FLAGS long
+    get ZERO long
+    get ZERO long
+
+    savepos TMP
+    goto OFFSET
+    get SUB_FILES long
+    if FLAGS & 0x00020000
+        get DUMMY long
+        get SIZE long
+    endif
+    for x = 0 < SUB_FILES
+        if FLAGS & 0x00020000
+            get DUMMY long  # 1?
+        endif
+        get SIZE long
+        get DUMMY long
+        putarray 0 x SIZE
+    next x
+    savepos OFFSET
+    goto TMP
+
+    for x = 0 < SUB_FILES
+        string FNAME p= "%s_%d.*" NAME x
+        getarray SIZE 0 x
+        log FNAME OFFSET SIZE
+        math OFFSET += SIZE
+    next x
+next i

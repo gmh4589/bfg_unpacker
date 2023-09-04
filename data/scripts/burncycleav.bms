@@ -1,0 +1,22 @@
+# Burn: Cycle AV
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "MAP "
+get MYOFF_END long
+
+get OFFSET long
+for
+    savepos MYOFF
+    if MYOFF > MYOFF_END
+        cleanexit
+    endif
+
+    get NEXT_OFFSET long
+    set SIZE long NEXT_OFFSET
+    math SIZE -= OFFSET
+
+    log "" OFFSET SIZE
+
+    set OFFSET long NEXT_OFFSET
+next

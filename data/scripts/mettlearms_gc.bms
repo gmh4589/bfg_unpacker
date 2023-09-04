@@ -1,0 +1,21 @@
+# Metal Arms: Glitch in the System
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "GNAF"
+get DUMMY long
+get ARCHIVE_SIZE long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DATA_OFF long
+goto 0x6c
+for i = 0 < FILES
+    getdstring NAME 20
+    get OFFSET long
+    get SIZE long
+    get TSTAMP long
+    get SOME_CRC long
+    log NAME OFFSET SIZE
+next i

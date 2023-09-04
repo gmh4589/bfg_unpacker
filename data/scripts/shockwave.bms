@@ -1,0 +1,113 @@
+# Shockwave Director dcr/dir/dxr/cst dumper
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.4.11
+getdstring RIFX_SIGN 4
+if RIFX_SIGN == "RIFX"
+    endian big
+elif RIFX_SIGN == "XFIR"
+    endian little
+else
+    cleanexit
+endif
+get SIZE long
+get SIGN long
+if SIGN == 0x4647444d
+    get NAME fullname
+    get FOLDER current_folder
+    print "\nyou must use offzip with this file:\nhttp://aluigi.org/mytoolz.htm#offzip\n\n  offzip -a \"%NAME%\" \"%FOLDER%\" 0"
+    cleanexit
+endif
+
+set FIRST = 1
+for i = 0
+    savepos CURR_OFFSET
+    getdstring SIGN 4
+    if RIFX_SIGN != "RIFX"
+        string SIGN r= SIGN
+    endif
+
+    math SKIP_SIZE = 0x10
+    if SIGN == ""
+        cleanexit
+    elif SIGN == "RIFX"
+    elif SIGN == "imap"
+        if FIRST != 0
+            get DUMMY long
+            get DUMMY long
+            get OFFSET long
+            if OFFSET > CURR_OFFSET
+                goto OFFSET
+                math SKIP_SIZE = 0
+            endif
+        endif
+    elif SIGN == "mmap"
+        if FIRST != 0
+            math SKIP_SIZE = 0x1c
+            set FIRST = 0
+        endif
+    # filters start here
+    elif SIGN == "VERS"
+    elif SIGN == "CASt"
+    elif SIGN == "CAS*"
+    elif SIGN == "Lctx"
+    elif SIGN == "LctX"
+    elif SIGN == "Lnam"
+    elif SIGN == "Lscr"
+    elif SIGN == "Cinf"
+    elif SIGN == "GRID"
+    elif SIGN == "FCOL"
+    elif SIGN == "MCsL"
+    elif SIGN == "DRCF"
+    #elif SIGN == "BITD"    # 16bit images
+    #elif SIGN == "ALFA"    # alpha channel
+    #elif SIGN == "sndS"    # 16bit audio
+    elif SIGN == "sndH"
+    elif SIGN == "Sord"
+    elif SIGN == "free"
+    elif SIGN == "junk"
+    elif SIGN == "Thum"
+    elif SIGN == "KEY*"
+    elif SIGN == "FXmp"
+    elif SIGN == "Fmap"
+    elif SIGN == "PUBL"
+    elif SIGN == "SCRF"
+    elif SIGN == "VWFI"
+    elif SIGN == "VWSC"
+    elif SIGN == "VWLB"
+    elif SIGN == "VWTL"
+    elif SIGN == "XTRl"
+    elif SIGN == "ccl "
+    elif SIGN == "SCVW"
+    elif SIGN == "Lval"
+    elif SIGN == "cupt"
+    elif SIGN == "CLUT"
+    # filters end here
+    else
+        # skip the above ones and dump the others
+        math SKIP_SIZE = -1
+    endif
+
+    if SKIP_SIZE < 0
+        get SIZE long
+        get OFFSET long
+        if SIZE > 8
+            math OFFSET += 8
+            math SIZE   -= 8
+            set NAME string ""
+            if SIGN == "XMED"
+            elif SIGN == "ediM"
+            else
+                set NAME string SIGN
+                string NAME += /
+                string NAME += i
+                string NAME += ".dat"
+            endif
+            log NAME OFFSET SIZE
+        endif
+        get DUMMY long
+        get DUMMY long
+    else
+        getdstring DUMMY SKIP_SIZE
+    endif
+next i

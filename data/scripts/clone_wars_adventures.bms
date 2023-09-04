@@ -1,0 +1,20 @@
+# Clone Wars Adventures
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+math FOLDER = 0
+do
+    get NEXT_OFF long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        get CRC long
+        string NAME p "%d/%s" FOLDER NAME
+        log NAME OFFSET SIZE
+    next i
+    math FOLDER + 1
+    goto NEXT_OFF
+while NEXT_OFF != 0

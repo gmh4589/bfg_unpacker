@@ -1,0 +1,77 @@
+# Strider (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "DHCS"
+get DUMMY long
+get PAK_XSIZE longlong
+get FILES long
+savepos OFFSET
+get PAK_SIZE asize
+math TMP = FILES
+math TMP *= 0x10
+math PAK_SIZE -= TMP
+goto PAK_SIZE
+math PAK_SIZE -= OFFSET
+clog TEMPORARY_FILE OFFSET PAK_SIZE PAK_XSIZE 
+open "." TEMPORARY_FILE 1
+
+# new version, thanks to swuforce
+
+    # there is no other way to know the location of the information
+    get NAME_CRC longlong   # ???
+    get OFFSET1 longlong
+    if FILES > 1
+        get NAME_CRC longlong   # ???
+        get OFFSET2 longlong
+    else
+        math OFFSET2 = PAK_XSIZE
+    endif
+    math FIRST_FILE_SIZE = OFFSET2
+    math FIRST_FILE_SIZE -= OFFSET1
+
+idstring 1 "PAK_"
+get DUMMY long 1
+math DUMMY2 = DUMMY
+reverselong DUMMY2
+if DUMMY u>= DUMMY2
+    endian little
+endif
+get DUMMY long 1
+get DUMMY long 1
+get FILES long 1
+xmath TMP "FIRST_FILE_SIZE - (FILES * 0x106)"
+goto TMP 1
+for i = 0 < FILES
+    getdstring NAME 0xf0 1
+    get DUMMY short 1
+    get DUMMY short 1
+    get OFFSET longlong 1
+    get SIZE long 1
+    get DUMMY short 1
+    get DUMMY short 1
+    get DUMMY short 1
+    if NAME & "."
+    else
+        string NAME + "."
+    endif
+    log NAME OFFSET SIZE 1
+next i
+
+cleanexit
+# old version
+
+    get NAME_CRC longlong   # ???
+    get OFFSET longlong
+for i = 1 <= FILES
+    if i == FILES
+        math SIZE = PAK_XSIZE
+    else
+        get NEXT_NAME_CRC longlong   # ???
+        get NEXT_OFFSET longlong
+        math SIZE = NEXT_OFFSET
+    endif
+    math SIZE -= OFFSET
+    log "" OFFSET SIZE 1
+    math OFFSET = NEXT_OFFSET
+next i

@@ -1,0 +1,50 @@
+# Winning Eleven 5 (script 0.2)
+
+open FDSE "WE5.DAT" 1
+open FDSE "SLPM_620.53" 0 EXISTS
+if EXISTS == 0
+    open FDSE "SLPM-62113" 0 EXISTS
+endif
+if EXISTS == 0
+    print "Insert the name of the game executable, like SLPM_620.53:"
+    open FDSE "?"
+endif
+findloc OFFSET binary "end_anime"
+goto OFFSET
+get DUMMY string
+padding 0x10
+
+get DAT_SIZE asize 1
+findloc MORE_OFF binary "\x89PNG" 1   # some ISO are bugged?!?
+math BASE_OFF = 10000
+for i = 0
+    get FOLDER long # ???
+    if FOLDER u> 0x1000
+        break
+    endif
+    get DUMMY1 long
+    get DUMMY long
+    get ZERO long
+    get OFFSET long
+    get ZERO long
+    get END_OFFSET long
+    get ZERO long
+    get XSIZE long
+    get ZERO long
+    get SIZE long
+    get ZERO long
+    if i == 0
+        math BASE_OFF = OFFSET
+    endif
+    math OFFSET - BASE_OFF
+    math OFFSET * 0x800
+    math OFFSET + MORE_OFF
+    string NAME p "%s/" FOLDER
+    xmath TMP "OFFSET + SIZE"
+    if TMP u> DAT_SIZE
+        xmath SIZE "DAT_SIZE - OFFSET"
+    endif
+    log NAME OFFSET SIZE 1
+    math XSIZE * 0x800
+    math OFFSET + XSIZE
+next i

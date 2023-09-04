@@ -1,0 +1,35 @@
+# Heroes Mobile 俠客英雄傳 (sh3index.bin/sh3data.bin)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+string NAME - "index"
+string NAME - "data"
+get EXT extension
+# "sh3"
+string TMP p "%s%s.%s" NAME "index" EXT
+open FDSE TMP
+string TMP p "%s%s.%s" NAME "data"  EXT
+open FDSE TMP 1
+
+get FILES long
+for i = 0 < FILES
+    get ALGO short
+    getdstring NAME 324
+    get SIZE long
+    get OFFSET long
+    get ZSIZE long
+
+    if ALGO == 0
+        # when zero the file has SIZE (for example 8) and ZSIZE zero, the offset is the same of the next file
+        # so it's probably a file to skip or to create empty or to fill with zeroes
+        #comtype copy
+        log NAME OFFSET ZSIZE 1
+    else
+        comtype lzma86head
+        goto OFFSET 1
+        get DUMMY byte 1    # 1
+        math OFFSET + 1
+        math ZSIZE  - 1
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i

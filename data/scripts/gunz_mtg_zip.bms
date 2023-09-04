@@ -1,0 +1,193 @@
+# GunZ MTG->ZIP and ZIP->MTG
+
+set MEMORY_FILE10 string "
+void MTG_decrypt(unsigned char *data, int size) {
+    int     i;
+    unsigned char al;
+    for(i = 0; i < size; i++) {
+        al = data[i];
+        al = (al >> 4) | (al << 4);
+        al ^= 0x5C;
+        al += 0xE6;
+        al ^= 0x39;
+        al += 0x7B;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBA;
+        al ^= 0x2D;
+        al += 0x29;
+        al += 0xE9;
+        al += 0xFF;
+        al += 0x9C;
+        al -= 0xC1;
+        data[i] = al;
+    }
+}
+void MTG_encrypt(unsigned char *data, int size) {
+    int     i;
+    unsigned char al;
+    for(i = 0; i < size; i++) {
+        al = data[i];
+        al += 0xC1;
+        al -= 0x9C;
+        al -= 0xFF;
+        al -= 0xE9;
+        al -= 0x29;
+        al ^= 0x2D;
+        al += 0xBA;
+        al += 0xBB;
+        al += 0xBB;
+        al += 0xBB;
+        al += 0xBB;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al += 0xBA;
+        al -= 0x7B;
+        al ^= 0x39;
+        al -= 0xE6;
+        al ^= 0x5C;
+        al = (al >> 4) | (al << 4);
+        data[i] = al;
+    }
+}
+"
+
+get OUTPUT_NAME basename
+get EXT extension
+if EXT == "mtg"
+    string OUTPUT_NAME + ".zip"
+else
+    string OUTPUT_NAME + ".mtg"
+endif
+log OUTPUT_NAME 0 0
+append
+
+get zip_filesize asize
+for offset = offset < zip_filesize
+    if EXT == "mtg"
+        encryption calldll "MEMORY_FILE10 MTG_decrypt tcc RET #INPUT# #INPUT_SIZE#"
+        filecrypt 1
+    else
+        encryption "" ""
+        filecrypt 0
+    endif
+    savepos ENCRYPT_OFFSET
+
+    getdstring MAGIC 2  # PK except for sign 0x0605
+    get sign short
+    if sign == 0x0503 || sign == 0x0605
+        math sign = 0x0605
+        savepos ENCRYPT_OFFSET
+    endif
+
+    math PLAINTEXT_SIZE = 0
+
+    if sign == 0x0403
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+
+        math PLAINTEXT_SIZE = comp_size
+
+    elif sign == 0x0806     # Archive extra data record
+        get extra_len       long
+        getdstring extra    extra_len
+
+    elif sign == 0x0201     # Central directory structure
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+
+    elif sign == 0x0605     # End of central directory record
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+
+    elif sign == 0x0807     # Data Descriptor
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+
+    else
+        print "\nError: unknown ZIP signature %sign|x% at offset %offset|x%"
+        cleanexit
+    endif
+
+    savepos offset
+
+    filecrypt 0
+    encryption "" ""
+    if EXT == "mtg"
+        if sign == 0x0605
+            set MEMORY_FILE binary "PK\x05\x06"
+            log OUTPUT_NAME 0 4 MEMORY_FILE
+        endif
+        encryption calldll "MEMORY_FILE10 MTG_decrypt tcc RET #INPUT# #INPUT_SIZE#"
+    else
+        if sign == 0x0605
+            set MEMORY_FILE binary "\x5a\xfb\xca\x6b"
+            log OUTPUT_NAME 0 4 MEMORY_FILE
+        endif
+        encryption calldll "MEMORY_FILE10 MTG_encrypt tcc RET #INPUT# #INPUT_SIZE#"
+    endif
+    xmath ENCRYPT_SIZE "offset - ENCRYPT_OFFSET"
+    log OUTPUT_NAME ENCRYPT_OFFSET ENCRYPT_SIZE
+
+    if PLAINTEXT_SIZE != 0
+        encryption "" ""
+
+        log OUTPUT_NAME offset PLAINTEXT_SIZE
+
+        math offset + PLAINTEXT_SIZE
+        goto offset
+    endif
+next
+
+append

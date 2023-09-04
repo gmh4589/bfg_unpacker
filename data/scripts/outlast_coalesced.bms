@@ -1,0 +1,19 @@
+# Outlast PS4 coalesced_*.bin decrypter
+#   https://zenhax.com/viewtopic.php?p=33316#p33316
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME basename
+get EXT extension
+if NAME & "_decrypt"
+    string NAME - "_decrypt"
+    string NAME + "_encrypt."
+    math DO_ENC = 1
+else
+    string NAME + "_decrypt."
+    math DO_ENC = 0
+endif
+string NAME + EXT
+
+encryption aes "rbg3hDJ5du9^)(#*b2!jsM#78AV]2nrk" "" DO_ENC
+log NAME 0 SIZE

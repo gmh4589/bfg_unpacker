@@ -1,0 +1,42 @@
+# Fairly Odd Parents: Breakin' Da Rules (music.xbp)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x6d16187f
+get ALIGN long
+endian guess ALIGN
+get ZERO long
+get FILES long
+get INFO_OFF long
+get STRASTR_OFF long
+get ZERO long
+get DUMMY long
+get DUMMY_OFF long
+get DUMMY long
+get NAMES_OFF long
+get NAMES_SIZE long
+get INFO_SIZE long
+
+math INFO_OFF * ALIGN
+math STRASTR_OFF * ALIGN
+math DUMMY_OFF * ALIGN
+math NAMES_OFF * ALIGN
+
+math NAMES_SIZE x ALIGN # because some filenames are at the end
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get NAME_OFF long
+    get DUMMY long  # 1
+    get DUMMY long  # 0 or 4
+    get DUMMY longlong
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+
+    math OFFSET * ALIGN
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,22 @@
+# Sangokushi Legion G1T.GA
+
+get CHUNKS long
+get FILESIZE long
+    math CHUNK_SIZE = 0x10000
+for i = 0 < CHUNKS
+    get CHUNK_ZSIZE long
+    putarray 0 i CHUNK_ZSIZE    # 4 + compressed size
+next i
+
+get NAME basename
+log NAME 0 0
+append
+for i = 0 < CHUNKS
+    padding 0x80
+    get CHUNK_ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    math OFFSET + CHUNK_ZSIZE
+    goto OFFSET
+next i
+append

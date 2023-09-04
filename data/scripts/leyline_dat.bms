@@ -1,0 +1,27 @@
+# A Clockwork Ley-Line: The Borderline of Dusk DAT decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring NAME 0x10
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+log MEMORY_FILE OFFSET SIZE
+
+math INIT = 4
+for i = 0 < SIZE
+    getvarchr TMP MEMORY_FILE i
+    xmath TMP "(TMP << INIT) | (TMP >> (8 - INIT))" # doesn't exist 8bit rotate in math/xmath
+    putvarchr MEMORY_FILE i TMP
+    math INIT + 1
+    math INIT & 7
+    getvarchr TMP MEMORY_FILE i long
+    math TMP ^ 0x084DF873
+    math TMP ^ 0xFF987DEE
+    putvarchr MEMORY_FILE i TMP long
+next i + 4
+
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+log NAME 0 SIZE MEMORY_FILE

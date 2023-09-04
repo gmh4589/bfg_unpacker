@@ -1,0 +1,19 @@
+get FILES long
+endian guess FILES
+for i = 0 < FILES
+    getdstring HASH 8
+    get OFFSET long
+    get SIZE long
+    get XSIZE long
+    get DUMMY byte
+
+    savepos TMP
+    goto OFFSET
+    getdstring DUMMY 12
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    string NAME | ":"
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

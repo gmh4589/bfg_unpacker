@@ -1,0 +1,20 @@
+<bms games="'Showdown: Legends of Wrestling'" platforms="'PC'" ext="DR">
+SavePos CP 0 ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+GoTo CP 0 ;
+Do ;
+Set Offset Long CP ;
+Get Width Long 0 ;
+Get Heigth Long 0 ;
+Set FileSize Long Heigth ;
+Math FileSize *= Width ;
+Get Unknown Long 0 ;
+Get NameSize Long 0 ;
+Get IDName String 0 ;
+Get FileName String 0 ;
+Log FileName Offset FileSize 0 0 ;
+Math CP += FileSize ;
+GoTo CP 0 ;
+While CP < END ;
+</bms>

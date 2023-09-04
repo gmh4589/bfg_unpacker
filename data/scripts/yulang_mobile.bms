@@ -1,0 +1,13 @@
+# Yulgang Mobile
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+get INFO_SIZE long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY byte  # ever 0x14
+    get SIZE long
+    getdstring HASH 16
+    clog "" OFFSET SIZE SIZE
+next i

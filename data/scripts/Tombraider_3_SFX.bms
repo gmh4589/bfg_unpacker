@@ -1,0 +1,12 @@
+# Tombraider 3 (SFX)
+
+Set FILECNTL Long 0 ;
+Do ;
+SavePos FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+GoTo FILESTART 0 ;
+Math FILESIZE += 8 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+While NotEOF <> 0 ;
+

@@ -1,0 +1,43 @@
+# Gocco
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN string
+goto -1 0 SEEK_CUR
+
+if SIGN == "tppk"
+
+    savepos BASE_OFF
+    get ZERO long
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY long
+        savepos TMP
+        get OFFSET long
+        math OFFSET + TMP
+        math OFFSET - BASE_OFF
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+
+elif SIGN == "TEX_PACK"
+
+    get ZERO long
+    get DUMMY short
+    get DUMMY short
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getdstring NAME 0x40
+        get CRC long
+        string NAME + "."
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    print "Error: unsupported magic %SIGN%"
+    cleanexit
+
+endif

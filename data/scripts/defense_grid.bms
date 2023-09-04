@@ -1,0 +1,45 @@
+# Defense Grid (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INPUT_NAME basename
+string INPUT_NAME -= 4
+string INPUT_NAME += "0"
+string INPUT_NAME += "0"
+string INPUT_NAME += "0"
+string INPUT_NAME += "0"
+set DGPNAME string INPUT_NAME
+string DGPNAME += ".dgp"
+
+open FDSE DGPNAME   # index file
+
+get DGP_FILES short
+get DUMMY short
+if DUMMY != 0x4844  # Steam version
+    goto 2
+endif
+for DGP = 1 <= DGP_FILES
+    set DGPNAME string INPUT_NAME
+    strlen TMP DGP
+    string DGPNAME -= TMP
+    string DGPNAME += DGP
+    string DGPNAME += ".dgp"
+    open FDSE DGPNAME 1
+
+    get FILES short
+    get DIRSZ long
+    math DIRSZ *= 2
+    getdstring DIR DIRSZ
+    set DIR unicode DIR
+    get DUMMY byte  # 1 or 0 doesn't matter
+    get OFFSET long
+    for i = 0 < FILES
+        get NAMESZ long
+        math NAMESZ *= 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        get SIZE long
+        get TSTAMP longlong
+        log NAME OFFSET SIZE 1
+        math OFFSET += SIZE
+    next i
+next DGP

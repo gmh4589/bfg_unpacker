@@ -1,0 +1,42 @@
+# AST script engine
+#   converted from GARBro (untested)
+
+codepage 932
+comtype lzss0
+
+idstring "ARC"
+get VER byte
+math VER - '0'
+get FILES long
+    get NEXT_OFF long
+for i = 1 <= FILES
+    math OFFSET = NEXT_OFF
+    get SIZE long
+    get NAMESZ byte
+    if VER == 2
+        filexor 0xff
+    endif
+    getdstring NAME NAMESZ
+    filexor ""
+    if i == FILES
+        get NEXT_OFF asize
+    else
+        get NEXT_OFF long
+    endif
+    xmath ZSIZE "NEXT_OFF - OFFSET"
+    if SIZE == ZSIZE
+
+        savepos TMP
+        goto OFFSET
+        get SIGN long
+        goto TMP
+        if SIGN == 0xB8B1AF76
+            filexor 0xff
+        endif
+        log NAME OFFSET SIZE
+    else
+        filexor 0xff    # ???
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    filexor ""
+next i

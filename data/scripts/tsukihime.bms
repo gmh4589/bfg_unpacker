@@ -1,0 +1,42 @@
+# Tsukihime: A piece of blue glass moon HED/NAM/MRG (script 0.1.2a)
+
+open FDDE "hed"
+open FDDE "nam" 1
+open FDDE "mrg" 2
+
+for
+    get OFFSET long
+    if OFFSET == 0xffffffff
+        break
+    endif
+    get ZSIZE short
+    get SIZE short
+
+    math OFFSET * 0x800
+    math ZSIZE  * 0x800
+    math SIZE   * 0x800
+
+    getdstring NAME 0x20 1
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE 2
+    else
+        goto OFFSET 2
+        idstring 2 "NX"
+        getdstring TYPE 2 2
+        if TYPE u== "CX"
+            comtype zlib
+        elif TYPE u== "GX"
+            comtype gzip
+        else
+            print "Error: unknown compression type %TYPE%"
+            cleanexit
+        endif
+        get SIZE long 2
+        get ZSIZE long 2
+        get ZERO long 2
+        savepos OFFSET 2
+        clog NAME OFFSET ZSIZE SIZE 2
+    endif
+next
+

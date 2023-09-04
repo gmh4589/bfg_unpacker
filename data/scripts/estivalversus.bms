@@ -1,0 +1,180 @@
+# Senran Kagura Estival Versus (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set PATH string ""
+set NAME string ""
+get EXT extension
+
+# experimental
+if EXT == "cat"
+    math i = -1
+    set PATH string ""
+    set NAME string ""
+    callfunction CAT_EXTRACT
+    cleanexit
+endif
+
+if EXT != "bin" && EXT != "tpk"
+    callfunction DUMP
+    cleanexit
+endif
+
+open FDDE "bin" 1
+open FDDE "tpk"
+get DUMMY long 1
+get DUMMY long 1
+get FILES long 1
+get ZERO long 1
+for i = 0 < FILES
+    get SIZE longlong 1
+    get OFFSET longlong 1
+    if SIZE != 0
+        set PATH string ""
+        string PATH p "%d/" i
+        callfunction CHECK_DUMP 1
+    endif
+next i
+
+startfunction CHECK_DUMP
+    goto OFFSET
+    get TMP1 long
+    get TMP2 long
+    get TMP3 long
+    get TMP4 long
+    goto OFFSET
+
+    math DO_DUMP = 0
+    if TMP1 == 1
+    if TMP2 == 1
+    if TMP4 == 0x40
+        math DO_DUMP = 1
+    endif
+    endif
+    endif
+    if DO_DUMP != 0
+        callfunction DUMP
+    else
+        log NAME OFFSET SIZE
+    endif
+endfunction
+
+startfunction DUMP
+    get DUMMY long  # 1
+    get DUMMY long  # 1
+    get ZERO long
+    get ALIGN long  # INFO_OFF
+    get SIZE long
+    get ENTRIES long
+    get FILES long
+    padding ALIGN
+    savepos BASE_OFF
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long
+
+    savepos OFFSET_OFF
+    xmath SIZE_OFF "OFFSET_OFF + (FILES * 4)"
+
+    math NAME_OFF = -1
+    for i = 0 < FILES
+        goto OFFSET_OFF
+        get OFFSET long
+        savepos OFFSET_OFF
+        math OFFSET + BASE_OFF
+
+        goto SIZE_OFF
+        get SIZE long
+        savepos SIZE_OFF
+
+        if NAME_OFF == -1
+            set NAME string ""
+        else
+            goto NAME_OFF
+            get NAME line
+            string NAME - 1
+            savepos NAME_OFF
+        endif
+        string NAME p "%s%s" PATH NAME
+
+        if i == 0   # 0 are the names!
+            math NAME_OFF = OFFSET
+        else
+            callfunction CHECK_DUMP 1
+        endif
+    next i
+endfunction
+
+# this is all a work-around, if it doesn't work,DO NOT work on this again!
+startfunction CAT_EXTRACT
+    savepos BCK_OFF
+    goto OFFSET
+    savepos BASE_OFF
+    get TYPE long
+    # this is a work-around!!!
+    if TYPE u> 0x100
+        set NAME string ""
+        if HAS_NAMES != 0
+        if i != 0
+            get NAME line MEMORY_FILE
+            string NAME - ","
+            string NAME + "."
+        else
+            log MEMORY_FILE OFFSET SIZE
+        endif
+        endif
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    else
+        get FILES long
+        get DUMMY_X long
+        get DUMMY100 long   # 0x100
+        if TYPE == 1
+            if i >= 0
+                string PATH + i
+                string PATH + /
+            endif
+
+            get SIZE long
+            get DUMMY long  # FILES and FOLDERS?
+            get DUMMY long
+            math OFFSET + DUMMY100
+            callfunction CAT_EXTRACT
+        else
+            if DUMMY100 == 0
+                math DUMMY100 = TYPE
+                goto -4 0 SEEK_CUR
+                math BASE_OFF + TYPE
+            else
+                get ZERO long
+            endif
+            for i = 0 < FILES
+                get OFFSET[i] long
+            next i
+            if TYPE == 0
+                math HAS_NAMES = 1
+                for i = 0 < FILES
+                    get SIZE[i] long
+                next i
+            else
+                math HAS_NAMES = 0  # yes it has names but it's a pain...
+                math OFFSET[i] = SIZE # DUMMY_X or SIZE?
+                for i = 1 <= FILES
+                    math TMP = OFFSET[i]
+                    math i - 1
+                    math SIZE[i] = TMP
+                    math SIZE[i] - OFFSET[i]
+                    math i + 1
+                next i
+            endif
+            for i = 0 < FILES
+                math OFFSET = OFFSET[i]
+                math SIZE   = SIZE[i]
+                math OFFSET + BASE_OFF
+                callfunction CAT_EXTRACT
+            next i
+        endif
+    endif
+    goto BCK_OFF
+endfunction

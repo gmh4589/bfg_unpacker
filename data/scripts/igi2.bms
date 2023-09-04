@@ -1,0 +1,36 @@
+# Project IGI 1 / 2 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ILFF"
+get RES_SIZE long
+goto 0x14
+set FNAME string ""
+for
+    padding 4
+    savepos TMP
+    if TMP >= RES_SIZE
+        cleanexit
+    endif
+
+    getdstring TAG 4
+    get SIZE long
+    get FOUR long
+    get ENTRYSZ long    # sometimes it's zero
+    if ENTRYSZ == 0
+        math ENTRYSZ = SIZE
+    else
+        math ENTRYSZ -= 0x10
+    endif
+
+    if TAG == "NAME"
+        getdstring FNAME ENTRYSZ
+        string FNAME -= "LOCAL:"
+    elif TAG == "BODY"
+        savepos OFFSET
+        log FNAME OFFSET SIZE
+        math OFFSET += ENTRYSZ
+        goto OFFSET
+    else
+        getdstring DUMMY ENTRYSZ
+    endif
+next

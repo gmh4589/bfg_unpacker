@@ -1,0 +1,40 @@
+# Baroque DIR/BIN
+#   No folders, sorry
+
+open FDDE "dir"
+open FDDE "bin" 1
+
+do
+    set PATH string ""
+    callfunction EXTRACT 1
+while NAME != ""
+
+startfunction EXTRACT
+    getdstring NAME 16
+    get DUMMY long
+    get FOLDERS long
+    get FILES long
+    get OFFSET long
+
+    string PATH + NAME
+    string PATH + /
+
+    savepos TMP
+    goto OFFSET
+    for i = 0 < FILES
+        getdstring NAME 16
+        get FLAGS long
+        get SIZE long
+        get OFFSET long
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE 1
+    next i
+    goto TMP
+
+    /*
+    no idea...
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    */
+endfunction

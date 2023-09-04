@@ -1,0 +1,29 @@
+# The Order 1886
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype oodle
+idstring "COMPRESS"
+get FULL_SIZE longlong
+get FULL_ZSIZE longlong
+math CHUNK_SIZE = 0x40000
+log MEMORY_FILE 0 0
+append 1    # due to OUT_OFF
+for MEM_SIZE = 0 != FULL_SIZE
+    xmath TMP "FULL_SIZE - MEM_SIZE"
+    if TMP u< CHUNK_SIZE
+        math CHUNK_SIZE = TMP
+    endif
+
+    get OUT_OFF longlong
+    get CHUNK_ZSIZE longlong
+    savepos OFFSET
+    goto OUT_OFF MEMORY_FILE
+    clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    math OFFSET + CHUNK_ZSIZE
+    goto OFFSET
+    get MEM_SIZE asize MEMORY_FILE
+next
+append
+get NAME filename
+string NAME + ".unpack"
+log NAME 0 FULL_SIZE MEMORY_FILE

@@ -1,0 +1,51 @@
+# 征途 The Journey Online / zt.qq.com / 2017_com.tencent.tmgp.seal FO/luac (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT & "lua"
+
+    set KEY string "o59qtDdctKvhH_q2SxYQCIDzYyJePBDPR_Tn3mq3rihBO4VJ3SRI8jCfKMqlRTeiq2pC613ZdnqSxr0cg_Jo-8CR7ePt3Prrp9WBWVnB2sau3h7JvM3iAFrPH9-cLZhP"
+    encryption xxtea KEY "0x9e3779b9 0" 0 16    # cocos2d
+
+    idstring "gjpZrQASbk0XnTrqlO0slhHatdOGXarpRs_NPp7cEQQMaaaxnyfrzYaqpdKT7_xPfGhqm6tALrfX_O_CtQCZ7-YlxXXG5Ae4U56Z5KTAeosryfxebnx53LatJc6IRDWc"
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    get NAME filename
+    log NAME OFFSET SIZE
+
+elif EXT == "fo"
+
+    idstring "\xdf\x06\x03\x00"
+    goto 0x10
+    get ENTRIES long
+    math ENTRY_SIZE = 0x80
+    math NEXT_OFF = 0x27118
+    xmath BASE_OFF "NEXT_OFF + (ENTRIES * ENTRY_SIZE)"
+    for i = 0 < ENTRIES
+        goto NEXT_OFF
+        math NEXT_OFF + ENTRY_SIZE
+        get ZERO long
+        get ZERO long
+        getdstring NAME 100
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get DUMMY long  # 0 for compressed, 9 for non-compressed
+        get SOME_CRC long
+        if SIZE != 0
+            math OFFSET + BASE_OFF
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+
+else
+
+    print "Error: unsupported file type %EXT%"
+    cleanexit
+
+endif

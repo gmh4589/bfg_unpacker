@@ -1,0 +1,42 @@
+# Oddworld: Munch's Oddysee
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get NAMES_SIZE long
+xmath NAMES_OFF "8 + (FILES * 0x14)"
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get NAMESZ long
+    get NAME_OFF long   # invalid, final NULL missing
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAME string
+    savepos NAMES_OFF
+
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "defT"
+        get CHUNK_SIZE long
+        get SIZE long
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != SIZE
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET + CHUNK_ZSIZE
+            goto OFFSET
+            get MEM_SIZE asize MEMORY_FILE
+        next
+        append
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+
+    goto TMP
+next i

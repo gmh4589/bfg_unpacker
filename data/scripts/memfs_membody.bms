@@ -1,0 +1,48 @@
+# Jakou no Lyla: Allure of Musk (memfs/membody)
+#   experimental, there are more filenames than files
+
+open FDDE "memfs"
+open FDDE "membody" 1
+
+idstring "RSON"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0
+    get TYPE1 byte
+    get TYPE2 byte
+    get TYPE3 byte
+    get TYPE4 byte
+    if TYPE4 & 0x20
+    else
+        break
+    endif
+    get OFFSET long
+    if TYPE4 & 0x10
+    else
+        get SIZE long
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+        math i + 1
+    endif
+next
+math FILES = i
+goto -4 0 SEEK_CUR
+for i = 0
+    get TYPE byte
+    if TYPE != 0x88
+        break
+    endif
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get ZERO short
+    set NAME unicode NAME
+    putarray 2 i NAME
+next i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray NAME   2 i
+    log NAME OFFSET SIZE 1
+next i

@@ -1,0 +1,20 @@
+endian big
+get RSB_SIZE asize
+idstring "1bsr"
+for OFFSET = 0 < RSB_SIZE
+    getdstring SIGN 4
+    if SIGN == "caff"
+        math OFFSET += 0xff0
+        goto OFFSET
+        idstring "data"
+        get DUMMY long
+        get SIZE long
+        get DUMMY long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math OFFSET += SIZE
+        goto OFFSET
+    endif
+    padding 0x1000
+    savepos OFFSET
+next

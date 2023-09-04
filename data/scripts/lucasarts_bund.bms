@@ -1,0 +1,41 @@
+# LucasArts BUND BNHD BNDT (script 0.1.1)
+
+endian big
+idstring "BUND"
+get BUNDLE_SIZE long
+idstring "BNHD"
+get ENTRY_SIZE long
+savepos ENTRY_OFF
+endian little
+get SOME_FIELD short    # 0xc or 0x14
+get ZERO long
+get ALIGN long  # 0x800
+get FILES long
+getdstring DUMMY 0x14
+if SOME_FIELD >= 0x14
+    getdstring PATH 0xc8
+endif
+getdstring DUMMY 0x10000
+savepos INFO_OFF
+
+xmath BASE_OFF "ENTRY_OFF + ENTRY_SIZE"
+get TMP asize
+if BASE_OFF >= TMP
+    cleanexit
+endif
+goto BASE_OFF
+idstring "BNDT"
+get ENTRY_SIZE long # big endian
+savepos BASE_OFF
+
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0xc8
+    get SIZE long
+    get OFFSET long
+    getdstring ZERO 0x2c
+
+    # NAME is obfuscated in some way
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

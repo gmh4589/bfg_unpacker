@@ -1,0 +1,144 @@
+# Constructor (script 0.1a)
+#   based on the slightly different format and encryption from https://github.com/shlainn/game-file-formats/wiki/Constructor
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+
+if EXT == "FIL"
+
+    get FIL_SIZE asize
+
+    get FILES long
+    math FILES ^ 0x3BD7A59A
+
+    # 2 versions of file without any identifier: 13+long or 0x28+longlong
+    math NAMESZ = 13
+
+    callfunction FIL_HEADER_DECRYPT 1
+
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    if OFFSET == 0 || OFFSET u> FIL_SIZE
+        math NAMESZ = 0x28
+        callfunction FIL_HEADER_DECRYPT 1
+    endif
+
+    for i = 0 < FILES
+        getdstring NAME NAMESZ MEMORY_FILE
+        if OFFSETSZ == 4
+            get OFFSET long MEMORY_FILE
+        else
+            get OFFSET longlong MEMORY_FILE
+        endif
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+    callfunction OFFSET_ONLY_EXTRACT 1
+
+elif EXT == "SHD" || EXT == "SPR"
+
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i ""
+        putarray 1 i OFFSET
+    next i
+    callfunction OFFSET_ONLY_EXTRACT 1
+
+elif EXT == "INI"
+
+    math METHOD = 0
+    get TMP byte
+    math operand = 0
+    xmath TMP "((TMP + 45 + i) ^ 0x96) + (91 - operand)"
+    if TMP != ';' && TMP != '['
+        math METHOD = 1
+    endif
+
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    math operand = 0
+    for i = 0 < SIZE
+        getvarchr TMP MEMORY_FILE i
+        if METHOD == 0
+            xmath TMP "((TMP + 45 + i) ^ 0x96) + (91 - operand)"
+        else
+            xmath TMP "((TMP + 0x6b + i) ^ 0x3a) + (0xc3 - operand)"
+        endif
+        math operand = TMP
+        putvarchr MEMORY_FILE i TMP
+    next i
+    callfunction DUMP_MEMFILE 1
+
+elif EXT == "DAT"
+
+    print "Use http://aluigi.org/bms/iff_form.bms"
+    cleanexit
+
+elif NAME & "TEXT"
+
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    math operand = 0
+    for i = 0 < SIZE
+        getvarchr TMP MEMORY_FILE i
+        xmath TMP "((TMP + 0x6b + i) ^ 0x3a) + (0x3c - operand)"
+        #xmath TMP "(((TMP + operand) - 0xc3) ^ 0x3a) - (0x6b + i)"
+        math operand = TMP
+        putvarchr MEMORY_FILE i TMP
+    next i
+    callfunction DUMP_MEMFILE 1
+
+else
+
+    print "Error: unsupported extension %EXT%"
+    cleanexit
+
+endif
+
+startfunction FIL_HEADER_DECRYPT
+    if NAMESZ <= 13
+        math OFFSETSZ = 4
+    else    # 0x28
+        math OFFSETSZ = 8
+    endif
+    xmath SIZE "FILES * (NAMESZ + OFFSETSZ)"
+    savepos TMP
+    log MEMORY_FILE TMP SIZE
+    for i = 0 < SIZE
+        getvarchr TMP MEMORY_FILE i
+        xmath TMP "((TMP - 39) ^ 0xa5) - (27 + i)"
+        putvarchr MEMORY_FILE i TMP
+    next i
+endfunction
+
+startfunction OFFSET_ONLY_EXTRACT
+        get OFFSET asize
+        putarray 1 i OFFSET
+
+    sortarray 1 1
+
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        if OFFSET != 0
+            getarray SIZE   1 i
+            if SIZE == 0
+                get SIZE asize
+            endif
+            math SIZE - OFFSET
+            if SIZE != 0
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next
+endfunction
+
+startfunction DUMP_MEMFILE
+    get NAME basename
+    string NAME + "_dec."
+    string NAME + EXT
+    log NAME 0 SIZE MEMORY_FILE
+endfunction

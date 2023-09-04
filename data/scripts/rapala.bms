@@ -1,0 +1,31 @@
+# Rapala Pro Fishing (Xbox)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -0x800
+idstring "ARC\0"
+get DUMMY long
+get OFFSET long
+get SIZE long
+get ZSIZE long
+get FILES long
+
+math OFFSET *= 0x800
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+for i = 0 < FILES
+    idstring MEMORY_FILE "ARCH"
+    get OFFSET long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get ZIP long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+
+    math OFFSET *= 0x800
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

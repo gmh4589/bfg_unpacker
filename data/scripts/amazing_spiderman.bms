@@ -1,0 +1,39 @@
+# decompresses the *.pkz files from The Amazing Spider-Man (PC)
+# no extraction of individual files at the moment (TOC offsets don't fit)
+# (c) 2012-10-09 by AlphaTwentyThree of XeNTaX
+
+comtype zlib_noerror
+get IDENT long
+if IDENT == 0xb0b1bEbA
+   endian big
+elif IDENT == 0xbabeb1b0
+else
+   cleanexit
+endif
+get DATA_OFF long              # start of compressed data
+get NAME basename
+string NAME += ".header"
+log NAME 0 DATA_OFF            # write header to disk for later research
+get BLOCKSIZE long             # length of one zlib block
+get LOOPS asize                # calculate the number of loops
+math LOOPS -= DATA_OFF
+math LOOPS /= BLOCKSIZE
+# memory pre-allocation
+get SIZE asize
+math SIZE -= DATA_OFF
+math SIZE *= 10
+putVarChr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+set OFFSET DATA_OFF  # initialize first offset
+set SIZE BLOCKSIZE
+math SIZE *= 10      # set decompressed size to some default
+append
+for i = 1 <= LOOPS
+   clog MEMORY_FILE OFFSET BLOCKSIZE SIZE # decompress block to memory
+   math OFFSET += BLOCKSIZE               # jump to next block
+next i
+append
+get NAME basename
+string NAME += ".decomp"
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

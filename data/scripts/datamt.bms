@@ -1,0 +1,21 @@
+# MediaTonic Generic Archive / datamt.pak
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "ZLCP"
+        math ZSIZE = SIZE
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

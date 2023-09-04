@@ -1,0 +1,11 @@
+# Galactix
+
+get FILES long
+idstring "GLIB FILE"
+goto 0x1c
+for i = 0 < FILES
+    get OFFSET long
+    getdstring NAME 0x16
+    get SIZE short
+    log NAME OFFSET SIZE
+next i

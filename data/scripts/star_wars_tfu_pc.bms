@@ -1,0 +1,33 @@
+open FDDE pcd 0
+open FDDE pcp 1
+
+get UNK long 0
+get UNK long 0
+get FILES long 0
+get NAMESTART long 0
+set NAMEOFF FILES
+math NAMEOFF *= 0x1c
+math NAMEOFF += 0x10
+math NAMEOFF += NAMESTART # only in some files
+get FOLDER basename
+string FOLDER += "/"
+for i = 1 <= FILES
+   get CRC long 0
+   get OFFSET long 0
+   get OFFSET2 long 0
+   get SIZE long 0
+   get FFFF long 0
+   get UNK long 0
+   get ZERO long 0
+   savepos MYOFF 0
+   goto NAMEOFF 0
+   get NAMEL long 0
+   getDstring NAME NAMEL 0
+      #set NAME2 FOLDER
+      #string NAME2 += NAME
+      #set NAME NAME2
+   savepos NAMEOFF 0
+   string NAME += ".pcm"
+   log NAME OFFSET SIZE 1
+   goto MYOFF 0
+next i

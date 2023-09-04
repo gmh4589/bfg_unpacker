@@ -1,0 +1,53 @@
+# Lego Island WORLD.WDB images dumper
+# scrip for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE2 binary "\x42\x4d\x36\x00\x03\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x01\x00\x18\x00\x00\x00\x00\x00\x00\x00\x03\x00\xc4\x0e\x00\x00\xc4\x0e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+for
+    findloc OFFSET string ".GIF"
+    do
+        math OFFSET - 1
+        goto OFFSET
+        get TMP byte
+    while TMP != 0
+    goto -4 0 SEEK_CUR
+
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get X long
+    get Y long
+    get PALETTE long
+    if Y u< 0x1000
+        for j = 0 < PALETTE
+            get TMP1 byte
+            get TMP2 byte
+            get TMP3 byte
+            xmath TMP "(TMP1 << 16) | (TMP2 << 8) | TMP3"
+            putarray 0 j TMP long
+        next j
+        savepos OFFSET
+
+        xmath SIZE "X * Y"
+        set NAME basename NAME
+        string NAME + ".bmp"
+        log MEMORY_FILE 0 0x36 MEMORY_FILE2
+        goto 0x36 MEMORY_FILE
+        for j = 0 < SIZE
+            get IDX byte
+            getarray RGB 0 IDX
+            put RGB threebyte MEMORY_FILE
+        next j
+        get MEM_SIZE asize MEMORY_FILE
+        putvarchr MEMORY_FILE 2 MEM_SIZE long
+        math X n X
+        putvarchr MEMORY_FILE 0x12 X long
+        math Y n Y
+        putvarchr MEMORY_FILE 0x16 Y long
+        putvarchr MEMORY_FILE 0x1c 24 long
+        xmath TMP "X * Y * 3"
+        putvarchr MEMORY_FILE 0x22 TMP long
+        log NAME 0 MEM_SIZE MEMORY_FILE
+
+        math OFFSET + SIZE
+        goto OFFSET
+    endif
+next

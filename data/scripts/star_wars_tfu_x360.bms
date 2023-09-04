@@ -1,0 +1,39 @@
+# extract the xd/xd source files from Star Wars: The Force Unleashed (Xbox 360)
+# (c) 2015-11-16 by AlphaTwentyThree of Xentax
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE xd 0
+open FDDE xp 1
+
+endian big
+get UNK long 0
+get UNK long 0
+get FILES long 0
+get NAMESTART long 0
+set NAMEOFF FILES
+math NAMEOFF *= 0x1c
+math NAMEOFF += 0x10
+math NAMEOFF += NAMESTART # only in some files
+get FOLDER basename
+string FOLDER += "/"
+get FSIZE asize 1
+for i = 1 <= FILES
+   get CRC long 0
+   get OFFSET long 0
+   get OFFSET2 long 0
+   get SIZE long 0
+   get FFFF long 0
+   get UNK long 0
+   get ZERO long 0
+   savepos MYOFF 0
+   goto NAMEOFF 0
+   get NAMEL long 0
+   getDstring NAME NAMEL 0
+   savepos NAMEOFF 0
+   math OFFSET2 -= 0x800
+   xmath TEST "OFFSET2 + SIZE"
+   if TEST <= FSIZE
+      log NAME OFFSET2 SIZE 1
+   endif
+   goto MYOFF 0
+next i

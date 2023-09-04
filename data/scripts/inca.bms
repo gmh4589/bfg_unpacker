@@ -1,0 +1,22 @@
+# Inca
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 0xd
+    get SIZE long
+    get OFFSET long
+    get ZIP byte
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        savepos OFFSET
+        math SIZE - 4
+        clog NAME OFFSET SIZE XSIZE
+        goto TMP
+    endif
+next i

@@ -1,0 +1,125 @@
+# The Lord of the Rings: War in the North (WB/PAQ) (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MAIN_EXT extension
+
+getdstring PLATFORM 4   # offset is automatically set to zero
+if PLATFORM == "ps3"
+    endian big
+endif
+if PLATFORM & "wii"
+    endian big
+endif
+if PLATFORM == "x360"   # ???
+    endian big
+endif
+endian save CURRENT_ENDIAN
+
+set FNAME string ""
+math OFFSET = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos OLD_OFFSET
+    goto OFFSET
+    savepos ARCHIVE_OFFSET
+
+    getdstring PLATFORM 4   # "pc\0\0" "ps3\0" and so on
+    get FLOAT_TYPE long
+    get ARCHIVE_SIZE long
+    get DUMMY long
+    get BASE_OFF long
+    math BASE_OFF + ARCHIVE_OFFSET
+    padding 0x80
+    savepos NAMES_OFF
+
+    math TOTAL = 0
+    if FLOAT_TYPE == 0x40000000
+        get TYPE long   # 8
+        get FILES long
+        for i = 0 < FILES
+            get NAME_OFF long
+            get NAMESZ long
+            get FOLDER_OFF long
+            get FOLDERSZ long
+            get DUMMY long
+            get TYPE long
+            if CURRENT_ENDIAN == 0
+                get OFFSET long
+                get SIZE long
+            else
+                get SIZE long
+                get OFFSET long
+            endif
+
+            math OFFSET + BASE_OFF
+            savepos TMP
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            getdstring NAME NAMESZ
+            math FOLDER_OFF + NAMES_OFF
+            goto FOLDER_OFF
+            getdstring FOLDER FOLDERSZ
+            string FNAME p "%s/%s" FOLDER NAME
+            goto TMP
+
+            if SIZE != 0
+                # log FNAME OFFSET SIZE
+                callfunction EXTRACT
+
+                math TOTAL + SIZE
+            endif
+        next i
+    endif
+
+    if TOTAL == 0
+        math OFFSET = BASE_OFF
+        math SIZE = ARCHIVE_SIZE
+        goto OFFSET
+        get DUMMY long
+        get SIGN long
+        if SIGN == 0x61754c1b
+            math OFFSET + 4
+            math SIZE   - 4
+        endif
+        string FNAME + "."
+
+        if MAIN_EXT == "wb"
+            callfunction WB_DUMP    # no keep_var!
+        else
+            log FNAME OFFSET SIZE
+        endif
+    endif
+
+    goto OLD_OFFSET
+endfunction
+
+startfunction WB_DUMP
+    goto OFFSET
+    get DATA_OFF long
+    get INFO_OFF long
+    math INFO_OFF + BASE_OFF
+    math INFO_OFF - 2
+    goto INFO_OFF
+    get FILES short
+    for i = 0 < FILES
+        get OFFSET long
+        get RIFF_OFF long
+        get SIZE long
+        get RIFF_SIZE long
+        getdstring DUMMY 0x20
+
+        math OFFSET + BASE_OFF
+        math OFFSET + DATA_OFF
+        math RIFF_OFF + BASE_OFF
+        log MEMORY_FILE 0 0
+        append
+        log MEMORY_FILE RIFF_OFF RIFF_SIZE
+        putdstring "data" 4 MEMORY_FILE
+        put SIZE long MEMORY_FILE
+        log MEMORY_FILE OFFSET SIZE
+        append
+        get SIZE asize MEMORY_FILE
+        log "" 0 SIZE MEMORY_FILE
+    next i
+endfunction

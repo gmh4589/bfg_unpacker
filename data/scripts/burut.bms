@@ -1,0 +1,74 @@
+# Burut Creative Team games / Ubersoldier II / Golden Horde (script 0.1.2)
+#   collection of keys from http://int0thegame.blogspot.com/2008/04/burut-creative-team-engine-pak.html
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.4" # filexor with negative offset
+
+idstring "PAK "
+get VER long
+savepos OFFSET
+
+putarray 0 -1 "234,52,210,220,41,234,52,210,220,41,234,52,210,220,41"       # m_array_retail string
+putarray 0 -1 "201,210,205,25,166,201,210,205,25,166,201,210,205,25,166"    # m_array_itsp
+putarray 0 -1 "234,35,146,18,45,234,35,146,18,45,234,35,146,18,45"          # m_array_rus
+putarray 0 -1 "74,212,210,171,61,74,212,210,171,61,74,212,210,171,61"       # m_array_retail_Fate_Of_Hellas
+putarray 0 -1 "185,45,205,234,35,146,25,166,119,53,53,234"                  # m_array_US2_Eglish
+putarray 0 -1 "25,239,24,238,222"                                           # The Golden Horde (demo)
+putarray 0 -1 "\x9c\x2d\xcd\x91\xa6"
+putarray 0 -1 ""
+
+# scan
+savepos TMP
+for KEY_NUM = 0
+    getarray KEY 0 KEY_NUM
+    if KEY == ""
+        print "Error: there is no key available for this game, contact me"
+        cleanexit
+    endif
+    filexor KEY 0
+    get ZERO1 long
+    get ZERO2 long
+    goto TMP
+    if ZERO1 u<= 0x100 && ZERO2 u<= 0x100   # try to guess, areas_add.pak is 0,4
+        break
+    endif
+next KEY_NUM
+print "KEY %KEY%"
+
+filexor KEY 0
+get ZERO long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    filexor KEY 0
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZIP long
+    get SIZE long
+    get ZSIZE long
+    get SOME_CRC long
+
+    putvarchr MEMORY_FILE ZSIZE 0
+    math TMP = ZSIZE
+    if TMP > 0x100
+        math TMP = 0x100
+    endif
+    math KEY_OFF = OFFSET
+    math KEY_OFF - SIZE
+    filexor KEY KEY_OFF
+    log MEMORY_FILE OFFSET TMP
+    filexor ""
+    math OFFSET + TMP
+    math ZSIZE  - TMP
+    append
+    log MEMORY_FILE OFFSET ZSIZE
+    append
+    math ZSIZE  + TMP
+
+    if ZIP != 0 # was ZSIZE != SIZE    # only one file of areas_add.pak
+        clog NAME 0 ZSIZE SIZE MEMORY_FILE
+    else
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next i

@@ -1,0 +1,34 @@
+# VFS Ea Co,LTD
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VFS Ea Co,LTD"
+goto 0x10
+get INFO_OFF1 long
+get INFO_OFF2 long
+
+goto INFO_OFF1
+callfunction EXTRACT 1
+
+goto INFO_OFF2
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    set PATH string ""
+    for
+        for
+            get NAME string
+            getvarchr TMP NAME 0
+            if TMP != '/'
+                break
+            endif
+            string PATH = NAME
+        next
+        if NAME == ""
+            break
+        endif
+        get SIZE long
+        get OFFSET long
+        string FNAME p= "%s/%s" PATH NAME
+        log FNAME OFFSET SIZE
+    next
+endfunction

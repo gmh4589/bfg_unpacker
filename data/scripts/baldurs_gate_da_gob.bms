@@ -1,0 +1,12 @@
+# extracts *.GOB archives from "Baldur's Gate: Dark Alliance" (PS2)
+# (c) 2013-06-28 by AlphaTwentyThree of XeNTaX
+
+for
+   getDstring NAME 0x20
+   get OFFSET long
+   get SIZE long
+   if NAME == ""
+      cleanexit
+   endif
+   log NAME OFFSET SIZE
+next

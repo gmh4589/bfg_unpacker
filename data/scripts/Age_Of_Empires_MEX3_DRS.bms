@@ -1,0 +1,16 @@
+# Age Of Empires MEX3 (DRS)
+
+IDString 0 Copyright ;
+Set ST Long 68 ;
+GoTo ST 0 ;
+Get ST Long 0 ;
+Get FC Long 0 ;
+For TE = 1 To FC ;
+GoTo ST 0 ;
+Get D Long 0 ;
+Get FO Long 0 ;
+Get FS Long 0 ;
+SavePos ST 0 ;
+Log "" FO FS 0 0 ;
+Next TE ;
+

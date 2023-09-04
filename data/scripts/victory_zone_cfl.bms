@@ -1,0 +1,24 @@
+# Victory Zone - *.CFL
+
+open FDDE "CFL" 0
+
+get CLF_SIZE asize 0
+
+get FILES long
+xmath HEADER_LIMIT "FILES * 0x14 + 4"
+putarray 0 0 HEADER_LIMIT
+for i = 0 < FILES
+	getdstring NAME 0x10
+	get OFFSET long
+	savepos TMP1
+	xmath NOFF1 "TMP1 + 0x10"
+	goto NOFF1
+	if NOFF1 u> HEADER_LIMIT
+		xmath SIZE "CLF_SIZE - OFFSET"
+	else
+		get NEXT_OFFSET long
+		xmath SIZE "NEXT_OFFSET - OFFSET"
+	endif
+	log NAME OFFSET SIZE
+	goto TMP1
+next i

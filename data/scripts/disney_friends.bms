@@ -1,0 +1,40 @@
+# Disney Friends (rom.bin)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+math FILES / 4
+goto 0
+
+get NAME basename
+get EXT extension
+string NAME p "%sFileNames.%s" NAME EXT
+open FDSE NAME 1 EXISTS
+
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+    if EXISTS == 0
+        math NAME_OFF = -1
+    else
+        get NAME_OFF long 1
+    endif
+    putarray 1 i NAME_OFF
+next i
+math FILES - 1  # the last entry is the delimiter
+
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray NAME_OFF 1 i
+    math i + 1
+    getarray SIZE     0 i
+    math SIZE - OFFSET
+    if NAME_OFF < 0
+        set NAME string ""
+    else
+        getarray NAMESZ   1 i
+        math NAMESZ - NAME_OFF
+        goto NAME_OFF 1
+        getdstring NAME NAMESZ 1
+    endif
+    log NAME OFFSET SIZE
+next

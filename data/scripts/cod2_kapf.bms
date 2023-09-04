@@ -1,0 +1,62 @@
+# Call of Duty 2: Big Red One (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math WORKAROUND = 0
+math MAIN_OFFSET = 0x8000
+
+idstring "KAPF"
+get DUMMY1 long
+get OFFSET1 long
+get ENTRIES long
+get OFFSET3 long
+get NAMES_OFF long
+get END_OFFSET long
+
+goto OFFSET1
+for ENTRY = 0 < ENTRIES
+    getdstring TYPE 12
+    get DUMMY short
+    get FILES short
+    get OFFSET1 long
+    get OFFSET2 long
+    savepos TMP_OFF
+
+    goto OFFSET1
+    get BASE_OFF long
+    get DATA_SIZE1 long
+    get DATA_SIZE2 long # they are usually the same
+
+    #math OLD_MAIN_OFFSET = MAIN_OFFSET
+
+    goto OFFSET2
+    for i = 0 < FILES
+        get SHORTNAME_OFF long
+        get NAME_OFF long
+        get SIZE long
+        get SOMETHING long  # 0 or 1
+        get OFFSET long
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        if WORKAROUND == 0
+            math OFFSET + BASE_OFF
+        elif WORKAROUND == 1
+            math OFFSET = BASE_OFF
+            math BASE_OFF + SIZE
+            math BASE_OFF x 0x800
+        elif WORKAROUND == 2
+            math OFFSET = MAIN_OFFSET
+            math MAIN_OFFSET + SIZE
+            math MAIN_OFFSET x 0x800
+        endif
+        log NAME OFFSET SIZE
+    next i
+
+    #math MAIN_OFFSET = OLD_MAIN_OFFSET
+    #math MAIN_OFFSET + DATA_SIZE2
+
+    goto TMP_OFF
+next ENTRY

@@ -1,0 +1,35 @@
+# Resident Evil 7 / Biohazard 7 (PAK format)
+# Resident Evil 2 / Biohazard RE:2 "1-Shot" Demo (PAK format)
+# Written by Ekey (h4x0r)
+# 
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KPKA"
+get VERSION long
+get FILES long
+get DUMMY0 long
+
+for i = 0 < FILES
+   get NAME_CRC_L long
+   get NAME_CRC_U long
+   get OFFSET longlong
+   get ZSIZE longlong
+   get SIZE longlong
+   get FLAG longlong
+   get DUMMY2 long
+   get DUMMY3 long
+   namecrc NAME NAME_CRC_L "re2_pak_names_demo.list" 32
+   
+   math FLAG &= 0xF
+   if FLAG == 0
+      log NAME OFFSET SIZE
+   else if FLAG == 1
+      comtype deflate
+      clog NAME OFFSET ZSIZE SIZE
+   else if FLAG == 2
+      comtype zstd
+      clog NAME OFFSET ZSIZE SIZE
+   else
+      log NAME OFFSET SIZE
+   endif
+next i

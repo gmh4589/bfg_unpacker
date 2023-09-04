@@ -1,0 +1,15 @@
+# Rayman 2 (Dreamcast) *.DCZ
+
+get INFO_SIZE long
+get DUMMY short # 2
+get DUMMY short # 0xcccc
+get FILES long
+get DUMMY long  # 0xcccccccc
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZERO short
+    getdstring NAME 0x22
+    math OFFSET * 0x800
+    log NAME OFFSET SIZE
+next i

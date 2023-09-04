@@ -1,0 +1,62 @@
+# GameStudio WRS
+#   A4, A5, A6, A7, A8 engine and so on
+#   Supercan, CSIS, Neck & Heart, Adventures of Ambages, Razor, Razor 2,
+#   Whistler & Aspen, C4 Robot, Kabus22, Neon, Quedlinburg,
+#   Bus Simulator, Bagger Simulator, Bad Rats: The Rats' Revenge,
+#   many others
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+endian big
+idstring "WRS"
+getdstring VER 1
+get WRS_SIZE asize
+set MYXOR binary "\x00\x00"
+if VER <= "3"
+    if VER == "2"
+        set MYXOR binary "\xa5"
+    elif VER == "3"
+        set MYXOR binary "\xb5"
+    else
+        savepos TMP
+        getdstring NAME 0x20
+        goto TMP
+        strlen TMP NAME
+        math TMP -= 4   # ".ext"
+        getvarchr TMP NAME TMP
+        math TMP ^= 0x2e
+        putvarchr MYXOR 0 TMP
+    endif
+    savepos OFFSET
+    for OFFSET = OFFSET < WRS_SIZE
+        getdstring NAME 0x20
+        string NAME ^= MYXOR
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+        goto OFFSET
+    next
+elif VER == "4"
+    set MYXOR binary "\xaa"
+    get INFO_OFF long
+    savepos OFFSET
+    goto INFO_OFF
+    get INFO_ZSIZE long
+    get INFO_SIZE long
+    savepos INFO_OFF
+    clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE
+    for INFO_OFF = 0 < INFO_SIZE
+        getdstring NAME 0x20 MEMORY_FILE
+        string NAME ^= MYXOR
+        get ZSIZE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        savepos INFO_OFF MEMORY_FILE
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+    next
+else
+    print "unsupporter GameStudio version %VER%, contact me"
+    cleanexit
+endif

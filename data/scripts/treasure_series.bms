@@ -1,0 +1,43 @@
+# Treasure Series
+
+math FILES = 0x7fffffff
+
+getdstring SIGN 2
+if SIGN == "MR"
+    getdstring SIGN2 2
+else
+    goto 0
+    get EXT extension
+    if EXT == "pak"
+        get FILES long
+        get DUMMY short
+        get DUMMY short
+    endif
+endif
+
+for i = 0 < FILES
+    if EXT == "pak"
+        get OFFSET short
+        math OFFSET << 4
+    else
+        get OFFSET long
+    endif
+    putarray 0 i OFFSET
+    if i == 0
+    if FILES == 0x7fffffff
+        xmath FILES "(OFFSET - 4) / 4"
+    endif
+    endif
+next i
+
+get SIZE asize
+putarray 0 i SIZE
+sortarray 0
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE 0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

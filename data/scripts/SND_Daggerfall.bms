@@ -1,0 +1,17 @@
+<bms games="'Daggerfall'" platforms="'PC'" ext="SND">
+Get FC Int 0 ;
+Set TAIL Long FC ;
+Math TAIL *= 8 ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+Math END -= TAIL ;
+Math END += 1 ;
+GoTo END 0 ;
+Set OFF Long 4 ;
+For T = 1 To FC ;
+Get FN Long 0 ;
+Get SIZE Long 0 ;
+Log FN OFF SIZE 0 0 ;
+Math OFF += SIZE ;
+Next T ;
+</bms>

@@ -1,0 +1,22 @@
+# D2 (Dreamcast) CTS
+# script for QuickBMS http://quickbms.aluigi.org
+
+for EXTRACT = 0 < 2
+    goto 0
+    idstring "CTS\0"
+    get FILES long
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get TYPE long
+        get SIZE long
+        getdstring NAME 0x1c
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            string NAME p "%d/%s" TYPE NAME
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+    math BASE_OFF x 0x800
+next EXTRACT

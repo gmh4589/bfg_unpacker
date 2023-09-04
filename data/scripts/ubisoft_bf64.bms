@@ -1,0 +1,62 @@
+# Naruto: The Broken Bond
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BF64"
+get VER long
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+getdstring DUMMY 8
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get NEXT_OFF longlong
+
+goto DUMMY9
+set PATH string ""
+do
+    get DUMMY long
+    getdstring DUMMY 12
+    getdstring NAME 0x40
+    get ENTRIES long
+    string PATH + /
+    string PATH + NAME
+while NAME != ""
+
+for NEXT_OFF == NEXT_OFF != 0xffffffffffffffff
+    goto NEXT_OFF
+    get FILES long
+    get NEXT_OFF longlong
+    for i = 0 < FILES
+        get DUMMY1 long
+        get OFFSET longlong
+        get SIZE long
+        get SOME_ID long
+        get SOME_ID long
+        get DUMMY long
+        get TSTAMP long
+        getdstring NAME 0x40
+        getdstring DUMMY 0x25
+        get SOME_CRC long
+
+        if OFFSET != 0xffffffffffffffff
+            savepos TMP
+            goto OFFSET
+            get XSIZE long
+            savepos OFFSET
+            math OLD_SIZE = SIZE
+            math SIZE - 4
+            goto TMP
+
+            string NAME p "%s%s" PATH NAME
+            if OLD_SIZE == XSIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET SIZE XSIZE
+            endif
+        endif
+    next i
+next

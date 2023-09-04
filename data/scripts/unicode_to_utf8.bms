@@ -1,0 +1,19 @@
+get LBF_SIZE asize
+for TMP_OFF = 0 < LBF_SIZE
+    callfunction GET_DATA 1
+    set NAME string DATA
+    callfunction GET_DATA 1
+    savepos TMP_OFF
+
+    log MEMORY_FILE 0 0
+    putct DATA string -1 MEMORY_FILE
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+next
+
+startfunction GET_DATA
+    get DATASZ variable2
+    math DATASZ * 2
+    getdstring DATA DATASZ
+    set DATA unicode DATA
+endfunction

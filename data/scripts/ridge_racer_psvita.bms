@@ -1,0 +1,49 @@
+# Ridge Racer PS Vita
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.9.1"
+
+open FDSE "cmFileListDisc.info"
+open FDSE "RRN.DAT" 1
+
+comtype lzrrv
+
+# the first two lines are the size of RRN.DAT and another bigger archive but some versions may have only one archive
+do
+    savepos OLD_OFF
+    get TMP line
+    string ELEMENTS S TMP ARCHIVE_SIZE DUMMY    # need at least two elements
+    putarray 0 -1 ARCHIVE_SIZE
+while ELEMENTS == 1
+goto OLD_OFF
+math ARCHIVE = 0
+
+for
+    get TMP line
+    string ELEMENTS S TMP NAME OFFSET XSIZE START_SOMETHING END_SOMETHING ZIP ZSIZE SIZE DUMMY
+    if ELEMENTS == 0
+        # there is an empty line between archives
+        #break
+        math ARCHIVE + 1
+        getarray ARCHIVE_SIZE 0 ARCHIVE
+        xmath ARCHIVE_SIZE "(ARCHIVE_SIZE / 1024) / 1024"
+        print "\nPlease type the name of the other archive having a size of %ARCHIVE_SIZE% Mb, or just press RETURN to quit (ignore the error)"
+        open FDSE "???" 1
+    elif ELEMENTS >= 3
+        math OFFSET * 0x800
+        math XSIZE  * 0x800
+        if ZIP == 0
+            log NAME OFFSET XSIZE 1
+        else
+            # useless zeroes without any meaning...
+            goto OFFSET 1
+            do
+                get TMP byte 1
+            while TMP == 0
+            goto -1 1 SEEK_CUR
+            savepos OFFSET 1
+
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    endif
+next

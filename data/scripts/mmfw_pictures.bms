@@ -1,0 +1,24 @@
+# MMFW Pictures - School Puzzle (script 0.1.1)
+
+endian big
+idstring "MMFW"
+/*
+goto 0x60
+get ZERO long
+get FILES long
+math FILES & 0x00ffffff # eh no, it's not the number of files...
+*/
+goto 0x24
+
+get MMFW_SIZE asize
+
+    get OFFSET long
+for i = 0 #< FILES
+    get NEXT_OFF long
+    if NEXT_OFF u>= MMFW_SIZE
+        break
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

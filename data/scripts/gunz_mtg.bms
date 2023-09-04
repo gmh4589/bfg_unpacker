@@ -1,0 +1,73 @@
+# GunZ MTG
+
+set MEMORY_FILE10 string "
+void MTG_decrypt(unsigned char *data, int size) {
+    int     i;
+    unsigned char al;
+    for(i = 0; i < size; i++) {
+        al = data[i];
+        al = (al >> 4) | (al << 4);
+        al ^= 0x5C;
+        al += 0xE6;
+        al ^= 0x39;
+        al += 0x7B;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBA;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBB;
+        al -= 0xBA;
+        al ^= 0x2D;
+        al += 0x29;
+        al += 0xE9;
+        al += 0xFF;
+        al += 0x9C;
+        al -= 0xC1;
+        data[i] = al;
+    }
+}
+"
+
+ComType deflate # method 8
+for
+    encryption calldll "MEMORY_FILE10 MTG_decrypt tcc RET #INPUT# #INPUT_SIZE#"
+    filecrypt 1
+
+    get MAGIC long
+    if MAGIC != 0x04034b50
+        break
+    endif
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    filecrypt 0
+    encryption "" ""
+
+    if method == 0
+        Log name offset uncomp_size
+    else
+        CLog name offset comp_size uncomp_size
+    endif
+
+    math offset + comp_size
+    goto offset
+next

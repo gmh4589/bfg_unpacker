@@ -1,0 +1,44 @@
+# Dungeon Siege: Throne of Agony WAD
+
+set NAME string ""
+math OFFSET = 0
+callfunction 0DAW_EXTRACT 1
+
+startfunction 0DAW_EXTRACT
+    set PATH string NAME
+    savepos BCK_OFF
+    goto OFFSET
+    savepos BASE_OFF
+
+    idstring "0DAW"
+    get DUMMY long  # 2
+    get DUMMY long  # 2
+    get FILES long
+    get INFO_SIZE long
+    get FLAGS long
+    get DATA_SIZE long
+    get DATA_SIZE long
+    getdstring NAME 8   # truncated path
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+
+        string NAME p "%s/%08x" PATH NAME_CRC
+
+        math OFFSET + BASE_OFF
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        goto TMP
+
+        if SIGN u== "0DAW"
+            callfunction 0DAW_EXTRACT
+        else
+            string NAME + .
+            log NAME OFFSET SIZE
+        endif
+    next i
+
+    goto BCK_OFF
+endfunction

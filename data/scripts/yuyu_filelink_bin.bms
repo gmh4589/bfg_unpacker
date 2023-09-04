@@ -1,0 +1,49 @@
+# The Battle of YuYu Hakusho: Shitou! Ankoku Bujutsukai! 120% FILELINK.BIN
+
+get FOLDERS long
+get INFO_SIZE long
+get DUMMY long
+get ZERO long
+
+if INFO_SIZE == 0
+    # Mizzurna Falls
+    math FILES = FOLDERS
+    savepos BASE_OFF
+    xmath BASE_OFF "BASE_OFF + (FILES * 16)"
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get DUMMY long  # reverse ID?
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+for FOLDER = 0 < FOLDERS
+    get OFFSET long
+    get FILES long
+    get ZERO long
+    get ZERO long
+
+    savepos TMP
+    goto OFFSET
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get FLAGS long
+        get ZERO long
+
+        savepos TMP2
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        string NAME p "%d/%d." FOLDER i
+        clog NAME OFFSET SIZE XSIZE
+        goto TMP2
+
+    next i
+    goto TMP
+next FOLDER

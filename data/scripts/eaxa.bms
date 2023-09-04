@@ -1,0 +1,60 @@
+get BNAME basename
+string BNAME += "_"
+
+get DUMMY long
+get FILES long
+   set INFO 0x1c
+   math INFO *= FILES
+   math INFO += 0x28
+   savepos MYOFF
+   goto INFO
+   set DUMMY 0
+   DO
+      get DUMMY long
+   while DUMMY == 0
+   savepos INFO
+   math INFO -= 0x4
+goto 0x28
+for i = 1 <= FILES
+   get UNKNOWN long
+   get NUMBER short
+   get ZERO short
+   get UNKNOWN long
+   get OFFSET long
+   math OFFSET *= 0x80
+   math OFFSET += START
+   get UNKNOWN long
+   get SIZE long
+   get ZERO long
+   set NAME BNAME
+   string NAME += i
+      savepos MYOFF
+      goto INFO
+      get UNKNOWN short
+      get FREQ short
+      get ID1 byte # unknown
+      get ID2 byte # segment length
+      get ID3 byte # segment number
+      get ID4 byte # segment type
+      get ZERO long
+      get ZERO long
+      savepos INFO
+      goto MYOFF
+      string NAME += "_"
+      string NAME += ID3
+      string NAME += "_"
+      string NAME += ID4
+   string NAME += ".xa"
+   callfunction addEAXAheader
+   log NAME 0 SIZE MEMORY_FILE
+next i
+
+startfunction addEAXAheader
+   set MEMORY_FILE binary "\x3\x0\x0\x2\x8A\xEB\x2\x0\x20\x0\x0\x0\x0\x0\x0\x0\x4\x4\xBB\x80\x60\x8C\x2A\x0\x0\x0\x0\x0\x0\x0\x0\x0"
+   putVarChr MEMORY_FILE 0x12 FREQ short
+   putVarChr MEMORY_FILE 0x14 SIZE long
+   append
+   log MEMORY_FILE OFFSET SIZE
+   append
+   math SIZE += 0x20
+endfunction

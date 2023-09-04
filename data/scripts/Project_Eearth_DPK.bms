@@ -1,0 +1,23 @@
+# Project Eearth (DPK)
+
+IDString 0 DPK4 ;
+ComType ZLib1 ;
+ImpType Standard ;
+Get ASize Long 0 ;
+Get HSize Long 0 ;
+Get FNum Long 0 ;
+For T = 1 To FNum ;
+SavePos TJ 0 ;
+Get ESize Long 0 ;
+SavePos UCSOff 0 ;
+Get UCSize Long 0 ;
+SavePos CSizeOff 0 ;
+Get CSize Long 0 ;
+SavePos OOF 0 ;
+Get Offset Long 0 ;
+Get FN String 0 ;
+Math TJ += ESize ;
+GoTo TJ 0 ;
+CLog FN Offset CSize OOF CSizeOff UCSize UCSOff ;
+Next T ;
+

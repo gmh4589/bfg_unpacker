@@ -1,0 +1,15 @@
+# Uprising
+
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    get TYPE long
+    get OFFSET long
+    if TYPE != 1
+        math OFFSET + 12    # "MAGIC NUMBER"
+        math SIZE   - 12
+        log NAME OFFSET SIZE
+    endif
+next i

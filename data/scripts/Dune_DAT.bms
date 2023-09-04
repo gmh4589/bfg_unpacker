@@ -1,0 +1,13 @@
+# Dune (DAT)
+
+Get FileNum Int 0 ;
+For T = 1 To FileNum ;
+GetDString FN 16 0 ;
+SavePos SIZEOFF 0 ;
+Get SIZE Long 0 ;
+SavePos OFFOFF 0 ;
+Get OFF Long 0 ;
+Get DUM Byte 0 ;
+Log FN OFF SIZE #OFFOFF SIZEOFF ;
+Next T ;
+

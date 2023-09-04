@@ -1,0 +1,13 @@
+# FPACTEX
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FPACTEX\0"
+get FILES short
+goto 0x10
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    if OFFSET != 0
+        log "" OFFSET SIZE
+    endif
+next i

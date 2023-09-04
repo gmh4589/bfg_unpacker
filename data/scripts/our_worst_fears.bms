@@ -1,0 +1,22 @@
+# Our Worst Fears - Stained Skin
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES short
+get DUMMY short
+for EXTRACT = 0 < 2
+    goto 8
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME 0x23
+        putvarchr NAME NAMESZ 0
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

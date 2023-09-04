@@ -1,0 +1,14 @@
+# Black Clover: Quartet Knights
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dath"
+open FDDE "dat" 1
+idstring "GDATH2\0\0"
+get DATH_SIZE asize
+do
+    get NAME_CRC longlong
+    get OFFSET longlong
+    get SIZE longlong
+    log "" OFFSET SIZE 1
+    savepos TMP
+while TMP != DATH_SIZE

@@ -1,0 +1,23 @@
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    getdstring EXT 8
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    getdstring NAME 16
+    getdstring NAME2 8
+    if NAME == ""
+        set NAME string NAME2
+    endif
+    string NAME += "_"
+    string NAME += i    # avoids duplicates!
+    string NAME += ".vag"
+    log NAME OFFSET SIZE
+next i

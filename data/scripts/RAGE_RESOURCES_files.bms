@@ -1,0 +1,60 @@
+# RAGE .RESOURCES (gameresources.resources)
+# QuickBMS script by WRS
+
+endian big
+
+get DUMMY long
+get FOFFSET long
+goto FOFFSET
+get FILES long
+
+for i = 0 < FILES
+
+  endian little
+
+  # file number (equal to i) - big endian
+  get FILENUM long
+
+  # data type names ("image", "material", ect)
+  get STRLEN long
+  getdstring BLOCKNAME STRLEN
+
+  # source data or file
+  get STRLEN long
+  getdstring VALUE1 STRLEN
+
+  # filename (could be blank)
+  get STRLEN long
+  getdstring VALUE2 STRLEN
+
+  endian big
+
+  # file entry data
+  get OFFSET long # relative, from 16
+  get DUMMY long
+  get FSIZE long
+  get EXTRA long
+  math EXTRA *= 24 # sometimes language names
+  getdstring DUMMY EXTRA
+
+  getdstring DUMMY 20
+
+  if FSIZE == 0
+    print "'%BLOCKNAME%' type has no data (%VALUE1%)"
+  else
+    log VALUE2 OFFSET FSIZE
+  endif
+
+  # debug/filelist
+  #print "%OFFSET%\t%BLOCKNAME%\n  %VALUE1%\n  %VALUE2%"
+
+next i
+
+get SIZE asize
+savepos POS
+
+if POS != SIZE
+  print "!! other footer data here !!"
+endif
+
+print "Completed!!"

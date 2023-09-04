@@ -1,0 +1,38 @@
+# Gangs of London (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BFFB"
+get DUMMY long  # 0x500
+get FILES long
+get DUMMY long  # 1
+get INFO_OFF long
+get INFO_SIZE long
+get DATA_OFF long
+get DATA_SIZE long
+get DATA_ZSIZE long
+#idstring "\x78\x56\x34\x12"
+
+math INFO_SIZE - INFO_OFF
+log MEMORY_FILE INFO_OFF INFO_SIZE
+
+math DIFF_OFF = 0
+if DATA_ZSIZE != 0
+    clog TEMPORARY_FILE DATA_OFF DATA_ZSIZE DATA_SIZE
+    open "." TEMPORARY_FILE
+    math DIFF_OFF = DATA_OFF
+endif
+
+for i = 0 < FILES
+    get NAME_CRC long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    math OFFSET - DIFF_OFF
+    if ZSIZE & 0x80000000
+        math ZSIZE & 0x7fffffff
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,85 @@
+# Area51 audiopkg (script 0.2)
+#	this file format is horrible, this script is experimental
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring VERSION 0x10
+getdstring OS 0x10
+getdstring BUILD 0x10
+getdstring DATE 0x10
+get INFO_OFF long
+
+math NAMES_OFF = 0x110
+
+goto 0xc0
+get NAMES long
+get NAMES long	# ???
+get INFO_SIZE long
+get NAMES_OFFS long
+math NAMES_OFFS += NAMES_OFF
+goto 0xe4
+get ENTRIES long
+goto 0xf0
+get FILES long
+if ENTRIES == 0
+	math ENTRIES = NAMES
+endif
+if FILES == 0
+	math FILES = NAMES
+endif
+
+goto NAMES_OFFS
+for i = 0 < NAMES
+	get NAME_OFF short
+	get IDX short
+	get DUMMY long
+	savepos TMP
+	math NAME_OFF += NAMES_OFF
+	goto NAME_OFF
+	get NAME string
+	putarray 0 IDX NAME
+	goto TMP
+next i
+
+for i = 0 < NAMES
+	get OFFSET long
+	putarray 2 i OFFSET
+next i
+savepos INFO_OFF
+
+getdstring DUMMY INFO_SIZE
+
+# guess this amount of bytes, I don't have other ideas
+# so this is very lame but it works very well
+findloc OFFSET string "\xff\xff\xff\xff\xff\xff\xff\xff"
+math OFFSET -= 0xc
+goto OFFSET
+
+math PREV_OFF = -1
+math j = 0
+for i = 0 < ENTRIES
+	get DUMMY long
+	get OFFSET long
+	get SIZE long
+	get DUMMY longlong
+	get CHANNELS long
+	get FREQ long
+	get DUMMY long
+	get DUMMY_TYPE longlong
+
+	# lame solution
+	if OFFSET != PREV_OFF
+		math PREV_OFF = OFFSET
+		if j < NAMES
+			getarray NAME 0 j
+		else
+			set NAME string j
+		endif
+		math j += 1
+		if DUMMY_TYPE == 0
+			string NAME += ".mp3"
+		else
+			string NAME += ".raw"
+		endif
+		log NAME OFFSET SIZE
+	endif
+next i

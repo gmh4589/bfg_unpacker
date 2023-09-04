@@ -1,0 +1,161 @@
+# Destiny 2 (work-in-progress)
+#   based on the code provided by Sir Kane:
+#   https://zenhax.com/viewtopic.php?p=26146#p26146
+#
+#   YOU MUST SET THE 3 KEYS BELOW OR THE SCRIPT DOESN'T WORK!
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+# you must put the current keys of the game here in hexadecimal format like "0123456789abcdef" which means 0x01 0x23 and so on
+set g_AESKey0   string ""
+set g_AESKey1   string ""
+set s_NonceInit string ""
+
+if g_AESKey0 == "" || g_AESKey1 == "" || s_NonceInit == ""
+    print "Error: you must set the keys in the script:\n  https://zenhax.com/viewtopic.php?p=26146#p26146"
+    cleanexit
+endif
+
+comtype oodle
+
+	uint16_t	Version;
+	uint16_t	Platform;
+	uint16_t	PackageID;
+	uint16_t	field_6; //Possibly padding
+	uint32_t	field_8;
+	uint32_t	field_C;
+	uint32_t	field_10;
+	uint32_t	field_14;
+	uint32_t	field_18;
+	uint32_t	VersionMajor;
+	uint16_t	VersionMinor;
+	uint16_t	field_22;
+	uint32_t	BuildString; //char[], unknown size
+	uint32_t	field_28;
+	uint32_t	field_2C;
+	uint32_t	field_30;
+	uint32_t	field_34;
+	uint32_t	field_38;
+	uint32_t	field_3C;
+	uint32_t	field_40;
+	uint32_t	field_44;
+	uint32_t	field_48;
+	uint32_t	field_4C;
+	uint32_t	field_50;
+	uint32_t	field_54;
+	uint32_t	field_58;
+	uint32_t	field_5C;
+	uint32_t	field_60;
+	uint32_t	field_64;
+	uint32_t	field_68;
+	uint32_t	field_6C;
+	uint32_t	field_70;
+	uint32_t	field_74;
+	uint32_t	field_78;
+	uint32_t	field_7C;
+	uint32_t	field_80;
+	uint32_t	field_84;
+	uint32_t	field_88;
+	uint32_t	field_8C;
+	uint32_t	field_90;
+	uint32_t	field_94;
+	uint32_t	field_98;
+	uint32_t	field_9C;
+	uint32_t	field_A0;
+	uint32_t	field_A4;
+	uint32_t	field_A8;
+	uint32_t	field_AC;
+	uint32_t	SignatureOffset;
+	uint32_t	EntryTableSize;
+	uint32_t	EntryTableOffset;
+	uint8_t		EntryTableHash[20];
+	uint32_t	BlockTableSize;
+	uint32_t	BlockTableOffset;
+	uint8_t		BlockTableHash[20];
+	uint32_t	UnkTableSize;
+	uint32_t	UnkTableOffset;
+	uint32_t	UnkTableEntrySize;
+	uint8_t		UnkTableHash[20];
+	uint32_t	field_10C;
+	uint32_t	field_110;
+	uint32_t	field_114;
+	uint32_t	field_118;
+	uint32_t	field_11C;
+	uint32_t	field_120;
+	uint32_t	field_124;
+	uint32_t	field_128;
+	uint32_t	field_12C;
+	uint32_t	field_130;
+	uint32_t	field_134;
+	uint32_t	field_138;
+	uint32_t	field_13C;
+	uint32_t	field_140;
+	uint32_t	field_144;
+	uint32_t	field_148;
+	uint32_t	field_14C;
+	uint32_t	field_150;
+	uint32_t	field_154;
+	uint32_t	field_158;
+	uint32_t	field_15C;
+	uint32_t	field_160;
+	uint32_t	field_164;
+	uint32_t	field_168;
+	uint32_t	field_16C;
+
+math	PKG_BLOCK_FLAG_COMPRESSED = 1
+math	PKG_BLOCK_FLAG_ENCRYPTED = 2
+math	PKG_BLOCK_FLAG_ALTERNATE_KEY = 4
+math    BlockSize = 0x40000
+
+goto BlockTableOffset
+log MEMORY_FILE 0 0 # build the file-system in a memory_file
+append
+for i = 0 < BlockTableSize
+	uint32_t	Offset;
+	uint32_t	Size;
+	uint16_t	field_8;
+	uint16_t	Flags;
+	uint8_t		Hash[20];
+	uint8_t		GCMTag[16];
+    if Flags & PKG_BLOCK_FLAG_ENCRYPTED
+        callfunction MakeNonce 1
+        if Flags & PKG_BLOCK_FLAG_ALTERNATE_KEY
+            string KEY h g_AESKey1
+        else
+            string KEY h g_AESKey0
+        endif
+        encryption "aes_128_gcm" KEY nonce 0 16
+    endif
+    if FLags & PKG_BLOCK_FLAG_COMPRESSED
+        clog MEMORY_FILE Offset Size BlockSize
+    else
+        log MEMORY_FILE Offset Size
+    endif
+    encryption "" ""
+next i
+append
+
+goto EntryTableOffset
+for i = 0 < EntryTableSize
+    uint64_t	A;
+	getbits StartBlock 14
+	getbits BlockOffset 14  # 0x10 byte chunk count
+	getbits Size 30
+	getbits Unknown 6
+
+    xmath OFFSET "(StartBlock * BlockSize) + (BlockOffset * 0x10)"
+    log "" OFFSET Size MEMORY_FILE
+next i
+
+startfunction MakeNonce
+    string nonce h s_NonceInit
+    getvarchr TMP11 nonce 11
+    getvarchr TMP1  nonce 1
+    getvarchr TMP0  nonce 0
+    xmath TMP11 "TMP11 ^ (packageID & 0xFF)"
+	xmath TMP1  "TMP1  ^ 0x26"
+	xmath TMP0  "TMP0  ^ ((packageID >> 8) & 0xFF)"
+    putvarchr nonce 11 TMP11
+    putvarchr nonce 1  TMP1
+    putvarchr nonce 0  TMP0
+endfunction

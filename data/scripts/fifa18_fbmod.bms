@@ -1,0 +1,298 @@
+# FIFA fbmod fifamod - FROSTY / FIFATOOL (script 0.5.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT & "mod"
+    # fbmod or fifamod
+else
+    print "Error: you must select the FBMOD file"
+    cleanexit
+endif
+
+get SIGN long   # 0x0183dc82
+
+math DATA_FILE = 0
+
+if SIGN == 0x534f5246 || SIGN == 0x41464946
+    goto 0
+
+    if SIGN == 0x534f5246
+
+        idstring "FROSTY"
+        get VER1 byte   # 0
+        get VER2 byte   # 1
+        get VER long    # 1, 3, 4
+
+        get INFO_OFF longlong
+        get FILES long
+
+        callfunction GET_NAME 1
+        set GAME_NAME string NAME
+        if VER >= 4
+            get DUMMY short
+            get DUMMY short # sort of flag: usually 0xb, 0xc, 0x7 (but doesn't affect GET_NAME)
+            for i = 0 < 5
+                if GAME_NAME & "starwarsbattlefrontii"
+                    get NAME string
+                else
+                    callfunction GET_NAME 1
+                endif
+            next i
+        else
+            for i = 0 < 6
+                get NAME string
+            next i
+        endif
+
+    elif SIGN == 0x41464946
+
+        idstring "FIFATOOL"
+        math VER1 = 0
+        math VER2 = 0
+        get VER long
+        if VER >= 10
+            get DUMMY byte
+            get SOME_OFF longlong
+            get DUMMY longlong
+        endif
+
+        get INFO_OFF longlong
+        get FILES long
+
+        callfunction GET_NAME 1 # game
+        get DUMMY long
+        callfunction GET_NAME 1 # mod name
+        callfunction GET_NAME 1 # author
+        get DUMMY byte  # 1
+        get DUMMY byte
+        if VER < 10
+            get ZERO byte
+            get ZERO byte
+        endif
+        callfunction GET_NAME 1 # version
+        callfunction GET_NAME 1 # comments
+        callfunction GET_NAME 1 # ""
+        callfunction GET_NAME 1 # ""
+        callfunction GET_NAME 1 # ""
+        callfunction GET_NAME 1 # website
+        if VER >= 9
+            callfunction GET_NAME 1 # website
+        endif
+        if VER >= 10
+            callfunction GET_NAME 1 # website
+            callfunction GET_NAME 1 # website
+        endif
+        get ZERO long
+        get DUMMY long  # 0 or 1
+        if VER >= 10
+            get DUMMY longlong
+        endif
+
+    endif
+
+    get ENTRIES long
+    xmath BASE_OFF "INFO_OFF + (FILES * (8 + 8))"
+    for i = 0 < ENTRIES
+        savepos ENTRY_OFF
+        get TYPE byte
+        get ID signed_long
+        if ID < 0
+
+            if GAME_NAME & "starwarsbattlefrontii"
+                get NAME string
+                get ZERO long
+            endif
+
+        else
+            get NAME string
+            getdstring HASH 20
+            get XSIZE longlong
+            get DUMMY byte  # 0 or 2, doesn't affect others
+            get ZERO long
+            if VER >= 3
+                get NAME2 string
+                if NAME2 != ""
+                    string NAME + /
+                    string NAME + NAME2
+                endif
+            endif
+            callfunction GET_CRCS 1
+            if GAME_NAME & "starwarsbattlefrontii"
+            else
+                callfunction GET_CRCS 1
+            endif
+            math MAGIC = 0
+            if TYPE == 0
+            elif TYPE == 1
+            elif TYPE == 2
+                get MAGIC long
+                get SOME_CRC long
+                get SOME_CRC long
+                get DUMMY long
+                get DUMMY long
+                get DUMMY long
+                get ZERO long
+                get ZERO long
+            elif TYPE == 3
+                get ZERO long
+                get DUMMY long
+                get XSIZE2 long # crazy but it's real, probably two separate data
+                get XSIZE long
+                math XSIZE + XSIZE2
+                get MAGIC long
+                get ZERO long
+            else
+                print "Error: unknown type %TYPE% at offset %ENTRY_OFF|x%, contact me"
+                cleanexit
+            endif
+
+            if MAGIC == 0x6BDE20BA
+                string NAME + ".f20t"
+            /* not needed, just for PNG
+            else
+                set EXT extension NAME
+                if EXT == ""
+                    string NAME + "."
+                endif
+            */
+            endif
+
+            savepos TMP_OFF
+            goto INFO_OFF
+            for x = 0 <= ID # yeah, it would be more easy to put them in an array
+                get OFFSET longlong
+                get SIZE longlong
+            next x
+            math OFFSET + BASE_OFF
+            if SIZE == XSIZE
+                log NAME OFFSET SIZE
+            elif XSIZE == 0
+                log NAME OFFSET SIZE
+            else
+                math ZSIZE = SIZE
+                math SIZE  = XSIZE
+                callfunction EXTRACT 1
+                if OUTPUT_SIZE != XSIZE
+                    print "Error: something wrong in the output file, expected size %XSIZE|x%, real size %OUTPUT_SIZE|x%"
+                    cleanexit
+                endif
+            endif
+            goto TMP_OFF
+        endif
+    next i
+    cleanexit
+endif
+
+math DATA_FILE = 1
+math LAST_IDX = -1
+get ARCHIVE_NAME basename
+for
+    set SEARCH binary "name\0"
+    callfunction GET_VAR 1
+    set NAME string VAR
+
+    get NAMESZ byte # it's not a byte
+    getdstring NAME NAMESZ
+
+    set SEARCH binary "archiveIndex\0"
+    callfunction GET_VAR 1
+    math IDX = VAR
+
+    set SEARCH binary "archiveOffset\0"
+    callfunction GET_VAR 1
+    math OFFSET = VAR
+
+    set SEARCH binary "compressedSize\0"
+    callfunction GET_VAR 1
+    math ZSIZE = VAR
+
+    set SEARCH binary "uncompressedSize\0"
+    callfunction GET_VAR 1
+    math SIZE = VAR
+
+    if IDX != LAST_IDX
+        math LAST_IDX = IDX
+        string TMP p "%s %02d.archive" ARCHIVE_NAME IDX
+        open FDSE TMP 1 EXISTS
+        if EXISTS == 0
+        string TMP p "%s_%02d.archive" ARCHIVE_NAME IDX
+        open FDSE TMP 1
+        endif
+    endif
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE DATA_FILE
+    else
+        callfunction EXTRACT 1
+    endif
+next
+
+startfunction EXTRACT
+    # some files have SIZE zero even if they are compressed, let's consider only ZSIZE
+    math OUTPUT_SIZE = 0    # debug
+    xmath LIMIT "OFFSET + ZSIZE"
+    log NAME 0 0
+    append
+    for OFFSET = OFFSET != LIMIT
+        goto OFFSET DATA_FILE
+
+        endian save CURRENT_ENDIAN
+        endian big
+        # check frostbite.bms!
+        get NEED_DICTIONARY byte DATA_FILE
+        get CHUNK_SIZE threebyte DATA_FILE
+        get FLAGS short DATA_FILE
+        get CHUNK_ZSIZE short DATA_FILE
+        savepos CHUNK_OFF DATA_FILE
+        xmath CHUNK_ZSIZE "((FLAGS & 15) << 16) | CHUNK_ZSIZE"
+        math FLAGS >> 8 # remove the 0x70 part
+        if FLAGS != 0
+            if FLAGS == 0xf     # 0xf70
+                comtype zstd
+            elif FLAGS & 0x10  # 0x1570, 0x1971, 0x1972, 0x11??
+                comtype oodle
+            elif FLAGS == 0x9   # 0x970
+                comtype lz4
+            elif FLAGS == 0
+                comtype copy
+            else
+                comtype zlib
+            endif
+            clog NAME CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE DATA_FILE
+            math OUTPUT_SIZE + CHUNK_SIZE
+        else
+            log NAME CHUNK_OFF CHUNK_ZSIZE DATA_FILE
+            math OUTPUT_SIZE + CHUNK_ZSIZE
+        endif
+        endian set CURRENT_ENDIAN
+
+        goto CHUNK_ZSIZE DATA_FILE SEEK_CUR
+        savepos OFFSET DATA_FILE
+    next
+    append
+endfunction
+
+startfunction GET_VAR
+    findloc TMP binary SEARCH
+    math TMP - 1
+    goto TMP
+    get OPCODE byte
+    get VAR string
+    if OPCODE == 9
+        get VAR longlong
+    elif OPCODE == 8
+        get VAR long
+    endif
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+endfunction
+
+startfunction GET_CRCS
+    get NUM_CRC long
+    for x = 0 < NUM_CRC
+        get SOME_CRC long
+    next x
+endfunction

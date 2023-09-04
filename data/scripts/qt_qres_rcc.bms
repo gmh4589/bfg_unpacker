@@ -1,0 +1,91 @@
+# Qt qres rcc (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "qres"
+get VER long        # 1
+endian guess VER    # useless, just in case...
+get INFO_OFF long
+get BASE_OFF long
+get NAMES_OFF long
+goto INFO_OFF
+
+get QRES_SIZE asize
+for i = 0
+    savepos TMP
+    if TMP == QRES_SIZE
+        break
+    endif
+
+    callfunction GET_NAME 1
+    get FLAGS short
+
+    putarray 0 i NAME
+    putarray 1 i FLAGS
+
+    if FLAGS & 2
+        get ELEMENTS long
+        get IDX long
+        putarray 2 i ELEMENTS
+        putarray 3 i IDX
+    else
+        get LOCALE_COUNTRY short
+        get LOCALE_LANG short
+        get OFFSET long
+        putarray 4 i OFFSET
+    endif
+next i
+
+set PATH string ""
+set NAME string ""
+math ELEMENTS = 1
+math IDX = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math i = IDX
+    for ENTRIES = ELEMENTS > 0
+        getarray NAME  0 i
+        getarray FLAGS 1 i
+        
+        if FLAGS & 2
+            getarray ELEMENTS 2 i
+            getarray IDX      3 i
+            callfunction EXTRACT
+        else
+            getarray OFFSET 4 i    
+
+            math OFFSET + BASE_OFF
+            string NAME p "%s%s" PATH NAME
+
+            goto OFFSET
+            get SIZE long
+            if FLAGS & 1
+                math SIZE - 4
+                get XSIZE long
+                savepos OFFSET
+                clog NAME OFFSET SIZE XSIZE
+            else
+                savepos OFFSET
+                log NAME OFFSET SIZE
+            endif
+        endif
+
+        math i + 1
+    prev ENTRIES
+endfunction
+
+startfunction GET_NAME
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAMESZ short
+    get NAME_CRC long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    goto TMP
+endfunction

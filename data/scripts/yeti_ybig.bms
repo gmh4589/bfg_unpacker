@@ -1,0 +1,85 @@
+# Yeti Engine YBIG (script 0.1.1a)
+#   Ghost Recon Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "when prompted, please type 'r' for automatically renaming the files with same name"
+
+idstring "YBIG"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get OFFSET long
+goto OFFSET
+get SUB_DUMMY short
+get SUB_FILES short
+get FILES long
+getdstring DUMMY 0x78
+savepos INFO_OFF
+
+math BASE_OFF = INFO_OFF
+math TMP = FILES
+math TMP *= 100
+math BASE_OFF += TMP
+math BASE_OFF x= 8
+
+math FOLDER_OFF = BASE_OFF
+
+math TMP = SUB_FILES
+math TMP *= 0x40
+math BASE_OFF += TMP
+math BASE_OFF x= 8
+
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY1 longlong
+    get DUMMY2 short
+    get FOLDER short
+    get TSTAMP long
+    get FLAGS long
+    get X_FILENUM long
+    get CRC long
+    getdstring NAME 0x3c
+    get DUMMY3 long
+    get ZIP long
+
+    if OFFSET != 0xffffffff
+        savepos TMP_OFF
+
+        set FNAME string ""
+        do
+            math FOLDER *= 0x40
+            math FOLDER += FOLDER_OFF
+            goto FOLDER
+            get DUMMY long
+            get PREV_FOLDER short
+            get NEXT_FOLDER short
+            get DUMMY short
+            getdstring FOLDER 0x36
+            set TMP string FNAME
+            set FNAME string FOLDER
+            string FNAME += /
+            string FNAME += TMP
+            math FOLDER = PREV_FOLDER
+        while FOLDER != 0xffff
+        string FNAME += /
+        string FNAME += NAME
+        #string FNAME += _
+        #string FNAME += CRC
+
+        math OFFSET *= 8
+        math OFFSET += BASE_OFF
+        goto OFFSET
+        if ZIP == 0
+            get SIZE long
+            savepos OFFSET
+            log FNAME OFFSET SIZE
+        else
+            get ZSIZE long
+            math ZSIZE -= 4
+            get SIZE long
+            savepos OFFSET
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+        goto TMP_OFF
+    endif
+next i

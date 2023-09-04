@@ -1,0 +1,43 @@
+# Eighting games (script 0.1.2)
+#   Naruto Clash of Ninja, Bloody Roar Primal Fury
+# script for QuickBMS http://quickbms.aluigi.org
+
+math IS_NEW_FORMAT = 0
+comtype prs_8ing
+
+get ENDIANESS short # 0=big, 1=little?
+get ZERO short
+get FILES long
+endian guess FILES
+get NAMESZ long # eh no, this is not NAMESZ, probably some sort of flag
+if NAMESZ == 0 || NAMESZ == 0x10
+    math NAMESZ = 0x24
+endif
+get FPK_SIZE long
+
+    # check if it's the new format
+    savepos TMP
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZERO long   # OFFSET64
+    if ZERO == 0
+        math IS_NEW_FORMAT = 1
+        comtype oodle
+    endif
+    goto TMP
+
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    if IS_NEW_FORMAT == 0
+        get OFFSET long
+    else
+        get OFFSET longlong
+    endif
+    get ZSIZE long
+    get SIZE long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

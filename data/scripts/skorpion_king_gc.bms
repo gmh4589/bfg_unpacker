@@ -1,0 +1,13 @@
+endian big
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 0x24
+    getdstring COEFF 0x20
+    getdstring DUMMY 0x24
+    getdstring NAME 8
+    string NAME += "_"
+    string NAME += i    # avoids duplicates!
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,62 @@
+# Gamehouse (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.5"
+getdstring SIGN 4
+if SIGN == "GHPK" || SIGN == "BGPK"
+
+    math BASE_OFF = 0
+    if SIGN == "BGPK"
+        get VER long
+        get BASE_OFF long
+    endif
+
+    set PATH string ""
+    do
+        get TYPE byte
+        if TYPE == 0x09
+            string PATH >> "/"
+
+        elif TYPE == 0x0a
+            get NAMESZ short
+            getdstring NAME NAMESZ
+            get OFFSET long
+            get SIZE long
+            if SIGN == "BGPK"
+                get XSIZE long
+                get FLAGS byte
+            else
+                math XSIZE = SIZE
+                math FLAGS = 0
+            endif
+            string FNAME p "%s/%s" PATH NAME
+            math OFFSET + BASE_OFF
+            if FLAGS & 4
+                clog FNAME OFFSET SIZE XSIZE
+            else
+                log FNAME OFFSET SIZE
+            endif
+
+        elif TYPE == 0x0d
+            get NAMESZ short
+            getdstring NAME NAMESZ
+            string PATH + /
+            string PATH + NAME
+        endif
+    while TYPE != 0x3f
+
+else
+
+    goto 0
+    get SIZE long
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE
+    next i
+
+endif

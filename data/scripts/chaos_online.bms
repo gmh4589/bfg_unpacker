@@ -1,0 +1,65 @@
+# Chaos Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PCL_SIZE asize
+get DUMMY long
+get DUMMY short
+get OFFSET long
+math OFFSET += 4
+goto OFFSET
+getdstring DUMMY 0x12
+
+get FILES long
+for i = 0 < FILES
+    get TYPE byte
+    get OFFSET long
+    get DUMMY2 long
+    get SIZE long
+    get DUMMY4 long
+    get DUMMY5 long
+    putarray 0 i TYPE
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+
+get FILES long
+get FOLDERS long
+get DUMMY long
+math FILES += FOLDERS
+for i = 0 < FILES
+    get FILE_ID long
+next i
+
+getdstring DUMMY 0x12
+math SUB_FILES = FILES
+set PATH string ""
+set NAME string ""
+
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    math FILES = SUB_FILES
+
+    for i = 0 < FILES
+        savepos TMP
+        if TMP >= PCL_SIZE
+            break
+        endif
+        getdstring NAME 0x100
+        get TYPE long
+        get TSTAMP longlong
+        get SUB_FILES long
+        if TYPE == 0
+            get DUMMY longlong
+            get FILE_ID long
+            getarray OFFSET 1 FILE_ID
+            getarray SIZE   2 FILE_ID
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        else
+            callfunction EXTRACT
+        endif
+    next i
+endfunction

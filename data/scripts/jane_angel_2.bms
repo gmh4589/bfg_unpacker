@@ -1,0 +1,16 @@
+# Jane Angel 2 Fallen Heaven (SHD archives, Shaman Games)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -4
+get OFFSET long
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    math NAMESZ *= 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

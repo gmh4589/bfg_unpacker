@@ -1,0 +1,23 @@
+# Ridge Racer 3D XPK
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "XPK\0"
+get FILES short
+get INFO_OFF short
+get DATA_OFF long
+get XPK_SIZE long
+get TSTAMP long
+get ZERO long
+get DUMMY long  # 0x70f9
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x2c
+    getdstring PATH 0xb0
+    get SIZE long
+    get OFFSET long
+    get DUMMY long  # 0xf0
+    get TSTAMP long
+    get ZERO long
+    string NAME p "%s%s" PATH NAME
+    log NAME OFFSET SIZE
+next i

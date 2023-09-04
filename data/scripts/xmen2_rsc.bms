@@ -1,0 +1,9 @@
+# X-Men 2: Wolverines Revenge (PS2) .RSC
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x38
+    log NAME OFFSET SIZE
+next i

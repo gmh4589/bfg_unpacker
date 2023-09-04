@@ -1,0 +1,14 @@
+# streams.dat and padding.dat
+
+idstring Hash
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+
+    set NAME string i
+    string NAME += ".rstm"
+
+    log NAME OFFSET SIZE
+next i

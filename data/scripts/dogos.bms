@@ -1,0 +1,25 @@
+# DOGOS
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+idstring "PKTO"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY longlong
+get DUMMY longlong
+get DUMMY longlong
+for i = 0 < FILES
+    getdstring NAME 0x100
+    set NAME unicode NAME
+    get ZSIZE longlong
+    get SIZE longlong
+    get ZIP long
+    get OFFSET longlong
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

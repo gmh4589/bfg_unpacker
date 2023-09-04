@@ -1,0 +1,27 @@
+# Nikopol: Secrets of the Immortals / Opalium Engine games (opk, obp, ovp, osp)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK "
+get FILES long
+get INFO_LIMIT long
+get DUMMY long
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get NAME string
+
+    savepos TMP
+    do
+        if TMP & 7
+            math TMP += 1
+        endif
+    while TMP & 7
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

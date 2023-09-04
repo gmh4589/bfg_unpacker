@@ -1,0 +1,66 @@
+# Ensemble Studios DRS
+#   Age of Empires, Star Wars: Galactic Battlegrounds
+# script for QuickBMS http://quickbms.aluigi.org
+
+math MAX_ID = 0
+open FDSE "Descriptions.dsc" 1 EXISTS   # from DRS Viewer 0.6.1
+if EXISTS == 0
+else
+    get SIZE asize 1
+    do
+        getct ID string '@' 1
+        getct DUMMY string '@' 1
+        getct DUMMY string '@' 1
+        getct DUMMY string '@' 1
+        get NAME line 1
+        string NAME R " | " "_"
+        putarray 0 ID NAME
+        if ID > MAX_ID
+            math MAX_ID = ID
+        endif
+        savepos TMP 1
+    while TMP != SIZE
+endif
+
+math VER = 0
+getdstring COPYRIGHT_STRING 40
+if COPYRIGHT_STRING & "Copyright"
+    if COPYRIGHT_STRING & "Ensemble"
+        goto 40
+    else    # "LucasArts"
+        math VER = 1
+        goto 60
+    endif
+else
+    cleanexit
+endif
+getdstring FILE_VER 4
+getdstring GAME 12
+get TABLES long
+get BASE_OFF long
+for TABLE = 0 < TABLES
+    getdstring SOME_FILE_TYPE 1
+    getdstring EXT 3
+    string EXT r EXT
+    get OFFSET long
+    get FILES long
+    savepos BCK_OFF
+    goto OFFSET
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        if ID >= MAX_ID
+            set NAME string ID
+        else
+            getarray NAME 0 ID
+            if NAME == ""
+                set NAME string ID
+            endif
+        endif
+        string NAME + "."
+        string NAME + EXT
+        log NAME OFFSET SIZE
+    next i
+    goto BCK_OFF
+next TABLE

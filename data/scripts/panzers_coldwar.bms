@@ -1,0 +1,45 @@
+# Codename: Panzers Cold War
+# script for QuickBMS http://quickbms.aluigi.org
+
+filerot 0xbd
+
+goto -4
+get VER long
+goto -8
+get INFO_SIZE long
+goto -12
+get FILES long
+
+get INFO_OFF asize
+math INFO_OFF -= 8
+math INFO_OFF -= INFO_SIZE
+goto INFO_OFF
+
+get FOLDERS long
+for j = 0 < FOLDERS
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get FILES long
+
+    for i = 0 < FILES
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get DUMMY long
+        get ZSIZE long
+        get TYPE long
+        getdstring TIMESTAMP 8
+        get SIZE long
+
+        if TYPE == 1
+            log NAME OFFSET SIZE
+        elif TYPE == 2
+            clog NAME OFFSET ZSIZE SIZE
+        elif TYPE == 3
+            # nothing, it's a folder
+        else
+            print "unknown type %TYPE%"
+            cleanexit
+        endif
+    next i
+next j

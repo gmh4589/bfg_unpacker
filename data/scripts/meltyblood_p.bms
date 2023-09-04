@@ -1,0 +1,34 @@
+# MeltyBlood .P
+# https://github.com/lioncash/ExtractData/blob/master/Extract/MeltyBlood.cpp
+
+math decryption_key = 0xE3DF59AC
+math NAMESZ = 60
+get DUMMY long  # 0 or 1
+get FILES long
+math FILES ^ decryption_key
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    for j = 0 < NAMESZ
+        getvarchr TMP NAME j
+        xmath TMP "TMP ^ (i * j * 3 + 61)"
+        putvarchr NAME j TMP
+    next j
+    get OFFSET long
+    get SIZE long
+    math SIZE ^ decryption_key
+
+    log MEMORY_FILE OFFSET SIZE
+    math buffer_size = SIZE
+    if buffer_size > 0x2173
+        math buffer_size = 0x2173
+    endif
+    strlen key_length NAME
+    for x = 0 < buffer_size
+        getvarchr TMP MEMORY_FILE x
+        xmath z "x % key_length"
+        getvarchr TMP2 NAME z
+        xmath TMP "TMP ^ (TMP2 + x + 3)"
+        putvarchr MEMORY_FILE x TMP
+    next x
+    log NAME 0 SIZE MEMORY_FILE
+next i

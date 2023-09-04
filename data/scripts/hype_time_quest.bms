@@ -1,0 +1,42 @@
+# Hype: The Time Quest
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dsc"
+open FDDE "bf" 1
+
+math LEVEL = -1
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    math LEVEL + 1
+    string PATH + NAME
+    string PATH + /
+    do
+        get TYPE byte
+        if TYPE == ')'
+            break
+        elif TYPE == '('
+            set NAME string ""
+            for
+                getdstring TMP 1
+                if "()[]" & TMP
+                    goto -1 0 SEEK_CUR
+                    break
+                endif
+                string NAME + TMP
+            next
+            callfunction EXTRACT
+        else
+            getct TMP string ']'
+            string ELEMENTS S TMP NAME OFFSET SIZE DUMMY
+            if DUMMY != 0
+                print "Error: DUMMY is not zero, maybe the file is compressed. Contact me"
+                cleanexit
+            endif
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE 1
+        endif
+    while LEVEL >= 1
+endfunction

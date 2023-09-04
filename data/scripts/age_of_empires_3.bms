@@ -1,0 +1,25 @@
+# Age Of Empires 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ESPN"
+goto 280
+get FILES long
+get OFFSET long
+goto OFFSET
+callfunction GET_NAME 1
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # decompressed size?
+    getdstring DUMMY 16
+    callfunction GET_NAME 1
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

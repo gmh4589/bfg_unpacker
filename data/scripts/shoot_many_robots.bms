@@ -1,0 +1,40 @@
+# Shoot Many Robots
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get DUMMY long
+get OFFSET longlong
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    log MEMORY_FILE OFFSET SIZE
+    callfunction CRYPT 1
+    log NAME 0 SIZE MEMORY_FILE
+next i
+
+startfunction CRYPT
+    math KEY = 0x54007b47
+    strlen NAMESZ NAME
+    string NAME l= NAME
+    for j = 0 < NAMESZ
+        math T = KEY
+        math T u<<= 5
+        math KEY += T
+        getvarchr C NAME j
+        math KEY += C
+    next j
+    for j = 0 < SIZE
+        math T = j
+        math T /= 4
+        math T *= 0x65
+        math T += KEY
+        getvarchr C MEMORY_FILE j
+        math C ^= T
+        putvarchr MEMORY_FILE j C
+        math KEY r= 8
+    next j
+endfunction

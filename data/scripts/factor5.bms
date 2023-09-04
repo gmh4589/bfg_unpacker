@@ -1,0 +1,156 @@
+# Factor 5 games (script 0.2)
+#   Star Wars Rogue Leader II
+#   Star Wars Rogue Squadron III
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.6"
+comtype zlib_noerror    # was unzip_dynamic
+endian big
+
+get EXT extension
+if EXT == "pool"
+
+    get FILES long
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    xmath OFFSET "OFFSET + ((20 + 4 + 4 + 4) * FILES)"
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+    get NAMES long MEMORY_FILE
+    for i = 0 < NAMES
+        get NAME string MEMORY_FILE
+        getdstring HASH 20 MEMORY_FILE
+        putarray 0 i NAME
+    next i
+
+    for i = 0 < FILES
+        getdstring HASH 20
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        getarray NAME 0 i   # hashes are not verified at the moment, sorry
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif EXT == "cdata"
+
+    idstring "ctp0"
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY short
+        get DUMMY short
+        get OFFSET long
+        get SIZE long   # really the decompressed size or unrelated???
+        get ZSIZE long
+        if SIZE == 0
+            log "" OFFSET ZSIZE
+        else
+            #clog "" OFFSET ZSIZE SIZE
+            log "" OFFSET ZSIZE
+        endif
+    next i
+
+elif EXT == "data"
+
+    get SIZE asize
+    for OFFSET = 0 < SIZE
+        clog MEMORY_FILE OFFSET SIZE SIZE
+        get TMP asize MEMORY_FILE
+        if TMP > SIZE
+            break
+        endif
+        math SIZE - 1
+    next OFFSET
+
+    get BASE_OFF long MEMORY_FILE
+    for
+        get NAME_OFF long MEMORY_FILE
+        if NAME_OFF == 0
+            break
+        endif
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+
+        math OFFSET + BASE_OFF
+        savepos TMP MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto TMP MEMORY_FILE
+
+        log NAME OFFSET SIZE MEMORY_FILE
+    next
+
+else
+
+    if EXT == "dir"
+        open FDDE "dat"
+    endif
+
+    get OFFSET longlong
+    get FOLDER_SIZE longlong
+    log MEMORY_FILE OFFSET FOLDER_SIZE
+
+    callfunction GET_NAMESZ 1
+
+    set PATH string ""
+    set NAME string ""
+    set MYPOS long 0
+    goto MYPOS MEMORY_FILE
+    callfunction EXTRACT
+
+endif
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math LIMIT = MYPOS
+    math LIMIT += FOLDER_SIZE
+    for
+        savepos MYPOS MEMORY_FILE
+        if MYPOS >= LIMIT
+            break
+        endif
+        get OFFSET longlong MEMORY_FILE
+        get SIZE longlong MEMORY_FILE
+        get DUMMY longlong MEMORY_FILE
+        get FOLDER_SIZE64 long MEMORY_FILE  # remember 0x80
+        get FOLDER_SIZE long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        if FOLDER_SIZE == 0
+            set FNAME string PATH
+            string FNAME += NAME
+            set EXT extension FNAME
+            if EXT == ""
+                string FNAME + .
+            endif
+            clog FNAME OFFSET SIZE SIZE
+        else
+            callfunction EXTRACT
+        endif
+    next
+endfunction
+
+# NAMESZ guesser
+startfunction GET_NAMESZ
+    set NAMESZ long 0x20
+        get DUMMY longlong MEMORY_FILE
+        get DUMMY longlong MEMORY_FILE
+        get DUMMY longlong MEMORY_FILE
+        get DUMMY longlong MEMORY_FILE
+        getdstring DUMMY NAMESZ MEMORY_FILE
+        for
+            get DUMMY longlong MEMORY_FILE
+            if DUMMY != 0
+                break
+            endif
+            getdstring DUMMY 0x1c MEMORY_FILE
+            math NAMESZ += 0x20
+        next
+endfunction

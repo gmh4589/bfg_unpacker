@@ -1,0 +1,38 @@
+# Do You Like Horny Bunnies
+
+getdstring SIGN 8
+if SIGN == "SM2MPX10"
+
+    get FILES long
+    get BASE_OFF long
+    getdstring PATH 16
+    for i = 0 < FILES
+        getdstring NAME 12
+        get OFFSET long
+        get SIZE long
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    goto 0
+    get FILES short
+    math FILES / 16
+    for i = 0 < FILES
+        getdstring NAME 12
+        get OFFSET long
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+    math FILES - 1
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+endif

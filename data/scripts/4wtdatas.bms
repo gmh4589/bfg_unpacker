@@ -1,0 +1,28 @@
+# 4 Wheel Thunder 4WTDATAS.A
+
+idstring "ARCH"
+get DATA_SIZE long
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+get FILES long
+get OFFSET1 long
+get ZERO long
+get OFFSET2 long
+for i = 0 < FILES
+    get TSTAMP long
+    get OFFSET long
+    getdstring NAME 0x40
+    getdstring NAME 0x40    # as above plus .\ prefix
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    get SOME_CRC long
+    get SIZE long
+    getdstring NAME 0x40
+    savepos OFFSET
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

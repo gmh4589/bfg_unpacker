@@ -1,0 +1,19 @@
+# World Tour Soccer
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "toc"
+open FDDE "con" 1
+
+get DUMMY long  # 1
+get DUMMY long  # 16
+get ZERO long
+get FILES long
+get DUMMY short
+get DUMMY short
+for i = 0 < FILES
+    get DUMMY byte
+    get OFFSET threebyte
+    get SIZE long
+    math OFFSET * 0x40
+    log "" OFFSET SIZE 1
+next i

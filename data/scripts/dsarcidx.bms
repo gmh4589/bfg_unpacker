@@ -1,0 +1,13 @@
+idstring "DSARCIDX"
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get DUMMY short
+next i
+padding 4
+for i = 0 < FILES
+    getdstring NAME 0x28
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,61 @@
+# Homeworld: Remastered Collection (script 0.1a)
+#
+#   YOU MUST FIRST DECRYPT THE ARCHIVE WITH THIS TOOL:
+#   https://github.com/mon/bigDecrypter/releases
+#
+#   Archive similar to Warhammer 40000 and Company of Heroes
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # caused by "hw2 weapon editor.exe" in st-hw20.5.0.big which is corrupted
+getdstring SIGN 8
+if SIGN != "_ARCHIVE"
+    print "Error: you must decrypt the archive first:\n\n  https://github.com/mon/bigDecrypter/releases\n"
+    cleanexit
+endif
+get VERSION long
+getdstring DUMMY 0x10
+getdstring NAME 0x80
+set NAME unicode NAME
+getdstring DUMMY 0x10
+get INFO_SIZE long
+get BASE_OFF long
+savepos INFO_OFF
+
+get DUMMY long      # 0x18
+get DUMMY short     # 1
+get HEAD_SIZE long
+get DUMMY short
+get TREE_SIZE long
+get FILES short
+math INFO_OFF += TREE_SIZE
+
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+
+    for i = 0 < FILES
+        get NAME_OFF long
+        get ZIP byte
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+
+        if EXTRACT != 0
+            goto NAME_OFF MEMORY_FILE2
+            get NAME string MEMORY_FILE2
+
+            math OFFSET += BASE_OFF
+            if ZIP == 0 # 0x00
+                log NAME OFFSET SIZE
+            else        # 0x20
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+
+    if EXTRACT == 0
+        savepos NAMES_OFF
+        math SIZE = BASE_OFF
+        math SIZE -= NAMES_OFF
+        log MEMORY_FILE2 NAMES_OFF SIZE
+    endif
+next EXTRACT

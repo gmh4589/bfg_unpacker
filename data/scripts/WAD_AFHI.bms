@@ -1,0 +1,22 @@
+<bms games="'Starsky And Hutch'" platforms="'PC'" ext="WAD">
+GoTo 4 0 ;
+Get FNum Long 0 ;
+GoTo 40 0 ;
+Get DirOffset Long 0 ;
+GoTo 52 0 ;
+Get FNOffset Long 0 ;
+GoTo 60 0 ;
+Get FirstFO Long 0 ;
+Math DirOffset += 20 ;
+For n = 1 to FNum ;
+GoTo DirOffset 0 ;
+Get FO Long 0 ;
+Math FO += FirstFO ;
+Get FS Long 0 ;
+Math DirOffset += 48 ;
+GoTo FNOffset 0 ;
+Get FNOffset String 0 ;
+SavePos FN 0 ;
+Log FN FO FS 0 0 ;
+Next n ;
+</bms>

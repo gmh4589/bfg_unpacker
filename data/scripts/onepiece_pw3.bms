@@ -1,0 +1,38 @@
+# One Piece Pirate Warriors 3 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+get ALIGN long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long
+    math OFFSET * ALIGN
+    if SIZE == 0
+        log "" OFFSET ZSIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        log MEMORY_FILE 0 0
+        append
+        do
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            if CHUNK_ZSIZE == 0 # ???
+                math CHUNK_ZSIZE = 0x8000
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0x10000 # 0x8000
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            goto OFFSET
+            get MYSIZE asize MEMORY_FILE
+        while MYSIZE != SIZE
+        append
+        log "" 0 MYSIZE MEMORY_FILE
+        goto TMP
+    endif
+next i

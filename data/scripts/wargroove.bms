@@ -1,0 +1,36 @@
+# Wargroove DAT
+
+idstring "HALLEYPK"
+getdstring ZERO 16
+get INFO_OFF longlong
+get DATA_OFF longlong
+
+goto INFO_OFF
+get SIZE longlong
+savepos OFFSET
+xmath ZSIZE "DATA_OFF - OFFSET"
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+get FOLDERS long MEMORY_FILE
+for FOLDER = 0 < FOLDERS
+    get ID long MEMORY_FILE
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get NAMESZ long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        get INFOSZ long MEMORY_FILE
+        getdstring INFO INFOSZ MEMORY_FILE
+        get NUM long MEMORY_FILE
+        for x = 0 < NUM
+            get PARSZ long MEMORY_FILE
+            getdstring PAR PARSZ MEMORY_FILE
+            get VALSZ long MEMORY_FILE
+            getdstring VAL VALSZ MEMORY_FILE
+        next x
+
+        string INFO s "%d:%d" OFFSET SIZE
+        math OFFSET + DATA_OFF
+        string NAME + "."
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

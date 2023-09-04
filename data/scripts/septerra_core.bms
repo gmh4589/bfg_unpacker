@@ -1,0 +1,47 @@
+# Septerra Core
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+
+open FDSE "septerra.mft"
+get DUMMY line
+get SIZE asize
+math i = 0
+do
+    get PCK line
+    string PCK &= \
+    string PCK <<= 1
+    set EXT extension PCK
+    if EXT == "db"
+        putarray 0 i PCK
+        math i += 1
+    endif
+    savepos OFFSET
+while OFFSET < SIZE
+
+open FDSE "septerra.idx"
+
+math OLD_PCK = -1
+get FILES asize
+math FILES /= 0x20
+for i = 0 < FILES
+    get DUMMY long
+    get PCK long
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    get ZSIZE long
+    get TSTAMP longlong
+
+    if PCK != OLD_PCK
+        getarray PCK_NAME 0 PCK
+        open FDSE PCK_NAME 1
+        math OLD_PCK = PCK
+    endif
+
+    if ZSIZE == SIZE
+        log "" OFFSET SIZE 1
+    else
+        clog "" OFFSET ZSIZE SIZE 1
+    endif
+next i

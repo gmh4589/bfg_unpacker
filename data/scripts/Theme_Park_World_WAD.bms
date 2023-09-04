@@ -1,0 +1,27 @@
+# Theme Park World (WAD)
+
+IDString 0 DWFB ;
+Set FILESTART Long 72 ;
+GoTo FILESTART 0 ;
+Get FILECNTL Long 0 ;
+Get TAILOFF Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get TAILOFF Long 0 ;
+Get DUMMYL Long 0 ;
+SavePos FILESTART 0 ;
+GoTo TAILOFF 0 ;
+GetDString FILENAME DUMMYL 0 ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 20 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

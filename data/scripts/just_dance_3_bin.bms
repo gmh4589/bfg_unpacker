@@ -1,0 +1,11 @@
+# Just Dance 3 Wii (.bin)
+
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get XSIZE long
+    get SIZE long
+    savepos OFFSET
+    log "" OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+next i

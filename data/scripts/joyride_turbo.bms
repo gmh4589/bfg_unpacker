@@ -1,0 +1,52 @@
+# Joy Ride Turbo
+
+get TEST long
+if TEST == 0xed12f50f
+    print "Error: you must decompress the file first with this script:\n\n  http://aluigi.org/bms/xcompress_file.bms"
+    cleanexit
+endif
+goto 0
+
+idstring "9KPB" # BPK9
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES longlong
+get DUMMY longlong
+get DUMMY longlong
+get DUMMY longlong
+
+endian big
+for i = 0 < FILES
+    get DUMMY1 long # 0x40
+    get DUMMY2 long # 0x20000
+    get ZERO long
+    get OFFSET long
+    get ZERO long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get SOME_CRC long
+    getdstring TYPE 4
+    get SOME_CRC long
+    get ZERO long
+    get NAME_OFF long
+    get TSTAMP longlong
+
+    savepos TMP
+    goto NAME_OFF
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i
+
+/*
+for i = 0 < FILES
+    get DUMMY long
+    get SOME_CRC long
+    get DUMMY long
+next i
+*/

@@ -1,0 +1,37 @@
+# Golem Crusaders
+# script for QuickBMS http://quickbms.aluigi.org
+
+set INFO_SIZE long 0
+set BASE_OFF long 0
+set BREAK_LOOP long 2
+do
+    getdstring CHUNK_NAME 4
+    get CHUNK_SIZE long
+    if CHUNK_NAME == WFSD
+        set BASE_OFF long CHUNK_SIZE
+        get DUMMY long
+        math BREAK_LOOP -= 1
+    else if CHUNK_NAME == KNUH
+        savepos TMP
+        # md5 hash calculated on various stuff
+        encryption bf_ecb "\x6E\x8C\x07\x59\x66\x25\xDB\x51\x3C\x0C\x79\xA5\x1E\x5C\xFE\xD7"
+        set INFO_SIZE long CHUNK_SIZE
+        log MEMORY_FILE TMP INFO_SIZE
+        math TMP += CHUNK_SIZE
+        goto TMP
+        math BREAK_LOOP -= 1
+    else
+        getdstring DUMMY CHUNK_SIZE
+    endif
+while BREAK_LOOP != 0
+
+math FILES = INFO_SIZE
+math FILES /= 16
+for i = 0 < FILES
+    get CRC longlong MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    math OFFSET *= 512
+    log "" OFFSET SIZE
+next i
+

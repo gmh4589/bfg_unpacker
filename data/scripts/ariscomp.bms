@@ -1,0 +1,17 @@
+# ARISCOMP Z unpacker
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype PUYO_LZ01   # lzss with 0x00 init
+idstring "ARISCOMP"
+get OFFSET long
+get ZIP long # ???
+get SIZE long
+get ZSIZE asize
+math ZSIZE -= OFFSET
+get EXT extension
+get NAME basename
+if EXT != "Z"
+    string NAME += "_unpacked."
+    string NAME += EXT
+endif
+clog NAME OFFSET ZSIZE SIZE

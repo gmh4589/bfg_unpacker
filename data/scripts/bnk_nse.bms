@@ -1,0 +1,76 @@
+# Guitar Hero 1 bnk/nse (another format)
+
+open FDDE "bnk"
+get BNK_SIZE asize
+for ENTRY_OFF = 0 != BNK_SIZE
+    goto ENTRY_OFF
+    getdstring SIGN 4
+    get ENTRY_SIZE long
+    savepos ENTRY_OFF
+    if SIGN u== "SAMP"
+        xmath FILES "ENTRY_SIZE / 0x16"
+        for i = 0 < FILES
+            get DUMMY long      # 0x12, codec?
+            get CHANNELS long
+            get FREQUENCY long
+            getdstring ZERO 6   # probably interleave
+            get OFFSET long
+            putarray 0 i OFFSET
+            putarray 1 i CHANNELS
+            putarray 2 i FREQUENCY
+        next i
+    elif SIGN u== "SANM"
+        get DUMMY long  # 1
+        for i = 0 < FILES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            putarray 10 i NAME
+        next i
+    endif
+    math ENTRY_OFF + ENTRY_SIZE
+next
+
+open FDDE "nse"
+
+get OFFSET asize
+putarray 0 FILES OFFSET
+sortarray 0 1
+
+for i = 0 < FILES
+    getarray OFFSET     0 i
+    getarray CHANNELS   0 i
+    getarray FREQUENCY  0 i
+    getarray NAME       10 i
+    math i + 1
+    getarray SIZE       0 i
+    math SIZE - OFFSET
+
+    # log NAME OFFSET SIZE
+    string NAME + "."
+    math INTERLEAVE = 0
+    callfunction DUMP_VAG 1
+next
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    endian save VAG_ENDIAN
+    endian little
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+    endian restore VAG_ENDIAN
+endfunction

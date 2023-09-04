@@ -1,0 +1,52 @@
+# Yu Yu Hakusho Forever (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DataChain"
+goto 0x10
+get DUMMY long
+get ZERO long
+get FILES long
+get INFO_SIZE long
+padding 0x800
+for i = 0 < FILES
+    getdstring NAME 0x30
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # sometimes 0 or 0xff
+    get ZERO long
+    set EXT extension NAME
+    if EXT == "lz"
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "LZW1"
+            math ZSIZE = SIZE
+            math ZSIZE - 8
+            get SIZE long
+            math SIZE = -1  # unsupported!
+        elif SIGN == "LZB1"
+            math ZSIZE = SIZE
+            math ZSIZE - 8
+            get SIZE long
+            math SIZE = -1  # unsupported!
+        else
+            goto OFFSET
+            getdstring DUMMY 0x10   # "A3DATA Ver0.2s"
+            get SIZE long
+            get ZSIZE long
+            comtype lzss0
+        endif
+        savepos OFFSET
+        goto TMP
+        string NAME >> "."
+        if SIZE < 0
+            math SIZE = ZSIZE
+            string NAME p "compressed_%s/%s" SIGN NAME # unsupported!
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

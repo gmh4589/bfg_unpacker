@@ -1,0 +1,50 @@
+# Die Sternenfahrer von Catan / The Starfarers of Catan (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "rep"
+    print "\nYou must first extract the files from the REP archive using 7-zip\nThen use this script on MAINDATA/$$REPOSITORYDATABASE$$/$$REPOSITORYDATABASE$$"
+    cleanexit
+endif
+
+get NAME filename
+if NAME != "$$REPOSITORYDATABASE$$"
+    print "\nYou must use this script on MAINDATA/$$REPOSITORYDATABASE$$/$$REPOSITORYDATABASE$$"
+    cleanexit
+endif
+
+get DUMMY long
+get DUMMY long
+get DUMMY long
+goto 0x70
+get FILES long
+for i = 0 < FILES
+    for x = 0 < 4
+        idstring "KFCH"
+        get DUMMY long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        putarray 0 x NAME
+    next x
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY byte
+
+    getarray FILENAME 0 2
+    string FILENAME p "../$$REPOSITORYSTORAGE$$/%s" FILENAME
+    getarray NAME     0 1
+    open FDSE FILENAME 1
+    idstring 1 "KFCH"
+    get DUMMY long 1
+    get SIZE long 1
+    savepos OFFSET 1
+    get TMP asize 1
+    math TMP - OFFSET
+    if TMP != SIZE
+        get SIZE asize 1
+        math OFFSET - 4
+        math SIZE - OFFSET
+    endif
+    log NAME OFFSET SIZE 1
+next i

@@ -1,0 +1,58 @@
+# Minecraft xbox360 PCK (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get VER long        # 3
+endian guess VER    # just in case endianess will change in future
+get NAMES long
+for i = 0 < NAMES
+    callfunction GET_MINECRAFT_NAME 1
+next i
+
+savepos INFO_OFF
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    get FILES long
+    for i = 0 < FILES
+        get SIZE long
+        if i == 0   # ??? this format has no sense, some archives have an additional 32bit
+        if SIZE != 0
+        if NAMES != 0
+            math FILES = SIZE
+            get SIZE long
+        endif
+        endif
+        endif
+        callfunction GET_MINECRAFT_NAME 1
+        if EXTRACT != 0
+            set FNAME string NAME
+
+            savepos TMP
+            goto OFFSET
+            get ENTRIES long
+            for j = 0 < ENTRIES
+                callfunction GET_MINECRAFT_NAME 1
+            next j
+            savepos OFFSET
+            goto TMP
+
+            if SIZE != 0
+                log FNAME OFFSET SIZE
+                math OFFSET + SIZE
+            endif
+        endif
+    next i
+    savepos OFFSET
+next EXTRACT
+
+startfunction GET_MINECRAFT_NAME
+    get ID long
+    
+    get NAMESZ long
+    math NAMESZ *= 2
+    getdstring NAME NAMESZ
+    putvarchr NAME NAMESZ 0 short   # quickbms fix
+    set NAME unicode NAME
+    
+    get ZERO long
+endfunction

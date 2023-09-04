@@ -1,0 +1,44 @@
+# Teenage Mutant Ninja Turtles: Mutants In Manhattan (DAT)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DAT\0"
+get FILES long
+get OFFSET1 long
+get OFFSET2 long
+get OFFSET3 long
+get OFFSET4 long
+get OFFSET5 long
+
+goto OFFSET1
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+#goto OFFSET2
+#for i = 0 < FILES
+#    get TYPE string
+#    putarray 1 i TYPE
+#next i
+
+goto OFFSET3
+get DUMMY long
+for i = 0 < FILES
+    get NAME string
+    putarray 2 i NAME
+next i
+
+goto OFFSET4
+for i = 0 < FILES
+    get SIZE long
+    putarray 3 i SIZE
+next i
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   3 i
+    getarray NAME   2 i
+    #getarray TYPE   1 i
+    #string NAME p "%s/%s" TYPE NAME
+    log NAME OFFSET SIZE
+next i

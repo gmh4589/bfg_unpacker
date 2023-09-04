@@ -1,0 +1,20 @@
+<bms games="'Star Wars: Galactic Battlegrounds'" platforms="'PC'" ext="DRS">
+IDString 0 Copyright ;
+ImpType Standard ;
+GoTo 80 0 ;
+Get FS Long 0 ;
+GoTo 88 0 ;
+Get FIS Long 0 ;
+Set FN Long FS ;
+Math FN -= FIS ;
+Math FN /= 12 ;
+GoTo FIS 0 ;
+For TE = 1 To FN ;
+Get D Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log "" FO FS #FOO FSO ;
+Next TE ;
+</bms>

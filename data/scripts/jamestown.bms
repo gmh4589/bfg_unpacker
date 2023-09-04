@@ -1,0 +1,71 @@
+# Jamestown (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+get FFG_NAME filename
+set NAME string ""
+goto 0xa
+get HEADER_OFFSET long
+math HEADER_OFFSET -= 8
+for OFFSET = 0x1a < HEADER_OFFSET
+    goto OFFSET
+    get DUMMY long
+    if FFG_NAME == "sounds.ffg"
+        get FREQUENCY long
+        get BITS long
+        get CHANNELS long
+        get SIZE long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        savepos OFFSET
+        math SIZE -= 4
+        callfunction TOWAV 1
+    elif FFG_NAME == "textures.ffg"
+        getdstring DUMMY 0x1c
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET SIZE SIZE
+    elif FFG_NAME == "palettesets.ffg"
+        get SKIP_NUM long
+        set SKIP_SIZE 8
+        math SKIP_SIZE *= SKIP_NUM
+        math SKIP_SIZE += 0x20
+        getdstring DUMMY SKIP_SIZE
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET SIZE SIZE
+    else
+        print "Error: archive not supported"
+        cleanexit
+    endif
+    math OFFSET += SIZE
+next
+
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction

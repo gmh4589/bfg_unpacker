@@ -1,0 +1,22 @@
+# Dirk Dagger
+
+idstring "opes"
+get TSTAMP long
+get FILES long
+savepos TMP
+xmath OFFSET "TMP + (FILES * 0x70)"
+for i = 0 < FILES
+    getdstring NAME 0x5b
+    get ZIP byte
+    get ZSIZE long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get TSTAMP long
+    if ZIP == 0 # the files in the sample were all compressed
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+next i

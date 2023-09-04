@@ -1,0 +1,52 @@
+# Talisman: Prologue
+#   maybe also other games from Nomad Games
+
+# choose the preferred method:
+#   1 = removes the header of 0x3b bytes
+#   2 = file "as-is"
+math METHOD = 2
+
+get DUMMY short
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get NAME string
+get DUMMY byte
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+
+    if METHOD == 2
+        putarray 0 i OFFSET
+    else
+        savepos BACKUP_OFF
+        goto OFFSET
+        getdstring DUMMY 0x23
+        get SIZE long
+        getdstring DUMMY 0x14
+        savepos TMP
+        xmath SIZE "(OFFSET + 0x20 + SIZE) - TMP"
+        math OFFSET = TMP
+        goto BACKUP_OFF
+        log "" OFFSET SIZE
+    endif
+next i
+
+if METHOD == 2
+    get OFFSET asize
+    putarray 0 i OFFSET
+    sortarray 0
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE 0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+endif

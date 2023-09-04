@@ -1,0 +1,73 @@
+# NOVA3 gla2 (script 0.1.1)
+
+comtype lz4
+endian big
+
+get MAGIC long
+if MAGIC == 0xd0eea89a
+
+    goto 0 0 SEEK_END
+    savepos TMP_OFF
+
+        math MODE = 0
+        goto -4 0 SEEK_CUR
+        get FLAGS long
+        if FLAGS u> 0xffff
+            math MODE = 1
+        endif
+
+    do
+        if MODE == 0
+        math TMP_OFF - 24
+        else
+        math TMP_OFF - 22
+        endif
+        goto TMP_OFF
+
+        if MODE == 0
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get ZERO long
+        get FLAGS long
+        else
+        get NAME_CRC long
+        get SOME_CRC long   # or 64bit NAME_CRC?
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get FLAGS short
+        endif
+
+        if FLAGS & 8
+            clog "" OFFSET ZSIZE SIZE
+        else
+            log "" OFFSET SIZE
+        endif
+    while OFFSET != 0x10
+
+else
+
+    goto 0
+    get DUMMY long
+    get BASE_OFF long
+    get NAMES_OFF long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAME_OFF long
+        get ZERO long
+
+        # names are obfuscated so I ignore them
+        math NAME_OFF + NAMES_OFF
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        log "" OFFSET SIZE
+    next i
+
+endif

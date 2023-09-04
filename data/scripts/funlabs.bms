@@ -1,0 +1,67 @@
+# FunLabs games
+#   some Cabela's games
+#   Revolution
+#   Secret Service - In harm's Way
+#   Shadow Force: Razor Unit
+#   US Most Wanted: Nowhere To Hide
+#   Delta OPS
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+math FULLSIZE -= 2
+for OFFSET = 0 < FULLSIZE    
+    set ARG1 long 0x89
+    set ARG2 long 0x01
+    set SIZE long 4
+    callfunction FUN_CRYPT
+            get SIGN long MEMORY_FILE
+            if SIGN != 0x04034b50
+                cleanexit
+            endif
+
+    get ARG1 byte
+    get ARG2 byte
+
+    set SIZE long 0x18
+    callfunction FUN_CRYPT
+            #get ver             short   MEMORY_FILE
+            get flag            short   MEMORY_FILE
+            get method          short   MEMORY_FILE
+            get modtime         short   MEMORY_FILE
+            get moddate         short   MEMORY_FILE
+            get crc             long    MEMORY_FILE
+            get comp_size       long    MEMORY_FILE
+            get uncomp_size     long    MEMORY_FILE
+            get name_len        short   MEMORY_FILE
+            get extra_len       short   MEMORY_FILE
+
+    set SIZE long name_len
+    callfunction FUN_CRYPT
+            getdstring name     name_len    MEMORY_FILE
+
+    if extra_len > 0
+        set SIZE long extra_len
+        savepos OFFSET
+        callfunction FUN_CRYPT
+                getdstring extra    extra_len   MEMORY_FILE
+    endif
+
+    math comp_size += 2
+    clog NAME OFFSET comp_size uncomp_size
+    math OFFSET += comp_size
+    goto OFFSET
+next
+
+startfunction FUN_CRYPT
+    savepos OFFSET
+    goto 0 MEMORY_FILE
+    log MEMORY_FILE OFFSET SIZE
+    for i = 0 < SIZE
+        getvarchr T MEMORY_FILE i
+        math T ^= ARG1
+        math ARG1 += ARG2
+        putvarchr MEMORY_FILE i T
+    next i
+    math OFFSET += SIZE
+    goto OFFSET
+endfunction

@@ -1,0 +1,19 @@
+# Urban Reign ppk
+
+idstring "ppk\0"
+get PPK_SIZE long
+get BASE_OFF long
+get ZERO long
+idstring "fncc"
+get INFO_SIZE long
+get ZERO short
+get DUMMY short # 8
+get FILES short
+get FILES short
+for i = 0 < FILES
+    get NAME_CRC threebyte  # ??? sequential
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

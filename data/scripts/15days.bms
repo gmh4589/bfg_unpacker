@@ -1,0 +1,101 @@
+# 15 Days (script 0.2)
+#   created from the pseudo code released by bacter here:
+#   http://forum.xentax.com/viewtopic.php?p=39930#p39930
+# script for QuickBMS http://quickbms.aluigi.org
+
+get RES_NAME basename
+get RES_NUM extension
+math RES_NUM = RES_NUM  # string to number
+
+goto -4
+savepos DATA_SIZE
+get DATASTARTPOS long
+goto DATASTARTPOS
+math DATA_SIZE -= DATASTARTPOS
+
+math CHUNK_SIZE = RES_NUM
+math CHUNK_SIZE %= 100
+math CHUNK_SIZE *= 2
+if CHUNK_SIZE == 0
+    math CHUNK_SIZE = 100
+endif
+
+savepos OFFSET
+putvarchr MEMORY_FILE2 DATA_SIZE 0
+log MEMORY_FILE2 0 0
+append
+for i = 0 < 2
+    log MEMORY_FILE2 OFFSET CHUNK_SIZE
+    math OFFSET += CHUNK_SIZE
+    math OFFSET += 4
+    math DATA_SIZE -= CHUNK_SIZE
+    math DATA_SIZE -= 4
+next i
+log MEMORY_FILE2 OFFSET DATA_SIZE
+append
+
+comtype unzip_dynamic
+get SIZE asize MEMORY_FILE2
+clog MEMORY_FILE 0 SIZE SIZE MEMORY_FILE2
+
+if RES_NUM == 0
+    callfunction GET_EXTENSIONS 1
+endif
+
+math OLD_ExtensionNumber = -1
+math END = 0
+math EXISTS = 1
+do
+    get EXT_id long MEMORY_FILE
+    get NrOfFiles long MEMORY_FILE
+    if EXT_id == 0
+    if NrOfFiles == 0
+        math END = 1
+    endif
+    endif
+
+    for i = 0 < NrOfFiles
+        getdstring FileName 63 MEMORY_FILE
+        get FlagByte byte MEMORY_FILE
+        get StartPos long MEMORY_FILE
+        get OriginalSize long MEMORY_FILE
+        get ZlibCompressedSize long MEMORY_FILE
+
+        #if RES_NUM == 0
+        if FlagByte != 0
+            math FlagByte - 1
+            getarray ExtensionNumber 0 FlagByte
+            if ExtensionNumber != OLD_ExtensionNumber
+                math OLD_ExtensionNumber = ExtensionNumber
+                string TMP p "%s.%03d" RES_NAME ExtensionNumber
+                open FDSE TMP 0 EXISTS  # avoids to give errors if something is wrong
+            endif
+        endif
+
+        if EXISTS != 0
+            string FileName + "."   # guess extension, useful only for RIFF files
+            if ZlibCompressedSize == 0
+                log FileName StartPos OriginalSize
+            else
+                clog FileName StartPos ZlibCompressedSize OriginalSize
+            endif
+        endif
+    next i
+while END == 0
+
+startfunction GET_EXTENSIONS
+    math i = 0
+    math END = 0
+    do
+        get ExtensionNumber long MEMORY_FILE
+        putarray 0 i ExtensionNumber
+        get UnknownNumber long MEMORY_FILE
+        getdstring Dummy 104 MEMORY_FILE
+        if ExtensionNumber == 0
+        if UnknownNumber == 0
+            math END = 1
+        endif
+        endif
+        math i += 1
+    while END == 0
+endfunction

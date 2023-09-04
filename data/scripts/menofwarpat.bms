@@ -1,0 +1,15 @@
+# Men of war assault squad 1.pat decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "PK\x03\x04"
+    print "the input file is already a ZIP file!"
+    cleanexit
+endif
+
+# derived from "fR_ldgT5a`uhn=^mhHkZ@O]{p/=#rTA&<JQx="
+encryption aes "\x20\xD1\x7D\x9F\xE0\x09\x10\x4A\x93\xF1\x99\xDE\xC0\x51\x28\xA6"
+get SIZE asize
+get NAME basename
+string NAME += "_decrypted.zip"
+log NAME 0 SIZE

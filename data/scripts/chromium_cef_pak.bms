@@ -1,0 +1,18 @@
+# Chromium CEF.PAK / *resources.pak
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VERSION long
+get ENTRIES long
+get ENCODING byte
+for i = 0 <= ENTRIES
+    get ID short
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+for i = 0 < ENTRIES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

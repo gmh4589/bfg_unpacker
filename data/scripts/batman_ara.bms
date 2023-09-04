@@ -1,0 +1,51 @@
+# Batman Arkham Origins Blackgate (ARA) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ARMA"
+get VERSION long
+endian guess VERSION
+get FILES long
+get ENTRIES long
+get INFO_OFF long
+get NAMES_OFF long
+get ZERO long
+savepos ENTRIES_OFF
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY short # ???
+    get DUMMY short # ???
+    get ZSIZE long
+    get SIZE long
+    get ZIP long
+    putarray 0 i OFFSET
+    putarray 1 i ZSIZE
+    putarray 2 i SIZE
+    putarray 3 i ZIP
+next i
+
+goto ENTRIES_OFF
+for i = 0 < ENTRIES
+    get OFFSET long
+    savepos TMP_OFF
+    if OFFSET != 0
+        goto OFFSET
+        get SUB_FILES long
+        for j = 0 < SUB_FILES
+            get NAME_CRC long   # ???
+            get FILE_ID long
+
+            getarray OFFSET 0 FILE_ID
+            getarray ZSIZE 1 FILE_ID
+            getarray SIZE 2 FILE_ID
+            getarray ZIP 3 FILE_ID
+            if ZIP == 0
+                log "" OFFSET SIZE
+            else
+                clog "" OFFSET ZSIZE SIZE   # untested!
+            endif
+        next j
+        goto TMP_OFF
+    endif
+next i

@@ -1,0 +1,319 @@
+# Need for Speed series BUN/BIN/LZC - Undercover, World, Most Wanted, Underground, Carbon (script 0.4a)
+#
+#   The script should be compatible with most of the games developed by EA Black Box:
+#   https://en.wikipedia.org/wiki/EA_Black_Box
+#
+#   Note that sometimes the extracted DAT files are BUN archives so you should
+#   check their first 8 bytes (they should be 32bit TYPE and 32bit SIZE) and
+#   then launch the script on each one.
+#   Currently there is no way to guess if the extracted files are archvies or not
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.1"
+
+comtype dk2
+math NEED_BASE_OFF = 0
+get BUN_SIZE asize
+set PATH string ""
+get NAME basename
+string NAME + "."
+math FILES = 0
+
+
+get TMP basename
+if TMP == "ZDIR" || TMP == "ZZDATA"
+    math MULTI_ZZDATA = 0
+    open FDSE "ZDIR.BIN" 1
+    open FDSE "ZZDATA.BIN" 0 EXISTS
+    if EXISTS == 0
+        open FDSE "ZZDATA0.BIN"
+        math MULTI_ZZDATA = 1
+    endif
+    get ZDIR_SIZE asize 1
+
+    if MULTI_ZZDATA == 0
+        get TMP long 1
+        get TMP long 1
+        if TMP == 0
+            math MODE = 0
+        else
+            math MODE = 1
+        endif
+    endif
+    goto 0 1
+
+    set NAME string ""
+    for TMP_OFF = 0 < ZDIR_SIZE
+        if MULTI_ZZDATA == 0
+            get DUMMY long 1
+            get OFFSET long 1
+            get SIZE long 1
+            if MODE != 0
+                get DUMMY long 1
+            endif
+        else
+            get NAME_CRC long 1
+            get ZZDATA_NUM long 1
+            get OFFSET long 1
+            get XOFFSET long 1
+            get SIZE long 1
+            get FILE_CRC long 1
+            math XOFFSET * 2048
+
+            # we need to reopen them everytime because they are sorted by NAME_CRC
+            string TMP p "ZZDATA%d.BIN" ZZDATA_NUM
+            open FDSE TMP
+        endif
+
+        math OFFSET * 2048
+        goto OFFSET
+        callfunction DECOMPRESS 1
+        savepos TMP_OFF 1
+    next
+    cleanexit
+endif
+
+
+getdstring TMP_SIGN 4
+goto 0
+if TMP_SIGN == "VPAK"
+    callfunction EXTRACT_VPAK 1
+    cleanexit
+endif
+
+
+get SIGN long
+if SIGN == 0x66113388
+    get UNCOMPRESSED_SIZE long
+    get SIZE long
+    get DUMMY long
+    savepos OFFSET
+    callfunction UNPACK 1
+    cleanexit
+endif
+goto 0
+
+
+callfunction CHECK_DECOMPRESS 1
+goto 0
+if DO_DECOMPRESS != 0
+    get SIZE asize
+    callfunction DECOMPRESS 1
+    cleanexit
+endif
+
+
+for BLOCK_OFF = 0 != BUN_SIZE
+
+    set NAME string ""
+    get BLOCK_TYPE long
+    get BLOCK_SIZE long
+    savepos BLOCK_OFF
+    math OFFSET = BLOCK_OFF
+    math SIZE   = BLOCK_SIZE
+
+    if BLOCK_TYPE == 0xb3300000
+
+        math NEXT_BUN = BLOCK_OFF
+        math NEXT_BUN + BLOCK_SIZE
+        math BLOCK_SIZE = 0xc4
+        math FILES = 0
+
+        getdstring DUMMY 0x4c
+        get PATH string
+
+    elif BLOCK_TYPE == 0x33310002
+
+        math FILES = BLOCK_SIZE
+        math FILES / 8
+
+    elif BLOCK_TYPE == 0x33310003
+
+        for i = 0 < FILES
+            get DUMMY1 long # probably the name hash
+            get OFFSET long
+            get SIZE long
+            get DUMMY4 long # uncompressed size?
+            get DUMMY5 long
+            get DUMMY6 long
+
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i ""
+        next i
+        math NEED_BASE_OFF = 0
+
+    elif BLOCK_TYPE == 0x33310004
+
+        for i = 0 < FILES
+            getdstring DUMMY 0x14
+            get OFFSET long
+            getdstring DUMMY 0xc
+            get SIZE long
+            if OFFSET u> BUN_SIZE || SIZE u> BUN_SIZE   # CAREER_SAFEHOUSE.BIN
+                math FILES = 0
+                break
+            endif
+            getdstring DUMMY 0x30
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i NAME
+        next i
+        math NEED_BASE_OFF = 1
+
+    elif BLOCK_TYPE == 0xb3320000
+
+        math BLOCK_SIZE = 0x80
+
+        if NEED_BASE_OFF == 0
+            math BASE_OFF = 0
+        else
+            savepos BASE_OFF
+            math BASE_OFF + 0x100
+        endif
+
+        for i = 0 < FILES
+            getarray OFFSET 0 i
+            getarray SIZE   1 i
+            getarray NAME   2 i
+            math OFFSET + BASE_OFF
+            string NAME p "%s/%s" PATH NAME
+
+            math TMP = OFFSET
+            math TMP + SIZE
+            if TMP u> BUN_SIZE
+                math SIZE = BUN_SIZE
+                math SIZE - OFFSET
+            endif
+
+            callfunction UNPACK 1
+        next i
+
+        goto NEXT_BUN
+        math BLOCK_SIZE = 0
+
+    elif BLOCK_TYPE == 0x00030210
+
+        get DUMMY long
+        math SIZE - 4
+        callfunction DECOMPRESS 1
+
+    else
+
+        # dump some of the unrecognized chunks
+        if BLOCK_TYPE & 0x80000000
+            #math BLOCK_TYPE & 0x7fffffff
+            math BLOCK_SIZE = 0
+        else
+            if BLOCK_TYPE < 0x00ffffff
+                if BLOCK_SIZE > 4
+                    string NAME p "%s/%s" PATH "."
+                    callfunction DECOMPRESS 1
+                endif
+            endif
+        endif
+
+    endif
+
+    math BLOCK_OFF + BLOCK_SIZE
+    goto BLOCK_OFF
+next
+
+
+
+startfunction UNPACK
+    if SIZE != 0
+        savepos TMP
+        goto OFFSET
+        get TMP_SIGN long
+        goto OFFSET
+        if TMP_SIGN == 0x55441122
+            math MAX_OFFSET = OFFSET
+            math MAX_OFFSET + SIZE
+            for OFFSET = OFFSET != MAX_OFFSET
+                idstring "\x22\x11\x44\x55"
+                get SIZE long
+                get XSIZE long
+                getdstring DUMMY 0xc
+                callfunction DECOMPRESS 1
+                math OFFSET + XSIZE
+                goto OFFSET
+            next
+        else
+            callfunction DECOMPRESS 1
+        endif
+        goto TMP
+    endif
+endfunction
+
+
+
+startfunction CHECK_DECOMPRESS
+    math DO_DECOMPRESS = 1
+    savepos DUMP_OFFSET
+    getdstring ZIP_SIGN 4
+    math SKIP_BYTES = 0 # some algorithms consider the header in their size
+    if ZIP_SIGN == "RFPK"
+        comtype dk2
+    elif ZIP_SIGN == "RAWW"
+        comtype copy
+    elif ZIP_SIGN == "JDLZ"
+        comtype ea_jdlz
+        math SKIP_BYTES = 0x10
+    elif ZIP_SIGN == "HUFF"
+        comtype ea_huff
+    elif ZIP_SIGN == "COMP"
+        comtype ea_comp
+        math SKIP_BYTES = 0x10
+    else
+        math DO_DECOMPRESS = 0
+    endif
+endfunction
+
+
+
+startfunction DECOMPRESS
+    if SIZE != 0
+        callfunction CHECK_DECOMPRESS 1
+        if DO_DECOMPRESS == 0
+            log NAME DUMP_OFFSET SIZE
+        else
+            get ZIP_FLAG byte
+            get DUMMY byte
+            get DUMMY short
+            get SIZE long
+            get ZSIZE long
+            math ZSIZE - SKIP_BYTES
+            savepos DUMP_OFFSET
+            clog NAME DUMP_OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction
+
+
+
+startfunction EXTRACT_VPAK
+    idstring "VPAK"
+    get FILES long
+    get NAMES_OFF long
+    get DUMMY long
+    for i = 0 < FILES
+        get NAME_OFF long
+        get DUMMY long
+        get SIZE long
+        get XOFFSET long
+        get OFFSET long
+
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        log NAME OFFSET SIZE
+    next i
+endfunction

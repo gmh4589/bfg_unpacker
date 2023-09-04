@@ -1,0 +1,27 @@
+# Mario Party The Top 100 ZDAT
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RZPK"
+get VER long    # 2
+get FILES long
+get BASE_OFF long
+get DATA_SIZE long
+get NAMES_SIZE long
+padding 0x10
+savepos NAMES_OFF
+goto NAMES_SIZE 0 SEEK_CUR
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+
+    math NAME_OFF + NAMES_OFF
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET + BASE_OFF
+    clog NAME OFFSET ZSIZE SIZE
+next i

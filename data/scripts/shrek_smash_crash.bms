@@ -1,0 +1,40 @@
+# Shrek Smash n' Crash Racing (Torus Games) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK\0"
+get INFO_SIZE long
+get DUMMY long  # 0xc
+do
+    get NEXT_ENTRY long
+    get FILES_ENTRY long
+    get PATH string
+    do
+        goto FILES_ENTRY
+        get FILES_ENTRY long
+        get SIZE long
+        get FLAGS long
+        get OFFSET long
+        get NAME string
+        string NAME p "%s/%s" PATH NAME
+
+        savepos TMP
+        goto OFFSET
+        get OFFSET long
+        goto TMP
+
+        if FLAGS & 2
+            savepos TMP
+            goto OFFSET
+            idstring "!CMP"
+            get XSIZE long
+            math OFFSET + 8
+            math SIZE   - 8
+            clog NAME OFFSET SIZE XSIZE
+            goto TMP
+        else
+            log NAME OFFSET SIZE
+        endif
+
+    while FILES_ENTRY != 0
+    goto NEXT_ENTRY
+while NEXT_ENTRY != 0

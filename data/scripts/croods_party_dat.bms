@@ -1,0 +1,26 @@
+# Torus Games (Wii) DAT
+#   Barbie Dreamhouse Party, The Croods: Prehistoric Party and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "PAK\0"
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "!ZLS"
+        get XSIZE long
+        reverselong XSIZE
+        savepos OFFSET
+        math SIZE -= 8
+        clog "" OFFSET SIZE XSIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    goto TMP
+next i

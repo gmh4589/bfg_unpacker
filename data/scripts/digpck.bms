@@ -1,0 +1,25 @@
+# Kishin Houkou Demonbane
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DIGPCK"
+get VER long    # 1
+get DUMMY long
+get DUMMY long
+get ZERO short
+get FILES long
+get ZERO long
+get FILES long
+get ZERO long
+get ZERO long
+get INFO_SIZE long
+savepos BASE_OFF
+math BASE_OFF + INFO_SIZE
+for i = 0 < FILES
+    get NAME string
+    get FLAGS byte
+    get ZERO long   # maybe a ZSIZE?
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

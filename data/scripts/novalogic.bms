@@ -1,0 +1,18 @@
+# Novalogic games (PFF archives)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+idstring "PFF3"
+get FILES long
+get DUMMY long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    getdstring NAME 16
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

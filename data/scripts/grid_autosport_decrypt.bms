@@ -1,0 +1,14 @@
+# Grid Autosport files decrypter
+#   game.dat and nefs files
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "B04C2C2E2C314742811B9AC1334AE4D1DCC194DCA53157438EE3EE4062EBBBAA"
+string KEY h KEY
+encryption aes KEY "" 0 32
+
+get SIZE asize
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+log NAME 0 SIZE

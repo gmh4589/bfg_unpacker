@@ -1,0 +1,26 @@
+# findbits: dump the 8 bitstreams of input into output.findbits
+#   then use "strings" on output.findbits for dumping the possible strings,
+#   example: strings -n 7 output.findbits > output.txt
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME filename
+string NAME + ".findbits"
+for BITS = 0 < 8
+    goto 0
+    getbits SKIP BITS
+    math DATA_BITS = SIZE
+    math DATA_BITS * 8
+    math DATA_BITS - BITS
+    getbits DATA DATA_BITS
+    log MEMORY_FILE 0 0
+    putbits DATA DATA_BITS MEMORY_FILE
+    if BITS != 0
+        math TMP = 8
+        math TMP - BITS
+        putbits 0 TMP MEMORY_FILE
+    endif
+    append
+    log NAME 0 SIZE MEMORY_FILE
+    append
+next BITS

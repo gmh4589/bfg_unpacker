@@ -1,0 +1,25 @@
+<bms games="'Austin Powers Pinball', 'Balls Of Steel'" platforms="'PC', 'PC'" ext="BNK">
+GoTo EOF 0 ;
+SavePos TOFF 0 ;
+Set TEMP Long TOFF ;
+Math TEMP -= 3 ;
+GoTo TEMP 0 ;
+Get FILENUM Long 0 ;
+Set FILENUMX Long FILENUM ;
+Math FILENUMX *= 48 ;
+Math FILENUMX += 17 ;
+Set TEMP Long TOFF ;
+Math TEMP -= FILENUMX ;
+GoTo TEMP 0 ;
+For X = 1 To FILENUM ;
+GetDString FNAME 32 0 ;
+Get TEMP Long 0 ;
+Set FOFFSET Long TOFF ;
+Math FOFFSET -= TEMP ;
+Math FOFFSET += 1 ;
+Get FSIZE Long 0 ;
+Get FOOBAR Long 0 ;
+Get FOOBAR Long 0 ;
+Log FNAME FOFFSET FSIZE 0 0 ;
+Next X ;
+</bms>

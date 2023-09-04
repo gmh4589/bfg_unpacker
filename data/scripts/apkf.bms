@@ -1,0 +1,56 @@
+# APKF (script 0.1.1) (incomplete)
+
+idstring "APKF"
+get DUMMY long  # little endian (or bytes), ever 07 01 00 00
+
+get ZERO long   # 0 or 4 (xbox?)
+get DUMMY long  # -1
+get DUMMY long  # 2
+endian guess DUMMY
+endian save MYENDIAN
+get OFFSET long
+math OFFSET + 0x74  # ??? no idea, totally wrong
+get ZERO long
+for TYPE = 0
+    get PATH long
+    if PATH == 0
+        break
+    endif
+    if MYENDIAN != 0    # is it a bug in quickbms?
+        reverselong PATH
+    endif
+    string PATH = PATH
+    get DUMMY long
+    get STRUCT_TYPE long
+    savepos TMP
+    get INFO_OFF long
+    math INFO_OFF + TMP
+    get FILES long
+    get DUMMY5 long
+    get FLAGS long
+
+    savepos BACKUP_OFF
+    goto INFO_OFF
+    for i = 0 < FILES
+        savepos TMP
+        get NAME_OFF long
+        math NAME_OFF + TMP
+        get CRC long
+        get SIZE long
+        if STRUCT_TYPE == 1
+        elif STRUCT_TYPE == 2
+            get DUMMY long
+        else
+            print "Error: unknown structure %STRUCT_TYPE%, contact me"
+            cleanexit
+        endif
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+    goto BACKUP_OFF
+next TYPE

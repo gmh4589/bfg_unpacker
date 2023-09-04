@@ -1,0 +1,48 @@
+# Castlevania Lament / Curse
+#   FILEDATA.BIN is still a work-in-progress
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 1
+if DUMMY == 0x544f4f42  # "BOOT2" for FILEDATA.BIN
+
+    math INFO_OFF = 0x800
+    for
+        # work-in-progress (missed index file!)
+        goto INFO_OFF
+        get TYPE long
+        if TYPE == 0x82734927   # idstring "\x27\x49\x73\x82"
+            get ZERO long
+            get INFO_SIZE long
+            get ZERO long
+            get FILES long
+            get DUMMY long
+            get ZERO long
+            get ZERO long
+            savepos BASE_OFF
+            for i = 0 < FILES
+                get SIZE long
+                get DUMMY1 long
+                get OFFSET long
+                get DUMMY2 long
+                math OFFSET + BASE_OFF
+                log "" OFFSET SIZE
+            next i
+            math INFO_OFF + INFO_SIZE
+        else
+            findloc INFO_OFF binary "\x27\x49\x73\x82"            
+        endif
+    next
+
+else                    # SD*.BIN
+
+    get FILES long
+    get ZERO long
+    get ZERO long   # 1
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        math OFFSET * 0x800
+        log "" OFFSET SIZE
+    next i
+
+endif

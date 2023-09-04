@@ -1,0 +1,50 @@
+# Sacrifice
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "WAD>"
+get INFO_OFF long
+get INFO_SIZE long
+get INFO_ZSIZE asize
+get DUMMY long
+get DUMMY long
+savepos OFFSET
+math INFO_ZSIZE -= INFO_OFF
+clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE
+for INFO_OFF = 0 < INFO_SIZE
+    getdstring TMP 4 MEMORY_FILE
+        getvarchr A TMP 0
+        getvarchr B TMP 1
+        getvarchr C TMP 2
+        getvarchr D TMP 3
+        putvarchr TMP 0 D
+        putvarchr TMP 1 C
+        putvarchr TMP 2 B
+        putvarchr TMP 3 A
+    set NAME string TMP
+    string NAME += "."
+    getdstring TMP 4 MEMORY_FILE
+        getvarchr A TMP 0
+        getvarchr B TMP 1
+        getvarchr C TMP 2
+        getvarchr D TMP 3
+        putvarchr TMP 0 D
+        putvarchr TMP 1 C
+        putvarchr TMP 2 B
+        putvarchr TMP 3 A
+    string NAME += TMP
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY1 long MEMORY_FILE
+    get DUMMY2 long MEMORY_FILE
+    get DUMMY3 long MEMORY_FILE
+    savepos INFO_OFF MEMORY_FILE
+
+    if DUMMY1 == 0
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET += ZSIZE
+    endif
+next

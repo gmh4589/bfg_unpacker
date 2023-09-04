@@ -1,0 +1,33 @@
+# PACK_FILE001 (script 0.1.1)
+
+# choose the correct key!
+set KEY string "51machiboutama"
+set KEY string "aC6Bjma36a"
+set KEY string "36mA20gnJ"
+
+idstring "PACK_FILE001"
+get FILES long
+get SIZE long
+savepos OFFSET
+encryption blowfish KEY
+log MEMORY_FILE OFFSET SIZE
+math OFFSET + SIZE
+for i = 0 < FILES
+    savepos TMP
+    goto OFFSET
+    get ZIP byte
+    savepos OFFSET
+    goto TMP
+
+    comtype copy
+    if ZIP == 3
+        comtype bzip2
+    endif
+
+    get SIZE long MEMORY_FILE
+    get NAME string MEMORY_FILE
+    get XSIZE long MEMORY_FILE
+    encryption blowfish KEY
+    clog NAME OFFSET XSIZE SIZE
+    math OFFSET + XSIZE
+next i

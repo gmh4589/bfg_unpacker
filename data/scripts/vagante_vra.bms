@@ -1,0 +1,19 @@
+# Vagante vra
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+get SIZE asize
+clog TEMPORARY_FILE 0 SIZE SIZE
+open "." TEMPORARY_FILE
+
+get DUMMY long  # 8
+get FILES short
+for i = 0 <= FILES
+    get NAMESZ short
+    get DUMMY short # usually 0
+    getdstring NAME NAMESZ
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+next i

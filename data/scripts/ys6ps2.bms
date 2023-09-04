@@ -1,0 +1,195 @@
+# Ys VI: The Ark of Napishtim PS2 (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# bms version of http://aluigi.org/papers/ys6ps2ext.zip
+
+comtype zlib_noerror    # auto-size
+set PATH string ""
+get NAME basename
+get EXT extension
+if EXT == "ysi" || EXT == "ysd"
+
+    open FDDE "YSI"
+    open FDDE "YSD" 1
+
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 52
+        get SIZE long
+        get OFFSET long
+        get NUM long
+        math OFFSET * 0x800
+
+        strlen NAMESZ NAME
+        math NAMESZ - 1
+        getvarchr TMP NAME NAMESZ
+        if TMP == 'Z' || TMP == 'z'
+            putvarchr NAME NAMESZ 'P'
+            clog MEMORY_FILE OFFSET SIZE SIZE 1
+        else
+            log MEMORY_FILE OFFSET SIZE 1
+        endif
+        set EXT extension NAME
+        if EXT == "YSP"
+            set PATH basename NAME
+            callfunction EXTRACT_YSP
+        else
+            log NAME 0 SIZE MEMORY_FILE
+        endif
+    next i
+
+elif EXT == "ini" || EXT == "bin"
+
+    open FDDE "INI" 0 EXISTS
+    if EXISTS == 0
+        string TMP p "%s%s" NAME "INF.INI"
+        open FDSE TMP 0 EXISTS
+    endif
+    if EXISTS == 0
+        string TMP p "%s%s" NAME "INFO.INI"
+        open FDSE TMP 0
+    endif
+
+    open FDDE "BIN" 1 EXISTS
+    if EXISTS == 0
+        set TMP basename NAME
+        string TMP - "INF"
+        string TMP + ".BIN"
+        open FDSE TMP 1 EXISTS
+    endif
+    if EXISTS == 0
+        set TMP basename NAME
+        string TMP - "INFO"
+        string TMP + ".BIN"
+        open FDSE TMP 1
+    endif
+
+    get MAX_OFF asize 1
+
+    math MODE = 0
+
+    get FILES long
+    padding 0x10
+    savepos TMP
+    get OFFSET threebyte
+    goto TMP
+    if OFFSET == 0xaa0040
+        math MODE = 1
+    endif
+    for i = 0 < FILES
+        if MODE == 0
+            get OFFSET threebyte
+            get SIZE threebyte
+            get FREQ long
+            math OFFSET * 0x800
+        else
+            get DUMMY long
+            get SIZE short
+            get OFFSET short
+            get DUMMY short
+            get DUMMY short
+            math OFFSET * 0x10000
+            math SIZE * 0x10000
+        endif
+        padding 0x10
+
+        xmath TMP "OFFSET + SIZE"
+        if TMP u> MAX_OFF
+            xmath SIZE "MAX_OFF - OFFSET"
+        endif
+
+        if MODE == 0
+            log "" OFFSET SIZE 1
+        else
+            # there is something wrong with these files, no fix
+            math OFFSET + 0x10000
+            math SIZE   - 0x10000
+
+            math FREQUENCY = 22050
+            math CHANNELS = 2
+            math INTERLEAVE = 0x20000
+            set NAME string ""
+            callfunction DUMP_VAG
+        endif
+    next i
+
+elif EXT == "ysp"
+
+    get PATH basename
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    callfunction EXTRACT_YSP
+
+elif EXT == "idm"
+
+    string NAME + ".txt"
+    get FILES long
+    get VER long
+    get DUMMY long
+    get DUMMY long
+    for i = 0 < FILES
+        get NUM long
+        get STRINGS long
+        get DUMMY long
+        for x = 0 < STRINGS
+            get SIZE long
+            slog NAME -1 SIZE
+        next x
+    next i
+
+elif EXT == "z"
+
+    get DUMMY long
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+
+else
+
+    print "Error: unsupported extension %EXT%"
+    cleanexit
+
+endif
+
+
+startfunction EXTRACT_YSP
+    #set PATH string ""  # the names already contain the full path, some are duplicates or newer
+    get SIGN long MEMORY_FILE
+    get FILES long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    goto OFFSET MEMORY_FILE
+    for i = 0 < FILES
+        getdstring NAME 116 MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get XSIZE long MEMORY_FILE
+        string FNAME p "%s/%s" PATH NAME
+        log FNAME OFFSET SIZE MEMORY_FILE
+    next i
+endfunction
+
+# you must provide the following values: OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    append
+    log MEMORY_FILE OFFSET SIZE 1
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+endfunction

@@ -1,0 +1,25 @@
+# Generator Rex: Agent of Providence (3DS)
+
+open FDDE "gdt"
+open FDDE "gdf" 1
+open FDDE "gda" 2
+
+get ZERO long
+get FILES long
+
+get FILES long 1
+xmath NAMES_OFF "4 + (FILES * 4)"
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    get NAME_OFF long 1
+    savepos TMP 1
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF 1
+    get NAME string 1
+    goto TMP 1
+
+    log NAME OFFSET SIZE 2
+next i

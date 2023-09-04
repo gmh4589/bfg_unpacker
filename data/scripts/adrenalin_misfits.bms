@@ -1,0 +1,64 @@
+# Adrenalin Misfits (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype COMP_LZ77WII
+
+endian big
+open "FDDE" "LXHD"
+open "FDDE" "LXBD" 1 EXISTS
+if EXISTS == 0
+
+    open "FDDE" "LXMF" 1
+    idstring "FMXL"
+    get DUMMY long  # 1
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get OFFSET longlong
+        get ZERO long
+        get XSIZE long
+        get NAME_OFF longlong
+        get XSIZE long
+        get SIZE long
+        math ZSIZE = SIZE   # no compressed files
+        callfunction DUMP 1
+    next i
+
+else
+
+    idstring "FMXL"
+    goto 0x10
+    get FILES long
+    goto 0x40
+    for i = 0 < FILES
+        get FLAGS long
+        get XSIZE long
+        get OFFSET longlong
+        get NAME_OFF longlong
+        get SIZE long
+        get ZSIZE long
+        callfunction DUMP 1
+    next i
+
+endif
+
+startfunction DUMP
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if FLAGS & 0x00010000   # compression
+        goto OFFSET 1
+        idstring 1 "RPCL"
+        get DUMMY long 1
+        idstring 1 "LLZ7"
+        get SIZE long 1
+        getdstring ZERO 0x10 1
+        savepos OFFSET 1
+        math ZSIZE -= 0x20
+        clog NAME OFFSET ZSIZE SIZE 1
+    else
+        log NAME OFFSET SIZE 1
+    endif
+endfunction

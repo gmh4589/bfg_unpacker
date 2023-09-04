@@ -1,0 +1,21 @@
+# Razor Freestyle Scooter (DC)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x9a\xa6\x9a\xa6"
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF[i] long
+    get OFFSET[i] long
+    get SIZE[i] long
+    get ZERO long
+    get ZERO long
+next i
+get NAMES_SIZE long
+savepos NAMES_OFF
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < FILES
+    goto NAME_OFF[i] MEMORY_FILE
+    get NAME string MEMORY_FILE
+    log NAME OFFSET[i] SIZE[i]
+next i
+

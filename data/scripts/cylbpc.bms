@@ -1,0 +1,25 @@
+# Playboy the Mansion, Deadlock - CYLBPC
+
+idstring "CYLBPC  "
+get VER short
+get VER_MIN short
+get TYPES long
+for i = 0 < TYPES
+    get TYPES_SIZE long
+    getdstring TYPE 4
+    get FILES_SIZE long
+    get FILES long
+    for x = 0 < FILES
+        get ID long
+        if VER <= 1
+            getdstring DUMMY 16
+        endif
+        get OFFSET long
+        get SIZE long
+        if VER >= 2
+            get DUMMY long
+        endif
+        string NAME p "%s/" TYPE
+        log NAME OFFSET SIZE
+    next x
+next i

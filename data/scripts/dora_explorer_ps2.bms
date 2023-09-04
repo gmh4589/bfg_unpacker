@@ -1,0 +1,12 @@
+# Dora the Explorer: Journey to the Purple Planet [PS2]
+
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    get NAME string
+    padding 0x30 0 0x7F8
+    get OFFSET long
+    math OFFSET * 0x800
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

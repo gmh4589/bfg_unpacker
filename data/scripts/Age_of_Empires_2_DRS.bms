@@ -1,0 +1,17 @@
+# Age of Empires 2 (DRS)
+
+IDString 0 Copyright ;
+Set FILESTART Long 68 ;
+GoTo FILESTART 0 ;
+Get FILESTART Long 0 ;
+Get FILECNTL Long 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

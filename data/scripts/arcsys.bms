@@ -1,0 +1,161 @@
+# AR segs archives - Arc System Works (script 0.1.8)
+#   Sonic Unleashed
+#   Battle Fantasia
+#   BlazBlue
+#   Arcana Heart 3
+#   Persona 4 Arena (Ultimax)
+#   Under Night in Birth
+#   ...
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.4"
+
+get BASE_NAME basename
+string BASE_NAME += /
+comtype deflate
+endian big
+getdstring SIGN 4
+math WORKAROUND = 0
+math FILENUM = 0
+if SIGN u== "segs"
+    get DUMMY short
+    get CHUNKS short
+    get FULL_SIZE long
+    get FULL_ZSIZE long
+    savepos BASE_OFF
+    xmath BASE_OFF "BASE_OFF + (CHUNKS * 8)"
+    putvarchr MEMORY_FILE 0 FULL_SIZE
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        get ZSIZE short
+        get SIZE short
+        get OFFSET long
+        math OFFSET -= 1
+        if i == 0
+        if OFFSET == 0
+            math WORKAROUND = 1
+        endif
+        endif
+        if WORKAROUND != 0
+            math OFFSET + BASE_OFF
+        endif
+        if SIZE == 0
+            math SIZE = 0x00010000
+        endif
+        if SIZE == ZSIZE
+            log MEMORY_FILE OFFSET SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+    math FILENUM = -1
+elif SIGN u== "DFAS"
+    endian little
+    comtype zlib
+    idstring "FPAC"
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math FILENUM = -1
+else
+    # pfd
+endif
+
+# the files are just compressed pfd files
+# so we handle them here automatically (both!)
+
+goto 0 FILENUM
+get FULL_SIZE asize FILENUM
+endian big
+getdstring TYPE 4 FILENUM
+if TYPE == ""   # pfd
+    get DUMMY long FILENUM
+    get DUMMY long FILENUM
+    get FILES long FILENUM
+    endian guess FILES  # we can use endian guess with the other 2 DUMMY too
+    savepos BASE_OFF FILENUM
+    for BASE_OFF = BASE_OFF < FULL_SIZE
+        get HEADDATA_SIZE long FILENUM
+        get SIZE long FILENUM
+        get OFFSET long FILENUM
+        get DUMMY long FILENUM
+        get DUMMY long FILENUM
+        get NAME string FILENUM
+        math OFFSET += BASE_OFF
+        set FNAME string BASE_NAME
+        string FNAME += NAME
+        log FNAME OFFSET SIZE FILENUM
+        math BASE_OFF += HEADDATA_SIZE
+        goto BASE_OFF FILENUM
+    next
+
+elif TYPE u== "FPAC"
+    endian little
+    savepos TMP FILENUM
+    getdstring SKIP 8 FILENUM
+    get FILES long FILENUM
+    endian guess FILES
+    goto TMP FILENUM
+    get BASE_OFF long FILENUM
+    get TOT_SIZE long FILENUM
+    get FILES long FILENUM
+    get DUMMY long FILENUM
+    get NAMELEN long FILENUM
+    get DUMMY long FILENUM
+    get DUMMY long FILENUM
+    for i = 0 < FILES
+        getdstring NAME NAMELEN FILENUM
+        get FILEID long FILENUM
+        get OFFSET long FILENUM
+        get SIZE long FILENUM
+        savepos TMP FILENUM
+        get ZERO long FILENUM
+        if ZERO != 0
+            goto TMP FILENUM
+        endif
+        Padding 16 FILENUM 0
+        math OFFSET += BASE_OFF
+        set FNAME string BASE_NAME
+        string FNAME += NAME
+        log FNAME OFFSET SIZE FILENUM
+    next i
+
+elif TYPE u== "UKAr"
+    comtype gzip    # automatic .gz decompression
+    goto 0 FILENUM
+    idstring FILENUM "UKArc\0\0\0"
+    get DUMMY short FILENUM # 0x0200, some flags?
+    get DUMMY short FILENUM # 0x1234, endianess?
+    get FILES long FILENUM
+    endian guess FILES
+    savepos BASE_OFF FILENUM
+    for i = 0 < FILES
+        getdstring NAME 0x40 FILENUM
+        get SIZE long FILENUM
+        get DUMMY long FILENUM  # ???
+        get OFFSET long FILENUM
+        math OFFSET + BASE_OFF
+
+        set EXT extension NAME
+        if EXT == "gz"
+            set NAME fullbasename NAME
+            clog NAME OFFSET SIZE SIZE FILENUM
+        else
+            log NAME OFFSET SIZE FILENUM
+        endif
+    next i
+
+else
+    get NAME basename
+    get EXT extension
+    string NAME += "_unpacked."
+    string NAME += EXT
+    set FNAME string BASE_NAME
+    string FNAME += NAME
+    log FNAME 0 FULL_SIZE FILENUM
+endif
+
+print "\nyou can try to reuse this script with the output files (pac, pfd and so on)\nfor extracting the other files contained in them"

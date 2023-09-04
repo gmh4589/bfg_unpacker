@@ -1,0 +1,33 @@
+# CPIO archive
+
+get CPIO_SIZE asize
+for OFFSET = 0 != CPIO_SIZE
+    #idstring "\xc7\x71" # 070707, no idstring because it's empty at the end
+    get MAGIC short
+    if MAGIC != 0x71c7
+        break
+    endif
+    get DEV short
+    get INO short
+    get MODE short
+    get UID short
+    get GID short
+    get NLINK short
+    get RDEV short
+    get MTIME short
+    get MTIME2 short
+    xmath MTIME "(MTIME << 16) | MTIME2"
+    get NAMESZ short
+    get SIZE short
+    get SIZE2 short
+    xmath SIZE "(SIZE << 16) | SIZE2"
+    getdstring NAME NAMESZ
+    padding 2
+    savepos OFFSET
+    if SIZE != 0    # avoid folders and "TRAILER!!!"
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET + SIZE
+    math OFFSET x 2
+    goto OFFSET
+next

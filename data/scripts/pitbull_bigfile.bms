@@ -1,0 +1,54 @@
+# Pitbull BigFile IDX/BIN
+
+open FDDE "idx"
+open FDDE "bin" 1
+
+# "BigFileHeader for BigFile V1.1 (C) Steve Snake, March 2001. Hello everybody! What are you doing snooping around in my files? Now V1.2 By C Kirby!!! & (C) Pitbull Syndciate Ltd. Visit www.pitbull.co.uk "
+#idstring 1 "BigFileHeader"
+
+math FOLDERS = 0
+
+get FILES asize
+xmath FILES "FILES / (0x18 + 4 + 4)"
+for i = 0 < FILES
+    set PATH string ""
+    for x = 0 < FOLDERS
+        getarray IDX 1 x
+        math x + 1
+        if x < FOLDERS
+            getarray NEXT_IDX 1 x
+        else
+            math NEXT_IDX = 0x7fffffff
+        endif
+        if i >= IDX && i < NEXT_IDX
+            getarray PATH 0 x
+            break
+        endif
+    next
+
+    getdstring NAME 0x18
+    get OFFSET long
+    get SIZE long
+
+    # in theory only the first character, but let's do it for all
+    strlen NAMESZ NAME
+    for x = 0 < NAMESZ
+        getvarchr TMP NAME x
+        if TMP >= 0x80
+            math TMP ^ 0x80
+            putvarchr NAME x TMP
+        endif
+    next x
+
+    string NAME p "%s/%s" PATH NAME
+    if OFFSET == 0
+        putarray 0 FOLDERS NAME
+        putarray 1 FOLDERS SIZE
+        math FOLDERS + 1
+    else
+        math OFFSET * 0x800
+        log NAME OFFSET SIZE 1
+    endif
+next i
+
+

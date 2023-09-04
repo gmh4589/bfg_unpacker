@@ -1,0 +1,51 @@
+# MotoGP 15 (msmixext new version)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get SIGN long
+goto 0
+if SIGN == 0x0ff512ed
+    comtype xmemdecompress
+    get SIZE asize
+    clog TEMPORARY_FILE 0 SIZE SIZE
+    open "." TEMPORARY_FILE
+endif
+
+comtype deflate
+get VER long    # 1
+endian guess VER
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    callfunction mix_name_decrypt 1
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get TYPE byte
+    get ZERO byte
+    get TSTAMP longlong
+    if OFFSET != 0
+        if TYPE == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i
+# gedstring DUMMY 20    # probably a sha1 hash, who cares...
+
+startfunction mix_name_decrypt
+    math mix_oldver = 0
+    for x = 0 < NAMESZ
+        getvarchr TMP NAME x
+        if mix_oldver != 0
+            math TMP ^ 0x3a
+        else
+            xmath TMP "TMP ^ (x * 0x3a)"
+        endif
+        putvarchr NAME x TMP
+    next x
+endfunction

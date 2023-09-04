@@ -1,0 +1,111 @@
+# install4j extractor
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "dmg"
+    print "you must extract all the *.dat files located in *Installer.app/Contents/Resources/app using 7-zip or another tool, then open these dat files with this script"
+    cleanexit
+endif
+
+endian big
+if EXT == "dat"
+    math ARCHIVES = 1
+    get ARCHIVE_SIZE asize
+    putarray 0 0 ARCHIVE_SIZE
+else
+    # looks like this signature is fixed
+    findloc OFFSET string "\xe8\xe4\x13\xd5" ""
+    if OFFSET == ""
+        findloc OFFSET string "0.dat\0" ""
+        if OFFSET == ""
+            print "Error: this file doesn't seem an install4j archive"
+            cleanexit
+        endif
+        math OFFSET -= 2    # NAMESZ
+        math OFFSET -= 4    # ARCHIVES
+        math OFFSET -= 4    # SIGN
+    endif
+    goto OFFSET
+
+    get SIGN long
+    get ARCHIVES long
+    for i = 0 < ARCHIVES
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get DUMMY long
+        get ARCHIVE_SIZE long
+        putarray 0 i ARCHIVE_SIZE
+    next i
+endif
+endian little
+
+for i = 0 < ARCHIVES
+    getarray ARCHIVE_SIZE 0 i
+    savepos ARCHIVE_OFFSET
+    getdstring SIGN 2
+    if SIGN == "PK"
+        # copy in the memory file
+        log MEMORY_FILE ARCHIVE_OFFSET ARCHIVE_SIZE
+    else
+        # lzma
+        comtype lzma86head
+        clog MEMORY_FILE ARCHIVE_OFFSET ARCHIVE_SIZE ARCHIVE_SIZE
+    endif
+
+    # zip
+    get zip_filesize asize              MEMORY_FILE
+    for offset = 0 < zip_filesize
+        get PK_SIGN long                MEMORY_FILE
+        if PK_SIGN != 0x04034b50
+            break
+        endif
+        get ver             short       MEMORY_FILE
+        get flag            short       MEMORY_FILE
+        get method          short       MEMORY_FILE
+        get modtime         short       MEMORY_FILE
+        get moddate         short       MEMORY_FILE
+        get crc             long        MEMORY_FILE
+        get comp_size       long        MEMORY_FILE
+        get uncomp_size     long        MEMORY_FILE
+        get name_len        short       MEMORY_FILE
+        get extra_len       short       MEMORY_FILE
+        getdstring name     name_len    MEMORY_FILE
+        getdstring extra    extra_len   MEMORY_FILE
+        savepos offset                  MEMORY_FILE
+
+        if method == 0
+            Log name offset uncomp_size MEMORY_FILE
+        else
+            if method == 8
+                ComType deflate
+            elif method == 1
+                ComType unshrink
+            elif method == 6
+                ComType explode
+            elif method == 9
+                ComType deflate64
+            elif method == 12
+                ComType bzip2
+            elif method == 14
+                ComType lzmaefs
+            elif method == 21
+                ComType XMemDecompress
+            elif method == 98
+                ComType ppmd
+            elif method == 99
+                print "this script doesn't support AES encryption"
+                cleanexit
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size MEMORY_FILE
+        endif
+
+        math offset += comp_size
+        goto offset                     MEMORY_FILE
+    next
+
+    math ARCHIVE_OFFSET += ARCHIVE_SIZE
+    goto ARCHIVE_OFFSET
+next i

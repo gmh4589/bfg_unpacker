@@ -1,0 +1,33 @@
+# 刘备磕头2 MDGame
+# script for QuickBMS http://quickbms.aluigi.org
+
+# both TOC/header and filenames are encrypted
+comtype deflate_noerror
+idstring "MDGame"
+#goto 0x6a
+findloc OFFSET binary "\x00\x00\x00"
+math OFFSET - 1
+get ARCHIVE_SIZE asize
+for OFFSET = OFFSET != ARCHIVE_SIZE
+    goto OFFSET
+    get MORE_SIZE long  # probably the encrypted name
+    get SIZE long
+    savepos NEXT_OFF
+    savepos TMP_OFF
+    math NEXT_OFF + MORE_SIZE
+    math NEXT_OFF + SIZE
+    getdstring DUMMY MORE_SIZE
+    getdstring SKIP 2   # 0x9d 0x87
+    savepos OFFSET
+    get TYPE byte
+    if TYPE == 0
+        get DUMMY long
+        savepos OFFSET
+        xmath SIZE "SIZE - (OFFSET - TMP_OFF)"
+        log "" OFFSET SIZE
+    else
+        xmath SIZE "SIZE - (OFFSET - TMP_OFF)"
+        clog "" OFFSET SIZE SIZE
+    endif
+    math OFFSET = NEXT_OFF
+next

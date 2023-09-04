@@ -1,0 +1,41 @@
+# A Kingdom for Keflings
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype bzip2
+get TYPE short
+get DUMMY short
+if TYPE == 6
+    get UNBZ2_SIZE long
+    putvarchr MEMORY_FILE UNBZ2_SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for MYSIZE = 0 < UNBZ2_SIZE
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+        goto OFFSET
+        math MYSIZE += SIZE
+    next
+    append
+else
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+endif
+
+goto 0 MEMORY_FILE
+get TYPE short MEMORY_FILE
+get DUMMY short MEMORY_FILE
+get FILES short MEMORY_FILE
+get DUMMY short MEMORY_FILE
+get NAMESZ short MEMORY_FILE
+goto 0x20 MEMORY_FILE
+for i = 0 < FILES
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    getdstring HASH 16 MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

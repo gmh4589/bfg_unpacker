@@ -1,0 +1,12 @@
+idstring "RAT\0"
+goto 24
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    getdstring NAME 16
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

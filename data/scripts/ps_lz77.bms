@@ -1,0 +1,15 @@
+# PlayStation LZ77 files (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.7"
+comtype ps_lz77
+findloc OFFSET binary "LZ77"
+goto OFFSET
+idstring "LZ77"
+get SIZE asize
+math SIZE - OFFSET
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+clog NAME OFFSET SIZE SIZE

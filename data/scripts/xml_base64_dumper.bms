@@ -1,0 +1,15 @@
+comtype base64
+for
+    findloc OFFSET string "base64" 0 ""
+    if OFFSET == ""
+        break
+    endif
+    goto OFFSET
+    getct DUMMY string '>'
+    savepos OFFSET
+    findloc SIZE string "<"
+    math SIZE -= OFFSET
+    clog "" OFFSET SIZE SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next

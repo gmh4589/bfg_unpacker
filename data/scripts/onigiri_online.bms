@@ -1,0 +1,92 @@
+# Onigiri Online (script 0.1.1a)
+#   thanks Ekey :)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get EXT extension
+if EXT != "kxr"
+    savepos OFFSET
+    get SIZE asize
+    math KEY = 0x3716f028
+    callfunction DECRYPT 1
+    get NAME basename
+    string NAME p= "%s_decrypt.%s" NAME EXT
+    log NAME 0 SIZE MEMORY_FILE2
+    cleanexit
+endfunction
+
+idstring "kxrf"
+get DUMMY long
+get OFFSET long
+get SIZE long
+math KEY = OFFSET
+callfunction DECRYPT 1
+log MEMORY_FILE 0 SIZE MEMORY_FILE2
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAMESZ short MEMORY_FILE
+    math NAMESZ += 1
+    getdstring NAME NAMESZ MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get TYPE long MEMORY_FILE
+    if TYPE == 1    # folder
+        string PATH += NAME
+        string PATH += /
+        get SUB_FOLDERS short MEMORY_FILE
+        for i = 0 < SUB_FOLDERS
+            callfunction EXTRACT
+        next i
+    else
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        set FNAME string PATH
+        string FNAME += NAME
+        if NAME & "."
+            # extension already exists
+        else
+            string FNAME += "." # autoguess
+        endif
+
+        if TYPE == 0
+            math KEY = OFFSET
+            callfunction DECRYPT 1
+            log FNAME 0 SIZE MEMORY_FILE2
+
+        elif TYPE == 4
+            comtype unzip_dynamic
+            clog FNAME OFFSET SIZE SIZE
+
+        else
+            log FNAME OFFSET SIZE
+        endif
+    endif
+endfunction
+
+startfunction DECRYPT
+    log MEMORY_FILE2 OFFSET SIZE
+    set MEMORY_FILE3 binary "\x55\x31\xd2\x89\xe5\x56\x8b\x75\x10\x53\x8b\x45\x08\x8b\x5d\x0c\x83\xe6\xfc\x39\xf2\x7d\x1c\x89\xc1\xc1\xe9\x03\x31\xc1\xc1\xe9\x0d\x83\xf1\x01\x31\x04\x13\x83\xe1\x01\x01\xc0\x83\xc2\x04\x09\xc8\xeb\xe0\x3b\x55\x10\x7d\x09\x30\x04\x13\x42\xc1\xe8\x08\xeb\xf2\x5b\x5e\x5d\xc3"
+    calldll MEMORY_FILE3 0 cdecl RET KEY MEMORY_FILE2 SIZE
+endfunction
+
+startfunction BMS_DECRYPT
+    log MEMORY_FILE2 OFFSET SIZE
+    endian little
+    xmath TMP_SIZE "SIZE & ~3"
+    for i = 0 < TMP_SIZE
+        getvarchr TMP MEMORY_FILE2 i long
+        math TMP ^= KEY
+        putvarchr MEMORY_FILE2 i TMP long
+        xmath KEY "(((((KEY >> 3) ^ KEY) >> 0xd) ^ 0xffffffff) & 1) | (KEY << 1)"
+    next i + 4
+    for i = i < SIZE
+        getvarchr TMP MEMORY_FILE2 i
+        math TMP ^= KEY
+        putvarchr MEMORY_FILE2 i TMP
+        math KEY >>= 8
+    next i
+    endian big
+endfunction

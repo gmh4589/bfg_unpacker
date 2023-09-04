@@ -1,0 +1,35 @@
+# Evolution Studios - DVD.BIN/DVD.DAT(PS2)
+
+open FDDE "bin" 0
+open FDDE "dat" 1
+
+get FILES long
+get DUMMY2 long
+get DUMMY3 long
+for i = 0 < FILES
+	get OFFSET long
+	get SIZE long
+	get NAME_CRC long
+	string NAME p= "%08x." NAME_CRC
+	callfunction ADD_EXT 1
+	log NAME OFFSET SIZE 1
+next i
+
+startfunction ADD_EXT
+	goto OFFSET 1
+	get SIGN1 long 1
+	get SIGN2 long 1
+	get SIGN3 long 1
+	get SIGN4 long 1
+	if SIGN1 == 0x00000000
+	else
+		if SIGN2 == 0x01000200
+			string NAME += "str"
+		else
+			if SIGN3 == 0x04360000
+				string NAME += "bmp"
+			else
+			endif
+		endif
+	endif
+endfunction

@@ -1,0 +1,57 @@
+# PaRappa PSP
+#   Incomplete script:
+#       no directory handling (just a work-around)
+#       no compression (unknown)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY short
+get DUMMY short
+get SECTIONS long
+get DUMMY long
+get DUMMY long
+for i = 0 < SECTIONS
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+for SECTION = 0 < SECTIONS
+    getarray OFFSET 0 SECTION
+    goto OFFSET
+
+    get FOLDERS short
+    get FILES short
+    get NAMES_SIZE long
+
+    findloc NAMES_OFF string "data"
+    log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+    # work-around, currently I don't know the exact way to handle the tree
+    set PATH string ""
+    xmath NUM "FOLDERS + FILES"
+    for i = 0 < NUM
+        get NAME_OFF long
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        if NAME & "."
+            get SIZE long
+            get ZSIZE long
+            get OFFSET long
+            get DUMMY short
+
+            string FNAME p= "%s/%s" PATH NAME
+            if ZSIZE == 0
+                log FNAME OFFSET SIZE
+            else
+                #clog FNAME OFFSET ZSIZE SIZE
+                string FNAME p= "%s/%s" "unknown_compression" NAME
+                log FNAME OFFSET ZSIZE
+            endif
+        else
+            get DUMMY short
+            get DUMMY short
+            get DUMMY short
+            get DUMMY short
+            set PATH string NAME
+        endif
+    next i
+next SECTION

@@ -1,0 +1,13 @@
+# Twilight
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "TCLF"
+get ARCHIVE_SIZE asize
+for OFFSET = 4 != ARCHIVE_SIZE
+    goto OFFSET
+    getdstring NAME 32
+    get SIZE long
+    get DUMMY long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+next OFFSET + SIZE

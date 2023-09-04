@@ -1,0 +1,10 @@
+# Virtual Pool
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 256
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

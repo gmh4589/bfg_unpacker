@@ -1,0 +1,29 @@
+# Second Novel - Kanojo no Natsu
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype nislzs
+idstring "pack"
+get ZERO long
+get INFO_OFF long
+get INFO_SIZE long
+get FILEs long
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x34
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "lzss"
+        get ZERO long
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

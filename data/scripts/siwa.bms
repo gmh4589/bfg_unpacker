@@ -1,0 +1,83 @@
+# SIWA Siemens patches (*.001) (script 0.1.1)
+#   currently extracts only a small part of big installations like simatic_wincc_basic_v13_sp1.001
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.1"
+
+comtype mszip
+idstring "SIWA"
+
+get EXT extension
+if EXT != "001"
+    print "Error: you must select the first file that has the 001 extension"
+    cleanexit
+endif
+get XNAME basename
+
+get DUMMY long
+get PAKSIZE longlong
+get INFO_OFF longlong
+get DUMMY long
+get FILES short
+get STRINGS short
+get INFO_SIZE long
+log MEMORY_FILE2 INFO_OFF INFO_SIZE
+
+for i = 0 < STRINGS
+    get DUMMY string
+next i
+savepos TMP
+math BLOCKS = INFO_OFF
+math BLOCKS -= TMP
+log MEMORY_FILE3 TMP BLOCKS
+
+math OLD_PART  = -1
+math OLD_BLOCK = -1
+for i = 0 < FILES
+    get SIZE long MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    get BLOCK signed_short MEMORY_FILE2
+    get CRC long MEMORY_FILE2
+    get FLAGS short MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    if BLOCK != OLD_BLOCK
+        if BLOCK < 0
+            math BLOCK + OLD_BLOCK  # ???
+        endif
+        math OLD_BLOCK = BLOCK
+
+        math TMP = BLOCK
+        math TMP *= 8
+        goto TMP MEMORY_FILE3
+        get XOFFSET long MEMORY_FILE3
+        get CHUNKS short MEMORY_FILE3
+        get PART short MEMORY_FILE3
+
+        if PART != OLD_PART
+            math OLD_PART = PART
+            string TMP p= "%s.%03d" XNAME PART
+            open FDSE TMP
+        endif
+
+        math TMP = CHUNKS
+        math TMP *= 0x8000
+        putvarchr MEMORY_FILE TMP 0 # pre-allocate
+        log MEMORY_FILE 0 0
+
+        goto XOFFSET
+        append
+        for x = 0 < CHUNKS
+            get XCRC long
+            get ZSIZE short
+            get XSIZE short
+            savepos XOFFSET
+            clog MEMORY_FILE XOFFSET ZSIZE XSIZE
+            math XOFFSET += ZSIZE
+            goto XOFFSET
+        next x
+        append
+    endif
+
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

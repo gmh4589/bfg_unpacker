@@ -1,0 +1,24 @@
+<bms games="'Armored Fist 3', 'Delta Force Land Warrior', 'Delta Force Xtreme', 'F-16 Multirole Fighter'" platforms="'PC'" ext="PFF">
+ImpType StandardTail ;
+Get HEADSIZE Long 0 ;
+Get HEADER Long 0 ;
+If HEADER <> 860243536 ;
+CleanExit ;
+EndIf ;
+Get FILENUM Long 0 ;
+Get ENTSIZE Long 0 ;
+Get TAILX Long 0 ;
+GoTo TAILX 0 ;
+For F = 1 To FILENUM ;
+Get FOOBAR Long 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Get DATE Long 0 ;
+GetDString FNAME 12 0 ;
+Get FOO Long 0 ;
+Get BAR Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next F ;
+</bms>

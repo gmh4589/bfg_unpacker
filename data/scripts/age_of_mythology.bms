@@ -1,0 +1,21 @@
+# Age of Mythology
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring DUMMY 12
+get FILES long
+get SIZE long
+get INFO_OFF long
+goto INFO_OFF
+xmath BASE_OFF "INFO_OFF + (FILES * 4)"
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    savepos TMP
+    goto OFFSET
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 12
+    get NAME string
+    goto TMP
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,13 @@
+# The Interactive Adventures of Dog Mendonça & Pizzaboy
+
+idstring "GDPC"
+goto 0x54
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    get SIZE longlong
+    getdstring HASH 16
+    log NAME OFFSET SIZE
+next i

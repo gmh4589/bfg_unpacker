@@ -1,0 +1,44 @@
+# uclpack
+
+endian big
+idstring "\x00\xe9\x55\x43\x4c\xff\x01\x1a"
+get FLAGS long
+get METHOD byte
+get LEVEL byte
+get BLOCK_SIZE long
+
+log MEMORY_FILE 0 0
+append
+for
+    get SIZE long
+    if SIZE == 0
+        break
+    endif
+    get ZSIZE long
+    savepos OFFSET
+    if ZSIZE < SIZE
+        if METHOD == 0x2b
+            comtype nrv2b
+        elif METHOD == 0x2d
+            comtype nrv2d
+        elif METHOD == 0x2e
+            comtype nrv2e
+        else
+            print "Error: Unknown compression method %METHOD|x%"
+            cleanexit
+        endif
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+    else
+        log MEMORY_FILE OFFSET ZSIZE
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+next
+append
+
+get SIZE asize MEMORY_FILE
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+log NAME 0 SIZE MEMORY_FILE

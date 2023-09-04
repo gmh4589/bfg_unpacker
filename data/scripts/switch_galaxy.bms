@@ -1,0 +1,26 @@
+# Switch Galaxy Ultra (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get BASE_OFF long
+get NAMES_OFF long
+savepos TMP
+xmath FILES "(BASE_OFF - TMP) / 16"
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAME line
+    savepos NAMES_OFF
+    goto TMP
+
+    math OFFSET + BASE_OFF
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,28 @@
+<bms ext="emi" games="'Breath of Fire 4'" platforms="'PS'" version="1.0" author="Mr.Mouse" verbose="no" silence="no">
+ImpType SFileSize ;
+Get FN Long 0 ;
+Get U1 Long 0 ;
+GetDString ID 8 0 ;
+Set B Long 2048 ;
+Set A Long FN ;
+Math A *= 16 ;
+Math A += 16 ;
+Set C Long A ;
+Math C /= B ;
+Math C *= 2048 ;
+Math C += 2048 ;
+Set Off Long C ;
+For T = 1 To FN ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get U2 Long 0 ;
+Get ID2 Long 0 ;
+Get U3 Int 0 ;
+Get END Int 0 ;
+Log "" Off FS 0 FSO ;
+Math FS /= 2048 ;
+Math FS *= 2048 ;
+Math FS += 2048 ;
+Math Off += FS ;
+Next T ;
+</bms> 

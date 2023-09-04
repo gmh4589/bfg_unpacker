@@ -1,0 +1,23 @@
+<bms games="'Micro Machines 2'" platforms="'PC'" ext="sfx" author="Mr.Mouse" version="2.0" verbose="no" silence="no">
+ImpType SFileSize ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+GoTo SOF 0 ;
+Set IDM String "SMPL" ;
+Do ;
+GetDString IDS 4 0 ;
+If IDS <> IDM ;
+CleanExit ;
+Else ;
+SavePos FS 0 ;
+Get FiSi Long 0 ;
+GetDString FName 8 0 ;
+SavePos FO 0 ;
+Math FiSi -= 16 ;
+Log FName FO FiSi 0 FS ;
+Math FO += FiSi ;
+GoTo FO 0 ;
+EndIf ;
+SavePos POS 0 ;
+While POS < END ;
+</bms>

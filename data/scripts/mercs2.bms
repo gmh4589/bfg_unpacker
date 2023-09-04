@@ -1,0 +1,122 @@
+# Mercenaries 2 (script 0.1.1)
+#   this script extracts all the so called UCFX files
+#   from the block files inside the archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "sges"
+    callfunction sges_extract 1
+    cleanexit
+endif
+
+idstring "FFCS"
+get DUMMY long
+get DUMMY long
+set INDX_ENTRIES long 0
+for i = 0 < 5
+    getdstring TYPE_NAME 4
+    get TYPE_OFFSET long
+    get TYPE_ENTRIES long
+    if TYPE_NAME == "INDX"
+        set INDX_OFFSET long TYPE_OFFSET
+        set INDX_ENTRIES long TYPE_ENTRIES
+    elif TYPE_NAME == "PTHS"
+        set PTHS_OFFSET long TYPE_OFFSET
+        set PTHS_ENTRIES long TYPE_ENTRIES
+    endif
+next i
+
+goto PTHS_OFFSET
+for i = 0 < PTHS_ENTRIES
+    get NAME string
+    putarray 0 i NAME
+next i
+
+goto INDX_OFFSET
+for i = 0 < INDX_ENTRIES
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    getarray NAME 0 i
+
+    math OFFSET *= 0x8000
+    math SIZE &= 0xffff # ???
+    math SIZE *= 0x8000
+
+    #log NAME OFFSET SIZE
+    callfunction unpack_block
+next i
+
+startfunction unpack_block
+    savepos RET_OFF
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN u== "sges"
+        goto OFFSET
+        callfunction sges_extract 1
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto RET_OFF
+endfunction
+
+startfunction dump_ucfx
+    set BCK_NAME string NAME
+    goto 0 MEMORY_FILE
+    get SUB_FILES long MEMORY_FILE
+    math SUB_FILES &= 0xff  # blocks\VZ\text_effect_P000_Q3.block
+    set SUB_OFFSET long SUB_FILES
+    math SUB_OFFSET *= 16
+    math SUB_OFFSET += 4
+    for x = 0 < SUB_FILES
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get ZERO long MEMORY_FILE
+        get SUB_SIZE long MEMORY_FILE
+        log NAME SUB_OFFSET SUB_SIZE MEMORY_FILE
+        math SUB_OFFSET += SUB_SIZE
+        set NAME string BCK_NAME
+        string NAME += "_"
+        string NAME += x
+    next x
+endfunction
+
+startfunction sges_extract
+    savepos OFFSET
+    idstring "sges"
+    get DUMMY short # possible comtype?
+    get CHUNKS short
+    get TOTAL_SIZE long
+    get TOTAL_ZSIZE long
+    savepos TMP_OFF
+    math CHUNKS -= 1
+
+    putvarchr MEMORY_FILE TOTAL_SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 <= CHUNKS
+        if x < CHUNKS
+            get CHUNK_ZSIZE long
+            set CHUNK_SIZE long 0x10000
+            get CHUNK_OFFSET long
+        else
+            get CHUNK_ZSIZE short
+            get CHUNK_SIZE short
+            get CHUNK_OFFSET long
+        endif
+        math CHUNK_OFFSET -= 1
+        math CHUNK_OFFSET += OFFSET
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE CHUNK_OFFSET CHUNK_SIZE
+        else
+            clog MEMORY_FILE CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+    next x
+    append
+    #get SIZE asize MEMORY_FILE
+    #log NAME 0 SIZE MEMORY_FILE
+    callfunction dump_ucfx
+endfunction

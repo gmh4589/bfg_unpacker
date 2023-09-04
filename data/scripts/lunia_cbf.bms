@@ -1,0 +1,21 @@
+# Lunia (CBF archives) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+get CBF_SIZE asize
+for NEXT_OFF = 0 u< CBF_SIZE
+    get DATA_SIZE long
+    savepos NEXT_OFF
+    math NEXT_OFF + DATA_SIZE
+    savepos OFFSET
+    for OFFSET = OFFSET u< NEXT_OFF
+        get ZSIZE long
+        get SIZE long
+        math ZSIZE + 5
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+        goto OFFSET
+    next
+    goto NEXT_OFF
+next

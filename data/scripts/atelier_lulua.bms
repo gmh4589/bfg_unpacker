@@ -1,0 +1,30 @@
+# Atelier Lulua
+
+open FDDE "ktsl2asbin"
+open FDDE "ktsl2stbin" 1
+
+idstring "KTSR"
+get ktsl2asbin_SIZE asize
+for ENTRY_OFF = 0x40 != ktsl2asbin_SIZE
+    goto ENTRY_OFF
+    get ENTRY_TYPE long
+    get ENTRY_SIZE long
+
+    if ENTRY_TYPE == 0x368c88bd
+        getdstring DUMMY 0x38
+        getdstring NAME 0x80
+    else    # 0x70cbccc5
+        getdstring DUMMY 0x18
+        getdstring NAME 0x40
+        get TYPE long
+        get OFFSET long
+        if OFFSET != 0xffffffff
+            get SIZE long
+            if SIZE != 0
+                log NAME OFFSET SIZE 1
+            endif
+        endif
+    endif
+
+    math ENTRY_OFF + ENTRY_SIZE
+next

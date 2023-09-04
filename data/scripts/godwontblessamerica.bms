@@ -1,0 +1,27 @@
+# God won't bless America
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SRES"
+get VERSION long
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    get XSIZE long
+    if XSIZE == 0xffffffff
+        cleanexit
+    endif
+    get NAME string
+    savepos OFFSET
+    encryption "rot" "lkfWEdsuAidsXVP5e7fdsf712lj45f92DSpoJFD124a12vcladsaijJFQOM24PIV2bn5gEtk6R5i8s6002KHD405fds4f5sf" "" 1
+    log MEMORY_FILE OFFSET XSIZE
+    encryption "" ""
+    get ZIP long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    if ZIP == 0
+        log NAME 12 SIZE MEMORY_FILE
+    else
+        clog NAME 12 ZSIZE SIZE MEMORY_FILE
+    endif
+    math OFFSET += XSIZE
+    goto OFFSET
+next

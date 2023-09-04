@@ -1,0 +1,17 @@
+idstring HGPK
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY byte
+    get NAMESZ byte
+    filexor 0xaa
+    getdstring NAME NAMESZ
+    filexor 0
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY byte
+    filexor 0xaa
+    log NAME OFFSET SIZE
+    filexor 0
+next i

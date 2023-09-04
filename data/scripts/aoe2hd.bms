@@ -1,0 +1,23 @@
+# Age of Empires II HD - The Forgotten
+
+get SIGN string
+if SIGN & "Ensemble Studios"
+else
+    print "Error: unsupported DRS archive"
+    cleanexit
+endif
+
+goto 0x38
+get DUMMY long # 1
+get DATA_OFF long
+getdstring TYPE 4
+string NAME p "%s/" TYPE
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i
+

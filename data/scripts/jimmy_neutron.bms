@@ -1,0 +1,54 @@
+# Jimmy Neutron / Nickelodeon / THQ Studio Australia (script 0.2.2)
+#   Avatar: The Last Airbender
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "pack"
+get VER long    # Jimmy Neutron had both VER set to zero, Avatar 1.1
+get HEADER_SIZE long
+get DATA_SIZE long
+get NAMES_OFF long
+get FILES long
+
+xmath VER1 "VER >> 16"
+xmath VER2 "VER & 0xffff"
+
+if VER1 >= 2
+    math NAMES_OFF + HEADER_SIZE
+    goto HEADER_SIZE
+endif
+
+for i = 0 < FILES
+    math ZIP = 0
+    if VER1 >= 2
+        get OFFSET long
+        get XSIZE long
+        get SIZE long
+        get NAME_OFF long
+        get TSTAMP long
+        get ZIP long
+    else
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        math XSIZE = 0
+        if VER1 >= 1
+            get XSIZE long
+        endif
+        if XSIZE != 0
+            math ZIP = 1
+        endif
+    endif
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

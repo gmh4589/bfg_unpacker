@@ -1,0 +1,30 @@
+# VTT to SRT subtitle converter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TMP line
+if TMP != "WEBVTT"
+    cleanexit
+endif
+do
+    get TMP line
+while TMP != ""
+
+log MEMORY_FILE 0 0
+get VTT_SIZE asize
+math i = 0
+do
+    get TMP line
+    if TMP & " --> "
+        math i + 1
+        put i line MEMORY_FILE
+        string TMP R "." ","
+    endif
+    string TMP w TMP
+    put TMP line MEMORY_FILE
+    savepos TMP_LINE
+while TMP_LINE < VTT_SIZE
+
+get NAME basename
+string NAME + ".srt"
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

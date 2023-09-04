@@ -1,0 +1,79 @@
+# Mohawk Engine
+#   https://github.com/scummvm/scummvm-tools/blob/master/engines/mohawk/archive.cpp
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "MHWK"
+get fileSize long
+idstring "RSRC"
+get version short
+get compaction short
+get filesize long
+get abs_offset long
+get file_table_offset short
+get file_table_size short
+
+goto abs_offset
+get name_offset short
+get resource_types short
+for i = 0 < resource_types
+    getdstring tag 4
+    get resource_table_offset short
+    get name_table_offset short
+
+    savepos BACKUP_OFFSET
+    math resource_table_offset + abs_offset
+    goto resource_table_offset
+    get resTable_resources short
+    for j = 0 < resTable_resources
+        get id short
+        get index short
+    next j
+    math name_table_offset + abs_offset
+    goto name_table_offset
+    get nameTable_num short
+    for j = 0 < nameTable_num
+        get offset short
+        get index short
+        math offset + abs_offset
+        math offset + name_offset
+        savepos TMP
+        goto offset
+        get NAME string
+        goto TMP
+
+        math index - 1
+        string NAME p "%s/%s" tag NAME
+        putarray 0 index NAME
+    next j
+    goto BACKUP_OFFSET
+next i
+
+math file_table_offset + abs_offset
+goto file_table_offset
+get fileTableAmount long
+for i = 0 < fileTableAmount
+    get offset long
+    get dataSize short
+    get dataSize2 byte
+    get flags byte
+    get unk short
+    xmath dataSize "dataSize + (dataSize2 << 16) + ((flags & 7) << 24)"
+    putarray 1 i offset
+    putarray 2 i dataSize
+    # all the tMOV sizes are wrong!
+next i
+
+get offset asize
+putarray 1 i offset
+
+putarray 0 fileTableAmount ""
+for i = 0 < fileTableAmount
+    getarray NAME 0 i
+    getarray offset 1 i
+    getarray dataSize 2 i
+    math i + 1
+    getarray dataSize 1 i   # next offset
+    math dataSize - offset
+    log NAME offset dataSize
+next

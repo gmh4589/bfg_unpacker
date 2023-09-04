@@ -1,0 +1,19 @@
+# Naruto Ultimate Ninja PS2 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+open FDSE "binlist.txt"
+for
+    get TMP line
+    if TMP & "#"
+    else
+        string ELEMENTS S TMP NAME OFFSET ZSIZE SIZE
+        if ELEMENTS == 2
+            if NAME & "."
+                open FDSE NAME 1
+            endif
+        elif ELEMENTS >= 4
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    endif
+next

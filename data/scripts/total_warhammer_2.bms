@@ -1,0 +1,31 @@
+# Total War Warhammer II (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+idstring "PFH5"
+get VER1 long   # 1
+get VER2 long   # 1 (HAS_PACK_NAME?)
+get NAMESZ long
+get FILES long
+get INFO_SIZE long
+get TSTAMP long
+getdstring NAME NAMESZ
+savepos OFFSET
+math OFFSET + INFO_SIZE
+for i = 0 < FILES
+    get SIZE long
+    get ZIP byte
+    get NAME string
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        goto TMP
+        clog NAME OFFSET SIZE XSIZE
+    endif
+    math OFFSET + SIZE
+next i

@@ -1,0 +1,47 @@
+# sea3d / SEAS3D
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SEA"
+idstring "S3D"
+get VERSION threebyte
+get MUST_BE_ZERO byte
+get ZIP_ALGO byte
+if ZIP_ALGO == 0
+    comtype copy
+elif ZIP_ALGO == 1
+    comtype unzip_dynamic   #deflate
+elif ZIP_ALGO == 2
+    comtype lzma86head
+else
+    print "Error: unknown compression algorithm %ZIP_ALGO%"
+    comtype unzip_dynamic   #???
+endif
+get SIZE long
+
+math i = 0
+get FULL_SIZE asize
+math FULL_SIZE -= 3 # 0x5EA3D1 if available
+savepos OFFSET
+for OFFSET = OFFSET < FULL_SIZE
+    get SIZE long
+    savepos ENTRY_OFFSET
+    get FLAG byte
+    getdstring TYPE 4
+    if FLAG & 1
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+    else
+        set NAME string i
+    endif
+    string NAME += "."
+    string NAME += TYPE
+        
+    savepos OFFSET
+    math SIZE -= OFFSET
+    math SIZE += ENTRY_OFFSET)
+
+    clog NAME OFFSET SIZE SIZE
+    
+    math OFFSET += SIZE
+    goto OFFSET
+next i

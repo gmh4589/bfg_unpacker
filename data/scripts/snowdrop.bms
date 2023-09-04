@@ -1,0 +1,22 @@
+# Snow Drop (script 0.2)
+
+get EXTENSIONS long
+for i = 0 < EXTENSIONS
+    get EXT string
+    get FILES long
+    get DUMMY long
+    putarray 0 i EXT
+    putarray 1 i FILES
+next i
+for EXTENSION = 0 < EXTENSIONS
+    getarray EXT   0 EXTENSION
+    getarray FILES 1 EXTENSION
+    for i = 0 < FILES
+        getdstring NAME 9
+        get SIZE long
+        get OFFSET long
+        string NAME + "."
+        string NAME + EXT
+        log NAME OFFSET SIZE
+    next i
+next EXTENSION

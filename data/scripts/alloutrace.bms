@@ -1,0 +1,27 @@
+# All out race
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SRES"
+get VERSION long
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    get XSIZE long
+    if XSIZE == 0xffffffff
+        cleanexit
+    endif
+    get NAME string
+    savepos OFFSET
+    encryption "rot" "lmfkmdjnfGFDspeoutymanc3f5FB4fsd4lkfon4fs125BDS5flfifg41vx22fibBDAZyza3f5s15j21j" "" 1
+    log MEMORY_FILE OFFSET XSIZE
+    encryption "" ""
+    get ZIP long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    if ZIP == 0
+        log NAME 12 SIZE MEMORY_FILE
+    else
+        clog NAME 12 ZSIZE SIZE MEMORY_FILE
+    endif
+    math OFFSET += XSIZE
+    goto OFFSET
+next

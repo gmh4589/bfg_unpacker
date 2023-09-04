@@ -1,0 +1,50 @@
+# Bust-a-Move Plus!
+#   experimental, doesn't cover the full format at 100%
+#   unknown LZNP compression
+
+idstring "MBD\0"
+get DATA_OFF long
+get DATA_SIZE long
+get ZERO long
+get ZERO long
+math DATA_OFF + 0x10
+
+callfunction GET_NAME 1
+get DUMMY long
+get ENTRIES long
+get DUMMY long
+callfunction GET_NAME 1
+get DUMMY long
+callfunction GET_NAME 1
+get DUMMY long
+callfunction GET_NAME 1
+get FILES long
+get DUMMY long
+math FILES - 1
+for i = 0 < FILES
+    callfunction GET_NAME 1
+    do
+        get DUMMY long
+    while DUMMY != 0x80000000
+    get DUMMY2 long
+    get OFFSET long
+    get SIZE long
+    get DUMMY5 long
+    get DUMMY6 long
+    get DUMMY7 long
+    get DUMMY8 long
+    get DUMMY9 long
+    get DUMMY10 long
+    get DUMMY11 long
+
+    math OFFSET + DATA_OFF
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ + 1
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

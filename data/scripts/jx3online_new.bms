@@ -1,0 +1,95 @@
+# JX3 Online new (script 0.1.2)
+#   This script is completely heuristic because there is a sort of padding (0xce byte) between the files
+#   If you use quickbms.exe the tool will use a particular way to guess if the current position is
+#   correct, while if you use quickbms_4gb_files it will use another one... yes it's a total work-around.
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get FULLSIZE asize
+
+get NAME basename
+strlen i NAME
+for i -= 1 >= 0
+    getvarchr TMP NAME i
+    if TMP < '0' || TMP > '9'
+        break
+    endif
+next i -= 1
+math i += 1
+string NAME <<= i
+math BASE_GUESS = NAME  # not used at the moment
+
+math TMP = 0x10000000
+math TMP *= 16
+math QUICKBMS64 = 0
+if TMP != 0
+    math QUICKBMS64 = 1
+endif
+
+math BASE_OFF = 0
+math FILE_NUM = 0
+math CHECK_SIZE = FULLSIZE
+math CHECK_SIZE -= 40
+for OFFSET = 0 u< CHECK_SIZE
+    # you will receive an error, ignore it
+    goto OFFSET
+    do
+        get TMP byte
+    while TMP == 0xce
+    goto -1 0 SEEK_CUR
+    savepos MYENTRY_OFF
+
+    # offset guessed, this is a work-around used in both quickbms64 and 32
+    for
+        getdstring DUMMY 0xc
+        getdstring SIZE 5
+        get SIZE2 threebyte
+        getdstring ENTRY_OFF 5
+        get ENTRY_OFF2 threebyte    # 40 bits grants over 1500 package.dat
+        if SIZE2 == 0 && ENTRY_OFF2 == 0
+            break
+        endif
+        math MYENTRY_OFF -= 1
+        goto MYENTRY_OFF
+    next
+    goto MYENTRY_OFF
+    
+    # offset guessed, this is a work-around
+    for
+        getdstring DUMMY 0xc
+        get SIZE longlong
+        get ENTRY_OFF longlong
+        math ENTRY_OFF -= BASE_OFF
+        if ENTRY_OFF == 0
+            break
+        elif ENTRY_OFF == MYENTRY_OFF
+            break
+        elif ENTRY_OFF u>= FULLSIZE # multi packages
+            break
+        endif
+        math MYENTRY_OFF -= 1
+        goto MYENTRY_OFF
+    next
+    if ENTRY_OFF u>= FULLSIZE
+        if FILE_NUM == 0
+            if QUICKBMS64 != 0
+                math BASE_OFF = ENTRY_OFF
+            endif
+        endif
+    endif
+    
+    get ZSIZE longlong
+    get ZIP long
+    getdstring DUMMY 0x10
+    savepos OFFSET
+    if ZIP == 0
+        log "" OFFSET SIZE
+    elif ZIP == 1
+        clog "" OFFSET ZSIZE SIZE
+    else
+        # unknown
+        log "" OFFSET ZSIZE
+    endif
+    math OFFSET += ZSIZE
+    math FILE_NUM += 1
+next

@@ -1,0 +1,11 @@
+# The I of the Dragon
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

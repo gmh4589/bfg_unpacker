@@ -1,0 +1,18 @@
+# Edgar Torronteras Extreme Biker / Moto-X 2000
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    filexor 0xaa
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get XSIZE long  # guessed, it was ever zero
+    get SIZE long
+    filexor ""
+    if XSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

@@ -1,0 +1,32 @@
+# NovaPack archives (0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 8
+if SIGN == "NovaPack"
+    get DUMMY long
+else
+    goto 0
+    getdstring SIGN 12  # we need SIGN!
+    if SIGN != "NovaHackPack"
+        cleanexit
+    endif
+endif
+get OFFSET long
+goto OFFSET
+if SIGN == "NovaPack"
+    idstring "DictStart"
+else
+    idstring "DictionaryBegin"
+endif
+get FILES long
+for i = 0 < FILES
+    if SIGN == "NovaPack"
+        get NAMESZ long
+    else
+        get NAMESZ short
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

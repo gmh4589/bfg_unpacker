@@ -1,0 +1,27 @@
+# Riff Racer json
+
+idstring "0GNS"
+math FILES = 2
+for i = 0 < FILES
+    get ZSIZE long
+    putarray 0 i ZSIZE
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 1 i SIZE
+next i
+for i = 0 < FILES
+    putarray 2 0 i
+next i
+    putarray 2 0 "info"
+    putarray 2 1 "bars"
+savepos OFFSET
+get JSON_NAME basename
+for i = 0 < FILES
+    getarray ZSIZE 0 i
+    getarray SIZE  1 i
+    getarray TYPE  2 i
+    string NAME p "%s_%s.json" JSON_NAME TYPE
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+next i

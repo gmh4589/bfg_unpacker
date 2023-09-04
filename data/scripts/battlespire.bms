@@ -1,0 +1,13 @@
+# The Elder Scrolls Battlespire BSA
+
+get FILES short
+savepos OFFSET
+get INFO_OFF asize
+xmath INFO_OFF "INFO_OFF - (FILES * (14 + 4))"
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 14
+    get SIZE long
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

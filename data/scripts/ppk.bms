@@ -1,0 +1,28 @@
+# MSG Seed Destiny Generation of C.E
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ppk\0"
+get DUMMY long
+get DUMMY long
+get FILES long
+get OFFSET long
+for i = 0 < FILES
+    goto OFFSET
+    getdstring SIGN 4
+    get HEADDATA_SIZE long
+    get DUMMY long
+    get HEAD_SIZE long
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get NAME string
+    math OFFSET += HEAD_SIZE
+    if SIGN == "ppkc"
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET -= HEAD_SIZE
+    math OFFSET += HEADDATA_SIZE
+next i

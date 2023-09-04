@@ -1,0 +1,52 @@
+# Rig'n'roll
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "WDB "
+get WDB_SIZE long
+get DUMMY long
+get SIZE1 long
+get DUMMY long
+get DUMMY long
+getdstring DUMMY SIZE1
+get FILES long
+for i = 0 < FILES
+    get XTYPE long
+    get OFFSET long
+    get NAME_OFF long
+    savepos TMP
+
+    goto NAME_OFF
+    get NAME string
+
+    goto OFFSET
+    get TYPE long
+    get SIZE long
+    math SIZE -= 8
+    savepos OFFSET
+    if TYPE == 307
+        get NAME2 string
+        if NAME == ""
+            set NAME string NAME2
+        endif
+        get SUB_FILES long
+        for j = 0 < SUB_FILES
+            get TYPE2 long
+            get SIZE long
+            math SIZE -= 8
+            savepos OFFSET
+            if NAME == ""
+                set FNAME string ""
+            else
+                set FNAME string NAME
+                string FNAME += "_"
+                string FNAME += j
+            endif
+            log FNAME OFFSET SIZE
+            math OFFSET += SIZE
+            goto OFFSET
+        next j
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

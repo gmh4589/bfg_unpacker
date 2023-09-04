@@ -1,0 +1,16 @@
+get FULL_SIZE asize
+for OFFSET = 0 < FULL_SIZE
+    get ZSIZE long
+    get SIZE long
+    get ZIP long
+    get DUMMY long
+    getdstring NAME 0x30
+    savepos OFFSET
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET += ZSIZE
+    goto OFFSET
+next

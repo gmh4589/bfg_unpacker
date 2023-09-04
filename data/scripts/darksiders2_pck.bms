@@ -1,0 +1,18 @@
+# DarkSiders II core.pck
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "AKPK"
+goto 0x20
+get DUMMYSZ long
+getdstring DUMMY DUMMYSZ
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get ALIGNSZ long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    math OFFSET *= ALIGNSZ
+    log "" OFFSET SIZE
+next i

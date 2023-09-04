@@ -1,0 +1,91 @@
+# chunklzx / chunkzip (script 0.2.9)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+string NAME += "_unpacked."
+string NAME += EXT
+
+endian big
+    getdstring chunk_type 8
+    if chunk_type == "chunklzx"
+        comtype xmemdecompress
+    elif chunk_type == "chunkzip"
+        #comtype deflate
+        comtype unzip_dynamic   # it's ever deflate, except in rare cases https://zenhax.com/viewtopic.php?f=9&t=15604
+    elif chunk_type == "chunlzma"
+        comtype lzma_dynamic    # it's lzma0 but sometimes it gives LZMA_STATUS_FINISHED_WITH_MARK
+    elif chunk_type == "chunkref"
+        comtype dk2     # ???
+    elif chunk_type == "chunklz4"
+        comtype lz4
+    elif chunk_type == "chunkunc"
+        comtype copy    # ???
+    elif chunk_type == "chunzstd"
+        comtype zstd
+    elif chunk_type == "chunoodl"
+        comtype oodle
+    else
+        print "unsupported type %chunk_type%"
+        cleanexit
+    endif
+    get DUMMY long
+    if DUMMY <= 2
+        get FULLSIZE long
+        set TYPE long 0     # Fight Night Champion and some FIFA11
+    else
+        math FULLSIZE = DUMMY
+        set TYPE long 1     # most FIFA11 files
+    endif
+    get CHUNK_SIZE long
+    if TYPE == 0
+        get CHUNKS long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    else
+        math CHUNKS = FULLSIZE
+        math CHUNKS /= CHUNK_SIZE
+        if FULLSIZE % CHUNK_SIZE
+            math CHUNK += 1
+        endif
+    endif
+    log NAME 0 0
+    append
+    savepos OFFSET
+    for MYSIZE = 0 != FULLSIZE
+        if TYPE == 0
+            math OFFSET x= 0x8
+            for # very lame, made on the fly
+                math T = OFFSET
+                math T %= 0x10
+                if T == 8
+                    break
+                endif
+                math OFFSET += 8
+            next
+        endif
+        goto OFFSET
+
+        math IS_COMPRESSED = 1
+        get CHUNK_ZSIZE long
+        if TYPE == 0
+            get DUMMY long
+            if DUMMY == 4
+                math IS_COMPRESSED = 0
+            endif
+        endif
+        savepos OFFSET
+        xmath TMP2 "FULLSIZE - MYSIZE"
+        if TMP2 < CHUNK_SIZE
+            math CHUNK_SIZE = TMP2
+        endif
+        if IS_COMPRESSED == 0
+            log NAME OFFSET CHUNK_ZSIZE
+        else
+            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        math OFFSET += CHUNK_ZSIZE
+    next MYSIZE + CHUNK_SIZE
+    append

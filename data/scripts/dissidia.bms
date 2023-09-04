@@ -1,0 +1,67 @@
+# Dissidia / Final Fantasy Opera Omnia (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "dz"
+    math CHUNK_SIZE = 0x00010000
+    get CHUNKS long
+    get SIZE long
+    for i = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        putarray 1 i CHUNK_ZSIZE
+    next i
+    get NAME basename
+    log NAME 0 0
+    append
+    for i = 0 < CHUNKS
+        padding 0x80
+        getarray CHUNK_XSIZE 1 i
+        get CHUNK_ZSIZE long
+        math TMP = CHUNK_ZSIZE
+        math TMP + 4            # include CHUNK_ZSIZE itself
+        if TMP == CHUNK_XSIZE   # expected size
+            savepos OFFSET
+            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        else
+            goto -4 0 SEEK_CUR
+            savepos OFFSET
+            log NAME OFFSET CHUNK_XSIZE
+        endif
+        math OFFSET + CHUNK_ZSIZE
+        goto OFFSET
+    next i
+    append
+    cleanexit
+endif
+
+if EXT == "bin"
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAME basename
+        string NAME p "%s_%d." NAME i
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+math BASE_OFF = 0x800
+goto BASE_OFF
+idstring "MPK "
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    savepos TMP
+    math NAME_OFF += BASE_OFF
+    math OFFSET += BASE_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    log NAME OFFSET SIZE
+next i

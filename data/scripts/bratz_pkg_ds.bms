@@ -1,0 +1,25 @@
+# extracts the *.pkg file from the following games:
+# - Bratz: 4 Real (DS)
+# - Bratz: Forever Diamondz (DS)
+# - Bratz: Girlz Really Rock (DS)
+# (c) 2012-03-20 by AlphaTwentyThree of XeNTaX
+
+idstring "pkg"
+comtype gzip
+goto 8
+get FILES long
+goto 0x30
+for i = 1 <= FILES
+   getDstring NAME 0x20
+   get FNUMB short
+   get COMP short
+   get ZSIZE long
+   get SIZE long
+   get OFFSET long
+   get ZERO long
+   if COMP == 0
+      log NAME OFFSET SIZE
+   elif COMP == 1
+      clog NAME OFFSET SIZE ZSIZE
+   endif
+next i

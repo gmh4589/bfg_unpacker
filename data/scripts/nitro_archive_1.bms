@@ -1,0 +1,32 @@
+# NITRO Archive 1 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+
+getdstring SIGN 5
+goto 0
+get SIZE asize
+if SIGN == "NITRO"
+    log MEMORY_FILE 0 SIZE
+else
+    get ZERO long
+    savepos OFFSET
+    math SIZE -= OFFSET
+    clog MEMORY_FILE OFFSET SIZE SIZE
+endif
+
+idstring MEMORY_FILE "NITRO Archive 1\0"
+get FILES long MEMORY_FILE
+get SIZE long MEMORY_FILE
+get ZERO long MEMORY_FILE
+get ZERO long MEMORY_FILE
+for i = 0 < FILES
+    get NAME_OFF long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

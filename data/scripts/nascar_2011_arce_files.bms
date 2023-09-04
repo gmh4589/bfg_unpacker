@@ -1,0 +1,9 @@
+comtype lzo1x
+idstring "ARCE"
+get NAME basename
+string NAME += ".unpacked"
+goto 0x78
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+clog NAME OFFSET ZSIZE SIZE

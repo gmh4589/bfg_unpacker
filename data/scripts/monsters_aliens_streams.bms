@@ -1,0 +1,105 @@
+# Monsters vs Aliens streams.dat (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math X360_MODE = 0
+
+endian big
+idstring "\xba\xdf\x1e\xa5"
+get DUMMY long
+get DUMMY long  # 3
+get NUM long
+for i = 0 < NUM
+    get SOME_ID[i] long
+next i
+math i = 0
+if SOME_ID[i] == 1   # there are no other ways to guess it
+    math X360_MODE = 1
+endif
+get DUMMY long  # 0xc0c0c0c0
+get DUMMY long  # 0xc0c0c0c0
+for i = 0
+    get DUMMY1 long
+    get FLAGS long
+    get ZERO long
+    get DUMMY4 long
+    get ID long
+    get OFFSET long
+    if X360_MODE == 0
+        get CHANNELS long
+        if CHANNELS == 0x53325350   # PS2S
+            get SIZE long
+            get DUMMY long  # 0xeb3
+            get CHANNELS short
+            get FREQUENCY long
+            get DUMMY short # 0
+        else
+            get SIZE long
+            get FREQUENCY long
+        endif
+    else
+        get DUMMY1 byte
+        get NUM byte
+        get DUMMY1 short
+        get DUMMY2 long
+        get DUMMY3 long
+        if DUMMY1 != 0
+            get DUMMY4 long
+        endif
+        get FREQUENCY long
+        get DUMMY5 long
+        get DUMMY6 long
+        get DUMMY7 long
+        get DUMMY8 long
+        if DUMMY1 != 0
+            math CHANNELS = DUMMY6
+            for x = 0 < CHANNELS
+                getdstring DUMMY 16 # coef? doesn't match the size
+            next x
+        else
+            get DUMMY9 long
+            get CHANNELS long
+            for x = 0 < NUM
+                get DUMMY long
+            next x
+        endif
+        get SIZE long
+    endif
+
+    if ZERO == 0xaaaaaaaa
+        break
+    endif
+
+    string NAME p "%08x_%d_%d." i FREQUENCY CHANNELS
+    endian save MYENDIAN
+    endian little
+    if X360_MODE == 0
+        callfunction DUMP_VAG 1
+    else
+        string NAME + "raw"
+        log NAME OFFSET SIZE
+    endif
+    endian restore MYENDIAN
+next i
+
+# you must provide the following values: OFFSET SIZE FREQUENCY and CHANNELS
+
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    xmath TMP "SIZE / CHANNELS"
+    put TMP long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+endfunction

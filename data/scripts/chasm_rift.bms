@@ -1,0 +1,12 @@
+# Chasm The Rift
+
+idstring "CSid"
+get FILES short
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME 12
+    putvarchr NAME NAMESZ 0
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

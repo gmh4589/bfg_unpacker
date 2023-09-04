@@ -1,0 +1,100 @@
+# Genso Suikoden I / II / Tsumugareshi Hyakunen no Toki (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+
+get SIGN long
+if SIGN == "0x44475000" || SIGN == 0x52415350 // PGD and PSAR
+    print "Error: this archive is encrypted and is not supported"
+    cleanexit
+endif
+goto 0
+
+if SIGN == 0x32445347   # "GSD2"
+    idstring "GSD2"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get HEADER_SIZE long
+    get FILES long
+    get ZERO long
+    get BASE_OFF long
+    getdstring DUMMY HEADER_SIZE
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get DUMMY long
+        get ZIP long    # ???
+        getdstring NAME 0x38
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    cleanexit
+endif
+
+math FILES = -1 # endless
+get ARCHIVE_NAME basename
+if ARCHIVE_NAME & "bgm"
+    get FILES byte
+endif
+
+for i = 0 != FILES
+    get OFFSET long
+    if OFFSET == 0xcdcdcdcd || OFFSET == 0xffffffff
+        break
+    endif
+    if ARCHIVE_NAME & "bgm"
+        get SIZE threebyte
+    else
+        get SIZE long
+    endif
+    savepos BACKUP_OFF
+    goto OFFSET
+    get CHUNKS_OFF long
+    get CHUNK_SIZE long
+    get FILESIZE long
+
+    math GUESS = 0
+    if CHUNKS_OFF  u< SIZE
+    if CHUNK_SIZE == 0x20000
+    if FILESIZE   u>= SIZE
+        math GUESS = 1
+    endif
+    endif
+    endif
+
+    if GUESS == 0
+        log "" OFFSET SIZE
+    else
+        math CHUNKS_OFF + OFFSET
+        goto CHUNKS_OFF
+        get CHUNKS long
+        for x = 0 < CHUNKS
+            get CHUNK_OFF long
+            get CHUNK_SIZE long
+            putarray 0 x CHUNK_OFF
+            putarray 1 x CHUNK_SIZE
+        next x
+            putarray 0 x SIZE
+        log MEMORY_FILE 0 0
+        append
+        for x = 0 < CHUNKS
+            getarray CHUNK_OFF   0 x
+            getarray CHUNK_SIZE  1 x
+            math x + 1
+            getarray CHUNK_ZSIZE 0 x
+            math CHUNK_ZSIZE - CHUNK_OFF
+            math CHUNK_OFF + OFFSET
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+        next
+        append
+        log "" 0 FILESIZE MEMORY_FILE
+    endif
+
+    goto BACKUP_OFF
+next i

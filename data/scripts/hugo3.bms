@@ -1,0 +1,12 @@
+# Hugo 3 4HUGO.DAT
+
+goto -0x8000
+for
+    getdstring NAME 0x20
+    if NAME == ""
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next

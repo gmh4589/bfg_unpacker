@@ -1,0 +1,24 @@
+# extracts the data.000.pak from Real Warfare: 1242
+# written by AlphaTwentyThree 2015-02-02
+# script for QuickBMS http://aluigi.org/papers.htm#quickbms
+
+idstring "PACK"
+get UNK long
+get INFO long
+get UNK long
+get FILES long
+get SIZE asize
+math SIZE -= INFO
+log MEMORY_FILE INFO SIZE
+goto 0 MEMORY_FILE
+for i = 1 <= FILES
+   get OFFSET longlong MEMORY_FILE
+   get SIZE longlong MEMORY_FILE
+   get NAMEL long MEMORY_FILE
+   get UNK long MEMORY_FILE
+   savepos MYOFF MEMORY_FILE
+   getDstring NAME NAMEL MEMORY_FILE
+   math MYOFF += NAMEL
+   goto MYOFF MEMORY_FILE
+   log NAME OFFSET SIZE
+next i

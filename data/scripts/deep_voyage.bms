@@ -1,0 +1,18 @@
+# Deep Voyage
+
+filexor 0x61
+for EXTRACT = 0 < 2
+    goto 0
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

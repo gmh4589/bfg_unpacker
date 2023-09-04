@@ -1,0 +1,21 @@
+# Total War Attila, Warhammer (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PFH4"
+get VER long
+get ZERO long
+get ZERO long
+get FILES long
+get OFFSET long
+get DUMMY long
+if VER >= 0x11
+    get NAME string
+endif
+savepos TMP
+math OFFSET + TMP
+for i = 0 < FILES
+    get SIZE long
+    get NAME string
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

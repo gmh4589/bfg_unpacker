@@ -1,0 +1,17 @@
+# IGP
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "IGP\x1a"
+get INFO_SIZE long
+goto 0x10
+get PAK_SIZE longlong
+get INFO_OFF longlong
+goto INFO_OFF
+xmath INFO_OFF_LIMIT "INFO_OFF + INFO_SIZE"
+do
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+    log "" OFFSET SIZE
+while INFO_OFF != INFO_OFF_LIMIT

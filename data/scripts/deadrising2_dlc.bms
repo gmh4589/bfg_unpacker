@@ -1,0 +1,22 @@
+# Dead Rising 2 Xbox360 DLC
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype xmemdecompress 0x8000
+endian big
+get ZSIZE asize
+get SIZE long
+get CHUNK_SIZE long
+log MEMORY_FILE 0 0
+savepos OFFSET
+append
+for OFFSET = OFFSET < ZSIZE
+    get CHUNK_ZSIZE long
+    math OFFSET += 4
+    clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    math OFFSET += CHUNK_ZSIZE
+    goto OFFSET
+next
+append
+get NAME fullname
+string NAME += ".unpacked"
+log NAME 0 SIZE MEMORY_FILE

@@ -1,0 +1,31 @@
+# Mike Tyson's Heavyweight Boxing PS2 .LMP
+
+get FILES long
+get ZERO long
+get INFO_SIZE long
+get ZERO long
+get ZERO long
+get ZERO long
+get XFILES long
+for i = 0 < FILES
+    getdstring NAME 16
+    get ID short
+    get FOLDER_ID short
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    if OFFSET == 0
+        putarray 0 ID NAME
+        putarray 1 ID FOLDER_ID
+    else
+        for
+            if FOLDER_ID == 0
+                break
+            endif
+            getarray PATH      0 FOLDER_ID
+            getarray FOLDER_ID 1 FOLDER_ID
+            string NAME p "%s/%s" PATH NAME
+        next
+        log NAME OFFSET SIZE
+    endif
+next i

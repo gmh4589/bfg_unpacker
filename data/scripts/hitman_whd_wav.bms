@@ -1,0 +1,195 @@
+# Hitman Contracts WHD/WAV (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math NAMES = 0
+open FDDE "snd" 0 EXISTS
+if EXISTS != 0
+    get OFFSET long
+    get SND_SIZE long
+    get DUMMY long  # 3
+    get DUMMY long  # 4
+    goto OFFSET
+    get NAMES long
+    getdstring ZERO 0x14
+    get INFO_OFF long
+    for i = 0 < NAMES
+        goto INFO_OFF
+        get OFFSET long
+        savepos INFO_OFF
+
+        goto OFFSET
+        get DUMMY long  # 1
+        get NAME_OFF long
+        get DUMMY long
+        get TSTAMP long
+        goto NAME_OFF
+        get NAME string
+        putarray 0 i NAME
+    next i
+endif
+
+open FDDE "whd"
+open FDDE "wav" 1
+
+endian big
+for i = 0 < 2
+    goto 0
+    get WHD_SIZE long
+    get INFO_SIZE long
+    get DUMMY long
+    endian guess DUMMY
+next i
+get DUMMY long
+
+math NAME_IDX = 0
+get WHD_SIZE asize  # Hitman and Kane&Lynch have WHD_SIZE and INFO_SIZE swapped
+do
+    if NAMES == 0
+    # Kane&Lynch has an additional 0x10 bytes, this is the simplest way to be compatible
+    do
+        savepos TMP
+        if TMP == WHD_SIZE
+            cleanexit
+        endif
+        get NAME string
+        padding 0x10
+    while NAME == ""
+    endif
+    get DUMMY long      # 0xcdcdcdcd
+    get ENTRY_OFF long
+    get FLAGS short     # 0x71 is in WAV, 0x01 is stand-alone
+    get ZERO short
+    get FREQUENCY long
+    get BITS long
+    get PCM_SIZE long
+    get SIZE long
+    get CHANNELS long
+    get OFFSET longlong
+    get SAMPLES long    # don't know, just guessing
+    if NAMES == 0
+        getdstring ZERO 20
+    else    # no idea, just a work-around for Freedom Fighters
+        get DUMMY long  # 0x41
+    endif
+
+    if FLAGS & 0x10 #0x70 # don't know if 0x40, 0x20 or 0x10
+        set BCK_NAME string NAME
+
+        #log NAME OFFSET SIZE 1
+
+        if NAME_IDX < NAMES
+            getarray NAME 0 NAME_IDX
+        else
+        set NAME fullbasename BCK_NAME
+        string NAME p "vag/%s.ss2" NAME
+        endif
+        math INTERLEAVE = 0x20000
+        callfunction DUMP_VAG 1
+
+        if NAME_IDX < NAMES
+            getarray NAME 0 NAME_IDX
+        else
+        set NAME fullbasename BCK_NAME
+        string NAME p "wav/%s.wav" NAME
+        endif
+        math CODEC = 0x11
+        callfunction TOWAV 1
+
+        math NAME_IDX + 1
+
+    endif
+
+    savepos TMP
+    math TMP + 0x10 # just in case there is space
+while TMP u< WHD_SIZE
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    endian save VAG_ENDIAN
+    endian little
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE 1
+    append
+    endian restore VAG_ENDIAN
+endfunction
+
+# Requirements: CODEC, BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+# Optional:     RIFF_MORE/RIFF_MORE_SIZE, BLKALIGN and SAMPLES
+startfunction TOWAV # (aka DUMP_WAV) 0.2
+    math AVGBYTES = 0
+    if BLKALIGN == 0
+        if BITS >= 8
+            math BLKALIGN = BITS
+            math BLKALIGN / 8
+        else
+            math BLKALIGN = 1
+        endif
+        math BLKALIGN * CHANNELS
+        math AVGBYTES = FREQUENCY
+        math AVGBYTES * BLKALIGN
+    endif
+    if CODEC == 0x69
+        xmath BLOCKALIGN "36 * CHANNELS"
+        xmath AVGBYTES "(689 * BLOCKALIGN) + 4"
+    endif
+
+    log MEMORY_FILE 0 0
+    putdstring "RIFF" 4 MEMORY_FILE
+    put 0 long          MEMORY_FILE
+    putdstring "WAVE" 4 MEMORY_FILE
+
+    # "fmt "
+    putdstring "fmt " 4 MEMORY_FILE
+    put 0 long          MEMORY_FILE
+    put CODEC short     MEMORY_FILE # wFormatTag: Microsoft PCM Format (0x0001)
+    put CHANNELS short  MEMORY_FILE # wChannels
+    put FREQUENCY long  MEMORY_FILE # dwSamplesPerSec
+    put AVGBYTES long   MEMORY_FILE # dwAvgBytesPerSec
+    put BLKALIGN short  MEMORY_FILE # wBlockAlign
+    put BITS short      MEMORY_FILE # wBitsPerSample
+    if RIFF_MORE_SIZE > 0
+        putdstring RIFF_MORE RIFF_MORE_SIZE MEMORY_FILE
+    endif
+    get MEM_SIZE asize MEMORY_FILE
+    math RIFFTMP = MEM_SIZE
+    math RIFFTMP - 0x14
+    putvarchr MEMORY_FILE 0x10 RIFFTMP long
+
+    # "fact"
+    if CODEC != 1
+        if SAMPLES > 0
+            putdstring "fact" 4 MEMORY_FILE
+            put 4 long          MEMORY_FILE
+            put SAMPLES long    MEMORY_FILE
+        endif
+    endif
+
+    # "data"
+    putdstring "data" 4 MEMORY_FILE
+    put SIZE long       MEMORY_FILE
+
+    get MEM_SIZE asize MEMORY_FILE
+    math RIFFTMP = SIZE
+    math RIFFTMP + MEM_SIZE
+    math RIFFTMP - 8
+    putvarchr MEMORY_FILE 4 RIFFTMP long
+
+    log NAME 0 MEM_SIZE MEMORY_FILE
+    append
+    log NAME OFFSET SIZE 1
+    append
+endfunction

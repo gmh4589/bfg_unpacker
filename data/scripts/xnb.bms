@@ -1,0 +1,23 @@
+# XNB 0.1.2
+
+idstring "XNB"      # XNBw / XNBx
+get PLATFORM byte   # 'w' (windows) or 'x' (xbox)
+get VER1 byte       # 4 or 5
+get VER2 byte       # 0x80, 'A' and so on
+get SIZE long
+get NAME basename
+if VER2 == 0
+    savepos OFFSET
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+else
+    get XSIZE long
+    savepos OFFSET
+    math SIZE - OFFSET
+    if VER2 == 0x41
+        comtype lz4
+    else
+        comtype xmemdecompress 0x10000
+    endif
+    clog NAME OFFSET SIZE XSIZE
+endif

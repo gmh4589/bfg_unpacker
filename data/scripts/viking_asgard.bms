@@ -1,0 +1,64 @@
+# Viking: Battle for Asgard
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "PAK2"
+
+    get INFO_OFF long
+    get FILES long
+    get DUMMY long
+    math INFO_OFF + 0x10
+    for i = 1 <= FILES
+        get NAME string
+        putarray 0 i NAME
+    next i
+    goto INFO_OFF   # not necessary
+    savepos OFFSET
+    xmath OFFSET "OFFSET + (FILES * 4)"
+    for i = 1 <= FILES
+        get NEXT_OFF long
+        xmath SIZE "NEXT_OFF - OFFSET"
+        getarray NAME 0 i
+        log NAME OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    next i
+
+else
+
+    goto 0
+    get XDUMMY1 long
+    get XDUMMY2 long
+    get XDUMMY3 long
+    get XDUMMY4 long
+    get FILES long
+    for i = 0 < XDUMMY4
+        get DUMMY1 long
+        get DUMMY2 long
+        get DUMMY3 long
+    next i
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get OFFSET2 long
+        get SIZE2 long
+        putarray 0 i ID
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+        putarray 3 i OFFSET2
+        putarray 4 i SIZE2
+    next i
+    for i = 0 < FILES
+        getdstring NAME 0x100
+        putarray 5 i NAME
+    next i
+    savepos BASE_OFF
+    for i = 0 < FILES
+        getarray ID 0 i # needed???
+        getarray OFFSET 1 i
+        getarray SIZE 2 i
+        getarray NAME 5 ID
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+endif

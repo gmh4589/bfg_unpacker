@@ -1,0 +1,114 @@
+# Force Unleashed 2 DLC (LEVELPACKMETADATA and CLUSTER)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "LEVELPACKMETADATA"
+    print "Error: you must open the file with the LEVELPACKMETADATA extension"
+    cleanexit
+endif
+
+endian big
+idstring "LPMD"
+get VER long    # 0xb
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get SOME_CRC1 long
+    get DUMMY long  # zero or CPU/GPU
+    get SOME_CRC2 long
+    get ZERO long
+    get SIZE long   # size of each file but the reference is lost
+    get SOME_CRC3 long
+    get DUMMY long
+next i
+
+findloc OFFSET binary "ENUS"
+goto OFFSET
+savepos BASE_OFF
+idstring "ENUS"
+get ARCHIVES long
+for i = 0 < ARCHIVES
+    get ID long
+    get ARCHIVE_ID long
+    get DUMMY long  # 2
+    get ARCHIVE_SIZE long
+    get ZERO long
+    get DUMMY long
+    get OFFSET long
+    get ARCHIVE_FILES long
+    get OFFSET long
+    xmath OFFSET "OFFSET + (i * 0x24)"
+    putarray 0 i OFFSET
+    putarray 1 i ARCHIVE_FILES
+next i
+# other data? list of crc without their total number?
+
+findloc OFFSET binary "STRG"
+goto OFFSET
+idstring "STRG"
+for i = 0 < ARCHIVES
+    getarray OFFSET 0 i
+    getarray FILES  1 i
+    math OFFSET + BASE_OFF
+    goto OFFSET
+    get NAME string
+    do
+        open FDSE NAME 1 EXISTS
+        if EXISTS != 0
+            break
+        endif
+        string NAME 0| \
+    while NAME != ""
+    if EXISTS != 0
+        for x = 0 < FILES
+            get DUMMY long  # no, this is not a size field
+            get OFFSET long
+            putarray 15 x OFFSET
+        next x
+            get OFFSET asize 1
+            putarray 15 x OFFSET
+        for x = 0 < FILES
+            getarray OFFSET 15 x
+            math x + 1
+            getarray SIZE   15 x
+            math SIZE - OFFSET
+
+            goto OFFSET 1
+            getdstring SIGN 4 1
+            if SIGN u== "2D2R"
+                callfunction EXTRACT 1
+            elif SIGN u== "R2D2"
+                callfunction EXTRACT 1
+            else
+                log "" OFFSET SIZE 1
+            endif
+        next
+    endif
+next i
+
+startfunction EXTRACT
+    endian save CURRENT_ENDIAN
+    goto OFFSET 1
+    endian little
+    idstring 1 "R2D2"
+    getdstring TYPE 4 1
+    get SIZE long 1
+    string NAME p "%s/" TYPE
+    savepos OFFSET 1
+    log NAME OFFSET SIZE 1
+    endian restore CURRENT_ENDIAN
+endfunction

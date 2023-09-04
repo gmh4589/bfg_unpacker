@@ -1,0 +1,16 @@
+# Resonance of Fate
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "P@CK"
+get FILES short
+get FILES short
+    get OFFSET long
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get NEXT_OFF long
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

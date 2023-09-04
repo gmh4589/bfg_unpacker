@@ -1,0 +1,14 @@
+# Dante's Inferno
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring BIGH
+get VIV_SIZE long
+endian big
+get FILES long
+get HEADER_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_CRC long
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,30 @@
+# Post Apocalyptic Mayhem (header/content files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "header.dat" 0
+idstring CSPR
+get FILES long
+math NAME_OFF = FILES
+math NAME_OFF *= 0x10
+math NAME_OFF += 0x8
+math NAME_OFF += 0x4    # DEPR
+math OLD_CONTENT = -1
+for i = 0 < FILES
+    get CONTENT long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    savepos TMP
+    goto NAME_OFF
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    getdstring DUMMY 0xc
+    savepos NAME_OFF
+    goto TMP
+    if CONTENT != OLD_CONTENT
+        string CNAME p= "content_%02x.dat" CONTENT
+        open FDSE CNAME 1
+        math OLD_CONTENT = CONTENT
+    endif
+    clog NAME OFFSET ZSIZE SIZE 1
+next i

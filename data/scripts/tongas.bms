@@ -1,0 +1,57 @@
+# extracts from Tongas Pack v1/2/3 *.PAK archives
+# supported games:
+# - 3D Ultra Minigolf Adventures (XBLA) v1
+# - 3D Ultra Minigolf Adventures 2 (XBLA) v2
+# - Arkadian Warriors (XBLA) v1
+# - Assault Heroes (PC/XBLA) v1
+# - Assault Heroes 2 (XBLA) v1
+# - Ice Age 4: Continental Drift (Xbox 360) v3
+# - Tetris (PS3/PSN) v3
+#
+# (c) 2012-07-01 by AlphaTwentyThree of XeNTaX
+
+comtype COMP_LZMA_86HEAD
+getDstring IDENT 13 # "tongas_pack_v" in v2 & v3
+if IDENT == "00#%&W&N$(0FL"
+   set VER 1
+   goto 0x12
+   get FILES long
+else
+   getDstring VER 5
+   if VER == "20000"
+      set VER 2
+   elif VER == "30000"
+      set VER 3
+   else
+      print "Tongas pack version not supported! PM me at XeNTaX!"
+   endif
+   get FILES long
+   get UNK long
+endif
+
+for i = 1 <= FILES
+   get OFFSET long
+   get SIZE long
+   if VER == 3
+      get COMP long
+   else
+      set COMP 1
+   endif
+   get NAMEL long
+   getDstring NAME NAMEl
+   if VER == 1
+      string NAME -= 4 # remove ".wzm" at end
+   endif
+   savepos MYOFF
+   if COMP == 1
+      goto OFFSET
+      get UNK long
+      get DUMMY byte
+      get ZSIZE long
+      math ZSIZE *= 0x10
+      clog NAME OFFSET SIZE ZSIZE
+   else
+      log NAME OFFSET SIZE
+   endif
+   goto MYOFF
+next i

@@ -1,0 +1,52 @@
+# Halo Spartan Strike (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x78\x56\x34\x12"
+get DUMMY long
+get DUMMY long
+get XPATHS long
+for XPATH = 0 < XPATHS
+    putarray 10 0 0
+
+    set PATH string XPATH #""
+    callfunction EXTRACT
+
+    getarray TMP 10 0
+    putarray 0 TMP -1
+
+    savepos OFFSET
+    for i = 0
+        getarray SIZE 0 i
+        if SIZE < 0
+            break
+        endif
+        getarray NAME 1 i
+        string NAME + "."
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+    goto OFFSET
+next XPATH
+
+startfunction EXTRACT
+    getdstring NAME_HASH 8
+    get SIZE long
+    get FILES long
+
+    string NAME 0b NAME_HASH # fix for quickbms 0.11
+    string NAME - -16
+    string PATH + /
+    string PATH + NAME
+
+    if FILES != 0
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+    else
+        getarray TMP 10 0
+        putarray 0 TMP SIZE
+        putarray 1 TMP PATH
+        math TMP + 1
+        putarray 10 0 TMP
+    endif
+endfunction

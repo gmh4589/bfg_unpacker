@@ -1,0 +1,30 @@
+math BLOCK_CIPHER_SIZE = 8  # Blowfish, use -a 16 for AES
+if quickbms_arg1 != 0
+    math BLOCK_CIPHER_SIZE = quickbms_arg1
+endif
+
+get FILESIZE asize
+math FILESIZE -= BLOCK_CIPHER_SIZE
+
+    getdstring OLD BLOCK_CIPHER_SIZE
+for OFFSET = 0 < FILESIZE
+    getdstring NEW BLOCK_CIPHER_SIZE
+
+    # if NEW == OLD doesn't work because it's NULL delimited
+    for j = 0 < BLOCK_CIPHER_SIZE
+        getvarchr T1 OLD j
+        getvarchr T2 NEW j
+        if T1 != T2
+            break
+        endif
+    next j
+    if j >= BLOCK_CIPHER_SIZE
+        print "same block found at offset %OFFSET|x%"
+    endif
+
+    for j = 0 < BLOCK_CIPHER_SIZE
+        getvarchr T2 NEW j
+        putvarchr OLD j T2
+    next j
+    math OFFSET += BLOCK_CIPHER_SIZE
+next

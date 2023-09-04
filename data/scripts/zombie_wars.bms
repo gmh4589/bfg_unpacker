@@ -1,0 +1,21 @@
+# Zombie Wars (script 0.2)
+
+get WORKAROUND_SIZE asize
+get PATHSZ byte
+getdstring PATH PATHSZ
+for
+    get NAMESZ byte
+    savepos TMP
+    getdstring NAME 12
+    putvarchr NAME NAMESZ 0
+    get OFFSET long
+    if OFFSET u> WORKAROUND_SIZE
+        get OFFSET long
+    endif
+    get SIZE long
+    if OFFSET == 0 && SIZE == 0
+        break
+    endif
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE
+next

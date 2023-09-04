@@ -1,0 +1,14 @@
+# Hotel Dusk
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "tbl"
+open FDDE "wpf" 1
+for
+    getdstring NAME 0x18
+    if NAME == ""
+        break
+    endif
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE 1
+next

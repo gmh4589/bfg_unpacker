@@ -1,0 +1,13 @@
+# Just Dance 2 BIN
+
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    get SIZE long
+    savepos OFFSET
+    if SIZE != 0
+        log "" OFFSET SIZE
+        goto SIZE 0 SEEK_CUR
+    endif
+next i

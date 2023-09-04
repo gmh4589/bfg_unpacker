@@ -1,0 +1,58 @@
+# Rebel Raiders - Operation Nighthawk
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+get INFO_OFF long
+
+set PATH string ""
+set NAME string ""
+math NEXT_FOLDER = 0
+callfunction EXTRACT
+
+startfunction SET_IDX
+    math TMP = IDX
+    math TMP *= 0x30
+    math TMP += INFO_OFF
+    goto TMP
+endfunction
+
+startfunction EXTRACT
+    for IDX = NEXT_FOLDER != 0xffffffff
+        callfunction SET_IDX 1
+
+        getdstring NAME 0x20
+        get LAST_FOLDER long
+        get DUMMY long
+        get NEXT_FOLDER long
+        get NEXT_FILE long
+
+        set PATH_BCK = PATH
+        string PATH += NAME
+        string PATH += /
+
+        for IDX = NEXT_FILE != 0xffffffff
+            callfunction SET_IDX 1
+
+            getdstring NAME 0x20
+            get LAST_FILE long
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+
+            math IDX = LAST_FILE
+        next
+
+        if NEXT_FOLDER != 0xffffffff
+            callfunction EXTRACT
+        endif
+
+        set PATH = PATH_BCK
+
+        math IDX = LAST_FOLDER
+    next
+endfunction

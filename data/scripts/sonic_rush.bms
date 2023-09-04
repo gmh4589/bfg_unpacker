@@ -1,0 +1,29 @@
+# Sonic Rush Adventure
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+idstring "BB\0\0"
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    # some are compressed, others aren't?!
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    goto TMP
+    math IS_COMPRESSED = 0
+    if SIGN == "BSD"
+    elif SIGN == "NARC"
+    elif SIGN == "BMD0"
+    else
+        math IS_COMPRESSED = 1
+    endif
+
+    if IS_COMPRESSED == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET SIZE SIZE
+    endif
+next i

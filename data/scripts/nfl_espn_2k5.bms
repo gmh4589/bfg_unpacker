@@ -1,0 +1,45 @@
+# NFL ESPN 2K5
+
+get NAME filename
+if NAME != "0"
+    print "Error: you must select the file 0"
+    cleanexit
+endif
+
+callfunction QUICKBMS_4GB_CHECK 1
+
+get FILES long
+get ZERO long
+get PACKS long
+goto 0x9c
+
+math PACK_NUM = -1
+math PACKS_SIZE = 0
+
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    get OFFSET long
+    math OFFSET * 0x800
+
+    if OFFSET u> PACKS_SIZE
+        math PACK_NUM + 1
+        string TMP p "%d" PACK_NUM
+        open FDSE TMP 1
+        get TMP asize 1
+        math PACKS_SIZE + TMP
+    endif
+
+    string NAME p "%08x." NAME_CRC
+    log NAME OFFSET SIZE 1
+next i
+
+startfunction QUICKBMS_4GB_CHECK
+    math TMP64 = 0x10000000
+    math TMP64 * 16
+    if TMP64 == 0
+        print "you must use quickbms_4gb_files.exe with big archives"
+        cleanexit
+    endif
+endfunction
+

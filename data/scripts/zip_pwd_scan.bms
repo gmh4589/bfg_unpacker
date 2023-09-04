@@ -1,0 +1,228 @@
+# ZIP password scanner - zipcrypto (script 0.1.3)
+#   Not fast but it works, just an example in bms language
+# script for QuickBMS http://quickbms.aluigi.org
+
+# put the list of passwords in the following file!
+set PASSWORD_FILE string "passwords_list.txt"
+
+open FDSE PASSWORD_FILE 1 EXISTS
+if EXISTS == 0
+    open "." PASSWORD_FILE 1 EXISTS
+    if EXISTS == 0
+        print "Error: you must put the list of passwords in %PASSWORD_FILE%"
+        cleanexit
+    endif
+endif
+get PASSWORD_FILE_SIZE asize 1
+
+#print "the error \"incomplete input file number 1\" means that no password was found"
+
+math ALTERNATIVE_MODE = 0   # in reality this is the real correct mode to read the ZIP archives
+
+math FIRST_FILE = 1
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    idstring "PK"
+    get SIGN short
+    if SIGN == 0x0403   # Local file header
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if FIRST_FILE != 0
+            math FIRST_FILE = 0
+
+            if flag & 8
+            if zip_crc == 0
+            if comp_size == 0
+            #if uncomp_size == 0    # needs to be commented out
+                goto -0x16
+                get PK_sign short
+                idstring "\x05\x06"
+                get disk_num        short
+                get disk_start      short
+                get central_entries short
+                get central_entries short
+                get central_size    long
+                get central_offset  long
+                get comm_len        short   # let's think it's zero
+                getdstring comment  comm_len
+
+                math ALTERNATIVE_MODE   = 1
+                math ALTERNATIVE_OFFSET = central_offset
+                math ALTERNATIVE_comp_size = 0
+                math ALTERNATIVE_uncomp_size = 0
+                math ALTERNATIVE_zip_crc = 0
+
+                set NAME string "/"     # skip this file
+                math uncomp_size = 0    # skip this file
+            #endif
+            endif
+            endif
+            endif
+        endif
+
+        if ALTERNATIVE_MODE != 0
+            math comp_size   = ALTERNATIVE_comp_size
+            math uncomp_size = ALTERNATIVE_uncomp_size
+            math zip_crc     = ALTERNATIVE_zip_crc
+        endif
+
+        print "FILE: %name%"
+
+        if flag & 1         # encrypted
+
+            if uncomp_size != 0 # no folders
+                print "scanning in progress, please wait patiently..."
+
+                Log MEMORY_FILE2 offset comp_size   # load in memory
+
+                math backup_offset = offset
+                math backup_comp_size = comp_size
+                for
+                    math offset = backup_offset
+                    math comp_size = backup_comp_size
+
+                    get ZIP_PASSWORD line 1
+
+                    math method_backup = method
+                    if method == 99
+                        getvarchr AES_EXTRA1 extra 0 short  # Extra field header ID (0x9901)
+                        getvarchr AES_EXTRA2 extra 2 short  # Data size (currently 7, but subject to possible increase in the future)
+                        getvarchr AES_EXTRA3 extra 4 short  # Integer version number specific to the zip vendor
+                        getvarchr AES_EXTRA4 extra 6 short  # 2-character vendor ID
+                        getvarchr AES_EXTRA5 extra 8 byte   # Integer mode value indicating AES encryption strength
+                        getvarchr AES_EXTRA6 extra 9 short  # The actual compression method used to compress the file
+                        math method = AES_EXTRA6
+                        if AES_EXTRA5 == 0x01
+                            math AES_KEY_SIZE = 8
+                            set AES_ALGO string "ZIP_AES128"
+                        elif AES_EXTRA5 == 0x02
+                            math AES_KEY_SIZE = 12
+                            set AES_ALGO string "ZIP_AES192"
+                        elif AES_EXTRA5 == 0x03
+                            math AES_KEY_SIZE = 16
+                            set AES_ALGO string "ZIP_AES256"
+                        else
+                            print "Error: invalid AES_EXTRA5 %AES_EXTRA5%"
+                            cleanexit
+                        endif
+                        goto 0 MEMORY_FILE2
+                        getdstring AES_SALT AES_KEY_SIZE MEMORY_FILE2
+                        #xmath offset    "offset    + (AES_KEY_SIZE + 2)"
+                        xmath offset    "(AES_KEY_SIZE + 2)"
+                        xmath comp_size "comp_size - (AES_KEY_SIZE + 2 + 10)"
+                        encryption AES_ALGO ZIP_PASSWORD AES_SALT
+                    else
+                        encryption zipcrypto ZIP_PASSWORD 1
+                        math offset = 0
+                    endif
+
+                    if method == 0
+                        comtype copy
+                    elif method == 8
+                        ComType deflate_noerror   #deflate but it terminates
+                    else
+                        print "unsupported compression method %method%"
+                        cleanexit
+                    endif
+
+                    CLog MEMORY_FILE offset comp_size uncomp_size MEMORY_FILE2
+
+                    #if method_backup == 99
+                        math method = method_backup
+                    #endif
+
+                    get SIZE asize MEMORY_FILE
+                    if SIZE == uncomp_size
+                        math OK = 0
+                        if method == 99
+                            # it's a work-around but it works well
+                            goto -10 MEMORY_FILE2
+                            getdstring TMP 10 MEMORY_FILE2
+                            string TMP 0b TMP
+                            putvarchr QUICKBMS_HEXHASHl 20 0
+                            if TMP == QUICKBMS_HEXHASHl
+                                math OK = 1
+                            endif
+                        else
+                            encryption crc "0xedb88320  32 -1 -1 0 0 1"
+                            log MEMORY_FILE 0 uncomp_size MEMORY_FILE
+                            if zip_crc == QUICKBMS_CRC
+                                math OK = 1
+                            endif
+                        endif
+                        if OK != 0
+                            print "Password found:\n\n%ZIP_PASSWORD%"
+                            print "(hex visualization for debugging)\n%ZIP_PASSWORD|x%"
+                            if OK > 0
+                                cleanexit
+                            endif
+                        endif
+                    endif
+
+                next
+
+                print "Error: no password found"
+                cleanexit
+            endif
+        endif
+
+        math offset += comp_size
+        goto offset
+
+        if ALTERNATIVE_MODE != 0
+            goto ALTERNATIVE_OFFSET
+        endif
+
+    elif sign == 0x0201     # Central directory structure
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+
+        if ALTERNATIVE_MODE != 0
+            math ALTERNATIVE_comp_size = comp_size
+            math ALTERNATIVE_uncomp_size = uncomp_size
+            math ALTERNATIVE_zip_crc = zip_crc
+            savepos ALTERNATIVE_OFFSET
+            goto rel_offset
+        endif
+
+    elif sign == 0x0807     # Data Descriptor
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+
+    else
+        break   #cleanexit
+    endif
+    savepos offset
+next
+
+print "Error: no password found"

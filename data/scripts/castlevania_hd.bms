@@ -1,0 +1,13 @@
+# Castlevania: Lords of Shadow – Mirror of Fate HD (*.pack) (script 0.1.1a)
+
+get INFO_SIZE long
+get PACK_SIZE long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x400
+    get OFFSET long
+    get SIZE long
+    math TMP = OFFSET   # used for reimport2
+    math SIZE - TMP
+    log NAME OFFSET SIZE
+next i

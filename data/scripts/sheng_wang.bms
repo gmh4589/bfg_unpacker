@@ -1,0 +1,21 @@
+# Perfect World / Shengwang / 《圣王》
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+get ENTRIES long    # not files
+getdstring VER 0x40
+for i = 0 < ENTRIES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long  # 0x101
+    getdstring DUMMY 0x8
+    if OFFSET != 0
+        if ZSIZE == SIZE    # don't know what's the right flag, my sample had only 0x101
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

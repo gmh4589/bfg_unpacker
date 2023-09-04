@@ -1,0 +1,37 @@
+<bms games="'Darkwatch'" platforms="'PS2'" ext="PCK">
+ImpType StandardTail ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+Math END -= 7 ;
+GoTo END 0 ;
+SavePos TailOffOff 0 ;
+Get TailOffSet Long 0 ;
+GoTo TailOffSet 0 ;
+Get DIREntries Long 0 ;
+Get FileNum Long 0 ;
+Get U1 Long 0 ;
+Get U2 Long 0 ;
+SavePos FNOffset 0 ;
+Math DIREntries *= 16 ;
+Math FNOffset += DIREntries ;
+Set C Long 0 ;
+Do ;
+Get U4 Long 0 ;
+Get U5 Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FP 0 ;
+If U5 <> 0 ;
+GoTo FNOffset 0 ;
+Get U6 Long 0 ;
+Get NameSize Long 0 ;
+GetDString FName NameSize 0 ;
+SavePos FNOffset 0 ;
+Math C += 1 ;
+Log FName FO FS #FOO FSO ;
+GoTo FP 0 ;
+EndIf ;
+While C < FileNum ;
+</bms>

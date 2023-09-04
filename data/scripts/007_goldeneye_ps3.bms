@@ -1,0 +1,40 @@
+# 007 Goldeneye Reloaded PS3
+#   another game developed by Eurocom using a slightly modified file format
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bin" 0
+endian big
+get VER long
+if VER != 0x0d
+    print "unsupported game %VER%"
+    cleanexit
+endif
+get BINSZ long
+get FILES long
+get DUMMY short
+get PACKS short # + 1
+get NAMES_OFF long
+if NAMES_OFF != 0
+    math NAMES_OFF += 0x10
+endif
+
+math OFFSET = 0
+set OLD_EXT long -1
+for i = 0 < FILES
+    get EXT long
+    get SIZE long
+    get DUMMY short
+    get DUMMY short
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY longlong
+    if EXT != OLD_EXT
+        string TMP p= "%03d" EXT
+        open FDDE TMP 1
+        set OLD_EXT long EXT
+    endif
+    log "" OFFSET SIZE 1
+    math OFFSET + SIZE
+next i

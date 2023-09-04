@@ -1,0 +1,77 @@
+# One Piece ARC (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    savepos BASE_OFF
+    idstring "ARC\0"
+    get VER short
+    get FILES short
+    get FILES2 long
+    get DUMMY long
+    getdstring PAC_NAME 32
+    savepos OFFSET_OFF
+    for i = 0 < FILES
+        get OFFSET long
+    next i
+    callfunction SKIP_ZEROES 1
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get DUMMY long
+        get CRC long
+        get DUMMY short
+        get NAMESZ short
+        get DUMMY long
+        getdstring NAME NAMESZ
+        callfunction SKIP_ZEROES 1
+
+        savepos TMP
+        goto OFFSET_OFF
+        get OFFSET long
+        savepos OFFSET_OFF
+        math OFFSET += BASE_OFF
+        goto OFFSET
+        get SIZE long
+        math OFFSET += 0x20
+
+        if TYPE == "pac"
+            goto OFFSET
+            callfunction EXTRACT
+        else
+            if NAME == ""
+                string NAME p= "%08x.dat" i
+            endif
+            string FNAME p= "%s/%s/%s" PAC_NAME TYPE NAME
+
+            math ZIP = 0
+            goto OFFSET
+            getdstring CMP_TYPE 4
+            if CMP_TYPE == "cmp"
+                getdstring CMP_TYPE 4
+                if CMP_TYPE == "zlib"
+                    get ZSIZE long
+                    get SIZE long
+                    math ZIP = 1
+                    savepos OFFSET
+                endif
+            endif
+
+            if ZIP == 0
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET ZSIZE SIZE
+            endif
+        endif
+        goto TMP
+    next i
+endfunction
+
+startfunction SKIP_ZEROES
+    do
+        get IS_ZERO byte
+    while IS_ZERO == 0
+    savepos ZERO_OFF
+    math ZERO_OFF -= 1
+    goto ZERO_OFF
+endfunction

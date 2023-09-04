@@ -1,0 +1,38 @@
+# Boomzap (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_dynamic
+
+idstring "CRAS"
+get VER long    # 1
+get FILES long
+get INFO_OFF long
+get INFO_ZSIZE long
+get INFO_SIZE long
+clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE  # classic zlib
+
+math MODE = 0
+
+for i = 0 < FILES
+    getdstring NAME 0x100 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get XSIZE long MEMORY_FILE  # the original script ignored it (probably was the FLAGS field),
+                                # so let's keep that behavior even if it's ok
+                                # note: the original sample is no longer available
+
+    if i == 0
+        get TEST long MEMORY_FILE
+        goto -4 MEMORY_FILE SEEK_CUR
+        if TEST u<= 0x10    # usually 5
+            math MODE = 1
+        endif
+    endif
+    if MODE != 0
+        get FLAGS long MEMORY_FILE
+    endif
+
+    clog NAME OFFSET SIZE SIZE
+next i

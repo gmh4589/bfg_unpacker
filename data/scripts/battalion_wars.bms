@@ -1,0 +1,19 @@
+# Battalion Wars 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+get MEM_SIZE asize MEMORY_FILE
+for BASE_OFF = 0 != MEM_SIZE
+    getdstring TYPE 4 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos BASE_OFF MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    string NAME p "%s/%s" TYPE NAME
+    log NAME OFFSET SIZE MEMORY_FILE
+    math BASE_OFF + SIZE
+    goto BASE_OFF MEMORY_FILE
+next

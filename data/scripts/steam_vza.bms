@@ -1,0 +1,12 @@
+# Steam VZa package archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma_dynamic
+idstring "VZa"
+get DUMMY long
+savepos OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+get NAME filename
+string NAME >>= ".vz"
+clog NAME OFFSET SIZE SIZE

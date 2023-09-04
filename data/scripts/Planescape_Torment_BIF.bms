@@ -1,0 +1,16 @@
+# Planescape Torment (BIF)
+
+IDString 0 BIFFV1 ;
+Get DUMMYL Int 0 ;
+SavePos FILESTART 0 ;
+Get FILECNTL Long 0 ;
+Math FILESTART += 16 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Math FILESTART += 16 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

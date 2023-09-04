@@ -1,0 +1,12 @@
+# Book of Demons
+# script for QuickBMS http://quickbms.aluigi.org
+
+filexor 0xff
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

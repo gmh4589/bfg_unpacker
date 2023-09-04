@@ -1,0 +1,21 @@
+endian big
+get PAC_SIZE asize
+get OFFSET long
+math FILES = 0x7fffffff
+for i = 0 <= FILES
+    if i == 0
+        math FILES = OFFSET
+        math FILES /= 4
+        math FILES -= 1
+    endif
+    get NEXT_OFF long
+    if i == FILES
+        math NEXT_OFF = PAC_SIZE
+    endif
+    math SIZE = NEXT_OFF
+    math SIZE -= OFFSET
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFF
+next i

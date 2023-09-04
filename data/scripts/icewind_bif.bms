@@ -1,0 +1,111 @@
+# Icewind Dale: Enhanced Edition .KEY/.BIF (script 0.2.2)
+
+get EXT extension
+if EXT == "KEY"
+
+    idstring "KEY "
+    idstring "V1  "
+    get PACKS long
+    get FILES long
+    get INFO_OFF long
+    get FILES_OFF long
+    goto INFO_OFF
+    for i = 0 < PACKS
+        get BIF_SIZE long
+        get NAME_OFF long
+        get DUMMY long  # sort of flags
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        putarray 999 i NAME
+        goto TMP
+    next i
+
+    goto FILES_OFF
+    for i = 0 < FILES
+        getdstring NAME 8
+        get DUMMY short
+        get ID long
+
+        xmath BIF_NUM "ID >> 20"
+        xmath ID      "ID & ((1 << 20) - 1)"
+
+        putarray BIF_NUM -1 NAME
+    next i
+
+    # there are more names than the files in the archives, no idea why
+
+    math HAVE_NAMES = 1
+    for BIF_NUM = 0 < PACKS
+        getarray BIF_NAME 999 BIF_NUM
+        open FDSE BIF_NAME 0 EXISTS
+        if EXISTS == 0
+            # data\AR100A.bif loaded as file 0, then data\AR100B.bif will be data\data\AR100B.bif
+            set BIF_NAME filename BIF_NAME
+            open FDSE BIF_NAME 0 EXISTS
+        endif
+        if EXISTS != 0
+            set BIF_NAME basename BIF_NAME
+            callfunction EXTRACT_BIF
+        endif
+    next BIF_NUM
+
+else
+
+    math HAVE_NAMES = 0
+    callfunction EXTRACT_BIF 1
+
+endif
+
+startfunction EXTRACT_BIF
+    idstring "BIFF"
+    idstring "V1  "
+    get FILES long
+    get FILES2 long
+    get INFO_OFF long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get TYPE long   # ???
+
+        if HAVE_NAMES == 0
+            string NAME p "%d/%d." TYPE ID
+        else
+            getarray NAME BIF_NUM i
+            string NAME p "%s/%d/%s." BIF_NAME TYPE NAME
+        endif
+
+        savepos BCK_OFF
+        goto OFFSET
+        getdstring SIGN 4
+
+        if SIGN u== "BAMC"
+            idstring "V1  "
+            get XSIZE long
+            math OFFSET + 12
+            math SIZE   - 12
+            clog NAME OFFSET SIZE XSIZE
+        elif TYPE == 1028
+            goto OFFSET
+            get XSIZE long
+            math OFFSET + 4
+            math SIZE   - 4
+            clog NAME OFFSET SIZE XSIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+        goto BCK_OFF
+    next i
+
+    for i = 0 < FILES2
+        get DUMMY long  # sort of weird ID
+        get OFFSET long
+        get NUM long
+        get SIZE long
+        get DUMMY long  # 1003
+        math SIZE * NUM
+        log "" OFFSET SIZE
+    next i
+endfunction

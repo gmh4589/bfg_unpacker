@@ -1,0 +1,41 @@
+# Atomic Planet games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_SIZE long
+get OFFSET long
+goto OFFSET
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAME_CRC long
+    get FOLDERS_OFF long
+    get FILES_OFF long
+    get FOLDERS short
+    get FILES short
+
+    if NAME_CRC != 0
+        string PATH p "%s/%08x" PATH NAME_CRC
+    endif
+
+    if FOLDERS != 0
+        for i = 0 < FOLDERS
+            goto FOLDERS_OFF
+            callfunction EXTRACT
+            math FOLDERS_OFF + 0x10
+        next i
+    endif
+
+    if FILES != 0
+        goto FILES_OFF
+        for i = 0 < FILES
+            get NAME_CRC long
+            get OFFSET long
+            get SIZE long
+            get ZERO short
+            get ZERO short
+            string NAME p "%s/%08x." PATH NAME_CRC
+            log NAME OFFSET SIZE
+        next i
+    endif
+endfunction

@@ -1,0 +1,19 @@
+<bms games="'Descent Freespace: The Great War', 'Freespace 2'" platforms="'PC', 'PC'" ext="VP">
+IDString 0 VPVP ;
+Get DUMMYL Long 0 ;
+Get TAILOFF Long 0 ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+GoTo TAILOFF 0 ;
+Do ;
+Get D Long 0 ;
+Get FILESIZE Long 0 ;
+Get FILENAME String 0 ;
+Set FILEOFF Long FILESTART ;
+Math TAILOFF += 44 ;
+GoTo TAILOFF 0 ;
+Math FILESTART += FILESIZE ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

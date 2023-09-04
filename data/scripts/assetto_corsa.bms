@@ -1,0 +1,22 @@
+# Assetto Corsa (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "sc6969"
+get VER long
+if VER >= 6
+    get DUMMY long
+endif
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next i
+get SIZE asize
+math SIZE -= OFFSET
+log "" OFFSET SIZE

@@ -1,0 +1,46 @@
+# Rockett games (PRX, PRD, PRS)
+
+math FILENUM = 0
+get EXT extension
+if EXT != "PRX" # PRD or PRS
+    open FDDE "PRD"
+    math FILENUM = 1
+    open FDDE "PRS" FILENUM
+endif
+
+get DUMMY long  # 1
+goto 0x8a
+get DUMMY short
+get FILES short
+get DUMMY short
+get DUMMY long  # 1 or 2
+get ZERO long
+getdstring DUMMY 16 # usually zeroes
+
+math BASE_OFF = 0
+if FILENUM == 0
+    savepos TMP
+    xmath BASE_OFF "TMP + (FILES * 0x18)"
+endif
+
+for i = 0 < FILES
+    get ID long
+    get ZERO long
+    get OFFSET long
+    getdstring TYPE 4
+    get DUMMY long
+    get SIZE long
+
+    math OFFSET + BASE_OFF
+
+    math OFFSET - 0x1c
+    goto OFFSET FILENUM
+    getdstring TYPE 4 FILENUM
+    get DUMMY short FILENUM
+    getdstring NAME 0x10 FILENUM
+    math OFFSET + 0x1c
+
+    string NAME p "%s.%s" NAME TYPE
+    log NAME OFFSET SIZE FILENUM
+next i
+

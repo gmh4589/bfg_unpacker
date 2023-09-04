@@ -1,0 +1,18 @@
+# Hello Venice
+# script for QuickBMS http://quickbms.aluigi.org
+
+for EXTRACT = 0 < 2
+    goto 0
+    get DUMMY byte
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get SIZE long
+        if EXTRACT != 0
+            log NAME OFFSET SIZE
+            math OFFSET += SIZE
+        endif
+    next i
+    savepos OFFSET
+next EXTRACT

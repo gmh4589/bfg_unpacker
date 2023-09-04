@@ -1,0 +1,27 @@
+# Magnetis
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DRAN"
+get DUMMY long  # 4
+get DUMMY long  # 0
+get FULLSIZE asize
+math FULLSIZE -= 4
+do
+    padding 4
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 4
+    get ZIP long
+    get SIZE long
+    if ZIP == 0
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET += SIZE
+    else
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+    endif
+    goto OFFSET
+while OFFSET < FULLSIZE

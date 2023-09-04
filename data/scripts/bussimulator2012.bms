@@ -1,0 +1,11 @@
+# Bus Simulator 2012 PAK->ZIP decrypter
+#   CityBus Simulator 2 Munich and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+encryption xor "br&!!U2aM87ej22ewaj2v68Emecha!u7rust*7u$!u!e$rafras5fEja5aP7g2qaph_br-yat9a68ad2en8Fumuxu9R2t7acR?sPep9ye5pecazeSpEcav5zetrecHusPr5s82$a7EXU*HuSWe!adrE+e7ud2*7up7_AG@spEQ&5+PuYuceyUn$9=4#5$7#ts-TR92!ava5aTh#W$8pahav_$U_uh9n$ru8ujAqa9#c8+tuva=a2a!rE48pH&r#=\0" "" 0 257
+
+get SIZE asize
+get NAME basename
+string NAME += ".zip"
+log NAME 0 SIZE
+

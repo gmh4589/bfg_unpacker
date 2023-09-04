@@ -1,0 +1,27 @@
+# 5street (script 0.2)
+
+goto 0x11
+get FILES long
+goto 0x3d
+for i = 0 < FILES
+    get NAMESZ short
+    if NAMESZ >= 0x8000
+        xmath NAMESZ "0x10000 - NAMESZ"
+    endif
+    getdstring NAME NAMESZ
+    get SIZE long
+    getdstring HASH 32
+    get OFFSET long
+    get ZSIZE long
+    get DUMMY1 long
+    get DUMMY2 long # ZIP?
+    getdstring DUMMY 0x40
+    if DUMMY1 == 0
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+    # the others with DUMMY1 != 0 are invalid!
+next i

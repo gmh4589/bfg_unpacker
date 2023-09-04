@@ -1,0 +1,10 @@
+comtype lzo1x
+get ZSIZE asize
+#get SIZE long
+savepos OFFSET
+math ZSIZE -= OFFSET
+math SIZE = ZSIZE
+math SIZE *= 20
+get NAME basename
+string NAME += ".pvr"
+clog NAME OFFSET ZSIZE SIZE

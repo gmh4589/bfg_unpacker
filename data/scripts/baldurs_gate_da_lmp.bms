@@ -1,0 +1,10 @@
+# extracts *.LMP archives from "Baldur's Gate: Dark Alliance" (PS2)
+# (c) 2013-06-28 by AlphaTwentyThree of XeNTaX
+
+get FILES long
+for i = 1 <= FILES
+   getDstring NAME 0x38
+   get OFFSET long
+   get SIZE long
+   log NAME OFFSET SIZE
+next i

@@ -1,0 +1,16 @@
+# Evil Dead PS1 .P1
+
+get NAME long   # "AZ00" -> 0x00 0x00 0x7a 0x61
+get DUMMY short
+get DUMMY short
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get FLAGS long
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

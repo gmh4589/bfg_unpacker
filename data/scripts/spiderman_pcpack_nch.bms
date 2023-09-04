@@ -1,0 +1,35 @@
+# Spider-Man: Web of Shadows PCPACK decompressor
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get PCPACK_SIZE asize
+log MEMORY_FILE 0 0
+append 1
+for i = 0
+    savepos TMP_OFF
+    if TMP_OFF == PCPACK_SIZE
+        break
+    endif
+    idstring "NCH\0"
+    get ZSIZE long
+    get DUMMY_CRC long
+    get SIZE long
+    get XOFFSET long
+    get DUMMY_CRC long
+    get XSIZE long
+    get ZIP long
+    savepos OFFSET
+    goto XOFFSET MEMORY_FILE
+    if ZIP == 0
+        log MEMORY_FILE OFFSET ZSIZE
+    else
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+    endif
+    math TMP_OFF + XSIZE
+    goto TMP_OFF
+    padding 0x1000
+next i
+append
+get NAME basename
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

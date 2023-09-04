@@ -1,0 +1,67 @@
+# drg2sbg
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+string NAME += ".sbg"
+
+get SIZE asize
+log MEMORY_FILE3 0 SIZE
+callfunction B64CONCAT 1
+get MEM_SIZE asize MEMORY_FILE
+
+comtype base64
+math OFFSET = 0
+
+# name (a number)
+callfunction EXTRACT 1
+
+# image
+callfunction EXTRACT 1
+
+# description
+callfunction EXTRACT 1
+putvarchr MEMORY_FILE2 XSIZE '\n'
+log MEMORY_FILE3 0 0
+for XOFFSET = 0 < XSIZE
+    get TMP line MEMORY_FILE2
+    putdstring "## " 3 MEMORY_FILE3
+    put TMP line MEMORY_FILE3
+    savepos XOFFSET MEMORY_FILE2
+next
+put "" line MEMORY_FILE3
+
+# SBG
+callfunction EXTRACT 1
+append
+log MEMORY_FILE3 0 XSIZE MEMORY_FILE2
+append
+
+get SIZE asize MEMORY_FILE3
+log NAME 0 SIZE MEMORY_FILE3
+
+startfunction B64CONCAT
+    log MEMORY_FILE 0 0
+    get SIZE asize MEMORY_FILE3
+    for OFFSET = 0 < SIZE
+        get STR line MEMORY_FILE3
+        put STR string MEMORY_FILE
+        savepos OFFSET MEMORY_FILE3
+    next
+endfunction
+
+startfunction EXTRACT
+    for SIZE = OFFSET < MEM_SIZE
+        getvarchr TMP MEMORY_FILE SIZE
+        if TMP == '@'
+            break
+        endif
+    next SIZE
+    math SIZE -= OFFSET
+    clog MEMORY_FILE2 OFFSET SIZE SIZE MEMORY_FILE
+    get XSIZE asize MEMORY_FILE2
+    encryption rc4 "fn5HsQi83p2L"
+    log MEMORY_FILE2 0 XSIZE MEMORY_FILE2
+    encryption "" ""
+    math OFFSET += SIZE
+    math OFFSET += 1
+endfunction

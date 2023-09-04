@@ -1,0 +1,12 @@
+# HUGO 4
+
+goto -0x10000
+for
+    getdstring NAME 0x40
+    if NAME == ""
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next

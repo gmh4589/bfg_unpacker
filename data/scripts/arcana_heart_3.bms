@@ -1,0 +1,163 @@
+# Arcana Heart 3 decrypter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+string NAME u NAME
+math dwSeed = 137
+math dwHash = 0
+strlen NAMESZ NAME
+for i = 0 < NAMESZ
+    getvarchr TMP NAME i
+    xmath dwHash "(dwHash * dwSeed) + TMP"
+next i
+
+callfunction mt_define 1
+
+math S = dwHash
+callfunction mt_init_genrand 1
+
+math XSEED = 0x43415046
+log MEMORY_FILE 0 0
+get SIZE asize
+math SIZE / 4
+for i = 0 < SIZE
+    callfunction mt_genrand_int32 1
+    get TMP long
+    math TMP ^ y
+    math XSEED ^ TMP
+    put XSEED long MEMORY_FILE
+next i
+get SIZE asize
+xmath SIZE "SIZE - (i * 4)"
+getdstring TMP SIZE
+putdstring TMP SIZE MEMORY_FILE
+
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE
+
+
+
+# Mersenne Twister (100% bms script)
+# Note: math is faster than xmath
+
+startfunction mt_define
+  math N = 624
+  math M = 397
+  math MATRIX_A = 0x9908b0df
+  math UPPER_MASK = 0x80000000
+  math LOWER_MASK = 0x7fffffff
+endfunction
+
+startfunction mt_init_genrand
+        putarray 0 0 S
+    for mti = 1 < N
+        xmath S "1812433253 * (S ^ (S >> 30)) + mti"
+        putarray 0 mti S
+    next mti
+endfunction
+
+startfunction mt_genrand_int32_y
+    math TMP = kk
+    getarray TMP0 0 TMP
+    math TMP + 1
+    if TMP >= N
+        math TMP = 0
+    endif
+    getarray TMP1 0 TMP
+
+    # xmath y "(TMP0 & UPPER_MASK) | (TMP1 & LOWER_MASK)"
+    math TMP0 & UPPER_MASK
+    math TMP1 & LOWER_MASK
+    math y = TMP0
+    math y | TMP1
+endfunction
+
+startfunction mt_genrand_int32_mag01
+    if y & 1
+        math mag01 = MATRIX_A
+    else
+        math mag01 = 0
+    endif
+endfunction
+
+startfunction mt_genrand_int32_kk
+    getarray TMP 0 TMP
+    #xmath TMP "TMP ^ (y >> 1) ^ mag01"
+    math y u>> 1
+    math TMP ^ y
+    math TMP ^ mag01
+    putarray 0 kk TMP
+endfunction
+
+startfunction mt_genrand_int32
+    if mti >= N
+        if mti > N
+            math S = 5489
+            callfunction mt_init_genrand 1
+        endif
+
+        #xmath kk1 "N-M"
+        math kk1 = N
+        math kk1 - M
+        for kk = 0 < kk1
+            callfunction mt_genrand_int32_y 1
+            callfunction mt_genrand_int32_mag01 1
+            #xmath TMP "kk+M"
+            math TMP = kk
+            math TMP + M
+            callfunction mt_genrand_int32_kk 1
+        next kk
+
+        #xmath kk1 "N-1"
+        math kk1 = N
+        math kk1 - 1
+        for kk = kk < kk1
+            callfunction mt_genrand_int32_y 1
+            callfunction mt_genrand_int32_mag01 1
+            #xmath TMP "kk+(M-N)"
+            math TMP = kk
+            math TMP + M
+            math TMP - N
+            callfunction mt_genrand_int32_kk 1
+        next kk
+
+            callfunction mt_genrand_int32_y 1
+            callfunction mt_genrand_int32_mag01 1
+            #xmath TMP "M-1"
+            math TMP = M
+            math TMP - 1
+            callfunction mt_genrand_int32_kk 1
+          
+        math mti = 0
+    endif
+
+    getarray y 0 mti
+    math mti + 1
+
+    #xmath y "y ^ (y >> 11)"
+    math TMP = y
+    math TMP u>> 11
+    math y ^ TMP
+
+    #xmath y "y ^ (y << 7) & 0x9d2c5680"
+    math TMP = y
+    math TMP u<< 7
+    math TMP & 0x9d2c5680
+    math y ^ TMP
+
+    #xmath y "y ^ (y << 15) & 0xefc60000"
+    math TMP = y
+    math TMP u<< 15
+    math TMP & 0xefc60000
+    math y ^ TMP
+
+    #xmath y "y ^ (y >> 18)"
+    math TMP = y
+    math TMP u>> 18
+    math y ^ TMP
+
+endfunction

@@ -1,0 +1,7 @@
+get FILES long
+xmath OFFSET "4 + (FILES * 4)"
+for i = 0 < FILES
+    get SIZE long
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+next i

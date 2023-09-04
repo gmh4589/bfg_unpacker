@@ -1,0 +1,18 @@
+# Genji DAT TIM2
+#   use it on the DAT files extracted with the genji.bms script
+
+get DUMMY long
+get FILES long
+get DAT_SIZE long
+for i = 0 < FILES
+    get SIZE long
+    get ZERO long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 0x10
+    savepos OFFSET
+    string NAME + ".tm2"
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next i

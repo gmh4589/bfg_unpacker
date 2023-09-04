@@ -1,0 +1,59 @@
+# Diablo 3 (Xbox) (script 0.1.1)
+#   experimental since the main TOC is not handled (unknown)
+#   note that one file at offset 0x0003782e of an archive had invalid ZSIZE and SIZE, not a bug of the script!
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror    # some zlib data is corrupted
+endian big
+idstring "\xa1\xb2\xc3\xd4"
+get VER long
+get ZERO long
+get DUMMY long
+get DUMMY long
+get FILES long
+get FILES long  # same, probably entries or names
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get SOME_CRC long
+get ZERO long
+do
+    findloc OFFSET binary "\0\0\0\0"
+    goto OFFSET
+    get TMP1 long
+    get TMP2 long
+while TMP2 u> 100
+goto OFFSET
+for i = 0 < FILES
+    get NAME_OFF long
+    putarray 0 i NAME_OFF
+next i
+savepos NAMES_OFF
+for i = 0 < FILES
+    getarray NAME_OFF 0 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+next i
+padding 0x10000
+for i = 0 < FILES
+    callfunction GET_NUM 1
+    math SIZE = VALUE
+    get ZSIZE short
+    savepos OFFSET
+    getarray NAME 0 i
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+    goto OFFSET
+next i
+
+startfunction GET_NUM
+    get NLOW short
+    get NHIGH short
+    xmath VALUE "(NHIGH << 16) | NLOW"
+endfunction

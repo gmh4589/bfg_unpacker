@@ -1,0 +1,39 @@
+# Chimeraland / Fancyworld OBB (script 0.1.2)
+
+idstring "PPkg1.0\0"
+get DUMMY long
+get DUMMY long
+get SOME_CRC long   # the main difference with seek_fairy.bms
+savepos BASE_OFF
+get PKG_SIZE asize
+for
+    savepos OFFSET
+    if OFFSET u>= PKG_SIZE
+        break
+    endif
+    get ZERO long
+    get SIZE long
+    get ZSIZE long
+    get DUMMY long  # 0x100
+    get ZIP long    # 2
+    savepos OFFSET
+    if ZIP == 0
+        # ZSIZE is ever equal than SIZE
+        # but the last file from the patch OBB has a big SIZE, so ever use ZSIZE
+        log "" OFFSET ZSIZE
+    elif ZIP == 1
+        comtype oodle   # wrong? Taken from seek_fairy.bms
+        clog "" OFFSET ZSIZE SIZE
+    elif ZIP == 2
+        comtype zlib
+        clog "" OFFSET ZSIZE SIZE
+    elif ZIP == 3
+        log "" OFFSET ZSIZE
+    else
+        print "Error: Unknown ZIP field %ZIP%, contact me"
+        cleanexit
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+    padding 0x100 0 BASE_OFF
+next

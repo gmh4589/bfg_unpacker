@@ -1,0 +1,11 @@
+# Spy vs. Spy (2005) [PS2] [Vicious Engine]
+
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    getdstring NAME 0x28
+    get OFFSET long
+    get SIZE long
+    math OFFSET * 0x800
+    log NAME OFFSET SIZE
+next i

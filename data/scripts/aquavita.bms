@@ -1,0 +1,30 @@
+# Aquavita
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+endian big
+idstring "PACKAGE "
+get VER short
+get DUMMY long
+get INFO_LIMIT long
+savepos INFO_OFF
+math INFO_LIMIT + INFO_OFF
+for INFO_OFF = INFO_OFF < INFO_LIMIT
+    get CRC long
+    get NAME string
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "ERDA"
+        get DUMMY long  # 1
+        savepos OFFSET
+        math SIZE - 8
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto INFO_OFF
+next

@@ -1,0 +1,50 @@
+# XXZ Online xxz.qq.com (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "vfs "
+goto 0x18
+get INFO_OFF long
+goto INFO_OFF
+get FILES long
+set PATH string ""
+for i = 0 < FILES
+    get DATASZ long
+    get DUMMY long
+    savepos INFO_OFF
+
+    #encryption charset2 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0QIKJHMNAET\0\0\0\0\0\0\0OGDCXS" #wait quickbms 0.3.8
+    encryption charset "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x37\0\x64\x63\x38\0\x62\x34\x31\x33\x32\0\x35\x36\x61\0\x30\0\x66\x39\0\0\0\x65\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    comtype hex
+    clog MEMORY_FILE INFO_OFF DATASZ DATASZ
+    encryption "" ""
+
+    idstring MEMORY_FILE "daeh"
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get TYPE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get NEXT_DATA long MEMORY_FILE  # for folders
+
+    math OFFSET += 16
+    if TYPE == 0
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    elif TYPE == 1
+        comtype zlib_noerror    # because one of the files is invalid
+        string NAME p "%s/%s" PATH NAME
+        clog NAME OFFSET ZSIZE SIZE
+    elif TYPE == 2
+        # folder (not supported, just the last one)
+        set PATH string NAME
+    else
+        print "unknown type %TYPE%"
+        cleanexit
+    endif
+
+    math INFO_OFF += DATASZ
+    goto INFO_OFF
+next i

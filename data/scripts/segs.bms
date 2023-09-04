@@ -1,0 +1,59 @@
+# segs compressed files (script 0.1.2)
+#   it's possible to reuse this script in other scripts as a function
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+callfunction SEGS_UNPACK 1
+
+startfunction SEGS_UNPACK
+    endian save CURRENT_ENDIAN
+    #endian big
+    savepos BASE_OFF
+    idstring "segs"
+    get FLAGS short
+    endian guess16 FLAGS
+    #comtype deflate
+    comtype unzip_dynamic   # long story short, most use deflate while some little endian use zlib (check quanticdream.bms)
+    if FLAGS & 0x100
+        comtype lzma86head  # some don't work for unknown reasons, even with lzma_dynamic
+    endif
+    get CHUNKS short
+    get FULL_SIZE long
+    get FULL_ZSIZE long
+    savepos BASE2_OFF
+    xmath BASE2_OFF "BASE2_OFF + (CHUNKS * (2 + 2 + 4))"
+    math WORKAROUND = 0
+    putvarchr MEMORY_FILE 0 FULL_SIZE
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        get ZSIZE short
+        get SIZE short
+        get OFFSET long
+        math OFFSET -= 1
+        if i == 0
+        if OFFSET == 0
+            math WORKAROUND = 1
+        endif
+        endif
+        if WORKAROUND != 0
+            math OFFSET + BASE2_OFF
+        else
+            math OFFSET + BASE_OFF
+        endif
+        if SIZE == 0
+            math SIZE = 0x00010000
+        endif
+        if SIZE == ZSIZE
+            log MEMORY_FILE OFFSET SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+    log NAME 0 FULL_SIZE MEMORY_FILE    # use memory_file to catch possible errors with resulting size
+    endian restore CURRENT_ENDIAN
+endfunction

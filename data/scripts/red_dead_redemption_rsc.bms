@@ -1,0 +1,34 @@
+# Red Dead Redemption RSC (script 0.1.1)
+
+get NAME filename
+string NAME + "_decompress"
+
+getdstring SIGN 4
+goto 0
+if SIGN & "RSC"
+
+    idstring "RSC"
+    get VER byte    # 0x06
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    comtype zlib_noerror
+    clog NAME OFFSET SIZE SIZE
+
+else
+
+    comtype xmemdecompress
+    endian big
+    get VER byte    # 0x05
+    idstring "CSR"
+    get DUMMY long  # 1
+    get DUMMY long  # ??? 0xc000????
+    idstring "\x0f\xf5\x12\xf1"
+    get ZSIZE long
+    savepos OFFSET
+    xmath SIZE "ZSIZE * 4"  # just guessing
+    clog NAME OFFSET ZSIZE SIZE
+
+endif

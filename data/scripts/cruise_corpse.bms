@@ -1,0 +1,28 @@
+# Cruise for a Corpse
+
+quickbmsver "0.7.7"
+
+getdstring TMP 3
+goto 0
+if TMP == "RNC"
+    print "Error: RNC archives are not supported yet"
+    cleanexit
+endif
+
+comtype SCUMMVM9
+endian big
+get FILES short
+get ENTRY_SIZE short
+xmath NAMESZ "ENTRY_SIZE - (4 + 4 + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

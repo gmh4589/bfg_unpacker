@@ -1,0 +1,27 @@
+# Final Fantasy VIII
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+
+open FDDE "fi" 0
+open FDDE "fl" 1
+open FDDE "fs" 2
+
+get FILES asize
+math FILES / 12
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get ZIP long
+
+    get NAME line 1
+
+    if ZIP == 0
+        log NAME OFFSET SIZE 2
+    else
+        goto OFFSET 2
+        get ZSIZE long 2
+        savepos OFFSET 2
+        clog NAME OFFSET ZSIZE SIZE 2
+    endif
+next i

@@ -1,0 +1,33 @@
+# Wizard101 / Pirate101 (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring KIWAD
+get VER long
+get FILES long
+if VER >= 2
+    get DUMMY byte
+endif
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZIP byte
+    get CRC long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    
+    savepos TMP
+    goto OFFSET
+    get DUMMY long
+    if DUMMY == 0
+        # skip the empty files
+        print "unexistent file: %NAME%"
+    else
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+    goto TMP
+next i

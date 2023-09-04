@@ -1,0 +1,98 @@
+# MercurySteam games (.dat/.packed) (script 0.2.1a)
+#   Castlevania: Lords of Shadow
+#   Castlevania: Lords of Shadow 2
+#   Castlevania: Lords of Shadow Ultimate Edition
+#   Raiders of the Broken Planet
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.1"
+
+idstring "BFPK"
+# unfortunately the FLAGS are partially bitmasked, what I mean is that 0x102, 0x302 and 0x502 don't handle the "2" in the same way!
+# time for boring work-arounds... and possible compatibility problems with some games :(
+get FLAGS long
+xmath FLAGS2 "FLAGS >> 8"
+
+comtype zlib
+if FLAGS & 0x400
+    comtype lz4
+endif
+if FLAGS & 2
+    if FLAGS & 0x200    # 0x302
+        # nothing
+    else
+        get SIZE long   # in 0x502/0x302 it's NOT a size
+    endif
+endif
+savepos OFFSET
+if FLAGS & 2 && FLAGS2 == 0 # only the demo of "Ultimate Edition" 0x2 and 0x3 use encryption! 0x502 and 0x302 are NOT encrypted!
+    math SIZE + 16
+    # thanks Ekey https://forum.xentax.com/viewtopic.php?p=87025#p87025
+    encryption aes_256_cbc "\x50\x43\x56\x80\x72\x73\xEE\x6F\xF1\x44\xF3\x6E\xEA\xDF\x79\x43\x6C\x69\x6D\x61\x78\x53\x74\x75\x64\x69\x6F\x73\x32\x30\x31\x33"   # ClimaxStudios2013
+    log TEMPORARY_FILE OFFSET SIZE
+    encryption "" ""
+    open "." TEMPORARY_FILE 1
+    getdstring SOME_HASH 16 1
+else
+    get NAME filename
+    open FDSE NAME 1
+    goto OFFSET 1
+endif
+get FILES long 1
+
+for i = 0 < FILES
+    get NAMESZ long 1
+    getdstring NAME NAMESZ 1
+    get SIZE long 1
+    if FLAGS & 0x100
+        get OFFSET longlong 1
+    else
+        get OFFSET long 1
+    endif
+    if FLAGS & 0x400
+        get SOME_CRC32 longlong 1
+    endif
+
+    if FLAGS & 1 || FLAGS & 0x200   # yes: 1, 0x302, 0x10000
+        goto OFFSET
+        get ZSIZE long
+        savepos OFFSET
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+
+    elif FLAGS & 2 && FLAGS & 0x100 # yes: 0x102, 0x502. no: 2, 0x302
+        callfunction UNPACK_CHUNKS 1
+
+    else                            # yes: 0, 2, 0x100
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction UNPACK_CHUNKS
+    math CHUNK_SIZE = 0x40000
+    goto OFFSET
+    get ZSIZE long
+    math OFFSET + 4
+    math LIMIT = OFFSET
+    math LIMIT + ZSIZE
+    log NAME 0 0
+    append
+    math REM_SIZE = SIZE
+    for OFFSET = OFFSET != LIMIT
+        goto OFFSET
+        get CHUNK_ZSIZE long
+        if FLAGS & 0x400
+            get SOME_CRC long
+        endif
+        savepos OFFSET
+        if REM_SIZE < CHUNK_SIZE
+            math CHUNK_SIZE = REM_SIZE
+        endif
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math REM_SIZE - CHUNK_SIZE
+    next OFFSET + CHUNK_ZSIZE
+    append
+endfunction

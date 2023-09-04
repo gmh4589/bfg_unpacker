@@ -1,0 +1,90 @@
+# Z: Steel Soldiers decrypter
+#   tga, wav, zrc, zrh and probably few others
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "dsf"
+
+    idstring "DIMEDSF"
+    goto 0x50
+    get FILES long
+    get ALIGN long
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get FREQUENCY long
+        get CHANNELS long
+        get BITS long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get ZERO long
+        get DUMMY long
+        get ZERO long
+
+        math OFFSET * ALIGN
+        math SIZE   * ALIGN
+        log NAME OFFSET SIZE
+
+        # codec?
+        #math CODEC = ???    # I don't know what's the codec used here
+        #string NAME + ".wav"
+        #callfunction TOWAV
+    next i
+
+else
+
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+
+    math BL = 0
+    if SIZE > 0x10
+        math BL = 1
+    endif
+    math AL = SIZE
+    math AL >> 8
+    math BL ^ AL
+    math BL ^ 0x18
+    for i = 0 < SIZE
+        getvarchr DL MEMORY_FILE i
+        math CL = i
+        math CL + BL
+        math CL ^ DL
+        math CL - i
+        putvarchr MEMORY_FILE i CL
+    next i
+
+    get NAME filename
+    log NAME 0 SIZE MEMORY_FILE
+
+endif
+
+# Requirements: CODEC, BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 CODEC short      # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction

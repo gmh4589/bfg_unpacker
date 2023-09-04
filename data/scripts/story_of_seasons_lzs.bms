@@ -1,0 +1,21 @@
+# Bokujou Monogatari Saikai no Mineral Town .lzs
+
+get SIZE long
+comtype lzss0
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+get FILES short MEMORY_FILE
+goto 0 MEMORY_FILE
+for i = 0 < FILES
+    get DUMMY short MEMORY_FILE
+    get DUMMY threebyte MEMORY_FILE
+    get OFFSET threebyte MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ID long MEMORY_FILE
+    getdstring NAME 0x30 MEMORY_FILE
+    math OFFSET * 0x10
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

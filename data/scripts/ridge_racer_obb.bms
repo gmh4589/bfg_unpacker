@@ -1,0 +1,23 @@
+# Ridge Racer Slipstream OBB
+
+idstring "TLIB"
+getdstring VER 4    # "VER1"
+get DUMMY long      # 0x90f
+get DUMMY long      # some crc?
+get FOLDERS long
+for i = 0 < FOLDERS
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get FOLDER_ID long
+    get OFFSET long
+    get SIZE long
+    getarray PATH 0 FOLDER_ID
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,32 @@
+# Make SFX (74.cz) extractor
+# script for QuickBMS http://quickbms.aluigi.org
+
+findloc OFFSET string "ShellAPI"
+goto OFFSET
+findloc OFFSET binary "\x00\x00\x00\x00\x30\x30"
+goto OFFSET
+get ZERO long
+get NAME string
+get FLAGS long
+for
+    get DUMMY long
+    get TYPE byte
+    get NAMESZ long
+    if NAMESZ == 0
+        break
+    endif
+    get SIZE long
+    get DUMMY long
+    get FLAGS long
+    getdstring NAME NAMESZ
+    if FLAGS & 0x10
+        # folder, not necessary
+    else
+        get SIZE long
+        get ZSIZE long  # the files are compressed even if ZSIZE >= SIZE
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+        goto OFFSET
+    endif
+next

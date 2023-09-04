@@ -1,0 +1,40 @@
+# London Racer World Challenge / Davilex Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "idx"
+open FDDE "img" 1
+
+get DUMMY long
+idstring "Davilex Games BV"
+goto 0x20
+
+set PATH string ""
+set NAME string ""
+math ENTRIES = 1
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    for ENTRY = ENTRIES > 0
+        get IS_FILE short
+        get NAMESZ short
+        get ZERO long
+        get ZERO long
+        getdstring NAME NAMESZ
+        if IS_FILE == 0
+            get ENTRIES long
+            callfunction EXTRACT
+        else
+            string NAME p "%s%s" PATH NAME
+            get ZSIZE long  # I have no compressed samples
+            get SIZE long
+            get VERSIONS long
+            for x = 0 < VERSIONS
+                get OFFSET long
+            next x
+            # most recent version avoiding duplicated warnings (size would be wrong for old files)
+            log NAME OFFSET SIZE 1
+        endif
+    prev ENTRY
+endfunction

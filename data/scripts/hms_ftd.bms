@@ -1,0 +1,31 @@
+# hms.ftd
+#   folders tree not supported at the moment
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring NAME 0x18
+get FILES long
+get FILESIZE long
+get BASE_OFF long
+goto 0x40
+set NAME string ""
+set PATH string ""
+for i = 0 < FILES
+    getdstring NAME 0x18
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get XEOF long
+    getdstring DUMMY 0x18
+    if XEOF == 0
+        set FNAME string PATH
+        string FNAME += NAME
+        if ZSIZE == SIZE
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    else
+        set PATH string NAME
+        string PATH += /
+    endif
+next i

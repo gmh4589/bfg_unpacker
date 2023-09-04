@@ -1,0 +1,38 @@
+# The Quest
+
+get PDB_NAME basename
+endian big
+idstring "TheQuest"
+goto 0x4a
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get ID long
+    putarray 0 i OFFSET
+next i
+get OFFSET asize
+putarray 0 i OFFSET
+sortarray 0
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE 0 i
+    math SIZE - OFFSET
+    if SIZE > 512 # skip the small resources!
+
+        set NAME string ""
+
+        if PDB_NAME & "sound"
+            math BCK_OFF = OFFSET
+            goto OFFSET
+            get NAME string
+            string NAME + "."
+            padding 8
+            getdstring DUMMY 8
+            savepos OFFSET
+            xmath SIZE "SIZE - (OFFSET - BCK_OFF)"
+        endif
+
+        log NAME OFFSET SIZE
+    endif
+next

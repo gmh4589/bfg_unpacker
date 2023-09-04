@@ -1,0 +1,97 @@
+# The Getaway (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN string
+if SIGN & "SceeWh"  # SceeWhPk or SceeWhPC and so on
+
+    get DUMMY long
+    get DUMMY long
+    getdstring PATH 0x80
+    goto 0x190
+
+    get FOLDERS long
+    get SIZE long
+
+    savepos INFO_OFF
+    xmath INFO_OFF "INFO_OFF + (FOLDERS * (4 + 0x60 + 4 + 4 + 4 + 4))"
+
+    for FOLDER = 0 < FOLDERS
+
+        getdstring TYPE 4
+        getdstring NAME 0x60
+        get ENTRIES1 long
+        get ENTRIES2 long
+        get ENTRIES3 long
+        get OFFSET long
+
+        savepos TMP
+        math OFFSET + INFO_OFF
+        goto OFFSET
+
+        string NAME + /
+        for i = 0 < ENTRIES3
+            get SIZE long
+            get OFFSET long
+            if SIGN & "SceeWhPC"
+                get DUMMY long
+            endif
+            math OFFSET * 0x800
+            if SIZE != 0
+                if SIZE & 0xc0000000    # 0x40000000 and 0x80000000
+                    math SIZE & 0x3fffffff
+                    # compression not supported, mainly because I don't know how should be the decompressed data
+                    string TMP_NAME p "%s/%s" "compressed" NAME
+                    log TMP_NAME OFFSET SIZE
+                else
+                    log NAME OFFSET SIZE
+                endif
+            endif
+        next i
+
+        goto TMP
+
+    next FOLDER
+
+else
+
+    goto 0x20
+    get FILES long
+    goto 0x114
+    get TYPE string
+    if TYPE == "bnk"
+
+        goto 0x198
+        set NAME string ""
+        for i = 0 < FILES
+            get OFFSET threebyte
+            get BASE_NAMESZ byte
+            get NAMESZ byte
+            get DUMMY short
+            get SIZE long
+            getdstring TMP NAMESZ
+            math OFFSET *= 0x800
+            putvarchr NAME BASE_NAMESZ 0
+            string NAME += TMP
+            string NAME -= 1
+            log NAME OFFSET SIZE
+        next i
+
+    elif TYPE == "mus"
+
+        goto 0x20c
+        for i = 0 < FILES
+            get SIZE long
+            get OFFSET long
+            if OFFSET != 0
+                math OFFSET *= 0x800
+                log "" OFFSET SIZE
+                math i += 1
+            endif
+        next
+
+    else
+        print "Error: unsupported type %TYPE%, contact me"
+        cleanexit
+    endif
+
+endif

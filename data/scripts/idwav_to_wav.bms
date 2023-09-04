@@ -1,0 +1,25 @@
+#idTech5 iwad to wav
+
+endian big
+log MEMORY_FILE 0 0
+set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x32\x00\x00\x00"
+append
+log MEMORY_FILE 0x15 0x32
+putVarChr MEMORY_FILE 0x46 0x64617461 long
+goto 0x47
+get OFFSET long
+math OFFSET += 0x57
+goto OFFSET
+get SIZE long
+savepos OFFSET
+reverselong SIZE
+putVarChr MEMORY_FILE 0x4A SIZE long
+reverselong SIZE
+log MEMORY_FILE OFFSET SIZE
+math SIZE += 0x46
+reverselong SIZE
+putVarChr MEMORY_FILE 0x4 SIZE long
+get SIZE asize MEMORY_FILE
+get NAME basename
+string NAME += ".wav"
+log NAME 0 SIZE MEMORY_FILE

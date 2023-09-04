@@ -1,0 +1,34 @@
+# FlatOut 2 bfs1 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "bfs1"
+get DUMMY long
+get BASE_OFF long
+get DUMMY long
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get OFFSET long
+    get CHUNKS long
+
+    savepos TMP
+    goto OFFSET
+    for i = 0 < CHUNKS
+        get FLAGS byte
+        get VERSIONS threebyte
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get SOME_CRC long
+        get NAME_CRC long
+        for x = 0 < VERSIONS
+            get OFFSET long
+        next x
+        string NAME p "%d/%d." FOLDER i
+        if FLAGS & 1    # or ZSIZE == SIZE
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next i
+    goto TMP
+next FOLDER

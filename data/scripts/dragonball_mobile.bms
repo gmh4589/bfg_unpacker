@@ -1,0 +1,18 @@
+# Dragon Ball mobile
+
+get INFO_OFF short
+get VER short
+goto INFO_OFF
+idstring "sfdb"
+get DUMMY byte
+get INFO_SIZE long
+get OFFSET longlong
+get ZERO long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    getdstring DUMMY 16
+    get SIZE longlong
+    get OFFSET longlong
+    log "" OFFSET SIZE
+next i

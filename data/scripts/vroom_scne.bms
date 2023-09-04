@@ -1,0 +1,99 @@
+# Vroom (Nintendo Switch / Bezel Engine) BEA (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zstd
+idstring "SCNE"
+get ZERO long
+get ZERO long
+get DUMMY short
+get DUMMY short
+get ZERO long
+get DUMMY long
+get RLT_OFF long
+get BEA_SIZE long
+get FILES longlong
+get INFO_OFF longlong
+get DIC_OFF longlong
+#get ZERO_OFF longlong
+#get LAST_OFF longlong
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET longlong
+    putarray 0 i OFFSET
+next i
+    putarray 0 i LAST_OFF   # useless, just failsafe if changing parsing
+
+/*
+# useless stuff, left here in case it may be useful in the future
+
+goto RLT_OFF
+idstring "_RLT"
+get SIZE long
+get DUMMY long
+getdstring ZERO 16
+get SIZE long
+get ZERO long
+get NUM long
+for i = 0 < NUM
+    get OFFSET long
+    get DUMMY short
+    get DUMMY short
+next i
+
+goto DIC_OFF
+idstring "DIC "
+get NAMES long
+for i = 0 <= NAMES
+    get DUMMY long
+    get DUMMY short
+    get DUMMY short
+    get NAME_OFF longlong
+    callfunction GET_NAME 1
+    if i > 0
+        putarray 1 -1 NAME
+    endif
+next i
+
+# just the name of the scne file
+#math NAME_OFF = LAST_OFF
+#callfunction GET_NAME 1
+*/
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    #getarray NAME   1 i
+    goto OFFSET
+    idstring "ASST"
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get DUMMY long  # FLAGS? 0x000c0002 for compression?
+    get ZSIZE long
+    get SIZE long
+    get ZERO long
+    get OFFSET longlong
+    get NAME_OFF longlong
+    callfunction GET_NAME 1
+
+    # for some unknown reasons some archives have paths containing the name of previous files
+    # avoiding to write the new file, so let's use this work-around
+    set PATH filepath NAME
+    set TMP  filename NAME
+    string PATH R "." "_"
+    string NAME p "%s/%s" PATH TMP
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction GET_NAME
+    savepos TMP
+    goto NAME_OFF
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    goto TMP
+endfunction

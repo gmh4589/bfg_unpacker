@@ -1,0 +1,65 @@
+# Order of War (0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.4.6"
+
+set TYPE long 0
+getdstring SIGN 34
+set SIGN unicode SIGN
+if SIGN != "PKG_FILE_VERSION:"
+    cleanexit
+endif
+getdstring VER 8
+set VER unicode VER
+set VER long VER
+
+if VER == 4
+    goto -8
+    savepos MAX_OFFSET
+    get INFO_SIZE long
+    get INFO_OFF long
+else if VER == 5
+    goto -12
+    savepos MAX_OFFSET
+    get INFO_SIZE long
+    get INFO_OFF long
+    get TYPE long
+else
+    print "unknown PKG version %VER%, contact me!"
+    cleanexit
+endif
+
+if INFO_SIZE u> MAX_OFFSET
+    math INFO_SIZE = MAX_OFFSET
+    math INFO_SIZE -= INFO_OFF
+    # cleanexit
+endif
+
+set ENCRYPTED long 0
+if TYPE & 0x100
+    set ENCRYPTED long 1
+endif
+
+log MEMORY_FILE INFO_OFF INFO_SIZE
+
+for
+    savepos INFO_OFF MEMORY_FILE
+    if INFO_OFF >= INFO_SIZE
+        cleanexit
+    endif
+    get ENTRY_SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get CRC long MEMORY_FILE
+    math ENTRY_SIZE -= 16
+    getdstring NAME ENTRY_SIZE MEMORY_FILE
+    set NAME unicode NAME
+
+    if OFFSET != 0xffffffff
+        if ENCRYPTED != 0
+            filexor "0x5c 0x7b 0xe3 0xea 0xec 0xac 0x5e 0xb8 0x6d 0x0b 0xd4 0xcd 0xce 0x85 0x34 0xea 0x80 0x56 0x52 0x86 0x23 0x68 0x6a 0x83 0x24 0x0b 0xeb 0xee 0x4e 0xcf 0x15 0x0f 0x38 0xbc 0x15 0x09 0x79 0xb9 0x76 0xa3 0x9c 0x85 0xc6 0xe1 0xdd 0x9c 0xfb 0x4d 0xb6 0xc3" OFFSET
+        endif
+        log NAME OFFSET SIZE
+        filexor ""
+    endif
+next

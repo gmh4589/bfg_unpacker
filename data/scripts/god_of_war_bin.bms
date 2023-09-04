@@ -1,0 +1,17 @@
+# God of War: Ghost of Sparta (BIN)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Pack"
+get DUMMY short
+get DUMMY short
+get DUMMY long
+get FILES long
+goto 0x40
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    string NAME p "%d/" TYPE
+    log NAME OFFSET SIZE
+next i

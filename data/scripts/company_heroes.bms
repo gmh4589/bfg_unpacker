@@ -1,0 +1,66 @@
+# Company of Heroes (script 0.1.2)
+#   archive similar to Warhammer 40000
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "_ARCHIVE"
+get VER long
+endian guess VER
+getdstring DUMMY 0x10
+getdstring NAME 0x80
+set NAME unicode NAME
+getdstring DUMMY 0x10
+get INFO_SIZE long
+get BASE_OFF long
+if VER != 2
+get DUMMY long      # 1
+endif
+savepos INFO_OFF
+get DUMMY long      # 0x18
+get DUMMY short     # 1
+get HEAD_SIZE long  # 0xa2
+get DUMMY short     # ???
+get TREE_SIZE long
+get FILES short
+
+math INFO_OFF += TREE_SIZE
+goto INFO_OFF
+
+callfunction READ_ENTRY # no 1 here
+savepos TMP
+goto INFO_OFF
+
+xmath TMP "(FILES * (TMP - INFO_OFF)) + INFO_OFF"
+math SIZE = BASE_OFF
+math SIZE -= TMP
+log MEMORY_FILE2 TMP SIZE
+
+for i = 0 < FILES
+    callfunction READ_ENTRY 1
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    math OFFSET += BASE_OFF
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction READ_ENTRY
+    get NAME_OFF long
+    if VER == 2
+        get ZIP byte
+    endif
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if VER != 2
+        if VER != 3
+            get CRC long
+        endif
+        get ZERO byte
+        get ZIP byte
+    endif
+endfunction

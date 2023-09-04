@@ -1,0 +1,426 @@
+# Visionaire Player/Studio (script 0.3.7)
+#   notes:
+#   - the output names are not 100% correct
+#   - the script works also with executables and encrypted old VIS archives
+#   - WebP encrypted files aren't supported
+#
+# I highly suggest you to use the VISExt tool of Deniz Oezmen instead of this script:
+#   http://oezmen.eu/gameresources/files/anb.zip
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+# build the keys database
+# to developers: use -a DUMP for an help guessing the key
+
+# Long story short, I add a space prefix or the key is handled as a number (quickbms bug/feature)
+putarray 8 -1 " 76093af7c458e3c5"   # md5 hash of unicode "VSADV3PL" (many games)
+putarray 8 -1 " 98d1a1f120d8ce55"   # md5 hash of unknown string (Deponia)
+putarray 8 -1 " af0512966ae16580"   # The Dark Eye: Chains of Satinav
+putarray 8 -1 " 155c703a508c1c8a"   # ???
+putarray 8 -1 " d9ef88157bcbcae0"   # Deponia french
+putarray 8 -1 " 6b7d3fb08202c948"   # Goodbye Deponia
+putarray 8 -1 " 5ecdd8875a17aeb6"   # Goodbye Deponia
+putarray 8 -1 " ce374042a0c24e0d"   # Deponia Complete Journey
+putarray 8 -1 " 485f13a285b3f109"   # ASA
+
+# from vis.key
+putarray 8 -1 ";76093af7c458e3c5"
+putarray 8 -1 ";98d1a1f120d8ce55"
+putarray 8 -1 ";d501025337a850e0"
+putarray 8 -1 ";32e617da0a210263"
+putarray 8 -1 ";5b905e9ae76ed5d1"
+putarray 8 -1 ";eae80125d94d10e9"
+putarray 8 -1 ";0b5250b3a2ff1440"
+putarray 8 -1 ";af0512966ae16580"
+putarray 8 -1 ";155c703a508c1c8a"
+putarray 8 -1 ";d0e0111bf880e80f"
+putarray 8 -1 ";d9ef88157bcbcae0"
+putarray 8 -1 ";885974be81048e9b"
+putarray 8 -1 ";008d8599a3a27c55"
+putarray 8 -1 ";dcff854efc3e840c"
+putarray 8 -1 ";5ecdd8875a17aeb6"
+putarray 8 -1 ";dbd41139252cfd20"
+putarray 8 -1 ";db94f6d45fc49b11"
+putarray 8 -1 ";a986265a4cba51d3"
+putarray 8 -1 ";0c994edf1c03d376"
+
+putarray 8 -1 "                 "
+putarray 8 -1 ""
+
+set MEMORY_FILE10 string "
+   /* Table of CRCs of all 8-bit messages. */
+   unsigned long crc_table[256];
+   
+   /* Flag: has the table been computed? Initially false. */
+   int crc_table_computed = 0;
+   
+   /* Make the table for a fast CRC. */
+   void make_crc_table(void)
+   {
+     unsigned long c;
+     int n, k;
+   
+     for (n = 0; n < 256; n++) {
+       c = (unsigned long) n;
+       for (k = 0; k < 8; k++) {
+         if (c & 1)
+           c = 0xedb88320L ^ (c >> 1);
+         else
+           c = c >> 1;
+       }
+       crc_table[n] = c;
+     }
+     crc_table_computed = 1;
+   }
+   
+   /* Update a running CRC with the bytes buf[0..len-1]--the CRC
+      should be initialized to all 1's, and the transmitted value
+      is the 1's complement of the final running CRC (see the
+      crc() routine below)). */
+   
+   unsigned long update_crc(unsigned long crc, unsigned char *buf,
+                            int len)
+   {
+     unsigned long c = crc;
+     int n;
+   
+     if (!crc_table_computed)
+       make_crc_table();
+     for (n = 0; n < len; n++) {
+       c = crc_table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+     }
+     return c;
+   }
+   
+   /* Return the CRC of the bytes buf[0..len-1]. */
+   unsigned long crc(unsigned char *buf, int len)
+   {
+     return update_crc(0xffffffffL, buf, len) ^ 0xffffffffL;
+   }
+
+int mystrchr(char *a, char b) {
+    int i;
+    for(i = 0; a[i]; i++) {
+        if(a[i] == b) return i;
+    }
+    return -1;
+}
+
+unsigned long png_bruteforce(unsigned char *data, int size) {
+    static char hex[] = \"0123456789abcdef\";
+    unsigned long   x,x1,
+                    y,y1;
+    char    tmp[4];
+
+    if(size < 4+8+4) return 0;
+    size -= 4;
+    unsigned long png_crc = (data[size] << 24) | (data[size + 1] << 16) | (data[size + 2] << 8) | data[size + 3];
+
+    x1 = (mystrchr(hex, data[4]) << 4) | mystrchr(hex, data[5]);
+             data[4] = 0;
+             data[5] = 0;
+    tmp[0] = data[6];
+    tmp[1] = data[7];
+    y1 = (mystrchr(hex, data[8]) << 4) | mystrchr(hex, data[9]);
+             data[8] = 0;
+             data[9] = 0;
+    tmp[2] = data[10];
+    tmp[3] = data[11];
+
+    for(x = 0; x <= 0xff; x++) {
+        for(y = 0; y <= 0xff; y++) {
+            data[6]  = tmp[0] ^ hex[x  >>  4];
+            data[7]  = tmp[1] ^ hex[x  & 0xf];
+            data[10] = tmp[2] ^ hex[y  >>  4];
+            data[11] = tmp[3] ^ hex[y  & 0xf];
+            if(crc(data, size) == png_crc) {
+                return (x1 << 24) | (x << 16) | (y1 << 8) | y;
+            }
+        }
+    }
+    return 0;
+}
+"
+
+set PNG_CHECK binary "\x89PNG"
+
+getdstring SIGN 4
+if SIGN == "VIS3"
+    get FILES long  # max 0x1869f?
+    if FILES u> 0x1869f # was 0x00ffffff
+        endian big
+        reverselong FILES
+    endif
+    savepos BASE_OFF
+    math TMP = FILES
+    math TMP *= 16
+    math TMP += 6
+
+    # key scanner
+    math i = 0
+    do
+        getarray KEY 8 i
+        if KEY == ""
+            print "unknown Visionaire key, I try to guess it"
+            goto BASE_OFF
+            getdstring KEY 0x17
+            callfunction GUESS_KEY 1
+        else
+            string KEY <<= 1    # remove the space work-around
+        endif
+        encryption xor KEY
+        log MEMORY_FILE BASE_OFF 3
+        encryption "" ""
+        getdstring SIGN 3 MEMORY_FILE
+        math i += 1
+    while SIGN != "HDR"
+    print "use key %KEY%"
+
+    encryption xor KEY
+    log MEMORY_FILE BASE_OFF TMP
+    encryption "" ""
+    if quickbms_arg1 == "DUMP"
+        log "visionaire_dump.dat" 0 TMP MEMORY_FILE
+        cleanexit
+    endif
+    math BASE_OFF += TMP
+
+    math LAME_VIS   = 0 # Deponia
+    math OLD_OFFSET = 0
+    math OLD_ZSIZE  = 0
+
+    getdstring SIGN 3 MEMORY_FILE
+
+    for i = 0 < FILES
+        putarray 0 i ""
+    next i
+    savepos BACKUP_OFFSET MEMORY_FILE
+    for EXTRACT = 0 < 2
+        goto BACKUP_OFFSET MEMORY_FILE
+        for i = 0 < FILES
+            encryption "" ""
+            get OFFSET long MEMORY_FILE
+            get ZSIZE long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            get TYPE long MEMORY_FILE
+
+            if i == 1
+                if TYPE > 0xffff
+                    math LAME_VIS = 1
+                endif
+            endif
+            if LAME_VIS != 0
+                callfunction LAME_VIS_FIX 1
+            endif
+
+            math OFFSET += BASE_OFF
+            if SIZE != ZSIZE
+                if TYPE & 1
+                else
+                    math OFFSET += 8    # 32bit SIZE + 32bit ZSIZE
+                    math ZSIZE  -= 8
+                endif
+            endif
+
+            if TYPE & 2
+                encryption xor KEY
+            endif
+
+            if EXTRACT == 0
+                if TYPE & 0x11  # 0x10 or 0x01
+                    callfunction DUMP_TO_MEMORY 1
+                    callfunction GET_FILENAMES
+                endif
+            else
+                getarray NAME 0 i
+                set EXT extension NAME
+                if EXT == ""
+                    if TYPE & 8 && SIZE == ZSIZE    # only non-compressed files
+                        log MEMORY_FILE2 OFFSET 4
+                        getdstring PNG_SIGN 4 MEMORY_FILE2
+                        if PNG_SIGN u== PNG_CHECK
+                            set EXT string "png"
+                        endif
+                    endif
+                endif
+                if TYPE & 8 && EXT == "png"
+                    log MEMORY_FILE2 OFFSET SIZE
+                    idstring MEMORY_FILE2 "\x89PNG\r\n\x1a\n"
+                    get TMP1 byte MEMORY_FILE2
+                    get TMP2 byte MEMORY_FILE2
+                    get TMP3 byte MEMORY_FILE2
+                    get TMP4 byte MEMORY_FILE2
+                    xmath PNG_CHUNK_SIZE "4 + ((TMP1 << 24) | (TMP2 << 16) | (TMP3 << 8) | TMP4) + 4"
+                    calldll MEMORY_FILE10 png_bruteforce tcc PNG_XOR_KEY MEMORY_FILE2 PNG_CHUNK_SIZE
+                    encryption "" ""
+                    log NAME 0    0x10 MEMORY_FILE2
+                    append
+                    log NAME 0x10 0x08 MEMORY_FILE2
+                    math SIZE - 0x18
+                    log NAME 0x18 SIZE MEMORY_FILE2
+                    append
+                else
+                    callfunction DUMP_TO_NAME 1
+                endif
+            endif
+        next i
+    next EXTRACT
+else
+    goto 0
+    getdstring SIGN 3
+    goto 0  # reset, useful
+    if SIGN != "VIS"
+        # if you have only one big executable you must first dump
+        # everything from the first occurrence of the bytes d1 b5 d1
+        # update: no longer necessary because I do it here!
+        math VIS_OFFSET = 0
+        get EXT extension
+        if EXT == "exe"
+            findloc VIS_OFFSET string "\xd1\xb5\xd1"
+            goto VIS_OFFSET
+            print "- VIS file possible offset %VIS_OFFSET|x%"
+        endif
+
+        set PASSWD string "PASSWD"  # original of "\x7b\x6c\x7e\x7e\x82\x6f"
+        strlen TMP PASSWD
+        for i = 0 < TMP
+            getvarchr BYTE PASSWD i
+            math BYTE += 0x2b
+            math BYTE n= BYTE   # needed for Encryption
+            putvarchr PASSWD i BYTE
+        next i
+        encryption rot PASSWD "" "" TMP
+    endif
+    get SIZE asize  # yeah, lame way but it's the only one here
+    math SIZE -= VIS_OFFSET
+    math SIZE /= 4  # because it's necessary a one-byte function
+    log MEMORY_FILE VIS_OFFSET SIZE
+    encryption "" ""
+    idstring MEMORY_FILE "VIS"
+    get FILES long MEMORY_FILE
+    for EXTRACT = 0 < 2
+        goto 7 MEMORY_FILE
+        for i = 0 < FILES
+            get NAMESZ byte MEMORY_FILE
+            getdstring NAME NAMESZ MEMORY_FILE
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            if EXTRACT != 0
+                math OFFSET += BASE_OFF
+                math OFFSET += VIS_OFFSET
+                log NAME OFFSET SIZE
+            endif
+        next i
+        savepos BASE_OFF MEMORY_FILE
+    next EXTRACT
+endif
+
+startfunction LAME_VIS_FIX
+    if i <= 4
+        math TYPE = 0
+    elif i <= 8
+        math OFFSET = OLD_OFFSET
+        math OFFSET += OLD_ZSIZE
+    else
+        math ZSIZE &= 0x00ffffff
+        math LAME_VIS = 0   # reset
+    endif
+    math OLD_OFFSET = OFFSET
+    math OLD_ZSIZE  = ZSIZE
+endfunction
+
+startfunction GET_FILENAMES
+    for
+        findloc NAME_OFF string "=\"" MEMORY_FILE2 ""
+        if NAME_OFF == ""
+            break
+        endif
+        math NAME_OFF += 2
+        goto NAME_OFF MEMORY_FILE2
+        findloc NAME_SIZE string "\"" MEMORY_FILE2 ""
+        math NAME_SIZE -= NAME_OFF
+        getdstring NAME NAME_SIZE MEMORY_FILE2
+        if NAME & "#"
+            string TMP = NAME
+            string TMP >> 1
+            string TMP strrchrx "#"
+            math TMP = TMP
+            string NAME % "#"
+            putarray 0 TMP NAME
+        endif
+    next
+endfunction
+
+startfunction DUMP_TO_NAME
+    if SIZE == ZSIZE    # copied below
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+endfunction
+
+startfunction DUMP_TO_MEMORY
+    if SIZE == ZSIZE    # copied above
+        log MEMORY_FILE2 OFFSET SIZE
+    else
+        clog MEMORY_FILE2 OFFSET ZSIZE SIZE
+    endif
+endfunction
+
+startfunction GUESS_KEY
+    getvarchr TMP00 KEY 0x00
+    getvarchr TMP01 KEY 0x01
+    getvarchr TMP02 KEY 0x02
+    getvarchr TMP03 KEY 0x03
+    getvarchr TMP04 KEY 0x04
+    getvarchr TMP05 KEY 0x05
+    getvarchr TMP06 KEY 0x06
+    getvarchr TMP07 KEY 0x07
+    getvarchr TMP08 KEY 0x08
+    getvarchr TMP09 KEY 0x09
+    getvarchr TMP0a KEY 0x0a
+    getvarchr TMP0b KEY 0x0b
+    getvarchr TMP0c KEY 0x0c
+    getvarchr TMP0d KEY 0x0d
+    getvarchr TMP0e KEY 0x0e
+    getvarchr TMP0f KEY 0x0f
+    getvarchr TMP10 KEY 0x10
+    getvarchr TMP11 KEY 0x11
+    getvarchr TMP12 KEY 0x12
+    getvarchr TMP13 KEY 0x13
+    getvarchr TMP14 KEY 0x14
+    getvarchr TMP15 KEY 0x15
+    getvarchr TMP16 KEY 0x16
+    math TMP00 ^ 'H'
+    math TMP01 ^ 'D'
+    math TMP02 ^ 'R'
+    math TMP13 ^ TMP03
+    math TMP14 ^ TMP04
+    math TMP15 ^ TMP05
+    math TMP16 ^ TMP06
+    math TMP07 ^ TMP13
+    math TMP08 ^ TMP14
+    math TMP09 ^ TMP15
+    math TMP0a ^ TMP16
+    math TMP0b ^ TMP13
+    math TMP0c ^ TMP14
+    math TMP0d ^ TMP15
+    math TMP0e ^ TMP16
+    putvarchr KEY 0x00 TMP00
+    putvarchr KEY 0x01 TMP01
+    putvarchr KEY 0x02 TMP02
+    putvarchr KEY 0x03 TMP03
+    putvarchr KEY 0x04 TMP04
+    putvarchr KEY 0x05 TMP05
+    putvarchr KEY 0x06 TMP06
+    putvarchr KEY 0x07 TMP07
+    putvarchr KEY 0x08 TMP08
+    putvarchr KEY 0x09 TMP09
+    putvarchr KEY 0x0a TMP0a
+    putvarchr KEY 0x0b TMP0b
+    putvarchr KEY 0x0c TMP0c
+    putvarchr KEY 0x0d TMP0d
+    putvarchr KEY 0x0e TMP0e
+    putvarchr KEY 0x0f TMP0f
+    putvarchr KEY 0x10 0
+endfunction

@@ -1,0 +1,42 @@
+# WRC 7 / WRC 10 FIA World Rally Championship (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4f    # "\x04\x22\x4d\x18" magic is lz4f
+
+set KEY string ""
+getdstring SIGN 4
+goto 0
+if SIGN u!= "PPKG"
+    # the key is "35DsFsyDFFUC4NVANPpYggyakreWkJfy" (quickbms gives problems using the key as-is...)
+    set KEY string "0x33 0x35 0x44 0x73 0x46 0x73 0x79 0x44 0x46 0x46 0x55 0x43 0x34 0x4e 0x56 0x41 0x4e 0x50 0x70 0x59 0x67 0x67 0x79 0x61 0x6b 0x72 0x65 0x57 0x6b 0x4a 0x66 0x79"
+    filexor KEY
+    getdstring DUMMY 0x180  # unknown data
+endif
+
+idstring "PPKG"
+get VER long    # 2
+get FILES long
+get INFO_SIZE long
+getdstring ZERO 0x20
+for i = 0 < FILES
+    filexor KEY 0
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get NAME_CRC long
+    get OFFSET longlong
+    get TSTAMP longlong
+    get ZSIZE longlong  # PKGB + ZSIZE + PKGE
+    get SIZE longlong   # PKGB + SIZE  + PKGE
+    get ZIP long
+    get ZCRC long
+    get CRC long
+    getdstring ZERO 0x20
+    filexor ""
+
+    math OFFSET + 4     # PKGB
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

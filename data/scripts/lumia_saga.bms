@@ -1,0 +1,47 @@
+# Lumia Saga fileinfo.txt
+
+comtype lz4
+math LAST_ARCHIVE_NUM = -1
+get FILES asize
+math FILES / 32
+for i = 0 < FILES
+    getdstring HASH 20
+    get SIZE long
+    get ARCHIVE_NUM long
+    get OFFSET long
+
+    if ARCHIVE_NUM != LAST_ARCHIVE_NUM
+        math LAST_ARCHIVE_NUM = ARCHIVE_NUM
+        string NAME p "%d.page" ARCHIVE_NUM
+        open FDSE NAME 1
+    endif
+
+    goto OFFSET 1
+    get XSIZE long 1
+    log MEMORY_FILE 0 0
+    append
+    for MEM_SIZE = 0 != XSIZE
+        math CHUNK_SIZE = 0x10000
+        xmath TMP "XSIZE - MEM_SIZE"
+        if CHUNK_SIZE > TMP
+            math CHUNK_SIZE = TMP
+        endif
+
+        get CHUNK_ZSIZE short 1
+        savepos CHUNK_OFF 1
+
+        if CHUNK_ZSIZE == 0
+            log MEMORY_FILE CHUNK_OFF CHUNK_SIZE 1
+            goto CHUNK_SIZE 1 SEEK_CUR
+        else
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE 1
+            goto CHUNK_ZSIZE 1 SEEK_CUR
+        endif
+        get MEM_SIZE asize MEMORY_FILE
+    next
+    append
+
+    string NAME 0b HASH
+    string NAME + "."
+    log NAME 0 XSIZE MEMORY_FILE
+next i

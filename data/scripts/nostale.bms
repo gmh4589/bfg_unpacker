@@ -1,0 +1,27 @@
+# NosTale
+# script for QuickBMS http://quickbms.aluigi.org
+
+#no idstring!
+#idstring "NT Data "
+
+goto 0x10
+get FILES long
+get DUMMY byte
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    savepos TMP
+
+    goto OFFSET
+    get FLAGS long
+    get SIZE long
+    get ZSIZE long
+    get ZIP byte
+    savepos OFFSET
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+    goto TMP
+next i

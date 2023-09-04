@@ -1,0 +1,725 @@
+# Executable file parsing and extraction - PE/NE/LE/ROM/ELF/XBE (script 0.3.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "This script dumps all the sections of the PE file.\nUse -V to view the content of all the fields."
+
+set SIGN_ELF binary "\x7fELF"
+
+math ImageBase = 0
+math NumberOfSections = 0
+math DO_LAME_PARSE_RESOURCES = 0
+callfunction PARSE_EXE 1
+
+# you need: ImageBase, NumberOfSections
+if NumberOfSections > 0
+    # RVA example
+    #math OFFSET = 0x1234
+    #print "File Offset       %OFFSET|x%"
+    #callfunction file2rva 1
+    #print "Virtual Address   %OFFSET|x%"
+    #callfunction rva2file 1
+    #print "File Offset       %OFFSET|x%"
+    #example
+
+    if DO_LAME_PARSE_RESOURCES != 0
+        getarray resource_address   10 2
+        log MEMORY_FILE10 0 0
+    endif
+
+    # not necessary but it's ok to don't read over the space of the section
+    #sortarray 0 1   # VirtualAddress
+    sortarray 2 1   # PointerToRawData
+    get EXE_SIZE asize
+
+    math MAX = 0
+    for x = 0 < NumberOfSections
+        getarray VirtualAddress     0 x
+        getarray VirtualSize        1 x
+        getarray PointerToRawData   2 x
+        getarray SizeOfRawData      3 x
+        getarray Name               4 x
+
+        string NAME p= "%08x_%08x_%08x_%s.dat" VirtualAddress PointerToRawData SizeOfRawData Name
+        if PointerToRawData != 0
+            math TMP = x
+            math TMP + 1
+            if TMP < NumberOfSections
+                getarray NEXT_OFFSET 2 TMP
+            else
+                math NEXT_OFFSET = EXE_SIZE
+            endif
+            if PointerToRawData u>= EXE_SIZE
+                math SizeOfRawData = 0
+            endif
+            math TMP = PointerToRawData
+            math TMP + SizeOfRawData
+            if TMP u> NEXT_OFFSET
+                math SizeOfRawData = NEXT_OFFSET
+                math SizeOfRawData - PointerToRawData
+            endif
+
+            if SizeOfRawData > 0
+                log NAME PointerToRawData SizeOfRawData
+            endif
+        endif
+
+        if DO_LAME_PARSE_RESOURCES != 0
+            if VirtualAddress == resource_address
+                log MEMORY_FILE10 PointerToRawData SizeOfRawData
+            endif
+        endif
+
+        xmath TMP "PointerToRawData + SizeOfRawData"
+        if TMP u> MAX
+            math MAX = TMP
+        endif
+    next x
+
+    get SIZE asize
+    if MAX u< SIZE
+        math SIZE - MAX
+        string NAME p= "LASTDATA_%08x_%08x.dat" MAX SIZE
+        log NAME MAX SIZE
+    endif
+
+    if DO_LAME_PARSE_RESOURCES != 0
+        get SIZE asize MEMORY_FILE10
+        if SIZE > 0
+            callfunction LAME_PARSE_RESOURCES
+        endif
+    endif
+endif
+
+
+
+startfunction PARSE_EXE
+    get memsize asize
+    goto 0
+
+    getdstring MAGIC2 2
+    goto 0
+    getdstring MAGIC4 4
+    goto 0
+
+    if MAGIC2 == "MZ"
+
+        #typedef struct _IMAGE_DOS_HEADER {
+        WORD e_magic;
+        WORD e_cblp;
+        WORD e_cp;
+        WORD e_crlc;
+        WORD e_cparhdr;
+        WORD e_minalloc;
+        WORD e_maxalloc;
+        WORD e_ss;
+        WORD e_sp;
+        WORD e_csum;
+        WORD e_ip;
+        WORD e_cs;
+        WORD e_lfarlc;
+        WORD e_ovno;
+        WORD e_res[4];
+        WORD e_oemid;
+        WORD e_oeminfo;
+        WORD e_res2[10];
+        LONG e_lfanew;
+
+        if e_lfanew != 0
+            goto e_lfanew
+        endif
+
+        savepos BASE_OFF
+        #DWORD Signature;
+        getdstring Signature 2
+
+        if Signature == "LX"
+            set Signature string "LE"
+        elif Signature == "W3"
+            set Signature string "LE"
+        elif Signature == "W4"
+            set Signature string "LE"
+        endif
+
+        if Signature == "PE"
+            math DO_LAME_PARSE_RESOURCES = 1
+            get SKIP short
+
+            #typedef struct _IMAGE_FILE_HEADER {
+            WORD Machine;
+            WORD NumberOfSections;
+            DWORD TimeDateStamp;
+            DWORD PointerToSymbolTable;
+            DWORD NumberOfSymbols;
+            WORD SizeOfOptionalHeader;
+            WORD Characteristics;
+
+            #typedef struct _IMAGE_OPTIONAL_HEADER / IMAGE_OPTIONAL_HEADER32 {
+            WORD Magic;
+            if Magic == 0x10b
+
+                # WORD			Magic;
+                  BYTE			MajorLinkerVersion;
+                  BYTE			MinorLinkerVersion;
+                  DWORD 		SizeOfCode;
+                  DWORD 		SizeOfInitializedData;
+                  DWORD 		SizeOfUninitializedData;
+                  DWORD 		AddressOfEntryPoint;
+                  DWORD 		BaseOfCode;
+                  DWORD 		BaseOfData;
+                  DWORD 		ImageBase;
+                  DWORD 		SectionAlignment;
+                  DWORD 		FileAlignment;
+                  WORD			MajorOperatingSystemVersion;
+                  WORD			MinorOperatingSystemVersion;
+                  WORD			MajorImageVersion;
+                  WORD			MinorImageVersion;
+                  WORD			MajorSubsystemVersion;
+                  WORD			MinorSubsystemVersion;
+                  DWORD 		Win32VersionValue;
+                  DWORD 		SizeOfImage;
+                  DWORD 		SizeOfHeaders;
+                  DWORD 		CheckSum;
+                  WORD			Subsystem;
+                  WORD			DllCharacteristics;
+                  DWORD 		SizeOfStackReserve;
+                  DWORD 		SizeOfStackCommit;
+                  DWORD 		SizeOfHeapReserve;
+                  DWORD 		SizeOfHeapCommit;
+                  DWORD 		LoaderFlags;
+                  DWORD 		NumberOfRvaAndSizes;
+
+            elif Magic == 0x20b
+
+                # WORD			Magic;
+                  BYTE			MajorLinkerVersion;
+                  BYTE			MinorLinkerVersion;
+                  DWORD 		SizeOfCode;
+                  DWORD 		SizeOfInitializedData;
+                  DWORD 		SizeOfUninitializedData;
+                  DWORD 		AddressOfEntryPoint;
+                  DWORD 		BaseOfCode;
+                  ULONGLONG		ImageBase;
+                  DWORD 		SectionAlignment;
+                  DWORD 		FileAlignment;
+                  WORD			MajorOperatingSystemVersion;
+                  WORD			MinorOperatingSystemVersion;
+                  WORD			MajorImageVersion;
+                  WORD			MinorImageVersion;
+                  WORD			MajorSubsystemVersion;
+                  WORD			MinorSubsystemVersion;
+                  DWORD 		Win32VersionValue;
+                  DWORD 		SizeOfImage;
+                  DWORD 		SizeOfHeaders;
+                  DWORD 		CheckSum;
+                  WORD			Subsystem;
+                  WORD			DllCharacteristics;
+                  ULONGLONG		SizeOfStackReserve;
+                  ULONGLONG		SizeOfStackCommit;
+                  ULONGLONG		SizeOfHeapReserve;
+                  ULONGLONG		SizeOfHeapCommit;
+                  DWORD 		LoaderFlags;
+                  DWORD 		NumberOfRvaAndSizes;
+
+            elif Magic == 0x107
+
+                # WORD			Magic;
+                  BYTE			MajorLinkerVersion;
+                  BYTE			MinorLinkerVersion;
+                  DWORD 		SizeOfCode;
+                  DWORD 		SizeOfInitializedData;
+                  DWORD 		SizeOfUninitializedData;
+                  DWORD 		AddressOfEntryPoint;
+                  DWORD 		BaseOfCode;
+                  DWORD 		BaseOfData;
+                  DWORD 		BaseOfBss;
+                  DWORD 		GprMask;
+                  DWORD 		CprMask[4];
+                  DWORD 		GpValue;
+
+            else
+
+                print "Error: unsupported PE NT magic %Magic|x%"
+                cleanexit
+
+            endif
+
+            math IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16
+            for x = 0 < IMAGE_NUMBEROF_DIRECTORY_ENTRIES
+                DWORD VirtualAddress;
+                DWORD Size;
+                putarray 10 x VirtualAddress
+            next x
+
+            for x = 0 < NumberOfSections
+                BYTE Name[8];
+                DWORD VirtualSize;
+                DWORD VirtualAddress;
+                DWORD SizeOfRawData;
+                DWORD PointerToRawData;
+                DWORD PointerToRelocations;
+                DWORD PointerToLinenumbers;
+                WORD NumberOfRelocations;
+                WORD NumberOfLinenumbers;
+                DWORD Characteristics;
+
+                putarray 0 x VirtualAddress
+                if VirtualSize == 0
+                    math VirtualSize = SizeOfRawData
+                endif
+                putarray 1 x VirtualSize
+                putarray 2 x PointerToRawData
+                putarray 3 x SizeOfRawData
+                putarray 4 x Name
+            next x
+
+        elif Signature == "NE"
+
+            # nestruct.h of HTE http://hte.sourceforge.net
+            #uint16   magic;                    // Magic number
+            byte   ver;                      // Version number
+            byte   rev;                      // Revision number
+            uint16   enttab;                   // Offset of Entry Table
+            uint16   cbenttab;                 // Number of bytes in Entry Table
+            uint32  crc;                      // Checksum of whole file
+            uint16   flags;                    // Flag uint16
+            uint16   autodata;                 // Automatic data segment number
+            uint16   heap;                     // Initial heap allocation
+            uint16   stack;                    // Initial stack allocation
+            uint32  csip;                     // Initial CS:IP setting
+            uint32  sssp;                     // Initial SS:SP setting
+            uint16   cseg;                     // Count of file segments
+            uint16   cmod;                     // Entries in Module Reference Table
+            uint16   cbnrestab;                // Size of non-resident name table
+            uint16   segtab;                   // Offset of Segment Table
+            uint16   rsrctab;                  // Offset of Resource Table
+            uint16   restab;                   // Offset of resident name table
+            uint16   modtab;                   // Offset of Module Reference Table
+            uint16   imptab;                   // Offset of Imported Names Table
+            uint32  nrestab;                  // Offset of Non-resident Names Table
+            uint16   cmovent;                  // Count of movable entries
+            uint16   align;                    // Segment alignment shift count
+            uint16   cres;                     // Count of resource segments
+            byte   os;                       // Target Operating system
+            byte   flagsothers;              // Other .EXE flags
+            uint16   pretthunks;               // offset to return thunks
+            uint16   psegrefbytes;             // offset to segment ref. bytes
+            uint16   swaparea;                 // Minimum code swap area size
+            uint16   expver;                   // Expected Windows version number
+
+            math TMP_OFF = BASE_OFF
+            math TMP_OFF + segtab
+            goto TMP_OFF
+            for x = 0 < cseg
+                uint16 offset;
+                uint16 size;
+                uint16 flags;
+                uint16 minalloc;
+
+                math offset << align
+                log "segment/" offset size
+            next x
+
+            math TMP_OFF = BASE_OFF
+            math TMP_OFF + rsrctab
+            goto TMP_OFF
+            get ALIGN_SHIFT short
+            # TTYPEINFO
+            for
+                get TYPE short
+                if TYPE == 0
+                    break
+                endif
+                get COUNT short
+                get RESERVED long
+                string NAME p "%d/" TYPE
+                for x = 0 < COUNT
+                    get OFFSET short
+                    get SIZE short
+                    get FLAGS short
+                    get ID short
+                    get HANDLE short
+                    get USAGE short
+                    math OFFSET << ALIGN_SHIFT
+                    math SIZE   << ALIGN_SHIFT
+                    log NAME OFFSET SIZE
+                next x
+            next
+
+        elif Signature == "LE"
+
+              #WORD			e32_magic;
+              BYTE			e32_border;
+              BYTE			e32_worder;
+              DWORD 		e32_level;
+              WORD			e32_cpu;
+              WORD			e32_os;
+              DWORD 		e32_ver;
+              DWORD 		e32_mflags;
+              DWORD 		e32_mpages;
+              DWORD 		e32_startobj;
+              DWORD 		e32_eip;
+              DWORD 		e32_stackobj;
+              DWORD 		e32_esp;
+              DWORD 		e32_pagesize;
+              DWORD 		e32_lastpagesize;
+              DWORD 		e32_fixupsize;
+              DWORD 		e32_fixupsum;
+              DWORD 		e32_ldrsize;
+              DWORD 		e32_ldrsum;
+              DWORD 		e32_objtab;
+              DWORD 		e32_objcnt;
+              DWORD 		e32_objmap;
+              DWORD 		e32_itermap;
+              DWORD 		e32_rsrctab;
+              DWORD 		e32_rsrccnt;
+              DWORD 		e32_restab;
+              DWORD 		e32_enttab;
+              DWORD 		e32_dirtab;
+              DWORD 		e32_dircnt;
+              DWORD 		e32_fpagetab;
+              DWORD 		e32_frectab;
+              DWORD 		e32_impmod;
+              DWORD 		e32_impmodcnt;
+              DWORD 		e32_impproc;
+              DWORD 		e32_pagesum;
+              DWORD 		e32_datapage;
+              DWORD 		e32_preload;
+              DWORD 		e32_nrestab;
+              DWORD 		e32_cbnrestab;
+              DWORD 		e32_nressum;
+              DWORD 		e32_autodata;
+              DWORD 		e32_debuginfo;
+              DWORD 		e32_debuglen;
+              DWORD 		e32_instpreload;
+              DWORD 		e32_instdemand;
+              DWORD 		e32_heapsize;
+              BYTE			e32_res3[12];
+              DWORD 		e32_winresoff;
+              DWORD 		e32_winreslen;
+              WORD			e32_devid;
+              WORD			e32_ddkver;
+
+            math ImageBase = 0
+            math NumberOfSections = e32_objcnt
+            math TMP = e32_datapage
+            for x = 0 < NumberOfSections
+                u32     vsize;
+                u32     base_reloc_addr;
+                u32     flags;
+                u32     page_map_index;
+                u32     page_map_count;
+                u8      name[4];
+
+                putarray 0 x base_reloc_addr
+                putarray 1 x vsize
+                putarray 2 x TMP
+                putarray 3 x vsize
+                putarray 4 x Name
+
+                math vsize x e32_pagesize
+                math TMP + vsize
+            next x
+
+        else
+
+            print "Error: unsupported executable type %Signature%"
+            cleanexit
+
+        endif
+
+    elif MAGIC4 == SIGN_ELF
+
+        u8      e_ident[16];
+        getvarchr TMP_4 e_ident 4
+        getvarchr TMP_5 e_ident 5
+        if TMP_5 == 2
+            endian big
+        endif
+        if TMP_4 == 1
+
+            #u8      e_ident[16];
+            u16     e_type;
+            u16     e_machine;
+            u32     e_version;
+            u32     e_entry;
+            u32     e_phoff;
+            u32     e_shoff;
+            u32     e_flags;
+            u16     e_ehsize;
+            u16     e_phentsize;
+            u16     e_phnum;
+            u16     e_shentsize;
+            u16     e_shnum;
+            u16     e_shstrndx;
+
+            math ImageBase = 0
+            math NumberOfSections = e_shnum
+            goto e_shoff
+            for x = 0 < NumberOfSections
+                u32     sh_name;
+                u32     sh_type;
+                u32     sh_flags;
+                u32     sh_addr;     
+                u32     sh_offset;
+                u32     sh_size;
+                u32     sh_link;
+                u32     sh_info;
+                u32     sh_addralign;
+                u32     sh_entsize;
+
+                putarray 0 x sh_addr
+                putarray 1 x sh_size
+                putarray 2 x sh_offset
+                putarray 3 x sh_size
+                putarray 4 x "" # Name, don't care at the moment
+            next x
+
+        elif TMP_4 == 2
+
+            #u8      e_ident[16];
+            u16     e_type;
+            u16     e_machine;
+            u32     e_version;
+            u64     e_entry;
+            u64     e_phoff;
+            u64     e_shoff;
+            u32     e_flags;
+            u16     e_ehsize;
+            u16     e_phentsize;
+            u16     e_phnum;
+            u16     e_shentsize;
+            u16     e_shnum;
+            u16     e_shstrndx;
+
+            math ImageBase = 0
+            math NumberOfSections = e_shnum
+            goto e_shoff
+            for x = 0 < NumberOfSections
+                u32     sh_name;
+                u32     sh_type;
+                u64     sh_flags;
+                u64     sh_addr;
+                u64     sh_offset;
+                u64     sh_size;
+                u32     sh_link;
+                u32     sh_info;
+                u64     sh_addralign;
+                u64     sh_entsize;
+
+                putarray 0 x sh_addr
+                putarray 1 x sh_size
+                putarray 2 x sh_offset
+                putarray 3 x sh_size
+                putarray 4 x "" # Name, don't care at the moment
+            next x
+
+        else
+
+            print "Error: unsupported ELF file"
+            cleanexit
+
+        endif
+
+    elif MAGIC4 == "XBEH"
+
+        u32     magic_id;
+        u8      signature[256];
+        u32     base_address;
+        u32     size_of_headers;
+        u32     size_of_image;
+        u32     size_of_imageheader;
+        u32     timedate;
+        u32     certificate_address;
+        u32     number_of_sections;
+        u32     section_header_address;
+        u32     initialisation_flags;
+        u32     entry_point;
+        u32     tls_address;
+        u32     pe_stack_commit;
+        u32     pe_heap_reserve;
+        u32     pe_heap_commit;
+        u32     pe_base_address;
+        u32     pe_size_of_image;
+        u32     pe_checksum;
+        u32     pe_timedate;
+        u32     debug_pathname_address;
+        u32     debug_filename_address;
+        u32     debug_unicode_filename_address;
+        u32     kernel_image_thunk_address;
+        u32     non_kernel_import_directory_address;
+        u32     number_of_library_versions;
+        u32     library_versions_address;
+        u32     kernel_library_version_address;
+        u32     xapi_library_version_address;
+        u32     logo_bitmap_address;
+        u32     logo_bitmap_size;
+
+        math ImageBase = base_address
+        math NumberOfSections = number_of_sections
+        math section_header_address - ImageBase
+        goto section_header_address
+        for x = 0 < NumberOfSections
+            u32     section_flags;
+            u32     virtual_address;
+            u32     virtual_size;
+            u32     raw_address;
+            u32     raw_size;
+            u32     section_name_address;
+            u32     section_name_ref_count;
+            u32     head_shared_page_ref_count_address;
+            u32     tail_shared_page_ref_count_address;
+            u8      section_digest[20];
+
+            putarray 0 x virtual_address
+            putarray 1 x virtual_size
+            putarray 2 x raw_address
+            putarray 3 x raw_size
+            putarray 4 x "" # Name, don't care at the moment
+        next x
+
+    elif MAGIC4 == "XEX2"
+
+        endian big
+        byte magic_id[4];
+        uint32 flags;
+        uint32 size;
+        uint32 res;
+        uint32 file_header_offset;
+        uint32 number_of_sections;
+
+        for x = 0 < number_of_sections
+            get Value long
+        next x
+
+        goto file_header_offset
+        uint32 hdr_size;
+        uint32 image_size;
+        uint8  key[256];
+        uint32 unk1;
+        uint32 image_flags;
+        uint32 load_address;
+        uint8  hash1[20];
+        uint32 unk2;
+        uint8  hash2[20];
+        uint8  unk3[16];
+        uint8  loader_key[16];
+        uint32 unk4;
+        uint8  hash3[20];
+        uint32 region;
+        uint32 media_mask;
+        uint32 pages;
+
+        # not supported and not useful
+
+    else
+
+        print "Error: unsupported executable"
+        cleanexit
+
+    endif
+endfunction
+
+startfunction file2rva
+    math RET = -1
+    math DIFF = -1
+    for x = 0 < NumberOfSections
+        getarray VirtualAddress 0 x
+        getarray VirtualSize 1 x
+        getarray PointerToRawData 2 x
+        getarray SizeOfRawData 3 x
+
+        set VirtualAddress long VirtualAddress
+        set VirtualSize long VirtualSize
+        set PointerToRawData long PointerToRawData
+        set SizeOfRawData long SizeOfRawData
+
+        if OFFSET u>= PointerToRawData
+            math TMP = PointerToRawData
+            math TMP + SizeOfRawData
+            if OFFSET u< TMP
+                math TMP = OFFSET
+                math TMP - PointerToRawData
+                if TMP u< diff
+                    math diff = TMP
+                    math RET = x
+                endif
+            endif
+        endif
+    next x
+    math OFFSET + ImageBase
+    if RET >= 0
+        getarray VirtualAddress 0 RET
+        getarray PointerToRawData 2 RET
+
+        set VirtualAddress long VirtualAddress
+        set PointerToRawData long PointerToRawData
+
+        math OFFSET + VirtualAddress
+        math OFFSET - PointerToRawData
+    endif
+endfunction
+
+startfunction rva2file
+    math OFFSET - ImageBase
+    math RET = -1
+    math DIFF = -1
+    for x = 0 < NumberOfSections
+        getarray VirtualAddress 0 x
+        getarray VirtualSize 1 x
+        getarray PointerToRawData 2 x
+        getarray SizeOfRawData 3 x
+
+        set VirtualAddress long VirtualAddress
+        set VirtualSize long VirtualSize
+        set PointerToRawData long PointerToRawData
+        set SizeOfRawData long SizeOfRawData
+
+        if OFFSET u>= VirtualAddress
+            math TMP = VirtualAddress
+            math TMP + VirtualSize
+            if OFFSET u< TMP
+                math TMP = OFFSET
+                math TMP - VirtualAddress
+                if TMP u< diff
+                    math diff = TMP
+                    math RET = x
+                endif
+            endif
+        endif
+    next x
+    if RET >= 0
+        getarray VirtualAddress 0 RET
+        getarray PointerToRawData 2 RET
+
+        set VirtualAddress long VirtualAddress
+        set PointerToRawData long PointerToRawData
+
+        math OFFSET + PointerToRawData
+        math OFFSET - VirtualAddress
+    endif
+endfunction
+
+startfunction LAME_PARSE_RESOURCES
+    getdstring DUMMY 0xc MEMORY_FILE10
+    get ENTRIES1 short MEMORY_FILE10
+    get ENTRIES2 short MEMORY_FILE10
+    xmath ENTRIES "ENTRIES1 + ENTRIES2"
+    for i = 0 < ENTRIES
+        get DUMMY long MEMORY_FILE10
+        get OFFSET long MEMORY_FILE10
+        savepos TMP MEMORY_FILE10
+        if OFFSET & 0x80000000
+            math OFFSET & 0x7fffffff
+            goto OFFSET MEMORY_FILE10
+            callfunction LAME_PARSE_RESOURCES
+        else
+            goto OFFSET MEMORY_FILE10
+            get OFFSET long MEMORY_FILE10
+            get SIZE long MEMORY_FILE10
+            math OFFSET + ImageBase
+            callfunction rva2file 1
+            log "resources/" OFFSET SIZE
+        endif
+        goto TMP MEMORY_FILE10
+    next i
+endfunction

@@ -1,0 +1,41 @@
+# POD5 (script 0.2)
+#   The Walking Dead Survival Instinct
+#   Country Dance 2
+#   Silent Hill Book of Memories
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "POD5"
+get ZERO long
+getdstring NAME 0x50
+get FILES long
+goto 0x108
+get INFO_OFF long
+get ZERO long
+get NAMES_SIZE long
+
+get NAMES_OFF asize
+math NAMES_OFF - NAMES_SIZE
+
+math ENTRY_SIZE = NAMES_OFF
+math ENTRY_SIZE - INFO_OFF
+math ENTRY_SIZE / FILES
+
+for i = 0 < FILES
+    goto INFO_OFF
+    get NAME_OFF long
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+    math INFO_OFF + ENTRY_SIZE
+
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+

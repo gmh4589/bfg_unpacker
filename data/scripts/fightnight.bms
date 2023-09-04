@@ -1,0 +1,236 @@
+# Fight Night Champion / SSX Xbox 360 "EB" archives (*.big) (script 0.4.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype xmemdecompress
+endian big
+
+getdstring CHECK 2
+goto 0
+if CHECK != "EB"
+    callfunction SCAN_10FB 1
+    cleanexit
+endfunction
+
+get EB_SIZE asize
+idstring "EB"
+get VERSION short
+get FILES long
+get FLAGS long
+get NAME_OFF long
+get NAME_SIZE long
+get XNAMESZ byte
+get XFOLDERSZ byte
+get FOLDERS short
+get ARCHIVE_SIZE longlong
+
+log MEMORY_FILE NAME_OFF NAME_SIZE
+#math NAMESZ = NAME_SIZE
+#math NAMESZ /= FILES
+math NAMESZ = XNAMESZ
+math FOLDER_OFF = FILES
+math FOLDER_OFF *= NAMESZ
+math FOLDER_OFF += NAME_OFF
+math FOLDER_OFF x= 0x10
+math FOLDER_SIZE = NAME_OFF
+math FOLDER_SIZE += NAME_SIZE
+math FOLDER_SIZE -= FOLDER_OFF
+math NAMESZ -= 2
+
+goto FOLDER_OFF
+#math FOLDERSZ = FOLDER_SIZE
+#math FOLDERSZ /= FOLDERS
+math FOLDERSZ = XFOLDERSZ
+for i = 0 < FOLDERS
+    getdstring FOLDER FOLDERSZ
+    putarray 0 i FOLDER
+next i
+
+math BLOCK_SIZE = 0x10
+if FLAGS & 0x200
+    math BLOCK_SIZE = 0x40
+endif
+
+goto 0x30
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get CRC long
+    if FLAGS & 0x10000
+        get DUMMY long
+    endif
+    get FOLDER short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    math OFFSET *= BLOCK_SIZE
+
+    if OFFSET u<= EB_SIZE
+        math TMP = OFFSET
+        if ZSIZE == 0
+            math TMP + SIZE
+        else
+            math TMP + ZSIZE
+        endif
+        if TMP u<= EB_SIZE
+
+            math DO_LZX = 0
+            if ZSIZE > 8 || SIZE > 8    # some chunklzx files have ZSIZE zero!
+                savepos TMP
+                goto OFFSET
+                getdstring SIGN 8
+                if SIGN & "chunk" #== "chunklzx"
+                    math DO_LZX = 1
+                endif
+                goto TMP
+            endif
+
+            getarray FNAME 0 FOLDER
+            string FNAME += /
+            string FNAME += NAME
+
+            if DO_LZX == 0
+                if ZSIZE == 0
+                    log FNAME OFFSET SIZE
+                else
+                    comtype dk2
+                    clog FNAME OFFSET ZSIZE SIZE
+                endif
+            else
+                callfunction UNPACK
+            endif
+
+        endif
+    endif
+next i
+
+startfunction UNPACK
+    savepos TMP_OFF
+    goto OFFSET
+    set NAME string FNAME
+
+
+
+    # copied 1:1 from http://aluigi.org/bms/chunklzx.bms
+    getdstring chunk_type 8
+    if chunk_type == "chunklzx"
+        comtype xmemdecompress
+    elif chunk_type == "chunkzip"
+        comtype deflate
+    elif chunk_type == "chunlzma"
+        comtype lzma_dynamic    # it's lzma0 but sometimes it gives LZMA_STATUS_FINISHED_WITH_MARK
+    elif chunk_type == "chunkref"
+        comtype dk2     # ???
+    elif chunk_type == "chunklz4"
+        comtype lz4
+    elif chunk_type == "chunkunc"
+        comtype copy    # ???
+    elif chunk_type == "chunzstd"
+        comtype zstd
+    elif chunk_type == "chunoodl"
+        comtype oodle
+    else
+        print "unsupported type %chunk_type%"
+        cleanexit
+    endif
+    get DUMMY long
+    if DUMMY <= 2
+        get FULLSIZE long
+        set TYPE long 0     # Fight Night Champion and some FIFA11
+    else
+        math FULLSIZE = DUMMY
+        set TYPE long 1     # most FIFA11 files
+    endif
+    get CHUNK_SIZE long
+    if TYPE == 0
+        get CHUNKS long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    else
+        math CHUNKS = FULLSIZE
+        math CHUNKS /= CHUNK_SIZE
+        if FULLSIZE % CHUNK_SIZE
+            math CHUNK += 1
+        endif
+    endif
+    log NAME 0 0
+    append
+    savepos OFFSET
+    for MYSIZE = 0 != FULLSIZE
+        if TYPE == 0
+            math OFFSET x= 0x8
+            for # very lame, made on the fly
+                math T = OFFSET
+                math T %= 0x10
+                if T == 8
+                    break
+                endif
+                math OFFSET += 8
+            next
+        endif
+        goto OFFSET
+
+        math IS_COMPRESSED = 1
+        get CHUNK_ZSIZE long
+        if TYPE == 0
+            get DUMMY long
+            if DUMMY == 4
+                math IS_COMPRESSED = 0
+            endif
+        endif
+        savepos OFFSET
+        xmath TMP2 "FULLSIZE - MYSIZE"
+        if TMP2 < CHUNK_SIZE
+            math CHUNK_SIZE = TMP2
+        endif
+        if IS_COMPRESSED == 0
+            log NAME OFFSET CHUNK_ZSIZE
+        else
+            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        math OFFSET += CHUNK_ZSIZE
+    next MYSIZE + CHUNK_SIZE
+    append
+    # end of copy
+
+
+
+    goto TMP_OFF
+endfunction
+
+# yeah the decompression gives an error with the latest file, don't know why and it's not caused by the script of quickbms
+startfunction SCAN_10FB
+    get NAME basename
+    string NAME + /
+    comtype dk2
+    get BIG_SIZE asize
+    for OFFSET = 0 != BIG_SIZE
+        goto OFFSET
+        getdstring SKIP 2
+        get SIZE threebyte
+        for OK = 0 == 0
+            findloc NEXT_OFF binary "\x10\xfb" 0 ""
+            if NEXT_OFF == ""
+                math NEXT_OFF = BIG_SIZE
+                math OK = 1
+            else
+                goto NEXT_OFF
+                getdstring SKIP 2
+                if NEXT_OFF & 0xf
+                    # nothing
+                else
+                    get DUMMY threebyte
+                    get DUMMY byte
+                    getdstring CHECK 2
+                    if CHECK == "EB"
+                        math OK = 1
+                    endif
+                endif
+            endif
+        next
+        math ZSIZE = NEXT_OFF
+        math ZSIZE - OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET = NEXT_OFF
+    next
+endfunction

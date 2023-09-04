@@ -1,0 +1,84 @@
+# Warhammer: Battle March X360 .HSH/ORK (script 0.2.1)
+#   The script works by both selecting Pack.hsh and each single ORK archive.
+#   Selecting the ORK archives extracts more files than those referenced in the HSH index.
+
+get EXT extension
+if EXT == "ork"
+
+    # info from my orkdec tool
+    math ORK_OFFSET = 0x0fbf6a67
+    goto -10
+    idstring "Good luck!"
+    goto 0
+    get ZERO long
+    get INFO_OFF long
+    savepos BASE_OFF
+    math INFO_OFF ^ ORK_OFFSET
+    math INFO_OFF + BASE_OFF
+    goto INFO_OFF
+    get FILES long
+    for i = 0 < FILES
+        callfunction GET_NUM 1  # filecrc
+        callfunction GET_NUM 1  # namecrc
+        math NAME_CRC = NUM
+        callfunction GET_NUM 1  # size
+        math SIZE     = NUM
+        callfunction GET_NUM 1  # zsize
+        math ZSIZE    = NUM
+        callfunction GET_NUM 1  # offset
+        math OFFSET   = NUM
+        math OFFSET + BASE_OFF
+
+        string NAME p "%08x." NAME_CRC
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif EXT == "hsh"
+
+    endian big
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+
+    get NUM line MEMORY_FILE
+    for i = 0
+        get NAME line MEMORY_FILE
+        if NAME & "==="
+            break
+        endif
+        open FDSE NAME i EXISTS
+        #putarray 0 i NAME
+        putarray 1 i EXISTS
+    next i
+
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get NAME_CRC1 long MEMORY_FILE  # big endian order
+        get NAME_CRC2 long MEMORY_FILE
+        get ORK_NUM long MEMORY_FILE
+        get DUMMY long MEMORY_FILE  # maybe some sort of ID
+        get SIZE long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        string NAME p "%08x%08x." NAME_CRC1 NAME_CRC2
+        math OFFSET + 8 # zero + number
+
+        getarray EXISTS 1 ORK_NUM
+        if EXISTS != 0
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE ORK_NUM
+            else
+                clog NAME OFFSET ZSIZE SIZE ORK_NUM
+            endif
+        endif
+    next i
+
+endif
+
+startfunction GET_NUM
+    get NUM long
+    xmath NUM "((i * 733) + 0x48b18039) ^ num"
+endfunction

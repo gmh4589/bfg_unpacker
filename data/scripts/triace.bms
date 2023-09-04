@@ -1,0 +1,24 @@
+get NAME basename
+idstring SLZ
+get TYPE byte
+get DUMMY long
+if DUMMY & 0xff
+    endian little
+else
+    endian big
+endif
+get ZSIZE long
+get SIZE long
+get DUMMY long
+get DUMMY long
+savepos OFFSET
+if TYPE == 0
+    string NAME += ".unslz"
+    log NAME OFFSET ZSIZE
+elif TYPE == 4
+    string NAME += ".xbcompress"
+    log NAME OFFSET ZSIZE
+else
+    print "Error: unsupported type, contact me"
+    cleanexit
+endif

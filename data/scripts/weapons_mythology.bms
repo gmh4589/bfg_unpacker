@@ -1,0 +1,32 @@
+# Weapons of Mythology
+
+open FDDE "pak"
+
+get DUMMY short
+get DUMMY short
+get ZERO long
+get FILES long
+math FILES & 0x00ffffff
+for i = 0 < FILES
+    getdstring NAME 0x20
+    getdstring HASH 0x10
+    get SIZE long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    savepos TMP
+    goto OFFSET
+    get ZIP byte
+    savepos OFFSET
+    math ZSIZE - 1
+    if ZIP == 1
+        comtype lzma
+    else
+        print "Unknown algorithm %ZIP%, contact me"
+        cleanexit
+    endif
+    goto TMP
+
+    clog NAME OFFSET ZSIZE SIZE
+next i

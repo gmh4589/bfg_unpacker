@@ -1,0 +1,14 @@
+endian big
+idstring "\0CRA"    # "ARC\0" big endian
+get VERSION short
+get FILES short
+
+for i = 0 < FILES
+    getdstring NAME 64
+    get TIMESTAMP long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+
+    clog NAME OFFSET ZSIZE SIZE
+next i

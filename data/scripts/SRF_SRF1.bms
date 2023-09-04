@@ -1,0 +1,26 @@
+<bms games="'You Dont Know Jack!', 'You Dont Know Jack! Volume 2', 'You Dont Know Jack! Volume 3', 'You Dont Know Jack! OFFLINE', 'You Dont Know Jack! The Ride', 'You Dont Know Jack! UK', 'You Dont Know Jack! Germany', 'You Dont Know Jack! Die Abwarts', 'You Dont Know Jack! Japan', 'HeadRush', 'Austin Powers: Operation Trivia'" platforms="'PC'" ext="SRF">
+IDString 0 srf1 ;
+Get FILELNGH Long 0 ;
+ReverseLong FILELNGH ;
+Get HEADLNGH Long 0 ;
+ReverseLong HEADLNGH ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 4 0 ;
+Get SUBCOUNT Long 0 ;
+ReverseLong SUBCOUNT ;
+For T = 1 To SUBCOUNT ;
+Get SUBNAME Long 0 ;
+ReverseLong SUBNAME ;
+String FILENAME += SUBNAME ;
+Get FILEOFF Long 0 ;
+ReverseLong FILEOFF ;
+Get FILESIZE Long 0 ;
+ReverseLong FILESIZE ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+String FILENAME -= SUBNAME ;
+Next T ;
+SavePos FILESTART 0 ;
+While FILESTART < HEADLNGH ;
+</bms>

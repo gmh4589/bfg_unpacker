@@ -1,0 +1,45 @@
+# Simpsons Arcade (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getct FILES string 0x20
+getct DUMMY string 0x20
+get BASE_OFF line
+for i = 0 < FILES
+    getdstring OFFSET 9
+    getdstring SIZE 10
+    getdstring TYPE 5
+    getdstring DUMMY 8
+    getdstring DUMMY 5
+    get NAME line
+    math OFFSET += BASE_OFF
+
+    set EXT extension NAME
+    if EXT == "iax"
+        comtype unzip_dynamic
+        savepos TMP
+        goto OFFSET
+        math DIFF = OFFSET
+        idstring "iz"
+        for x = 0 < 8
+            get DUMMY variable
+        next x
+        savepos OFFSET
+        goto TMP
+        math SIZE -= OFFSET
+        math SIZE += DIFF
+        clog NAME OFFSET SIZE SIZE
+    elif EXT == "qz"
+        comtype zlib
+        savepos TMP
+        goto OFFSET
+        math ZSIZE = SIZE
+        get SIZE long
+        savepos OFFSET
+        goto TMP
+        set NAME fullbasename NAME
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+

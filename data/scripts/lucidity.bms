@@ -1,0 +1,51 @@
+# Lucidity / LucasArts engine (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KAPL"
+get VERSION long
+get TABLE_OFF long
+get INFO_OFF long
+get NAME_OFF long
+get FILE_OFF long
+get TABLE_SIZE long
+get INFO_SIZE long
+get NAME_SIZE long
+get FILE_SIZE long
+get PAK_SIZE long
+get DUMMY long
+
+log MEMORY_FILE NAME_OFF NAME_SIZE
+comtype deflate
+set FILES long INFO_SIZE
+math FILES /= 32
+goto INFO_OFF
+
+set AUTO_TUNE long -1
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET += FILE_OFF
+    get NAMEOFF long
+    get ZSIZE long
+    get SIZE long
+    get TYPE long
+    if AUTO_TUNE < 0
+        savepos TMP
+        do
+            math AUTO_TUNE += 1
+            get DUMMY long
+        while DUMMY != ZSIZE
+        goto TMP
+    endif
+    for x = 0 < AUTO_TUNE
+        get DUMMY long
+    next x
+
+    goto NAMEOFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

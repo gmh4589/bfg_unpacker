@@ -1,0 +1,28 @@
+<bms games="'Arcanum'" platforms="'PC'" ext="DAT">
+ImpType Standard ;
+ComType ZLib1 ;
+Get AS ASize 0 ;
+Math AS -= 4 ;
+GoTo AS 0 ;
+Get TS Long 0 ;
+Math AS -= TS ;
+GoTo AS 0 ;
+SavePos TailOffOff 0 ;
+Get FSP Long 0 ;
+GoTo FSP 0 ;
+Get FA Long 0 ;
+For TE = 1 To FA ;
+Get SS Long 0 ;
+Get FN String 0 ;
+SavePos FSP 0 ;
+Math FSP += 8 ;
+GoTo FSP 0 ;
+SavePos OSO 0 ;
+Get OS Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+CLog FN FO FS OS ; #CLog FN FO FS FOO FSO OS OSO ;
+Next TE ;
+</bms>

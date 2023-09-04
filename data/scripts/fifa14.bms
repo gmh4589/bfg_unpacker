@@ -1,0 +1,93 @@
+# FIFA 14 dat*
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "index"
+    print "Error: you must open the DAT* archives"
+    cleanexit
+endif
+
+comtype deflate
+idstring "SqPack"
+math OFFSET = 0x800
+get FULL_SIZE asize
+for OFFSET = OFFSET < FULL_SIZE
+    goto OFFSET
+    get DATA_OFF long
+    get CHUNK_TYPE long
+    if CHUNK_TYPE == 0
+        math CHUNK_ELEMENTS = 0
+    elif CHUNK_TYPE == 2
+        math CHUNK_ELEMENTS = 2
+    elif CHUNK_TYPE == 3
+        math CHUNK_ELEMENTS = -1
+    elif CHUNK_TYPE == 4
+        math CHUNK_ELEMENTS = 5
+    else
+        print "Error: unknown chunk index type %CHUNK_TYPE% at offset %OFFSET|x%"
+        cleanexit
+    endif
+    get SIZE long
+    get BLOCKS long
+    get DUMMY long
+    get CHUNKS long
+    math CHUNKS &= 0x00ffffff
+
+    if CHUNK_TYPE == 3
+        getdstring DUMMY 0x58
+        math CHUNKS -= 1
+    endif
+
+    for x = 0 < CHUNKS
+        if CHUNK_ELEMENTS == -1
+            if x == 0
+                get CHUNK_OFF long
+            else
+                do
+                    get CHUNK_OFF long
+                while CHUNK_OFF == 0
+            endif
+        else
+            get CHUNK_OFF long
+            for z = 1 < CHUNK_ELEMENTS
+                get CHUNK_DUMMY long
+            next z
+        endif
+        putarray 0 x CHUNK_OFF
+    next x
+
+    math OFFSET += DATA_OFF
+    goto OFFSET
+
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        getarray CHUNK_OFF 0 x
+        math CHUNK_OFF += OFFSET
+        goto CHUNK_OFF
+        get DATA_OFF long
+        #if DATA_OFF == 0
+        #    break
+        #endif
+        if DATA_OFF != 0x10
+            print "Error: DATA_OFF %DATA_OFF|x% is not 0x10 at offset %CHUNK_OFF|x%"
+            cleanexit
+        endif
+        get ZERO long
+        get CHUNK_ZSIZE long
+        get CHUNK_SIZE long
+        math CHUNK_OFF += DATA_OFF
+        if CHUNK_SIZE < CHUNK_ZSIZE # or CHUNK_ZSIZE == 0x7d00
+            log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+        else
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+        endif
+    next x
+    append
+
+    putvarchr MEMORY_FILE SIZE 0    # put the zeroes
+    log "" 0 SIZE MEMORY_FILE
+
+    xmath OFFSET "OFFSET + (BLOCKS * 0x80)"
+next

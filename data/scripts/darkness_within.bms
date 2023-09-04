@@ -1,0 +1,63 @@
+# Darkness Within 1/2 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+
+if SIGN == "CP11"
+
+    idstring "CP11"
+    get DUMMY long
+    get FILES long
+    get DATA_SIZE long
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        getdstring NAME 0x30
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    get NAME basename
+    if NAME == "main"
+
+        for EXTRACT = 0 < 2
+            goto 0
+            get DUMMY long
+            for
+                get DUMMY long
+                if DUMMY == 0
+                    break
+                endif
+                get SIZE long
+                get NAMESZ byte
+                getdstring NAME NAMESZ
+                if EXTRACT != 0
+                    string NAME + "."   # guess extension
+                    log NAME OFFSET SIZE
+                    math OFFSET + SIZE
+                endif
+            next
+            savepos OFFSET
+        next EXTRACT
+
+    else
+
+        get FILES threebyte
+        get DUMMY byte
+        xmath BASE_OFF "4 + (FILES * 16)"
+        for i = 0 < FILES
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+            get DUMMY long
+            math OFFSET + BASE_OFF
+            log "" OFFSET SIZE
+        next i
+
+    endif
+
+endif

@@ -1,0 +1,44 @@
+# Just Dance IPK 2014, 2015, 2017 and so on (script 0.1.1)
+#   same format used also by Rayman Legends
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "\x50\xec\x12\xba"
+get VERSION long
+get DUMMY long
+get BASE_OFF long
+get FILES long
+goto 0x30
+for i = 0 < FILES
+    get DUMMY1 long # 1
+    get SIZE long
+    get ZSIZE long
+    get TSTAMP longlong
+    get OFFSET longlong
+    if DUMMY1 == 2
+        get DUMMY long
+        get DUMMY long
+    endif
+    get PATHSZ long
+    getdstring PATH PATHSZ
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get CRC long
+    get DUMMY2 long # 0 or 2
+
+    # 2014 and 2017 switched the position of NAME and PATH? don't have the old samples
+    if NAME & "."
+        set FNAME string PATH
+        string FNAME += NAME
+    else
+        set FNAME string NAME
+        string FNAME += PATH
+    endif
+    math OFFSET += BASE_OFF
+
+    if ZSIZE == 0
+        log FNAME OFFSET SIZE
+    else
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+next i

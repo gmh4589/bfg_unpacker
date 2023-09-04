@@ -1,0 +1,39 @@
+# The Settlers 4 LIB (script 0.1.1)
+#   compression is not supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+#comtype ???
+goto -4
+get OFFSET long
+goto OFFSET
+get INFO_SIZE long
+get DUMMY long  # 0x1000
+get DUMMY long
+get FOLDERS long
+get NAMES_SIZE long
+get FILES long
+for i = 0 < FOLDERS
+    get NAME string
+    putarray 1 i NAME
+next i
+for i = 0 < FILES
+    get NAME string
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get FOLDER_ID short
+    get FLAGS short
+    get ZIP long
+    get DUMMY long  # maybe some 16bit NAME_CRC
+    getarray PATH 1 FOLDER_ID
+    getarray NAME 0 i
+    string NAME p "%s/%s" PATH NAME
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

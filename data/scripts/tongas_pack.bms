@@ -1,0 +1,22 @@
+# tongas_pack archives (script 0.1.1)
+#   Voltron: Defender of the Universe
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+idstring "tongas_pack_"
+getdstring DUMMY 6
+get FILES long
+get HEAD_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZIP long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        math XSIZE = SIZE
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

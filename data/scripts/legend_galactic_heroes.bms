@@ -1,0 +1,52 @@
+# Legend of the Galactic Heroes (script 0.1.1)
+#   maybe it works also with other games developed by MiCROViSiON
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.1"
+comtype microvision
+idstring "ARC1"
+goto 0xd
+get FILES byte
+goto 0x82
+math FIELDS = 6
+for i = 0 < FILES
+    savepos ENTRY_OFF
+    callfunction READ_VALUE 1
+    math NAME_OFF = VAL
+    callfunction READ_VALUE 1
+    math NAMESZ = VAL
+    callfunction READ_VALUE 1
+    math OFFSET = VAL
+    callfunction READ_VALUE 1
+    math ZSIZE = VAL
+    callfunction READ_VALUE 1
+    math SIZE = VAL
+    callfunction READ_VALUE 1   # ever zero
+
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+
+    math ENTRY_OFF + 0x20
+    goto ENTRY_OFF
+next i
+
+startfunction READ_VALUE
+    savepos TMP
+    get VAL1 byte
+    getdstring DUMMY FIELDS
+    get VAL2 byte
+    getdstring DUMMY FIELDS
+    get VAL3 byte
+    getdstring DUMMY FIELDS
+    get VAL4 byte
+    getdstring DUMMY FIELDS
+    xmath VAL "VAL1 | (VAL2 << 8) | (VAL3 << 16) | (VAL4 << 24)"
+    math TMP + 1
+    goto TMP
+endfunction

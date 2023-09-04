@@ -1,0 +1,108 @@
+# K-D Lab "Hey you, wait!" / Ну, погоди! Выпуск 1. Погоня RES (script 0.1.1)
+#   levels and sounds only
+
+goto 8
+get TEST long
+goto 0
+
+if TEST u<= 1
+    get FILES long
+    math FILES / 16
+    goto 0
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get DUMMY long
+        if OFFSET != 0
+            log "" OFFSET SIZE
+        endif
+    next i
+    cleanexit
+endif
+
+math FILES = 2000   # constant
+xmath BASE_OFF "FILES * (4 + 4)"
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    if OFFSET != 0xffffffff
+        math OFFSET + BASE_OFF
+        #log "" OFFSET SIZE
+
+        math CODEC = 1
+        math BITS = 16
+        math FREQUENCY = 22050
+        math CHANNELS = 2
+        string NAME p "%d.wav" i
+        callfunction TOWAV
+    endif
+next i
+
+# Requirements: CODEC, BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+# Optional:     RIFF_MORE/RIFF_MORE_SIZE, BLKALIGN and SAMPLES
+startfunction TOWAV # (aka DUMP_WAV) 0.2
+    math AVGBYTES = 0
+    if BLKALIGN == 0
+        if BITS >= 8
+            math BLKALIGN = BITS
+            math BLKALIGN / 8
+        else
+            math BLKALIGN = 1
+        endif
+        math BLKALIGN * CHANNELS
+        math AVGBYTES = FREQUENCY
+        math AVGBYTES * BLKALIGN
+    endif
+    if CODEC == 0x69
+        xmath BLOCKALIGN "36 * CHANNELS"
+        xmath AVGBYTES "(689 * BLOCKALIGN) + 4"
+    endif
+
+    log MEMORY_FILE 0 0
+    putdstring "RIFF" 4 MEMORY_FILE
+    put 0 long          MEMORY_FILE
+    putdstring "WAVE" 4 MEMORY_FILE
+
+    # "fmt "
+    putdstring "fmt " 4 MEMORY_FILE
+    put 0 long          MEMORY_FILE
+    put CODEC short     MEMORY_FILE # wFormatTag: Microsoft PCM Format (0x0001)
+    put CHANNELS short  MEMORY_FILE # wChannels
+    put FREQUENCY long  MEMORY_FILE # dwSamplesPerSec
+    put AVGBYTES long   MEMORY_FILE # dwAvgBytesPerSec
+    put BLKALIGN short  MEMORY_FILE # wBlockAlign
+    put BITS short      MEMORY_FILE # wBitsPerSample
+    if RIFF_MORE_SIZE > 0
+        putdstring RIFF_MORE RIFF_MORE_SIZE MEMORY_FILE
+    endif
+    get MEM_SIZE asize MEMORY_FILE
+    math RIFFTMP = MEM_SIZE
+    math RIFFTMP - 0x14
+    putvarchr MEMORY_FILE 0x10 RIFFTMP long
+
+    # "fact"
+    if CODEC != 1
+        if SAMPLES > 0
+            putdstring "fact" 4 MEMORY_FILE
+            put 4 long          MEMORY_FILE
+            put SAMPLES long    MEMORY_FILE
+        endif
+    endif
+
+    # "data"
+    putdstring "data" 4 MEMORY_FILE
+    put SIZE long       MEMORY_FILE
+
+    get MEM_SIZE asize MEMORY_FILE
+    math RIFFTMP = SIZE
+    math RIFFTMP + MEM_SIZE
+    math RIFFTMP - 8
+    putvarchr MEMORY_FILE 4 RIFFTMP long
+
+    log NAME 0 MEM_SIZE MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+endfunction
+

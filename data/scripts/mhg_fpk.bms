@@ -1,0 +1,16 @@
+# MHG FPK / Zoids Full Metal Crash
+
+comtype PRS_8ING
+get ZERO long
+get FILES long
+endian guess FILES
+get INFO_OFF long
+get DAT_SIZE long
+for i = 0 < FILES
+    getdstring NAME 0x24
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i
+

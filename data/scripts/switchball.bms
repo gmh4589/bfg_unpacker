@@ -1,0 +1,80 @@
+# Switchball (script 0.1.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "bod"
+
+    comtype xmemdecompress
+    endian big
+    get FILES long
+    for i = 0 < FILES
+        get CRC long
+        get OFFSET long
+        get SIZE long
+
+        savepos TMP_OFF
+        goto OFFSET
+        getdstring SIGN 3
+        if SIGN == "VNZ"
+            get SIZE long
+            get XSIZE long
+            savepos OFFSET
+            if SIZE == XSIZE
+                log "" OFFSET SIZE
+            else
+                math SIZE - 11
+                clog "" OFFSET SIZE XSIZE
+            endif
+        else
+            log "" OFFSET SIZE
+        endif
+        goto TMP_OFF
+    next i
+
+else
+
+    comtype FIN
+    idstring "THIS IS A BATCH FILE"
+    goto 32
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+
+        savepos TMP_OFF
+        goto OFFSET
+        getdstring SIGN 3
+        if SIGN == "VNZ"
+            get SIZE long
+            get XSIZE long
+            savepos OFFSET
+            log MEMORY_FILE OFFSET SIZE
+            callfunction DECRYPT 1
+            if SIZE == XSIZE
+                log NAME 0 SIZE MEMORY_FILE
+            else
+                clog NAME 0 SIZE XSIZE MEMORY_FILE
+            endif
+        else
+            log MEMORY_FILE OFFSET SIZE
+            callfunction DECRYPT 1
+            log NAME 0 SIZE MEMORY_FILE
+        endif
+        goto TMP_OFF
+    next i
+
+endif
+
+startfunction DECRYPT
+    math CL = 0
+    for x = 0 < SIZE
+        getvarchr DL MEMORY_FILE x
+        math TMP = DL
+        math DL ^ 0x02
+        math DL - CL
+        putvarchr MEMORY_FILE x DL
+        math CL = TMP
+    next x
+endfunction

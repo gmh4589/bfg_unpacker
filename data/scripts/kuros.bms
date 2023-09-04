@@ -1,0 +1,38 @@
+comtype bzip2_file
+set NAME string ""
+set PATH string ""
+get DUMMY long
+get SUB_ENTRIES long
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    set ENTRIES long SUB_ENTRIES
+    for i = 0 < ENTRIES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get FOLDER byte
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get SUB_ENTRIES long
+        if FOLDER == 0
+            savepos TMP         # ugly work-around because this stupid game
+            math TMP2 = OFFSET  # saves the uncompressed size and not the
+            math TMP2 += 10     # size of the bzip files... blah
+            goto TMP2
+            findloc ZSIZE string "BZh91AY&SY" 0 ""
+            if ZSIZE == ""
+                get ZSIZE asize
+            endif
+            math ZSIZE -= OFFSET
+            goto TMP
+            set FULLNAME string PATH
+            string FULLNAME += NAME
+            clog FULLNAME OFFSET ZSIZE SIZE
+        else
+            callfunction EXTRACT
+        endif
+    next i
+endfunction

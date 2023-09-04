@@ -1,0 +1,220 @@
+# this is just a tweaked version of AlphaTwentyThree's Deus Ex: Human Revolution (Xbox 360) scripts(http://zenhax.com/viewtopic.php?f=11&t=1495#p10042)
+# it's been written from scratch to work with Tomb Raider Legend/Anniversary/Underworld (mul - all types) - works with Xbox 360 only
+
+endian big
+goto 0
+get FREQUENCY long
+get LOOP_INDICATOR long
+get TOTAL_SAMPLES long
+get LAYERS long
+set OFFSET 0x800
+get FULLSIZE asize
+putvarchr MEMORY_FILE FULLSIZE 0
+putvarchr MEMORY_FILE2 FULLSIZE 0
+log MEMORY_FILE 0 0
+log MEMORY_FILE2 0 0
+do
+	goto OFFSET
+	get IDENT long
+	get SIZE long
+	math SIZE x= 0x10
+	get ZERO longlong
+	savepos OFFSET
+	if IDENT == 0
+		append
+		log MEMORY_FILE OFFSET SIZE
+		append
+	endif
+	math OFFSET += SIZE
+while OFFSET < FULLSIZE
+get FULLSIZE asize MEMORY_FILE
+putVarChr MEMORY_FILE2 FULLSIZE 0
+putVarChr MEMORY_FILE3 FULLSIZE 0
+putVarChr MEMORY_FILE4 FULLSIZE 0
+putVarChr MEMORY_FILE5 FULLSIZE 0
+putVarChr MEMORY_FILE6 FULLSIZE 0
+putVarChr MEMORY_FILE7 FULLSIZE 0
+putVarChr MEMORY_FILE8 FULLSIZE 0
+putVarChr MEMORY_FILE9 FULLSIZE 0
+putVarChr MEMORY_FILE10 FULLSIZE 0
+log MEMORY_FILE2 0 0
+log MEMORY_FILE3 0 0
+log MEMORY_FILE4 0 0
+log MEMORY_FILE5 0 0
+log MEMORY_FILE6 0 0
+log MEMORY_FILE7 0 0
+log MEMORY_FILE8 0 0
+log MEMORY_FILE9 0 0
+log MEMORY_FILE10 0 0
+set OFFSET 0
+do
+	goto OFFSET MEMORY_FILE
+	get SIZE long MEMORY_FILE
+	get IDENT long MEMORY_FILE
+	get DUMMY longlong MEMORY_FILE
+	savepos OFFSET MEMORY_FILE
+	append
+	if IDENT == 0
+		log MEMORY_FILE3 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 1
+		log MEMORY_FILE4 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 2
+		log MEMORY_FILE5 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 3
+		log MEMORY_FILE6 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 4
+		log MEMORY_FILE7 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 5
+		log MEMORY_FILE8 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 6
+		log MEMORY_FILE9 OFFSET SIZE MEMORY_FILE
+	elif IDENT == 7
+		log MEMORY_FILE10 OFFSET SIZE MEMORY_FILE
+	endif
+	append
+	math OFFSET += SIZE
+while OFFSET < FULLSIZE
+endian little
+set CHANNELS 1
+set BLOCKSIZE 0x8000
+
+get SIZE asize MEMORY_FILE3
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE3
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	if LAYERS == 1
+		string NAME p= "%s.xma" NAME
+	else
+		string NAME p= "%s_1.xma" NAME	
+	endif
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE4
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE4
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_2.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE5
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE5
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_3.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE6
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	log MEMORY_FILE4 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE6
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_4.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE7
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	log MEMORY_FILE4 0 0
+	log MEMORY_FILE5 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE7
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_5.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE8
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	log MEMORY_FILE4 0 0
+	log MEMORY_FILE5 0 0
+	log MEMORY_FILE6 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE8
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_6.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE9
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	log MEMORY_FILE4 0 0
+	log MEMORY_FILE5 0 0
+	log MEMORY_FILE6 0 0
+	log MEMORY_FILE7 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE9
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_7.xma" NAME
+	callfunction XMA 1
+endif
+get SIZE asize MEMORY_FILE10
+if SIZE != 0
+	log MEMORY_FILE 0 0
+	log MEMORY_FILE2 0 0
+	log MEMORY_FILE3 0 0
+	log MEMORY_FILE4 0 0
+	log MEMORY_FILE5 0 0
+	log MEMORY_FILE6 0 0
+	log MEMORY_FILE7 0 0
+	log MEMORY_FILE8 0 0
+	append
+	log MEMORY_FILE 0 SIZE MEMORY_FILE10
+	append
+	log MEMORY_FILE3 0 0
+	get NAME basename
+	string NAME p= "%s_8.xma" NAME
+	callfunction XMA 1
+endif
+
+startfunction XMA
+	get MSIZE asize MEMORY_FILE
+	set RIFFSIZE MSIZE
+	math RIFFSIZE += 0x34
+	set PRESIZE RIFFSIZE
+	math PRESIZE += 0x38
+	putVarChr MEMORY_FILE2 PRESIZE 0
+	log MEMORY_FILE2 0 0
+	set MEMORY_FILE2 binary "\x52\x49\x46\x46\xb8\x59\xa7\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x20\x00\x00\x00\x65\x01\x10\x00\xd6\x10\x00\x00\x01\x00\x00\x03\xe3\x9a\x00\x00\x80\xbb\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x02\x00\x64\x61\x74\x61\x00\x58\xa7\x00"
+	putVarChr MEMORY_FILE2 0x04 RIFFSIZE long
+	putVarChr MEMORY_FILE2 0x24 FREQUENCY long
+	putVarChr MEMORY_FILE2 0x31 CHANNELS byte
+	putVarChr MEMORY_FILE2 0x38 MSIZE long
+	append
+	log MEMORY_FILE2 0 MSIZE MEMORY_FILE
+	append
+	get M2_SIZE asize MEMORY_FILE2
+	log NAME 0 M2_SIZE MEMORY_FILE2
+endfunction

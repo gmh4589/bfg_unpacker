@@ -1,0 +1,50 @@
+# RKV4 archives (Microsoft XNA)
+#   Hellboy: Science of Evil
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RKV4"
+get FILES long
+get DUMMY long
+get ZERO long
+get ZERO long
+get DUMMY long
+get INFO_OFF long
+get DUMMY long
+goto INFO_OFF
+xmath NAMES_OFF "INFO_OFF + (FILES * 0x20)"
+for i = 0 < FILES
+    get NAME_OFF long
+    get ZERO long
+    get OFFSET long
+    get CRC long
+    get SIZE long
+    get ZSIZE long
+    get ZERO longlong
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+
+        savepos TMP
+        goto OFFSET
+        get ZIP byte
+        savepos OFFSET
+        math ZSIZE - 1
+        goto TMP
+
+        if ZIP == 2
+            comtype lzf
+        else
+            print "Error: unknown compression algorithm %ZIP%, contact me"
+            cleanexit
+        endif
+
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

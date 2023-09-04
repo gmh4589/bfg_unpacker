@@ -1,0 +1,88 @@
+# Lord of the Rings: Conquest
+#   this script is incomplete and the extracted data is probably useless
+#   because some files are not extracted completely
+#   you can use also offzip but it's not much useful too
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "bin"
+
+    goto 8
+    get STRINGS_OFF long    # not related to the files
+    goto 0x14
+    get FILES long
+    get OFFSET long
+    goto OFFSET
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get DUMMY long
+        if SIZE != 0
+            clog "" OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif EXT == "pak"
+
+    get DUMMY long
+    get SOME_TABLE_OFFSET long
+    get DUMMY long  # 0x13
+    get DUMMY long  # 0x1
+    get STRINGS_OFF long
+    get DUMMY long
+    get DUMMY long
+
+    for i = 0 < 2   # only two?
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get INFO_OFF long
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+        if i == 0   # lame backup for later
+            math INFO_OFF0 = INFO_OFF
+            log MEMORY_FILE2 0 SIZE MEMORY_FILE
+        endif
+
+        goto INFO_OFF MEMORY_FILE
+        get ZERO long MEMORY_FILE
+        get FILES long MEMORY_FILE
+        getdstring ZERO 8 MEMORY_FILE
+        for j = 0 < FILES
+            get DUMMY long MEMORY_FILE
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            math OFFSET += INFO_OFF
+            log "" OFFSET SIZE MEMORY_FILE
+        next j
+    next i
+
+    # ???
+    goto 0x110
+        get OFFSET long
+    for i = 1 < 0x18    # till 0x170
+        get NEXT_OFFSET long
+        if NEXT_OFFSET < OFFSET
+            math NEXT_OFFSET = INFO_OFF0
+        endif
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        if SIZE != 0
+            log "" OFFSET SIZE MEMORY_FILE2
+        endif
+        math OFFSET = NEXT_OFFSET
+    next i
+
+    comtype unzip_dynamic
+    math SIZE = INFO_OFF0
+    math OFFSET = 0x1000
+    math SIZE -= OFFSET
+    clog "" OFFSET SIZE SIZE
+
+    # other compressed data are not handled!
+
+else
+    print "Error: archive %EXT% not supported"
+    cleanexit
+endif

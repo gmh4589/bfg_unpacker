@@ -1,0 +1,45 @@
+# Alone in the Dark engine
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.4.6
+get BASENAME basename
+get DUMMY long
+get FILES long
+math FILES -= 4
+math FILES /= 4
+goto 4
+
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get additionalDescriptorSize long
+    get discSize long
+    get uncompressedSize long
+    get compressionFlag char
+    get info5 char
+    get offset2 short
+    savepos OFFSET
+    math OFFSET += offset2
+    goto TMP
+
+    #set NAME string BASENAME
+    #string NAME += /
+    #string NAME += i
+    #string NAME += ".dat"
+    set NAME string ""
+
+    if compressionFlag == 0
+        log NAME OFFSET uncompressedSize
+    elif compressionFlag == 1
+        comtype pak_explode info5
+        clog NAME OFFSET discSize uncompressedSize
+    elif compressionFlag == 4
+        comtype deflate
+        clog NAME OFFSET discSize uncompressedSize
+    else
+        print "Error: wrong compression flag %compressionFlag%"
+        cleanexit
+    endif
+next i

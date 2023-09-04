@@ -1,0 +1,28 @@
+# MotoGP
+#   3, 2007 and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+get DUMMY long
+get BASE_OFF long
+get FILES long
+get ENTRY_LEN long
+get DUMMY long
+get BASE_OFF2 long
+for i = 0 < FILES
+    get ZIP long
+    get OFFSET long
+    get ZSIZE long
+    get CRC long
+    if ZIP == 0
+        log "" OFFSET ZSIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+        goto TMP
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i
+

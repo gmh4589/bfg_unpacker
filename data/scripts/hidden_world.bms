@@ -1,0 +1,30 @@
+# Hidden World / Fire Maple Games (car)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "rac"
+get ONE byte
+get VER long    # 1
+get INFO_SIZE long
+get FILES long
+for i = 0 < FILES
+    get ONE long
+    get OFFSET long
+    get NAMESZ long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    padding 4
+
+    set EXT extension NAME
+    if EXT == "lu"
+        string NAME + "a"
+    endif
+
+    savepos TMP
+    goto OFFSET
+    get DUMMY long  # 2
+    get ALIGNED_SIZE long
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto TMP
+next i

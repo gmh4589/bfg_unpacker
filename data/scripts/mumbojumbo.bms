@@ -1,0 +1,38 @@
+# MumboJumbo games (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MJZ0"
+get VER long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    if VER == 0
+        getdstring NAME 0x80
+    endif
+    get TYPE long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    if VER > 0
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+    endif
+
+    if TYPE == 0
+        # no compression
+    elif TYPE == 10
+        comtype unzip_dynamic #zlib no!
+    elif TYPE == 6
+        comtype lzma86head
+    elif TYPE == 1
+        # folder
+    else
+        print "unknown TYPE %TYPE%, contact me"
+        cleanexit
+    endif
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    elif TYPE != 1  # skip folders
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

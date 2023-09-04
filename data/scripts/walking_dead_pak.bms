@@ -1,0 +1,30 @@
+# The Walking Dead: Road to survival
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get SLOG_NAME filename
+string SLOG_NAME + ".txt"
+
+idstring "PAK\0"
+get VER long
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+next i
+get ZERO long
+if ZERO != 0
+    goto -4 0 SEEK_CUR
+endif
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    if EXT & "txt"  # like .txt;en
+        slog SLOG_NAME OFFSET SIZE
+    elif EXT & "img"
+        math OFFSET + 0x10
+        math SIZE   - 0x10
+        log "" OFFSET SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,24 @@
+# Gubble Buggy Racer .WAD
+
+idstring "WWAD"
+get FILES long
+for i = 0 < FILES
+    get NAME string
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get UNC_NAME string # web share
+next i
+for i = 0 < FILES
+    get ALGO long
+    get SIZE long
+    get SIZE long
+    get OFFSET long
+    getarray NAME 0 i
+    if ALGO == 1
+        log NAME OFFSET SIZE
+    else
+        print "Error: unsupported compression %ALGO%, contact me"
+        cleanexit
+    endif
+next i

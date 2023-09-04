@@ -1,0 +1,141 @@
+# Dragon Ball Z: Battle of Z / Artdink games (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+# idstring "ENDILTLE"
+idstring "ENDI"
+getdstring ENDIANESS 4
+if ENDIANESS == "LTLE"
+    endian little
+endif
+getdstring ZERO 8
+
+idstring "PACKHEDR"
+get HEADER_SIZE longlong
+get DUMMY long
+get ZERO long
+get DUMMY_SIZE long
+get DUMMY long
+getdstring DUMMY 16
+
+idstring "PACKTOC "
+get HEADER_SIZE longlong
+savepos HEADER_OFFSET
+get ENTRY_SIZE long
+get FILES long
+get FOLDERS long
+get ZERO long
+
+math ARRAY_IDX = 0
+callfunction READ_GENESTRT 1
+
+for i = 0 < FOLDERS
+    getdstring DUMMY ENTRY_SIZE
+    getvarchr NAME_IDX DUMMY 0x4
+    getvarchr FILE_NUM DUMMY 0x10
+    getvarchr SUB_FILES DUMMY 0x14
+next i
+for i = FOLDERS < FILES
+    get DUMMY long  # 0x200
+    get NAME_IDX long
+    get ZERO long
+    get ZERO long
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    if SIZE != 0
+        getarray FNAME 0 NAME_IDX
+        if ZSIZE == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i
+math HEADER_OFFSET + HEADER_SIZE
+goto HEADER_OFFSET
+
+idstring "PACKFSLS"
+get HEADER_SIZE longlong
+savepos HEADER_OFFSET
+get ARCHIVES long
+get DUMMY long
+get DUMMY long
+get ZERO long
+
+math ARRAY_IDX = 0
+callfunction READ_GENESTRT 1
+
+for ARCHIVE = 0 < ARCHIVES
+    get NAME_IDX long
+    get ZERO long
+    get ARCHIVE_OFFSET longlong
+    get SIZE longlong
+    getdstring DUMMY 16
+    getarray ARCHIVE_NAME 0 NAME_IDX
+    savepos ARCHIVE_TMP
+    callfunction EXTRACT_ARCHIVES 1
+    goto ARCHIVE_TMP
+next ARCHIVE
+
+startfunction EXTRACT_ARCHIVES
+    goto ARCHIVE_OFFSET
+    idstring "ENDI"
+    getdstring ENDIANESS 4
+    getdstring ZERO 8
+    savepos TMP
+    idstring "PACKFSHD"
+    get HEADER_SIZE longlong
+    savepos HEADER_OFFSET
+    get DUMMY long
+    get ENTRY_SIZE long
+    get FILES long
+    get ENTRIES_SIZE long
+    getdstring DUMMY 0x10
+
+    math ARRAY_IDX = 1
+    callfunction READ_GENESTRT 1
+
+    for i = 0 < FILES
+        get NAME_IDX long
+        get ZIP long
+        get OFFSET longlong
+        get SIZE longlong
+        get ZSIZE longlong
+        getarray NAME 1 NAME_IDX
+        math OFFSET += ARCHIVE_OFFSET
+
+        string FNAME p= "%s/%s" ARCHIVE_NAME NAME
+        if ZSIZE == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    next i
+endfunction
+
+startfunction READ_GENESTRT
+    savepos TMP
+    xmath TMP2 "HEADER_OFFSET + HEADER_SIZE"
+    goto TMP2
+    findloc TMP2 string "GENESTRT"  # more compatible
+    goto TMP2
+    idstring "GENESTRT"
+    get DUMMY longlong
+    get STRINGS long
+    getdstring DUMMY 0xc
+    for i = 0 < STRINGS
+        get NAME_OFF long
+        putarray ARRAY_IDX i NAME_OFF
+    next i
+    padding 0x10
+    savepos NAMES_OFF
+    for i = 0 < STRINGS
+        getarray NAME_OFF ARRAY_IDX i
+        math NAME_OFF += NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        putarray ARRAY_IDX i NAME
+    next i
+    goto TMP
+endfunction

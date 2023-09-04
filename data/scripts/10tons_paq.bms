@@ -1,0 +1,41 @@
+# Crimsonland paq
+
+idstring "paq\0"
+get PAQ_SIZE asize
+for OFFSET = 0 != PAQ_SIZE
+    get NAME string
+    get SIZE long
+    savepos OFFSET
+
+    set EXT extension NAME
+    if EXT == "jaz"
+        get ZIP byte
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            get JAZ_ZSIZE long
+            get JAZ_SIZE long
+            savepos JAZ_OFFSET
+
+            #clog NAME JAZ_OFFSET JAZ_ZSIZE JAZ_SIZE
+            # the files are a 32bit size + JPG + other stuff
+            clog MEMORY_FILE JAZ_OFFSET JAZ_ZSIZE JAZ_SIZE
+            get JAZ_SIZE long MEMORY_FILE
+            savepos JAZ_OFFSET MEMORY_FILE
+            string NAME - 4
+            string NAME + ".jpg"
+            log NAME JAZ_OFFSET JAZ_SIZE MEMORY_FILE
+            math JAZ_OFFSET + JAZ_SIZE
+            get JAZ_SIZE asize MEMORY_FILE
+            math JAZ_SIZE - JAZ_OFFSET
+            string NAME - 4
+            string NAME + ".dat"
+            log NAME JAZ_OFFSET JAZ_SIZE MEMORY_FILE
+        endif
+    else
+        log NAME OFFSET SIZE
+    endif
+
+    math OFFSET + SIZE
+    goto OFFSET
+next

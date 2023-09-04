@@ -1,0 +1,13 @@
+# South Park Let's Go Tower Defense Play! (XBOX 360 Live Arcade .BIN)
+
+comtype zlib_noerror
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get SIZE long MEMORY_FILE
+    get SOME_CRC long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    log "" OFFSET SIZE MEMORY_FILE
+    goto SIZE MEMORY_FILE SEEK_CUR
+next i

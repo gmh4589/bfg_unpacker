@@ -1,0 +1,20 @@
+# Final Fantasy 7 (LGP)
+
+Set FILESTART Long 12 ;
+GoTo FILESTART 0 ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 20 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 3 ;
+GoTo FILEOFF 0 ;
+GetDString FILENAME 20 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILEOFF 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

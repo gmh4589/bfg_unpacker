@@ -1,0 +1,11 @@
+<bms games="'MotoTrax'" platforms="'PC'" ext="WAD">
+Do ;
+FindLoc OFF String BIK 0 ;
+Set JP Long OFF ;
+Math JP += 4 ;
+GoTo JP 0 ;
+Get SIZE Long 0 ;
+Math SIZE += 4 ;
+Log "" OFF SIZE 0 0 ;
+While NotEOF <> 0 ;
+</bms>

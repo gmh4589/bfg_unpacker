@@ -1,0 +1,54 @@
+# Initial D Arcade Stage 6 AA
+#   unknown compression: "YS" 02 00 ...
+# script for QuickBMS http://quickbms.aluigi.org
+
+#comtype ???
+idstring "xaf0"
+get VER long    # 2
+get BLOCK_SIZE long
+get ENTRIES long
+get FOLDERS long
+get FILES long
+get XAF_SIZE longlong
+get DATA_OFF longlong
+get DATA_SIZE longlong
+math XAF_SIZE * BLOCK_SIZE
+math DATA_OFF * BLOCK_SIZE
+math DATA_SIZE * BLOCK_SIZE
+getdstring GAME_NAME 0x40
+getdstring DEV_NAME 0x40
+goto 0x100
+set PATH string ""
+for i = 0 < ENTRIES
+    getdstring NAME 0x80
+    get FLAGS long
+    get PREV_ID long
+    get ID long
+    get NEXT_ID long
+    get ZERO long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    get OFFSET long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+
+    if PREV_ID != 0xffffffff
+        getarray TMP 0 PREV_ID
+        string NAME p "%s/%s" TMP NAME
+    endif
+
+    if FLAGS & 1
+        math OFFSET * BLOCK_SIZE
+        if FLAGS & 0x100
+            #clog NAME OFFSET ZSIZE SIZE
+            string NAME p "%s/%s" "_compressed" NAME
+            log NAME OFFSET ZSIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    else
+        putarray 0 i NAME
+    endif
+next i

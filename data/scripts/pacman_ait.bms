@@ -1,0 +1,34 @@
+# Pac-Man Adventures in Time
+
+idstring " CA "
+get FILES long
+get ZERO long
+get INFO_OFF long   # 0x10
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    getdstring NAME 0x20
+    get FILES_START long
+    get FILES_NUM long
+    xmath FILES_END "FILES_START + FILES_NUM"
+    putarray 0 i FILES_START
+    putarray 1 i FILES_END
+    putarray 2 i NAME
+next i
+for i = 0 < FILES
+    getdstring NAME 0x24
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+
+    set PATH string ""
+    for x = 0 < FOLDERS
+        getarray FILES_START 0 x
+        getarray FILES_END   1 x
+        if i >= FILES_START && i < FILES_END
+            getarray PATH    2 x
+        endif
+    next x
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE
+next i

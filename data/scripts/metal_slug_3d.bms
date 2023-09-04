@@ -1,0 +1,48 @@
+# Metal Slug 3D (script 0.1.1)
+
+set NAME string ""
+set PATH string ""
+get SIZE asize
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    savepos BASE_OFF
+    idstring "DATA"
+    get ZERO long
+    get PREV_FILES long # ???
+    get FILES long
+    for i = 0 <= FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+
+        if OFFSET u> SIZE   # don't trust the last offset reported
+            math i - 1
+            putarray 0 i SIZE
+        endif
+    sortarray 0 1
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        if OFFSET != 0
+            getarray SIZE   0 i
+            math SIZE - OFFSET
+
+            string NAME p "%08x" OFFSET
+
+            math OFFSET + BASE_OFF
+            goto OFFSET
+            getdstring SIGN 4
+            if SIGN u== "DATA"
+                goto OFFSET
+                callfunction EXTRACT
+            else
+                string NAME p "%s%s" PATH NAME
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next
+endfunction

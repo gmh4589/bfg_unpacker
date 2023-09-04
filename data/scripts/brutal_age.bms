@@ -1,0 +1,35 @@
+# Brutal Age
+
+get DUMMY long  # 0x9d7fe2ab
+get BASE_OFF long
+get NAMES_OFF long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    get FLAGS long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    # NAME is encrypted so set it to empty
+    # names are also available in the extracted files, "$tfl" magic and name at offset 0x10
+    set NAME string ""
+
+    if FLAGS & 4
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        goto TMP
+
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

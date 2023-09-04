@@ -1,0 +1,15 @@
+# Clock Tower 3
+
+get FILES long
+get DATA_OFF long
+get DATA_OFF_ALIGN long
+xmath ALIGN "DATA_OFF / DATA_OFF_ALIGN"
+padding ALIGN
+for i = 0 < FILES
+    getdstring NAME 20
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    math OFFSET * ALIGN
+    log NAME OFFSET SIZE
+next i

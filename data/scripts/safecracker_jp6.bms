@@ -1,0 +1,22 @@
+# Safecracker JP6
+
+idstring "JP6\0"
+goto 0xe
+get MAX_OFF asize
+for i = 0
+    savepos TMP
+    if TMP >= MAX_OFF
+        break
+    endif
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    if i == 0
+        math MAX_OFF = OFFSET
+    endif
+
+    math OFFSET + 8 # "JPG"
+    math SIZE   - 8
+    log "" OFFSET SIZE
+next i

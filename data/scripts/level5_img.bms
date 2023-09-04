@@ -1,0 +1,35 @@
+# Level-5 Dark Cloud IMG/IM2 (script 0.1.2)
+
+idstring "IM"
+getdstring TYPE 2   # "IMG\0" or "IM2\0"
+get FILES long
+padding 0x10
+
+# no idea why some archives use a fake FILES field
+if FILES > 0xfff
+    savepos TMP
+    getdstring NAME 0x20
+    get OFFSET long
+    xmath FILES "(OFFSET - TMP) / 0x30"
+    goto TMP
+endif
+
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    padding 0x10
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+    get OFFSET asize
+    putarray 1 i OFFSET
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    string NAME + .
+    log NAME OFFSET SIZE
+next

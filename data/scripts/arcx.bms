@@ -1,0 +1,21 @@
+# ARCX
+#   converted from GARBro (untested)
+
+comtype lzss0
+idstring "ARCX"
+get FILES long
+goto 0x10
+for i = 0 < FILES
+    getdstring NAME 100
+    get OFFSET long
+    get SIZE long
+    get XSIZE long
+    getdstring DUMMY 7
+    get ZIP byte
+    getdstring DUMMY 8
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

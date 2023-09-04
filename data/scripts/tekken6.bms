@@ -1,0 +1,70 @@
+# Tekken 6 (script 0.2.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+open FDDE "idx"
+open FDDE "bin" 1 EXISTS
+if EXISTS == 0
+    get TMP basename
+    string TMP + "_.bin"
+    open FDSE TMP 1
+endif
+
+math ALIGN = 0x8000
+math DO_CHUNKS = 1
+
+get FILES asize
+math FILES / 8
+goto -8
+    get OFFSET long
+get BIN_SIZE asize 1
+math OFFSET * ALIGN
+if OFFSET u> BIN_SIZE
+    math ALIGN = 0x80
+    math DO_CHUNKS = 0
+endif
+
+goto 0
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    if SIZE != 0xffffffff
+    if SIZE != 0
+        math OFFSET * ALIGN
+        callfunction DUMP 1
+    endif
+    endif
+next i
+
+startfunction DUMP
+    if DO_CHUNKS == 0
+        log "" OFFSET SIZE 1
+    else
+        goto OFFSET 1
+        get CHUNKS long 1
+        if CHUNKS u< 0x200  # some files are chunked and others aren't... no way to know it!
+            for x = 0 < CHUNKS
+                get CHUNK_OFF long 1
+                get CHUNK_SIZE long 1
+                math CHUNK_OFF + OFFSET
+                if CHUNK_SIZE != 0
+
+                    savepos TMP_OFF 1
+                    goto CHUNK_OFF 1
+                    get TMP long 1
+                    goto TMP_OFF 1
+                    math TMP * 8
+                    math TMP + 4
+                    math TMP x 0x10
+                    if TMP == CHUNK_SIZE
+                        # just an empty index, skip it
+                    else
+                        log "" CHUNK_OFF CHUNK_SIZE 1
+                    endif
+                endif
+            next x
+        else
+            log "" OFFSET SIZE 1
+        endif
+    endif
+endfunction

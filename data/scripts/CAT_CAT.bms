@@ -1,0 +1,27 @@
+<bms games="'First Flight'" platforms="'PC'" ext="CAT">
+ImpType SFileOff ;
+IDString 0 CAT ;
+Set TEMP Long 16 ;
+GoTo TEMP 0 ;
+Get FILENUM Long 0 ;
+Get FOOBAR Long 0 ;
+Get FOOBAR Long 0 ;
+For X = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+Get FNSIZE Long 0 ;
+GetDString FNAME FNSIZE 0 ;
+SavePos TEMP 0 ;
+If X = FILENUM ;
+GoTo EOF 0 ;
+SavePos FSIZE 0 ;
+Math FSIZE -= FOFFSET ;
+Math FSIZE += 1 ;
+Else ;
+Get FSIZE Long 0 ;
+Math FSIZE -= FOFFSET ;
+EndIf ;
+Log FNAME FOFFSET FSIZE FOFFSETX 0 ;
+GoTo TEMP 0 ;
+Next X ;
+</bms>

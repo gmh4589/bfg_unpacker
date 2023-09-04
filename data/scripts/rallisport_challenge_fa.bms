@@ -1,0 +1,166 @@
+# Rallisport Challenge 2 FA (script 0.1.3a)
+#   thanks to Yallis https://zenhax.com/viewtopic.php?p=23403#p23403
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "res"
+    get VER long        # 1
+    get FILES long
+    get FILES2 long
+    get FILES_OFF long  # audio?
+    get FILES2_OFF long # textures?
+    get BASE_OFF long
+
+    goto FILES_OFF
+    for i = 0 < FILES
+        getdstring NAME 0x80
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        get SIZE long
+        log NAME OFFSET SIZE
+    next i
+
+    goto FILES2_OFF
+    for i = 0 < FILES2
+        getdstring NAME 0x80
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        getdstring DUMMY 0x38
+        putarray 0 i OFFSET
+        putarray 1 i NAME
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    sortarray 0 1
+    for i = 0 < FILES2
+        getarray OFFSET 0 i
+        getarray NAME   1 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+    cleanexit
+endif
+
+get compressedHeaderSize long
+get blockDataOffset long
+
+savepos TMP
+comtype zlib_noerror    # because we don't know the uncompressed size
+clog MEMORY_FILE TMP compressedHeaderSize compressedHeaderSize
+comtype zlib
+
+get unknown0 byte MEMORY_FILE
+get fileCount short MEMORY_FILE
+get unknown1 byte MEMORY_FILE
+get directoryCount short MEMORY_FILE
+get blockCount short MEMORY_FILE
+
+for dc = directoryCount > 0
+    savepos TMP MEMORY_FILE
+    putarray 10 -1 TMP
+    callfunction GET_FOLDER
+prev dc
+    putarray 10 -1 0    # necessary
+
+for fc = fileCount > 0
+    savepos TMP MEMORY_FILE
+    putarray 11 -1 TMP
+    callfunction GET_FILE
+prev fc
+
+for bc = blockCount > 0
+    savepos TMP MEMORY_FILE
+    putarray 12 -1 TMP
+    callfunction GET_BLOCK
+prev bc
+
+set PATH string ""
+set NAME string ""
+math directoryCount = 1
+getarray TMP 10 0
+goto TMP MEMORY_FILE
+callfunction EXTRACT
+
+startfunction EXTRACT
+    if NAME != "" && NAME != /
+        string PATH + NAME
+        string PATH + /
+    endif
+    for dc = directoryCount > 0
+        callfunction GET_FOLDER 1
+        savepos BCK_OFF MEMORY_FILE
+
+        getarray TMP 10 firstDirectory
+        goto TMP MEMORY_FILE
+        callfunction EXTRACT
+
+        getarray TMP 11 firstFile
+        goto TMP MEMORY_FILE
+        callfunction EXTRACT_FILES
+
+        goto BCK_OFF MEMORY_FILE
+    prev dc
+endfunction
+
+startfunction EXTRACT_FILES
+    if NAME != "" && NAME != /
+        string PATH + NAME
+        string PATH + /
+    endif
+    for fc = fileCount > 0
+        callfunction GET_FILE 1
+        savepos BCK_OFF MEMORY_FILE
+
+        string NAME p "%s%s" PATH NAME
+
+        if blockCount == 0
+            log NAME offset Size
+        else
+            math blockCount + firstBlock
+            log NAME 0 0
+            append
+            for i = firstBlock < blockCount
+                getarray TMP 12 i
+                goto TMP MEMORY_FILE
+                callfunction GET_BLOCK 1
+                math compressedOffset + offset
+                if compressedSize == uncompressedSize
+                    log NAME compressedOffset uncompressedSize
+                else
+                    clog NAME compressedOffset compressedSize uncompressedSize
+                endif
+            next i
+            append
+        endif
+
+        goto BCK_OFF MEMORY_FILE
+    prev fc
+endfunction
+
+startfunction GET_FOLDER
+    get directoryCount short MEMORY_FILE
+    get fileCount short MEMORY_FILE
+    get firstFile short MEMORY_FILE
+    get firstDirectory short MEMORY_FILE
+    getdstring name 24 MEMORY_FILE
+endfunction
+
+startfunction GET_FILE
+    get time longlong MEMORY_FILE
+    get offset long MEMORY_FILE
+    get Size long MEMORY_FILE
+    get firstBlock short MEMORY_FILE
+    get blockCount short MEMORY_FILE
+    getdstring name 44 MEMORY_FILE
+endfunction
+
+startfunction GET_BLOCK
+    get compressedSize long MEMORY_FILE
+    get uncompressedSize long MEMORY_FILE
+    get compressedOffset long MEMORY_FILE
+    get uncompressedOffset long MEMORY_FILE
+    math compressedOffset + blockDataOffset
+endfunction

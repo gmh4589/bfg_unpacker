@@ -1,0 +1,49 @@
+# KIF int archives
+#   based on http://asmodean.reverse.net/pages/exkifint.html
+# script for QuickBMS http://quickbms.aluigi.org
+
+# https://users.soe.ucsc.edu/~leslie/MOUSE/r/R-1.8.1/src/main/RNG.c
+# define Int32 as u_int, remove the last line in MT_genrand, double -> Int32, dummy[0]=mti at the end of MT_sgenrand
+set MEMORY_FILE3 compressed "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"
+math KEY = 0
+math IS_ENC = 0
+
+get FNAME basename
+string FNAME + /
+
+idstring "KIF\0"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+
+    if NAME == "__key__.dat"
+        calldll MEMORY_FILE3 MT_sgenrand cdecl "" SIZE
+        calldll MEMORY_FILE3 MT_genrand  cdecl KEY
+        putvarchr MEMORY_FILE2 0 KEY long
+        getdstring KEY 4 MEMORY_FILE2
+        math IS_ENC = 1
+    else
+        if IS_ENC != 0
+            math OFFSET + i
+            putvarchr MEMORY_FILE4 0 OFFSET long
+            putvarchr MEMORY_FILE4 4 SIZE   long
+            encryption blowfish KEY "" 0 4
+            log MEMORY_FILE4 0 8 MEMORY_FILE4
+            getvarchr OFFSET MEMORY_FILE4 0 long
+            getvarchr SIZE   MEMORY_FILE4 4 long
+        endif
+
+        log MEMORY_FILE OFFSET 16
+        getdstring SIGN 8 MEMORY_FILE
+        if SIGN == "CatScene"
+            get ZSIZE long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            math OFFSET + 0x10
+            clog FNAME OFFSET ZSIZE SIZE
+        else
+            log FNAME OFFSET SIZE
+        endif
+    endif
+next i

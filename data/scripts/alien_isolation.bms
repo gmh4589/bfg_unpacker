@@ -1,0 +1,70 @@
+# Alien Isolation PAK (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "pak"
+    cleanexit
+endif
+
+getdstring SIGN 4
+goto 0
+get SIGN_LONG long
+goto 0
+
+if SIGN == "PAK2"
+
+    idstring "PAK2"
+    get NAMES_SIZE long
+    get FILES long
+    get ALIGN long
+    savepos OFFSET
+    for i = 0 < FILES
+        get NAME string
+        putarray 0 i NAME
+    next i
+    math OFFSET + NAMES_SIZE
+    goto OFFSET
+    for i = 1 <= FILES
+        get OFFSET long
+        putarray 1 i OFFSET
+    next i
+        savepos OFFSET
+        putarray 1 0 OFFSET
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math OFFSET x ALIGN
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+else
+
+    # LEVEL*.pak
+    get DUMMY long  # 0 or a sort of random magic
+    get DUMMY long  # 0xe
+    endian guess DUMMY
+    get DUMMY long
+    get XFILES long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    savepos BASE_OFF
+    xmath BASE_OFF "BASE_OFF + (FILES * 0x30)"
+    for i = 0 < FILES
+        get ZERO long
+        get ZERO long
+        get SIZE long
+        get XSIZE long  # size containing the missing zeroes at the end (not included in the archived file)
+        get OFFSET long
+        getdstring DUMMY 0x1c
+        math OFFSET += BASE_OFF
+        if XSIZE != 0
+            log "" OFFSET SIZE
+        endif
+    next i
+
+endif

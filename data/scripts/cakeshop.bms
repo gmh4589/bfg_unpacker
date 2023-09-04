@@ -1,0 +1,73 @@
+# Cake Shop series / Elefun Games (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE long
+idstring "EEPAK"
+get VERSION long
+if VERSION <= 100
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        putarray 0 i NAME
+    next i
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getarray NAME 0 i
+        log NAME OFFSET SIZE
+    next i
+else
+    get OFFSET long
+
+    # guess unicode or not
+    savepos TMP
+    get FILES long
+    get NAMESZ byte
+    get BYTE1 byte
+    get BYTE2 byte
+    if BYTE2 == 0
+        math USE_UNICODE = 1
+    else
+        math USE_UNICODE = 0
+    endif
+    goto TMP
+
+    set PATH string ""
+    set NAME string ""
+    callfunction EXTRACT
+endif
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        if USE_UNICODE == 0
+            getdstring NAME NAMESZ
+        else
+            math NAMESZ *= 2
+            getdstring NAME NAMESZ
+            set NAME unicode NAME
+        endif
+        get OFFSET long
+        get SIZE long
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    next i
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        get NAMESZ byte
+        if USE_UNICODE == 0
+            getdstring NAME NAMESZ
+        else
+            math NAMESZ *= 2
+            getdstring NAME NAMESZ
+            set NAME unicode NAME
+        endif
+        callfunction EXTRACT
+    next i
+endfunction

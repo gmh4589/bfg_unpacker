@@ -1,0 +1,15 @@
+# The Magic School Bus Explores the Solar System BIN
+
+get BIN_SIZE asize
+for OFFSET = 0 != BIN_SIZE
+    goto OFFSET
+    get SIZE long
+    get TYPE string
+    get NAME string
+    savepos TMP
+    xmath SIZE "SIZE - (TMP - OFFSET)"
+    math OFFSET = TMP
+    string NAME p "%s/%s" TYPE NAME
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next

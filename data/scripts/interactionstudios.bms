@@ -1,0 +1,36 @@
+# for all the games on http://www.interactionstudios.com (script 0.1.1)
+#   Chicken Invaders series
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+set TYPE long 0
+if FILES <= 2
+    get FILES long
+    set TYPE long 1
+endif
+
+for i = 1 to FILES
+    savepos XOROFFSET
+    get DUMMY byte
+    goto XOROFFSET
+
+    if DUMMY & 0x80
+        filexor 0xcc
+    endif
+    getdstring NAME 0x50
+    filexor ""
+
+    get OFFSET long
+    get ZSIZE long  # or SIZE here?
+    if TYPE == 0
+        math SIZE = ZSIZE
+    else
+        get SIZE long
+    endif
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        log NAME OFFSET ZSIZE SIZE
+    endif
+next i

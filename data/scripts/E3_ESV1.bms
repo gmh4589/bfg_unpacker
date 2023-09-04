@@ -1,0 +1,16 @@
+<bms games="'Esoteria'" platforms="'PC'" ext="E3">
+ImpType Standard ;
+GoTo 8 0 ;
+Get FNum Long 0 ;
+For n = 1 To FNum ;
+SavePos JP 0 ;
+Math JP += 64 ;
+Get FN String 0 ;
+GoTo JP 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log FN FO FS #FOO FSO ;
+Next n ;
+</bms>

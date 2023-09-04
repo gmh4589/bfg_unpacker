@@ -1,0 +1,61 @@
+# Inspirit Online (script 0.2)
+#   the directory structure is wrong, no fix.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN unicode
+if SIGN != "ELOAFILEPACK"
+    cleanexit
+endif
+
+set PATH string ""
+get EFP_SIZE asize
+for
+    savepos TMP
+    if TMP >= EFP_SIZE
+        break
+    endif
+
+    get ZERO long
+    get ZERO long
+    getdstring NAME 0x200
+    set NAME unicode NAME
+    get ZSIZE long
+    get SIZE long
+    get PREV_OFF long
+    get NEXT_OFF long
+    get TYPE long
+
+    if TYPE != 0
+        savepos OFFSET
+        set FNAME string PATH
+        string FNAME + NAME
+        clog FNAME OFFSET ZSIZE SIZE
+
+        if NEXT_OFF == 0
+        if PREV_OFF == 0
+            string PATH - 1
+            string PATH >> /
+            string PATH + /
+        endif
+        endif
+
+        math NEXT_OFF = OFFSET
+        math NEXT_OFF + ZSIZE
+    else
+        if NAME == "."
+        elif NAME == ".."
+        else
+            string PATH + NAME
+            string PATH + /
+        endif
+        savepos NEXT_OFF
+    endif
+
+    if NEXT_OFF != 0
+        goto NEXT_OFF
+    elif PREV_OFF != 0
+        #goto PREV_OFF
+    else
+        break
+    endif
+next

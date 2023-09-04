@@ -1,0 +1,35 @@
+# Rugby Challenge 2006
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZIP long
+if ZIP == 2
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+    open "." TEMPORARY_FILE
+    get DUMMY long
+endif
+get FILES long
+xmath BASE_OFF "8 + (FILES * 80)"
+math BASE_OFF x 32
+for i = 0 < FILES
+    get DUMMY long
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 0 i SIZE
+next i
+for i = 0 < FILES
+    getdstring NAME 64
+    putarray 1 i NAME
+next i
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    getarray SIZE 0 i
+    getarray NAME 1 i
+    log NAME OFFSET SIZE
+next i
+

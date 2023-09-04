@@ -1,0 +1,17 @@
+# extracts pfp files with PFPK identifier
+# supported games:
+# - Strimko (PC)
+# - Witch Hunters: Stolen Beauty (PC, BigFish Games)
+# - Strange Cases: The Secret of Grey Mist Lake (PC, 2012, BigFish Games)
+#
+# (c) 2012-04-08 by AlphaTwentyThree of XeNTaX
+
+idstring "PFPK"
+get FILES long
+for i = 1 <= FILES
+   get NAMEL byte
+   getDstring NAME NAMEL
+   get OFFSET long
+   get SIZE long
+   log NAME OFFSET SIZE
+next i

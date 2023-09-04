@@ -1,0 +1,89 @@
+# Norn9 / Amnesia (script 0.2.4)
+#   key is guessed and so doesn't work with all the archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+codepage 932
+
+math KEYSZ = 20
+
+# main.iet possible beginning:
+putarray 10 -1 "//=================="
+putarray 10 -1 "// -----------------"
+putarray 10 -1 "////////////////////"
+
+get NAME filename
+if NAME == "image.pfs"
+    set KEY binary "\xfe\xc2\x07\xc5\xe2\x7c\x69\x37\xd1\xba\xf9\xd9\x44\xb2\x52\x93\x5a\xe6\xb6\xa3"
+elif NAME == "script.pfs"
+    set KEY binary "\x30\x66\x51\xb2\xa3\xc7\x12\x06\x37\x06\x14\x79\xa4\x45\xc4\xa5\x88\x78\x2e\xab"
+elif NAME == "main4.pfs"
+    set KEY binary "\x89\x9f\x82\x29\xa3\x90\xd0\xa1\x68\x29\x60\xd0\x0f\xbb\x4f\xd3\x2b\xf8\x7f\xc4"
+elif NAME == "image2.pfs"
+    set KEY binary "\x61\x82\x3d\x46\x00\x16\x81\x75\x2d\xfe\x16\x64\xe0\x18\xb6\x0f\x8a\xe2\x9f\xbd"
+elif NAME == "kintouka.pfs.000"
+    set KEY binary "\xc2\x68\x3f\xa6\xb3\xb9\xaf\x64\x26\x08\x2e\xda\x30\xe1\x5e\x02\x6b\xe0\xcb\x52"
+elif NAME == "kintouka.pfs.001"
+    set KEY binary "\x3c\xee\xb6\x43\x57\x8e\x78\x62\x89\x84\x6d\x0c\xcf\x83\x79\x7e\x55\xaa\xca\x9a"
+elif NAME == "kintouka.pfs.002"
+    set KEY binary "\xa4\x89\x87\xd9\xcb\xa6\x4c\xe8\xe5\x7f\x85\xdb\x1d\xb5\xda\x4a\xe0\xf7\xd4\xbb"
+else
+    math GUESS_KEY_OK = 0
+    math GUESS_KEY = 1
+    callfunction EXTRACT 1
+
+    if GUESS_KEY_OK == 0
+        print "Error: key has not been guessed, set it to zeroes for debugging."
+        #cleanexit
+        set KEY binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    endif
+endif
+
+math GUESS_KEY = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    goto 0
+    idstring "pf"
+    getdstring VER 1    # '6', '8' and so on
+    get INFO_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+
+        if GUESS_KEY == 0
+            set EXT extension NAME
+            if EXT == "mp4"
+            else
+                encryption xor KEY 0 KEYSZ
+            endif
+            log NAME OFFSET SIZE
+            encryption "" ""
+        else
+            if NAME == "main.iet"
+                for SCAN_KEY_IDX = 0 < 2
+                    getarray SCAN_KEY_STR 10 SCAN_KEY_IDX
+                    encryption xor SCAN_KEY_STR 0 KEYSZ
+                    log MEMORY_FILE OFFSET KEYSZ
+                    getdstring KEY KEYSZ MEMORY_FILE
+                    math OFFSET + KEYSZ
+                    encryption xor KEY 0 KEYSZ
+                    log MEMORY_FILE OFFSET 1
+                    encryption "" ""
+                    math OFFSET - KEYSZ
+                    getvarchr TMP MEMORY_FILE 0
+                    math TMP2 = KEYSZ
+                    math TMP2 - 1
+                    getvarchr TMP2 SCAN_KEY_STR TMP2
+                    if TMP == TMP2
+                        math GUESS_KEY_OK = 1
+                        break
+                    endif
+                next SCAN_KEY_IDX
+            endif
+        endif
+    next i
+endfunction

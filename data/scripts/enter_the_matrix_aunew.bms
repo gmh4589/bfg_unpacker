@@ -1,0 +1,37 @@
+# Enter the Matrix aunew.wad
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "aunew.wad"
+get FILES long
+for PACK_NUM = 0
+    getdstring PACK_NAME[PACK_NUM] 0x40
+    if PACK_NAME[PACK_NUM] == ""
+        break
+    endif
+next PACK_NUM
+padding 0x800
+get ZERO long
+for i = 0 < FILES
+    get SOME_CRC long
+    get PACK_NUM long
+    get OFFSET long
+    get SIZE long
+    putarray 0 i SOME_CRC
+    putarray 1 i PACK_NUM
+    putarray 2 i OFFSET
+    putarray 3 i SIZE
+next i
+sortarray 1 1
+math LAST_PACK_NUM = -1
+for i = 0 < FILES
+    getarray SOME_CRC 0 i
+    getarray PACK_NUM 1 i
+    getarray OFFSET   2 i
+    getarray SIZE     3 i
+    if PACK_NUM != LAST_PACK_NUM
+        math LAST_PACK_NUM = PACK_NUM
+        open FDSE PACK_NAME[PACK_NUM]
+    endif
+    string NAME p "%08x." SOME_CRC
+    log NAME OFFSET SIZE
+next i

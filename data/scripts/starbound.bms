@@ -1,0 +1,60 @@
+# Starbound
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "SBAsset6"
+get OFFSET longlong
+goto OFFSET
+idstring "INDEX"
+math IS_SBON_MAP = 1
+callfunction READ_SBON
+get FILES variable
+for i = 0 < FILES
+    get NAMESZ variable
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    get SIZE longlong
+    log NAME OFFSET SIZE
+next i
+
+# https://github.com/blixt/py-starbound/blob/master/starbound/sbon.py
+startfunction READ_SBON
+    if IS_SBON_MAP != 0
+        math IS_SBON_MAP = 0
+        math TYPE = 7
+    else
+        get TYPE byte
+    endif
+    if TYPE == 1
+        break
+    elif TYPE == 2
+        get VALUE double
+    elif TYPE == 3
+        get VALUE byte
+    elif TYPE == 4
+        get VALUE variable
+        if VALUE & 1
+            xmath VALUE "-(VALUE >> 1) - 1"
+        else
+            xmath VALUE "VALUE >> 1"
+        endif
+    elif TYPE == 5
+        get VALUESZ variable
+        getdstring VALUE VALUESZ
+    elif TYPE == 6
+        get SBONS variable
+        for x = 0 < SBONS
+            callfunction READ_SBON
+        next x
+    elif TYPE == 7
+        get SBONS variable
+        for x = 0 < SBONS
+            get VALUESZ variable
+            getdstring VALUE VALUESZ
+            callfunction READ_SBON
+        next x
+    else
+        print "Error: unsupported type %TYPE%"
+        cleanexit
+    endif
+endfunction

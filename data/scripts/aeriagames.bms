@@ -1,0 +1,51 @@
+# Aeriagames pkg.idx/pkg???.pkg (script 0.2.2)
+#   Eden Eternal
+#   Kitsu Saga
+#   Dragon Slayer
+#   Aura Kingdom
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.1"
+comtype zlibx
+
+getdstring DUMMY 260
+getdstring SIGN 32
+math PKG_OLD = -1
+get FULLSIZE asize
+do
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    get ZSIZE long
+    get SOME_32BIT_CRC longlong
+    get FLAGS longlong
+    get TSTAMP32 longlong
+    get TSTAMP32 longlong
+    get TSTAMP32 longlong
+    get SIZE long
+    getdstring NAME2 260
+    getdstring NAME 260
+    get DUMMY long
+    get PKG long
+    get DUMMY long
+    if PKG != PKG_OLD
+        string PKG_NAME p= "pkg%03d.pkg" PKG
+        open FDSE PKG_NAME 1 EXISTS # just for working even if packages are missing...
+        math PKG_OLD = PKG
+    endif
+    string NAME + NAME2
+
+    if EXISTS != 0
+        if FLAGS & 0x40
+            string NAME p "%s/%s" "_UNSUPPORTED_" NAME
+            math SIZE = ZSIZE
+        endif
+
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    endif
+    savepos CURR
+while CURR < FULLSIZE

@@ -1,0 +1,54 @@
+# Duckman / The Illusion Gaming Company (gam)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OFFSET = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        get ID short
+        get TYPE short
+        get OFFSET long
+        if TYPE == 1
+            callfunction EXTRACT
+        else
+            get SIZE long
+            if TYPE == 15
+                string NAME p "%d/%d.txt" TYPE ID
+                callfunction TYPE15
+            elif TYPE == 25
+                string NAME p "%d/%d.txt" TYPE ID
+                log NAME OFFSET SIZE
+            else
+                # no need to guess extension, all custom formats...
+                string NAME p "%d/%d."    TYPE ID
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next i
+    goto BCK_OFF
+endfunction
+
+startfunction TYPE15
+    savepos TMP
+    goto OFFSET
+    savepos TYPE15_OFF
+    get TYPE15_SIZE long
+    get STRINGS long
+    for x = 0 < STRINGS
+        get DUMMY long
+        get NUM long        # 1
+        get OFFSET1 long
+        get OFFSET2 long    # offset to numbers
+        get OFFSET3 long
+        math OFFSET1 + TYPE15_OFF
+        math OFFSET2 + TYPE15_OFF
+        math OFFSET3 + TYPE15_OFF
+        slog NAME OFFSET1 -1 unicode
+        slog NAME OFFSET3 -1
+    next x
+    goto TMP
+endfunction

@@ -1,0 +1,83 @@
+# VISIONPACKAGE (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VISIONPACKAGE\0"
+get VER short   # 2
+get FILES long
+if FILES u> 0x00ffffff
+    xmath XOR_BYTE1 "(FILES >> 24)"
+    filexor XOR_BYTE1
+    goto -4 0 SEEK_CUR
+    get FILES long
+endif
+get NAMES_SIZE long
+get DUMMY long
+get DUMMY long
+if VER >= 2
+    comtype lz4
+endif
+
+if VER >= 3
+
+    # heuristic method that will probably not work
+    filexor ""
+    # unknown obfuscation, I didn't work on it
+    findloc OFFSET binary "\x00\x00"    # some archives may have a spare 0x00 in the header
+    goto OFFSET
+    do
+        get TMP byte
+    while TMP == 0
+    goto -1 0 SEEK_CUR
+    goto -11 0 SEEK_CUR
+    get ARCHIVE_SIZE asize
+    do
+        getdstring DUMMY 7
+        get ZSIZE long
+        savepos OFFSET
+
+        get TMP byte
+        if TMP & 0xf0   # lz4
+            xmath SIZE "ZSIZE * 20"
+            clog "" OFFSET ZSIZE SIZE
+        else
+            log "" OFFSET ZSIZE
+        endif
+        math OFFSET + ZSIZE
+        goto OFFSET
+        get ZERO long
+        get DUMMY long
+        savepos TMP
+    while TMP != ARCHIVE_SIZE
+
+else
+
+    savepos TMP
+    xmath NAMES_OFF "TMP + (FILES * (2 + 4 + 4 + 4))"
+    for i = 0 < FILES
+        get NAMESZ short
+        get SIZE long
+        get ZSIZE long
+        get OFFSET long
+
+        savepos TMP_OFF
+        goto NAMES_OFF
+        math NAMESZ + 1
+        getdstring NAME NAMESZ
+        savepos NAMES_OFF
+
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE
+        else
+            if VER >= 2
+                goto OFFSET
+                getdstring DUMMY 7
+                get ZSIZE long
+                savepos OFFSET
+            endif
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+
+        goto TMP_OFF
+    next i
+
+endif

@@ -1,0 +1,27 @@
+<bms games="'Rainbow Six: Black Arrow'" platforms="'XBox'" ext="UMD16">
+ImpType StandardTail ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+Math END -= 19 ;
+GoTo END 0 ;
+SavePos END 0 ;
+Get D Long 0 ;
+SAvePos TailOffOff 0 ;
+Get TailOff Long 0 ;
+Get ArSize Long 0 ;
+GoTo TailOff 0 ;
+Get FileNum Int 0 ;
+Set T Long 0 ;
+Do ;
+Get SSize Byte 0 ;
+GetDString FN SSize 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get D Long 0 ;
+SavePos D 0 ;
+Math T += 1 ;
+Log FN FO FS #FOO FSO ;
+While D < END ;
+</bms>

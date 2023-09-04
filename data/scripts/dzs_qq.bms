@@ -1,0 +1,203 @@
+# http://dzs.qq.com/ vfs (script 0.3.3)
+#   this script is 100% heuristic because there are many information encrypted and even corrupted
+#   thanks to Ekey
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OLD_SCRIPT = 0     # old script version with invalid filenames (wrong ID and unsupported encryption)
+
+set KEY string "(VFS_DEFAULT_AES_KEY)"
+
+math CHUNK_SIZE = 0x00400000
+
+quickbmsver "0.8.0"
+comtype unzip_dynamic   # some files like 0x0168d21c of data.vfs are invalid
+idstring "vfs "
+get VFS_FLAGS long      # 2
+get ALIGN long
+get VFS_FLAGS2 long     # 0 or 1
+get BASE_OFF longlong
+get OTHER_OFF longlong
+get INFO_OFF longlong   # encrypted
+get INFO_SIZE long
+get NAMES_OFF longlong
+get NAMES_SIZE long
+get USE_ENCRYPTION byte
+getdstring KEY_HASH 16
+
+log MEMORY_FILE2 NAMES_OFF NAMES_SIZE
+
+# fix for Ring of Elysium
+get NAMESZ short MEMORY_FILE2
+if NAMESZ >= 0x100
+    get TMP asize
+    xmath TMP "(TMP - NAMES_SIZE) - NAMES_OFF"
+    math INFO_OFF  + TMP
+    math NAMES_OFF + TMP
+    log MEMORY_FILE2 NAMES_OFF NAMES_SIZE
+endif
+
+# encryption and filenames encryption are two separate things!
+    get NAMESZ short MEMORY_FILE2
+    getdstring NAME NAMESZ MEMORY_FILE2
+goto 0 MEMORY_FILE2
+if NAME == \
+    math FILENAMES_ENCRYPTED = 0
+else
+    math FILENAMES_ENCRYPTED = 1
+endif
+
+for CURR_OFF = 0 != NAMES_SIZE
+    get NAMESZ short MEMORY_FILE2
+    if FILENAMES_ENCRYPTED != 0
+        encryption aes_256_ecb KEY "" 0 32
+        filecrypt 1
+    endif
+    getdstring NAME NAMESZ MEMORY_FILE2
+        filecrypt ""
+        encryption "" ""
+    savepos CURR_OFF MEMORY_FILE2
+
+    putarray 0 -1 NAME
+    if NAME & "."
+        putarray 1 -1 NAME
+    endif
+next
+
+if OLD_SCRIPT == 0
+
+    log MEMORY_FILE3 INFO_OFF INFO_SIZE
+    for CURR_OFF = 0 != INFO_SIZE
+        get SIZE short MEMORY_FILE3
+        get SOME_CRC long MEMORY_FILE3
+        if USE_ENCRYPTION != 0
+            encryption aes_256_ecb KEY "" 0 32
+            filecrypt 1
+        endif
+        getdstring INFO SIZE MEMORY_FILE3
+            filecrypt ""
+            encryption "" ""
+        savepos CURR_OFF MEMORY_FILE3
+
+        getvarchr ID        INFO 0x00 long
+        getvarchr SIZE      INFO 0x04 long
+        getvarchr ZSIZE     INFO 0x08 long
+        getvarchr ALIGN     INFO 0x0c long
+        getvarchr OFFSET    INFO 0x10 longlong
+        getvarchr FLAGS     INFO 0x18 long  # 0 or 1
+
+        getarray NAME 0 ID
+        if OFFSET != 0
+            if FLAGS & 1
+                callfunction EXTRACT
+            else
+                if SIZE == ZSIZE
+                    math OFFSET + 0x10
+                    #math SIZE   - 0x10 # no!
+                    log NAME OFFSET SIZE
+                else
+                    # ???
+                    callfunction EXTRACT
+                endif
+            endif
+        endif
+    next
+
+else
+
+    math i = 0
+    for OFFSET = BASE_OFF < INFO_OFF
+        getarray NAME 1 i
+        callfunction EXTRACT 1
+
+        # some files like data_base_4.vfs have invalid information
+        # for example:
+        # offset 0x76c800 chunks 0x55061 + 0x10a4
+        # next data is 0x76ca00 ?!?!?
+
+        goto DATA_OFFSET
+        idstring "data"
+        findloc OFFSET string "data"
+    next i
+
+endif
+
+startfunction EXTRACT
+    goto OFFSET
+    savepos DATA_OFFSET
+    idstring "data"
+    get DUMMY long
+    get REF_OFF longlong
+
+    comtype unzip_dynamic
+    math ZMODE = 0
+
+    savepos TMP
+    math IS_ENCRYPTED = 0
+    for CHUNKS = 0
+        savepos OFFSET
+        get SIGN short
+        if SIGN == 0x9c78
+            break
+        elif SIGN == 0x5d00 # lzma (0x00 + lzma)
+            comtype lzma_dynamic    # otherwise doesn't work and error-proof
+            math ZMODE = 1
+            break
+        endif
+        get DUMMY short
+        math DUMMY << 16
+        math DUMMY | SIGN
+        if DUMMY == 0x35425346  # FSB5
+            break
+        elif DUMMY u> CHUNK_SIZE
+            math IS_ENCRYPTED = 1
+            break
+        endif
+    next CHUNKS
+
+    if IS_ENCRYPTED == 0
+        goto TMP
+        if CHUNKS == 0
+            findloc NEXT_OFFSET string "data"
+            math CHUNK_ZSIZE = NEXT_OFFSET
+            math CHUNK_ZSIZE - OFFSET
+            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET = NEXT_OFFSET
+
+        elif CHUNKS == 1  # allow reimporting
+            get CHUNK_ZSIZE long
+            if ZMODE != 0
+                get ZERO byte
+            endif
+            savepos OFFSET
+            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET + CHUNK_ZSIZE
+
+        else
+            for x = 0 < CHUNKS
+                get CHUNK_ZSIZE long
+                putarray 2 x CHUNK_ZSIZE
+            next x
+            if ZMODE != 0
+                get ZERO byte
+            endif
+            savepos OFFSET
+            log NAME 0 0
+            append
+            for x = 0 < CHUNKS
+                getarray CHUNK_ZSIZE 2 x
+                clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                math OFFSET + CHUNK_ZSIZE
+            next x
+            append
+        endif
+    
+        math OFFSET - BASE_OFF
+        math OFFSET x ALIGN
+        math OFFSET + BASE_OFF
+
+    else
+
+        findloc OFFSET string "data"
+
+    endif
+endfunction EXTRACT

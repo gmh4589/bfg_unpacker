@@ -1,0 +1,62 @@
+# Extracts the contents of the Glob.bin from NDS games
+# that only consist of this very file and the sound_data.sdat
+#
+# supported games:
+# - Are You Smarter than a 5th Grader? Back to School
+#
+# (c) 2012-03-18 by AlphaTwentyThree of XeNTaX
+
+callfunction checkBIN 1 # check if bin correct
+callfunction getNAMEPOS 1 # determine offset of GlobFiles.txt
+# string NAMEPOS p= "%08x" NAMEPOS
+# print "namepos: %NAMEPOS%"
+# cleanexit
+goto 0
+get FILES long
+math FILES -= 1 # last variable in list is file size (to get last offset)
+math FILES /= 0x4
+goto 0
+get FOLDER basename
+string FOLDER += "/"
+
+for i = 1 <= FILES
+   get OFFSET long
+   savepos MYOFF
+   get SIZE long
+   math SIZE -= OFFSET
+   goto NAMEPOS         # comment these lines
+   getCT NAME string 0x20   # in first run and
+   math NAMEPOS += 0x40   # adjust number at beginning
+   
+   # get NAME basename      # uncomment
+   # string NAME += "_"     # in first
+   # string NAME += i       # run
+   goto MYOFF
+   set FNAME FOLDER
+   string FNAME += NAME
+   log FNAME OFFSET SIZE
+next i
+
+startfunction checkBIN
+   get FSIZE asize
+   get SIZEOFF long
+   math SIZEOFF -= 4
+   goto SIZEOFF
+   get TESTSIZE long
+   if TESTSIZE != FSIZE
+      print "ERROR: not a valid NDS *.bin file!"
+      cleanexit
+   endif
+endfunction
+
+startfunction getNAMEPOS
+   FindLoc GLOBFILES string "GlobFiles.txt" 0 ""
+   goto 0
+   do
+      savepos NAMEOFF
+      get TESTOFF long
+   while TESTOFF < GLOBFILES
+   math NAMEOFF -= 4
+   goto NAMEOFF
+   get NAMEPOS long
+endfunction

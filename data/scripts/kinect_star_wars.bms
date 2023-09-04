@@ -1,0 +1,17 @@
+# Toy Story Mania (was Kinect Star Wars)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PKG_SIZE asize
+for OFFSET = 0 != PKG_SIZE
+    idstring "adoY"
+    getdstring TYPE 4
+    get SIZE long
+    getdstring NAME 0x54
+    savepos OFFSET
+    if SIZE != 0
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET + SIZE
+    math OFFSET x 0x20
+    goto OFFSET
+next

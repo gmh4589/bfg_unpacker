@@ -1,0 +1,34 @@
+# PPMD
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.3" # ppmdi_raw wasn't identified before
+get signature long
+get attrib long
+get info short
+get FNLen short
+get time short
+get date short
+getdstring NAME FNLen
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+xmath Variant   "(info >> 12) + 0x41"
+xmath MaxOrder  "(info & 0x0F)+1"
+xmath SASize    "((info >> 4) & 0xFF)+1"
+xmath CutOff    "FNLen >> 14"
+math FNLen & 0x1FF
+string ARGS p "%d %d %d" SASize MaxOrder CutOff
+if Variant == 'J'
+    comtype ppmdj_raw ARGS
+elif Variant == 'G'
+    comtype ppmdg_raw ARGS
+elif Variant == 'H'
+    comtype ppmdh_raw ARGS
+elif Variant == 'I'
+    comtype ppmdi_raw ARGS
+else
+    comtype ppmdi_raw ARGS
+endif
+math SIZE = ZSIZE
+math SIZE * 20
+clog NAME OFFSET ZSIZE SIZE

@@ -1,0 +1,36 @@
+# Killzone Shadow Fall \x83\xc1\x10\xcb compressed files
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+idstring "\x83\xc1\x10\xcb"
+get CHUNK_SIZE long
+get SIZE longlong
+getdstring DUMMY 0x10
+
+get NAME basename
+get EXT extension
+string NAME p "%s_unpack.%s" NAME EXT
+
+xmath CHUNKS "SIZE / CHUNK_SIZE"
+if SIZE % CHUNK_SIZE
+    math CHUNKS + 1
+endif
+
+savepos TMP
+xmath OFFSET "TMP + (CHUNKS * 4)"
+
+log NAME 0 0
+append
+for x = 0 < CHUNKS
+    get CHUNK_ZSIZE long
+    if CHUNK_ZSIZE == 0 # ???
+        math CHUNK_ZSIZE = CHUNK_SIZE
+    endif
+    if CHUNK_ZSIZE >= CHUNK_SIZE
+        log NAME OFFSET CHUNK_SIZE  # ???
+    else
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    endif
+    math OFFSET + CHUNK_ZSIZE
+next x
+append

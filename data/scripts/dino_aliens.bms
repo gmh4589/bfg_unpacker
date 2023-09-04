@@ -1,0 +1,13 @@
+# Dino and Aliens
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    get NAME string
+    get SIZE long
+    savepos OFFSET
+    encryption xor NAME
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next

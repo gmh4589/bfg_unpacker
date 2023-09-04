@@ -1,0 +1,32 @@
+# Eyepet
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "FAT"
+open FDDE "NOB" 1
+
+get NOB_SIZE long
+get FILES long
+get DUMMY long
+get ZERO long
+get ZERO long
+get ZERO long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * (4 + 4 + 4 + 4 + 4 + 4 + 4))"
+for i = 0 < FILES
+    get NAME_OFF long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET * 0x800
+    log NAME OFFSET SIZE 1
+next i

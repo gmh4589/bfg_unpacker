@@ -1,0 +1,55 @@
+# Gyromancer
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype xmemdecompress
+filexor 0xff
+get DUMMY short
+get ENTRIES long
+get ZSIZE long
+get FILES long
+filexor ""
+math SIZE = ENTRIES
+math SIZE *= 0x11c
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+math BASE_OFF = OFFSET
+math BASE_OFF += ZSIZE
+set PATH string ""
+for i = 0 < ENTRIES
+    getdstring NAME 0x104 MEMORY_FILE
+    get FOLDER long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZIP long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    if FOLDER != 0
+        if NAME == "."
+        elif NAME == ".."
+            set j strlen PATH
+            for j -= 1 > 0
+                math j -= 1
+                getvarchr T PATH j
+                if T == '/'
+                    math j += 1
+                    putvarchr PATH j 0
+                    math j = 0  #break
+                endif
+            next
+        else
+            string PATH += NAME
+            string PATH += /
+        endif
+    else
+        set FNAME string PATH
+        string FNAME += NAME
+        math ZSIZE -= OFFSET
+        math OFFSET += BASE_OFF
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

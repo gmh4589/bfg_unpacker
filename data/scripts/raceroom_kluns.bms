@@ -1,0 +1,122 @@
+# RaceRoom KLUNS files (decompressed ones only!)
+#
+# Notes:
+#   there are various types of objects and their problem is just the usage of
+#   different formats so it's too long to implement them one by one...
+#   that's why I dump everything from the offset which is in common with all
+#   the objects.
+#   The script doesn't support the "public" kluns files, they are compressed.
+#
+# IMPORTANT NOTE
+#   This script is only an experimental test because the kluns files are resources
+#   that must be read and parsed correctly, so this script is just for fun and
+#   does NOT extract all the data.
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "public"
+    print "Error: you must use raceroom.bms to decompress the public files"
+    cleanexit
+endif
+get KLUNS_SIZE asize
+
+get DUMMY long
+if DUMMY != 0
+    print "Error: this script support only the decompressed kluns files"
+    cleanexit
+endif
+
+for EXTRACT = 0 < 2
+
+    if EXT != "public"
+        math EXTRACT += 1
+    endif
+
+    goto 8
+    get ENTRIES long
+    for i = 0 < ENTRIES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+    next i
+    if ENTRIES != 0
+        findloc OFFSET binary "\x00\x00\x00\x00\x00\x00\x00"
+        math OFFSET += 3
+        goto OFFSET
+    endif
+    savepos OFFSET
+
+    for i = 0
+        goto OFFSET
+        if OFFSET >= KLUNS_SIZE
+            break
+        endif
+
+        get DUMMYSZ long
+        get DUMMY byte
+        if DUMMY == 1
+            break
+        endif
+        math OFFSET += 4
+        goto OFFSET
+
+        if DUMMYSZ != 0
+            getdstring DUMMY DUMMYSZ
+
+            if DUMMY == "*end*"
+                cleanexit
+            endif
+
+            get FOLDERSZ long
+            getdstring FOLDER FOLDERSZ
+            get SIZE long
+            get DUMMY long
+            savepos OFFSET
+            get DUMMY byte
+            get OBJECTSZ long
+            getdstring OBJECT OBJECTSZ
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            set NAME string FOLDER
+
+            savepos TMP
+            math TMP -= OFFSET
+            math SIZE -= TMP
+
+            savepos OFFSET
+        else
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            getdstring DUMMY 0xd
+            get SIZE long
+            savepos OFFSET
+        endif
+
+        if EXTRACT != 0
+            if EXT == "public"
+                getarray NAME 0 i
+            endif
+            if SIZE > 0
+                log NAME OFFSET SIZE
+            endif
+        endif
+
+        math OFFSET += SIZE
+    next i
+
+    if EXT == "public"
+        goto OFFSET
+        get DUMMY long
+        for i = 0
+            savepos OFFSET
+            if OFFSET >= KLUNS_SIZE
+                break
+            endif
+            get DUMMY byte
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            putarray 0 i NAME
+        next i
+    endif
+
+next EXTRACT

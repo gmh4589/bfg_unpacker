@@ -1,0 +1,17 @@
+# EdMark - Mighty Math Carnival Countdown
+
+get DUMMY short
+get OFFSET long
+goto OFFSET
+get FILES asize
+math FILES - OFFSET
+math FILES / 0x10
+for i = 0 < FILES
+    getdstring NAME 4
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+    get DUMMY short
+    string NAME + "/."
+    log NAME OFFSET SIZE
+next i

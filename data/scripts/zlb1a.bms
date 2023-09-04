@@ -1,0 +1,28 @@
+# zlb installers
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.17c"
+comtype lzma_dynamic
+get EXE_SIZE asize
+    findloc OFFSET string "zlb\x1a"
+for OFFSET = OFFSET < EXE_SIZE
+    math OFFSET += 4
+    goto OFFSET    
+    findloc NEXT_OFFSET string "zlb\x1a" ""
+    if NEXT_OFFSET == ""
+        math NEXT_OFFSET = EXE_SIZE
+    endif
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+
+    savepos TMP
+    goto OFFSET
+    get CHECK short
+    goto TMP
+    if CHECK == 0x005d  # lzma
+        clog "" OFFSET SIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFFSET
+next

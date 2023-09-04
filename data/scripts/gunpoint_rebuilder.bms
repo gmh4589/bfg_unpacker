@@ -1,0 +1,59 @@
+# Gunpoint rebuilder script example
+# script for QuickBMS http://quickbms.aluigi.org
+
+# 1) script.bms
+# 2) the input file is ignored, select the same script
+# 3) the output folder is the folder containing the files to pack
+
+set OUTPUT_ARCHIVE string "dump.pak"
+
+# init the buffers
+log MEMORY_FILE  0 0
+log MEMORY_FILE2 0 0
+
+# placeholders
+put 0 long MEMORY_FILE  # BASE_OFF
+put 0 long MEMORY_FILE  # FILES
+
+for FILES = 0
+
+    # copy&paste code
+    scanDir "." NAME SIZE       # get the file from the current folder
+    if NAME == ""               # no other files are available
+        break
+    endif
+    open "." NAME
+    string NAME << 2            # remove ".\"
+    if NAME != OUTPUT_ARCHIVE   # in case the archive already exists (not necessary)
+        # end of copy&paste code
+
+        # add information to the index table
+        string NAME R \ /
+        strlen NAMESZ NAME
+        put NAMESZ long MEMORY_FILE
+        putdstring NAME NAMESZ MEMORY_FILE
+        put SIZE long MEMORY_FILE
+        get OFFSET asize MEMORY_FILE2
+        put OFFSET long MEMORY_FILE
+
+        # add the file to the archive
+        append
+        log MEMORY_FILE2 0 SIZE
+        append
+
+        math FILES + 1
+    endif
+
+next
+
+get BASE_OFF asize MEMORY_FILE
+putvarchr MEMORY_FILE 0 BASE_OFF long   # BASE_OFF
+putvarchr MEMORY_FILE 4 FILES    long   # FILES
+
+get SIZE asize MEMORY_FILE2
+append
+log MEMORY_FILE 0 SIZE MEMORY_FILE2
+append
+
+get SIZE asize MEMORY_FILE
+log OUTPUT_ARCHIVE 0 SIZE MEMORY_FILE

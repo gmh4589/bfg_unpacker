@@ -1,0 +1,216 @@
+# Battlefield Bad Company 2 iOS PAKH/PAKD (8KAP,6KAP) (script 0.1.2)
+
+# set to zero in case you don't need filenames (they are a complex struct that may change in future)
+math GET_NAMES = 1
+
+open FDDE "pakh"
+getdstring VER 1
+math VER = VER  # useless, just be sure that '6' will be 6
+idstring "KAP"  # 8KAP 6KAP
+if VER == 6
+elif VER == 8
+else
+    print "Error: version %VER%KAP not supported, contact me"
+    cleanexit
+endif
+
+get FLAGS long  # 0x40000000
+get DUMMY long  # 1
+
+get NUM long
+for i = 0 < NUM
+    get ZERO long
+    get DUMMY long
+    get DUMMY long
+next i
+
+if VER == 6
+    idstring "DTRS"
+endif
+
+math LAST_PAK_NUM = -1
+
+# I use a cycle in case the format will change in the future
+savepos BACKUP_OFF
+for EXTRACT = 0 < 2
+    goto BACKUP_OFF
+
+    # index table
+    get FILES long
+    for i = 0 < FILES
+        getdstring HASH 16
+        if VER == 6
+            get ZERO long
+        endif
+        get OFFSET long
+        get PAK_NUM long
+        get SIZE long
+        get ZSIZE long
+        get DUMMY long  # not ZIP, it can be 1, 2 and so on
+
+        if EXTRACT != 0
+            if PAK_NUM != LAST_PAK_NUM
+                math LAST_PAK_NUM = PAK_NUM
+                string TMP p "pakd%03d" PAK_NUM
+                open FDDE TMP 1
+            endif
+
+            goto OFFSET 1
+            math LIMIT = OFFSET
+            math LIMIT + ZSIZE
+            # in short the compression keeps the status/ctx for the chunks (very rare)
+            # I didn't found a non-compressed chunk so I don't know if it may not work        
+            log MEMORY_FILE 0 0
+            append
+            if VER == 6
+                math CHUNK_SIZE = 0x10000
+                math LIMIT - 8      # maybe some sort of padding of ZSIZE
+                get DUMMY short 1   # 0x1000
+                get DUMMY byte 1    # ever 0x02
+                get ALGO byte 1     # 0x81:zlib, 0x82:lz4
+                if ALGO == 0x82
+                    comtype lz4
+                else
+                    comtype zlib    # returns error if something is wrong
+                endif
+            else
+                get CHUNK_SIZE long 1
+            endif
+            for
+                savepos TMP 1
+                if TMP u>= LIMIT    # it was == for 8KAP but 6KAP is different
+                    break
+                endif
+                get CHUNK_ZSIZE long 1
+                if CHUNK_ZSIZE == CHUNK_SIZE
+                    get CHUNK_ZSIZE long 1
+                endif
+                savepos CHUNK_OFF 1
+                log MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE 1
+                goto CHUNK_ZSIZE 1 SEEK_CUR
+            next
+            append
+            get ZSIZE asize MEMORY_FILE
+
+            string HASH 0b HASH
+            for x = 0
+                getarray HASH_NAME 0 x
+                getarray NAME      1 x
+                if NAME == ""
+                    break
+                endif
+                if HASH == HASH_NAME
+                    break
+                endif
+            next x
+
+            clog NAME 0 ZSIZE SIZE MEMORY_FILE
+        endif
+    next i
+
+    # get names after index table
+    if EXTRACT == 0
+        if GET_NAMES != 0
+
+            if VER == 6
+
+                callfunction GET_NAMES_6 1
+
+            else    # VER 8
+
+                callfunction GET_NAMES_8 1
+
+            endif
+
+        endif
+        putarray 0 -1 ""
+        putarray 1 -1 ""
+    endif
+
+next EXTRACT
+
+startfunction GET_NAMES_6
+    get FOLDERS long
+    get DUMMY long  # 2
+    getdstring ZERO 0xc
+    get DUMMY long  # 0x24
+    getdstring ZERO 0x10
+    get DUMMY long  # 1
+    callfunction GET_NAME 1 # mali
+    callfunction GET_NAME 1 # mali/
+    get NAMES_SIZE long
+    math FOLDERS - 1        # remove root mali
+
+    for FOLDER = 0 < FOLDERS
+        callfunction GET_NAME 1 # mali/path
+        callfunction GET_NAME 1 # path (better)
+
+        set PATH string NAME
+        get EXTENSIONS long
+        for EXTENSION = 0 < EXTENSIONS
+            callfunction GET_NAME 1
+            get FILES long
+            set EXT string NAME
+            for i = 0 < FILES
+                callfunction GET_NAME 1
+                getdstring DUMMY 8
+                getdstring HASH 16
+                get ZERO long
+                string NAME p "%s%s.%s" PATH NAME EXT
+
+                # build the database
+                string HASH 0b HASH
+                putarray 0 -1 HASH
+                putarray 1 -1 NAME
+            next i
+        next EXTENSION
+
+        callfunction GET_LIST 1
+    next FOLDER
+endfunction
+
+startfunction GET_NAMES_8
+    callfunction GET_LIST 1
+    get FOLDERS long
+    for FOLDER = 0 < FOLDERS
+        callfunction GET_NAME 1
+        callfunction GET_NAME 1
+        get FILES long
+
+        for i = 0 < FILES
+            get DUMMY long  # 0x??000000
+            get DUMMY long  # not a crc or timestamp
+            callfunction GET_NAME 1
+            set PATH string NAME
+            callfunction GET_NAME 1
+            callfunction GET_NAME 1
+            set EXT string NAME
+            getdstring HASH 16
+            string NAME p "%s%s.%s" PATH NAME EXT
+
+            # build the database
+            string HASH 0b HASH
+            putarray 0 -1 HASH
+            putarray 1 -1 NAME
+        next i
+
+        callfunction GET_LIST 1
+    next FOLDER
+endfunction
+
+startfunction GET_LIST
+    get NUM long
+    for i = 0 < NUM
+        callfunction GET_NAME 1
+    next i
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ + 1
+    if VER == 6
+        get DUMMY long  # some CRC?
+    endif
+    getdstring NAME NAMESZ
+    padding 4
+endfunction

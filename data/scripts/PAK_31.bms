@@ -1,0 +1,18 @@
+<bms games="'Astonia 3'" platforms="'PC'" ext="PAK" version="1.0" author="Mr.Mouse" verbose="no" silence="no">
+ComType ZLib1 ;
+Get Date Long 0 ;
+Get FileNum Long 0 ;
+For T = 1 To FileNum ;
+Get Offset Long 0 ;
+Get CSize Long 0 ;
+Get UCSize Long 0 ;
+Get CType Long 0 ;
+Math Offset += 8 ;
+Set FN String ".dec" ;
+Set FP String "file" ;
+String FP += UCSize ;
+String FP += FN ;
+Set UCSize Long 1000000 ;
+CLog FP Offset CSize 0 0 UCSize 0 ;
+Next T ;
+</bms>

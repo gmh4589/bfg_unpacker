@@ -1,0 +1,69 @@
+# Pseudo-random sequence generator
+# Useful if you have a sequence of bytes xored with this sequence and there are some 0x00 bytes to guess,
+# you can use mygrep to find these bytes in the output folder.
+
+math SIZE = 0x40    # amount of bytes to generated
+
+# https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
+
+putarray 0 -1 1664525
+putarray 1 -1 1013904223 	
+
+putarray 0 -1 22695477
+putarray 1 -1 1
+
+putarray 0 -1 1103515245
+putarray 1 -1 12345
+
+putarray 0 -1 134775813
+putarray 1 -1 1
+
+putarray 0 -1 214013
+putarray 1 -1 2531011
+
+putarray 0 -1 1140671485
+putarray 1 -1 12820163
+
+putarray 0 -1 2147483629
+putarray 1 -1 2147483587
+
+putarray 0 -1 16807
+putarray 1 -1 0
+
+putarray 0 -1 48271
+putarray 1 -1 0
+
+putarray 0 -1 69069
+putarray 1 -1 1
+
+putarray 0 -1 25214903917
+putarray 1 -1 11
+
+putarray 0 -1 65539
+putarray 1 -1 0
+
+putarray 0 -1 ""
+putarray 1 -1 ""
+
+for PSEUDO_RANDOM = 0
+    getarray MULTIPLIER 0 PSEUDO_RANDOM
+    getarray INCREMENTER 1 PSEUDO_RANDOM
+    if MULTIPLIER == ""
+        cleanexit
+    endif
+
+    print "%MULTIPLIER|x% %INCREMENTER|x%"
+    log MEMORY_FILE 0 0
+
+    for SCAN = 0x00 <= 0xff
+        math TMP = SCAN
+        for i = 0 < SIZE
+            xmath TMP "(TMP * MULTIPLIER) + INCREMENTER"
+            putvarchr MEMORY_FILE i TMP
+        next i
+
+        string NAME p= "%08x_%08x/%02x.dat" MULTIPLIER INCREMENTER SCAN
+        log NAME 0 SIZE MEMORY_FILE
+
+    next SCAN
+next PSEUDO_RANDOM

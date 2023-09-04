@@ -1,0 +1,26 @@
+# PokerStars INI encoder and compressor 0.1
+# script for QuickBMS http://quickbms.aluigi.org
+#
+# Usage:
+#   quickbms.exe pokerstars_inienc.bms PokerStars.ini.decrypted c:\
+#   quickbms.exe pokerstars_inienc.bms fw.ini.decrypted c:\
+# will be created a new file PokerStars.ini in c: with the encrypted content
+# use pokerstars_inidec.bms for decoding/decompressing
+
+get EXT extension
+if EXT != "decrypted"
+    print "Error: you must provide the file with the .decrypted extension"
+    cleanexit
+endif
+get NAME basename
+get SIZE asize
+
+comtype gzip_compress
+clog MEMORY_FILE 0 SIZE SIZE
+get SIZE asize MEMORY_FILE
+
+    # the following XOR key is the xor between
+    # "Microsoft .NET Runtime Error: %s\0/update.ini\0"
+    # and ".NET Framework Internal Error"
+filexor "0x63 0x27 0x26 0x26 0x4F 0x35 0x1D 0x07 0x19 0x45 0x59 0x21 0x37 0x3F 0x00 0x1B 0x1B 0x1A 0x11 0x1B 0x03 0x04 0x4C 0x65 0x37 0x00 0x1D 0x1D 0x48 0x20 0x0B 0x3D 0x45 0x7B 0x55 0x36 0x16 0x00 0x19 0x00 0x59 0x06 0x1C 0x02 0x20"
+log NAME 0 SIZE MEMORY_FILE

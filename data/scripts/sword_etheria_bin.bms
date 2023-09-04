@@ -1,0 +1,30 @@
+# Sword of Etheria BIN
+
+idstring "SIMB"
+get FILES long
+get BASE_OFF long
+get NAMES_OFF long
+get NAMES_SIZE long
+get ZERO long
+get ZERO long
+get ZERO long
+math BASE_OFF   * 0x800
+math NAMES_OFF  * 0x800
+math NAMES_SIZE * 0x800
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get SOME_CRC long
+    get NAME_OFF long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET * 0x800
+    math SIZE   * 0x800
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,43 @@
+# Batman: Vengance FAT/000
+# the format is similar to jungle_book_groove_party.bms
+
+comtype lzo1x
+open FDDE "fat"
+get FAT_SIZE asize
+get DUMMY byte  # 1
+math LAST_DAT_FILE = -1
+do
+    get THIS_SAME_OFFSET long
+    get OFFSET long
+    get SIZE long
+    getdstring TYPE 4
+    get TSTAMP long
+    get TSTAMP long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get DAT_FILE byte
+    get IS_FILE byte
+    get DUMMY short
+    if IS_FILE == 1
+        if LAST_DAT_FILE != DAT_FILE
+            math LAST_DAT_FILE = DAT_FILE
+            string TMP p "%03d" DAT_FILE
+            open FDDE TMP 1
+        endif
+        goto OFFSET 1
+        get SIZE long 1
+        get ZSIZE long 1
+        idstring 1 "\xbe\xba\xad\xde"
+        get ZIP byte 1  # 3
+        savepos OFFSET 1
+        if ZIP == 2
+            log NAME OFFSET SIZE 1
+        elif ZIP == 3
+            clog NAME OFFSET ZSIZE SIZE 1
+        else
+            print "Error: ZIP %ZIP% at offset %OFFSET|x%, contact me"
+            cleanexit
+        endif
+    endif
+    savepos TMP
+while TMP != FAT_SIZE

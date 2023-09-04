@@ -1,0 +1,71 @@
+# SexGameDevil games (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.0"
+comtype jcalg
+
+goto -8
+savepos OFFSET
+get SIZE long
+get ZSIZE long
+if ZSIZE < 0
+    print "Error: unsupported archive"
+    cleanexit
+endif
+get MAX_SIZE asize
+if ZSIZE > MAX_SIZE
+    print "Error: unsupported archive"
+    cleanexit
+endif
+math OFFSET - ZSIZE
+
+# unfortunately not all the games use the Vector3D keyword so let's use another way to guess the xor byte
+#set NAME string "Vector3D"
+#callfunction decrypt 1
+callfunction decrypt2 1
+clog MEMORY_FILE2 0 ZSIZE SIZE MEMORY_FILE
+
+math INFO_SIZE = SIZE
+for INFO_OFF = 0 < INFO_SIZE
+    get ZSIZE long MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+    savepos INFO_OFF MEMORY_FILE2
+
+    callfunction decrypt 1
+    if SIZE == ZSIZE
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        clog NAME 0 ZSIZE SIZE MEMORY_FILE
+    endif
+next
+
+startfunction decrypt
+    encryption md5 NAME
+    encryption "" ""
+
+    math XOR_BYTE = 0
+    for x = 0 < 15
+        getvarchr TMP QUICKBMS_HEXHASH x
+        math XOR_BYTE ^ TMP
+    next x
+
+    goto OFFSET
+    get TMP byte
+    filexor XOR_BYTE
+    log MEMORY_FILE OFFSET ZSIZE
+    filexor ""
+    putvarchr MEMORY_FILE 0 TMP
+endfunction
+
+startfunction decrypt2
+    goto OFFSET
+    get TMP byte
+    get XOR_BYTE byte
+    math XOR_BYTE ^ 'C' # "JC" jcalg1 magic
+    filexor XOR_BYTE
+    log MEMORY_FILE OFFSET ZSIZE
+    filexor ""
+    putvarchr MEMORY_FILE 0 TMP
+endfunction

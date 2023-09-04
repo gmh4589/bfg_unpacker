@@ -1,0 +1,46 @@
+for i = 0
+    findloc SNDFILE string "SND "
+    goto SNDFILE
+    get SIGN long
+    get SIZE long
+    get FREQUENCY long
+    get CHANNELS short
+    get DUMMY long
+    savepos OFFSET
+    math SIZE -= 18
+    #log "" OFFSET SIZE # simple dumping till here, the rest is raw2wav
+
+    set BITS long 16
+    set NAME string i
+    string NAME += ".wav"
+    callfunction raw2wav
+next i
+
+startfunction raw2wav
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+
+    math SIZE += 44
+    log NAME 0 SIZE MEMORY_FILE2
+endfunction

@@ -1,0 +1,12 @@
+# Yaz0
+
+endian big
+idstring "Yaz0"
+comtype YAZ0
+get SIZE long
+padding 16
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

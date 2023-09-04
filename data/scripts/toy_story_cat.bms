@@ -1,0 +1,13 @@
+# Toy Story CAT
+
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC[i] long    # ???
+next i
+for i = 0 < FILES
+    get OFFSET[i] long
+next i
+for i = 0 < FILES
+    get SIZE long
+    log "" OFFSET[i] SIZE
+next i

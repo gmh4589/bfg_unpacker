@@ -1,0 +1,27 @@
+# MTV Skateboarding
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BLOB"
+getdstring VER 8
+get BASE_OFF long
+getdstring DUMMY 0x10
+for i = 0
+    getdstring NAME 8
+    if NAME == ""
+        break
+    endif
+    getdstring EXT  4
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    string NAME + "."
+    string NAME + EXT
+    math OFFSET + BASE_OFF
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,19 @@
+# KILL la KILL -IF
+
+comtype gzip
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+idstring MEMORY_FILE "DGKP"
+get DUMMY long MEMORY_FILE
+get ZERO long MEMORY_FILE
+get FILES long MEMORY_FILE
+get OFFSET long MEMORY_FILE
+goto OFFSET MEMORY_FILE
+for i = 0 < FILES
+    getdstring TYPE 4 MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    getdstring NAME 0x80 MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

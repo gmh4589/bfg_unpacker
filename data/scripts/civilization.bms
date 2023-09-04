@@ -1,0 +1,33 @@
+# Civilization series
+#   Civilization 4 / 5 / Revolution
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.4.6
+get PATH basename
+get VER long    # 4 for civ4, 6 for civ5/rev
+idstring "FPK_"
+if VER <= 4
+    get DUMMY byte
+else
+    get DUMMY short
+endif
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    math TMP = NAMESZ
+    math TMP += 8
+    math TMP x= 4
+    if VER <= 4
+        filerot -1
+    endif
+    getdstring NAME TMP
+    filerot ""
+    putvarchr NAME NAMESZ 0
+    get SIZE long
+    get OFFSET long
+
+    set FULLNAME string PATH
+    string FULLNAME += /
+    string FULLNAME += NAME
+    log FULLNAME OFFSET SIZE
+next i

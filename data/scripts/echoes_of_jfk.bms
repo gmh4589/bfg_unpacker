@@ -1,0 +1,13 @@
+# Hidden Files Echoes of JFK
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PAK_SIZE asize
+for OFFSET = 0 < PAK_SIZE
+	goto OFFSET
+	get SIZE long
+	get NAMESZ long
+	getdstring NAME NAMESZ
+	savepos OFFSET
+	log "" OFFSET SIZE
+	math OFFSET += SIZE
+next

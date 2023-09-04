@@ -1,0 +1,107 @@
+# PatchKit pack1 (requires appSecret and VersionId) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# this is where you should put the value passed by the launcher via --secret
+# for example: "nf+d/zv/Of89/5n/Nf+V/zP/l/+P/5f/lf+V/5n/O/+T/zf/N/+T/4//j/+N/5n/mf+d/53/j/+P/5X/k/+T/w=="
+set appSecret string ""
+
+# VersionID "Package File"
+# for example: "61"
+set VersionId string ""
+
+set KEY string ""   # for the static key instead of --secret
+
+if KEY == ""
+    if appSecret == "" || VersionId == ""
+        print "Error: you must set both appSecret and VersionId in the script"
+        cleanexit
+    endif
+    callfunction DecodeSecret 1
+endif
+
+get TMP_BASE basename
+if TMP & ".pack1"
+    set TMP_BASE basename TMP_BASE
+endif
+set TMP string TMP_BASE
+string TMP + ".pack1"
+open FDSE TMP 1
+
+idstring 1 "Pack1"
+idstring 1 "\x01\x02\x03\x04"
+
+set TMP string TMP_BASE
+string TMP + ".meta"
+open FDSE TMP 0 EXISTS
+if EXISTS == 0
+    set TMP string TMP_BASE
+    string TMP + ".pack1.meta"
+    open FDSE TMP
+endif
+
+comtype json_viewer
+get TMP asize
+clog MEMORY_FILE 0 TMP TMP
+get MEM_SIZE asize MEMORY_FILE
+set FNAME string ""
+
+do
+    get TMP line MEMORY_FILE
+    string ELEMENTS S TMP PAR VAL
+    if PAR == "iv"
+        set IVEC string VAL
+
+        if appSecret != ""
+            string KEY + VersionId
+            comtype base64_compress
+            string KEY C KEY
+            string KEY p "%c%c%c%c%s" '\x08' '\x07' '\x18' '\x24' KEY
+        endif
+
+        print "KEY  %KEY%"
+        strlen KEYSZ KEY
+        encryption sha256 KEY "" 0 KEYSZ
+        print "KEY  %QUICKBMS_HEXHASHL%"
+
+        comtype base64
+        string IVEC C IVEC
+        print "IVEC %IVEC|hex%"
+
+    elif PAR == "name"
+        set FNAME string VAL
+    elif PAR == "type"
+        set FTYPE string VAL
+    elif PAR == "offset"
+        set FOFFSET string VAL
+    elif PAR == "size"
+        set FSIZE string VAL
+    elif PAR == "}"
+        if FNAME != ""
+            if FTYPE == "regular"
+                comtype gzip    # required due to previous base64
+                encryption "CipherFinal aes" QUICKBMS_HASH IVEC 0 32
+                clog FNAME FOFFSET FSIZE FSIZE 1
+            endif
+            set FNAME string ""
+        endif
+    endif
+    savepos TMP MEMORY_FILE
+while TMP < MEM_SIZE
+
+startfunction DecodeSecret
+    comtype base64
+    string KEY C appSecret
+    strlen KEYSZ KEY
+    for x = 0 < KEYSZ
+        getvarchr b KEY x
+        math lsb = b
+        math lsb & 1
+        math b >>= 1
+        if lsb != 0
+            math b | 128
+        endif
+        math b ~ b
+        putvarchr KEY x b
+    next x
+    set KEY unicode KEY
+endfunction

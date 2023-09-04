@@ -1,0 +1,70 @@
+# Entropia Universe (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.14"
+
+# http://aluigi.org/papers/bms/entropia_universe.zip
+set MEMORY_FILE4 compressed "eNrtW31UVNe1v3dm0AEGZ4yjokUdzJiKVTMXFQGZiMEhNpGGRLE+E4J8DILhK8MMap9jMOMkc3O9LW1t6+uLb2mT9Zom6StdpZQ0JmWE5SgaBTWIHyVqiBnERMRUED/m/c65dwDNvKbt++Ot1+Ssdc7e55x99m+ffb7uOQwZa2oYJcMwKsRAgGEaGCmkMl8eqhHHTPvjGKYu/P3YBnb5+7Eri4orDRW28nW23FJDfm5ZWbndkGc12BxlhuIyw9LHVxhKywusc6OiIoyyjkwLwyxnI5grt+wZQb3nmDH3R7IKPTMVGROigmEadaAkmihyEeUVkt0stV8OjVJmXguDfpFgoO2QyFQmFZBhpU7MlARDh1r4gv0r9bsZJpr5+8Ncu3WjHbRjimzQVGr3XWEtk7l2bkGuPRe8mhn2BTP9brlUxtQ41yYJHmZJgSxnvFdubepca1FOIUaHQmXKcg+E0JdXWUl4FUsM+Z/GP7VxrpXgyr6skPXN/IK+1LnFRE72dbXc11khcNOeXAlW8mmNrG9uCDl7CbXPQMdAljOF8ou1pDxfHsNaWS7+C3IPM1/RkMV/7LocLVjUvqVGtW5tdRGoigHlVUb/n2IY5mCTWE8Exb3f/FL5HxB51wA7qbGpRqx7QJZf4bqsF8YTGfcx+3xhCmnl6lElnd4wXlC6G+3XAq2oDhZW9fB6oz8DmnxhpJBhwKmMhPgXo9TVrH8qu4m/PtKeRD77cyFbwzsGBIead94SnDrXTdaexm82qvmnjSp+vtF/fBLaXta4zzgmBY3Rbvs+NPCWLv+qQCAgWLoEqIEO5y3+cvY+DSPaHyDQ1QT68DcYxt34Kmloz/NR171KOrInZglUNdr1BIv4gswv4AVaAea/MwFNk4AcrGWlWr9FtqbRIfhP3QkEuMaeF2oIHtfYXQVj/AXA8zEaiKOkACU1UpD8TxySWl3kfxFSTwLdSnSPS5VGYdM3iG41iseSYgOsJPKZ1UVwdJTKBHsP2jkUxREVabKKWUR2oawiYUhFOOTQBE0PNtGzoeeXNRK9cI8tg5MZ5gm0mEEUPSYr+nTysKKgDZhRVYyk4xNJhw7jh8HDyGnra8h2LtpYvk9b3yJq1Nr6JP6mYieLUm39cVGv82Rf09ZP5j7kb3omBZnJ2vpJwZII/ppnJ1Wi12rrMyA86PFIzVWJI0e4ifgb+N9dtWLr5RiMm+CIEXcx8DUfY/S7IlBg0YDlMdMx4UFU/l/TUv1QqY6W/gyloqWD8KgRd925jRG0RZKx86iUrkbWTOxxXOMOFnKN+913MODMfneAEI/YD2Heq61PUbrOw+CVUR2iZiJDi7X1P5HI9vFEJXeUv+HRKO/KSqxJM4zyOyEr2n1syzT+972oERzRXIDvcPlY/w+Bl3Tn+T5BqrAY3I1bjBy0qx7yuIEDMX8pZOJpxqN6CI2SnIbnO7c2wzvoy1PP5GQ31dwdqP+wwpdp6x9lvefVfEYvOIX3vC6ccBFIkVd6z0dTbk0YcqO8H6mJwCHwKpqOJvWH+OzL2npbOPIR3otU4gh4NU0jicQR3uHX1n8vCvkx3k+oxFHwGppqicRR3tkFfiy15By4+4gQ5WQyDmKUWzMeuQkjTNHTdKJsylmYMgn5ySNMiabpN2RTOmDKFOSnjjAlhqbTZFNOgI+lprSCm06EKGeQyP0Qo9yaGcg9MMIUI02/KZtyGKbEIT9rhCkzafot2ZQDMGUO8nNHmDKbpg/KpjSD56gpjeDiiRDlTBKZBzHKrVmAXMIIU+bTdKFsyl6YkoR88ghTEmm6SDalAaaYkX9ohCkp2vonF4cf9V6IDj/JO+uEZWohUz8vU3d/pmZepl5wXhYq9OKOsRtfW39SWKZTZvXOW6YRX1m46g8+v+D0e/eNVmZqYtvmLdOJmkhhtc7r1bBtYt20MxUGo7BaIzi7uOOxh+at1ogxU4UKjbdpLHtIrFv42ZF3vYLzHO+o5Y9w7bGdXLvSUSvumPgb7ea/CM6zfFYtf9q7fwLXwnbG9nEtyqxacbt21v6XHhGcHXxGLX8VwNwpti+2jTulzKgVX5k2Lt30uuA8wWfX8sdhBHeNbYs9xF1TZtcCjv1J+m3B2UrhYALXzh4axuzYWV1MAQXn4S9g/qZ/qSA4D4TG/O1TWKvO5tCY7518mhecjaExp4+teVZw7g3dzx8/txPWNoTG/H7apv8UnHWhMWPVdd/GkIXGzJsx9TrcB0wgsp18H3c6toU7LWGm/i61EV0BpndfGNvHt3FXY09xVyXMJ9Y884Dg7AWm1xvOtvGHMKbXuOMS5hu++m4MGTC9TWPYQ3wndyS2nTsiYWbrHmwHIDzo3a+/F3OFfqkCXQmNufXing7MkNCYB24e/wSjFRrz4vvnY+E+wIbAbB+9sAmTMjTmS1EffI5pEhrzU/0aC4YsNGZY90e/wnIIjTnw6pVbmJqhMU8pyteFAJQwPuSwPbyFWQT8l5fPEgEuOJA/O4z8cNIg5uBbFJbrF1OShaxWr0/F9ovbI7Zef+4lYgo3yLYJWc1ebyR7Q3xl8vTcXaX8IIf5xh4Xshq8TTqyJuM1iR/f5lu4Qe60qJ8gOC57901kT4t7H1p66b3X0FusU3H+QgyJd7+KbUe3fnW08zH0SXDWokfoD3tUyDjh9UUC+pVJax975zp/lWvjbpB9IfuA16sD9o5xFXv/9B6ZENm1wxbs9TZNpBbs3/LvMyUL2HYhq5cAdYp7kwe/uecSf5pr4fpE/UQMnndfJNsHA9ymKydkA67CgDZiQIfXp2NPwoCwKR4V8TR3gz0kZBwmEDfFOi6p9cQp/gYHg0XNGMHR6PWq2FPijgkf/9uZi8QurBy4C3bBgDrv/kj2CAwY2PyLaTyGk+tjTwpZfgLRDz9aV73VDPfCYFE/TsjuJQ4bFLdHLp0eh09emNbLX+1vC4cPlBm9Yt28nwVmpfE3+7FsR7Ft4Rhrsic64P8I9hD8/Mv7d7zJt/e3h8PX1NNnvfu1bCfGOGn3j2/xWb18C2ZC/7FwjCj2YTig6V+essIfBOiUd9/4/ja2D2hXgYaJ9aPDmh+QnSu7l78GxP7jFBNzC6YsdH5+JUA3il6+Hfj92CgAiynVC7i27G1uLAOKCBP6j7Gdw5iPb3m9HIs2NOa5i7PvYIsJjalPY1/FAgqNuWes+juYW6ExX9iyoh+bU2jMBX3J71JA7FAjMNkPhWyMVAR7FJ5/59jJWfzx/uPhN7lD1OmYD1r2Jsb9h8df7BEq1OJ8rr+Nr1DjiAo/ReZshHKjXpw/T0lOtPGYKvxqHb9Rzy/TuJqX0W8tsYp8n5LLFkOCL1UlETV7v2WdL1XDv/n+FV+q7s7ZP+70peqrVsbrspt6okJ+n80WHDooEpwa93XceLTfb4Imfp/AvJNKGK/r/GJRNSruUNJ+fDfxig2rkzqdT7vuLN4ymzuDm5Gon+ZqSvWPuY6vxN64DtfA4ue7XZ+l8r1e/yh+n/fCKHFzcmpcu/v6ljIho0vIwqmr450acenYaN6idjXPJv3p/tkY3AYeVrFJnZtfEyzncCvYJWR1xXWCxwVJxX6Iy5ratS9aVCn4rLPk/mBFCyHrLCzw/+gvgYDPco5B6M7HR7p0LZVVj7xvyv3NVgsOjZCmEsYJkd5zSu+lKeGtov59IsSf9F5R8zf4k56sc95L0Z6sj9CHS2rvFZ0n62N+nyfjvPeSDh/Xli6vP9qTccGTddFj+USIhJNcNxZqX/w1dDRsRBJ3gFwD8M1P7jy7yS1o+x1Yhu4gLxWr1ZDzO1AspKk9o5B4/WpPOqv9Q1qEJ12hrU+L9KQrhTSNJ12FlFaGoXKMJ30UKrWe9NFCms6TrkZKK8NReZ8nPQKV4zzpkUKa3pOuQUoro1A5wZM+BpUTPenaoHcaEqmx3d+B3+Cou+/zuP18ztDLjrjLAAFit5swpF6+/PjcRrnA554Jjk5A92xwZA6S3vrcJuToVHTPB0dmo38LvWjooJHek3Lgha3NBAxXeDp+Q/cvTRixgN6Rq+W743MawDc1sJByn9Fu+y0F18lmiL8nnM+tD+bf1d0k+egh42Jk49CXIcOMsmE9Ojpum6WngY5bkHzaqCGjRd6lhi7qKUb/55FAb3S0Clkavp93qwCCJvxK9OaHpHO05O0ESF9783qaxmCfSi6P+9GqQYHCrc2kYxiDYH9J7euRcoV8p6IXUYzHyPmbgvWKKQxY151U7Q9Wwh7xX1e7r4uuncQPaasTEHw08zSC7xEVLXhELRGNRHQS0UskWiIxEjFIxCiRmRKZLRGTROZLJFEiKZSkqiheqloiGonoJKKXSLREYiRikIhRIjMlMlsiJonMl0iiRFII2TKNaxSrcGnXKEzLlasp3a4k/cVNN6l380WfkqGeUElE2hPTpD0xTdoT0+ieiGEOrsVUsha7BwMBV3OK5PmMDriVX47JYDeq3tOhHs9PfMYJ/0eYFF8ZZ+Ojim/pFrA86XuM+mB3841AQH4fIdPRgLkoOvzESWQG/3Qw6Jy/fRSW3j0K+QCAumCZjpQ9jjJsQ8HtwkQHyvDUM/e+90UPHYli5uq/4VQMgpJlS3aWTwYCgYNN9L0t9P438slnPSbCF598XhsgpdFBUz8YubPddf5yjfzHIewnT3/3C1mSW1ZKaLDsXWwKdMc7KL8/ugaU9o6hksKaoffU3urqIqhxJSurOJd5Ix75FPYIXxhlGAbtFNptYSxhWO22/2BktUL2LaLHF9YFOVZ6Wj1Hzq3loyF6WYUnzmWo0W4bZKR98FN5MzbSevWrJ+QnX/USvH1ClFaORuWrzWvlEvrep93WQOCiIE+eGxcL45ulB+AFko3sPRbBr0Pb7tIhd/wXhrY7jWz0YaQ5KmH6CZkjArtGUbN9YQSYCeqUIJhh7e/oa6qLtt5Eiq5dw1jRh2cFHmmbVFKx49OR1oSC6/n58Psrnz0gTLmMEeAdt0QHPTgmMsMHBz6VyHkC3xrgJn+jdLZhtquD8+X3KPI3IKH6lrkPkhfQJvIG2s7jcfKoI+rul0rLAYIRQ70jLcE3w+QXZHuVYDnrGlDZ41wDqXajaOmCiEawnKCzXm4hWA4Qd22hjciOqA4uZSWKZAXbiYKXggooUUPPiPYPSe27cwL0xKTHdYw0ixJJTzvvhPi+wPv8ntVw4tAjL2y+u3sNh9F4DklcA6N9Yavl+bHltGsg8h1SvGWmYCbUHXBMFRa0Eu66Q4/ZRbiDjoh3OsDQ9SyMcx9zPI3PPqyvLHxskenvjmLJmGi23iQ6Kre9R/6ACBEhUlu/Qs32slddgzohyZ7vGjRot/2cDOCg2u7wWboYedNA/3aT/pG3VkmL1pUMH1BNovMclL1N/xLZK+iU41xNah5fwIP+aXeC4rY/d0dAvrBG+wddofvYxvK4Flyj8Vj5toL4KqvLfw2qexbUaOt1245tXDJUzcrVJ0j1hMIaZSJycUcpGur9e1E+1DXtCw8ApHs3gW1hwMa1sIN8VldPA7LMcPZlfintUwnp0yxoqBkK0v6/hzHBQwwGamKglWbETJWQquLHEx6u7Zb/LBQ8H3TClOY5GL6bAfsc9xn7OHH+LpIvrAlMcH2mcvWwjuvA080C3h8/Jru6juzqON+5Mz0KvklMYwW9m7TA6PX2vIuKkfNHLUQVSfuI4mCTL4zwdEfs2VqTRZcttlisWmq/bM+e6rXU0NGidYBAAb0GJf7X4G9hSi1YbBuw9FuCkkzsUhSjgN/vfxYc2uGaZFdjWOmfcoSn1Pi70QdBHUWSsKw5xHwn+zsmnv1h21js344wfyHGQtrEm/xrwFPrIOG45AsjLGkZ1N7HUu09R+l8ppJkHCA4ctsk/h/Zqllu1XHP/U8+L6ganOHoWRTXiF3u3vbb0X5P0C2AE3RJpx3qnqWE2qfxXiGVtL0aFLdKcLIqIVPNP0E37J+MULlENuk0qR5PdPecvcseKAyj7ck2opFasiD+XzL0yz+AgCHC7U8t6+SV8CyfpvL/mZHN5afQNE0NpCDwAfpXMwK9pyYwo6saWwOoZqtEGZnqZeqX66PlvEqmapnekut1cj5Gpp/L5QMybZRps0xbZdog07My7ZDpCZnulWmtTA/ItE6mh0GD547/9keBALqZch+6+dwF+hUDGYTX50iziPDM3xFOkHZfh69sKCnOW5efn1OZU7Ahfg43t6CkhMnJsVnXFVfarTb6SxFrTnFZYbkkuH4OJ8s8WpXzpCyVVpJbWWmtRLsCa6iWfzXY8r7sN0b/u1BaXLZuQylnkntGs/YiG7pYWl5lzXnWuimnwF5uG1E1XFY7o7oog5SSHzDZi0uthsLc4hKHzZocwRgMq4ptdkduyRMOq20TrbAWGArLbYYZBYa8TXZrpSHXbsgtKLBZKysNMypgCtpklT1bVr6hzFBRaXUUlBvob1Ny7cXlKLGV28vzy0sMVVZbJQqgZm7El7TJK7YbKou/Z5Vkvw5fh38sBH9791PMUhY0Uo4zkV+JWI3IjEM0gEdsnQp+BrJGhqlFrIllGB3o7ikMcw7xLci/i+hFbEH8ALET8TPE24hRzzHMFMSZiARRwSjx7BbGjGJGM2omnIlgrGV2W3lFcW6Oo6yYLAgrWb7DpQXWfNumCjtTWrCAxJxCLD6ZKSuuLKJsUWlu/hBzb0UOVqXVPpyttOfa7JXDeUcFfq1GVY6skkv/qUJK9TDf+gLGE/mKEWUxLobpQj5UMG5Fe8SViHmINsQXEXci1iEeRjyLeAnxFiIJGmBMRjQizkZMRExFfBRxJeIziIWIZYhViNWILyPuQPy/wnyWWWotsdqtabZie3F+bskKaz7Zf5ktjKUMZ929xUw7k26zWpcX59lybZsYC/uI1b48t9JusdlwqDBPkHxGeYGjxLost6ygxLoEpzApy7SV5y+RDgyGucx+uwxqc0uwv98LEKlYbs2turcY/VQsL88tkHGh9bZiZUklFK/KLXFYmalK+cQCjh1NGCZWOfIMY5j5OAWxzsrLrBuL7Uw9k2O12cpwfkewOcXlefChImdDcVlp7np04xFFbl65zc6sUMAC+gvLHEVhfkl5pRXjoigsLHFguTHrFYXlFdYypkJRaLPmFjDPEQqJTYrCDbAe3GuKUrn9G4pSa2l+Bey4rKgqrLAVl9kLyQfA3xcfszz5HcvyefF0w0DQV//jsbSyKt9mp5r+mQP9zqmY8fU94KsYJu2uLopBTMTFWVXz9Rz4ygUdzkOQKNN4k9lkMRWbKk0e0y7TddODXAq3hHubO8Rd4Lq5q9wtbky8Md4S/9340vjHFpNvwRNo92PT2wt8C1oXDCxQJtyXYEgwJSQmmBMeTXg8YW3C+gR7wq8SfpdwIOFkwicJnyaoFkYvnL5w0cKchd9OXJf4YqKQuCPxF4lvJNYlvpfoS/ws8S+JcUnzkxYn5ScdTLqdNDHZmGxKfjR5TXJp8vbk15Prkk8l9yRfT35w0YZFLywSF+1Z9OaipkX+RcqUqJT4lFUpxSkbU95I2ZuyL+VoyoWUSyl9KYMpCnOE+T7zZPN08yxzvDnZ/LD5UfOT5jXmPPN6s838PfML5pfNPzL/3PwLc735gJkx4QwN/p9FqsTHcEhqJF5lUpuY3XAZlSE5DST/f4f/Bly5eSI="
+
+# static key
+set KEY binary "\xB5\xA3\xBA\xDB\xFD\x57\x9E\x35\xDF\x30\xED\xF1\xB6\x4A\xA3\xC7\x3F\x59\xE3\x68\xF9\x0D\x11\xBC\x41\x71\xBD\x2E\xB5\x74\xC5\xA3\xD2\x89\x24\x79\xD3\xA6\x66\x53\x49\x90\xE1\xE2\xEB\x24\x75\xBE\x59\x8F\x4A\xD4\xA1\x1E\x5A\x5B"
+
+# noerror because the file shared/platform/ui/transfercenter/transfercenter_i254.tga
+# in shared_platform_02.pak seems invalid
+ComType deflate_noerror
+
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    get sign long
+    if sign == 0x04034b50   # Local file header
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if method == 0
+            Log name offset uncomp_size
+        else
+            if method == 8
+                # unused?
+            elif method == 1
+                log MEMORY_FILE3 0 0
+                put crc     long  MEMORY_FILE3
+                put modtime short MEMORY_FILE3
+                put moddate short MEMORY_FILE3
+                encryption calldll "MEMORY_FILE4 entropia_decrypt cdecl RET KEY 0x10 MEMORY_FILE3 8 0x300 #INPUT# comp_size"
+            elif method == 6
+                encryption blowfish KEY "" 0 0x38
+            elif method == 2
+                encryption calldll "MEMORY_FILE4 entropia_decrypt cdecl RET KEY 0x10 &crc 4 0x300 #INPUT# comp_size"
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+            encryption "" ""
+        endif
+
+        math offset += comp_size
+        goto offset
+
+    elif sign == 0x02014b50
+        cleanexit
+    elif sign == 0x06054b50
+        cleanexit
+    else
+        # some archives like territories_rocktropia_01.pak are corrupted so I scan them
+        math offset += 1
+        goto offset
+    endif
+    savepos offset
+next

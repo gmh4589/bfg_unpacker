@@ -1,0 +1,61 @@
+# Daedalic Entertainment VBIN ogg
+# script by swuforce https://zenhax.com/viewtopic.php?p=25810#p25810
+# edited by aluigi for easy export/import in two steps
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "VBIN"
+    idstring "VBIN"
+    get DUMMY long
+    get name basename
+    string name += .dat
+    get size long
+    get zsize long
+    clog name 16 zsize size
+    cleanexit
+endif
+
+set end 0
+do
+    findloc offset string "\x32\x06\x00\x00\x0a\x00\x00\x00" 0 ""
+    if offset == ""
+        cleanexit
+    endif
+    math offset -= 8
+    goto offset
+    get var1 long
+    get var2 long
+    getdstring d 8
+    if var1 == var2
+        get size long
+        get check byte
+        get check2 byte
+        get check3 byte
+        get check4 byte
+        if check = 0x00 ||  check = 0xff || check2 = 0x00 || check2 = 0xff
+        elif check3 != 0x00 &&  check3 != 0xff && check4 != 0x00 && check4 != 0xff
+            set end 1
+        endif
+    endif
+while end == 0
+
+findloc offset string "\xb5\x4a\x05\x06" 0 "" 0
+math offset += 4
+goto offset
+get files long
+for i = 1 to files
+    get size long
+    getdstring string size
+    getdstring dummy 12
+    get number long
+    for n = 1 to number
+        get size long
+        if size > 0
+            # NUL byte at the end but quickbms doesn't put it in slog: slog "" -1 size
+            slog "" -1 -1
+        endif
+        get size2 long
+        getdstring dummy size2  # filename
+        get dummy long
+    next n
+next i

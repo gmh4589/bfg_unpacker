@@ -1,0 +1,60 @@
+# lame raw Fifa Online 3 compressed files dumper (script 0.2)
+#   Experimental, it will give errors and false positives!
+#   Use http://aluigi.org/bms/chunklzx.bms with the extracted chunkref/chunkzip/chunklzx files ("chu" extension)
+# the header of the big file is simply xored with a variable sequence of "|Pnm|Pnm !" string
+
+quickbmsver "0.7.6a"
+idstring "BIg4"
+
+math SKIP = 4   # \x00 because it's aligned and limits false positives
+comtype dk2
+math OFFSET = 0
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+	get DUMMY byte # avoid to get the same OFFSET
+	for OK = 1 != 0
+
+        # yeah it's terribly slow, quickbms is NOT a file ripper!
+
+        findloc NEXT_OFFSET1 string "\x00\x00\x00\x00chunk" 0 "" # chunkref and chunkzip
+		if NEXT_OFFSET1 == ""
+			math NEXT_OFFSET1 = ARCHIVE_SIZE
+		endif
+
+        findloc NEXT_OFFSET2 string "\x00\x00\x00\x00\x10\xfb" 0 "" NEXT_OFFSET1
+		if NEXT_OFFSET2 == ""
+			math NEXT_OFFSET2 = ARCHIVE_SIZE
+		endif
+        
+        if NEXT_OFFSET1 u< NEXT_OFFSET2
+            math NEXT_OFFSET = NEXT_OFFSET1
+        else
+            math NEXT_OFFSET = NEXT_OFFSET2
+        endif
+
+        if NEXT_OFFSET == ARCHIVE_SIZE
+            math OK = 0
+        else
+            math NEXT_OFFSET + SKIP
+            if NEXT_OFFSET & 0xf
+                goto NEXT_OFFSET
+            else
+                math OK = 0 #break
+            endif
+        endif
+	next
+    math SIZE = NEXT_OFFSET
+    if OFFSET != 0
+        goto OFFSET
+        math SIZE - OFFSET
+        get SIGN short
+        if SIGN == 0xfb10
+            math ZSIZE = SIZE
+            get SIZE threebyte
+            clog "" OFFSET ZSIZE SIZE
+        else
+            log "" OFFSET SIZE
+        endif
+    endif
+next OFFSET = NEXT_OFFSET

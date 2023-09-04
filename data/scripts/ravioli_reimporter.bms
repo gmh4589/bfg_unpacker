@@ -1,0 +1,98 @@
+# Ravioli Scanner reimporter (script 0.1.1)
+#
+#   HOW TO USE:
+#
+#   - launch Ravioli Scanner from the command-line with these arguments:
+#     RScannerConsole.exe YOUR_FILE /extract:OUTPUT_FOLDER /list > dump.txt
+#
+#   - edit the files in OUTPUT_FOLDER that you want to reimport
+#
+#   - launch QuickBMS selecting this script, dump.txt and OUTPUT_FOLDER
+#     Example from command-line:
+#     quickbms.exe ravioli_reimporter.bms dump.txt OUTPUT_FOLDER
+#
+#   - a new YOUR_FILE with the reimported files will be generated in OUTPUT_FOLDER/reimported
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.4"
+
+get STR line
+if STR & "Ravioli Scanner"
+else
+    print "Error: read the header of this script for instructions on its usage"
+    cleanexit
+endif
+
+for
+    get STR line
+    if STR & "Scanning "
+        break
+    endif
+next
+set ARCHIVE_NAME string STR
+string ARCHIVE_NAME << 10
+string ARCHIVE_NAME - 4
+open FDSE ARCHIVE_NAME 1 EXISTS
+if EXISTS == 0
+    string ARCHIVE_NAME | \
+    open FDSE ARCHIVE_NAME 1 EXISTS
+endif
+if EXISTS == 0
+    string ARCHIVE_NAME ! \
+    open FDSE ARCHIVE_NAME 1 #EXISTS
+endif
+string ARCHIVE_NAME ! \
+get SIZE asize 1
+log MEMORY_FILE 0 SIZE 1
+
+for
+    get STR line
+    if STR & "----"
+        break
+    endif
+next
+
+for
+    get STR line
+    if STR == ""
+        break
+    endif
+
+    set NAME string STR
+    set OFFSET string STR
+    set SIZE string STR
+    string OFFSET   << 52
+    string SIZE     << 65
+    string NAME     - -21
+    string OFFSET   - -13
+    #string NAME     R " " ""
+    string OFFSET   f OFFSET
+    string OFFSET   R "_" ""
+    string SIZE     f SIZE
+    string SIZE     R "_" ""
+    print "reimporting %NAME% %OFFSET% %SIZE%"
+
+    open "." NAME 1 EXISTS
+    if EXISTS != 0
+        get FILESIZE asize 1
+        if FILESIZE > SIZE
+            print "Error: the size of this file is bigger than the original size:\n- Filename       %NAME%\n- Original Size  %SIZE%\n- New Size       %FILESIZE%"
+            cleanexit
+        endif
+        append 1
+        # reimport the file
+        goto OFFSET MEMORY_FILE
+        log MEMORY_FILE 0 FILESIZE 1
+        # set the zeroes
+        math SIZE - FILESIZE
+        log MEMORY_FILE2 0 0
+        putvarchr MEMORY_FILE2 SIZE 0
+        log MEMORY_FILE 0 SIZE MEMORY_FILE2
+        append
+    endif
+next
+
+string NAME p "%s/%s" "reimported" ARCHIVE_NAME
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

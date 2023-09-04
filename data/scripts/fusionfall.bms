@@ -1,0 +1,52 @@
+# FusionFall
+#   experimental
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get INFO_SIZE long
+get ARCHIVE_SIZE long
+get DUMMY long
+endian little
+
+padding 0x10
+get ZERO long
+get ELEMENTS long
+for i = 0 < ELEMENTS
+    get ZERO long
+    get DUMMY long
+next i
+get NAMES long
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 4
+    get DUMMY long
+    get DUMMY long
+    get ZERO long
+    get DUMMY long
+    putarray 0 i NAME
+next i
+savepos SEARCH_OFFSET
+
+math INFO_OFF = ARCHIVE_SIZE
+math INFO_OFF - INFO_SIZE
+goto INFO_OFF
+
+# no way to parse the structures
+findloc OFFSET long SEARCH_OFFSET
+math OFFSET - 0xc
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get TYPE long
+
+    # the number of names is different than the files
+    #getarray NAME 0 i
+    string NAME p "%d/." TYPE
+
+    log NAME OFFSET SIZE
+next i

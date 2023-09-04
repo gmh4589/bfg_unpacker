@@ -1,0 +1,15 @@
+# Legacy of Kain Defiance (bigfile.dat)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES short
+get DUMMY byte
+get DUMMY byte
+for i = 0 < FILES
+    get NAME_CRC long
+next i
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    log "" OFFSET SIZE
+next i

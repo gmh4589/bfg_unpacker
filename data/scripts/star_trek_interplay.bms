@@ -1,0 +1,23 @@
+# Star Trek: 25th Anniversary / Star Trek: Judgement Rights
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+open FDDE "dir"
+open FDDE "001" 1
+get FILES asize
+math FILES / 14
+for i = 0 < FILES
+    getdstring NAME 8
+    getdstring EXT 3
+    string NAME + .
+    string NAME + EXT
+    get OFFSET threebyte
+    goto OFFSET 1
+    get SIZE short 1
+    get ZSIZE short 1
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i

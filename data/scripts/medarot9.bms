@@ -1,0 +1,29 @@
+# Medarot 9
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "info" 1
+open FDDE "data"
+
+comtype lz77wii
+get OFFSET threebyte
+goto OFFSET
+get FILES long 1
+getdstring ZERO 0xc 1
+for i = 0 < FILES
+    getdstring NAME 0x20 1
+    get DUMMY longlong
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN u== "COMP"
+        math OFFSET + 4
+        math SIZE   - 4
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

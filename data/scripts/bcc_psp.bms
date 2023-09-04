@@ -1,0 +1,39 @@
+# bcc psp archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype COMPRLIB_SPREAD
+get FILES long
+goto 0x10
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        # I'm not sure about the correct handling of the chunks and the compression algorithm
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        get ZSIZE long
+        get CHUNKS long
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for j = 0 < CHUNKS
+            get CHUNK_ZSIZE short
+            get CHUNK_DUMMY short
+            savepos OFFSET
+            math CHUNK_ZSIZE -= 3
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0x10000
+            math OFFSET += CHUNK_ZSIZE
+            goto OFFSET
+        next j
+        append
+        get SIZE asize MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+        goto TMP
+    endif
+next i

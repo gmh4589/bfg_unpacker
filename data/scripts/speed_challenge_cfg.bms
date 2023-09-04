@@ -1,0 +1,44 @@
+# Speed Challenge CFG decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE10 string "
+void speed_challenge_filedec(unsigned char *data, int size) {
+    int     i;
+    const static unsigned char
+            enc1[] =
+            \"\x27\xF4\x94\x50\x33\x73\x67\x21\x27\xAA\xCD\x0D\x47\xD9\xD5\x78\"
+            \"\xBE\x90\x9E\x94\x3F\xC3\x1A\x1E\xED\x20\x12\x48\x78\",
+            enc2[] =
+            \"\xF5\x11\xD7\x25\x8D\xCB\x5B\xBE\x8D\xAA\x67\xE4\x84\xCC\x2F\x44\"
+            \"\x7B\xE5\x25\xDB\x88\x86\x28\x5D\xA0\xA0\xF8\xD8\xAD\x44\xEE\x94\"
+            \"\xE0\xAC\xEA\x3F\x49\x7F\x8C\",
+            enc3[] =
+            \"\xCF\x20\x3A\xF7\x12\x7E\xF1\x9F\xF1\x9A\xB1\x6B\xAC\x48\x4A\xF8\"
+            \"\x41\x1F\x47\xB4\x2F\x2D\xD1\x37\x7F\xEA\xD1\xD7\x05\x6B\x55\x76\"
+            \"\xE4\xD8\x35\x9F\x50\x20\xF6\xD2\x98\";
+    unsigned char  *out;
+
+    out = data;
+    data += 2;
+    size--;
+    for(i = 0; i < size; i++) {
+        *out++ = (((*data ^ *(data - 1)) ^ enc3[i % 41]) ^ enc2[i % 39]) ^ enc1[i % 29];
+        data++;
+    }
+}
+"
+
+idstring "\xae"
+encryption calldll "MEMORY_FILE10 speed_challenge_filedec tcc RET #INPUT# #INPUT_SIZE#"
+
+get NAME basename
+get EXT extension
+string NAME + "_dec."
+string NAME + EXT
+
+comtype copy
+get SIZE asize
+math XSIZE = SIZE
+math XSIZE - 2
+
+clog NAME 0 SIZE XSIZE

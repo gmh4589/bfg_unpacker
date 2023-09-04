@@ -1,0 +1,17 @@
+comtype lzma
+endian big
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    savepos TMP
+    goto OFFSET
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    goto TMP
+    math ZSIZE - 4
+    clog "" OFFSET ZSIZE SIZE
+next i

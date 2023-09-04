@@ -1,0 +1,83 @@
+# Esenthel
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "please wait the loading of the file in memory, it will take some seconds"
+
+set MEMORY_FILE3 binary "\x55\x89\xe5\x56\x53\x83\xec\x20\x8b\x75\x0c\x8b\x5d\x08\xc6\x45\xe8\xde\xc6\x45\xe9\x4d\x85\xf6\xc6\x45\xea\x32\xc6\x45\xeb\x5b\xc6\x45\xec\x9c\xc6\x45\xed\x9d\xc6\x45\xee\x47\xc6\x45\xef\x31\xc6\x45\xf0\xf6\xc6\x45\xf1\x42\xc6\x45\xf2\xa1\xc6\x45\xf3\x48\xc6\x45\xf4\xe0\xc6\x45\xf5\x40\xc6\x45\xf6\x1c\xc6\x45\xf7\x5a\xc6\x45\xd8\x94\xc6\x45\xd9\xf2\xc6\x45\xda\x63\xc6\x45\xdb\x23\xc6\x45\xdc\x73\xc6\x45\xdd\xa4\xc6\x45\xde\xe2\xc6\x45\xdf\x15\xc6\x45\xe0\xc8\xc6\x45\xe1\x3b\xc6\x45\xe2\xd8\xc6\x45\xe3\xa3\xc6\x45\xe4\xec\xc6\x45\xe5\xc9\xc6\x45\xe6\x97\xc6\x45\xe7\x4c\x7e\x2c\xb9\xde\xff\xff\xff\xba\x94\xff\xff\xff\x31\xc0\xeb\x0f\x89\xc1\x83\xe1\x0f\x0f\xb6\x54\x0d\xd8\x0f\xb6\x4c\x0d\xe8\x32\x14\x03\x28\xca\x88\x14\x03\x83\xc0\x01\x39\xf0\x75\xe2\x83\xc4\x20\x5b\x5e\x5d\xc3"
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+calldll MEMORY_FILE3 0 cdecl "" MEMORY_FILE SIZE
+
+idstring MEMORY_FILE "PAK"
+get VER byte MEMORY_FILE
+get DUMMY byte MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get ELEMENTS long MEMORY_FILE
+get BASE_OFF long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get NAME_SIZE long MEMORY_FILE
+
+savepos INFO_OFF MEMORY_FILE
+math NAME_SIZE *= 2
+log MEMORY_FILE2 INFO_OFF NAME_SIZE MEMORY_FILE
+math INFO_OFF += NAME_SIZE
+
+for i = 0 < ELEMENTS
+    set PATH string ""
+    math PREV_ENTRY = i
+    callfunction GET_ELEMENTS 1
+next i
+
+# oh yeah a bit chaotic but works perfectly
+startfunction GET_ELEMENTS
+    set EXTRACT_FILE long 0
+    set FILE_OFFSET long -1
+    set FILE_SIZE long -1
+    do
+        math PREV_OFF = PREV_ENTRY
+        math PREV_OFF *= 0x24
+        math PREV_OFF += INFO_OFF
+        goto PREV_OFF MEMORY_FILE
+
+        get NAME_OFF long MEMORY_FILE
+        get PREV_ENTRY long MEMORY_FILE
+        get NEXT_ENTRY long MEMORY_FILE
+        get SUB_ENTRIES long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get DUMMY5 long MEMORY_FILE
+        get DUMMY6 long MEMORY_FILE
+        get YEAR long MEMORY_FILE
+
+        math NAME_OFF *= 2
+        math NAME_OFF += NAME_BASE
+        goto NAME_OFF MEMORY_FILE2
+        get NAME unicode MEMORY_FILE2
+
+        set TMP string PATH
+        set PATH string NAME
+        string PATH += /
+        string PATH += TMP
+
+        if SIZE == 0
+            # folder
+            if PREV_ENTRY < 0
+            if FILE_OFFSET >= 0
+                set EXTRACT_FILE long 1
+            endif
+            endif
+        else
+            # file
+            set FILE_OFFSET long OFFSET
+            set FILE_SIZE long SIZE
+            if PREV_ENTRY < 0   # for the files in the root
+                set EXTRACT_FILE long 1
+            endif
+        endif
+
+        if EXTRACT_FILE != 0
+            string PATH -= 1
+            log PATH FILE_OFFSET FILE_SIZE MEMORY_FILE
+        endif
+    while PREV_ENTRY >= 0
+endfunction

@@ -1,0 +1,14 @@
+# Soul Calibur iOS
+
+get FILES long
+getdstring SIGN 4   # "olnk"
+get BASE_OFF long
+get DAT_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+next i

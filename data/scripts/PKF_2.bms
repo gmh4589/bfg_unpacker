@@ -1,0 +1,23 @@
+<bms games="'Billy Blade and the Temple of Time'" platforms="'PC'" ext="PKF">
+ImpType Standard ;
+Set TEMP Byte 6 ;
+GoTo TEMP 0 ;
+Get VERSION Byte 0 ;
+If VERSION <> 52 ;
+CleanExit ;
+EndIf ;
+Get FOOBAR Byte 0 ;
+Get FILENUM Long 0 ;
+For F = 1 To FILENUM ;
+GetDString FNAME 256 0 ;
+GetDString FNAME 256 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+Get FOOBAR Long 0 ;
+Get FSIZE Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Get FOOBAR Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next F ;
+</bms>

@@ -1,0 +1,16 @@
+# Summer Resort Mogul
+#   doesn't work with data.iex
+
+get IEX_SIZE asize
+get DUMMY byte
+savepos OFFSET
+for OFFSET = OFFSET != IEX_SIZE
+    get DUMMY long
+    get XSIZE long
+    get SIZE long
+    savepos OFFSET
+    log "" OFFSET SIZE
+    math XSIZE - 3
+    math OFFSET + XSIZE
+    goto OFFSET
+next

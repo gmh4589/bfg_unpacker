@@ -1,0 +1,73 @@
+# Kiniro no Corda (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "CDAR"
+get VER long
+
+if VER >= 2
+
+    get INFO_SIZE long
+    get DUMMY long      # some crc maybe
+
+    savepos OFFSET
+    set PATH string ""
+    set NAME string ""
+    callfunction EXTRACT 1
+
+else
+
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get NAME_CRC long
+    next i
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        if ZSIZE == SIZE
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET ZSIZE SIZE
+        endif
+    next i
+
+endif
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    goto OFFSET
+    string PATH + NAME
+    string PATH + /
+    get FILES long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get FLAGS byte
+        get ZSIZE threebyte
+        get OFFSET long
+        get SIZE long
+
+        string NAME p "%s%s" PATH NAME
+        if FLAGS & 1
+            callfunction EXTRACT
+        else
+            if FLAGS & 2
+                clog NAME OFFSET ZSIZE SIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next i
+    goto BCK_OFF
+endfunction
+
+startfunction GET_NAME
+    get NAME_OFF long
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

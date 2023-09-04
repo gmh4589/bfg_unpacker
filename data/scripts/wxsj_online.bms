@@ -1,0 +1,62 @@
+# WXSJ Online xoyo.com (script 0.2.1)
+#   support also http://mj.xoyo.com
+#   if the script doesn't work with WXSJ it's enough to set FORCE_WXSJ to 1
+# script for QuickBMS http://quickbms.aluigi.org
+
+math FORCE_WXSJ = 0
+
+comtype NRV2b
+idstring "PACK"
+get FILES long
+get OFFSET long
+get DATA_OFF long
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE threebyte
+    get TYPE byte
+
+    if FORCE_WXSJ != 0
+        if TYPE & 0x10
+            math TYPE = 0x20
+        endif
+    endif
+
+    if TYPE & 0x20
+        clog "" OFFSET ZSIZE SIZE
+
+    elif TYPE & 0x10
+        savepos TMP_OFF
+        goto OFFSET
+        get CHUNKS long
+        get ZSIZE long
+        xmath TMP "OFFSET + ZSIZE"
+        goto TMP
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for x = 0 < CHUNKS
+            get CHUNK_OFF long
+            get CHUNK_SIZE long
+            get CHUNK_ZSIZE threebyte
+            get CHUNK_TYPE byte
+            math CHUNK_OFF += OFFSET
+            if CHUNK_TYPE & 0x20
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            else
+                log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+            endif
+        next x
+        append
+        log "" 0 SIZE MEMORY_FILE
+        goto TMP_OFF
+
+    elif ZSIZE != SIZE
+        clog "" OFFSET ZSIZE SIZE   # like TYPE 0x01, I need to stay compatible with ALL the formats!
+
+    else
+        log "" OFFSET SIZE
+    endif
+next i

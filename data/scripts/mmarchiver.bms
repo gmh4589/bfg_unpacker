@@ -1,0 +1,21 @@
+# MMArchiver2.000 / Caladrius Blaze
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MMArchiver2.000\0"
+get FILES long
+goto 0x20
+savepos BASE_OFF
+xmath BASE_OFF "BASE_OFF + (FILES * 0x110)"
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get SIZE long
+    get ZSIZE long
+    get ZIP long
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

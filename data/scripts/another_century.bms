@@ -1,0 +1,18 @@
+# Another Century's Episode PSP
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bhd"
+open FDDE "bnd" 1
+idstring "LDMU"
+get DUMMY long
+get FILES long
+goto 0x1c
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    getdstring DUMMY 0x18
+    math OFFSET *= 0x400
+    clog "" OFFSET ZSIZE SIZE 1
+next i

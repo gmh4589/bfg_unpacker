@@ -1,0 +1,17 @@
+# Doom WAD/IWAD/PWAD
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TYPE byte
+idstring "WAD"
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 8
+    if SIZE != 0
+        set NAME = ""   # for adding an extension
+        log NAME OFFSET SIZE
+    endif
+next i

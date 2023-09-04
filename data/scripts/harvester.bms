@@ -1,0 +1,16 @@
+# Harvester
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DAT_SIZE asize
+for OFFSET = 0 < DAT_SIZE
+    goto OFFSET
+    idstring "XFLE"
+    getdstring DUMYM 2
+    getdstring NAME 0x7e
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get XSIZE long
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next

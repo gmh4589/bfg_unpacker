@@ -1,0 +1,33 @@
+idstring "V\0F\0S\0"
+get VERSION byte
+get VFS_SIZE asize
+set i long 0
+for OFFSET = 0 < VFS_SIZE
+    filexor 0xff
+    get TYPE long
+    getdstring NAME 0x200
+    set NAME unicode NAME
+    get ZSIZE long
+    get SIZE long
+    get TYPE2 long
+    get CRC long
+    get PREV_OFF long
+    get NEXT_OFF long
+    filexor ""
+    if TYPE != 0
+        set FULLNAME string i
+        string FULLNAME += _
+        string FULLNAME += NAME
+        math i += 1
+
+        savepos OFFSET
+        if SIZE == ZSIZE
+            log FULLNAME OFFSET SIZE
+            math OFFSET += SIZE
+        else
+            clog FULLNAME OFFSET ZSIZE SIZE
+            math OFFSET += ZSIZE
+        endif
+        goto OFFSET
+    endif
+next

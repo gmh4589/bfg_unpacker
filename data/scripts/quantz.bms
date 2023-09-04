@@ -1,0 +1,61 @@
+# QuantZ (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "QuantZ.exe" 1
+#open FDSE "quantzdata.pak" # the file you must open
+
+goto 0xb4 1
+get IMAGEBASE long 1
+findloc OFFSET binary ".data" 1
+math OFFSET + 8
+goto OFFSET 1
+get VirtualSize long 1
+get VirtualAddress long 1
+get SizeOfRawData long 1
+get PointerToRawData long 1
+xmath RVA "(IMAGEBASE + VirtualAddress) - PointerToRawData"
+
+for i = 0
+    findloc OFFSET binary "\xC7\x03\x20\x14\x00\x00" 1  # MOV DWORD [EBX], 0x1420
+    goto OFFSET 1
+
+    findloc TMP binary "\x89\x43\x04\xA1" 1
+    math TMP + 4
+    goto TMP 1
+    get NAME_OFF long 1
+
+    findloc TMP binary "\xc7\x43\x0c" 1                 # MOV DWORD [EBX+0xc], *
+    math TMP + 3
+    goto TMP 1
+    get SIZE long 1
+
+    findloc TMP binary "\xc7\x43\x10" 1                 # MOV DWORD [EBX+0x10], *
+    math TMP + 3
+    goto TMP 1
+    get OFFSET long 1
+
+    math SIZE   >> 2
+    math OFFSET >> 2
+
+    if OFFSET < 0
+        break
+    endif
+
+    savepos TMP_OFF 1
+    math NAME_OFF - RVA
+    goto NAME_OFF 1
+    get NAME_OFF long 1
+    math NAME_OFF - RVA
+    goto NAME_OFF 1
+    get DUMMY long 1
+    set NAME string ""
+    math x = 0
+    do
+        get TMP long 1
+        putvarchr NAME x TMP
+        math x + 1
+    while TMP != 0
+    goto TMP_OFF 1
+
+    log NAME OFFSET SIZE
+next i

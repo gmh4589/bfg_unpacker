@@ -1,0 +1,28 @@
+# Cinderella Dollhouse OMT
+
+endian big
+idstring "0MF3"
+get DATA_SIZE long
+goto DATA_SIZE 0 SEEK_CUR
+get FILES long
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get FLAGS short # it's ever 9
+
+    savepos TMP
+    goto OFFSET
+    get XSIZE long
+    math OFFSET + 4
+    math SIZE   - 4
+    goto TMP
+
+    putvarchr NAME 4 '/'
+    math NAMESZ - 4
+    putvarchr NAME NAMESZ '.'
+
+    clog NAME OFFSET SIZE XSIZE
+next i

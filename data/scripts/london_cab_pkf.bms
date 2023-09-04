@@ -1,0 +1,17 @@
+# London Cab Challenge PKF
+
+idstring "PKF"
+goto -4
+get OFFSET long
+goto OFFSET
+for
+    get OFFSET long
+    get SIZE long
+    get NAME string
+
+    if OFFSET == 0  # OFFSET and SIZE are zero, NAME is ""
+        break
+    endif
+
+    log NAME OFFSET SIZE
+next

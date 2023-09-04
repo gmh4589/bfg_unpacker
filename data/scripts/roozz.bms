@@ -1,0 +1,29 @@
+# Roozz GetApplist decrypter
+# example:
+#   get titleGUID:  http://prod.roozz.com/apps/93/IrfanView.htm
+#   get base64:     http://backend.roozz.com/ashx/GetApplist.ashx?tGUID=5371a2ba-175d-41f5-9d34-5057b92fd3e6
+#   the script works with both the base64 and the decoded data
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+log MEMORY_FILE 0 FULLSIZE
+get SIZE long MEMORY_FILE
+if SIZE u>= FULLSIZE
+    comtype base64
+    clog MEMORY_FILE 0 FULLSIZE FULLSIZE MEMORY_FILE
+    goto 0 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+endif
+getdstring IVEC 0x10 MEMORY_FILE
+savepos OFFSET MEMORY_FILE
+encryption aes "\x2A\x1E\xFE\x41\x11\xA8\x11\x6A\x0E\x4A\x50\x5E\xE8\x9B\x43\x46\xC7\x25\x51\x6F\x24\x08\x4A\xDE\x97\x1A\x18\xE6\xDE\x82\x9E\x09\x00\x77\x0B\x5A\xFF\x1D\x61\x29\x57\x8E\xEE\x36\xAE\x85\xC7\x2F\xB0\x2D\x0F\x97\xD2\x98\x06\x3D\xAA\x2D\x18\xD6\x2E\x6A\xDC\x80" IVEC 0 32
+get XSIZE asize MEMORY_FILE
+math XSIZE -= OFFSET
+log MEMORY_FILE OFFSET XSIZE MEMORY_FILE
+encryption "" ""
+
+get NAME basename
+get EXT extension
+string NAME += "_decrypt."
+string NAME += EXT
+log NAME 0 SIZE MEMORY_FILE

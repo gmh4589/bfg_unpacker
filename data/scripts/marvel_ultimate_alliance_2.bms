@@ -1,0 +1,223 @@
+# Marvel Ultimate Alliance 2 (script 0.4.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "\x1aAGI"
+
+get VER long
+get DUMMY long
+get FILES long
+get ALIGN long
+get DUMMY long
+get NAMES_OFF long
+if VER < 0xb
+if NAMES_OFF u< ALIGN
+    get NAMES_OFF long  # some samples...
+endif
+endif
+get DUMMY long
+get ZERO long
+get DUMMY long
+if VER >= 9
+    get NAMES_OFF long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+else
+    get DUMMY long
+    get ZERO long
+endif
+for i = 0 < FILES
+    get CRC long
+next i
+        math QUICKBMS64 = 0x10000000
+        math QUICKBMS64 * 16
+
+# just guessing, may be wrong
+math USE_BITFIELDS = 0
+if VER >= 9
+    savepos TMP
+    get OFFSET long
+    get SIZE long
+    get MODE long
+    get OFFSET2 long
+    goto TMP
+    if OFFSET2 != 0
+        math USE_BITFIELDS = 1
+    endif
+endif
+
+for i = 0 < FILES
+    if USE_BITFIELDS != 0
+        # good for quickbms_4gb_files.exe but not for quickbms.exe
+        #getbits OFFSET 40
+        #getbits ID 24
+
+        getbits OFFSET   32
+        getbits OFFSET40 8
+        getbits ID       24
+
+        if QUICKBMS64 != 0
+            math OFFSET40 << 40
+            math OFFSET | OFFSET40
+        endif
+    else
+        get OFFSET long
+        math ID = i
+    endif
+    get SIZE long
+    get MODE long
+    if USE_BITFIELDS == 0
+        if VER >= 9
+            get ID long
+        endif
+    endif
+
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i MODE
+    putarray 3 i ID
+next i
+
+# here is where it starts the list of supposed chunks identifiers
+savepos CHUNKS_OFF
+math CHUNKS_IDX_OFF = CHUNKS_OFF
+
+goto NAMES_OFF
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray MODE   2 i
+    getarray ID     3 i # 0xffffff if unset
+
+    /*
+    # disabled because it's wrong, it was "valid" only for that sample... probably an invalid sample
+    if OFFSET u>= 0xff000000    # 1006_LightVillain.bld
+        math OFFSET = ALIGN
+    endif
+    */
+
+    if NAMES_OFF == 0
+        set NAME string ""
+        savepos BACKUP_OFF
+    else
+        get NAME_OFF long
+        if i == 0
+            xmath TMP "FILES * 4"
+            if NAME_OFF != TMP
+                math CHANGE_ENDIAN = 1
+            else
+                math CHANGE_ENDIAN = 0
+            endif
+        endif
+        if CHANGE_ENDIAN != 0
+            reverselong NAME_OFF
+        endif
+        savepos BACKUP_OFF
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+    endif
+
+    if MODE == 0xffffffff
+
+        log NAME OFFSET SIZE
+
+    else
+
+        xmath CHUNKS_IDX_OFF "CHUNKS_OFF + ((MODE & 0xffffff) * 2)"
+        math CHUNK_OFF = OFFSET
+
+        if MODE & 0x20000000
+            comtype lzma_dynamic    # necessary
+        else
+            comtype deflate_noerror # https://zenhax.com/viewtopic.php?p=11359#p11359
+        endif
+
+        math CHUNK_SIZE = 0x8000
+        if VER >= 9
+            math CHUNK_SIZE = 0x800000
+        endif
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append 1    # necessary for adding zeroes
+        for MYSIZE = 0 u< SIZE
+
+            goto CHUNKS_IDX_OFF
+            get CHUNK_INFO short
+            savepos CHUNKS_IDX_OFF
+
+            # eh no it's wrong, for example there are 0x4d 0x8000 sequences for 0xd6 files... doesn't match
+            #xmath CHUNK_OFF "OFFSET + ((CHUNK_INFO & 0x7fff) * ALIGN)"
+
+            # guess...
+            goto CHUNK_OFF
+            if VER < 0xd
+            getdstring TEST 0x7
+            else
+            getdstring TEST 0xb
+            endif
+            #print "TEST %CHUNK_OFF|x% %CHUNK_INFO|x% %TEST|hex 6%"
+            math CHUNK_INFO = 0
+            if MODE & 0x20000000
+                if VER < 0xd
+                getvarchr TMP2 TEST 2
+                getvarchr TMP3 TEST 3 long
+                else
+                getvarchr TMP2 TEST 4
+                getvarchr TMP3 TEST 5 long
+                endif
+                if TMP2 == 0x5d && TMP3 u<= CHUNK_SIZE
+                    math CHUNK_INFO |= 0x8000
+                endif
+            else
+                # no way to guess it
+                if VER < 0xd
+                getvarchr CHUNK_ZSIZE TEST 0 short
+                else
+                getvarchr CHUNK_ZSIZE TEST 0 long
+                endif
+                if CHUNK_ZSIZE < CHUNK_SIZE
+                    math CHUNK_INFO |= 0x8000
+                endif
+            endif
+            # end of guess
+
+            if CHUNK_INFO & 0x8000
+                goto CHUNK_OFF
+                endian save CURRENT_ENDIAN
+                endian little
+                if VER < 0xd
+                get CHUNK_ZSIZE short
+                else
+                get CHUNK_ZSIZE long
+                endif
+                endian set CURRENT_ENDIAN
+                if CHUNK_ZSIZE > CHUNK_SIZE
+                    print "Error: something wrong with CHUNK_ZSIZE (%CHUNK_ZSIZE|x%) > CHUNK_SIZE (%CHUNK_SIZE|x%), I quit"
+                    cleanexit
+                endif
+                savepos CHUNK_OFF
+                if MODE & 0x20000000
+                    math CHUNK_ZSIZE + 5    # necessary!
+                endif
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            else
+                math CHUNK_ZSIZE = CHUNK_SIZE
+                log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+            endif
+            math CHUNK_OFF + CHUNK_ZSIZE
+            math CHUNK_OFF x ALIGN
+            math MYSIZE + CHUNK_SIZE
+            if MYSIZE > SIZE
+                get MYSIZE asize MEMORY_FILE
+            endif
+            goto MYSIZE MEMORY_FILE
+        next
+        append
+
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+
+    goto BACKUP_OFF
+next i

@@ -1,0 +1,80 @@
+DO NOT USE IT!!!
+
+# Operation Flashpoint 2 Dragon Rising (script 0.1.1)
+# note: you MUST run opflash2_create.bms first!
+# note: all this script is a complete horrible work-around... but it seems to work
+# note: the folders are not handled correctly so there will be not sub-sub folders
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+
+get SIZE asize
+encryption aes "\xAC\x22\x11\x23\x44\x95\xAC\xA2\x7E\x80\x59\x86\x10\x8B\xEE\xDD\x4D\x01\xD3\x97\x0B\x9D\x4C\xA9\x3D\x7B\xE1\xBB\xED\xDA\x84\x58"
+log MEMORY_FILE 0 SIZE
+encryption "" ""
+
+findloc NAMEOFF string "system" MEMORY_FILE # lame solution
+goto NAMEOFF MEMORY_FILE
+for i = 0
+    get NAME string MEMORY_FILE
+    if NAME == ""
+        break
+    endif
+    putarray 0 i NAME
+next i
+
+open FDSE "win_000.full"
+
+set FOLDER string ""
+set PREV_OFFSET long 0
+set DATAOFF long 0x7e
+set OFFSET_SEEK 0x2a0000
+
+for i = 0
+    goto DATAOFF MEMORY_FILE
+    get NAMENUM long MEMORY_FILE
+    get DUMMY3 long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get FILENUM long MEMORY_FILE
+    get DUMMY4 long MEMORY_FILE
+    get TYPE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get DUMMY1 long MEMORY_FILE
+    savepos DATAOFF MEMORY_FILE
+
+    if OFFSET == 0
+    if SIZE == 0
+    if FILENUM == 0
+        cleanexit
+    endif
+    endif
+    endif
+
+    if i == 0
+        set OFFSET_SEEK long OFFSET
+    endif
+
+    math OFFSET -= OFFSET_SEEK
+    math ZSIZE = OFFSET
+    math ZSIZE -= PREV_OFFSET
+
+    math NAMENUM >>= 4
+    if i == 0   # work-around
+        set NAMENUM long 0
+    endif
+    getarray NAME 0 NAMENUM
+
+    set FULLNAME string FOLDER
+    string FULLNAME += \
+    string FULLNAME += NAME
+
+    if SIZE == 0    # should check TYPE but this one is better
+        set FOLDER string NAME
+    elif SIZE == ZSIZE
+        log FULLNAME PREV_OFFSET SIZE
+    else
+        clog FULLNAME PREV_OFFSET ZSIZE SIZE
+    endif
+
+    math PREV_OFFSET = OFFSET
+next i

@@ -1,0 +1,27 @@
+# extracts the raw audio from Sega CD *.bin movies
+# tested games:
+# The Amazing Spider-Man vs. The Kingpin
+#
+# (c) 2012-07-17 by AlphaTwentyThree of XeNTaX
+
+idstring "CONF"
+endian big
+set OFFSET 0
+do
+   goto OFFSET
+   getDstring IDENT 4
+   get SIZE long
+   math OFFSET += 8
+   math SIZE -= 8
+   if IDENT == "AUDI"
+      append
+      log MEMORY_FILE OFFSET SIZE
+      append
+   endif
+   math OFFSET += SIZE
+while IDENT != "MEND"
+get SIZE asize MEMORY_FILE
+set OFFSET 0
+get NAME basename
+string NAME += ".raw"
+log NAME OFFSET SIZE MEMORY_FILE

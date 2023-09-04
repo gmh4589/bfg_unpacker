@@ -1,0 +1,34 @@
+# Austin Powers Pinball BNK
+
+comtype lzss0
+get BNK_SIZE asize
+
+goto -6
+savepos TMP
+get FOLDERS short   # ??? just a name at the end
+get FILES long
+xmath OFFSET "TMP - (FILES * 0x30) - (FOLDERS * 12)"
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 12
+    get DUMMY1 long # DUMMY1/2/3 are attrib? flags?
+    get DUMMY long  # 1
+    get DUMMY2 long
+    get ZERO long   # maybe the ID of the folder
+    get DUMMY3 long #
+    get OFFSET long # invalid
+    get ZSIZE long
+    get SIZE long
+    get ZIP long
+
+    xmath OFFSET "BNK_SIZE - OFFSET"
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+for i = 0 < FOLDERS
+    getdstring NAME 12
+next i

@@ -1,0 +1,18 @@
+# The Journey Down
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get BASE_OFF long
+for CUR_OFF = 4 < BASE_OFF
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    get TYPE byte
+    savepos CUR_OFF
+    if NAME & "."
+    else
+        string NAME += "."  # autoguess extension
+    endif
+    log NAME OFFSET SIZE
+next

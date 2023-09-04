@@ -1,0 +1,26 @@
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring 7½7M
+filexor 0xf7
+
+goto 9
+savepos START
+for i = 1 to 2
+    do
+        get FNAMESZ byte
+        getdstring FNAME FNAMESZ
+        get SIZE long
+        get SKIP long
+        get SKIP long
+        get LASTFILE byte
+
+        if i == 2
+            log FNAME OFFSET SIZE
+            math OFFSET += SIZE
+        endif
+    while LASTFILE != 0x80
+    if i == 1
+        savepos OFFSET
+        goto START
+    endif
+next i

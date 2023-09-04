@@ -1,0 +1,19 @@
+<bms games="'Hidden And Dangerous'" platforms="'PC'" ext="CNT">
+IDString 0 COMPCNT4 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+CleanExit ;
+SavePos DUMMYL 0 ;
+Do ;
+GoTo DUMMYL 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Get DUMMYL Int 0 ;
+GetDString FILENAME DUMMYL 0 ;
+SavePos DUMMYL 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

@@ -1,0 +1,49 @@
+# JetDogs wazzzzaup DAT archives
+#   Alchemy Mysteries
+#   Sinister City
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "wazzzzaup!"
+get FILES long
+get DUMMY long
+savepos INFO_OFF
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    for i = 0 < FILES
+        get SIZE long
+        get ZSIZE long
+        get ZERO long
+        get ZERO long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get FOLDERSZ long
+        getdstring FOLDER FOLDERSZ
+        
+        string NAME p= "%s/%s" FOLDER NAME
+
+        if EXTRACT != 0
+            savepos TMP_OFF
+            goto OFFSET
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE
+                math OFFSET += SIZE
+            elif ZSIZE == 0
+                do
+                    get TMP long
+                while TMP != 0xc0de
+                savepos OFFSET
+                log NAME OFFSET SIZE
+                math OFFSET += SIZE
+            else
+                do
+                    get TMP long
+                while TMP != 0xc0de
+                savepos OFFSET
+                clog NAME OFFSET ZSIZE SIZE
+                math OFFSET += ZSIZE
+            endif
+            goto TMP_OFF
+        endif
+    next i
+    savepos OFFSET
+next EXTRACT

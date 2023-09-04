@@ -1,0 +1,43 @@
+# Tokyo Xtreme Racer Drift 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "BUILD.TOC"
+get FILES long
+get DUMMY long
+get DUMMY long
+get DAT_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get ZERO long
+    math OFFSET *= 0x800
+    putarray 0 i OFFSET
+    putarray 1 i ZSIZE
+    putarray 2 i SIZE
+next i
+
+endian big
+open FDSE "BUILD.DAT.DAT"
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray ZSIZE 1 i
+    getarray SIZE 2 i
+    if SIZE == 0
+        log "" OFFSET ZSIZE
+    else
+        goto OFFSET
+        getdstring SIGN 10
+        get DUMMY long
+        get XSIZE long
+        get SIZE long
+        get ZSIZE long
+        get DUMMY long
+        savepos OFFSET
+
+        # unknown compression
+        #clog "" OFFSET ZSIZE SIZE
+
+        log "unknown_compression/*" OFFSET ZSIZE # ???
+    endif
+next i

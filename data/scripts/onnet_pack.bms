@@ -1,0 +1,38 @@
+# OnNet / Manga Fighter / QPang
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO long
+get ZERO long
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    callfunction GET_NAME 1
+    putarray 0 i NAME
+    putarray 1 i PATH_IDX
+next i
+savepos OFFSET
+xmath OFFSET "OFFSET + (FILES * (0x80 + 4 + 4 + 4))"
+for i = 0 < FILES
+    callfunction GET_NAME 1
+    get ZSIZE long
+    get SIZE long
+
+    for PATH_IDX = PATH_IDX != 0xffffffff
+        getarray PATH     0 PATH_IDX
+        getarray PATH_IDX 1 PATH_IDX
+        string NAME p "%s/%s" PATH NAME
+    next
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+next i
+
+startfunction GET_NAME
+    getdstring NAME 0x80
+    set NAME unicode NAME
+    get PATH_IDX long
+endfunction

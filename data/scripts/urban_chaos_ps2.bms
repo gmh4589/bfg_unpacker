@@ -1,0 +1,28 @@
+# Urban Chaos PS2
+
+open FDDE "dir"
+
+math PCK_NUM = 0
+math CURRENT_OFFSET = 0
+math CURRENT_SIZE = 0
+
+get VER long    # 2
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get SIZE long
+    get OFFSET long
+    math OFFSET * 0x800
+
+    if OFFSET u>= CURRENT_SIZE
+        string TMP p "%03d" PCK_NUM
+        math PCK_NUM + 1
+        open FDDE TMP 1
+        get TMP asize 1
+        math CURRENT_OFFSET = CURRENT_SIZE
+        math CURRENT_SIZE + TMP
+    endif
+
+    math OFFSET - CURRENT_OFFSET
+    log NAME OFFSET SIZE 1
+next i

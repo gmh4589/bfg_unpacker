@@ -1,0 +1,27 @@
+# PSP La Pucelle: Ragnaraok
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype nislzs
+idstring "dat\0"
+get SIZE long
+get ZSIZE long
+math ZSIZE -= 8
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+get FILES long MEMORY_FILE
+math OFFSET = 0
+for EXTRACT = 0 < 2
+    goto 0x10 MEMORY_FILE
+    for i = 0 < FILES
+        get NEXT_OFFSET long MEMORY_FILE
+        getdstring NAME 0x1c MEMORY_FILE
+        if EXTRACT != 0
+            math SIZE = NEXT_OFFSET
+            math SIZE -= OFFSET
+            math OFFSET += BASE_OFF
+            log NAME OFFSET SIZE MEMORY_FILE
+            math OFFSET = NEXT_OFFSET
+        endif
+    next i
+    savepos BASE_OFF MEMORY_FILE
+next EXTRACT

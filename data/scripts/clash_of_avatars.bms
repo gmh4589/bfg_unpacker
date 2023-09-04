@@ -1,0 +1,15 @@
+# Clash of Avatars
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+get OFFSET long
+goto OFFSET
+get DUMMY long  # 1
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    clog NAME OFFSET SIZE SIZE
+next i

@@ -1,0 +1,48 @@
+# Heroes of Might and Magic 3 HD Edition
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 4
+get INFO_OFF long
+goto INFO_OFF
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 8
+    get DUMMY long
+    get DUMMY longlong
+    get OFFSET long
+    get DUMMY_SIZE long
+    get CHUNKS long
+    get ZSIZE long
+    get SIZE long
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        putarray 0 x CHUNK_ZSIZE
+    next x
+    for x = 0 < CHUNKS
+        get CHUNK_SIZE long
+        putarray 1 x CHUNK_SIZE
+    next x
+
+    string FNAME p "%s_%d.ini" NAME i
+    log FNAME OFFSET DUMMY_SIZE
+    math OFFSET + DUMMY_SIZE
+
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        getarray CHUNK_ZSIZE 0 x
+        getarray CHUNK_SIZE  1 x
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE OFFSET CHUNK_SIZE
+        else
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        math OFFSET + CHUNK_ZSIZE
+    next x
+    append
+
+    #get SIZE asize MEMORY_FILE
+    string FNAME p "%s_%d." NAME i
+    log FNAME 0 SIZE MEMORY_FILE
+next i

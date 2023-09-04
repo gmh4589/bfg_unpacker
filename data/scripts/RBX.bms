@@ -1,0 +1,17 @@
+<bms ext="RBX" games="'3D Ultra Cool Radio Racers', '3D Ultra Mini Golf'" platforms="'PC', 'PC'" author="PXR" version="1.0" verbose="no" silence="no">
+ImpType Standard ;
+Get FOOBAR Long 0 ;
+Get FILENUM Long 0 ;
+For X = 1 To FILENUM ;
+GetDString FNAME 12 0 ;
+Get FOFFX Long 0 ;
+SavePos TEMP 0 ;
+GoTo FOFFX 0 ;
+SavePos FSIZEO 0 ;
+Get FSIZE Long 0 ;
+SavePos FOFFSETO 0 ;
+SavePos FOFFSET 0 ;
+Log FNAME FOFFSET FSIZE FOFFSETO FSIZEO ;
+GoTo TEMP 0 ;
+Next X ;
+</bms>

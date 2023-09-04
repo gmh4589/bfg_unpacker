@@ -1,0 +1,24 @@
+# Fallout 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -8
+savepos OFFSET
+get TreeSize long
+get DataSize long
+math OFFSET -= TreeSize
+goto OFFSET
+get FILES long
+
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get TYPE byte
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

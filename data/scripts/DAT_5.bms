@@ -1,0 +1,24 @@
+<bms games="'Imperium Galactica 2'" platforms="'PC'" ext="DAT">
+ComType ZLib1 ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+Math END -= 3 ;
+GoTo END 0 ;
+Get TS Long 0 ;
+Set ST Long END ;
+Math ST -= TS ;
+Math ST += 4 ;
+Math END -= 4 ;
+GoTo END 0 ;
+Get FC Long 0 ;
+GoTo ST 0 ;
+For T = 1 To FC ;
+Get FN String 0 ;
+Get OFF Long 0 ;
+Get COM Long 0 ;
+Get PSize Long 0 ;
+Get OSize Long 0 ;
+Get DL Long 0 ;
+CLog FN OFF PSize 0 0 OSize 0 ;
+Next T ;
+</bms>

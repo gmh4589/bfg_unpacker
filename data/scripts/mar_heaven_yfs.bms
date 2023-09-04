@@ -1,0 +1,28 @@
+# Mar Heaven: Arm Fight Dream
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "YFS\0"
+get FOLDERS short
+get FILES short
+
+savepos TMP
+xmath INFO_OFF "TMP + (FOLDERS * (0x3c + 2 + 2))"
+
+for i = 0 < FOLDERS
+    getdstring PATH 0x3c
+    get FILES_NUM short
+    get FILES_IDX short
+
+    savepos BCK_OFF
+    xmath TMP "INFO_OFF + (FILES_IDX * (0x18 + 4 + 4 + 4))"
+    goto TMP
+    for x = 0 < FILES_NUM
+        getdstring NAME 0x18
+        get SIZE long
+        get OFFSET long
+        get ZERO long   # maybe a compressed size
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    next x
+    goto BCK_OFF
+next i

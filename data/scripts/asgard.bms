@@ -1,0 +1,13 @@
+# 아스가르드 : Asgard
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+math FILES - 1
+for i = 0 < FILES
+    get OFFSET long
+    getdstring NAME 0x20
+    get SIZE long
+    goto -4 0 SEEK_CUR
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next i

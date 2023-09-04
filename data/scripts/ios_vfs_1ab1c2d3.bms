@@ -1,0 +1,26 @@
+# iOS VFS 1ab1c2d3f46789a0 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "\x1a\xb1\xc2\xd3\xf4\x67\x89\xa0"
+get VFS_SIZE asize
+for INFO_OFF = 0x40 < VFS_SIZE
+    goto INFO_OFF
+    get ENTRY_SIZE long
+    math INFO_OFF += ENTRY_SIZE
+    get HAS_NAME byte
+    get DUMMY long
+    get DUMMY long
+    if HAS_NAME == 0
+        get ZERO long
+        savepos OFFSET
+        xmath SIZE "INFO_OFF - OFFSET"
+        set NAME string ""
+    else
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+    endif
+    log NAME OFFSET SIZE
+next

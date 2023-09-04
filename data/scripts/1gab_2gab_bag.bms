@@ -1,0 +1,111 @@
+# 1gab / 2gab / bag / ytpg (script 0.2.2)
+#   Dragon Sword, JianLong, Revelation Online, TianYu
+#   thanks Ekey :)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.5"
+comtype lzo1x
+
+math VER = 0
+get MAGIC long
+get dwTotalFiles long
+get dwTableOffset long
+    math XOR_FILES = 0
+    math XOR_OFFSET = 0
+    math XOR1 = 0
+    math XOR2 = 0
+    math XOR3 = 0
+if MAGIC == 0x62616731
+    math XOR_FILES = 0xe7356461
+    math XOR_OFFSET = 0xcb449442
+    math XOR1 = 0x698346BD
+    math XOR2 = 0x867389FE
+    math XOR3 = 0xABEDC59D
+elif MAGIC == 0x62616732
+    math VER = 1
+    math XOR_FILES = 0x27252421
+    math XOR_OFFSET = 0x3b343432
+    math XOR1 = 0x5953565D
+    math XOR2 = 0x6663696E
+    math XOR3 = 0x7B7D757D
+elif MAGIC == 0x70677479    # ytpg
+    math VER = 1
+    math XOR_FILES = 0x20141203
+    math XOR_OFFSET = 0x6F61A5EA
+else
+    print "Error: unsupported magic signature %MAGIC|x%"
+    cleanexit
+endif
+math dwTotalFiles  ^ XOR_FILES
+math dwTableOffset ^ XOR_OFFSET
+
+if MAGIC == 0x70677479
+    encryption aes "\x51\x04\xcf\x12\x17\x97\xcb\xce\xd6\x33\xa1\x90\xd4\xff\xf4\xbf"
+    comtype revelation_online
+endif
+xmath TMP "dwTotalFiles * (4 * 6)"  // 6 or more elements for the future
+get ARCHIVE_SIZE asize
+math ARCHIVE_SIZE -= dwTableOffset
+if TMP u> ARCHIVE_SIZE
+    math TMP = ARCHIVE_SIZE
+endif
+log MEMORY_FILE dwTableOffset TMP
+encryption "" ""
+
+for i = 0 < dwTotalFiles
+    savepos ENTRY_OFF MEMORY_FILE
+
+    math ENTRY_OFF += dwTableOffset
+    if MAGIC == 0x70677479
+        math ENTRY_OFF = 0
+    endif
+
+    get NAME_CRC long MEMORY_FILE
+    xmath NAME_CRC "NAME_CRC ^ ENTRY_OFF ^ XOR1"
+
+    # unfortunately it's not possible to claim that ALL the VER >= 1 use NAM_CRC2, in fact some samples don't use it...
+    if VER >= 1
+        get NAME_CRC2 long MEMORY_FILE  # ???
+    endif
+
+    get OFFSET long MEMORY_FILE
+    xmath OFFSET "OFFSET ^ ENTRY_OFF ^ XOR2"
+
+    #... so let's guess it although this check can't work ever
+    if i == 0
+    if VER >= 1
+    if OFFSET u>= 0x00100000   # lame, usually the first file is at offset 0xc, don't use dwTableOffset
+        math VER = 0
+        goto -4 MEMORY_FILE SEEK_CUR
+        xmath OFFSET "NAME_CRC2 ^ ENTRY_OFF ^ XOR2"
+    endif
+    endif
+    endif
+
+    get ZSIZE long MEMORY_FILE
+    xmath ZSIZE "ZSIZE ^ ENTRY_OFF ^ XOR3"
+
+    goto OFFSET
+    math ZIP = 0
+    if ZSIZE >= 0x20
+        getdstring DUMMY 0x18
+        if MAGIC == 0x70677479
+            math ZIP = 0x5a5a5a5a
+        else
+            get ZIP long
+        endif
+        if ZIP == 0x5a5a5a5a
+            get SIZE long
+            if SIZE u> 0x01000000   # try to guess if the file is not compressed
+                math ZIP = 0
+            endif
+        endif
+    endif
+
+    if ZIP == 0x5a5a5a5a
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET ZSIZE
+    endif
+next i

@@ -1,0 +1,22 @@
+idstring "PAK\0"
+get DUMMY long
+get DUMMY long
+get FILES long
+get INFO_SIZE long
+savepos OFFSET
+encryption 3des2 "\xEA\x89\xB6\x57\x6B\xC4\xAC\x28\x03\xFF\x3A\x97\x99\x9B\x52\x74" "\0\0\0\0\0\0\0\0"
+log MEMORY_FILE OFFSET INFO_SIZE
+encryption "" ""
+
+comtype deflate
+goto 16 MEMORY_FILE
+for i = 0 < FILES
+    getdstring NAME 0x104 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    math SIZE *= ZSIZE
+    math OFFSET += 2
+    math ZSIZE -= 2
+    clog NAME OFFSET ZSIZE SIZE
+next i

@@ -1,0 +1,100 @@
+# Sonic 2006 (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+putarray 10 0 0
+
+math VERSION = 1
+getdstring SIGN 4
+if SIGN == "FBND"
+    math VERSION = 2
+endif
+goto 0
+
+for
+    findloc BASE_OFF binary "\x55\xaa\x38\x2d"
+    goto BASE_OFF
+    idstring "\x55\xaa\x38\x2d"
+    get OFFSET long
+    get INFO_SIZE long
+    get DATA_OFF long
+    getdstring DUMMY 0x10
+    math OFFSET + BASE_OFF
+    goto OFFSET
+    math NAME_BASE = 0
+    set PATH string ""
+    set NAME string ""
+    math XLIMIT = 0x7fffffff
+    putarray 0 0 0
+    callfunction EXTRACT
+next
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math LIMIT = XLIMIT
+    for
+        getarray i 0 0
+        if i >= LIMIT
+            break
+        endif
+        math i += 1
+        putarray 0 0 i
+
+        get FOLDER short
+        if FOLDER & 0x100
+            math VERSION = 2    # Chibi-Robo but I'm just guessing, I don't have Sonic2006 to check compatibility
+        endif
+        get NAME_OFF short
+        if FOLDER == 0
+            get OFFSET long
+            if VERSION == 1
+                get ZSIZE long
+            endif
+            get SIZE long
+            math OFFSET + BASE_OFF
+        else
+            get ID long
+            get XLIMIT long
+            if VERSION == 1
+                get DUMMY long
+            endif
+        endif
+
+        if NAME_BASE == 0
+            math NAME_BASE = XLIMIT
+            if VERSION == 1
+                math NAME_BASE * 0x10
+            else
+                math NAME_BASE * 0xc
+            endif
+            math INFO_SIZE - NAME_BASE
+            math NAME_BASE + OFFSET
+            log MEMORY_FILE NAME_BASE INFO_SIZE
+            math LIMIT = XLIMIT
+        endif
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        if FOLDER == 0
+            set FNAME string PATH
+            string FNAME + NAME
+            getarray TMP 10 0
+            xmath TMP_SIZE "OFFSET - TMP"
+            if TMP_SIZE >= 0x800
+                log "_trash_quickbms/" TMP TMP_SIZE
+            endif
+            if VERSION == 1
+                clog FNAME OFFSET ZSIZE SIZE
+                xmath TMP "OFFSET + ZSIZE"
+            else
+                log FNAME OFFSET SIZE
+                xmath TMP "OFFSET + SIZE"
+            endif
+            math TMP x 0x800
+            putarray 10 0 TMP
+        else
+            callfunction EXTRACT
+        endif
+    next
+endfunction

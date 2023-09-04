@@ -1,0 +1,131 @@
+# Deer Hunter 2005 / demo / Tournament (script version 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.4.6"
+putarray 0 -1 "dh2005.exe;d3d.dll"   # Deer Hunter 2005
+putarray 0 -1 "d3dx.lib;ddraw.dll"   # Deer Hunter 2005 demo
+putarray 0 -1 "dh2005custom"         # Deer Hunter 2005 mods  (thanx bacter)
+putarray 0 -1 "winmm.lib!ddraw.lib"  # Deer Hunter Tournament (thanx bacter)
+putarray 0 -1 ""
+
+idstring "APK"
+get PACK_NUMBER byte
+get INFO_OFFSET long
+get CRYPT_INIT long
+get CRYPT_INIT2 byte
+
+# decryption key scanning
+comtype zlib_noerror
+math x = 0
+do
+    getarray CRYPT_STRING 0 x
+    math x += 1
+    if CRYPT_STRING == ""
+        print "Error: unsupported archive encryption"
+        cleanexit
+    endif
+
+    print "try encryption string: %CRYPT_STRING%"
+    callfunction TABLE_DECRYPT 1
+
+    set OUT_INFO_SIZE long CRYPT_INIT
+    clog MEMORY_FILE2 0 INFO_SIZE OUT_INFO_SIZE MEMORY_FILE
+    get TABLE_SIZE asize MEMORY_FILE2
+while TABLE_SIZE != OUT_INFO_SIZE
+comtype zlib
+
+goto 0 MEMORY_FILE2
+get TABLE_SIZE asize MEMORY_FILE2
+for
+    savepos TABLE_OFFSET MEMORY_FILE2   # regular
+    if TABLE_OFFSET >= TABLE_SIZE
+        cleanexit
+    endif
+
+    get NAME string MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    get ZSIZE long MEMORY_FILE2
+    get XTYPE byte MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get CRYPT_INIT long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+
+    log MEMORY_FILE OFFSET ZSIZE
+
+    if XTYPE & 1
+        set TMP_x10194eac long x10194eac
+        math TMP_x10194eac ^= CRYPT_INIT
+        math TMP_x10194eac ^= SIZE
+        math TMP_x10194eac ^= OFFSET
+        if CRYPT_INIT2 != 0
+            set TMP long TMP_x10194eac
+            math TMP >>= 16
+            math TMP_x10194eac &= 0xffff
+            math TMP_x10194eac *= 0x6054
+            math TMP_x10194eac += TMP
+        endif
+        for i = 0 < ZSIZE
+            set TMP long TMP_x10194eac
+            math TMP >>= 16
+            math TMP_x10194eac &= 0xffff
+            math TMP_x10194eac *= 0x6054
+            math TMP_x10194eac += TMP
+
+            getvarchr CHR MEMORY_FILE i
+            math CHR ^= TMP_x10194eac
+            putvarchr MEMORY_FILE i CHR
+        next i
+    endif
+
+    if XTYPE & 2
+        clog NAME 0 ZSIZE SIZE MEMORY_FILE
+    else
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next
+
+startfunction TABLE_DECRYPT
+    set x10194eac long 1
+    strlen CRYPT_STRING_LEN CRYPT_STRING
+    for i = 0 < CRYPT_STRING_LEN
+        getvarchr CHR CRYPT_STRING i
+
+        set TMP string x10194eac
+        math TMP &= 0xffff
+        math TMP += CHR
+        math TMP %= 0xfff1
+
+        math x10194eac >>= 16
+        math x10194eac += TMP
+        math x10194eac %= 0xfff1
+        math x10194eac <<= 16
+        math x10194eac += TMP
+    next i
+    set TMP_x10194eac long x10194eac
+
+    goto INFO_OFFSET
+    get INFO_SIZE asize
+    math INFO_SIZE -= INFO_OFFSET
+    log MEMORY_FILE INFO_OFFSET INFO_SIZE
+
+    math TMP_x10194eac ^= CRYPT_INIT
+    math TMP_x10194eac ^= INFO_OFFSET
+    if CRYPT_INIT2 != 0
+        set TMP long TMP_x10194eac
+        math TMP >>= 16
+        math TMP_x10194eac &= 0xffff
+        math TMP_x10194eac *= 0x6054
+        math TMP_x10194eac += TMP
+    endif
+    for i = 0 < INFO_SIZE
+        set TMP long TMP_x10194eac
+        math TMP >>= 16
+        math TMP_x10194eac &= 0xffff
+        math TMP_x10194eac *= 0x6054
+        math TMP_x10194eac += TMP
+
+        getvarchr CHR MEMORY_FILE i
+        math CHR ^= TMP_x10194eac
+        putvarchr MEMORY_FILE i CHR
+    next i
+endfunction

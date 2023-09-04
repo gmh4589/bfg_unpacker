@@ -1,0 +1,37 @@
+# The Young Monkey
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "27efb289-bc7f-3636-ae74-e747b1bea17c"
+
+get DUMMY long  # 0x8c
+get ZERO long
+get DUMMY long  # 0xce
+get DUMMY long  # 0x4a
+get DUMMY long  # 1
+get DUMMY long  # 0x7a
+get FILES long
+get DUMMY long  # 0x6af
+for i = 0 < FILES
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    get ZIP long
+    get DUMMY long  # ZIP?
+    get ZERO long
+    get DUMMY long
+    get NAMESZ long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    math OFFSET + 4
+    math ZSIZE  - 4
+    encryption xxtea KEY "0x9e3779b9 0" 0 16    # cocos2d
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    encryption "" ""
+    math OFFSET + ZSIZE
+    goto OFFSET
+next i

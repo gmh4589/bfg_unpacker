@@ -1,0 +1,57 @@
+# Tzar (*.wdt) and other old Haemimont Games (*.pak) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring LZSS_SIGN 4
+if LZSS_SIGN == "LZSS"
+    get WDT_SIZE long
+    get CHUNK_SIZE long
+    get LZSS_TYPE short
+    comtype TZAR_LZSS LZSS_TYPE
+    get CHUNK_OFF long
+
+    set BASE_OFF long CHUNK_OFF
+    putvarchr MEMORY_FILE WDT_SIZE 0    # pre-allocate for making it faster
+    log MEMORY_FILE 0 0
+    append
+    do
+        savepos MYOFF
+        get NEXT_OFF long
+        if MYOFF >= BASE_OFF
+            get NEXT_OFF asize
+        endif
+        math ZSIZE = NEXT_OFF
+        math ZSIZE -= CHUNK_OFF
+        if ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+        else
+            clog MEMORY_FILE CHUNK_OFF ZSIZE CHUNK_SIZE
+        endif
+        set CHUNK_OFF long NEXT_OFF
+    while MYOFF < BASE_OFF
+    append
+    goto 0 MEMORY_FILE
+else
+    get WDT_SIZE asize
+    log MEMORY_FILE 0 WDT_SIZE
+endif
+
+idstring MEMORY_FILE "HMMSYS PackFile"
+goto 0x20 MEMORY_FILE
+get FILES long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+
+set SAVENAME string ""
+for i = 0 < FILES
+    get NAMESZ byte MEMORY_FILE
+    get SAVED byte MEMORY_FILE
+    set FULLNAME string SAVENAME
+    putvarchr FULLNAME SAVED 0
+    math NAMESZ -= SAVED
+    getdstring NAME NAMESZ MEMORY_FILE
+    string FULLNAME += NAME
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    log FULLNAME OFFSET SIZE MEMORY_FILE
+    set SAVENAME string FULLNAME
+next i

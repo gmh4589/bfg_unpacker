@@ -1,0 +1,49 @@
+# filecutter script for QuickBMS (script 0.1.2a)
+#   This script allows you to dump the first and last megabyte from any file
+#   useful for sending them to people for building scripts.
+#   You can rebuild the file by using the filecutter_rebuilder.bms script:
+#
+#     http://aluigi.org/papers/bms/others/filecutter_rebuilder.bms
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+math MEGABYTES = 2
+# 2 megabytes, good for forums with max 5mb of attachments. Feel free to edit it
+
+# use quickbms -a NUM to specify the amount of megabytes to cut
+if quickbms_arg1 & "quickbms_arg"
+else
+    math MEGABYTES = quickbms_arg1
+endif
+
+get FILENAME filename
+get FILESIZE asize
+math CHUNKSZ = 0x100000
+math CHUNKSZ *= MEGABYTES
+if FILESIZE u<= CHUNKSZ
+    print "Error: file %FILENAME% is smaller than the amount to dump, you don't need this script"
+    cleanexit
+endif
+
+#string NAME p= "%s_%u_%u" FILENAME 0 FILESIZE
+math MYOFFSET = 0
+callfunction GENERATE_NAME 1
+
+log NAME OFFSET CHUNKSZ
+
+math OFFSET = FILESIZE
+math OFFSET -= CHUNKSZ
+
+#string NAME p= "%s_%u_%u" FILENAME OFFSET FILESIZE
+math MYOFFSET = OFFSET
+callfunction GENERATE_NAME 1
+
+log NAME OFFSET CHUNKSZ
+
+startfunction GENERATE_NAME
+    set NAME string FILENAME
+    string NAME + "_"
+    string NAME + MYOFFSET
+    string NAME + "_"
+    string NAME + FILESIZE
+endfunction

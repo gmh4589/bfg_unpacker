@@ -1,0 +1,18 @@
+# <罗德岛战记> Record of Lodoss war WCM/WCR
+
+open FDDE "wcm"
+open FDDE "wcr" 1
+#idstring 1 "BQGD"
+
+get WCM_SIZE asize
+do
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get NAME string
+    string NAME + "."
+    log NAME OFFSET SIZE 1
+    savepos TMP
+while TMP != WCM_SIZE

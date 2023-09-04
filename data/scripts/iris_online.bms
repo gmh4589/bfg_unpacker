@@ -1,0 +1,20 @@
+# Iris Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME basename
+string NAME += ".zip"
+filexor 0x69
+log MEMORY_FILE 0 SIZE
+filexor ""
+for i = 0 < SIZE
+    getvarchr TMP MEMORY_FILE i
+    math TMP2 = TMP
+    math TMP  >>= 4
+    math TMP2 <<= 4
+    math TMP |= TMP2
+    putvarchr MEMORY_FILE i TMP
+next i
+log NAME 0 SIZE MEMORY_FILE
+
+print "the zip password is jZKCZ/aDV/ORScsYCEAK=n4BH"

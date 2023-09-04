@@ -1,0 +1,27 @@
+# Raven's Cry
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "idx"
+    get NAME basename
+    open FDSE NAME
+endif
+idstring "DW2F"
+get NAMESZ long
+math NAMESZ += 1
+getdstring NAME NAMESZ
+
+open FDSE NAME 1
+
+get FILES long
+for i = 0 < FILES
+    getdstring TYPE 4
+
+    get NAMESZ long
+    math NAMESZ += 1
+    getdstring NAME NAMESZ
+    get SIZE long
+    get OFFSET long
+    get TSTAMP longlong
+    log NAME OFFSET SIZE 1
+next i

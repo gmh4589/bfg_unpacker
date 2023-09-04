@@ -1,0 +1,21 @@
+<bms games="'Thunderhawk', 'Firestorm: Thunderhawk 2'" platforms="'PC'" ext="WAD">
+Get DUMMYL Long 0 ;
+ReverseLong DUMMYL ;
+Set FILECNTL Long DUMMYL ;
+Math FILECNTL /= 12 ;
+Set FILESTART Long 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+ReverseLong DUMMYL ;
+ReverseLong FILEOFF ;
+ReverseLong FILESIZE ;
+GoTo DUMMYL 0 ;
+GetDString FILENAME 9 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

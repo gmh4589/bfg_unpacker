@@ -1,0 +1,62 @@
+# Touhou: Scarlet Curiosity | 東方紅輝心
+# script for QuickBMS http://quickbms.aluigi.org
+
+# currently the script is meant to be used for multiple formats therefore it uses arrays
+math BASE_OFF = 0
+
+get EXT extension
+if EXT == "dat"
+
+    filexor 0xa4
+    idstring "mgbpack\0"
+    get DUMMY long  # 1
+    get INFO_OFF long
+    get FILES long
+    get INFO_SIZE long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get NAMESZ long
+        math NAMESZ + 1
+        getdstring NAME NAMESZ
+        get OFFSET longlong
+        get SIZE longlong
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+    next i
+    filexor ""
+    savepos BASE_OFF
+
+elif EXT == "pak"
+
+    idstring "thsndpk\0"
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get ID longlong
+        get ZERO longlong
+        get OFFSET longlong
+        get SIZE longlong
+        putarray 0 i ""
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+    next i
+
+#elif EXT == "dpk"
+    # some sort of xor with 0x0921 or 032100211521... but it's wrong
+
+else
+
+    print "Error: unsupported extension %EXT%, contact me"
+    cleanexit
+
+endif
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i
+

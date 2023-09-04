@@ -1,0 +1,98 @@
+# Enthusia Professional Racing (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "D000.bin" 0 EXISTS
+if EXISTS == 0
+    print "Error: you must extract D001.bin with 7-zip first"
+    cleanexit
+endif
+open FDSE "D001.bin" 1
+
+get FILES asize
+math FILES / 4
+    get OFFSET long
+    math OFFSET * 0x800
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFFSET asize 1
+    else
+        get NEXT_OFFSET long
+        math NEXT_OFFSET * 0x800
+    endif
+    xmath SIZE "NEXT_OFFSET - OFFSET"
+    if SIZE != 0
+
+        goto OFFSET 1
+        getdstring SIGN 4 1
+        goto OFFSET 1
+        get SIGN32 long 1
+        if SIGN == "LP  "
+            log "LP_music/" OFFSET SIZE 1
+        elif SIGN == "AP  "
+            log "AP_VAG/" OFFSET SIZE 1
+        elif SIGN == "SDAT"
+            log "SDAT_VAG/" OFFSET SIZE 1
+        elif SIGN32 == 0x1000fc87
+            callfunction EXTRACT_0x1000fc87
+        elif SIGN32 == 0x45feffff
+            log "VIDEO/" OFFSET SIZE 1  # ???
+        else
+            log "" OFFSET SIZE 1
+        endif
+    endif
+    math OFFSET = NEXT_OFFSET
+next i
+
+# it's all guessed
+startfunction EXTRACT_0x1000fc87
+    math BASE_OFF = OFFSET
+    goto OFFSET 1
+    get SIGN32 long 1
+    get ZERO long 1
+    get ENTRIES long 1
+    for x = 0 < ENTRIES
+        get OFFSET long 1
+        get SIZE long 1
+        math OFFSET + BASE_OFF
+        string NAME p "%08x/%08x/" SIGN32 i
+        if SIZE != 0
+            savepos TMP_OFF 1
+            goto OFFSET 1
+            get NUM long 1
+            math GUESS_SUB_ARCHIVE = 0
+            if NUM u>= 1
+            if NUM u<= 100
+                for z = 0 < NUM
+                    get TMP long 1
+                    get TMP2 long 1
+                    math TMP + TMP2
+                    if TMP u> SIZE
+                        math NUM = -1
+                    endif
+                next z
+                if z == NUM
+                    math GUESS_SUB_ARCHIVE = 1
+                endif
+                goto OFFSET 1
+                get NUM long 1
+            endif
+            endif
+            if NUM == 0x1000fc87
+                callfunction EXTRACT_0x1000fc87
+            elif GUESS_SUB_ARCHIVE != 0
+                math BASE_OFF2 = OFFSET
+                for z = 0 < NUM
+                    get OFFSET long 1
+                    get SIZE long 1
+                    math OFFSET + BASE_OFF2
+                    if SIZE != 0
+                        log NAME OFFSET SIZE 1
+                    endif
+                next z
+            else
+                log NAME OFFSET SIZE 1
+            endif
+            goto TMP_OFF 1
+        endif
+    next x
+endfunction

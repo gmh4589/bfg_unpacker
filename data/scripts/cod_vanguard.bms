@@ -1,0 +1,54 @@
+# Call of Duty: Vanguard TOC/DATA.DCACHE
+
+get NAME basename
+get EXT extension
+string NAME - "toc"
+string NAME - "data"
+string TMP p "toc%s.%s" NAME EXT
+open FDSE TMP
+string TMP p "data%s.%s" NAME EXT
+open FDSE TMP 1
+
+# there is no OFFSET field stored
+math OFFSET = 0
+
+goto -16
+get FILES long
+get ZERO long
+get FILES2 long # IWffp100 files (smaller than FILES)
+get ONE long
+
+goto 0
+get DUMMY long  # 0xaa4d84d5
+get DUMMY short # 2
+get DUMMY short # 6
+get DUMMY long  # 0x15
+get DUMMY long  # 2
+get ZERO long
+get DUMMY long  # 4
+get DUMMY long  # 3
+get ZERO long
+for i = 0 < FILES
+    get DUMMY long  # different for TXT and IWfpp files
+    get DUMMY long
+    get DUMMY long  # 8 or 16
+    getdstring NAME 0x80
+    get DUMMY long
+    getdstring DUMMY 0x20
+    get SIZE long
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long
+    get DUMMY6 long
+    get DUMMY7 long
+    get DUMMY8 long
+    get DUMMY9 long
+    getdstring ZERO 0x100
+
+    log NAME OFFSET SIZE 1
+
+    math OFFSET + SIZE
+    math OFFSET x 0x20000
+next i

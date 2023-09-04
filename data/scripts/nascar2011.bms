@@ -1,0 +1,77 @@
+# Nascar 2011/2013 (ARCHIVEX.AR / cdfiles.dat) (script 0.1.2)
+#   YOU MUST OPEN THE CDFILES*.DAT FILE, NOT ARCHIVE*.AR!
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "fil"
+getdstring FILE_ENDIANESS 1 # C = little - E = big
+if FILE_ENDIANESS == "E"    # PS3
+    endian big
+elif FILE_ENDIANESS == "3"  # Xbox360
+    endian big
+elif FILE_ENDIANESS == "N"  # Wii
+    endian big
+endif
+goto 0x1c
+get ARCHIVES long
+get FILES long
+get FOLDERS long
+get NAMES_SIZE long
+
+get NAMES_OFF asize
+math NAMES_OFF -= NAMES_SIZE
+
+for i = 0 < ARCHIVES
+    get NAME_OFF long
+    get DUMMY long
+    savepos TMP
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    set j strlen NAME
+    for j -= 1 > 0
+        math j -= 1
+        getvarchr TMP NAME j
+        if TMP == '\\'
+            math j += 1
+            string NAME <= j
+            math j = 0
+        endif
+    next
+    getvarchr TMP NAME 0
+    if TMP == '#'
+        string NAME strrchrx "/"
+    endif
+    putarray 0 i NAME
+next i
+
+math OLD_NUM = -1
+for i = 0 < FILES
+    get DUMMY3 long
+    get FOLDER_OFF long
+    get NAME_OFF long
+    get SIZE long
+    get DUMMY6 long
+    get DUMMY7 long
+    get OFFSET long
+    get ARCHIVE_NUM byte
+    get DUMMY1 byte
+    get DUMMY2 short
+    if OFFSET != 0xffffffff
+        savepos TMP
+        math NAME_OFF += NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        math FOLDER_OFF += NAMES_OFF
+        goto FOLDER_OFF
+        get FNAME string
+        goto TMP
+        string FNAME += NAME
+        if ARCHIVE_NUM != OLD_NUM
+            getarray ARCHIVE_NAME 0 ARCHIVE_NUM
+            open FDSE ARCHIVE_NAME 1
+            math OLD_NUM = ARCHIVE_NUM
+        endif
+        log FNAME OFFSET SIZE 1
+    endif
+next i

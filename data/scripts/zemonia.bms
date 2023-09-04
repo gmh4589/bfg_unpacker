@@ -1,0 +1,24 @@
+# Zemonia
+
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+for i = 0 < FILES
+    get NAME_CRC long
+
+    string NAME p "%08x." NAME_CRC
+    getarray OFFSET 0 i
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    get ZERO long
+    savepos OFFSET
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

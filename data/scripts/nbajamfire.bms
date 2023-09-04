@@ -1,0 +1,68 @@
+# NBA Jam on Fire / EA BGFA (script 0.2.3a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BGFA"
+getdstring BGFA_VER 4   # ever "1.05"!
+get DUMMY long
+get FILES long
+get INFO_OFF long
+get ZERO long
+get INFO_SIZE long
+get ZERO long
+get INFO1 byte  # 0
+get INFO2 byte  # 1
+get INFO3 byte  # 8
+get OFFSET_BYTES byte   # 3 (I no longer have the sample with OFFSET long!)
+get ZSIZE_BYTES byte    # 3
+get SIZE_BYTES byte     # 3
+get OFFSET_SHIFT byte
+get INFO8 byte  # 0
+get NUM long
+get NAMESZ long
+goto INFO_OFF   #log MEMORY_FILE INFO_OFF INFO_SIZE
+for i = 0 < NUM
+    get DUMMY long
+next i
+for i = 0 < FILES
+    if INFO2 == 0
+    get FLAGS byte
+    else
+    get FLAGS short # 0xb11, 0x11, 0x12, 0x112 and so on
+    endif
+    getdstring DUMMY INFO3
+    callfunction READ_FIELD 1 OFFSET_BYTES
+    math OFFSET = VALUE
+    callfunction READ_FIELD 1 ZSIZE_BYTES
+    math ZSIZE = VALUE
+    callfunction READ_FIELD 1 SIZE_BYTES
+    math SIZE = VALUE
+    getdstring NAME NAMESZ
+
+    if FLAGS & 2
+        comtype dk2
+    else
+        comtype zlib
+    endif
+
+    math OFFSET << OFFSET_SHIFT
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        math SIZE + ZSIZE
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction READ_FIELD
+      if READ_FIELD_ARG1 == 1
+        get VALUE byte
+    elif READ_FIELD_ARG1 == 2
+        get VALUE short
+    elif READ_FIELD_ARG1 == 3
+        get VALUE threebyte
+    elif READ_FIELD_ARG1 == 0
+        math VALUE = 0
+    else
+        get VALUE long
+    endif
+endfunction

@@ -1,0 +1,13 @@
+<bms ext="afs" games="'50 Cent: Bulletproof', 'DragonBall Z: Budokai 3', 'Leisure Suit Larry: Manga Cum Laude', 'Mortal Kombat Shaolin Monks', 'Phantasy Star Online', 'Pro Evolution Soccer 5', 'Resident Evil 4', 'Silent Hill 3'" platforms="'PS2', 'PS2', 'PC', 'PS2', 'PC', 'PC', 'PC', 'PC'" version="1.0" author="Mr.Mouse" verbose="no" silence="no">
+IDString 0 AFS ;
+ImpType Standard ;
+Get D Byte 0 ;
+Get FileNum Long 0 ;
+For T = 1 To FileNum ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log "" FO FS #FOO FSO ;
+Next T ;
+</bms>

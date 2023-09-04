@@ -1,0 +1,30 @@
+# Minna no Joushiki Ryoku TV (script 0.1.1)
+
+endian big
+for
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 0x18
+    if NAME == ""
+        break
+    endif
+
+    savepos TMP
+    goto OFFSET
+    get TYPE byte
+    math XSIZE = SIZE
+    if TYPE > 0 && TYPE <= 0x40
+        if TYPE == 0x24
+            comtype DS_HUF
+            endian little
+            get XSIZE threebyte
+            endian big
+        else
+            comtype lz77wii
+        endif
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next

@@ -1,0 +1,18 @@
+# Shoecake games
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+for EXTRACT = 0 < 2
+    goto 0
+    get FILES long
+    for i = 0 < FILES
+        get SIZE long
+        get OFFSET long
+        get NAME string
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

@@ -1,0 +1,72 @@
+# Jonny Moseley Mad Trix (DAT, MET)
+
+get EXT extension
+if EXT == "DAT"
+
+    comtype lzss
+    goto -12
+    get INFO_SIZE long
+    get NAMES_SIZE long
+    get INFO_OFF long
+
+    xmath NAMES_OFF "INFO_OFF + INFO_SIZE"
+    goto NAMES_OFF
+    get NAMES long
+    for i = 0 < NAMES
+        get NAME string
+        putarray 0 i NAME
+    next i
+
+    goto INFO_OFF
+    idstring "PGRP"
+    get DUMMY long
+    get FILES long
+    get DUMMY long
+
+    # do NOT trust the FILES field, we want ALL the files
+    savepos PGRP_OFF
+    xmath FILES "((INFO_OFF + INFO_SIZE) - PGRP_OFF) / 0x64"
+
+    for i = 0 < FILES
+        idstring "PFIL"
+        get DUMMY long
+        get TSTAMP long
+        get DUMMY long  # 0x10000
+        getdstring HASH 20
+        getdstring DUMMY 64
+        getvarchr ZSIZE  DUMMY 0x14 long
+        getvarchr OFFSET DUMMY 0x18 long
+        getvarchr SIZE   DUMMY 0x1c long
+
+        # filenames are available BUT no idea how they are referenced
+        # it's just a list of many long, short, full names and filenames without any order
+        # the only fields at DUMMY offsets 0 and 0x34 don't match any name id or offset
+        set NAME string ""
+
+        clog NAME OFFSET ZSIZE SIZE
+    next i
+
+elif EXT == "MET"
+
+    idstring "tTOC"
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+
+    goto OFFSET
+    xmath FILES "SIZE / 16"
+    for i = 0 < FILES
+        idstring "tXXX"
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+        string NAME p "%08x." NAME_CRC
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    print "Error: unsupported file %EXT%"
+    cleanexit
+
+endif

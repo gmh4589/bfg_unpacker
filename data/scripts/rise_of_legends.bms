@@ -1,0 +1,61 @@
+# Rise of Legends (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # it's zlib but multiplayer_data.big 000aea58 (0x31 -> 0x31) gives problems
+get DUMMY long
+get DUMMY byte
+callfunction GET_NAME 1
+if NAME != "WAR-BUILDER"
+    print "Error: invalid signature %NAME%"
+    cleanexit
+endif
+
+# they are just references
+get FILES long
+if FILES != 0
+    get DUMMY long
+    get DUMMY short # 0xff
+    get DUMMY byte  # 0
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get TSTAMP long
+    next i
+endif
+
+get FILES long
+if FILES != 0
+    get DUMMY long  # same as FILES
+    get DUMMY short # 0xff
+    get DUMMY byte  # 0
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        set FNAME string NAME
+        get ZERO long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get TSTAMP long
+        callfunction GET_NAME 1
+        if NAME != ""
+            string FNAME += "."
+            string FNAME += NAME
+        endif
+        get DUMMY short
+
+        savepos TMP
+        goto OFFSET
+        get ZSIZE long
+        savepos OFFSET
+        goto TMP
+
+        clog FNAME OFFSET ZSIZE SIZE
+    next i
+endif
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

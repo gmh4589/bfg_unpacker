@@ -1,0 +1,44 @@
+# PS4 PKG CNT
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "\x7fCNT"
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get FILES long
+get DUMMY4 short
+get DUMMY5 short
+get INFO_OFF long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get DUMMY10 long
+get INFO_END long
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY long
+    get NAME_OFF long
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i NAME_OFF
+next i
+for i = 0 < FILES
+    getdstring HASH 0x20
+next i
+savepos NAMES_OFF
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray SIZE     1 i
+    getarray NAME_OFF 2 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    log NAME OFFSET SIZE
+next i

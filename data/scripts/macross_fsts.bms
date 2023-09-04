@@ -1,0 +1,93 @@
+# Macross PSP FSTS
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FSTS"
+get FILES long
+get INFO_OFF long
+get NAMES_OFF long
+get NAMES_SIZE long
+log MEMORY_FILE2 NAMES_OFF NAMES_SIZE
+goto INFO_OFF
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    # from macross_pidx.bms
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    elif ZSIZE >= SIZE
+        log NAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "segs"
+            goto OFFSET
+            callfunction SEGS_UNPACK
+        elif SIGN == " 3;0" ||  SIGN == " 3;1"
+            #get SIZE long
+            #savepos OFFSET
+            #math ZSIZE - 8
+            string NAME p "%s/%s" "unknown" NAME
+            log NAME OFFSET ZSIZE   # unknown type
+        else
+            comtype zlib
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        goto TMP
+    endif
+
+next i
+
+startfunction SEGS_UNPACK
+    endian save CURRENT_ENDIAN
+    comtype deflate
+    endian big
+    savepos BASE_OFF
+    idstring "segs"
+    get FLAGS short
+    get CHUNKS short
+    get FULL_SIZE long
+    get FULL_ZSIZE long
+    savepos BASE2_OFF
+    xmath BASE2_OFF "BASE2_OFF + (CHUNKS * (2 + 2 + 4))"
+    math WORKAROUND = 0
+    putvarchr MEMORY_FILE 0 FULL_SIZE
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        get ZSIZE short
+        get SIZE short
+        get OFFSET long
+        math OFFSET -= 1
+        if i == 0
+        if OFFSET == 0
+            math WORKAROUND = 1
+        endif
+        endif
+        if WORKAROUND != 0
+            math OFFSET + BASE2_OFF
+        else
+            math OFFSET + BASE_OFF
+        endif
+        if SIZE == 0
+            math SIZE = 0x00010000
+        endif
+        if SIZE == ZSIZE
+            log MEMORY_FILE OFFSET ZSIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+    log NAME 0 FULL_SIZE MEMORY_FILE
+    if CURRENT_ENDIAN == 0
+        endian little
+    endif
+endfunction

@@ -1,0 +1,19 @@
+# The Hurricane of the Varstray -Collateral hazard-
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "index"
+open FDDE "data" 1
+get INDEX_SIZE asize
+for CURR_OFF = 0 != INDEX_SIZE
+    getdstring NAME 0x70
+    get DUMMY long  # some crc
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+    savepos CURR_OFF
+next

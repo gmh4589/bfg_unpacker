@@ -1,0 +1,17 @@
+# Sacrament of the Zodiac: The Confused Sheep and The Tamed Wolf
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "pf2"
+get INFO_SIZE long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get FLAGS long
+    get ZERO long
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

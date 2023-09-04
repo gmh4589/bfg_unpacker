@@ -1,0 +1,11 @@
+# X-COM: Interceptor
+
+idstring "MPSR"
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,16 @@
+# Urbanix / psp.p00
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PKF "
+goto -4
+get OFFSET long
+goto OFFSET
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get SIZE long
+    get NAME string
+    log NAME OFFSET SIZE
+next

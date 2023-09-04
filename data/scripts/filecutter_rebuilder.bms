@@ -1,0 +1,102 @@
+# filecutter rebuilder script for QuickBMS (script 0.2.1)
+#   This script allows you to rebuild the original file from the
+#   first and last megabytes dumped using my filecutter.bms script:
+#
+#     http://aluigi.org/papers/bms/others/filecutter.bms
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILENAME filename
+get START filename
+get FILESIZE filename
+
+string FILESIZE != "_"
+
+string FILENAME <= "_"
+string FILENAME -= 1
+string START = FILENAME
+
+string START != "_"
+
+string FILENAME <= "_"
+string FILENAME -= 1
+
+print "FILENAME %FILENAME%"
+print "FILESIZE %FILESIZE%"
+
+string FILTER = FILENAME
+string FILTER += "*"
+
+# if the size is minor than 1gb use a memory file
+math MAX_MEM_SIZE = 1073741824  # 0x7fffffff
+
+if FILESIZE u< MAX_MEM_SIZE
+    putvarchr MEMORY_FILE FILESIZE 0
+    log MEMORY_FILE 0 0
+else
+    print "the file to generate is probably too big for the memory\nso I will build it directly on the disk.\nJust answer with 'a' to the next question"
+endif
+
+#string NAME p= "%s_%u_%u" FILENAME 0 FILESIZE
+math MYOFFSET = 0
+callfunction GENERATE_NAME 1
+
+open FDSE NAME
+get SIZE asize
+if FILESIZE u< MAX_MEM_SIZE
+    log MEMORY_FILE 0 SIZE
+else
+    log FILENAME 0 SIZE
+endif
+math FIRST_SIZE = SIZE
+
+# currently scandir doesn't work, will be fixed
+math SCAN_STEP = 0x100000   # 1 megabyte
+for SCAN_SIZE = FILESIZE u>= 0
+    #string NAME p= "%s_%u_%u" FILENAME SCAN_SIZE FILESIZE
+    math MYOFFSET = SCAN_SIZE
+    callfunction GENERATE_NAME 1
+
+    open FDSE NAME 0 EXISTS
+    if EXISTS != 0
+        break
+    endif
+next SCAN_SIZE -= SCAN_STEP
+if EXISTS == 0
+    print "Error: no final part found"
+    cleanexit
+endif
+
+get SIZE asize
+math LAST_SIZE = SIZE
+if FILESIZE u< MAX_MEM_SIZE
+    math SCAN_SIZE -= 1
+    putvarchr MEMORY_FILE SCAN_SIZE 0
+    goto SCAN_SIZE MEMORY_FILE
+    append
+    log MEMORY_FILE 0 SIZE
+    append
+    log FILENAME 0 FILESIZE MEMORY_FILE
+else
+    math SCAN_SIZE -= FIRST_SIZE
+    math ZERO_FILLER = 104857600    # 100 mb
+    log MEMORY_FILE 0 0
+    putvarchr MEMORY_FILE ZERO_FILLER 0
+    append
+    for SCAN_SIZE = SCAN_SIZE != 0
+        if SCAN_SIZE u< ZERO_FILLER
+            math ZERO_FILLER = SCAN_SIZE
+        endif
+        log FILENAME 0 ZERO_FILLER MEMORY_FILE
+    next SCAN_SIZE -= ZERO_FILLER
+    log FILENAME 0 SIZE
+    append
+endif
+
+startfunction GENERATE_NAME
+    string NAME = FILENAME
+    string NAME + "_"
+    string NAME + MYOFFSET
+    string NAME + "_"
+    string NAME + FILESIZE
+endfunction

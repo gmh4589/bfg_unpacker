@@ -1,0 +1,91 @@
+# Star Wars Battlefront III (script 0.2.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_NAME filename
+string ARCHIVE_NAME << ".pak"
+open FDSE ARCHIVE_NAME
+
+endian big
+idstring "PBCK"
+get DUMMY long
+endian guess DUMMY  # just in case...
+get FILES long
+get CHUNKS_OFF long
+get CHUNKS_SIZE long
+get DUMMY short
+get DUMMY short
+
+savepos TMP
+goto CHUNKS_OFF
+xmath CHUNKS "(CHUNKS_SIZE * 8) / 15"
+putarray 1 CHUNKS 0
+for i = 0 < CHUNKS
+    getbits CHUNK_ZSIZE 15
+    putarray 1 i CHUNK_ZSIZE
+next i
+goto TMP
+
+putarray 0 FILES ""
+string TMP p "%s.str" ARCHIVE_NAME
+open FDSE TMP 2 EXISTS
+if EXISTS != 0
+    for i = 0 < FILES
+        get OFFSET long 2
+        putarray 0 i OFFSET
+    next i
+    savepos BASE_OFF 2
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math OFFSET + BASE_OFF
+        goto OFFSET 2
+        get NAME string 2
+        putarray 0 i NAME
+    next i
+endif
+
+math CHUNK_SIZE = 0x00004000
+log MEMORY_FILE2 0 0
+putvarchr MEMORY_FILE2 CHUNK_SIZE 0 # zeroes
+
+math OLD_PAK_NUM = -1
+for i = 0 < FILES
+    get CRC long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get CHUNK_IDX threebyte
+    get PAK_NUM byte
+
+    if PAK_NUM != OLD_PAK_NUM
+        math OLD_PAK_NUM = PAK_NUM
+        string TMP p "%s.%02d" ARCHIVE_NAME PAK_NUM
+        open FDSE TMP 1
+    endif
+    getarray NAME 0 i
+
+    if ZSIZE == 0
+        log NAME OFFSET SIZE 1
+    else
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != SIZE
+            getarray CHUNK_ZSIZE 1 CHUNK_IDX
+            if CHUNK_ZSIZE == CHUNK_SIZE
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE 1
+            elif CHUNK_ZSIZE == 0
+                log MEMORY_FILE OFFSET CHUNK_SIZE 1
+            elif CHUNK_ZSIZE > CHUNK_SIZE
+                xmath CHUNK_ZSIZE "CHUNK_SIZE - (CHUNK_ZSIZE - CHUNK_SIZE)"
+                log MEMORY_FILE 0 CHUNK_ZSIZE MEMORY_FILE2
+                math CHUNK_ZSIZE = 0
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            get MEM_SIZE asize MEMORY_FILE
+        next CHUNK_IDX
+        append
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next i

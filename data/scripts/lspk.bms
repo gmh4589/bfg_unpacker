@@ -1,0 +1,121 @@
+# Divinity: Original Sin (script 0.3.1)
+#   Thanks to spider91 for the lz4f info.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PAK_NAME basename
+get PAK_EXT extension
+
+math FLAGS = 0
+math BASE_OFF = 0
+
+getdstring SIGN 4
+goto -4
+getdstring SIGN2 4
+goto 0
+
+if SIGN2 == "LSPK"
+
+    comtype lz4
+    goto -0x28
+    get VER long
+    get INFO_OFF long
+    get INFO_SIZE long
+    get PAKS short
+    get FLAGS short
+    getdstring HASH 16
+    get DUMMY long
+    idstring "LSPK"
+    goto INFO_OFF
+    get FILES long
+    savepos OFFSET
+    math INFO_SIZE - 4
+
+    if TMP > INFO_SIZE
+        xmath TMP "FILES * 280"
+        clog MEMORY_FILE OFFSET INFO_SIZE TMP
+    else
+        log MEMORY_FILE OFFSET INFO_SIZE
+    endif
+
+else
+
+    if SIGN == "LSPK"
+        idstring "LSPK"
+    endif
+    get VER long
+    get BASE_OFF long
+    if VER <= 9
+        get PAKS short
+        get FLAGS short 
+        get INFO_SIZE long
+        get ZERO byte
+    else
+        get INFO_SIZE long
+        get PAKS short
+        get FLAGS short 
+    endif
+    get FILES long
+
+    savepos OFFSET
+    log MEMORY_FILE OFFSET INFO_SIZE
+
+endif
+
+if FLAGS & 4
+    comtype lz4f
+    math SIZE = INFO_OFF
+    math SIZE * 10
+    clog MEMORY_FILE2 0 INFO_OFF SIZE
+    math SOLID_OFF = 0
+endif
+
+math CURRENT_PAK = 0
+for i = 0 < FILES
+    getdstring NAME 256 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get PAK_NUM long MEMORY_FILE
+    if VER >= 10
+        get ZIP long MEMORY_FILE
+        get CRC long MEMORY_FILE
+
+        math ZIP & 0xf
+        if ZIP == 0
+            comtype copy
+        elif ZIP == 1
+            comtype zlib
+        elif ZIP == 2
+            comtype lz4
+        else
+            print "Error: unknown compression type %ZIP%"
+            cleanexit
+        endif
+    endif
+
+    if PAK_NUM != CURRENT_PAK
+        if PAK_NUM == 0
+            string TMP p "%s.%s"    PAK_NAME         PAK_EXT
+        else
+            string TMP p "%s_%d.%s" PAK_NAME PAK_NUM PAK_EXT
+        endif
+        open FDSE TMP
+        math CURRENT_PAK = PAK_NUM
+        if PAK_NUM > 0
+            math BASE_OFF = 0
+        endif
+    endif
+
+    math OFFSET + BASE_OFF
+
+    if FLAGS & 4
+        log NAME SOLID_OFF SIZE MEMORY_FILE2
+        math SOLID_OFF += SIZE
+    else
+        if SIZE == 0
+            log NAME OFFSET ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

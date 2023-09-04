@@ -1,0 +1,52 @@
+# Senran Kagura Shinovi Versus (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAMES_OFF long
+for i = 0
+    get OFFSET long
+    if OFFSET == 0xffffffff
+        break
+    endif
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+math FILES = i
+
+sortarray 0 1   # necessary!
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+
+    goto NAMES_OFF
+    get NAME line
+    savepos NAMES_OFF
+    string NAME R "," "/"
+    string NAME + "."
+
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN u== "GXT" || SIGN u== "DDS "
+        log NAME OFFSET SIZE
+    else
+        goto OFFSET
+        callfunction EXTRACT_SUB
+    endif
+next
+
+# I'm not sure if they are really archives or just one
+# DDS with a small header, all my samples had "one file"
+startfunction EXTRACT_SUB
+    savepos OFFSET
+    get INFO_SIZE long
+    math OFFSET + INFO_SIZE
+    get FILES long
+    for i = 0 < FILES
+        get SIZE long
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+endfunction

@@ -1,0 +1,65 @@
+# Dying Light (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "csb"
+
+    # http://zenhax.com/viewtopic.php?f=6&t=587
+    goto 0x40
+    get INFOSIZE long
+    get FILES long
+    get DUMMY long
+    for i = 1 <= FILES
+        getdstring NAME 0x40
+        get OFFSET long
+        get SIZE long
+        get DUMMY long   
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        string NAME += "."  # auto-guess
+        log NAME OFFSET SIZE
+        set CHECK OFFSET
+        math CHECK += SIZE
+    next i
+
+elif EXT == "spb"
+
+    get MAJ long
+    get MIN long
+    get FILES long
+    get ARCHIVE_SIZE long
+    for i = 0 < FILES
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        getdstring NAME 0x40
+        log NAME OFFSET SIZE
+    next i
+
+else    # rpack and rpacz
+
+    idstring "RP6L"
+    get VER long    # 1
+    get VER long    # 1
+    get DUMMY1 long
+    get FILES long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long
+    get DUMMY6 long
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get DUMMY long
+        if ZSIZE == 0
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET ZSIZE SIZE
+        endif
+    next i
+
+endif

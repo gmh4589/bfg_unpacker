@@ -1,0 +1,48 @@
+# World Soccer Winning Eleven 10 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "AFS"
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+
+        log "" OFFSET SIZE
+
+        /*
+        # some files of some archives are compressed
+        # but the format is not ever the same,
+        # so better to ignore the auto-decompression
+        savepos TMP
+        goto OFFSET
+        get DUMMY long
+        get ZSIZE long
+        get SIZE long
+        goto TMP
+        math OFFSET + 0x20
+        clog "" OFFSET ZSIZE SIZE
+        */
+    next i
+else
+    get AFS_SIZE long
+    math BASE_OFF = 0x20
+    goto BASE_OFF
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        putarray 0 i OFFSET
+    next i
+    math AFS_SIZE + BASE_OFF
+    putarray 0 i AFS_SIZE
+    sortarray 0 1
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+endif

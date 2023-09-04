@@ -1,0 +1,162 @@
+# EGG archives
+#   Note: splitted archives, encryption and AZO compression (rarely used) are not supported.
+# script for QuickBMS http://quickbms.aluigi.org
+
+math MAGIC_EGG = 0x41474745
+math MAGIC_FILE = 0x0a8590e3
+math MAGIC_BLOCK = 0x02b50c13
+math MAGIC_ENCRYPT = 0x08d1470f
+math MAGIC_WINDOWS_FILEINFO = 0x2c86950b
+math MAGIC_POSIX_FILEINFO = 0x1ee922e5
+math MAGIC_FILENAME = 0x0a8591ac
+math MAGIC_COMMENT = 0x04c63672
+math MAGIC_SPLIT = 0x24f5a262
+math MAGIC_SOLID = 0x24e5a060
+math MAGIC_DUMMY = 0x07463307
+math MAGIC_END = 0x08e28222
+
+idstring "EGGA"     # MAGIC_EGG
+get Version short
+get Header_ID long
+get Reserved long
+
+get EGG_SIZE asize
+
+set NAME string ""
+math SOLID   = 0
+math EXTRACT = 0
+for
+    savepos TMP
+    if TMP == EGG_SIZE
+        break
+    endif
+
+    get MAGIC long
+    savepos Next_Chunk
+    math Size = -1
+
+    if MAGIC == MAGIC_FILE
+        get File_ID long
+        get File_Length longlong
+        putarray 0 File_ID File_Length
+
+    elif MAGIC == MAGIC_BLOCK
+        get Compress_Method short
+        get Uncompress_Size long
+        get Compress_Size long
+        get CRC32 long
+
+        math Compress_Method & 0xff
+        if Compress_Method == 0
+            comtype copy
+        elif Compress_Method == 1
+            comtype deflate
+        elif Compress_Method == 2
+            comtype bzip2
+        #elif Compress_Method == 3
+            #comtype azo # not supported yet
+        elif Compress_Method == 4
+            comtype lzma
+        else
+            print "Error: unknown compression method %Compress_Method%"
+            cleanexit
+        endif
+
+        math EXTRACT = 1
+
+    elif MAGIC == MAGIC_ENCRYPT
+        get Bit_Flag byte
+        get Size short
+        get Encrypt_Method byte
+        print "Encryption is not supported"
+
+    elif MAGIC == MAGIC_FILENAME
+        get Bit_Flag byte
+        get Size short
+        if Bit_Flag & 0x10
+            get Locale short
+        endif
+        if Bit_Flag & 0x20
+            get Parent_Path_ID long # ignored
+        endif
+        getdstring Name Size
+        putarray 1 File_ID Name
+
+    elif MAGIC == MAGIC_WINDOWS_FILEINFO
+        get Bit_Flag byte
+        get Size short
+        get Last_Time longlong
+        get Attribute byte
+
+    elif MAGIC == MAGIC_POSIX_FILEINFO
+        get Bit_Flag byte
+        get Size short
+        get Mode long
+        get UID long
+        get GID long
+        get Last_Time longlong
+
+    elif MAGIC == MAGIC_COMMENT
+        get Bit_Flag byte
+        get Size short
+        getdstring Comment Size
+
+    elif MAGIC == MAGIC_SPLIT
+        get Bit_Flag byte
+        get Size short
+        get Prev_File_ID long
+        get Next_File_ID long
+
+    elif MAGIC == MAGIC_DUMMY
+        get Bit_Flag byte
+        get Size short
+        getdstring Dummy_Data Size
+
+    elif MAGIC == MAGIC_SOLID
+        get Bit_Flag byte
+        get Size short
+        math SOLID = 1
+
+    elif MAGIC == MAGIC_END
+
+        if EXTRACT != 0
+            if Compress_Method == 4
+                getdstring DUMMY 4
+            endif
+            savepos OFFSET
+            if SOLID == 0
+                clog Name OFFSET Compress_Size Uncompress_Size
+            else
+                clog MEMORY_FILE OFFSET Compress_Size Uncompress_Size
+            endif
+            math OFFSET += Compress_Size
+            goto OFFSET
+
+            math EXTRACT = 0
+            set NAME string ""
+
+            if SOLID != 0
+                math OFFSET = 0
+                putarray 1 -1 ""
+                for i = 0
+                    getarray Name 1 i
+                    if Name == ""
+                        break
+                    endif
+                    getarray File_Length 0 i
+                    log Name OFFSET File_Length MEMORY_FILE
+                    math OFFSET += File_Length
+                next i
+            endif
+        endif
+
+    else
+        print "Error: unknown magic %MAGIC|X%"
+        cleanexit
+    endif
+
+    if Size >= 0
+        xmath Next_Chunk "Next_Chunk + 1 + 2 + Size"
+        goto Next_Chunk
+    endif
+next

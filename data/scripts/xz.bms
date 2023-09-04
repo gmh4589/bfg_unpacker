@@ -1,0 +1,16 @@
+# XZ 1.0.4
+
+comtype lzma2_dynamic   # LZMA2_EFS0 with dynamic output size
+getdstring XZ_MAGIC 6
+get XZ_FLAGS0 byte
+get XZ_FLAGS byte
+get XZ_CRC32 long
+xmath DUMMY "1 << ((((XZ_FLAGS & 0xf) - 1) / 3) + 2)"
+getdstring DUMMY DUMMY
+
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+math SIZE = ZSIZE
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

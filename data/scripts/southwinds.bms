@@ -1,0 +1,35 @@
+# South Winds games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get FULLSIZE asize
+set TYPE long 0
+if EXT == "ppk"
+    set TYPE long 1
+endif
+
+if TYPE == 0
+    get DUMMY long
+    idstring "RESOURCES PACK"
+endif
+savepos OFFSET
+for OFFSET = OFFSET < FULLSIZE
+    goto OFFSET
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get CRC long
+    if TYPE == 0
+        get ZIP long
+    else
+        set ZIP long 0
+    endif
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    if ZIP == 0
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET += ZSIZE
+next

@@ -1,0 +1,57 @@
+# Private Dancer BMB (script 0.2.2)
+
+quickbmsver "0.7.2"
+
+math IMAG_ID = 0
+get BMB_SIZE asize
+get FILES long
+for CHUNK_OFF = 4 != BMB_SIZE
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+    savepos CHUNK_OFF
+
+    if CHUNK_TYPE == "IDX2"
+        for i = 0 < FILES
+            get ID short
+            get NAME string
+            putarray 0 ID NAME
+        next i
+    elif CHUNK_TYPE == "INFO"
+        get X short
+        get Y short
+        getdstring DUMMY 0x10
+        get BITS byte
+    elif CHUNK_TYPE == "IMAG"
+        getarray NAME 0 IMAG_ID
+        callfunction DUMP_BMP 1
+        math IMAG_ID + 1
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+    goto CHUNK_OFF
+next
+
+# NAME, X, Y, BITS
+startfunction DUMP_BMP
+    set MEMORY_FILE2 binary "\x42\x4d\x36\x00\x03\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x01\x00\x18\x00\x00\x00\x00\x00\x00\x00\x03\x00\xc4\x0e\x00\x00\xc4\x0e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    set NAME basename NAME
+    string NAME + ".bmp"
+    log MEMORY_FILE 0 0x36 MEMORY_FILE2
+    goto 0x36 MEMORY_FILE
+    xmath SIZE "X * Y * (BITS / 8)"
+    xmath TMP_X "SIZE / Y"
+    for yy = 0 < Y
+        getdstring TMP[yy] TMP_X
+    next yy
+    for yy = Y > 0
+        math yy - 1
+        putdstring TMP[yy] TMP_X MEMORY_FILE
+    next
+    get MEM_SIZE asize MEMORY_FILE
+    putvarchr MEMORY_FILE 2 MEM_SIZE long
+    putvarchr MEMORY_FILE 0x12 X long
+    putvarchr MEMORY_FILE 0x16 Y long
+    putvarchr MEMORY_FILE 0x1c BITS long
+    putvarchr MEMORY_FILE 0x22 SIZE long
+    log NAME 0 MEM_SIZE MEMORY_FILE
+endfunction

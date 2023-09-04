@@ -1,0 +1,28 @@
+# SoundNodeWave2XMA.bms
+# transforms UT3 Engine sounds and music of Xbox 360 games into decodable XMA files
+# by AlphaTwentyThree 06-2010
+
+goto 0x56
+get FREQ short
+reverseShort FREQ
+FindLoc OFFSET STRING \xfc\x01\xc0\x01 0 ""
+math OFFSET -= 0x6
+get SIZE asize
+math SIZE -= OFFSET
+get NAME basename
+string NAME += ".xma"
+set CH 2
+
+set MEMORY_FILE binary "\x52\x49\x46\x46\xb8\x59\xa7\x0\x57\x41\x56\x45\x66\x6d\x74\x20\x20\x0\x0\x0\x65\x1\x10\x0\xd6\x10\x0\x0\x1\x0\x0\x3\xe3\x9a\x0\x0\x80\xbb\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x2\x2\x0\x64\x61\x74\x61\x0\x58\xa7\x0"
+set RIFFSIZE SIZE
+math RIFFSIZE += 0x34
+putVarChr MEMORY_FILE 0x04 RIFFSIZE long
+putVarChr MEMORY_FILE 0x24 FREQ long
+putVarChr MEMORY_FILE 0x31 CH byte
+putVarChr MEMORY_FILE 0x38 SIZE long
+
+append
+log MEMORY_FILE OFFSET SIZE
+append
+math SIZE += 0x3c
+log NAME 0 SIZE MEMORY_FILE

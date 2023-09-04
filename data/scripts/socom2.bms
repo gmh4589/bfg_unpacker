@@ -1,0 +1,38 @@
+# SOCOM 2 / SOCOM: COMBINED ASSAULT
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get NAMES long
+get NAMES_SIZE long
+get NAME_BLAH long
+get ALIGN long
+log MEMORY_FILE 0x64 NAMES_SIZE
+math INFO_OFF = NAMES_SIZE
+math INFO_OFF += 0x64
+math INFO_OFF += 12
+goto INFO_OFF
+get FILES long
+savepos BASE_OFF
+math TMP = FILES
+math TMP *= 16
+math BASE_OFF += TMP
+math BASE_OFF x= ALIGN
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    math NAME_OFF -= NAME_BLAH
+    if NAMES_SIZE == 0
+        set NAME string ""
+    else
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        if NAME == "padding"
+            string NAME += _
+            string NAME += i
+        endif
+    endif
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

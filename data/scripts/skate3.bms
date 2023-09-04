@@ -1,0 +1,68 @@
+# Skate 3 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype dk2
+endian big
+get SIGN long
+get FILES long
+get DUMMY long
+get NAMES_OFF long
+get NAMES_SIZE long
+get NAMESZ byte
+get FOLDERSZ byte
+
+math FOLDERS_OFF = FILES
+math FOLDERS_OFF *= NAMESZ
+math FOLDERS_OFF += NAMES_OFF
+math FOLDERS_OFF x= 0x10
+math NAMESZ -= 2
+
+# guess the multiplier
+# in my opinion it's:
+# DUMMY = 0x100600 = 0x10
+# DUMMY = 0x100400 = 0x40
+set SMALL_OFF long 0xffffffff
+goto 0x30
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get CRC long
+    if OFFSET u< SMALL_OFF
+        math SMALL_OFF = OFFSET
+    endif
+next i
+math TMP = NAMES_OFF
+math TMP += NAMES_SIZE
+math TMP x= 0x100
+math MUL = TMP
+math MUL /= SMALL_OFF
+
+goto 0x30
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get CRC long
+
+    savepos TMP
+    goto NAMES_OFF
+    get FOLDER short
+    getdstring NAME NAMESZ
+    savepos NAMES_OFF
+    math FOLDER *= FOLDERSZ
+    math FOLDER += FOLDERS_OFF
+    goto FOLDER
+    getdstring FOLDER FOLDERSZ
+    goto TMP
+
+    set FULLNAME string FOLDER
+    string FULLNAME += /
+    string FULLNAME += NAME
+    math OFFSET *= MUL
+    if ZSIZE == 0
+        log FULLNAME OFFSET SIZE
+    else
+        clog FULLNAME OFFSET ZSIZE SIZE
+    endif
+next i

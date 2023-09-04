@@ -1,0 +1,32 @@
+# Crash Bandicoot: The Wrath of Cortex DAT
+
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    putarray 0 i NAME_OFF
+next i
+for i = 0 < FILES
+    get OFFSET long
+    putarray 1 i OFFSET
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 2 i SIZE
+next i
+for i = 0 < FILES
+    getarray NAME_OFF 0 i
+    math NAME_OFF + INFO_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+next i
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    log NAME OFFSET SIZE
+next i

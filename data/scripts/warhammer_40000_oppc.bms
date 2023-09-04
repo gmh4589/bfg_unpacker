@@ -1,0 +1,92 @@
+# Warhammer 40,000: Space Marine (script 0.2)
+#   derived from darksiders.bms
+
+idstring "OBPK\0"
+get VER long    # 0xa
+get ZERO long
+get DUMMY1 long
+get DUMMY2 long
+get INFO_OFF long
+get DUMMY long  # 0xeaf
+get OPPC_SIZE long
+get ZERO long
+get ZERO long
+get DUMMY long  # 0x2710
+get DUMMY long  # 0xc350
+
+goto INFO_OFF
+
+get NUM long
+for i = 0 < NUM
+    get NUM2 long
+    for x = 0 < NUM2
+        get DUMMY long
+    next x
+next i
+
+get NAMES long
+for i = 0 < NAMES
+    callfunction GET_NAME 1
+next i
+
+get FOLDERS long
+for i = 0 < FOLDERS
+    get NAME_HASH2 long
+    get NAME_HASH1 long
+    string NAME_HASH p "%08x%08x" NAME_HASH1 NAME_HASH2
+    get FILES long
+    putarray 10 i FILES
+    putarray 11 i NAME_HASH
+next i
+
+math OFFSET = 0
+for FOLDER = 0 < FOLDERS
+    getarray FILES 10 FOLDER
+    getarray PATH  11 FOLDER
+
+    for i = 0 < FILES
+        callfunction GET_NAME 1 # filename
+        set NAME1 string NAME
+        callfunction GET_NAME 1 # another path, usually /
+        get SIZE2 long
+        get DUMMY long  # -1
+        get SIZE long   # same as previous one
+        if SIZE != SIZE2
+            print "Error: SIZE (%SIZE%) != SIZE2 (%SIZE2%), contact me."
+            cleanexit
+        endif
+        get ZERO long
+        get ZERO long
+        get FLAGS byte
+        getdstring DUMMY FLAGS
+
+        string FNAME p "%s/%s%s." PATH NAME NAME1
+        putarray 2 -1 OFFSET
+        putarray 3 -1 SIZE
+        putarray 4 -1 FNAME
+        math OFFSET + SIZE
+    next i
+next FOLDER
+
+padding 0x1000
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+putarray 2 -1 -1
+for i = 0
+    getarray OFFSET 2 i
+    if OFFSET < 0
+        break
+    endif
+    getarray SIZE   3 i
+    getarray NAME   4 i
+    log NAME OFFSET SIZE MEMORY_FILE
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    getdstring NAME NAMESZ
+endfunction

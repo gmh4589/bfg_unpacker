@@ -1,0 +1,78 @@
+# Pokemon FARC (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math DO_NOT_PARSE_SIR0 = 0
+
+get PATH basename
+get ARCHIVE_SIZE asize
+
+getdstring SIGN 4
+goto 0
+if SIGN == "FARC"
+    idstring "FARC"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    for
+        get OFFSET long
+        if OFFSET == 0
+            break
+        endif
+        get SIZE long
+
+        math TMP = OFFSET
+        math TMP + SIZE
+        if TMP u> ARCHIVE_SIZE
+            math SIZE = ARCHIVE_SIZE
+            math SIZE - OFFSET
+        endif
+
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "SIR0" && DO_NOT_PARSE_SIR0 == 0
+            goto OFFSET
+            callfunction EXTRACT_SIR0 1
+        else
+            string NAME p "%s/" PATH
+            log NAME OFFSET SIZE
+        endif
+        goto TMP
+    next
+else
+    callfunction EXTRACT_SIR0 1
+endif
+
+startfunction EXTRACT_SIR0
+    savepos BASE_OFF
+    idstring "SIR0"
+    savepos OFFSET
+    get DUMMY_OFF long
+    get OFFSETS_OFF long
+
+    math OFFSETS_OFF + BASE_OFF
+    goto OFFSETS_OFF
+    for x = 0
+        get SIZE variable
+        if SIZE == 0
+            break
+        endif
+        if x == 2
+            log MEMORY_FILE OFFSET SIZE
+        endif
+        if x >= 2
+            get NAME unicode MEMORY_FILE
+            padding 4 MEMORY_FILE
+        endif
+        if x > 2
+            string NAME p "%s/%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+        math OFFSET + SIZE
+    next x
+endfunction

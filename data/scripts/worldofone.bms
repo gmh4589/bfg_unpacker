@@ -1,0 +1,18 @@
+# World Of One
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x10\xe1\xa4\x4a"
+get INFO_SIZE long
+get FILES long
+for i = 0 < FILES
+    get NAME string
+    get SIZE long
+    get OFFSET long
+
+    set EXT extension NAME
+    if ".fsh.plist.exportjson.json.xml.pex.atlas" & EXT
+        encryption xor "SukaPizd"
+    endif
+    log NAME OFFSET SIZE
+    encryption "" ""
+next i

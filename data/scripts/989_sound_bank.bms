@@ -1,0 +1,36 @@
+# SCEA/SCEE - SBv2/SBlk/lkBS/MMID archives(PS2 and beyond)
+
+get ARCHIVE_NAME basename
+get VERSION long
+endian guess VERSION
+get ENTRIES long
+for i = 0 < ENTRIES
+	get INFO_OFF long
+	get INFO_SIZE long
+	math FILETYPE == i
+	math FILETYPE + 1
+	
+	string NAME p= "%s" ARCHIVE_NAME
+	
+	if VERSION != 2
+		if FILETYPE == 1
+			string NAME += ".sbnk_info"
+		elif FILETYPE == 2
+			string NAME += ".sbnk_data"
+		elif FILETYPE == 3
+			string NAME += ".sbnk_midi"
+		else
+			break
+		endif
+	else
+		if FILETYPE == 1
+			string NAME += ".mmid_mid"
+		else
+			break
+		endif
+	endif
+	
+	if INFO_SIZE != 0 && VERSION <= 4
+		log NAME INFO_OFF INFO_SIZE
+	endif
+next i

@@ -1,0 +1,14 @@
+# Looney Tunes: Animated Jigsaws AGG
+
+get DUMMY long
+get ZERO long
+get FILES long
+get FILES long  # same
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # 0x34
+    get DUMMY long  # -1
+    getdstring NAME 260
+    log NAME OFFSET SIZE
+next i

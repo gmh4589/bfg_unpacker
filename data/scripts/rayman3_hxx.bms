@@ -1,0 +1,26 @@
+# Rayman 3 HXX/H??
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "hxx"
+    print "Error: you must open the files with HXX extension"
+    cleanexit
+endif
+for
+    findloc OFFSET string "STREAM."
+    math OFFSET -= 4
+    goto OFFSET
+
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    open FDSE NAME 1
+
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    getdstring DUMMY 8
+    get OFFSET long
+    get SIZE long
+
+    string NAME += "/"  # autoguess
+    log NAME OFFSET SIZE 1
+next

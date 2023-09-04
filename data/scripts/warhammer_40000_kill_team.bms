@@ -1,0 +1,97 @@
+# Warhammer 40,000: Kill Team
+#   in case of errors with JFSLIST please comment line 6 ("open FDSE...")
+# script for QuickBMS http://quickbms.aluigi.org
+
+math EXISTS = 0
+open FDDE "JFSLIST" 0 EXISTS    # comment with a # in case of errors
+if EXISTS != 0
+    get JFSLIST_SIZE asize
+    for i = 0
+        savepos TMP
+        if TMP >= JFSLIST_SIZE
+            break
+        endif
+
+        get TYPE byte
+        get DUMMYX long
+
+        if TYPE == 0
+            get DUMMY1 long
+            get DUMMY2 long
+            get DUMMY3 long
+
+        elif TYPE == 6
+            get NAMESZ variable4
+            getdstring NAME NAMESZ
+            if DUMMYX != 1
+                get DUMMY byte
+                get DUMMY byte
+            endif
+            get DUMMY byte
+            putarray 0 i NAME
+            math i += 1
+
+        elif TYPE == 4
+            get NAMESZ variable4
+            getdstring NAME NAMESZ
+
+            get ELEMENTS long
+
+            for j = 0 < ELEMENTS
+                get NAMESZ variable4
+                getdstring NAME NAMESZ
+            next j
+            get DUMMY byte
+
+            if ELEMENTS == 1
+                get NAMESZ variable4
+                getdstring NAME NAMESZ
+                get DUMMY byte
+                get DUMMY long
+            elif ELEMENTS == 2
+                getdstring DUMMY 0x14
+            elif ELEMENTS == 3
+                getdstring DUMMY 0x11
+            else
+                print "Error: %ELEMENTS%"
+                cleanexit
+            endif
+
+        elif TYPE == 0x11
+            get DUMMY long
+            if DUMMY == 0
+                get DUMMY byte
+            endif
+
+        else
+            print "Error: unknown type %TYPE%"
+            cleanexit
+        endif
+    next
+endif
+
+open FDDE "JFS"
+idstring "\x01SFJ"
+get DUMMY long
+get OFFSET long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long  # NAME_CRC?
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long  # 4
+    get ZIP long
+
+    if EXISTS == 0
+        set NAME string ""
+    else
+        getarray NAME 0 i
+    endif
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

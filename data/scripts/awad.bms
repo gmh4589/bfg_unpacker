@@ -1,0 +1,49 @@
+# AWAD (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "clz"
+
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+
+elif EXT == "awd"
+
+    endian big
+    idstring "AWAD"
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x10
+        get SIZE long
+        get OFFSET long
+        get DUMMY long
+        log NAME OFFSET SIZE
+    next i
+
+elif EXT == "gmx"
+
+    getdstring DUMMY 4  # "fff@"
+    get FILES short
+    get DUMMY short
+
+    savepos TMP
+    xmath BASE_OFF "TMP + (FILES * (4 + 4 + 4))"
+    math BASE_OFF x 0x800
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    next i
+
+else
+
+    print "Error: unsupported extension %EXT%"
+    cleanexit
+
+endif

@@ -1,0 +1,10 @@
+# I am Setsuna
+
+idstring "1.00"
+get FILES long
+for i = 0 < FILES
+    getct NAME string '.'
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

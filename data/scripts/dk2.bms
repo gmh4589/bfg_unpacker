@@ -1,0 +1,32 @@
+# Dungeon Keeper 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype dk2
+idstring "DWFB"
+get VER long
+goto 0x48
+get FILES long
+get NAMEOFF long
+get NAMESZ long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+    get NAMEOFF long
+    get NAMESZ long
+    get OFFSET long
+    get ZSIZE long
+    get TYPE long
+    get SIZE long
+    getdstring DUMMY 12
+
+    savepos INFO_OFF
+    goto NAMEOFF
+    getdstring NAME NAMESZ
+    goto INFO_OFF
+
+    if TYPE == 0
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

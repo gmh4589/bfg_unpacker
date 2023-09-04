@@ -1,0 +1,38 @@
+# Thandor
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unthandor
+idstring "pck\0"
+get FSIZE long
+getdstring BLAH 0xa8
+get FILES long
+get ZERO long
+goto 0x200
+for i = 0 < FILES
+    getdstring UNAME 0x1f0
+    set NAME unicode UNAME
+    get SIZE long
+    getdstring TYPE 4
+    get ZSIZE long
+    get PACK long
+    savepos OFFSET
+
+    if PACK == 0
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+    elif PACK == 1
+        log NAME OFFSET SIZE
+        math OFFSET += SIZE
+    elif PACK == 2
+        get SIZE long
+        math OFFSET += 0x10
+        math ZSIZE -= 0x10
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+    else
+        print "unknown type of pack %PACK%"
+        cleanexit
+    endif
+
+    goto OFFSET
+next i

@@ -1,0 +1,14 @@
+goto 0x18
+get BASE_OFF long
+goto 0x258
+for
+    getdstring NAME 0x20
+    if NAME == ""
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    string NAME + "."
+    log NAME OFFSET SIZE
+next

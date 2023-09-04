@@ -1,0 +1,40 @@
+# AR !<arch>
+
+get AR_SIZE asize
+idstring "!<arch>\n"
+math i = -1
+do
+    getdstring NAME 16
+    getvarchr TMP NAME 0
+    if i >= 0 && TMP == '/'
+        get NAME line MEMORY_FILE
+        math i + 1
+    endif
+
+    # remove the final /
+    strlen TMP NAME
+    math TMP - 1
+    if TMP >= 0
+        getvarchr TMP2 NAME TMP
+        if TMP2 == '/'
+            putvarchr NAME TMP 0
+        endif
+    endif
+
+    getdstring DATE 12
+    getdstring OWNER 6
+    getdstring GROUP 6
+    getdstring MODE 8
+    getdstring SIZE 10
+    getdstring EOH 2
+    savepos OFFSET
+    getvarchr TMP NAME 1
+    if TMP == '/'   # NAME == "//" (not working in quickbms)
+        log MEMORY_FILE OFFSET SIZE
+        math i = 0
+    endif
+    log NAME OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+    padding 2
+    savepos TMP
+while TMP != AR_SIZE

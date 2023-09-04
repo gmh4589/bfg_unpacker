@@ -1,0 +1,21 @@
+# Xanadu Next
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXTENSION extension
+if EXTENSION != DIR
+    open FDDE DIR 0
+endif
+open FDDE ARC 1
+
+set OFFSET long 0
+get FILES asize
+math FILES /= 108
+for i = 0 < FILES
+    getdstring NAME 100
+    get SIZE long
+    get DUMMY long
+
+    log NAME OFFSET SIZE 1
+
+    math OFFSET += SIZE
+next i

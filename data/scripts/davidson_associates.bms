@@ -1,0 +1,25 @@
+# Davidson & Associates
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+for IDX = 0 < 8
+    get OFFSET long
+    get SIZE long
+
+    if OFFSET != 0
+        savepos TMP
+        goto OFFSET
+        xmath FILES "SIZE / (4 + 4)"
+        for i = 0 < FILES
+            # for many files (images only? there is an additional field which is stored just as a file after the original one
+            # no way to "guess" it, and it's totally useless so let's dump everything as the format tell us
+            get OFFSET long
+            get SIZE long
+            if SIZE != 0
+                log "" OFFSET SIZE
+            endif
+        next i
+        goto TMP
+        cleanexit   # the others are the same!
+    endif
+next IDX

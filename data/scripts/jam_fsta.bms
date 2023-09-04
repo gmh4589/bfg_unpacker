@@ -1,0 +1,40 @@
+# JAM FSTA (script 0.1.1)
+#   THIS SCRIPT IS EXPERIMENTAL!!!
+# script for QuickBMS http://quickbms.aluigi.org
+
+get JAM_SIZE asize
+idstring "FSTA"
+get DUMMY long
+get OFFSET long
+getdstring NAME 0x10
+get NUM1 short
+get NUM2 short
+math FOLDERS = 0
+do
+    get NAME string
+    padding 8
+    math FOLDERS += 1
+while NAME != ""
+do
+    get DUMMY long
+while DUMMY u> 0x300000
+goto -4 0 SEEK_CUR
+
+for
+    get DUMMY long
+    if DUMMY == 0
+        break
+    elif DUMMY & 0x7ff
+    else
+        math OFFSET = DUMMY
+        get SIZE long
+        goto -4 0 SEEK_CUR
+        xmath TMP "OFFSET + SIZE"
+        if SIZE u> JAM_SIZE
+        elif TMP u> JAM_SIZE
+        else
+            goto 4 0 SEEK_CUR
+            log "" OFFSET SIZE
+        endif
+    endif
+next

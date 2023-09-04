@@ -1,0 +1,36 @@
+# TraderLink's VisualTrader OpenVT protocol decrypter
+#   - sniff the packets for port 10010 with a sniffer or proxocket
+#   - open the dump with Wireshark
+#   - select "Follow TCP Stream" and save it in a file
+#   - quickbms openvt.bms dumped_file.dat output_folder
+# script for Quickbms http://quickbms.aluigi.org
+
+get FULLSIZE asize
+log MEMORY_FILE 0 FULLSIZE
+for OFFSET = 0 < FULLSIZE
+    putvarchr MEMORY_FILE OFFSET 0x24
+    getdstring SIZE 8 MEMORY_FILE
+
+    #encryption bf_cbc "eiojm90jfpwemfiomwer2034imfewfpewmkerwigmqwefoi23mf3wfd"
+    #encryption bf_cbc "wdfiubhweqpifub29f8h32qewkpjfqwnepifjbwepiufbqwfub94fbh"
+    #encryption bf_cbc "f6efwec23ori32hx2ndgfgrljkn32p3emlcdlkjefokjnewoin3dfsko"
+    encryption bf_cbc  "3jds894jsnwmtod0295jdhbtr5bv789dsjkerk59fjq2k39fklwo04dm"
+    #encryption bf_cbc "j23jd92odmfg9skw4anjdnweq35pf0dkjrmgicnwi84mnjfj38dj4nrm"
+    #encryption bf_cbc "f3242cwf32rgfver54hfwef5f3vgn45tbbhtj57kjtrgf334vrefbqfw"
+    #encryption bf_cbc "4504i3nfefkfewonmfsofm932hn9nccodwqiuncefvkvr43eddwqxcfb"
+
+    savepos OFFSET MEMORY_FILE
+    log MEMORY_FILE2 OFFSET SIZE MEMORY_FILE
+    math OFFSET += SIZE
+    math OFFSET += 2
+    goto OFFSET MEMORY_FILE
+
+    math j = 0
+    do
+        getvarchr T MEMORY_FILE2 j
+        math j += 1
+    while T != 0x00
+    math j -= 1
+    encryption "" ""
+    log "" 0 j MEMORY_FILE2
+next

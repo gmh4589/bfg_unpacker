@@ -1,0 +1,77 @@
+# TZ online / Talisman Online / Weapons of War Online (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+if DUMMY == 0x04034b50
+    print "Use 7-Zip to extract this ZIP archive"
+    cleanexit
+endif
+goto 0
+
+get DUMMY string
+get NAMESZ long
+getdstring NAME NAMESZ
+get TYPE long
+get OFFSET long
+get SIZE long
+get FILES long
+
+if TYPE >= 'e'  # 'e' and 'f'
+    goto OFFSET
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    callfunction DECRYPT 1
+    math FLAG = 6
+    clog MEMORY_FILE10 0 ZSIZE SIZE MEMORY_FILE
+else
+    log MEMORY_FILE10 OFFSET SIZE
+endif
+
+get NAMESZ long MEMORY_FILE10
+getdstring NAME NAMESZ MEMORY_FILE10
+get DUMMY long MEMORY_FILE10
+get DUMMY long MEMORY_FILE10
+get DUMMY long MEMORY_FILE10
+
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE10
+    getdstring NAME NAMESZ MEMORY_FILE10
+    get OFFSET long MEMORY_FILE10
+    get ZSIZE long MEMORY_FILE10
+    get SIZE long MEMORY_FILE10
+    get FLAG long MEMORY_FILE10
+    get DUMMY long MEMORY_FILE10
+    get DUMMY long MEMORY_FILE10
+    getdstring DUMMY 0x10 MEMORY_FILE10
+
+    if FLAG & 4
+        callfunction DECRYPT 1
+    else
+        log MEMORY_FILE OFFSET ZSIZE
+    endif
+
+    if ZSIZE == SIZE
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        clog NAME 0 ZSIZE SIZE MEMORY_FILE
+    endif
+next i
+
+startfunction DECRYPT
+    math TMP = 0x40
+    if TMP >= ZSIZE
+        math TMP = ZSIZE
+        math TMP - 1
+        math TMP & -8
+    endif
+    encryption tea "\x41\xf5\xdf\x98\xc2\x05\x48\x2b\x9b\x97\xaf\x01\xa5\x4b\x14\xd8" "0x9e3779b9 0xc6ef3720 0 32"
+    log MEMORY_FILE OFFSET TMP
+    encryption "" ""
+    math OFFSET + TMP
+    math ZSIZE  - TMP
+    append
+    log MEMORY_FILE OFFSET ZSIZE
+    append
+    math ZSIZE  + TMP
+endfunction

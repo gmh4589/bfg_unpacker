@@ -1,0 +1,41 @@
+# Unity Web Player (unity3d files) (script 0.2)
+#   thanks to Chipicao for additional info
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+comtype lzma86head
+idstring "UnityWeb"
+get DUMMY long
+get VER1 byte
+get VER2 string
+get VER3 string
+get SIZE long
+get DUMMY short # not supported at the moment
+get OFFSET short
+
+get DUMMY long
+get ENTRIES long
+for i = 0 < ENTRIES # last entry remain saved
+    get ZSIZE long
+    get SIZE long
+next i
+get LAST_OFFSET long
+get DUMMY byte
+
+get NAME filename
+string NAME += "_unpacked"
+#unpacker only
+#clog NAME OFFSET ZSIZE SIZE
+set PATH string NAME
+
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAME string MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    set FNAME string PATH
+    string FNAME += /
+    string FNAME += NAME
+    log FNAME OFFSET SIZE MEMORY_FILE
+next i

@@ -1,0 +1,41 @@
+# RKV archives (Microsoft XNA)
+#   Blade Kitten, Game Room, Star Wars: The Clone Wars - Repulic Heroes and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzf # it's ever type 2
+
+endian big
+getdstring NAME 0x40
+get DUMMY long  # maybe 64bit
+get INFO_OFF long
+get DUMMY long
+get FILES long
+goto INFO_OFF
+
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get TIMESTAMP longlong
+    get ZERO long   # maybe 64bit
+    get OFFSET long
+    get CRC long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get TYPE byte
+        if TYPE != 2
+            print "unknown compression method (%TYPE%), contact me"
+            cleanexit
+        endif
+        goto TMP
+
+        math OFFSET += 1    # first byte is 0x02
+        math ZSIZE  -= 1
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,62 @@
+# Area 51 (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "DFS"
+idstring "SFDX"
+get VER long    # don't remember what's the usual version, probably 3
+if VER > 1
+    get DUMMY long
+endif
+get ALIGN long
+get DUMMY long
+get FILES long
+get DUMMY long  # maybe the number of archives?
+get NAMES_SIZE long
+get DUMMY long
+get INFO_OFF long
+if VER > 1
+    get DUMMY long
+endif
+get NAMES_OFF long
+get ARCHIVE_SIZE long
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+goto INFO_OFF
+if FILES != 0   # avoid error on boot.000
+
+    set ROOT_PATH string ""
+    #get ROOT_PATH string MEMORY_FILE
+
+    math ARCHIVE_NUM = -1
+    math ARCHIVE_SIZE = 0
+    math ARCHIVES_SIZE = 0
+    for i = 0 < FILES
+        get PATH_OFF long
+        get NAME_OFF long
+        get ZERO long   # ever zero even with multiple archives
+        get EXT_OFF long
+        get OFFSET long
+        get SIZE long
+
+        goto PATH_OFF MEMORY_FILE
+        get PATH string MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto EXT_OFF MEMORY_FILE
+        get EXT string MEMORY_FILE
+        string NAME p "%s/%s%s%s" ROOT_PATH PATH NAME EXT
+
+        math OFFSET - ARCHIVES_SIZE
+        if OFFSET u>= ARCHIVE_SIZE
+            math ARCHIVE_NUM + 1
+            string TMP p "%03d" ARCHIVE_NUM
+            open FDDE TMP 1
+
+            math ARCHIVES_SIZE + ARCHIVE_SIZE
+            get ARCHIVE_SIZE asize 1
+            math OFFSET - ARCHIVES_SIZE
+        endif
+
+        log NAME OFFSET SIZE 1
+    next i
+
+endif

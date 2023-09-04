@@ -1,0 +1,35 @@
+# So Blonde
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXTENSION extension
+if EXTENSION != DAT
+    open FDDE DAT 0
+endif
+
+open FDDE DIR 1
+open FDDE TOC 2
+
+do 
+    getdstring CHUNK 4 2
+    get DUNNO long 2
+    get DUNNO long 2
+    get FILES long 2
+    get DUNNO long 2
+    get DUNNO long 2
+while CHUNK != "REST"
+
+savepos NAMEPTR 1
+for i = 1 to FILES
+    get DUNNO long 2
+    get SIZE long 2
+    math SIZE >>= 2
+    get OFFSET long 2
+
+    goto NAMEPTR 1
+    get NAMEOFF long 1
+    savepos NAMEPTR 1
+    goto NAMEOFF 1
+    get NAME string 1
+
+    log NAME OFFSET SIZE
+next i

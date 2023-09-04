@@ -1,0 +1,57 @@
+# Hakuoki Shinsengumi Kitan / Way of the Samurai 2 (script 0.1.1)
+#   maybe other games developed by Idea Factory
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "\xfa\xde\xba\xbe"
+get NUM long    # maybe the number of names, sometimes matches the FILES
+get FILES long
+get DATA_OFF long
+get DATA_SIZE long
+for i = 0 < FILES
+    get NAME_HASH long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+
+    get NAME_OFF long
+    get NAMESZ long
+
+    math OFFSET   + DATA_OFF
+    math NAME_OFF + DATA_OFF
+
+    savepos TMP
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+    goto TMP
+
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i FLAGS
+    putarray 3 i NAME
+next i
+
+    get OFFSET asize
+    putarray 0 i OFFSET
+
+sortarray 0 1
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray FLAGS  2 i
+    getarray NAME   3 i
+
+    math i + 1
+    getarray XSIZE  0 i
+    math XSIZE - OFFSET
+
+    if FLAGS == 0
+        log NAME OFFSET SIZE
+    else    # ???
+        log NAME OFFSET XSIZE
+        #comtype copy    # no idea if there is any compression
+        #clog NAME OFFSET XSIZE SIZE
+    endif
+
+next

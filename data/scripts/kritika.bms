@@ -1,0 +1,76 @@
+# Kritika Online ALP/ALPH (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "ALPH"
+open FDDE "ALP" 1
+
+get ALPH_SIZE asize
+idstring "GKPA"
+get VER short
+get INFO_OFF long
+goto INFO_OFF
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    math FOLDERS = 0
+    math FILES = 0
+
+    get TBLSIZE long
+    savepos TMP
+    filexor "\xDF\x97\x6F\x03" TMP
+    getdstring MAGIC 4
+    get TYPE short  # 1 for folders and 4 for files
+    if MAGIC == "DGKP"
+        get FOLDERS long
+        get FILES long
+        get NAMESZ short
+        math NAMESZ * 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        string PATH + NAME
+        string PATH + /
+    elif MAGIC == "FGKP"
+        get ALGO byte
+        if ALGO == 0
+            comtype lzma_0  # same as msf
+            getdstring LZMA_PROP 5
+        elif ALGO == 1
+            comtype lz4
+            get DUMMY long
+        else
+            print "Error: unknown compression algorithm %ALGO%, contact me"
+            cleanexit
+        endif
+        padding 2   # ???
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get TSTAMP long
+        get SOME_CRC long
+        get SOME_CRC long
+        get NAMESZ short
+        math NAMESZ * 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        string NAME p "%s%s" PATH NAME
+        filexor "\xDF\x97\x6F\x03" OFFSET 1
+        clog NAME OFFSET ZSIZE SIZE 1
+    else
+        print "Error: unknown type %TYPE%, contact me"
+        cleanexit
+    endif
+    filexor ""
+    math TMP + TBLSIZE
+    goto TMP
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    for i = 0 < FILES
+        callfunction EXTRACT
+    next i
+
+endfunction

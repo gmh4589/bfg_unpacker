@@ -1,0 +1,71 @@
+# Lineage Eternal (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP * 16
+if TMP == 0
+    print "you must use quickbms_4gb_files.exe with big archives"
+    cleanexit
+endif
+
+get DUMMY long  # 0x1a4e4198
+get DUMMY long  # 0x28
+getdstring DUMMY 8
+idstring "MDFO"
+getdstring DUMMY 8
+getdstring SIGN 4
+get TOC_SIZE long
+
+# the header at the beginning is useless because doesn't have info
+# about the size of the TOC or the number of archived files
+/*
+get TOC_OFFSET asize
+math TOC_OFFSET - TOC_SIZE
+goto TOC_OFFSET
+
+getdstring DUMMY 0x24
+get FILES long  # this is WRONG! close to the real number, but bigger
+
+get OFFSET asize
+xmath OFFSET "OFFSET - (FILES * 0x18)"
+goto OFFSET
+*/
+
+#comtype ???
+# alternatively it's necessary to search "Mft*" and parsing it (useless because it's not correct)
+if SIGN == "MDFO"
+    goto 0x580
+elif SIGN == "LDFO"
+    goto -0x18
+else
+    print "Error: unsupported sign %SIGN%"
+    cleanexit
+endif
+get DAT_SIZE asize
+for
+    get OFFSET longlong
+    get SIZE long
+    get FLAGS long
+    get ZERO long
+    get TSTAMP long
+    if SIGN == "LDFO"
+        goto -0x30 0 SEEK_CUR
+    endif
+    # don't check if the values are zero because they can be all zero
+    if OFFSET u> DAT_SIZE
+        break
+    endif
+
+    log "" OFFSET SIZE
+
+    /*
+    # unknown compression
+    savepos TMP
+    goto OFFSET
+    get FLAGS long
+    get XSIZE long
+    savepos OFFSET
+    clog "" OFFSET SIZE XSIZE
+    goto TMP
+    */
+next

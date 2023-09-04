@@ -1,0 +1,21 @@
+# Tomb Raider Legend/Anniversary/Underworld - .mul sorter
+
+set FREQUENCY ""
+set LAYERS ""
+goto 0
+get FREQUENCY long
+get LOOP_INDICATOR long
+get TOTAL_SAMPLES long
+get LAYERS long
+get FNAME filename
+if LAYERS == ""
+	if FREQUENCY == ""
+		string NAME p= "others/%s" FNAME
+	else
+		string NAME p= "%d/%s" FREQUENCY FNAME
+	endif
+else
+	string NAME p= "%d_%d/%s" FREQUENCY LAYERS FNAME
+endif
+get SIZE asize
+log NAME 0 SIZE

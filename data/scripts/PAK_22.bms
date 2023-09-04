@@ -1,0 +1,19 @@
+<bms games="'Delaware St John: Volume 1', 'Delaware St John: Volume 2'" platforms="'PC'" ext="PAK">
+ImpType Standard ;
+Get FILENUM Long 0 ;
+For F = 1 To FILENUM ;
+Get IDENT Long 0 ;
+Get ID Long 0 ;
+GetDString FNAME 12 0 ;
+If IDENT = 1 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Else ;
+Get FOO Long 0 ;
+Get BAR Long 0 ;
+End If ;
+Next F ;
+</bms>

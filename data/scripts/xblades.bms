@@ -1,0 +1,150 @@
+# X-Blades (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+
+if SIGN u== "DBLD"
+
+    #http://aluigi.org/bms/blades_of_time.bms
+    idstring "DBLD"
+    getdstring VER 4
+    get DUMMY long
+    savepos OFFSET
+    get BIN_SIZE asize
+    for OFFSET = OFFSET < BIN_SIZE
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+        if SIZE > 4
+            log "" OFFSET SIZE
+        endif
+        math OFFSET += SIZE
+    next
+
+elif SIGN u== "DDSx"
+
+    callfunction DDSx_HEADER 1
+    savepos OFFSET
+    get NAME basename
+    string NAME + ".headerless_dds"
+    clog NAME OFFSET ZSIZE SIZE
+
+elif SIGN u== "DxP2"
+
+    idstring "DxP2"
+    get VER long
+    get FILES long
+    get DATA_OFF long
+    savepos BASE_OFF
+    get INFO_OFF long
+    get FILES long
+    get INFO_OFF2 long
+    get FILES long
+    get INFO_OFF3 long
+    get FILES long
+    padding 0x10
+
+    math DATA_OFF  + BASE_OFF
+    math INFO_OFF  + BASE_OFF
+    math INFO_OFF2 + BASE_OFF
+    math INFO_OFF3 + BASE_OFF
+
+    for i = 0 < FILES
+        get NAME string
+        string NAME - "*"   # there is a * at the end...
+        putarray 0 i NAME
+    next i
+
+    goto INFO_OFF
+    for i = 0 < FILES
+        get DUMMY long
+    next i
+
+    goto INFO_OFF2
+    for i = 0 < FILES
+        # this is the DDSx header used at the beginning of all the *.ddsx files
+        callfunction DDSx_HEADER 1
+        putarray 1 i SIZE
+        putarray 2 i ZSIZE
+    next i
+
+    goto INFO_OFF3
+    for i = 0 < FILES
+        get OFFSET longlong
+        get DUMMY long  # -1
+        get SIZE long
+
+        getarray NAME  0 i
+        getarray SIZE  1 i
+        getarray ZSIZE 2 i
+        clog NAME OFFSET ZSIZE SIZE
+    next i
+
+elif SIGN u== "GRP1"
+
+    idstring "GRP1"
+    get INFO_SIZE long
+    get DUMMY_SIZE long
+    get GRP_SIZE long
+    get OFFSET1 long
+    get FILES1 long
+    get OFFSET2 long
+    get FILES2 long
+    get OFFSET3 long
+    get FILES3 long
+    goto OFFSET1
+    for i = 0 < FILES1
+        get OFFSET long
+        savepos TMP
+        goto OFFSET
+        get NAME string
+        goto TMP
+        putarray 0 i NAME
+    next i
+    goto OFFSET2
+    for i = 0 < FILES2
+        get SOME_CRC long
+        get OFFSET long
+        get ID long
+        putarray 1 i OFFSET
+        putarray 2 i ID
+    next i
+        putarray 1 i GRP_SIZE
+    goto OFFSET3
+    for i = 0 < FILES3
+        get SOME_CRC long
+        get DUMMY short
+        get DUMMY short
+        get DUMMY long
+        get DUMMY long
+    next i
+    for i = 0 < FILES2
+        getarray OFFSET 1 i
+        getarray ID     2 i
+        getarray NAME   0 ID
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        string NAME + "."
+        log NAME OFFSET SIZE
+    next
+
+else
+
+    print "Error: unsupported file (%SIGN%)"
+    cleanexit
+
+endif
+
+startfunction DDSx_HEADER
+    idstring "DDSx"
+    getdstring DXT 4    # or a long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    get ZSIZE long
+endfunction
+

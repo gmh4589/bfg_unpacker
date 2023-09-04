@@ -1,0 +1,26 @@
+# Beatmania HD music dumper (script 0.2)
+
+encryption swap 2
+get ARCHIVE_SIZE asize
+set MYPADDING string "OOOOOOOOOOOOOOOO"
+for
+    savepos OFFSET
+    findloc END_OFFSET string MYPADDING 0 ""
+    if END_OFFSET == ""
+        math END_OFFSET = ARCHIVE_SIZE
+    endif
+    math SIZE = END_OFFSET
+    math SIZE - OFFSET
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+    goto END_OFFSET
+    padding 16
+    do
+        getdstring TMP 16
+    while TMP == MYPADDING
+    savepos TMP
+    if TMP & 0x7ff
+        goto -16 0 SEEK_CUR
+    endif
+next

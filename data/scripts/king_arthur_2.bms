@@ -1,0 +1,26 @@
+# King Arthur II
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "C2AR"
+get DUMMY byte
+get DUMMY long
+get DUMMY long
+get TYPE byte
+if TYPE == 0x02
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+else
+    savepos OFFSET
+    get SIZE asize
+    math SIZE -= OFFSET
+endif
+get NAME basename
+get EXT extension
+string NAME += "_unpacked."
+string NAME += EXT
+if TYPE == 0x02
+    clog NAME OFFSET ZSIZE SIZE
+else
+    log NAME OFFSET SIZE
+endif

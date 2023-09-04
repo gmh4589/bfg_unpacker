@@ -1,0 +1,15 @@
+# Spider-Man 1 CD.HED/WAD
+
+open FDDE "HED"
+open FDDE "WAD" 1
+
+get LIMIT asize
+math LIMIT - 7
+for MYOFF = 0 < LIMIT
+    get NAME string
+    padding 4
+    get OFFSET long
+    get SIZE long
+    savepos MYOFF
+    log NAME OFFSET SIZE 1
+next

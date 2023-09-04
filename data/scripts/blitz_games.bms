@@ -1,0 +1,74 @@
+# Blitz Games (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6"
+
+get TSTAMP long  # 0x4cb6232c
+get ALIGN long
+endian guess ALIGN
+get ZERO long
+get FILES long
+get INFO_OFF long
+get TEXRACTR_OFF long
+get ZERO long
+get DUMMY long
+get OFFSET3 long
+get DUMMY long
+get NAMES_OFF long
+get NAMES_SIZE long
+get INFO_SIZE long
+
+math INFO_OFF     * ALIGN
+math TEXRACTR_OFF * ALIGN
+math OFFSET3      * ALIGN
+math NAMES_OFF    * ALIGN
+
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+math METHOD = 0
+xmath TMP "FILES * 32"
+if INFO_SIZE != 0
+    if TMP > INFO_SIZE
+        math METHOD = 1
+    endif
+else
+    math TMP + INFO_OFF
+    math TMP x ALIGN
+    if TMP u> NAMES_OFF # > not >=
+        math METHOD = 1
+    endif
+endif
+
+math BASE_OFF2 = 0
+if INFO_OFF > 0x140
+    goto 0x140
+    get BASE_OFF2 long
+    math BASE_OFF2 + INFO_OFF
+endif
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SOME_CRC long
+    get SIZE long
+    get NAME_OFF long
+    get IS_FILE long    # 4, 8 or 0x10, apparently 0x10 has offset 0
+    if METHOD == 0
+        get ZERO long
+        get CRC longlong
+    endif
+
+    math OFFSET * ALIGN
+    if IS_FILE & 0x10
+        math OFFSET + BASE_OFF2
+    endif
+
+    if NAME_OFF >= NAMES_SIZE
+        set NAME string ""
+    else
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+    endif
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,80 @@
+# Quantum Break (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "rmdp" 1
+open FDDE "xml"
+
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    for
+        get TMP line
+        if TMP & "<directory "
+            string TMP R ">" ""
+            string ELEMENTS S TMP VAR1 NAME
+            string NAME | "="
+            string NAME R "\"" ""
+            callfunction EXTRACT
+        elif TMP & "<file "
+            string TMP R ">" ""
+            string ELEMENTS S TMP VAR1 NAME OFFSET CRC32 SIZE WRITETIME ORIGINALPATH
+            string NAME | "="
+            string NAME R "\"" ""
+            string OFFSET | "="
+            string OFFSET R "\"" ""
+            string SIZE | "="
+            string SIZE R "\"" ""
+            string ORIGINALPATH | "="
+            string ORIGINALPATH R "\"" ""
+            set FNAME string PATH
+            string FNAME + NAME
+            log FNAME OFFSET SIZE 1 # you can use ORIGINALPATH too
+        elif TMP & "</directory>"
+            break
+        endif
+    next
+endfunction
+
+/*
+    open FDDE "packmeta"
+    get FILES long
+    get DUMMY long  # 1
+    get NAMES long
+    get NAMES_SIZE long
+    savepos TMP
+    log MEMORY_FILE TMP NAMES_SIZE
+    math TMP + NAMES_SIZE
+    goto TMP
+    for i = 0 < FILES
+        get NAME_OFF long
+    next i
+    get ELEMENTS long
+    for i = 0 < ELEMENTS
+        get CRC longlong
+    next i
+    for i = 0 < FILES
+        get DUMMY long
+    next i
+    get ELEMENTS long
+    for i = 0 < ELEMENTS
+        get CRC long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get DUMMY long
+    next i
+    for i = 0 < FILES
+        getdstring DUMMY 0x1c
+    next i
+    for i = 0 < FILES
+        getdstring DUMMY 0x44
+    next i
+    for i = 0 < FILES
+        getdstring DUMMY 0x2c
+        getvarchr SIZE DUMMY 0x18
+    next i
+    # ... blah no offsets and not sequential ...
+*/

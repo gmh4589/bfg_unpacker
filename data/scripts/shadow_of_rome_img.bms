@@ -1,0 +1,71 @@
+# Shadow of Rome IMAGE0.IMG (SLUS_209.02)
+
+set EXE string "SLUS_209.02"
+math TOC_OFFSET = 0x35a820
+math FILES = 0x2b6
+
+get EXT extension
+if EXT == "img"
+
+    open FDSE EXE 1
+    goto TOC_OFFSET 1
+
+    math PACK_NUM = -1
+
+    for i = 0 < FILES
+        get OFFSET long 1
+        get SIZE   long 1
+        math OFFSET * 0x800
+        math SIZE   * 0x800
+
+        if OFFSET == 0
+            math PACK_NUM + 1
+            string TMP p "IMAGE%d.IMG" PACK_NUM
+            open FDSE TMP
+        endif
+
+        callfunction EXTRACT_LINK 1
+    next i
+
+else
+
+    math OFFSET = 0
+    get SIZE asize
+    callfunction EXTRACT_LINK 1
+
+endif
+
+startfunction EXTRACT_LINK
+    savepos BCK_OFF
+    goto OFFSET
+    getdstring MAGIC 4
+    if MAGIC u== "LINK"
+        get DUMMY long  # 0x0102
+        get DUMMY long
+        get DUMMY long  # CPK0 offset
+        get ZSIZE long
+        get ZERO  long
+        get DUMMY long
+        get CPK0_SIZE long
+        get CPK0_OFF long
+        math CPK0_OFF + OFFSET
+        goto CPK0_OFF
+
+        idstring "CPK0" # are they chunks?
+        get ZSIZE long
+        get SIZE long
+        get ALGO long
+
+        if ALGO == 0
+            comtype lzss0
+        else
+            comtype PUYO_LZ01
+        endif
+
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    goto BCK_OFF
+endfunction

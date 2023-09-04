@@ -1,0 +1,64 @@
+# Mortal Kombat 9 2011
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get SIGN long
+if SIGN != 0x9e2a83c1
+    print "the input file doesn't seem a MK9 archive"
+endif
+goto 0x14
+get NAMESZ long
+getdstring NAME NAMESZ
+getdstring DUMMY 0x40
+get FILES long
+savepos TMP_OFF
+math NAME_OFF = FILES
+math NAME_OFF *= 0x10
+math NAME_OFF += TMP_OFF
+math NAME_OFF += 0x20
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    savepos TMP_OFF
+    goto NAME_OFF
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    getdstring DUMMY 0x10
+    savepos NAME_OFF
+    callfunction EXTRACT
+    goto TMP_OFF
+next i
+
+startfunction EXTRACT
+    goto OFFSET
+    get SIGN long
+    if SIGN == 0x9e2a83c1
+        get CHUNK_SIZE long
+        get FILE_ZSIZE long
+        get FILE_SIZE long
+        putvarchr MEMORY_FILE FILE_SIZE 0
+        log MEMORY_FILE 0 0
+        math CHUNKS = FILE_SIZE
+        math TMP = 0
+        if CHUNKS % CHUNK_SIZE
+            math TMP = 1
+        endif
+        math CHUNKS /= CHUNK_SIZE
+        math CHUNKS += TMP
+        math OFFSET += SIZE
+        math OFFSET -= FILE_ZSIZE
+        append
+        for j = 0 < CHUNKS
+            get CHUNK_ZSIZE long
+            get CHUNK_SIZE long
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET += CHUNK_ZSIZE
+        next j
+        append
+        log NAME 0 FILE_SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+endfunction

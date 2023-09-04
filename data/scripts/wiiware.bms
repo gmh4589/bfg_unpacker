@@ -1,0 +1,26 @@
+# extract *.PUB files from Big Town Shoot Out (WiiWare)
+# (c) 2012-07-08 by AlphaTwentyThree of XeNTaX
+
+comtype COMP_LZ77WII
+endian big
+goto 0x24
+get FILES long
+get INFO long
+goto INFO
+for i = 1 <= FILES
+   get NAME_CRC long
+   string NAME_CRC p= "_0x%08x" NAME_CRC
+   get OFFSET long
+   get UNK long
+   get SIZE long
+   get ZSIZE long
+   get ZERO long
+   get UNK long
+   get NAME basename
+   string NAME += NAME_CRC
+   if SIZE == ZSIZE
+      log NAME OFFSET SIZE
+   else
+      clog NAME OFFSET SIZE ZSIZE
+   endif
+next i

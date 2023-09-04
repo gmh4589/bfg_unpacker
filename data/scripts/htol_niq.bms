@@ -1,0 +1,30 @@
+# htoL#NiQ: The Firefly Diary
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "NSAC"
+get VER short   # 2
+get FILES short
+get DAT_SIZE long
+get BASE_OFF long
+get INFO_SIZE long
+get NAMES_SIZE long
+get DUMMY long
+savepos NAMES_OFF
+math NAMES_OFF + INFO_SIZE
+for i = 0 < FILES
+    get ID short
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAMESZ short
+    math NAMESZ + 1
+    get DUMMY long
+    get DUMMY long
+    getdstring NAME NAMESZ
+    savepos NAMES_OFF
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

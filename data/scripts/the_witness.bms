@@ -1,0 +1,31 @@
+# The Witness (sound/texture) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+string NAME + "."
+get EXT extension
+
+quickbmsver "0.8.4"
+math FILENUM = 0
+
+comtype lz4
+get TYPE1 long  # 0xb:sound, 0:texture
+get ZIP short
+get TYPE2 short # 7:sound, 0x16:texture
+get SIZE long   # zero for non-compressed files
+if ZIP != 0
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math FILENUM = -1
+endif
+
+if EXT == "sound"
+    get SIZE long FILENUM
+endif
+if SIZE == 0
+    get SIZE asize FILENUM
+endif
+savepos OFFSET FILENUM
+log NAME OFFSET SIZE FILENUM

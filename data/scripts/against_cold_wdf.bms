@@ -1,0 +1,107 @@
+# 逆水寒 n.163.com wdf (script 0.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.9.0"
+
+comtype lz4
+idstring "1FDW"
+get DUMMY long      # 0x400
+get INFO_OFF long   # 0x100000
+get DUMMY long      # 0x400
+get DUMMY long      # 0x2000
+get DUMMY long      # 0x400
+get VER string      # 1.1
+# the rest of data is useless
+padding 0x1000
+goto INFO_OFF 0 SEEK_CUR    #0x81000
+
+do  # old scan method
+    callfunction GET_OFFSET 1
+while OFFSET == -1  # don't use 0xffffffff because I need something compatible with longlong
+goto TMP
+for FOLDERS = 0
+    callfunction GET_OFFSET 1
+    if OFFSET == -1 # don't use 0xffffffff because I need something compatible with longlong
+        break
+    endif
+    putarray 0 FOLDERS OFFSET
+next FOLDERS
+
+for FOLDER = 0 < FOLDERS
+    getarray OFFSET 0 FOLDER
+    goto OFFSET
+    for i = 0 < 1024
+        get NAME_CRC long   # don't check if NAME_CRC is zero
+        get SOME_CRC long   # it was zero in the past
+        get SIZE long
+        get FLAGS threebyte
+        getdstring HASH 16
+        get XSIZE long
+        getdstring ZERO 9
+        callfunction GET_OFFSET 1
+        get REAL_SIZE long
+
+        math CHUNKS = 0
+        math BCK_OFFSET = OFFSET
+        for x = 0 < 7
+            callfunction GET_OFFSET 1
+            get CHUNK_SIZE long
+            if OFFSET != 0
+                putarray 10 CHUNKS OFFSET
+                putarray 11 CHUNKS CHUNK_SIZE
+                math CHUNKS + 1
+            endif
+        next x
+        math OFFSET = BCK_OFFSET
+
+        if OFFSET != 0
+            string NAME p "%d/%08x." FOLDER NAME_CRC    # they are not folders, probably it will be changed in future
+
+            savepos TMP_OFF
+            math FILENUM = 0
+            if CHUNKS != 0
+                putvarchr MEMORY_FILE SIZE 0
+                log MEMORY_FILE OFFSET REAL_SIZE
+                append
+                for x = 0 < CHUNKS
+                    getarray CHUNK_OFF  10 x
+                    getarray CHUNK_SIZE 11 x
+                    get TMP asize MEMORY_FILE
+                    math TMP + CHUNK_SIZE
+                    if TMP u> SIZE
+                        # necessary because the size of the chunks is aligned but the file is truncated... mah
+                        xmath CHUNK_SIZE "CHUNK_SIZE - (TMP - SIZE)"
+                    endif
+                    log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+                next x
+                append
+                math OFFSET  = 0
+                math FILENUM = -1
+            endif
+
+            encryption xor "\xae\xba\xae\xcb\xe6\xc4\xcb\xb8\xea\xb1\xfa\xb4\xb1\xca\xce\xb4"
+            if FLAGS & 0x200
+                goto OFFSET    FILENUM
+                get XSIZE long FILENUM
+                get ZERO  long FILENUM
+                math OFFSET    + 8
+                math SIZE      - 8
+                clog NAME OFFSET SIZE XSIZE FILENUM
+            else
+                log NAME OFFSET SIZE FILENUM
+            endif
+            encryption "" ""
+
+            goto TMP_OFF
+        endif
+    next i
+next FOLDER
+
+startfunction GET_OFFSET
+    savepos TMP
+    if VER == "1.0" # ???
+        get OFFSET long
+    else            # 1.1
+        get OFFSET longlong
+    endif
+endfunction

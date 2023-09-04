@@ -1,0 +1,16 @@
+# City Racing
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\x80"
+open FDDE "hdr"
+open FDDE "pak" 1
+goto -4
+get FILES long
+goto 0
+for i = 0 < FILES
+    get NAME string
+    get SIZE long
+    get OFFSET long
+    string NAME ^ KEY
+    log NAME OFFSET SIZE 1
+next i

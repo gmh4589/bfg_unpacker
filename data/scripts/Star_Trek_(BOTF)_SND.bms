@@ -1,0 +1,13 @@
+# Star Trek (BOTF) (SND)
+
+Get TAILOFF Long 0 ;
+Do ;
+GoTo TAILOFF 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+SavePos TAILOFF 0 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+While NotEOF <> 0 ;
+

@@ -1,0 +1,14 @@
+# Freestyle Football (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PACK"
+get VER long    # 0xc
+get INFO_SIZE long
+math NAMESZ = 256
+xmath FILES "INFO_SIZE / (NAMESZ + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

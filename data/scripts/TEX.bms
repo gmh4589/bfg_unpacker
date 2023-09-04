@@ -1,0 +1,17 @@
+<bms games="'WWE Day of Reckoning'" platforms="'PC'" ext="TEX">
+ImpType Standard ;
+Get FNum Long 0 ;
+SavePos S 0 ;
+Math S += 12 ;
+GoTo S 0 ;
+For T = 1 To FNum ;
+GetDString FN 16 0 ;
+Get D Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Get D Long 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+</bms>

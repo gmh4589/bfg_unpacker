@@ -1,0 +1,50 @@
+# Still Life 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate_noerror # XCPK
+
+get EXT extension
+if EXT == "xcs"
+    get NAME basename
+    get EXT extension
+    string NAME p "%s_unpack.%s" NAME EXT
+    get SIZE asize
+    callfunction XCS_UNPACK 1
+    cleanexit
+endif
+
+filexor "0x29 0x23 0xBE 0x84 0xE1 0x6C 0xD6 0xAE 0x52 0x90 0x49 0xF1 0xF1 0xBB 0xE9 0xEB"
+idstring "GMGB"
+get FILES long
+
+savepos NAMESTART
+for i = 1 to FILES
+    get NAME string
+    get SIZE long
+next i
+
+savepos OFFSET
+goto NAMESTART
+for i = 1 to FILES
+    get NAME string
+    get SIZE long
+
+    savepos TMP
+    set EXT extension NAME
+    if EXT == "xcs"
+        callfunction XCS_UNPACK 1
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+
+    math OFFSET + SIZE
+next i
+
+startfunction XCS_UNPACK
+    goto OFFSET
+    idstring "XCPK"
+    math OFFSET + 4
+    math SIZE   - 4
+    clog NAME OFFSET SIZE SIZE
+endfunction

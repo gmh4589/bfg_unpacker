@@ -1,0 +1,97 @@
+# Ape Escape 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "PCK"
+    idstring "PCK\0"
+    get INFO_OFF long
+    get FILES long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get NAME_OFF long
+        get FLAGS long  # 0x1e
+        get OFFSET long
+        get SIZE long
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        string NAME + "."   # names have no extension
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+comtype deflate
+idstring "VFI\0"
+get VER long    # 1
+get DATA_OFF long
+math DATA_OFF * 0x800
+get ZERO long
+get FILES short
+get FOLDERS short
+get INFO_OFF long
+get DUMMY long
+get INFO_END long
+
+for i = 0 < FILES
+    goto INFO_OFF
+    get ENTRY_SIZE short
+    get PARENT_OFF short
+    get OFFSET long
+    get SIZE long
+    savepos TMP
+    xmath NAMESZ "ENTRY_SIZE - (TMP - INFO_OFF)"
+    getdstring NAME NAMESZ
+
+    math OFFSET * 0x800
+
+    putarray 0 i PARENT_OFF
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+    putarray 3 i NAME
+
+    math INFO_OFF + ENTRY_SIZE
+next i
+
+savepos FOLDERS_OFF
+
+for i = 0 < FILES
+    getarray PARENT_OFF 0 i
+    getarray OFFSET     1 i
+    getarray SIZE       2 i
+    getarray NAME       3 i
+
+    for PARENT_OFF = PARENT_OFF != 0
+        math PARENT_OFF + FOLDERS_OFF
+        goto PARENT_OFF
+        callfunction GET_FOLDER 1
+        string NAME p "%s/%s" PATH NAME
+    next
+
+    set EXT extension NAME
+    if EXT == "sz"
+        set NAME fullbasename NAME
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction GET_FOLDER
+    savepos INFO_OFF
+    get ENTRY_SIZE short
+    get NEXT_OFF short
+    get PARENT_OFF short
+    get DUMMY short
+    savepos TMP
+    xmath NAMESZ "ENTRY_SIZE - (TMP - INFO_OFF)"
+    getdstring PATH NAMESZ
+endfunction

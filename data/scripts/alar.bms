@@ -1,0 +1,102 @@
+# ALAR Jump Stars (script 0.1.1)
+#   https://web.archive.org/web/20100111220659/http://jumpstars.wikispaces.com/File+Formats
+
+getdstring SIGN 4
+
+if SIGN == "ALLZ"
+    comtype alzss
+    get FLAGS long
+    get SIZE long
+    math OFFSET = 0
+    get ZSIZE asize
+    clog "TEMPORARY_FILE" OFFSET ZSIZE SIZE
+    open "." "TEMPORARY_FILE"
+elif SIGN == "DSCP" # was != "ALAR"
+    comtype lz77wii
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    clog "TEMPORARY_FILE" OFFSET SIZE SIZE
+    open "." "TEMPORARY_FILE"
+else
+    goto 0
+endif
+
+idstring "ALAR"
+get TYPE byte
+get Unknown byte
+if Unknown & 0x80   # not sure about it but there are no other fields for guessing the endianess
+    endian big      # all the little endian samples were just 1 or 3, big were 0xc1 and 0xe1
+endif
+
+if TYPE == 2
+
+    get FILES short
+    getdstring IDS 8
+    savepos TMP
+    for i = 0 < FILES
+        get TYPE long
+        get OFFSET long
+        get SIZE long
+        get Unknown long
+
+        savepos TMP
+        math NAME_OFF = OFFSET
+        math NAME_OFF - 0x22
+        goto NAME_OFF
+        getdstring NAME 0x20
+        goto TMP
+
+        log NAME OFFSET SIZE
+    next i
+
+elif TYPE == 3
+
+    get FILES long
+    # my samples differ than the format on jumpstars
+    if FILES <= 0xffff
+        get Unknown short
+        get ArrayCount long
+        get EndFileIndex short
+        for i = 0 <= ArrayCount
+            get FileTableIndex short
+        next i
+        for i = 0 < FILES
+            callfunction READ_TYPE3_ENTRY 1
+            getdstring NAME 18
+            log NAME OFFSET SIZE
+        next i
+    else
+        goto -4 0 SEEK_CUR
+        get FILES short
+        getdstring DUMMY 10
+        for i = 0 < FILES
+            get OFFSET short
+            savepos TMP
+            goto OFFSET
+
+            callfunction READ_TYPE3_ENTRY 1
+            get NAME string
+            log NAME OFFSET SIZE
+
+            goto TMP
+        next i
+    endif
+
+else
+
+    print "Error: unknown type %TYPE%"
+    cleanexit
+
+endif
+
+startfunction READ_TYPE3_ENTRY
+    get FileID short
+    get Unknown short
+    get OFFSET long
+    get SIZE long
+    get Unknown short
+    get Unknown short
+    get Unknown short
+endfunction
+

@@ -1,0 +1,30 @@
+# Age of Mythology (BAR)
+
+ImpType StandardTail ;
+Set S Long 12 ;
+GoTo S 0 ;
+Get FC Long 0 ;
+Get FTSize Long 0 ;
+SavePos TailOffOff 0 ;
+Get TO Long 0 ;
+Set FJ Long 4 ;
+Math FJ *= FC ;
+GoTo TO 0 ;
+For TE = 1 To FC ;
+Get FE Long 0 ;
+Math FE += TO ;
+Math FE += FJ ;
+SavePos CB 0 ;
+GoTo FE 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos TP 0 ;
+Math TP += 12 ;
+GoTo TP 0 ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+GoTo CB 0 ;
+Next TE ;
+

@@ -1,0 +1,23 @@
+# Turok
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get DUMMY long
+savepos INFO_OFF
+xmath NAMES_OFF "INFO_OFF + (FILES * (4 + 4))"
+goto NAMES_OFF
+for i = 0 < FILES
+    get NAME string
+    putarray 0 i NAME
+next i
+savepos BASE_OFF
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i
+
+

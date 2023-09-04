@@ -1,0 +1,20 @@
+# Heroes of Might and Magic 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES short
+get OFFSET asize
+xmath OFFSET "OFFSET - (FILES * 15)"
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 15
+    putarray 0 i NAME
+next i
+goto 2
+for i = 0 < FILES
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long  # probably compressed size
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

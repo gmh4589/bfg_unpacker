@@ -1,0 +1,24 @@
+# Oodle OOZ
+
+comtype oodle
+idstring "ozip"
+get VER long
+get SIZE longlong
+
+get NAME basename
+log NAME 0 0
+
+get OOZ_SIZE asize
+
+append
+do
+    idstring "ozip"
+    get SIZE long
+    get CTX_SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    goto ZSIZE 0 SEEK_CUR
+    savepos TMP
+while TMP != OOZ_SIZE
+append

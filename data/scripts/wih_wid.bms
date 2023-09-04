@@ -1,0 +1,11 @@
+open FDDE WIH
+open FDDE WID 1
+endian big
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    log "" OFFSET SIZE 1
+next i

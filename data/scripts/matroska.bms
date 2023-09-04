@@ -1,0 +1,122 @@
+# Matroska MKV dump (script 0.1.1)
+
+quickbmsver "-64"
+
+endian big
+callfunction BUILD_MULT_ARRAY 1
+
+math ELEMENT = 0
+set PATH string ""
+get MKV_SIZE asize
+
+do
+    # not working with test7.mkv offset 0x58b
+
+    get TEST byte
+    goto -1 0 SEEK_CUR
+    if TEST & 0x80
+        get EBML_ID byte
+    elif TEST & 0x40
+        get EBML_ID short
+    elif TEST & 0x20
+        get EBML_ID threebyte
+    elif TEST & 0x10
+        get EBML_ID long
+    else
+        get EBML_ID byte    # invalid (for example 0x0a in test4.mkv)
+    endif
+
+    if EBML_ID & 0x10000000
+        string PATH p "%08x_%d/" EBML_ID ELEMENT
+        math ELEMENT + 1
+        callfunction GET_EBML_UINT 1
+    elif EBML_ID u< 0x10
+        # invalid
+    else
+        math x = 0
+        do
+            getarray TMP 0 x
+            math x + 1
+            if EBML_ID == TMP
+                break
+            endif
+        while TMP != 0
+        if TMP != 0
+            callfunction GET_EBML_UINT 1
+        else
+            callfunction GET_EBML 1
+        endif
+    endif
+
+    savepos TMP
+while TMP != MKV_SIZE
+
+startfunction GET_EBML_UINT
+    math VINT_WIDTH = 0
+    do
+        getbits TMP 1
+        math VINT_WIDTH + 1
+    while TMP != 1  # VINT_MARKER
+    math VINT_WIDTH * 7
+    getbits VINT_DATA VINT_WIDTH
+endfunction
+
+startfunction GET_EBML
+    callfunction GET_EBML_UINT 1
+    if VINT_DATA != 0
+        savepos OFFSET
+        string NAME p "%s%08x/%08x" PATH EBML_ID OFFSET
+        log NAME OFFSET VINT_DATA
+        goto VINT_DATA 0 SEEK_CUR
+    endif
+endfunction
+
+# just a work-around
+startfunction BUILD_MULT_ARRAY
+    putarray 0 -1 0x114D9B74
+    putarray 0 -1 0x4DBB
+    putarray 0 -1 0x1549A966
+    putarray 0 -1 0x4444
+    putarray 0 -1 0x6924
+    putarray 0 -1 0x69FC
+    putarray 0 -1 0x1F43B675
+    putarray 0 -1 0x58D7
+    #putarray 0 -1 0xA3
+    putarray 0 -1 0xA0
+    putarray 0 -1 0xA6
+    #putarray 0 -1 0xFB
+    putarray 0 -1 0xE8
+    putarray 0 -1 0xAF
+    putarray 0 -1 0x1654AE6B
+    putarray 0 -1 0xAE
+    putarray 0 -1 0x41E4
+    putarray 0 -1 0x3B4040
+    putarray 0 -1 0x26B240
+    putarray 0 -1 0x6FAB
+    putarray 0 -1 0x6624
+    putarray 0 -1 0x66FC
+    putarray 0 -1 0xE4
+    putarray 0 -1 0xED
+    putarray 0 -1 0x6240
+    putarray 0 -1 0xBB
+    putarray 0 -1 0xB7
+    putarray 0 -1 0xDB
+    putarray 0 -1 0x61A7
+    putarray 0 -1 0x45B9
+    putarray 0 -1 0xB6
+    putarray 0 -1 0x89
+    putarray 0 -1 0x80
+    #putarray 0 -1 0x437C
+    putarray 0 -1 0x437D
+    putarray 0 -1 0x437E
+    putarray 0 -1 0x6944
+    putarray 0 -1 0x6911
+    putarray 0 -1 0x1254C367
+    putarray 0 -1 0x7373
+    putarray 0 -1 0x63C5
+    putarray 0 -1 0x63C9
+    putarray 0 -1 0x63C4
+    putarray 0 -1 0x63C6
+    putarray 0 -1 0x67C8
+    putarray 0 -1 0 # end
+endfunction

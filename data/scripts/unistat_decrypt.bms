@@ -1,0 +1,38 @@
+# UNISTAT USW files decrypter/encrypter
+#   http://www.unistat.com
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+get EXT extension
+if EXT == "decrypt"
+    string NAME -= 8
+else
+    string NAME += ".decrypt"
+endif
+get SIZE asize
+putvarchr MEMORY_FILE SIZE 0
+goto -2
+math SIZE -= 2
+get FOOTER_LEN short
+math SIZE -= FOOTER_LEN
+log MEMORY_FILE 0 4
+math LEN = 2000
+append
+for OFFSET = 4 < SIZE
+    math TMP = SIZE
+    math TMP -= OFFSET
+    if TMP < LEN
+        math LEN = TMP
+    endif
+    encryption "incremental xor" 0xd5 0x17
+    log MEMORY_FILE OFFSET LEN
+    math OFFSET += LEN
+next
+encryption "incremental xor" 0xb0 0x17
+log MEMORY_FILE SIZE FOOTER_LEN
+encryption "" ""
+math SIZE += FOOTER_LEN
+log MEMORY_FILE SIZE 2
+append
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

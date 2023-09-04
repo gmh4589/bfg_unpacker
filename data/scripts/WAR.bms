@@ -1,0 +1,16 @@
+<bms games="'Warcraft', 'Warcraft 2'" platforms="'PC'" ext="'WAR', 'SUD'">
+Get DUMMYL Long 0 ;
+Get FILECNTL Int 0 ;
+Get DUMMYI Int 0 ;
+SavePos FILESTART 0 ;
+Set FILECNTL Long 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEJMP Long 0 ;
+SavePos FILESTART 0 ;
+GoTo FILEJMP 0 ;
+Get FILESIZE Long 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

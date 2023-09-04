@@ -1,0 +1,19 @@
+<bms ext="dat" games="'Ultimate Baseball Online'" platforms="'PC'" version="1.0" author="Mr.Mouse" silence="no" verbose="no">
+ImpType SFileSize ;
+GetDString MW 16 0 ;
+GetDString AN 16 0 ;
+Get AllData Long 0 ;
+Get FileNum Long 0 ;
+For T = 1 To FileNum ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos PO 0 ;
+Math PO += 1 ;
+GoTo PO 0 ;
+GetDString FileName 259 0 ;
+SavePos FO 0 ;
+Log FileName FO FS 0 FSO ;
+Math FO += FS ;
+GoTo FO 0 ;
+Next T ;
+</bms>

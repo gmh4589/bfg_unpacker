@@ -1,0 +1,27 @@
+# Nolimits Fairground, Moorhuhn Kart 3 and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SARC"
+get VER long
+get FILES long
+savepos INFO_OFF
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    for i = 0 < FILES
+        get NAMESZ byte
+        math NAMESZ += 1    # not verified
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long       # not verified
+        get ZSIZE long      # not verified
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

@@ -1,0 +1,106 @@
+# PAC-MAN Championship Edition DX+ (PAC-MAN.DAT)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNKSZ = 0x1000
+math CHUNKS = 0x400
+
+set KEY string ""
+math INIT = 0x42574954
+for i = 0 < CHUNKSZ
+    math INIT * 0x4357
+    xmath TMP "((INIT >> 24) ^ (INIT >> 16) ^ (INIT >> 8) ^ INIT) & 0xff"
+    string KEY + TMP
+    string KEY + " "
+next i
+filexor KEY
+
+get SIZE asize
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+append
+for OFFSET = 0 != SIZE
+    for x = 0 < CHUNKS
+        get DUMMY long
+    next x
+    savepos OFFSET
+
+    math TMP = CHUNKSZ
+    math TMP * CHUNKS
+    math TMP2 = SIZE
+    math TMP2 - OFFSET
+    if TMP > TMP2
+        math TMP = TMP2
+    endif
+    log MEMORY_FILE OFFSET TMP
+    math OFFSET + TMP
+    goto OFFSET
+next
+append
+
+filexor ""
+
+# just decryption
+/*
+get SIZE asize MEMORY_FILE
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+log NAME 0 SIZE MEMORY_FILE
+*/
+
+putarray 0 0 0
+set NAME string ""
+set PATH string ""
+math SIZE = -1
+goto 0 MEMORY_FILE
+callfunction EXTRACT
+
+startfunction EXTRACT
+    math CHUNK_SIZE = SIZE
+    string PATH + NAME
+    string PATH + /
+
+            savepos BASE_OFF MEMORY_FILE
+            math INFO_LIMIT = BASE_OFF
+            math INFO_LIMIT + CHUNK_SIZE
+    for INFO_OFF = BASE_OFF != INFO_LIMIT
+
+        math TMP = BASE_OFF
+        math TMP + CHUNKSZ
+        if INFO_OFF == TMP
+            getarray LAST_OFFSET 0 0
+            goto LAST_OFFSET MEMORY_FILE
+            math CHUNK_SIZE - CHUNKSZ
+            savepos BASE_OFF MEMORY_FILE
+            math INFO_LIMIT = BASE_OFF
+            math INFO_LIMIT + CHUNK_SIZE
+        endif
+
+        get TYPE byte MEMORY_FILE
+        getdstring NAME 0x77 MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        savepos INFO_OFF MEMORY_FILE
+
+        math OFFSET * CHUNKSZ
+
+        if TYPE == 0
+            math INFO_OFF = INFO_LIMIT  # alternative to break
+        elif TYPE == 2
+            goto OFFSET MEMORY_FILE
+            callfunction EXTRACT
+            goto INFO_OFF MEMORY_FILE
+        elif TYPE == 1
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE MEMORY_FILE
+            math LAST_OFFSET = OFFSET
+            math LAST_OFFSET + SIZE
+            math LAST_OFFSET x CHUNKSZ
+            putarray 0 0 LAST_OFFSET
+        else
+            print "Error: wrong TYPE %TYPE% at offset %INFO_OFF|X%"
+            cleanexit
+        endif
+    next
+endfunction

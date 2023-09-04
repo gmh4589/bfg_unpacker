@@ -1,0 +1,21 @@
+# Shrek Forever AKPK
+
+idstring AKPK
+get INFO_SIZE long
+endian guess INFO_SIZE
+for i = 0 < 9
+    get DUMMY long
+next i
+get NAME unicode
+get NAME unicode
+
+savepos MYOFF
+for MYOFF = MYOFF < INFO_SIZE
+    do  # lame but works
+        get DUMMY long
+    while DUMMY != 1
+    get SIZE longlong
+    get OFFSET longlong
+    savepos MYOFF
+    log "" OFFSET SIZE
+next

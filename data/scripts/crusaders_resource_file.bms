@@ -1,0 +1,20 @@
+# The Kingdom Under Fire: The Crusaders
+
+goto -4
+get OFFSET long
+goto OFFSET
+idstring "Crusader Resource File Ver 0.1\0\0"
+get DUMMY long
+get FOLDERS long
+getdstring ZERO 0x18
+for FOLDER = 0 < FOLDERS
+    get FILES long
+    getdstring NAME 260
+    for i = 0 < FILES
+        getdstring NAME 32
+        get OFFSET long
+        get SIZE long
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

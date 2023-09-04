@@ -1,0 +1,62 @@
+# Humongous Entertainment (script 0.2)
+#   the format is a mess of chunked information and resources, the script simply try to guess if a data can be dumped or parsed
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get CHUNK_LIMIT asize
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+    if CHUNK_SIZE != CHUNK_LIMIT
+        filexor 0x69
+    endif
+    goto -4 0 SEEK_CUR
+    get CHUNK_SIZE long
+    math CHUNK_SIZE - 8
+
+set PATH string ""
+set NAME string ""
+callfunction DUMP_CHUNK 1
+
+startfunction DUMP_CHUNK
+    savepos OFFSET
+    math BACKUP_OFFSET = OFFSET
+    math CHUNK_LIMIT = BACKUP_OFFSET
+    math CHUNK_LIMIT + CHUNK_SIZE
+    set PATH string NAME
+    for OFFSET = OFFSET != CHUNK_LIMIT
+        getdstring CHUNK_TYPE 4
+        get CHUNK_SIZE long
+        savepos OFFSET
+        math CHUNK_SIZE - 8
+
+        math OK = 1
+        for x = 0 < 4
+            getvarchr TMP CHUNK_TYPE x
+            if TMP >= 'A' && TMP <= 'Z'
+            else
+                math OK = 0
+            endif
+        next x
+        if CHUNK_SIZE < 0
+            math OK = 0
+        endif
+        math TMP = OFFSET
+        math TMP + CHUNK_SIZE
+        if CHUNK_SIZE u> CHUNK_LIMIT
+            math OK = 0
+        endif
+
+        if OK != 0
+            string NAME p "%s/%s" PATH CHUNK_TYPE
+            callfunction DUMP_CHUNK
+        else
+            string NAME p "%s/" PATH
+            math CHUNK_LIMIT - BACKUP_OFFSET
+            log NAME BACKUP_OFFSET CHUNK_LIMIT
+            break
+        endif
+
+        math OFFSET + CHUNK_SIZE
+        goto OFFSET
+    next
+endfunction

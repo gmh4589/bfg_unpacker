@@ -1,0 +1,32 @@
+# Mystery of the Druids
+# script for QuickBMS http://quickbms.aluigi.org
+
+get RESOURCE_BASENAME basename
+set LAST_EXT string ""
+
+open FDDE "map"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get DUMMY long  # 1
+    getdstring EXT 4
+    get OFFSET long
+    get SIZE long
+    get XSIZE long  # ???
+
+    if EXT != LAST_EXT
+        open FDDE EXT 1 EXISTS
+        if EXISTS == 0
+            string TMP p "Disk1/%s.%s" RESOURCE_BASENAME EXT
+            open FDSE TMP 1 EXISTS
+        endif
+        set LAST_EXT = EXT
+    endif
+    if EXISTS != 0
+        if XSIZE == 0
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET SIZE XSIZE 1
+        endif
+    endif
+next i

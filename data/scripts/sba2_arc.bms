@@ -1,0 +1,17 @@
+idstring "SBA2"
+get ZERO long
+get FILES longlong
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET longlong
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE 0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

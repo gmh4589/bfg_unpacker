@@ -1,0 +1,36 @@
+# Hydro Thunder Hurricane
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+comtype xmemdecompress
+idstring "AKPF"
+get VER long    # 5
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get DUMMY long
+    get CRC long
+    get DUMMY short
+    get ZIP short
+    string NAME + .
+    if ZIP == 0
+        savepos TMP
+        goto OFFSET
+        get CHECK long
+        goto TMP
+        math CHECK + 4
+        if CHECK == SIZE
+            math OFFSET + 4
+            math SIZE   - 4
+        endif
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

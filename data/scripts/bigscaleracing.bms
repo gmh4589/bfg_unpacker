@@ -1,0 +1,37 @@
+# Big Scale Racing mp3 decoder example (version 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get NAME filename
+
+set OFFSET long 0
+if EXT == "FS3"
+    print "the output file is a MP3"
+endif
+if EXT == "FSW"
+    print "the output file is a WAV"
+    set OFFSET long 0x2e
+endif
+if EXT == "FSP"
+    set OFFSET long 0x14
+endif
+if EXT == "FSM"
+    cleanexit
+endif
+if EXT == "FSO"
+    cleanexit
+endif
+
+get SIZE asize
+math SIZE -= OFFSET
+string NAME += ".decoded"
+
+append
+log MEMORY_FILE 0 OFFSET
+filexor "0x47 0xC3 0xF5 0x12 0x38 0xE9 0xB5 0x91 0x25 0x63 0x06 0xD9 0xAA 0x6F 0x3A 0x73" OFFSET
+log MEMORY_FILE OFFSET SIZE
+filexor ""
+append
+
+math SIZE += OFFSET
+log NAME 0 SIZE MEMORY_FILE

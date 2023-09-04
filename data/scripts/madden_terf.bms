@@ -1,0 +1,65 @@
+# Madden NFL TERF (UIS_GRP_ALL.dat) (script 0.1.3)
+#   compression not implemented yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.2"
+
+    getdstring INFO_TYPE 4
+    get INFO_SIZE long
+    endian guess INFO_SIZE
+    goto 0
+
+get TERF_SIZE asize
+for INFO_OFF = 0 != TERF_SIZE
+    getdstring INFO_TYPE 4
+    get INFO_SIZE long
+
+      if INFO_TYPE u== "TERF"
+        getdstring DUMMY 4
+        get DUMMY short
+        get FILES short # ???
+
+    elif INFO_TYPE u== "DIR1"
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i 0  # in case COMP doesn't exist
+            putarray 3 i 0
+        next i
+
+    elif INFO_TYPE u== "COMP"
+        for i = 0 < FILES
+            get ALGO long
+            get XSIZE long
+            putarray 2 i ALGO
+            putarray 3 i XSIZE
+        next i
+
+    elif INFO_TYPE u== "DATA"
+        math BASE_OFF = INFO_OFF
+        for i = 0 < FILES
+            getarray OFFSET 0 i
+            getarray SIZE   1 i
+            getarray ALGO   2 i
+            getarray XSIZE  3 i
+            math OFFSET + BASE_OFF
+            if ALGO == 0
+                log "" OFFSET SIZE
+            elif ALGO == 1
+                comtype TDCB_silence
+                clog "" OFFSET SIZE XSIZE
+            elif ALGO == 5
+                comtype ea_madden
+                clog "" OFFSET SIZE XSIZE
+            else
+                print "Error: Unknown algorithm %ALGO%, contact me"
+                cleanexit
+            endif
+        next i
+    endif
+
+    math INFO_OFF + INFO_SIZE
+    goto INFO_OFF
+next

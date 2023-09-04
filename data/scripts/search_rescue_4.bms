@@ -1,0 +1,15 @@
+# Search and Rescue 4
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK\0"
+get ENTRY_SIZE long
+xmath NAMESZ "ENTRY_SIZE - (4 + 4)"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    if OFFSET != 0
+        log NAME OFFSET SIZE
+    endif
+next i

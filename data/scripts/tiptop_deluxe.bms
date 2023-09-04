@@ -1,0 +1,47 @@
+# Tip Top Deluxe
+# script for QuickBMS http://quickbms.aluigi.org
+
+# thanks Ekey :D
+# https://zenhax.com/viewtopic.php?p=27080#p27080
+set MEMORY_FILE10 string "
+    char ttd_decrypt(unsigned char *pBuffer, int dwSize)
+    {
+      unsigned char t1;
+      unsigned char t2;
+      unsigned char t3;
+      char temp;
+      char result;
+
+      if ( dwSize )
+      {
+        do
+        {
+          t1 = *pBuffer & 0xFA | 4 * (*pBuffer & 1) | (*pBuffer >> 2) & 1;
+          t2 = t1 & 0xBD | 32 * (t1 & 2) | (t1 >> 5) & 2;
+          t3 = t2 & 0x77 | (t2 >> 4) & 8 | 16 * (t2 & 0xF8);
+          temp = 2 * (t3 & 0x10) | (t3 >> 1) & 0x10;
+          result = t3 & 0xCF;
+          *pBuffer++ = result | temp;
+          --dwSize;
+        }
+        while ( dwSize );
+      }
+      return result;
+    }
+"
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+calldll MEMORY_FILE10 "ttd_decrypt" "tcc" RET MEMORY_FILE SIZE
+
+get INFO_SIZE long MEMORY_FILE
+for
+    savepos TMP MEMORY_FILE
+    if TMP >= INFO_SIZE # long story short, it's aligned
+        break
+    endif
+    get NAME string MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next

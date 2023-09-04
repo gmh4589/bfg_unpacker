@@ -1,0 +1,116 @@
+# Xian OL (http://xian.yeeok.com) (script 0.3)
+#   Aluigi and Ekey http://zenhax.com/viewtopic.php?f=9&t=139
+# script for QuickBMS http://quickbms.aluigi.org
+
+# http://aluigi.org/papers/bms/others/xolpak.c
+set MEMORY_FILE5 compressed "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"
+
+idstring "esl\x1a"
+get ZERO short
+get dwHeaderSize long
+get dwArchiveSize long
+get dwHashTableOffset long
+get sVersion short
+get dwEntryTableOffset long
+get dwEntryTableSize long
+get dwHashTableSize long
+
+math dwEntryTableSize <<= 4
+math dwHashTableSize  <<= 4
+
+set pHashTable_Password  binary "\x5B\x2A\x23\x0D\x0A\x68\x20\x74\x09\x23\x2A\x5D"
+log MEMORY_FILE2 dwHashTableOffset dwHashTableSize
+calldll MEMORY_FILE5 pPAKDecrypt cdecl RET MEMORY_FILE2 dwHashTableSize  0 pHashTable_Password
+
+set pEntryTable_Password binary "\x5B\x2A\x23\x0D\x0A\x09\x23\x2A\x5d"
+log MEMORY_FILE3 dwEntryTableOffset dwEntryTableSize
+calldll MEMORY_FILE5 pPAKDecrypt cdecl RET MEMORY_FILE3 dwEntryTableSize 1 pEntryTable_Password
+
+math FILE_IMPLODE = 0x00000100      # File is compressed using PKWARE
+math FILE_COMPRESS = 0x00000200     # File is compressed using combination of compression methods
+math FILE_ENCRYPTED = 0x00010000    # The file is encrypted
+math FILE_EXISTS = 0x80000000       # File exists
+
+xmath FILES "dwEntryTableSize / 16"
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE3
+    get ZSIZE long MEMORY_FILE3
+    get SIZE long MEMORY_FILE3
+    get FLAG long MEMORY_FILE3
+
+    set NAME string ""
+    if FLAG & FILE_EXISTS
+        log MEMORY_FILE4 OFFSET ZSIZE
+
+        if FLAG & FILE_ENCRYPTED
+            calldll MEMORY_FILE5 pPAKDecrypt cdecl RET MEMORY_FILE4 ZSIZE 2 0
+        endif
+
+        if FLAG & FILE_IMPLODE
+            callfunction UNPACK 1
+
+        elif FLAG & FILE_COMPRESS
+            callfunction UNPACK 1   # ???
+
+        else
+            log NAME OFFSET ZSIZE
+        endif
+    endif
+next i
+
+startfunction UNPACK
+    math CHUNK_SIZE = 0x1000
+    goto 0 MEMORY_FILE4
+    savepos BASE_OFF MEMORY_FILE4
+
+    math x = 0
+    do
+        get OFFSET long MEMORY_FILE4
+        math OFFSET += BASE_OFF
+        if x == 0
+            math END_OFFSET = OFFSET
+        endif
+        putarray 0 x OFFSET
+        math x += 1
+        savepos TMP MEMORY_FILE4
+    while TMP < END_OFFSET
+    xmath CHUNKS "x - 1"    # use -1 for handling the last chunk later, remember it for the other math!
+
+    xmath SIZE "(CHUNKS + 1) * CHUNK_SIZE"
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+        getarray OFFSET 0 0
+    for x = 1 <= CHUNKS
+        getarray NEXT_OFFSET 0 x
+        xmath CHUNK_ZSIZE "NEXT_OFFSET - OFFSET"
+        if x == CHUNKS && x > 1
+            log MEMORY_FILE OFFSET CHUNK_SIZE
+        elif CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE OFFSET CHUNK_SIZE
+        else
+            goto OFFSET MEMORY_FILE4
+            get TYPE byte MEMORY_FILE4
+            savepos OFFSET MEMORY_FILE4
+            if TYPE == 0    # ???
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE MEMORY_FILE4
+            elif TYPE == 2
+                comtype zlib
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE4
+            elif TYPE == 8
+                comtype explode
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE4
+            else
+                print "Error: unknown chunk type %TYPE% at offset %OFFSET|x%"
+                cleanexit
+            endif
+        endif
+        math OFFSET = NEXT_OFFSET
+    next x
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+
+    #xmath OFFSET "OFFSET + ((CHUNKS + 1) * 4)"
+endfunction

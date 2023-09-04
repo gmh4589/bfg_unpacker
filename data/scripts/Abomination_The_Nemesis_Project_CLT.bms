@@ -1,0 +1,22 @@
+# Abomination The Nemesis Project (CLT)
+
+IDString 0 AWAD ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Set DUMMYL Long 65 ;
+Set TAILOFF Long DUMMYL ;
+Math TAILOFF *= 4 ;
+Do ;
+Math FILESTART += 1 ;
+GoTo FILESTART 0 ;
+Get FILENAME String 0 ;
+Math FILESTART += TAILOFF ;
+Math FILESTART -= 1 ;
+GoTo FILESTART 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

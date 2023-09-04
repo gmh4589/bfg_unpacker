@@ -1,0 +1,22 @@
+# [SML] Carnival (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Pack" # PackOnly / PackPlus
+getdstring TYPE 0x27
+getdstring XOR_MASK 1
+if TYPE & "Plus"
+    encryption xor XOR_MASK "" 0 1
+endif
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x27
+    get KEY signed_byte
+    get OFFSET long
+    math OFFSET - KEY
+    get SIZE long
+    math SIZE - KEY
+    set EXT extension NAME
+    log NAME OFFSET SIZE
+next i

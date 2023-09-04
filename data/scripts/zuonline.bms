@@ -1,0 +1,26 @@
+# ZuOnline (5SHEN) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "5SHEN"
+goto 0x20
+get FILES long
+get OFFSET long
+goto OFFSET
+
+# guess XOR value
+getdstring NAME 259
+get MYXOR byte
+goto OFFSET
+
+for i = 0 < FILES
+    filexor MYXOR
+    getdstring NAME 260
+    getdstring HASH 32
+    get ZERO1 long
+    get OFFSET long
+    get SIZE long
+    get ZERO2 long
+    get DUMMY long
+    filexor ""
+    log NAME OFFSET SIZE
+next i

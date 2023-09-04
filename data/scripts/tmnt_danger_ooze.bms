@@ -1,0 +1,31 @@
+# Teenage Mutant Ninja Turtles Danger of the Ooze (.vol) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+endian big
+idstring "\xd1\x77\xf0\x50" #get DUMMY long  # 0xd177f050
+get FLAGS long  # 0x01010000
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+idstring MEMORY_FILE "\xb5\x3d\x32\xcb"
+get FLAGS long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get FILES long MEMORY_FILE
+get INFO_OFF long MEMORY_FILE
+goto INFO_OFF MEMORY_FILE
+for i = 0 < FILES
+    get CRC long MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+    goto TMP MEMORY_FILE
+next i

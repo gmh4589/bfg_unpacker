@@ -1,0 +1,28 @@
+<bms games="'Transworld Snowboarding'" platforms="'PC'" ext="HPF">
+IDString 0 HMG_PACKED_FILE ;
+Set S Long 32 ;
+GoTo S 0 ;
+Get OriginalName String 0 ;
+Math S += 256 ;
+GoTo S 0 ;
+Get Entries Long 0 ;
+SavePos S 0 ;
+Math Entries *= 80 ;
+Math S += Entries ;
+Get AType Long 0 ;
+Get Unknown Long 0 ;
+Get Unknown Long 0 ;
+Get FileNum Long 0 ;
+SavePos J 0 ;
+Math J += 64 ;
+GoTo J 0 ;
+For T = 1 To FileNum ;
+Get RType Long 0 ;
+Get Unknown Long 0 ;
+Get ROff Long 0 ;
+Get Size Long 0 ;
+GetDString Name 64 0 ;
+Math ROff += S ;
+Log Name ROff Size 0 0 ;
+Next T ;
+</bms>

@@ -1,0 +1,40 @@
+# Mitsurugi Kamui Hikae
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "kpk" 1
+open FDDE "tbl" 0 EXISTS
+if EXISTS == 0
+    open FDSE "mitsurugi.exe"
+    findloc OFFSET binary "\x03\xC9\x03\xC9\x03\xC9\xF6\x81"
+    math OFFSET + 8
+    goto OFFSET
+    get OFFSET long
+    math OFFSET - 0x401000
+    math OFFSET + 4
+    goto OFFSET
+endif
+get KPK_SIZE asize 1
+get TBL_SIZE asize
+savepos INFO_OFF
+for INFO_OFF = INFO_OFF != TBL_SIZE
+    get NAME_CRC long
+    get SIZE long
+    if SIZE u>= 0x30303030  # "{KtlVector}"
+        break
+    endif
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+    get FLAGS long
+    savepos INFO_OFF
+
+    if FLAGS & 4
+        # this file doesn't exist!
+    else
+        if FLAGS & 1
+            clog "" OFFSET ZSIZE SIZE 1
+        else
+            log "" OFFSET SIZE 1
+        endif
+    endif
+next

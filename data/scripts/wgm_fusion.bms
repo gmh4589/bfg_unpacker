@@ -1,0 +1,23 @@
+# http://forum.xentax.com/viewtopic.php?f=21&t=4106
+
+#public struct WGM1 {
+    idstring WGM1
+    get unk_1 short
+    getdstring info 0x64
+    get file_count long
+    #ENTRY[file_count] files;
+#}
+
+for i = 0 < file_count
+#public struct ENTRY {
+    get unk_1 char
+    getdstring name 0x04
+    get dummy long
+    get size long
+    savepos offset
+    log name offset size
+    math offset += size
+    goto offset
+    #char[size] data;
+#}
+next i

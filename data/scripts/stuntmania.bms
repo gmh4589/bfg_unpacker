@@ -1,0 +1,30 @@
+# StuntMANIA!Jnr
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -77
+get FILES long
+get OFFSET asize
+xmath OFFSET "(OFFSET - 57) - FILES * 20"
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    get DUMMY long
+
+    set NAME string ""
+    if TYPE > 4
+        savepos TMP
+        goto OFFSET
+        get NAMESZ long
+        if NAMESZ != 0
+            getdstring NAME NAMESZ
+            savepos NEW_OFF
+            xmath SIZE "SIZE - (NEW_OFF - OFFSET)"
+            math OFFSET = NEW_OFF
+        endif
+        goto TMP
+    endif
+    log NAME OFFSET SIZE
+next i

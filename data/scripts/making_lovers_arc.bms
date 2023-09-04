@@ -1,0 +1,10 @@
+# Making*Lovers ARC
+
+get BASE_OFF long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

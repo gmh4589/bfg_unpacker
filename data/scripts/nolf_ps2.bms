@@ -1,0 +1,111 @@
+# No One Lives Forever 1 PS2 (rez, dragon) (script 0.1.3)
+
+get EXT extension
+if EXT == "rez"
+
+    math EXTRACT_BLOCK = 0  # use -1 for extracting the last block
+
+    math ALIGN = 0x800
+    get DUMMY long  # 3
+    get FILES long
+    get DUMMY long  # 10
+    get DATA_OFF long
+    math DATA_OFF * ALIGN
+    get BLOCKS long
+
+    if EXTRACT_BLOCK < 0
+        math EXTRACT_BLOCK = BLOCKS
+        math EXTRACT_BLOCK - 1
+    endif
+
+    for BLOCK = 0 < BLOCKS
+        padding ALIGN
+        for i = 0 < FILES
+            get NAME_CRC long
+            get OFFSET long
+            get SIZE long
+            get XSIZE long
+            math OFFSET * ALIGN
+            math XSIZE  * ALIGN
+            if BLOCK == EXTRACT_BLOCK
+                log "" OFFSET SIZE
+            endif
+        next i
+    next BLOCK
+
+elif EXT == "lit"
+
+    idstring "LithTech PSX Sound Data 1.20\r\n\x1a\0"
+    get DUMMY long
+    get FOLDERS long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+
+    savepos TMP
+    xmath BASE_OFF "TMP + (FILES * 0x48) + (FOLDERS * 0x30)"
+
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        get FREQUENCY long
+        get ZERO long
+        get SIZE2 long  # same as SIZE
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+
+        math CHANNELS = 1
+        math INTERLEAVE = 0 # ???
+        math OFFSET + BASE_OFF
+        set NAME fullbasename NAME
+        string NAME + ".ss2"
+        callfunction DUMP_VAG 1
+    next i
+    for i = 0 < FOLDERS
+        getdstring NAME 0x20
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    next i
+
+else
+
+    get DUMMY short # 0xa3d
+    for
+        getdstring NAME 0x10
+        if NAME == ""
+            break
+        endif
+        get SIZE long
+        get OFFSET long
+        get ZERO byte
+        log NAME OFFSET SIZE
+    next
+
+endif
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+endfunction

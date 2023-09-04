@@ -1,0 +1,20 @@
+# Rockman X Command Mission .arc
+
+endian big
+get ARC_SIZE asize
+for OFFSET = 0 != ARC_SIZE
+    encryption reverse ""
+    filecrypt 1
+    getdstring NAME 8
+    filecrypt 0
+    encryption "" ""
+
+    get DUMMY long
+    get SIZE long
+    getdstring ZERO 16
+    savepos OFFSET
+    log NAME OFFSET SIZE
+
+    math OFFSET + SIZE
+    goto OFFSET
+next

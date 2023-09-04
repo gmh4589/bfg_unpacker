@@ -1,0 +1,16 @@
+# Team Ico / Fumito Ueda
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate_noerror
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    set EXT extension NAME
+    if EXT == "df"
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

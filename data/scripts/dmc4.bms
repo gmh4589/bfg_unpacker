@@ -1,0 +1,117 @@
+# Devil May Cry 4 / Dead Rising 360 / Resident Evil 5 / Capcom ARC files (script 0.1.8)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math DISABLE_RE5_WORKAROUND = 0
+
+quickbmsver "0.7.4"
+set HFS long 0
+
+get SIGN long
+if SIGN == 0x00534648 || SIGN == 0x48465300 # " SFH" and "HFS "
+    set HFS long 1
+    goto 0x10
+    callfunction GUESS_ARC 1
+    if OK == 0
+        goto 0x20000
+        callfunction GUESS_ARC 1
+    endif
+    if OK != 0
+        goto -4 0 SEEK_CUR
+    else
+        goto 0
+        findloc OFFSET binary "\x00CRA" 0 ""
+        if OFFSET == ""
+            findloc OFFSET binary "ARC\x00" 0 ""
+            if OFFSET == ""
+                cleanexit
+            endif
+        endif
+        goto OFFSET
+    endif
+else
+    goto 0
+endif
+savepos BASE_OFF
+
+callfunction GUESS_ARC 1
+if OK == 0
+    cleanexit
+endif
+get VERSION short
+endian guess16 VERSION
+if VERSION == 4
+    comtype unzip_dynamic   #zlib
+elif VERSION == 8
+    comtype unzip_dynamic   #deflate
+elif VERSION == 16
+    comtype zlib_noerror
+elif VERSION == 0x11
+    endian save CURRENT_ENDIAN
+    if CURRENT_ENDIAN != 0
+        comtype XMemDecompress 0x8000   # yeah 0x8000 is the "magic" for RE5
+    endif   # else is zlib
+else
+    comtype unzip_dynamic   #zlib
+    print "unknown version %VERSION%, I try zlib compression"
+endif
+get FILES short
+
+if VERSION == 16
+    get ZERO long
+endif
+if VERSION >= 0x11
+    get TMP long
+    if TMP u>= 0xffffff00
+        # unknown dummy number
+    else
+        goto -4 0 SEEK_CUR
+    endif
+endif
+
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get TYPE long
+    get ZSIZE long
+    get SIZE long
+    if VERSION == 9
+        get TYPE long
+    endif
+    get OFFSET long
+
+    if SIZE & 0x40000000
+        math SIZE -= 0x40000000
+    endif
+
+    if HFS != 0 # used in RE5 PS3
+        #math SIZE /= 8
+        math TMP = OFFSET
+        math TMP /= 0x20000
+        math TMP *= 0x10
+        math ZSIZE  += TMP
+        math SIZE   += TMP
+        math OFFSET += TMP
+        if DISABLE_RE5_WORKAROUND == 0
+            math ZSIZE += 32
+            math OFFSET += 2
+        endif
+    endif
+
+    math OFFSET += BASE_OFF # needed for HFS header
+    set EXT extension NAME
+    if EXT == ""
+        string NAME + "."
+    endif
+    clog NAME OFFSET ZSIZE SIZE
+next i
+
+startfunction GUESS_ARC
+    math OK = 1
+    get SIGN long
+    if SIGN == 0x00435241   # " CRA"
+        #endian little
+    elif SIGN == 0x41524300 # "ARC "
+        #endian big
+    else
+        math OK = 0
+    endif
+endfunction

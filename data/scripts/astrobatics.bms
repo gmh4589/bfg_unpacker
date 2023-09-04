@@ -1,0 +1,47 @@
+# Astrobatics
+
+get DUMMY long
+idstring "\x03GPR"
+get DUMMY long
+get DUMMY long
+
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get NAMESZ long
+    getdstring FOLDER_NAME NAMESZ
+    get OFFSET long
+    get DUMMY long
+
+    savepos TMP
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get DUMMY long
+        string NAME p "%s/%s." FOLDER_NAME NAME
+        putarray 0 -1 OFFSET
+        putarray 1 -1 NAME
+    next i
+    goto TMP
+next FOLDER
+
+get SIZE asize
+putarray 0 -1 SIZE
+putarray 1 -1 ""
+sortarray 0 1
+
+for i = 0
+    getarray OFFSET 0 i
+    getarray NAME   1 i
+    if NAME == ""
+        break
+    endif
+    math i + 1
+    getarray SIZE 0 i
+    math SIZE - OFFSET
+    if OFFSET != 0
+        log NAME OFFSET SIZE
+    endif
+next

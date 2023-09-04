@@ -1,0 +1,16 @@
+# Deluxe Ski Jump 2
+
+get FILES long
+math FILES / 4
+goto 0
+for i = 0 < FILES
+    get OFFSET long
+    if OFFSET != 0
+        savepos TMP
+        goto OFFSET
+        get SIZE short
+        savepos OFFSET
+        log "" OFFSET SIZE
+        goto TMP
+    endif
+next i

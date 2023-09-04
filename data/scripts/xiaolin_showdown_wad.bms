@@ -1,0 +1,42 @@
+# Xiaolin Showdown WAD
+
+get FILES long
+get ZERO long
+get SIZE long
+get ZERO long
+math FILES - 1
+for i = 0 < FILES
+    get DUMMY long
+    get SOME_CRC long
+    get SIZE long
+    get ZERO long
+    putarray 0 i SIZE
+next i
+padding 0x800
+get ZERO long
+idstring "DIR0"
+get DIR0_SIZE long
+savepos DIR0_OFF
+for i = 0 < FILES
+    get NAME_OFF long
+    putarray 1 i NAME_OFF
+next i
+savepos NAMES_OFF
+for i = 0 < FILES
+    getarray NAME_OFF 1 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 1 i NAME
+next i
+math DIR0_OFF + DIR0_SIZE
+goto DIR0_OFF
+padding 0x800
+savepos OFFSET
+for i = 0 < FILES
+    getarray SIZE   0 i
+    getarray NAME   1 i
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    math OFFSET x 0x800
+next i

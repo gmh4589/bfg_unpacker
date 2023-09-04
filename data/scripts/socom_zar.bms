@@ -1,0 +1,36 @@
+# SOCOM: U.S. Navy SEALs (PS2) (ZAR) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO long
+get FILES long
+get NAMES_SIZE long
+get DUMMY long
+get ALIGN long  # 0x10
+getdstring ZERO 0x40
+get DATA_SIZE long
+get ZERO long
+get DUMMY long  # 1
+get DUMMY short # 2
+get DUMMY short # 2
+savepos BASE_OFF
+log MEMORY_FILE BASE_OFF NAMES_SIZE
+math BASE_OFF + NAMES_SIZE
+goto BASE_OFF
+xmath BASE_OFF "BASE_OFF + (FILES * (4 + 4 + 4 + 4))"
+math BASE_OFF x ALIGN
+for i = 0 < FILES
+    get DUMMY long  # not a crc
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    if DUMMY != 0
+        savepos TMP MEMORY_FILE
+        if TMP < NAMES_SIZE
+            get NAME string MEMORY_FILE
+        else
+            set NAME string ""
+        endif
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    endif
+next i

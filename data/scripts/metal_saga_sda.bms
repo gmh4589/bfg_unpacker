@@ -1,0 +1,17 @@
+# Metak SAGA .SDA
+
+idstring "sda\0"
+get SDA_SIZE long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    putarray 0 i SDA_SIZE
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

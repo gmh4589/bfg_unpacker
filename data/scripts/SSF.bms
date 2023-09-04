@@ -1,0 +1,19 @@
+<bms ext="ssf" games="'Soldier Front'" author="Baccello" platforms="PC" version="1.0">
+ImpType Standard ;
+Get NOF Long 0 ;
+Set SHIFT Long 136 ;
+Math SHIFT *= NOF ;
+Math SHIFT += 4 ;
+For I = 1 to NOF ;
+SavePos T 0 ;
+Get PN String 0 ;
+Math T += 128 ;
+Goto T 0 ;
+SavePos OFO 0 ;
+Get FO Long 0 ;
+Math FO += SHIFT ;
+SavePos OFL 0 ;
+Get FL Long 0 ;
+Log PN FO FL OFO OFL ;
+NEXT I ;
+</bms>

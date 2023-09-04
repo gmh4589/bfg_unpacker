@@ -1,0 +1,53 @@
+# Monster Jam Path of Destruction
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP *= 16
+if TMP == 0
+    print "Error: you must use quickbms_4gb_files.exe for this archive"
+    cleanexit
+endif
+
+endian big
+
+open FDDE "bfd" 1
+
+open FDDE "bff"
+get FILES long
+xmath BASE_OFF "4 + (FILES * 4)"
+for i = 0 < FILES
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF += BASE_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+    goto TMP
+next i
+
+open FDDE "bft"
+get FILES longlong
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    savepos TMP
+    getarray NAME 0 i
+    if SIZE != 0
+        if OFFSET < 0
+            # there are multiple copies of the same file and they are all the same
+            # so take the last one (the most recent?) and ignore the others
+            math OFFSET &= 0x7fffffffffffffff
+            goto OFFSET
+            get SUB_FILES longlong
+            for x = 1 <= SUB_FILES
+                get OFFSET longlong
+                if x == SUB_FILES
+                    log NAME OFFSET SIZE 1
+                endif
+            next x
+        else
+            log NAME OFFSET SIZE 1
+        endif
+    endif
+    goto TMP
+next i

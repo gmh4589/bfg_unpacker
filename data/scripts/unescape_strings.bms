@@ -1,0 +1,95 @@
+# strings unescaper (script 0.2)
+#   Try this script if you have a Lua or C program that
+#   obfuscates the strings or uses a binary representation
+#   of utf8 chars (for example \128 instead of the byte 0x80)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set ESCAPES binary "abfnrtv\\\"\'[]?"
+get SIZE asize
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+math QUOTE = 0
+for OFFSET = 0 < SIZE
+    get MYBYTE byte
+
+    if MYBYTE == '\"'
+        math QUOTE != QUOTE
+    else
+        if QUOTE != 0
+            if MYBYTE == '\\'
+                savepos MYBYTE_OFF
+                get MYBYTE2 byte
+
+                string TMP = MYBYTE2
+                if ESCAPES & TMP
+                    # keep the escape chars
+                    put MYBYTE2 byte MEMORY_FILE
+                    math i += 1
+                else
+
+                    # hexadecimal
+                    if MYBYTE2 u== 'x'
+                        getdstring MYBYTE 2
+                        string MYBYTE p "0x%s" MYBYTE
+                        math MYBYTE = MYBYTE
+
+                    # utf16
+                    elif MYBYTE2 u== 'u'
+                        getdstring MYBYTE 4
+                        string MYBYTE p "0x%s" MYBYTE
+                        math MYBYTE = MYBYTE
+
+                    # utf32
+                    elif MYBYTE2 u== 'U'
+                        getdstring MYBYTE 8
+                        string MYBYTE p "0x%s" MYBYTE
+                        math MYBYTE = MYBYTE
+
+                    else
+                        if MYBYTE2 == '0'
+                            # octal
+                            math TMP_X = 4
+                            math TMP_BASE = 8
+                        else
+                            # decimal
+                            math TMP_X = 3
+                            math TMP_BASE = 10
+                        endif
+                        xmath TMP_NUM2 "0x30 + TMP_BASE - 1"
+
+                        goto MYBYTE_OFF
+                        math MYBYTE = 0
+                        for x = 0 < TMP_X
+                            savepos MYBYTE_OFF
+                            get TMP byte
+                            if TMP >= '0' && TMP <= TMP_NUM2
+                                math TMP -= '0'
+                                math MYBYTE * TMP_BASE
+                                math MYBYTE + TMP
+                            else
+                                goto MYBYTE_OFF
+                                break
+                            endif
+                        next x
+                    endif
+
+                    # keep the escape chars
+                    string TMP = MYBYTE
+                    if ESCAPES & TMP
+                        put '\\' byte MEMORY_FILE
+                    endif
+                endif
+            endif
+        endif
+    endif
+
+    put MYBYTE byte MEMORY_FILE
+    savepos OFFSET
+next
+
+get SIZE asize MEMORY_FILE
+get NAME basename
+get EXT extension
+string NAME += "_."
+string NAME += EXT
+log NAME 0 SIZE MEMORY_FILE

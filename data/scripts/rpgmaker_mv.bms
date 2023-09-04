@@ -1,0 +1,61 @@
+# RPGMaker2 MV .enigma1
+
+findloc OFFSET unicode "%DEFAULT FOLDER%"
+math OFFSET - 12
+goto OFFSET
+
+set NAME string ""
+set PATH string ""
+math ENTRIES = 1
+callfunction EXTRACT
+
+savepos BASE_OFF
+getarray FILES 0 -0x80000000
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    for i = ENTRIES > 0
+        get ID long
+        get DUMMY long
+        get ENTRIES long
+        get NAME unicode
+        get TYPE short
+        if TYPE == 3
+            get TSTAMP longlong
+            get TSTAMP longlong
+            get TSTAMP longlong
+            get ZERO long
+            callfunction EXTRACT
+        elif TYPE == 2
+            get ZERO byte
+            get XSIZE longlong
+            get TSTAMP longlong
+            get TSTAMP longlong
+            get TSTAMP longlong
+            get DUMMY byte  # 0x20, FILE_ATTRIBUTE_ARCHIVE?
+            getdstring ZERO 6
+            get OFFSET longlong
+            get SIZE longlong
+            string NAME p "%s%s" PATH NAME
+            putarray 0 -1 NAME
+            putarray 1 -1 OFFSET
+            putarray 2 -1 SIZE
+            if SIZE != XSIZE
+                print "Error: SIZE %SIZE|x% != XSIZE %XSIZE|x%, contact me"
+                cleanexit
+            endif
+        else
+            print "Error: unknown TYPE %TYPE%, contact me"
+            cleanexit
+        endif
+    prev i
+endfunction

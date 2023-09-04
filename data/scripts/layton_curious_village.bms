@@ -1,0 +1,52 @@
+# Layton: Curious Village in HD (Android) (by ssh)
+#   script written by ssh https://zenhax.com/viewtopic.php?p=41170#p41170
+#   adapted for allowing reimporting by aluigi
+
+set MEMORY_FILE10 string "
+void Decrypt(unsigned int OFFSET, unsigned char *data, int size) {
+    OFFSET += 0x45243;
+    for(int i = 0; i < size; i++) {
+      OFFSET *= 0x41C64E6D;
+      OFFSET += 0x3039;
+      OFFSET &= 0xFFFFFFFF;
+      data[i] ^= (OFFSET >> 0x18);
+    }
+}
+"
+
+set OFFSET long 0
+set TSIZE long 0x14
+log MEMORY_FILE OFFSET TSIZE
+calldll MEMORY_FILE10 Decrypt tcc RET OFFSET MEMORY_FILE TSIZE
+math m = -1
+get HDR long m
+
+if HDR == 0x31435241
+  get FSIZE long m
+  get OFFSET long m
+  get TSIZE long m
+  log MEMORY_FILE OFFSET TSIZE
+  calldll MEMORY_FILE10 Decrypt tcc RET OFFSET MEMORY_FILE TSIZE
+  get FILES long m
+  savepos POS m
+  for j = 0 < FILES
+   goto POS m
+   get NAME_OFF long m
+   get OFFSET long m
+   get TSIZE long m
+   savepos POS m
+   goto NAME_OFF m
+   get NAME string m
+   string MP4 = NAME
+   string MP4 $ ".mp"
+   encryption "" ""
+   if MP4 != ".mp4"
+     encryption calldll "MEMORY_FILE10 Decrypt tcc RET OFFSET #INPUT# #INPUT_SIZE#"
+   endif
+   log NAME OFFSET TSIZE
+   encryption "" ""
+  next j
+else
+  print "Error: Unknown format (Header value: %HDR|h%)"
+  cleanexit
+endif

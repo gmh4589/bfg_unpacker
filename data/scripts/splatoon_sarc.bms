@@ -1,0 +1,109 @@
+# Splatoon / Nintendo SARC (script 0.1.2)
+#   the script automatically extracts all the extracted SARC archives
+#   but will be created a backup copy of the archive in the destination folder
+#   for technical reasons related to opening the TEMPORARY_FILE and reopening the old one
+# script for QuickBMS http://quickbms.aluigi.org
+
+math RECURSIVE_SARC_EXTRACTION = 1
+
+comtype yaz0
+math OFFSET = 0
+get SIZE asize
+
+if RECURSIVE_SARC_EXTRACTION != 0
+    print "Press 'a' if asked to overwrite TEMPORARY_FILE"
+    get MYFILE_NAME filename
+    log MYFILE_NAME OFFSET SIZE  # long story...
+endif
+
+set NAME string ""
+set PATH string ""
+callfunction SARC_EXTRACT 1
+
+if RECURSIVE_SARC_EXTRACTION != 0
+    print "You can delete the file %MYFILE_NAME% in the output folder"
+endif
+
+startfunction SARC_EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    getdstring SIGN 4
+    if SIGN == "SARC"
+        get HEAD_SIZE short
+        if HEAD_SIZE >= 0x800
+            endian change
+            reverseshort HEAD_SIZE
+        endif
+        get END short
+        get PACK_SIZE long
+        get BASE_OFF long
+        goto HEAD_SIZE
+        idstring "SFAT"
+        get DUMMY short
+        get FILES short
+        get DUMMY long
+        for i = 0 < FILES
+            get DUMMY long
+            get NAME_OFF long
+            math NAME_OFF & 0x00FFFFFF
+            get OFFSET long
+            get SIZE long
+            math SIZE - OFFSET
+            math OFFSET + BASE_OFF
+            math NAME_OFF * 4
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i NAME_OFF
+        next i
+        idstring "SFNT"
+        get DUMMY short
+        get DUMMY short
+        savepos NAMES_OFF
+        for i = 0 < FILES
+            getarray OFFSET   0 i
+            getarray SIZE     1 i
+            getarray NAME_OFF 2 i
+
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get NAME string
+            string FNAME p "%s%s" PATH NAME
+
+            goto OFFSET
+            getdstring SIGN 4
+            if SIGN == "Yaz0"
+                math ZSIZE = SIZE
+                math ZSIZE - 0x10
+                endian save CURRENT_ENDIAN
+                endian big
+                get SIZE long
+                get FLAGS long
+                get ZERO long
+                endian set CURRENT_ENDIAN
+                savepos OFFSET
+
+                if RECURSIVE_SARC_EXTRACTION != 0
+                    clog "TEMPORARY_FILE" OFFSET ZSIZE SIZE
+
+                    string NAME - 4
+                    get MYFILE_NAME filename
+                    open "." "TEMPORARY_FILE"
+                    savepos OFFSET
+                    callfunction SARC_EXTRACT
+                    open "." MYFILE_NAME
+                else
+                    clog NAME OFFSET ZSIZE SIZE
+                endif
+
+            else
+                log FNAME OFFSET SIZE
+            endif
+        next i
+    else
+        get SIZE asize
+        log FNAME OFFSET SIZE 
+    endif
+endfunction
+
+

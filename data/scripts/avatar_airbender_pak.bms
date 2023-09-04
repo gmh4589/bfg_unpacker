@@ -1,0 +1,31 @@
+# Avatar: The Last Airbender – The Burning Earth
+
+endian big
+idstring "pack"
+get DUMMY long  # 2
+get INFO_OFF long
+get FULL_INFO_SIZE long
+get INFO_SIZE long
+xmath NAMES_OFF "INFO_OFF + INFO_SIZE"
+get FILES long
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get NAME_OFF long
+    get TSTAMP long
+    getdstring ALGO 4   # "zlib"
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if ALGO == ""
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

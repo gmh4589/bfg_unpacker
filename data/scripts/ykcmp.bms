@@ -1,0 +1,13 @@
+quickbmsver "0.9.1"
+comtype ykcmp
+idstring "YKCMP_V1"
+get DUMMY long  # 4
+get ZSIZE long
+get SIZE long
+savepos OFFSET
+math ZSIZE - 20
+
+get NAME basename
+get EXT extension
+string NAME p "%s_decompress.%s" NAME EXT
+clog NAME OFFSET ZSIZE SIZE

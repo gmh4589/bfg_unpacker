@@ -1,0 +1,9 @@
+comtype wp16
+idstring "Wp16"
+get SIZE long
+math SIZE * 2   # sorry, will be fixed in next quickbms
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME basename
+clog NAME 0 ZSIZE SIZE

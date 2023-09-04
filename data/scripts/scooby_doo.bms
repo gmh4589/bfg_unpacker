@@ -1,0 +1,26 @@
+# Scooby Doo! The Mystery of The Fun Park Phantom
+
+idstring "DDRV"
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get ZERO long
+    get TSTAMP longlong
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "PACK"
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

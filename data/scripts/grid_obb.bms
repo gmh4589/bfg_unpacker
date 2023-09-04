@@ -1,0 +1,36 @@
+# GRID Autosport Android OBB
+
+comtype gzip
+idstring "\xdd\xdd\xcc\xcc\xbb\xbb\xaa\xaa"
+get SOME_CRC longlong
+get DUMMY longlong  # 1
+get DUMMY longlong  # or is it a string? "63"
+get DUMMY longlong  # 2
+getdstring BUILD_ID 0x80
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    # both files and folders have absolute paths
+    get NAMESZ longlong
+    getdstring NAME NAMESZ
+    get IS_FOLDER byte
+    get ZERO long   # ever zero
+    if IS_FOLDER != 0
+        get FILES longlong
+        for i = 0 < FILES
+            get DUMMY longlong
+        next i
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+    else
+        get OFFSET longlong
+        get SIZE longlong
+        set EXT extension NAME
+        if EXT == "pssg"
+            clog NAME OFFSET SIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+endfunction

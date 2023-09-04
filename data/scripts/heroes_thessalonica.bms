@@ -1,0 +1,17 @@
+# Heroes of Thessalonica
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "OMPF"
+get ZERO long
+get INFO_OFF long
+goto INFO_OFF
+get DATA_SIZE asize
+for INFO_OFF = INFO_OFF < DATA_SIZE
+    get TYPE long   # 2 have name, 1 are nameless
+    getdstring NAME 0x100
+    get XSIZE long
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,68 @@
+# Harry Potter And The Half-Blood Prince DATA.FXP (script 0.1.3)
+
+comtype lz77wii
+idstring "FX1?"
+get VER long    # 2
+get DUMMY long  # 1
+get FILES long
+if VER >= 3
+
+    get DUMMY long  # doesn't match the FXP size
+    get ZERO long
+    get INFO_SIZE long
+    get NAMES_SIZE long
+    math INFO_OFF = 0xa4
+    xmath NAMES_OFF "INFO_OFF + INFO_SIZE"
+    log MEMORY_FILE NAMES_OFF NAMES_SIZE
+    goto INFO_OFF
+    math LAST_ARCHIVE_NUM = -1
+    for i = 0 < FILES
+        get NAME_OFF long
+        get SIZE long
+        get OFFSET long
+        get ARCHIVE_NUM byte
+        get DUMMY threebyte
+
+        if LAST_ARCHIVE_NUM != ARCHIVE_NUM
+            math LAST_ARCHIVE_NUM = ARCHIVE_NUM
+            get TMP basename
+            get EXT extension
+            if ARCHIVE_NUM == 0
+                string TMP p "%s.%s" TMP EXT
+                open FDSE TMP 1
+            else
+                string TMP p "%s%d.%s" TMP ARCHIVE_NUM EXT
+                open FDSE TMP 1
+            endif
+        endif
+
+        math OFFSET * 0x800
+
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        log NAME OFFSET SIZE 1
+    next i
+
+else
+
+    get FXP_SIZE long
+    get ZERO long
+    get ZERO long
+    get INFO_OFF long
+    get FILES long
+    get INFO_SIZE long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get FLAGS long  # 2 for compressed files
+        if ZSIZE == SIZE
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET ZSIZE SIZE
+        endif
+    next i
+
+endif

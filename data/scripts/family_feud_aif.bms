@@ -1,0 +1,38 @@
+# Family Feud AIF
+
+get INFO_SIZE long
+get INFO_OFF long
+
+goto INFO_OFF
+set PATH string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    get NAME_CRC long
+    get FOLDERS_OFF long
+    get FILES_OFF long
+    get FOLDERS short
+    get FILES short
+    savepos TMP
+
+    if NAME_CRC != 0
+        string PATH p "%s/%08x" PATH NAME_CRC
+    endif
+
+    goto FOLDERS_OFF
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+
+    goto FILES_OFF
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        string NAME p "%s/%08x." PATH NAME_CRC
+        log NAME OFFSET SIZE
+    next i
+
+    goto TMP
+endfunction

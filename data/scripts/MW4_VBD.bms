@@ -1,0 +1,20 @@
+<bms games="'Mech Warrior 4: Mercinaries'" platforms="'PC'" ext="MW4">
+IDString 0 #VBD ;
+Get D Long 0 ;
+Get D Long 0 ;
+Get START Long 0 ;
+Get Item_Count Int 0 ;
+Get Item_Count Int 0 ;
+For T = 1 To Item_Count ;
+GetDString TIME 8 0 ;
+Get OS Long 0 ;
+Get NS Long 0 ;
+Get RO Long 0 ;
+Get IC Int 0 ;
+Get BS Byte 0 ;
+GetDString IN BS 0 ;
+Set IO Long RO ;
+Math IO += START ;
+Log IN IO NS 0 0 ;
+Next T ;
+</bms>

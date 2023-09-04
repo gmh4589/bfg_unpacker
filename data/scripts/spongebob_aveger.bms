@@ -1,0 +1,17 @@
+# Spongebob: the yellow aveger
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "12FM"
+get FILES long
+get DUMMY long
+get DUMMY long
+get ALIGN long
+goto 0x20
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    math OFFSET *= ALIGN
+    log "" OFFSET SIZE
+next i

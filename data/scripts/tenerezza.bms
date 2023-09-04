@@ -1,0 +1,26 @@
+# Tenerezza
+# script for QuickBMS http://quickbms.aluigi.org
+
+set UNOBFUSCATE binary "\xff"
+comtype lzss "12 4 2 2 0"
+idstring "LAC\0"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x1f
+    string NAME ^= UNOBFUSCATE
+    get ZIP byte
+    get SIZE long
+    get OFFSET long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        math ZSIZE = SIZE
+        math ZSIZE -= 4
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+        goto TMP
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

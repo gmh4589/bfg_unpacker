@@ -1,0 +1,23 @@
+# Zoids: Helic vs Zenebas
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "G_12"
+get FILES long
+get ZERO long
+get BASE_OFF long
+for i = 0 < FILES
+    getdstring NAME 0xc
+    get OFFSET long
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+    get OFFSET asize
+    putarray 1 i OFFSET
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

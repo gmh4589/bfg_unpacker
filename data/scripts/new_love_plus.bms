@@ -1,0 +1,86 @@
+# New Love Plus+ img.bin
+#   extracts all the PACK archives, the other files are not referenced so no way to get them
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY1 long     # 0xa
+get DATA_OFF long
+get BASE_OFF long
+get ZERO long
+get FILES long
+get FILES_SIZE long
+get DUMMY7 long     # 1
+get ZERO long
+get ZERO long
+get DUMMY10 long    # total entries size?
+
+math BASE_OFF * 0x800
+math DATA_OFF * 0x800
+math DATA_OFF + BASE_OFF
+goto BASE_OFF
+for i = 0 < FILES
+    getdstring TYPE 4
+    get ZERO long
+    get SIZE long   # it's a valid size only for the non-PACK files apparently
+    get DUMMY long  # can be zero
+    get FLAGS long
+    putarray 0 i SIZE
+next i
+get ZERO long
+get ENTRIES long
+get DUMMY long
+for i = 0 < ENTRIES
+    get ID long # referred to FILES
+    get DUMMY long
+    getarray SIZE 0 ID
+    putarray 1 i SIZE
+next i
+
+goto DATA_OFF
+for PACK_NUM = 0
+    padding 0x800
+
+    findloc OFFSET binary "PACK"
+    goto OFFSET
+
+    savepos BASE_OFF
+    idstring "PACK"
+    get DUMMY short
+    get FILES short
+    get NAMES_OFF_OFF long
+    get NAMES_OFF long
+    get DATA_OFF long
+    get DUMMY long
+    get PACK_SIZE long
+    get ZERO long
+    math NAMES_OFF + BASE_OFF
+    math NAMES_OFF_OFF + BASE_OFF
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get ZERO long
+        get SIZE long
+        get XOFFSET long
+        get ZERO long
+        get ZIP long
+        get ZSIZE long
+        get OFFSET long
+
+        savepos TMP
+        goto NAMES_OFF_OFF
+        get NAME_OFF long
+        savepos NAMES_OFF_OFF
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        string NAME p "%d/%s" PACK_NUM NAME
+        math OFFSET + BASE_OFF
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    math BASE_OFF + PACK_SIZE
+    goto BASE_OFF
+next PACK_NUM

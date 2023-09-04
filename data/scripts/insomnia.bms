@@ -1,0 +1,37 @@
+# Insomnia archives (UIG developer)
+#   Agrar Simualator 2013 and possibly others
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+getdstring SIGN 4
+if SIGN == "INDA"
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE -= OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+else
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+endif
+
+idstring MEMORY_FILE "insomnia"
+get DUMMY long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get INFO_OFF long MEMORY_FILE
+get FULL_SIZE long MEMORY_FILE
+goto INFO_OFF MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+    get FLAGS long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get NAME_CRC long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    log "" OFFSET SIZE MEMORY_FILE
+next i
+

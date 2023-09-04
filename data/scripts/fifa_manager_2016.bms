@@ -1,0 +1,95 @@
+# FIFA Football Manager 2016
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+get TYPE1 byte  # 2
+get TYPE2 byte  # 1
+getdstring SIGN 3
+if SIGN == "tad"
+    get FLAG1 short
+    get FLAG2 short
+    savepos OFFSET
+    get SIZE asize
+    math SIZE -= OFFSET
+    math DONE = 0
+    if FLAG2 == 8
+        get DUMMY1 byte
+        get DUMMY2 byte
+        getdstring SIGN 3
+        if DUMMY1 == TYPE1
+        if DUMMY2 == TYPE2
+        if SIGN == "fmf" || SIGN == "afe"
+            goto OFFSET
+            callfunction EXTRACT_FMF 1
+            math DONE = 1
+        endif
+        endif
+        endif
+    endif
+    # unzip_dynamic extracts also the non-compressed data, so no other checks
+    if DONE == 0
+        clog "" OFFSET SIZE SIZE
+    endif
+elif SIGN == "fmf" || SIGN == "afe"
+    goto 0
+    callfunction EXTRACT_FMF 1
+endif
+
+startfunction EXTRACT_FMF
+    get TYPE1 byte
+    get TYPE2 byte
+    getdstring SIGN 3   #idstring "fmf"
+    get FLAG1 short
+    get FLAG2 short
+    get OFFSET long
+    get SIZE asize
+    get FOLDERS long
+    get DUMMY byte
+    savepos BASE_OFF
+
+    math OFFSET += BASE_OFF
+    math SIZE -= OFFSET
+    clog MEMORY_FILE OFFSET SIZE SIZE
+
+    set NAME string ""
+    set PATH string ""
+    callfunction EXTRACT_FMF_FILES
+endfunction
+
+startfunction EXTRACT_FMF_FILES
+    callfunction GET_NAME 1
+    string PATH += NAME
+    string PATH += /
+    get SUB_FILES long MEMORY_FILES
+    for i = 0 < SUB_FILES
+        callfunction GET_NAME 1
+        set FILE_NAME string NAME
+        callfunction GET_NAME 1
+        string FILE_NAME += NAME
+        get OFFSET long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        math OFFSET += BASE_OFF
+        set FNAME string PATH
+        string FNAME += FILE_NAME
+        if ZSIZE == SIZE
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+        get TESTE1 longlong MEMORY_FILE
+        get TESTE2 longlong MEMORY_FILE
+    next i
+    get SUB_FOLDERS long MEMORY_FILES
+    for i = 0 < SUB_FOLDERS
+        callfunction EXTRACT_FMF_FILES
+    next i
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ long MEMORY_FILE
+    math NAMESZ += 1
+    math NAMESZ *= 2
+    getdstring NAME NAMESZ MEMORY_FILE
+    set NAME unicode NAME
+endfunction

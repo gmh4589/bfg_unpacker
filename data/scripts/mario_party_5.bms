@@ -1,0 +1,49 @@
+# Mario Party 5 BIN
+
+get FILES long  # big endian
+endian guess FILES
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    get FLAGS long  # 7
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    getdstring SIGN 4 MEMORY_FILE
+    if SIGN u== "HSFV" # idstring MEMORY_FILE "HSFV" # "HSFV037"
+        getdstring VER 4 MEMORY_FILE
+        for x = 0 < 0x15
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE   # SIZE is fake
+            putarray 0 x OFFSET
+        next x
+            get OFFSET asize MEMORY_FILE
+            putarray 0 x OFFSET
+            sortarray 0
+        for x = 0 < 0x15
+            getarray OFFSET 0 x
+            math x + 1
+            if OFFSET != 0
+                getarray SIZE   0 x
+                math SIZE - OFFSET
+                if SIZE != 0
+                    if FILES > 1
+                        string NAME p "%d/%d." i x
+                    else
+                        string NAME p    "%d."   x
+                    endif
+                    log NAME OFFSET SIZE MEMORY_FILE
+                endif
+            endif
+        next
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+
+    goto TMP
+next i

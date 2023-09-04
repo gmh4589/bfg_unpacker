@@ -1,0 +1,66 @@
+# ShotOnline
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+idstring "ShotOnline Resource file"
+goto 0x80
+get DUMMY long
+get DUMMY long
+getdstring PATH 0x100
+strlen i PATH
+for i = i >= 0
+    math i -= 1
+    getvarchr TMP PATH i
+    if TMP == 0x5c
+        break
+    endif
+    putvarchr PATH i 0x00
+next
+get ZERO long
+get FULLSIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+savepos INFO_OFF
+for INFO_OFF = INFO_OFF < FULLSIZE
+    goto INFO_OFF
+
+    get CRC long
+    get DUMMY long
+    savepos NAME_OFFSET
+    math INFO_OFF += 0x124
+    goto INFO_OFF
+
+    get NAME_ZSIZE long
+    get ZSIZE long
+    get CRC long
+    get OFFSET long
+    get NEXT_OFFSET long
+    get ZERO long
+    get ZERO long
+    get DUMMY long
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get CRC long
+    get ZERO long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get ZERO long
+    get ZERO long
+    savepos INFO_OFF
+
+    clog MEMORY_FILE NAME_OFFSET NAME_ZSIZE 0x100
+    get NAME string MEMORY_FILE
+    set FNAME string PATH
+    string FNAME += NAME
+    clog FNAME OFFSET ZSIZE SIZE
+
+    math INFO_OFF = NEXT_OFFSET
+next

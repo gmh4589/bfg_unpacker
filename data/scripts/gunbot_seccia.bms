@@ -1,0 +1,19 @@
+# Gunbot (seccia.com)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SRES"
+get VERSION long
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    get XSIZE long
+    if XSIZE == 0xffffffff
+        cleanexit
+    endif
+    get NAME string
+    savepos OFFSET
+    encryption "rot" "tgffkguZXj2wE581efGe54if8HAwE6yJfacvnspdolls54s00d1OIOvJSdb0GN1jkF1df4sftylppofFoudm2sfs" "" 1
+    log NAME OFFSET XSIZE
+    encryption "" ""
+    math OFFSET += XSIZE
+    goto OFFSET
+next

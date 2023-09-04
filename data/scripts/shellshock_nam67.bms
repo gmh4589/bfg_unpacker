@@ -1,0 +1,42 @@
+# Shellshock Nam` 67 (PS2, XBOX, PC)
+
+open FDSE "ASSETS.DAT"
+
+get ARCHIVE_NAME basename
+get EXT extension
+
+get HEADER_SIZE long
+get FILES long
+get ASSET_COUNT long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+
+math LAST_ASSET_NUM = -1
+for i = 0 < FILES
+	get SIZE long
+	get OFFSET long
+	get NAME_OFF long
+	get ASSET_NUM long
+	
+	savepos INFO_OFF
+	math NAME_OFF + 0x18
+	goto NAME_OFF
+	get NAME string
+	goto INFO_OFF
+	
+	callfunction HANDLE_ASSET_NUM
+	
+	log NAME OFFSET SIZE 1
+next i
+
+startfunction HANDLE_ASSET_NUM
+	if ASSET_NUM != LAST_ASSET_NUM
+		if ASSET_NUM == 0
+			string TMP p "%s.%s" ARCHIVE_NAME EXT
+		else
+			string TMP p "%s%02d.%s" ARCHIVE_NAME ASSET_NUM EXT
+		endif
+		open FDSE TMP 1
+	endif
+endfunction

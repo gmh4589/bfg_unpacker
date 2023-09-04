@@ -1,0 +1,33 @@
+# Cargo! (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LP3C"
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    get FOLDERS long
+    get FILES long
+
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get OFFSET longlong
+        get SIZE long
+
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    next i
+
+    for i = 0 < FOLDERS
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        callfunction EXTRACT
+    next i
+
+endfunction

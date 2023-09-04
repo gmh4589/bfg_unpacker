@@ -1,0 +1,26 @@
+# Dead Nations sound.pck (script 0.1.1)
+
+endian big
+idstring AKPK
+get INFO_SIZE long
+endian guess INFO_SIZE
+get DUMMY long  # 1
+get DUMMY long  # 10
+get DUMMY long  # 4c
+get DUMMY long  # 3004
+get DUMMY long  # 1
+get DUMMY long  # c
+get DUMMY long  # 0
+get NAME string
+
+savepos MYOFF
+for MYOFF = MYOFF < INFO_SIZE
+    do  # lame but works
+        get DUMMY long
+    while DUMMY != 1
+    get ZERO long
+    get SIZE long
+    get OFFSET long
+    savepos MYOFF
+    log "" OFFSET SIZE
+next

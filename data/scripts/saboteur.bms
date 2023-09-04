@@ -1,0 +1,16 @@
+idstring "1KCP"
+get unknown long
+get numDirs long
+for i = 0 < numDirs
+    get numFiles long
+    get offsetToFileEntries long
+    savepos TMP
+    goto offsetToFileEntries
+    for j = 0 < numFiles
+        get unknown long
+        get size long
+        get offset long
+        log "" offset size
+    next j
+    goto TMP
+next i

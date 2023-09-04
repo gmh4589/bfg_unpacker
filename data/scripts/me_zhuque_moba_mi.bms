@@ -1,0 +1,28 @@
+# me.zhuque.moba.mi http://xmcs.mi.com/
+#   The extracted files are UnityFS
+
+comtype lzma86head
+get CHUNKS long
+for x = 0 < CHUNKS
+    get CHUNK_SIZE long
+    get CHUNK_ZSIZE long
+    savepos CHUNK_OFF
+    clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+    for
+        get SIZE long MEMORY_FILE
+        savepos TMP MEMORY_FILE
+        if TMP == CHUNK_SIZE
+            break
+        endif
+        get FLAGS long MEMORY_FILE
+        getdstring NAME 0x100 MEMORY_FILE
+        savepos OFFSET MEMORY_FILE
+        if FLAGS & 5    # folders?
+        else
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+        goto SIZE MEMORY_FILE SEEK_CUR
+    next
+    math CHUNK_OFF + CHUNK_ZSIZE
+    goto CHUNK_OFF
+next x

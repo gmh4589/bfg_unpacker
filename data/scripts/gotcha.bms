@@ -1,0 +1,41 @@
+# Gotcha! / Emergency files decompress and compressor (0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set UNPACKED_NAME string "_unpacked"
+set SIGN1 binary "\xd3\xc0\x37\x13"
+set SIGN2 binary "\x2c\x3f\xc8\xec"
+
+get NAME basename
+get EXT extension
+if NAME & UNPACKED_NAME
+	comtype zlib_compress
+	get SIZE asize
+	log MEMORY_FILE 0 0
+	putdstring SIGN1 4 MEMORY_FILE
+	put 1 long MEMORY_FILE
+	put SIZE long MEMORY_FILE
+	put 0 long MEMORY_FILE
+	putdstring SIGN2 4 MEMORY_FILE
+	string NAME -= UNPACKED_NAME
+	string NAME += "."
+	string NAME += EXT
+	append
+	clog MEMORY_FILE 0 SIZE SIZE
+	append
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+else
+	comtype unzip_dynamic # necessary for some invalid compressed files like lift.script
+	idstring "\xd3\xc0\x37\x13"
+	get VER long
+	get SIZE long
+	get DUMMY long
+	idstring "\x2c\x3f\xc8\xec"
+	savepos OFFSET
+	get ZSIZE asize
+	math ZSIZE -= OFFSET
+	string NAME += UNPACKED_NAME
+	string NAME += "."
+	string NAME += EXT
+	clog NAME OFFSET ZSIZE SIZE
+endif

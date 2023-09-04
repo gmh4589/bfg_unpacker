@@ -1,0 +1,28 @@
+# Far Cry (PAK)
+
+ImpType SFileSize ;
+GoTo EOF 0 ;
+SavePos EF 0 ;
+GoTo SOF 0 ;
+Do ;
+Get Sign Int 0 ;
+If Sign = 19280 ;
+Get D Long 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+SavePos CSO 0 ;
+Get CS Long 0 ;
+SavePos USO 0 ;
+Get US Long 0 ;
+Get FS Long 0 ;
+GetDString FN FS 0 ;
+SavePos FO 0 ;
+Log FN FO CS 0 CSO ;
+Math FO += CS ;
+GoTo FO 0 ;
+Else ;
+CleanExit ;
+EndIf ;
+While FO < EF ;
+

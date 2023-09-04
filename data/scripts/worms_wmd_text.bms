@@ -1,0 +1,25 @@
+# Worms W.M.D AllText*.bin
+
+math IS_64 = 0
+get TMP basename
+if TMP & "64"
+    math IS_64 = 1
+endif
+
+get VER long    # 1
+get DATA_SIZE long
+savepos BASE_OFF
+get STRINGS long
+get DUMMY long
+for i = 0 < STRINGS
+    if IS_64 == 0
+        get SOME_CRC long
+        get OFFSET long
+    else
+        get OFFSET longlong
+        get SOME_CRC long
+        get DUMMY long
+    endif
+    math OFFSET + BASE_OFF
+    slog "" OFFSET -1
+next i

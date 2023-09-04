@@ -1,0 +1,37 @@
+# Tonic Trouble Special Edition CSB/MPX
+
+set LAST_NAME string ""
+set NAME string ""
+math SIZE = 0
+open FDDE "CSB"
+for
+    get TMP line
+    if TMP & ";Engine Resource Name"
+        set NAME string TMP
+        string NAME << 23
+    else
+        string TMP R "(" " "
+        string TMP R ")" " "
+        string ELEMENTS S TMP VAR1 VAR2
+
+		#SetParameters(44100,2,16)
+		#SetZipFormat(SAMPLE_MPEG)
+
+        if VAR1 == "SetDataOffset"
+            math OFFSET = VAR2
+        elif VAR1 == "SetDataSize"
+            math SIZE = VAR2
+        elif VAR1 == "SetFileName"
+            if LAST_NAME != VAR2
+                set LAST_NAME string VAR2
+                open FDSE VAR2 1
+            endif
+        elif VAR1 == "}"
+            if SIZE != 0
+                log NAME OFFSET SIZE 1
+            endif
+            math SIZE = 0
+            set NAME string ""
+        endif
+    endif
+next

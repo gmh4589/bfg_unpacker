@@ -1,0 +1,25 @@
+# Nippon Ichi Software FAFULLFS
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FAFULLFS"
+get FILES longlong
+get NAMES_OFF longlong
+get NAMES_SIZE longlong
+get INFO_OFF longlong
+goto INFO_OFF
+for i = 0 < FILES
+    get SOME_CRC longlong
+    get NAME_OFF longlong
+    get ZERO longlong   # maybe a possible ZSIZE?
+    get SIZE longlong
+    get OFFSET longlong
+    get TSTAMP32 longlong
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

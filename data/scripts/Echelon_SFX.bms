@@ -1,0 +1,26 @@
+# Echelon (SFX)
+
+IDString 0 DSFX ;
+Get FILECNTL Long 0 ;
+Get D Long 0 ;
+Get F Long 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 8 ;
+GoTo EOF 0 ;
+SavePos TA 0 ;
+Math TA -= F ;
+Math TA += 1 ;
+Do ;
+GoTo FILESTART 0 ;
+SavePos FSO 0 ;
+Get FILESIZE Long 0 ;
+SavePos FOO 0 ;
+Get FILEOFF Long 0 ;
+Math FILESTART += 16 ;
+GoTo TA 0 ;
+Get FILENAME String 0 ;
+SavePos TA 0 ;
+Log FILENAME FILEOFF FILESIZE #FOO FSO ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

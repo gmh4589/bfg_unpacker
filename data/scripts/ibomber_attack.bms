@@ -1,0 +1,14 @@
+# iBomber Attack
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x01\x00\xb1\xc0"
+goto 0x1c
+get FILES long
+get BASE_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

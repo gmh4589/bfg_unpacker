@@ -1,0 +1,20 @@
+# Necron 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xde\x8c\x45\x3d"
+get FILES long
+for i = 0 < FILES
+    get ENTRYSZ long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if SIZE == 0
+        log NAME OFFSET SIZE
+    else if SIZE == ZSIZE
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

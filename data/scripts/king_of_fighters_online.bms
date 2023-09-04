@@ -1,0 +1,44 @@
+# The King of Fighters Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.0"
+
+open FDDE "kpf"
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get FOLDER_ID long
+    get NAME unicode
+    putarray 0 FOLDER_ID NAME
+next i
+
+open FDDE "kof"
+get DUMMY long
+get BASE_OFF long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get FOLDER_ID long
+    get DUMMY long
+    get NAME unicode
+    get OFFSET long
+    get SIZE long
+
+    callfunction SET_ENCRYPTION
+
+    getarray PATH 0 FOLDER_ID
+    string FNAME p "%s/%s" PATH NAME
+    log FNAME OFFSET SIZE
+    encryption "" ""
+next i
+
+startfunction SET_ENCRYPTION
+    encryption crc ""
+    string NAME E NAME
+    xmath KEY "(QUICKBMS_CRC ^ 0x17059924) & 0xffff"
+    string KEY = KEY
+    encryption xor KEY "" 0 2
+endfunction

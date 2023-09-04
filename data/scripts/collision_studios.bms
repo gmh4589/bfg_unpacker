@@ -1,0 +1,79 @@
+# 300: March to Glory / Collision Studios
+
+get DUMMY long # 0x2d7f
+get INFO_SIZE long
+get INFO_OFF long
+math INFO_OFF * 0x800
+goto INFO_OFF
+
+set PATH string ""
+set NAME string ""
+math FILES = 0
+math FOLDERS = 1
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + /
+    string PATH + NAME
+
+    for i = 0 < FILES
+        get NAME_OFF long
+        callfunction GET_NAME 1
+        get SIZE long
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        math OFFSET x 0x800
+    next i
+
+    math BCK_FOLDERS = FOLDERS
+    for i = 0 < BCK_FOLDERS
+        callfunction GET_FOLDER 1
+
+        # backup
+        set NAME[i] string NAME
+        math OFFSET[i]  = OFFSET
+        math FILES[i]   = FILES
+        math FOLDERS[i] = FOLDERS
+    next i
+
+    for i = 0 < BCK_FOLDERS
+        # restore
+        set NAME string NAME[i]
+        math OFFSET  = OFFSET[i]
+        math FILES   = FILES[i]
+        math FOLDERS = FOLDERS[i]
+
+        callfunction EXTRACT
+    next i
+
+endfunction
+
+startfunction GET_FOLDER
+    get NAME_OFF long
+    callfunction GET_NAME 1
+    get OFFSET long
+    math OFFSET * 0x800
+    get FILES long
+    get DUMMY1 long
+    get FOLDERS long
+    get DUMMY2 long
+endfunction
+
+startfunction GET_NAME
+    savepos TMP
+    math FLAGS = NAME_OFF
+    math NAME_OFF & 0x7fffffff
+    math NAME_OFF + INFO_OFF
+    math NAME_OFF + INFO_SIZE
+    goto NAME_OFF
+    if FLAGS & 0x80000000
+        get NAME_HASH1 long
+        get NAME_HASH2 long
+        get EXT string
+        string NAME p "%08x%08x.%s" NAME_HASH1 NAME_HASH2 EXT
+    else
+        get NAME string
+    endif
+    goto TMP
+endfunction

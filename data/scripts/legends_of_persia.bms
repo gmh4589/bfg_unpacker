@@ -1,0 +1,31 @@
+# Legends of Persia
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SEF_SIZE asize
+get NAMESZ long
+getdstring NAME NAMESZ
+    findloc OFFSET string "------ "
+for OFFSET = OFFSET < SEF_SIZE
+    math OFFSET - 4
+    do
+        goto OFFSET
+        get NAMESZ long
+        math OFFSET - 1
+    while NAMESZ u> 0xff
+    getdstring NAME NAMESZ
+    savepos OFFSET
+
+    findloc NEXT_OFF string "------ " 0 ""
+    if NEXT_OFF == ""
+        math NEXT_OFF = SEF_SIZE
+    endif
+
+    xmath SIZE "NEXT_OFF - OFFSET"
+
+    string NAME strrstrx "- "
+    string NAME % " "
+    string NAME + "/"
+
+    log NAME OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next

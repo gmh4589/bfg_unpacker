@@ -1,0 +1,19 @@
+# Clones
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for EXTRACT = 0 < 2
+    goto 4
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getdstring DUMMY 10
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        if EXTRACT != 0
+            math OFFSET += BASE_OFFSET
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFFSET
+next EXTRACT

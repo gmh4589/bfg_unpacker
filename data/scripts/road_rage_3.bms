@@ -1,0 +1,15 @@
+idstring "LCF0"
+get DUMMY long
+get FILES long
+goto 0x20
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    if ZSIZE != 0
+        log "unknown_compression/" OFFSET ZSIZE #SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

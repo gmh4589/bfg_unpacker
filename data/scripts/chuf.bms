@@ -1,0 +1,17 @@
+comtype lzma_dynamic
+idstring "chuf"
+get SIZE asize
+math OFFSET = 0x30
+math SIZE -= OFFSET
+goto OFFSET
+getdstring SIGN 4
+if SIGN == "PDDS"
+    goto 0x45
+    get SIZE long
+    get NAME basename
+    string NAME += ".dds"
+    clog NAME 0x4d SIZE SIZE
+else
+    get NAME filename
+    log NAME OFFSET SIZE
+endif

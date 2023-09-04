@@ -1,0 +1,72 @@
+# Bionic Commando Rearmed 2 (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get HEAD_SIZE long
+if HEAD_SIZE == 0
+    get FULLSIZE long
+    math SIZE = 65536
+
+    log TEMPORARY_FILE 0 0
+    for TOT = 0 < FULLSIZE
+        get ZSIZE long
+        savepos OFFSET
+        if ZSIZE == SIZE
+            log MEMORY_FILE OFFSET SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+        math OFFSET += ZSIZE
+        goto OFFSET
+        math TOT += SIZE
+        if TOT > FULLSIZE
+            math TOT -= SIZE
+            math SIZE = FULLSIZE
+            math SIZE -= TOT
+            math TOT += SIZE
+        endif
+        append
+        log TEMPORARY_FILE 0 SIZE MEMORY_FILE
+        append
+    next
+
+    open "." TEMPORARY_FILE
+    get HEAD_SIZE long
+    math MINIME = 1
+else
+    get DUMMY long
+    get FULLSIZE asize
+    math MINIME = 0
+endif
+get DUMMY long
+get DUMMY long
+get START long
+math START += 4
+goto START
+math FILES = HEAD_SIZE
+math FILES -= START
+
+if MINIME == 0
+    math FILES /= 12
+    for i = 0 < FILES
+        get CRC long
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+else
+    math FILES /= 8
+    get CRC long
+    get OFFSET long
+    for i = 1 <= FILES
+        if i < FILES
+            get CRC long
+            get SIZE long
+        else
+            math SIZE = FULLSIZE
+        endif
+        math SIZE -= OFFSET
+        log "" OFFSET SIZE
+        math OFFSET += SIZE
+    next i
+endif

@@ -1,0 +1,71 @@
+open FDSE english.streamed 2 ENG_SOUND
+
+endian big
+
+get DUMMY long
+get FOFFSET long
+goto FOFFSET
+get FILES long
+
+for i = 0 < FILES
+
+  endian little
+
+  get FILENUM long
+  get STRLEN long
+  getdstring BLOCKNAME STRLEN
+  get STRLEN long
+  getdstring VALUE1 STRLEN
+  get STRLEN long
+  getdstring VALUE2 STRLEN
+
+  endian big
+
+  get OFFSET long
+  get SIZE long
+  get ZSIZE long
+  get EXTRA long
+
+  string VALUE1 -= ".wav"
+  string VALUE1 += ".msadpcm"
+
+  if EXTRA = 1
+
+     savePOS POS
+     math POS += 0x10
+     goto POS
+     get OFFSET long
+     get SIZE long
+     if MAIN_SOUND = 1
+        log VALUE1 OFFSET SIZE 1
+     endif
+
+  elif EXTRA = 7
+
+     savePOS POS
+     math POS += 0x10
+     goto POS
+     get offset long
+     get SIZE long
+     if ENG_SOUND = 1
+        log VALUE1 OFFSET SIZE 2
+
+  else
+     math EXTRA *= 0x18
+     getdstring EXTRADATA EXTRA
+  endif
+
+  savePOS POS
+  math POS += 0x14
+  goto POS
+
+next i
+
+get SIZE asize
+savePOS POS
+
+if POS != SIZE
+  print "!! other footer data here !!"
+endif
+
+print "Completed!!"

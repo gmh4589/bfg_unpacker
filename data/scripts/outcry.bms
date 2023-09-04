@@ -1,0 +1,27 @@
+# OutCry
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring SBPK
+get FILES long
+
+savepos NAMES_OFFSET
+for i = 1 to FILES
+    get FNAMESZ long
+    getdstring  FNAME FNAMESZ
+    get OFFSET  long
+    get SIZE    long
+next i
+
+savepos FILES_OFFSET
+goto NAMES_OFFSET
+for i = 1 to FILES
+    get FNAMESZ long
+    getdstring  FNAME FNAMESZ
+    get OFFSET  long
+    get SIZE    long
+    math OFFSET += FILES_OFFSET
+
+    filexor 0xcc
+    log FNAME OFFSET SIZE
+    filexor 0
+next i

@@ -1,0 +1,17 @@
+# 10tons games
+#   Crimsonland, Sparkle 2 and so on http://www.10tons.com/Games.html
+
+idstring "PAK\0"
+get DUMMY long
+get OFFSET long
+get DUMMY long
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAME string
+    get OFFSET long
+    get SIZE long
+    get TSTAMP long
+    get FLAGS long
+    log NAME OFFSET SIZE
+next i

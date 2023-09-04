@@ -1,0 +1,90 @@
+# Aristocrat Mercury (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+/*
+# put here the FIELD_NAME_CRC you want to save on disk
+# disabled because full of small useless files
+putarray 0 -1 0x7bbe382c
+putarray 0 -1 0x0d999249
+putarray 0 -1 0xf6c6b6de
+putarray 0 -1 0x53b0eb14
+putarray 0 -1 0x6a635995
+putarray 0 -1 0x7e9a8b95
+putarray 0 -1 0x5b740727
+putarray 0 -1 0x61e0637c
+putarray 0 -1 0x87dc7b66
+putarray 0 -1 0x8792384e
+putarray 0 -1 0x0fc2175c
+putarray 0 -1 0x5b50b1da
+putarray 0 -1 0xfafdff9e
+putarray 0 -1 0xd0b1b40d
+*/
+putarray 0 -1 0 # this is the last
+
+math MINIMUM_SIZE = 0x100
+
+quickbmsver "0.8.1"
+
+idstring "MERC"
+get DUMMY long  # 0x008fc100
+get DUMMY long  # 0x3f99999a, timestamp?
+get OFFSET long
+get DATA_SIZE long
+get MERC_SIZE long
+get MORE_SIZE long
+goto OFFSET
+set NAME string ""
+math LIMIT = OFFSET
+math LIMIT + DATA_SIZE  # do NOT use MERC_SIZE because it's the aligned size
+for OFFSET = OFFSET != LIMIT
+    get TYPE long
+    get FIELD_SIZE long
+    if FIELD_SIZE == 1
+        get SIZE byte
+    elif FIELD_SIZE == 2
+        get SIZE short
+    elif FIELD_SIZE == 4
+        get SIZE long
+    elif FIELD_SIZE == 8
+        get SIZE longlong
+    endif
+    get FIELD_NAME_CRC long
+    if TYPE == 2    # TYPE 1 has no value, never seen TYPE zero
+        math DUMP = 0
+        math x = 0
+        do
+            getarray TMP 0 x
+            if TMP == FIELD_NAME_CRC
+                math DUMP = 1
+                break
+            endif
+            math x + 1
+        while TMP != 0
+
+        if DUMP != 0
+            callfunction DUMP_FILE 1
+        elif SIZE >= MINIMUM_SIZE
+            callfunction DUMP_FILE 1
+        elif FIELD_NAME_CRC == 0x0db984e6
+            getdstring NAME SIZE
+        else
+            getdstring DUMMY SIZE
+
+            #do not enable because they are just tons of small useless variables and resources!
+            #string NAME p "%08x/%s" FIELD_NAME_CRC NAME
+            #callfunction DUMP_FILE 1
+        endif
+    endif
+    savepos OFFSET
+next
+if MORE_SIZE != 0
+    log "" MERC_SIZE MORE_SIZE
+endif
+
+startfunction DUMP_FILE
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    set NAME string ""  # reset
+    math OFFSET + SIZE
+    goto OFFSET
+endfunction

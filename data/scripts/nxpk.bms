@@ -1,0 +1,209 @@
+# NXPK npk (script 0.3.9a)
+#   Demon Seals HD and others
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+math NAMES = -1
+math EXISTS = 0
+
+math NAMES_METHOD = 0
+
+/*
+# this format is totally useless because it's only a sequence of integers
+    string TMP p "%s_hash" EXT
+    open FDDE TMP 1 EXISTS
+if EXISTS == 0
+    string TMP p "%s.hash" EXT
+    open FDDE TMP 1 EXISTS
+endif
+*/
+if EXISTS == 0
+    open FDDE "hash" 1 EXISTS
+endif
+if EXISTS == 0
+    string TMP p "%s.info" EXT
+    open FDDE TMP 1 EXISTS
+endif
+
+if EXISTS != 0
+
+    comtype zlib_noerror
+    get TMP1 byte 1
+    get TMP2 byte 1
+    if TMP1 == 0x1f && TMP2 == 0x8b
+        comtype gzip
+    endif
+
+    get SIZE asize 1
+    clog MEMORY_FILE 0 SIZE SIZE 1
+    get SIZE asize MEMORY_FILE
+    for i = 0
+        savepos TMP MEMORY_FILE
+        if TMP >= SIZE
+            break
+        endif
+        get TMP line MEMORY_FILE
+        getvarchr TMP0 TMP 0
+        if NAMES >= 0
+            if TMP0 == 0x53 || TMP0 == 0x73 # "S" and "sS"
+                if TMP0 == 0x53     # "S'"
+                    string TMP << 2
+                else
+                    string TMP << 3
+                endif
+                string TMP - 1
+                if i & 1
+                    string TMP2 x TMP
+                    set TMP string "_"
+                    for x = 0 < 16
+                        getvarchr TMP3 TMP2 x
+                        string TMP3 p "%02X" TMP3
+                        string TMP + TMP3
+                    next x
+                    putarray 10 NAMES TMP
+                    math NAMES + 1
+                else
+                    putarray 11 NAMES TMP
+                endif
+                math i + 1
+            endif
+        else
+            if TMP0 == 'a' || TMP0 == '('   # (lp1
+                math NAMES = 0  # skip the first string
+            endif
+        endif
+    next
+
+else
+
+    string TMP p "%s.map" EXT
+    open FDDE TMP 1 EXISTS
+    if EXISTS != 0
+        math NAMES_METHOD = 1
+        get MAP_SIZE asize 1
+        for OFFSET = 0 != MAP_SIZE
+            get TMP line 1
+
+            # weird thing in a game
+            string TMP - "id:"
+            string TMP - "compress size:"
+            string TMP - "compress hash:"
+            string TMP - "uncompress size:"
+            string TMP - "uncompress hash:"
+            string TMP - "pos:"
+
+            string ELEMENTS S TMP NAME NAME_CRC ZSIZE ZCRC SIZE CRC OFFSET
+            putarray 10 NAMES NAME_CRC
+            putarray 11 NAMES NAME
+            math NAMES + 1
+            savepos OFFSET 1
+        next
+    endif
+
+endif
+
+/*
+# debug
+for x = 0 < NAMES
+    getarray HASH 10 x
+    getarray NAME 11 x
+    print "%HASH% %NAME%"
+next x
+*/
+
+set KEY string ""
+for x = 0 < 0x100
+    xmath TMP "x - 2"
+    putvarchr KEY x TMP
+next x
+
+idstring "NXPK"
+get FILES long
+get VER1 long
+get VER2 long
+get VER3 long
+math MODE = 0
+if VER1 >= 1 && VER3 > 1
+    math MODE = 1
+endif
+math INFO_SIZE = 0x1c
+if MODE != 0
+    math INFO_SIZE = 0x28
+endif
+get OFFSET long
+
+# if I used this work-around it means it was necessary in a sample, don't know what sample...
+get NXPK_SIZE asize
+if OFFSET u> NXPK_SIZE
+    xmath OFFSET "NXPK_SIZE - (FILES * INFO_SIZE)"
+endif
+
+goto OFFSET
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get ZCRC long
+    get CRC long
+    if MODE != 0
+        get DUMMY long
+        get DUMMY long
+        get FLAGS long
+        get DUMMY long
+    else
+        get FLAGS long
+    endif
+    xmath ZFLAGS "FLAGS & 0xffff"
+    xmath FLAGS  "FLAGS >> 16"
+    if ZFLAGS == 2
+        comtype lz4
+    else    # 0
+        comtype zlib
+    endif
+
+    set NAME string ""
+    if NAMES > 0
+        if NAMES_METHOD == 0
+            encryption md5 ""
+            log MEMORY_FILE OFFSET ZSIZE
+            encryption "" ""
+            string QUICKBMS_HEXHASH p "_%s" QUICKBMS_HEXHASH  # LAME BUGFIX FOR QUICKBMS!!!
+        else
+            math QUICKBMS_HEXHASH = NAME_CRC
+        endif
+        for x = 0 < NAMES
+            getarray TMP 10 x
+            if TMP == QUICKBMS_HEXHASH
+                getarray NAME 11 x
+                putarray 10 x ""
+                math x = NAMES # break
+            endif
+        next x
+    endif
+
+    math FILENUM = 0
+    if FLAGS & 1
+        math TMP = 0x80
+        if TMP > ZSIZE
+            math TMP = ZSIZE
+        endif
+        encryption xor KEY "" 0 TMP
+        log MEMORY_FILE OFFSET TMP
+        encryption "" ""
+        math OFFSET + TMP
+        xmath TMP "ZSIZE - TMP"
+        append
+        log MEMORY_FILE OFFSET TMP
+        append
+        math OFFSET = 0
+        math FILENUM = -1
+    endif
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE FILENUM
+    else
+        clog NAME OFFSET ZSIZE SIZE FILENUM
+    endif
+
+next i    

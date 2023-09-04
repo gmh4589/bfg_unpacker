@@ -1,0 +1,25 @@
+# Mokuba no Kiseki (0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+idstring "FPAC"
+get BASE_OFF long
+math BASE_OFF *= 0x800
+for i = 0
+    get SIZE long
+    if SIZE == 0
+        cleanexit
+    endif
+    get ZIP short
+    get OFFSET short
+    math OFFSET *= 0x800
+    math OFFSET += BASE_OFF
+
+    savepos TMP
+    goto OFFSET
+    getdstring DUMMY 10
+    get NAME string
+    goto TMP
+
+    clog NAME OFFSET SIZE SIZE
+next i

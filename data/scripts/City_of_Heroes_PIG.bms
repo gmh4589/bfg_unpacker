@@ -1,0 +1,36 @@
+# City of Heroes (PIG)
+
+ImpType Standard ;
+ComType ZLib1 ;
+Set D Long 12 ;
+GoTo D 0 ;
+Get C Long 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+Set J Long 24 ;
+SavePos D 0 ;
+Set JF Long 48 ;
+Math JF *= C ;
+Math JF += 28 ;
+For T = 1 To C ;
+SavePos UCSO 0 ;
+Get UCS Long 0 ;
+Get D Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos D 0 ;
+Math D += J ;
+GoTo D 0 ;
+SavePos CSO 0 ;
+Get CS Long 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+SavePos D 0 ;
+GoTo JF 0 ;
+Get FNS Long 0 ;
+GetDString FN FNS 0 ;
+SavePos JF 0 ;
+GoTo D 0 ;
+CLog FN FO CS FOO CSO UCS UCSO ;
+Next T ;
+

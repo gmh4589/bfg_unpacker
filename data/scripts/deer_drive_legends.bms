@@ -1,0 +1,11 @@
+# Deer Drive Legends
+
+open FDDE "LST"
+open FDDE "PAK" 1
+
+    get INFO line
+for
+    get INFO line
+    string ELEMENTS S INFO C HASH OFFSET SIZE NAME
+    log NAME OFFSET SIZE 1
+next

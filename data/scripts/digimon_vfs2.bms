@@ -1,0 +1,67 @@
+idstring "VFS2"
+get ENTRIES long
+get BASE_OFF long
+math BASE_OFF * 0x800
+get INFO_SIZE long
+
+comtype zlib_noerror
+math INFO_SIZE - 0x800
+clog MEMORY_FILE 0x800 INFO_SIZE INFO_SIZE
+comtype zlib
+
+xmath NAMES_OFF "ENTRIES * (4 + 4 + 3 + 1)"
+
+set NAME string ""
+set PATH string ""
+math SUB_ENTRIES = 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math ENTRIES = SUB_ENTRIES
+
+    for i = 0 < ENTRIES
+        savepos THIS_OFF MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAME_OFF threebyte MEMORY_FILE
+        get FLAGS byte MEMORY_FILE
+
+        savepos TMP_OFF MEMORY_FILE
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto TMP_OFF MEMORY_FILE
+
+        if FLAGS & 8
+            if NAME != ".."
+                math SUB_ENTRIES = SIZE
+                goto OFFSET MEMORY_FILE
+                if OFFSET == THIS_OFF
+                    getdstring DUMMY 12 MEMORY_FILE
+                    math SUB_ENTRIES - 1
+                endif
+                callfunction EXTRACT
+                goto TMP_OFF MEMORY_FILE
+                if OFFSET == THIS_OFF   # lame solution, sorry
+                    math i = ENTRIES
+                endif
+            endif
+        else
+            string FNAME p "%s%s" PATH NAME
+            math OFFSET * 0x800
+            math OFFSET + BASE_OFF
+            goto OFFSET
+            getdstring SIGN 4
+            if SIGN == "ZP00"
+                get XSIZE long
+                math OFFSET + 8
+                math SIZE   - 8
+                clog FNAME OFFSET SIZE XSIZE
+            else
+                log FNAME OFFSET SIZE
+            endif
+        endif
+    next i
+endfunction

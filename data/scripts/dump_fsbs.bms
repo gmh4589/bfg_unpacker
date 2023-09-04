@@ -1,0 +1,78 @@
+# dump FSBs (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INPUT_SIZE asize
+for
+    findloc OFFSET string "FSB"
+    goto OFFSET
+    getdstring FSB_SIGN 3
+    get FSB_VER byte
+
+    math namesize = 0
+
+    # the following fields are a copy&paste from fsb.h of fsbext
+      if FSB_VER == '1'
+    int32_t     numsamples; /* number of samples in the file */
+    int32_t     datasize;   /* size in bytes of compressed sample data */
+    int32_t     dunno_null;
+
+    elif FSB_VER == '2'
+    int32_t     numsamples; /* number of samples in the file */
+    int32_t     shdrsize;   /* size in bytes of all of the sample headers including extended information */
+    int32_t     datasize;   /* size in bytes of compressed sample data */
+
+    elif FSB_VER == '3'
+    int32_t     numsamples; /* number of samples in the file */
+    int32_t     shdrsize;   /* size in bytes of all of the sample headers including extended information */
+    int32_t     datasize;   /* size in bytes of compressed sample data */
+    uint32_t    version;    /* extended fsb version */
+    uint32_t    mode;       /* flags that apply to all samples in the fsb */
+
+    elif FSB_VER == '4'
+    int32_t     numsamples; /* number of samples in the file */
+    int32_t     shdrsize;   /* size in bytes of all of the sample headers including extended information */
+    int32_t     datasize;   /* size in bytes of compressed sample data */
+    uint32_t    version;    /* extended fsb version */
+    uint32_t    mode;       /* flags that apply to all samples in the fsb */
+    char        zero[8];    /* ??? */
+    uint8_t     hash[16];   /* hash??? */
+
+    elif FSB_VER == '5'
+    int32_t     version;    // ???
+    int32_t     numsamples; /* number of samples in the file */
+    int32_t     shdrsize;   /* size in bytes of all of the sample headers including extended information */
+    int32_t     namesize;   // size of the name table
+    int32_t     datasize;   /* size in bytes of compressed sample data */
+    uint32_t    mode;       /* flags that apply to all samples in the fsb */
+    char        zero[8];    /* ??? */
+    uint8_t     hash[16];   /* hash??? */
+    char        dummy[8];   /* ??? */
+
+    else
+        math datasize = -1
+    endif
+
+    if datasize < 0
+        math SIZE = 4
+    else
+        savepos SIZE
+        math SIZE - OFFSET
+        math SIZE + shdrsize
+        math SIZE + namesize
+        math SIZE + datasize
+        if SIZE < 0
+            math SIZE = 4
+        else
+            math TMP = OFFSET
+            math TMP + SIZE
+            if TMP u> INPUT_SIZE
+                math SIZE = 4
+            else
+                log "" OFFSET SIZE      # success!
+            endif
+        endif
+    endif
+
+    math OFFSET + SIZE
+    goto OFFSET
+next

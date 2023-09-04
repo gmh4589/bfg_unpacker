@@ -1,0 +1,42 @@
+# Amplitude demo
+
+comtype gzip
+get DUMMY long
+get FILES long
+
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * 0x14)"
+goto NAMES_OFF
+get NAMES long
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+goto TMP
+
+for i = 0 < FILES
+    get NAME_ID long
+    get FOLDER_ID long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+
+    set PATH string ""
+    if PATH_ID != 0xffffffff
+        getarray PATH 0 PATH_ID
+    endif
+    set NAME string ""
+    if NAME_ID != 0xffffffff
+        getarray NAME 0 NAME_ID
+    endif
+
+    string NAME p "%s/%s" PATH NAME
+
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        set NAME fullbasename NAME
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

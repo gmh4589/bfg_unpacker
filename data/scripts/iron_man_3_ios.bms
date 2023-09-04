@@ -1,0 +1,47 @@
+# Iron Man 3 iOS
+# script for QuickBMS http://quickbms.aluigi.org
+
+math XOR1 = 0xc242c242
+math XOR2 = 0x01174750
+math XOR3 = 0xcd
+
+for
+    get SIGN long
+    if SIGN != 0x8badf00d
+        break
+    endif
+    filexor XOR1
+    get ver             short
+    get flag            short
+    get method          short
+    filexor ""
+    get modtime         short
+    get moddate         short
+    get crc             long
+    filexor XOR2
+    get comp_size       long
+    get uncomp_size     long
+    filexor XOR1
+    get name_len        short
+    get extra_len       short
+    filexor XOR3
+    getdstring name     name_len
+    filexor ""
+    getdstring extra    extra_len
+    savepos offset
+
+    if method == 0
+        Log name offset comp_size   # was uncomp_size before AES
+    else
+        if method == 8
+            ComType deflate
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+        CLog name offset comp_size uncomp_size
+    endif
+
+    math offset += comp_size
+    goto offset
+next

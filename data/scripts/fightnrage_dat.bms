@@ -1,0 +1,21 @@
+# Fight'N Rage dat renamer and decompressor (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+for i = 0
+    string NAME p "%d.dat" i
+    open FDSE NAME
+    get SIZE asize
+    if i == 0
+        clog MEMORY_FILE 0 SIZE SIZE
+    else
+        get NAME line MEMORY_FILE
+        get SIZE_CHECK line MEMORY_FILE
+        set EXT extension NAME
+        if EXT == "xml" || EXT == "png"
+            clog NAME 0 SIZE SIZE
+        else
+            log NAME 0 SIZE
+        endif
+    endif
+next i

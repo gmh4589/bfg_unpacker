@@ -1,0 +1,13 @@
+# Micro Machines 2 (SFX)
+
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+SavePos FILEOFF 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+Math FILESTART += FILESIZE ;
+Get FILENAME String 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+While NotEOF <> 0 ;
+

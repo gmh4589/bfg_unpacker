@@ -1,0 +1,13 @@
+# Pop'n Pop / Super Puzzle Bobble UNA
+
+idstring "UNA\0"
+getdstring VER 4    # 001
+get FILES long
+goto 0x20
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    padding 0x10
+    log NAME OFFSET SIZE
+next i

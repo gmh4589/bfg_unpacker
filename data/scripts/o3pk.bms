@@ -1,0 +1,113 @@
+# O3PK archive
+#   Grimlands
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "this script MUST be launched with the -9 option!!!"
+quickbmsver "0.5.14,-9"
+
+idstring "O3PK"
+get DUMMY long
+get VER short
+getdstring DUMMY 14
+get OFFSET longlong
+goto OFFSET
+idstring "HSHT"
+get DUMMY long
+get XFILES long # entries
+get FILES long  # real files
+get OFFSET longlong
+get DUMMY long
+get ZSIZE long
+math SIZE = XFILES
+math SIZE *= 0x28
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+# pre-allocate space for the arrays
+putarray 0 XFILES 0
+putarray 1 XFILES 0
+putarray 2 XFILES 0
+
+print "collecting OFFSET and SIZE..."
+math NAMES_OFF  = 0
+math NAMES_SIZE = 0
+math j = 0
+for i = 0 < XFILES
+    get DUMMY longlong MEMORY_FILE
+    get OFFSET longlong MEMORY_FILE
+    get DUMMY longlong MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get CHUNKED long MEMORY_FILE    # ???
+    getdstring DUMMY 0x8 MEMORY_FILE
+    if OFFSET != 0
+        putarray 1 j OFFSET
+        putarray 2 j SIZE
+        math j += 1
+
+        if OFFSET > NAMES_OFF
+            math NAMES_OFF  = OFFSET
+            math NAMES_SIZE = SIZE
+        endif
+    endif
+next i
+
+print "collecting filenames..."
+math OFFSET = NAMES_OFF
+math SIZE   = NAMES_SIZE
+callfunction UNCHUNK 1
+goto 0 MEMORY_FILE2
+for i = 0 < FILES   #XFILES
+    savepos TMP MEMORY_FILE2
+    if TMP < SIZE
+        #get NAME line MEMORY_FILE2
+        getct NAME string 0xa MEMORY_FILE2
+    else
+        set NAME string ""
+    endif
+    putarray 0 i NAME
+next i
+
+print "OFFSET sorting, wait patiently!!!"
+math TMP = FILES
+math TMP -= 1
+for i = 0 < TMP
+    getarray OFFSET 1 i
+    math j = i
+    for j += 1 < FILES
+        getarray OFFSET2 1 j
+        if OFFSET2 u< OFFSET
+            getarray SIZE  2 i
+            getarray SIZE2 2 j
+            putarray 1 i OFFSET2
+            putarray 2 i SIZE2
+            putarray 1 j OFFSET
+            putarray 2 j SIZE
+            math OFFSET = OFFSET2
+        endif
+    next j
+next i
+
+print "extraction..."
+for j = 0 < FILES
+    getarray OFFSET 1 j
+    getarray SIZE 2 j
+    callfunction UNCHUNK 1
+    getarray NAME 0 j
+    log NAME 0 SIZE MEMORY_FILE2
+next j
+
+startfunction UNCHUNK
+    putvarchr MEMORY_FILE2 SIZE 0
+    log MEMORY_FILE2 0 0
+    for XSIZE = 0 < SIZE
+        goto OFFSET
+        get CHUNK_OFFSET longlong
+        savepos OFFSET
+        goto CHUNK_OFFSET
+        get CHUNK_ZSIZE short
+        savepos CHUNK_OFFSET
+        append  # all the chunks are compressed, even if CHUNK_ZSIZE is >= 4096
+        clog MEMORY_FILE2 CHUNK_OFFSET CHUNK_ZSIZE 0x10000  # was 4096
+        append
+        get XSIZE asize MEMORY_FILE2
+    next
+endfunction

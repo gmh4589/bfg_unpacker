@@ -1,0 +1,137 @@
+# Marmalade Derbh commpress tool DTRZ/dzip/dz (script 0.5)
+#   Vector
+#   Talisman
+#   Plants vs Zombies
+#   http://api.madewithmarmalade.com/DZSettings_8h_source.html
+#
+#   If you want to extract and create DZ archives you should use
+#   the official dzip.exe tool available in the Marmalade SDK:
+#       https://www.madewithmarmalade.com/developer
+#   I have mirrored the dzip package on http://aluigi.org/misc/dzip.zip
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.6"
+
+get SIGN long
+if SIGN == 0xdeadfed4
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+goto 0
+
+math CHUNK_COMBUF = 0x1 //Set to indicate a combuf chunk. Combuf chunks are all appended to each other
+math CHUNK_DZ = 0x4 //Set to indicate a dzip chunk, for use with range decoder
+math CHUNK_ZLIB = 0x8 //Set to indicate a zlib chunk
+math CHUNK_BZIP = 0x10 //Set to indicate a bzip2 chunk
+math CHUNK_MP3 = 0x20 //Set to indicate a mp3 chunk
+math CHUNK_JPEG = 0x40 //Set to indicate a JPEG chunk
+math CHUNK_ZERO = 0x80 //Set to indicate a zerod-out chunk
+math CHUNK_COPYCOMP = 0x100 //Set to indicate a copy-coded (ie no compression) chunk
+math CHUNK_LZMA = 0x200 //Set to indicate a lzma encoded chunk
+math CHUNK_RANDOMACCESS = 0x400 //Set to indicate whole chunk should be buffered by the decoder for random access
+
+idstring "DTRZ"     # HEader
+get FILES short     # NumUserFiles
+get FOLDERS short   # NumDirectories
+get VER byte        # version (0)
+
+for i = 0 < FILES
+    get NAME string
+    putarray 0 -1 NAME
+next i
+
+math FOLDERS - 1
+for i = 0 < FOLDERS
+    get FOLDER string
+    putarray 1 -1 FOLDER
+next i
+    putarray 1 -1 ""
+
+for i = 0 < FILES
+    get FOLDER_ID short
+    do
+        get FILE_ID short
+        if FILE_ID != 0xffff
+            putarray 2 FILE_ID i
+            putarray 3 FILE_ID FOLDER_ID
+        endif
+    while FILE_ID != 0xffff
+next i
+get DUMMY short # 1
+get FILES short # sams as the total from putarray 2 and 3
+
+# after the next TOC there are 10 bytes of flags
+
+math FILES - 1  # it's more easy to make the check later
+for i = 0 <= FILES
+    get OFFSET long
+    get ZSIZE  long
+    get SIZE   long
+    get FLAGS  long
+
+    getarray FILE_ID   2 i
+    getarray FOLDER_ID 3 i
+    math FOLDER_ID - 1
+    getarray NAME      0 FILE_ID
+    if FOLDER_ID < FOLDERS
+        getarray FOLDER    1 FOLDER_ID
+    else
+        set FOLDER string ""
+    endif
+    string NAME p "%s/%s" FOLDER NAME
+
+    if FLAGS & CHUNK_LZMA
+        comtype lzma86head
+    elif FLAGS & CHUNK_COPYCOMP
+        log NAME OFFSET SIZE
+        math ZSIZE = 0  # skip compression handling
+    elif FLAGS & CHUNK_ZERO
+        comtype copy    # it's just an empty file
+    elif FLAGS & CHUNK_BZIP
+        comtype bzip2
+    elif FLAGS & CHUNK_ZLIB
+        comtype gzip    # yeah zlib is just gzip
+    #elif FLAGS & CHUNK_COMBUF
+        #comtype dzip    # it's just dzip!
+    elif FLAGS & CHUNK_MP3
+        log NAME OFFSET ZSIZE
+        math ZSIZE = 0  # skip compression handling
+    elif FLAGS & CHUNK_JPEG
+        log NAME OFFSET ZSIZE
+        math ZSIZE = 0  # skip compression handling
+    else
+        # &4 is used also for the other flags (e.g. 0x84 or 0x5)
+        comtype dzip
+    endif
+
+    if ZSIZE != 0   # mode zero has ZSIZE set to zero
+        if SIZE == ZSIZE
+            # SIZE and ZSIZE are the same in lzma and probably other algorithms too,
+            # and they correspond to the decompressed size so there is no way to
+            # know how much data we have to read.
+            # An easy way to have ZSIZE is using the size of whole dz archive
+            # or alternatively reading the next entry and subtract the offset
+
+            # it's faster to directly get the asize value!
+            if i == FILES
+                get ZSIZE asize
+            else
+                savepos TMP
+                get ZSIZE long  # the next offset
+                goto TMP
+            endif
+            if ZSIZE u< OFFSET
+                get ZSIZE asize
+            endif
+            math ZSIZE - OFFSET
+        endif
+
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

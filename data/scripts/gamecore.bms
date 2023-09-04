@@ -1,0 +1,62 @@
+# GameCore Engine
+#   works also with the executables containing the archive
+# script for QuickBMS http://quickbms.aluigi.org
+
+set NAME string ""
+set PATH string ""
+set BASE_OFF long 0
+
+goto -8
+getdstring SIGN 4
+if SIGN == "BVAS"
+    get TMP long
+    savepos BASE_OFF
+    math BASE_OFF -= TMP
+endif
+goto BASE_OFF
+
+getdstring SIGN 4
+if SIGN == "BVAR"   # not verified
+elif SIGN == "BVEA"
+else
+    print "Error: the file is not a BV** archive, you must try to open it as a ZIP or contact me"
+    cleanexit
+endif
+get NEXT_OFF long
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    do
+        math NEXT_OFF += BASE_OFF
+        goto NEXT_OFF
+
+        getdstring NAME 0x40
+        get SIZE long
+        get OFFSET long
+        get ZERO long
+        get NEXT_OFF long
+
+        if SIGN == "BVEA"
+            math TMP = SIZE
+            math SIZE = 0x02127a21
+            math SIZE -= TMP
+            math TMP = OFFSET
+            math OFFSET = 0x0bd783c1
+            math OFFSET -= TMP
+        endif
+
+        if SIZE == 0xffffffff
+            set TMP_OFF long NEXT_OFF
+            set NEXT_OFF long OFFSET
+            callfunction EXTRACT
+            set NEXT_OFF long TMP_OFF
+        else
+            set FULLNAME string PATH
+            string FULLNAME += NAME
+            math OFFSET += BASE_OFF
+            log FULLNAME OFFSET SIZE
+        endif
+    while NEXT_OFF != 0
+endfunction

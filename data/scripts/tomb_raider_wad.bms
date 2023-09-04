@@ -1,0 +1,17 @@
+# Tomb Raider 3
+
+get MIN_OFF asize
+do
+    getdstring NAME 260
+    get SIZE long
+    get OFFSET long
+
+    if OFFSET != 0
+        if OFFSET u< MIN_OFF
+            math MIN_OFF = OFFSET
+        endif
+        log NAME OFFSET SIZE
+    endif
+
+    savepos TMP
+while TMP u< MIN_OFF

@@ -1,0 +1,14 @@
+get FILES long
+get PAC_SIZE long
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    putarray 0 i SIZE
+next i
+savepos OFFSET
+for i = 0 < FILES
+    math OFFSET x 0x800
+    getarray SIZE 0 i
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+next i

@@ -1,0 +1,77 @@
+# AO Tennis 2 .blobset
+
+get NAME filename
+if NAME & "blobset"
+else
+    print "Error: you must select the blobset file"
+    cleanexit
+endif
+
+comtype zstd
+idstring "BLOB"
+get FILES long
+
+for i = 0 < FILES
+    get NAME2 long
+    get NAME1 threebyte
+    get FOLDER byte
+    string NAME p "%02x/%06x%08x" FOLDER NAME1 NAME2
+    putarray 0 i NAME
+next i
+
+for i = 0 < FILES
+    getarray NAME 0 i
+    get INFO_ZSIZE long
+    get INFO_SIZE long
+    get DATA_ZSIZE long
+    get DATA_SIZE long
+
+    open FDSE NAME 1 EXISTS
+    if EXISTS != 0
+
+        if DATA_ZSIZE == 0
+
+            string NAME + . # automatic extension
+            if INFO_ZSIZE == INFO_SIZE
+                log NAME 0 INFO_SIZE 1
+            else
+                get TMP long 1  # same as INFO_ZSIZE! it's not CHUNK_ZISZE
+                math TMP - 4
+                clog NAME 4 TMP INFO_SIZE 1
+            endif
+
+        else
+
+            if INFO_ZSIZE == INFO_SIZE
+                log MEMORY_FILE 0 INFO_SIZE 1
+            else
+                get TMP long 1  # same as INFO_ZSIZE! it's not CHUNK_ZISZE
+                math TMP - 4
+                clog MEMORY_FILE 4 TMP INFO_SIZE 1
+            endif
+            goto INFO_ZSIZE 1
+
+            math CHUNK_SIZE = 0x40000
+            get DUMMY long MEMORY_FILE  # flag?
+            get DUMMY long MEMORY_FILE  # flag?
+            get DUMMY long MEMORY_FILE  # 1
+            get DUMMY long MEMORY_FILE  # 0x14, name offset
+            get FULLSIZE long MEMORY_FILE
+            get NAME string MEMORY_FILE
+
+            log MEMORY_FILE 0 0
+            append
+            for MEM_SIZE = 0 != FULLSIZE
+                get CHUNK_ZSIZE long 1
+                math CHUNK_ZSIZE - 4
+                savepos OFFSET 1
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                goto CHUNK_ZSIZE 1 SEEK_CUR
+                get MEM_SIZE asize MEMORY_FILE
+            next
+            append
+            log NAME 0 FULLSIZE MEMORY_FILE
+        endif
+
+    endif
+next i

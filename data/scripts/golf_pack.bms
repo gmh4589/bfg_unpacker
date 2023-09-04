@@ -1,0 +1,24 @@
+# Double Dragon II Wander of the Dragons PACK
+
+comtype xmemdecompress
+idstring "GOLF1.02"
+getdstring PLATFORM 4   # x360
+get FILES long
+endian guess FILES      # instead of relying on platform
+for i = 0 < FILES
+    get ZERO long
+    get ZERO long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 8
+    getdstring TYPE 4
+    get XSIZE long
+
+    if TYPE == "xlzw"
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,44 @@
+# Metal Gear Solid HD Collection (PS3) - .msf->.genh
+
+idstring "MSF"
+endian big
+get VER byte
+get SIGN long
+get CHANNELS long
+get FREQUENCY long
+get SIZE long
+set OFFSET 0x20
+set INTERLEAVE 0x10
+get NAME basename
+callfunction GENH 1
+
+startfunction GENH
+	endian little
+   set SAMPLES SIZE
+   math SAMPLES *= 8
+   math SAMPLES /= 27
+
+   set FSIZE SIZE
+   math FSIZE += 0x1000
+   putVarChr MEMORY_FILE FSIZE 0
+   log MEMORY_FILE 0 0
+   putVarChr MEMORY_FILE 0 0x484e4547 long
+   putVarChr MEMORY_FILE 0x4 CHANNELS long
+   putVarChr MEMORY_FILE 0x8 INTERLEAVE long
+   putVarChr MEMORY_FILE 0xc FREQUENCY long
+   putVarChr MEMORY_FILE 0x10 0xffffffff long
+   putVarChr MEMORY_FILE 0x14 SAMPLES long
+   putVarChr MEMORY_FILE 0x18 0x0 long
+   putVarChr MEMORY_FILE 0x1c 0x1000 long # offset; == stream start if no header
+   putVarChr MEMORY_FILE 0x20 0x1000 long
+   putVarChr MEMORY_FILE 0x300 FSIZE long
+   putVarChr MEMORY_FILE 0x304 0x32304756 long
+   putVarChr MEMORY_FILE 0xfff 0 byte
+   math FSIZE -= 0x1000
+   append
+   log MEMORY_FILE OFFSET FSIZE
+   append
+   get SIZE asize MEMORY_FILE
+   string NAME += ".genh"
+   log NAME 0 SIZE MEMORY_FILE
+endfunction

@@ -1,0 +1,70 @@
+# Arslan: The Warriors of Legend / Dragon Quest Heroes (linkdata.idx/bin) (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "IDX"
+open FDDE "BIN" 1
+
+goto 0xc    # guess the endianess by checking the SIZE field
+get TMP long
+goto 0
+if TMP != 0
+    endian big
+endif
+
+get BIN_SIZE asize
+for BIN_OFF = 0 != BIN_SIZE
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZIP longlong
+    savepos BIN_OFF
+
+    if SIZE != 0
+        if ZIP == 0
+            log "" OFFSET SIZE 1
+        else
+            goto OFFSET 1
+            get CHUNK_SIZE long 1
+            get CHUNKS long 1
+            get SIZE long 1
+
+            math MODE = 0
+            comtype zlib
+            if CHUNK_SIZE == 0xffffffff
+                math MODE = 1
+                comtype deflate
+                math CHUNK_SIZE = 0x10000
+            endif
+
+            for x = 0 < CHUNKS
+                get CHUNK_ZSIZE long 1
+                putarray 0 x CHUNK_ZSIZE
+            next x
+
+            putvarchr MEMORY_FILE SIZE 0
+            log MEMORY_FILE 0 0
+            append
+            math PADDING_OFFSET = OFFSET
+            for x = 0 < CHUNKS
+                padding 0x80 1 PADDING_OFFSET
+                savepos PADDING_OFFSET 1
+                getarray CHUNK_ZSIZE 0 x
+                get MEM_SIZE asize MEMORY_FILE
+                math MEM_SIZE + CHUNK_ZSIZE
+                if MEM_SIZE == SIZE
+                    savepos OFFSET 1
+                    log MEMORY_FILE OFFSET CHUNK_ZSIZE 1
+                else
+                    if MODE == 0
+                        get CHUNK_ZSIZE long 1
+                    endif
+                    savepos OFFSET 1
+                    clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                endif
+                goto CHUNK_ZSIZE 1 SEEK_CUR
+            next x
+            append
+            log "" 0 SIZE MEMORY_FILE
+        endif
+    endif
+next

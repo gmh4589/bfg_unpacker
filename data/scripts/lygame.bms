@@ -1,0 +1,76 @@
+# 横扫天下 / LYGame / hstx
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x0a\x0f\x0a\x0f"
+get VER long    # 1
+callfunction GET_NAME 1 # ?(web)
+callfunction GET_NAME 1 # LYGame
+get DUMMY long
+callfunction GET_NAME 1
+getdstring DUMMY 16
+get OFFSET long
+get SIZE long
+
+callfunction DUMP 1
+
+goto 0x38c
+get OFFSET longlong
+get SIZE long
+get ZERO long
+get ZERO long
+get ZERO long
+getdstring DUMMY 16
+callfunction GET_NAME 1
+get BASE_OFF longlong
+get DATA_SIZE longlong
+get DUMMY long  # 2
+get FILES long  # no, this is not the files number because doesn't match
+getdstring DUMMY 16
+
+callfunction DUMP 1
+open "." NAME 1
+set LIST_NAME string NAME
+
+for i = 0
+    get TMP line 1
+    string ELEMENTS S TMP NAME HASH OFFSET SIZE NEEDED_STRING
+    if ELEMENTS >= 5
+        string OFFSET R "#" ""
+        math OFFSET + BASE_OFF
+        if NAME != LIST_NAME    # don't overwrite it with the archived small file!
+            callfunction DUMP 1
+        endif
+    endif
+next i
+
+startfunction GET_NAME
+    getdstring NAME 0x40
+    set NAME unicode NAME
+endfunction
+
+startfunction DUMP
+    goto OFFSET
+    get MAGIC1 long # 0xc8e4f4f7
+    get MAGIC2 long # 0xc2d5d7ca
+    get MAGIC3 long # 0xc3c2d4d4
+    get MAGIC4 long # 0xc2cbcee1
+
+    math ZIP = 0
+    if MAGIC1 == 0xc8e4f4f7
+    if MAGIC2 == 0xc2d5d7ca
+    if MAGIC3 == 0xc3c2d4d4
+    if MAGIC4 == 0xc2cbcee1
+        math ZIP = 1
+    endif
+    endif
+    endif
+    endif
+    if ZIP != 0
+        get XSIZE long
+        math SIZE - 0x14
+        savepos OFFSET
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+endfunction

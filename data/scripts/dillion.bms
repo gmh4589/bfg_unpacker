@@ -1,0 +1,64 @@
+# Dillion's Rolling Western / Vanpool
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+
+open FDDE "viw"
+get FILES long
+get NAMES long
+get NAMES2 long
+get DUMMY long
+savepos TMP
+get SIZE asize
+xmath NAMES "(SIZE - TMP) / (4 + 0x14)"
+for i = 0 < NAMES
+    get DUMMY long
+    getdstring NAME 0x14
+    putarray 0 i NAME
+next i
+
+open FDDE "inf"
+get FILES long
+get INFO_OFF long
+get NAMES long
+get ELEMENTS_OFFSET long
+get ELEMENTS long
+get NEXT_OFF long
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    putarray 1 -1 "/"
+    putarray 2 -1 OFFSET
+    putarray 3 -1 ZSIZE
+    putarray 4 -1 SIZE
+next i
+
+goto ELEMENTS_OFFSET
+for i = 0 < ELEMENTS
+    get DUMMY long
+    get DUMMY long
+next i
+
+goto NEXT_OFF
+for i = 0 < ELEMENTS
+    get OFFSET long
+    get SIZE long
+    putarray 1 -1 "data/"
+    putarray 2 -1 OFFSET
+    putarray 3 -1 SIZE #ZSIZE (SIZE is not specified so the algorithm will do it automatically)
+    putarray 4 -1 SIZE
+next i
+
+math FILES + ELEMENTS
+
+open FDDE "vpl"
+for i = 0 < FILES
+    getarray NAME   1 i
+    getarray OFFSET 2 i
+    getarray ZSIZE  3 i
+    getarray SIZE   4 i
+    clog NAME OFFSET ZSIZE SIZE
+next i

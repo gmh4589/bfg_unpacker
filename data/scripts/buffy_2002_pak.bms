@@ -1,0 +1,77 @@
+# Buffy The Vampire Slayer, 2002 (XBOX) pak
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SOME_SIZE long
+get NAMES_SIZE long
+get ZERO long
+get NAMES_SIZE long
+get ALIGN long
+get NAMES long
+savepos TMP
+xmath NAMES_OFF "TMP + (NAMES * 4)"
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < NAMES
+    get NAME_OFF long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+next i
+math NAMES_OFF + NAMES_SIZE
+goto NAMES_OFF
+
+get DUMMY long  # 0x2000
+get NUM long
+for i = 0 < NUM
+    get DUMMY short
+next i
+
+get DUMMY long
+get DUMMY long
+get NUM long
+for i = 0 < NUM
+    getdstring NAME 0x24
+next i
+
+get ZERO long
+get NAMESZ long
+getdstring NAME NAMESZ
+get DUMMY long  # 8
+get NUM long
+for i = 0 < NUM
+    get NAMESZ long
+    getdstring NAME NAMESZ
+next i
+
+get DUMMY long  # 0x200
+# here the format starts to be inconsistent with a sequence of 0x14 bytes entries in which sometimes are stored strings...
+findloc OFFSET long 0xffffffff
+goto OFFSET
+get DUMMY long
+
+for
+    savepos ENTRY_OFF
+    get DUMMY long  # 1
+    if DUMMY == 0
+        break
+    endif
+    get OFFSET long
+    get ENTRY_SIZE long
+    get SIZE long
+    get ZERO long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+
+    get NAME2SZ long
+    getdstring NAME2 NAME2SZ
+    if NAME2 != ""  # only for "textures\caustic.mtx" and other files, don't know how to dump them
+        set EXT extension NAME
+        set NAME fullbasename NAME
+        string NAME p "%s(%s).%s" NAME NAME2 EXT
+    endif
+
+    get ZERO long   # maybe the second field is just a zero, the first one a string for sure
+
+    xmath OFFSET "OFFSET + (ENTRY_SIZE - SIZE)" # or just "savepos OFFSET"
+    log NAME OFFSET SIZE
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+next

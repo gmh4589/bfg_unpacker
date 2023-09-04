@@ -1,0 +1,18 @@
+# Cyclones
+
+get FILES short
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+
+    savepos TMP
+    math NAME_OFF + INFO_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

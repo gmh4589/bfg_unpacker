@@ -1,0 +1,89 @@
+# Raiders Sphere PAC/DPD
+
+# there is a bug in "incremental xor32" fixed only in QuickBMS 0.11.1 beta
+set MEMORY_FILE10 string "
+void xor32(unsigned char *data, int size, int inc) {
+    unsigned int    xor = 0;
+    int     i;
+    for(i = 0; i < size; i++) { // yes it's meant to go over if not /4
+        ((unsigned int *)data)[i] ^= xor;
+        xor += inc;
+    }
+}
+"
+
+codepage 932    # japanese filenames
+
+get EXT extension
+if EXT == "PAC"
+
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get ZERO long   # ignored
+        if ZERO != 0
+            print "Error: ZERO (%ZERO%) is set, contact me"
+            cleanexit
+        endif
+        get XOR_KEY long
+        if XOR_KEY != 0
+            # very easy: KEY = 0; KEY += XOR_KEY; data32[i] ^= KEY; i++;
+            # the xor may be applied to the whole file including spare bytes (size+3)
+            #encryption "incremental xor32" 0 XOR_KEY
+            encryption calldll "MEMORY_FILE10 xor32 tcc RET #INPUT# #INPUT_SIZE# XOR_KEY"
+        endif
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long   # ignored
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            print "Error: ZSIZE (%ZSIZE%) != SIZE (%SIZE%). Contact me"
+            cleanexit
+        endif
+    next i
+
+elif EXT == "DPD"
+
+    for MEM_OFF = 0
+        encryption "incremental xor" 0 0x4f
+        log MEMORY_FILE MEM_OFF 0x40
+        encryption "" ""
+        math MEM_OFF + 0x40
+
+        get ID short MEMORY_FILE
+        if ID == 0xffff
+            break
+        endif
+        get FLAGS short MEMORY_FILE # 3 (at least when XSIZE > SIZE)
+        get OFFSET long MEMORY_FILE
+        get XSIZE long MEMORY_FILE  # there is no compression, it's the original raw size maybe?
+        get SIZE long MEMORY_FILE
+        getdstring NAME 0x30 MEMORY_FILE
+
+        #encryption "incremental xor" 0 -0x68ECA8CF    # sub
+        encryption calldll "MEMORY_FILE10 xor32 tcc RET #INPUT# #INPUT_SIZE# -0x68ECA8CF"
+        # bug in QuickBMS that asks to overwrite the files in append mode with encryption calldll
+        # just select 'a' and let it run
+        math TMP = 0x100
+        if TMP > SIZE
+            math TMP = SIZE
+        endif
+        log NAME OFFSET TMP
+        encryption "" ""
+        math OFFSET + TMP
+        math SIZE   - TMP
+        if SIZE > 0
+            append
+            log NAME OFFSET SIZE
+            append
+        endif
+    next
+
+else
+
+    print "Error: unsupported format %EXT%."
+    cleanexit
+
+endif

@@ -1,0 +1,20 @@
+<bms games="'Backyard Football', 'Backyard Baseball', 'Backyard Basketball', 'Backyard Hockey', 'Backyard Skateboarding'" platforms="'PC', 'PC', 'PC', 'PC', 'PC'" ext="MET">
+ImpType Standard ;
+Get HeaderSize Long 0 ;
+Get DataSize Long 0 ;
+SavePos COff 0 ;
+Do ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+If FO <> 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get NSize Long 0 ;
+GetDString FName NSize 0 ;
+SavePos COff 0 ;
+Log FName FO FS #FOO FSO ;
+Else ;
+Set COff Long HeaderSize ;
+EndIf ;
+While COff < HeaderSize ;
+</bms>

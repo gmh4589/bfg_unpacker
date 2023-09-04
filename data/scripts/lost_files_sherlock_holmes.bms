@@ -1,0 +1,21 @@
+# Lost Files of Sherlock Holmes
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LIB\x1a"
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 13
+    get OFFSET long
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+    get OFFSET asize
+    putarray 1 i OFFSET
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

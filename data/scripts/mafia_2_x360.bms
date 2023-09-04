@@ -1,0 +1,106 @@
+# -- WRS
+#    xentax.com
+#    .sds BMS script (wip)
+
+print "WARNING: THIS SCRIPT WILL NOT DUMP ANYTHING YET (WIP)"
+
+idstring "SDS\x00"
+
+goto 16
+
+### Part of the header
+
+get P_RES long
+get P_DATA long
+get P_XML long
+get TOT_RAM long # sum of all ram usage (see xml)
+get TOT_VRAM long # sum of all vram usage (see xml)
+
+###
+
+get xmlsize asize
+math xmlsize -= P_XML
+
+log "sds_desc.xml" P_XML xmlsize
+
+
+goto 64
+
+### Res info
+
+get RES_COUNT long
+get UNKNOWN long
+get RES_TYPES long
+
+for i = 1 to RES_TYPES
+
+  get RES_INDEX long
+  get RES_NAME_sIZE long
+
+  math RES_NAME_sIZE += 4 # padded byte
+  getdstring RES_NAME RES_NAME_SIZE
+
+  print "%RES_NAME%"
+
+next i
+
+### zlib data
+
+goto P_DATA # will already be here
+
+
+getdstring UNKNOWN 30 # some sort of header
+
+set chunkcnt long 0
+
+for
+
+  get CHUNK_SIZE long
+
+  if CHUNK_SIZE == 0
+
+    print "Chunks found: %chunkcnt%"
+    cleanexit
+
+  endif
+
+  get FLAG byte
+
+  if FLAG == 0
+
+    getdstring UNKNOWN 11
+
+    ## zlib data is here
+
+    savepos DATASTART
+
+    ## todo: clog to memory_file, append result to result
+    math DATASTART += CHUNK_SIZE
+
+    goto DATASTART
+
+  else
+
+    get UNKNOWN long
+    get SKIP long
+
+    savepos SKIPVAL
+
+    math SKIPVAL += SKIP
+    math SKIPVAL -= 8
+
+    goto SKIPVAL
+
+    savepos DATASTART
+
+    ## todo: clog to memor_file, append result to result
+    math CHUNK_SIZE -= SKIP
+    math DATASTART += CHUNK_SIZE
+
+    goto DATASTART
+
+  endif
+
+  math chunkcnt += 1
+
+next

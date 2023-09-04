@@ -1,0 +1,21 @@
+# Saint Seiya Online lang_base.data
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LANG"
+get VER long
+get TSTAMP long
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get START_TAG short # 0xbded
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get ELEMENTS long
+    print "%NAME%: %ELEMENTS% elements"
+    for i = 0 < ELEMENTS
+        for x = 0 < 3
+            get SIZE long
+            slog "" -1 SIZE
+        next x
+    next i
+    get END_TAG short   # 0xbd57
+next FOLDER

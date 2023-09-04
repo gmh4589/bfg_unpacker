@@ -1,0 +1,15 @@
+# Exanima
+
+get DUMMY long      # 0xafbf0c01
+get BASE_OFF long
+xmath FILES "BASE_OFF / 0x20"
+math BASE_OFF + 8
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

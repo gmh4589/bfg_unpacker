@@ -1,0 +1,14 @@
+# ITE Media BIGFILE
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BIGFILE"
+get OFFSET long
+goto OFFSET
+get BIG_SIZE asize
+xmath FILES "(BIG_SIZE - OFFSET) / (260 + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME 260
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,246 @@
+# Python Pickle parser (script 0.1.4)
+# https://github.com/python/cpython/blob/master/Lib/pickle.py
+
+math PICKLE_MARK           = '('   # push special markobject on stack
+math PICKLE_STOP           = '.'   # every pickle ends with STOP
+math PICKLE_POP            = '0'   # discard topmost stack item
+math PICKLE_POP_MARK       = '1'   # discard stack top through topmost markobject
+math PICKLE_DUP            = '2'   # duplicate top stack item
+math PICKLE_FLOAT          = 'F'   # push float object; decimal string argument
+math PICKLE_INT            = 'I'   # push integer or bool; decimal string argument
+math PICKLE_BININT         = 'J'   # push four-byte signed int
+math PICKLE_BININT1        = 'K'   # push 1-byte unsigned int
+math PICKLE_LONG           = 'L'   # push long; decimal string argument
+math PICKLE_BININT2        = 'M'   # push 2-byte unsigned int
+math PICKLE_NONE           = 'N'   # push None
+math PICKLE_PERSID         = 'P'   # push persistent object; id is taken from string arg
+math PICKLE_BINPERSID      = 'Q'   #  "       "         "  ;  "  "   "     "  stack
+math PICKLE_REDUCE         = 'R'   # apply callable to argtuple, both on stack
+math PICKLE_STRING         = 'S'   # push string; NL-terminated string argument
+math PICKLE_BINSTRING      = 'T'   # push string; counted binary string argument
+math PICKLE_SHORT_BINSTRING = 'U'   #  "     "   ;    "      "       "      " < 256 bytes
+math PICKLE_UNICODE        = 'V'   # push Unicode string; raw-unicode-escaped'd argument
+math PICKLE_BINUNICODE     = 'X'   #   "     "       "  ; counted UTF-8 string argument
+math PICKLE_APPEND         = 'a'   # append stack top to list below it
+math PICKLE_BUILD          = 'b'   # call __setstate__ or __dict__.update()
+math PICKLE_GLOBAL         = 'c'   # push self.find_class(modname, name); 2 string args
+math PICKLE_DICT           = 'd'   # build a dict from stack items
+math PICKLE_EMPTY_DICT     = '}'   # push empty dict
+math PICKLE_APPENDS        = 'e'   # extend list on stack by topmost stack slice
+math PICKLE_GET            = 'g'   # push item from memo on stack; index is string arg
+math PICKLE_BINGET         = 'h'   #   "    "    "    "   "   "  ;   "    " 1-byte arg
+math PICKLE_INST           = 'i'   # build & push class instance
+math PICKLE_LONG_BINGET    = 'j'   # push item from memo on stack; index is 4-byte arg
+math PICKLE_LIST           = 'l'   # build list from topmost stack items
+math PICKLE_EMPTY_LIST     = ']'   # push empty list
+math PICKLE_OBJ            = 'o'   # build & push class instance
+math PICKLE_PUT            = 'p'   # store stack top in memo; index is string arg
+math PICKLE_BINPUT         = 'q'   #   "     "    "   "   " ;   "    " 1-byte arg
+math PICKLE_LONG_BINPUT    = 'r'   #   "     "    "   "   " ;   "    " 4-byte arg
+math PICKLE_SETITEM        = 's'   # add key+value pair to dict
+math PICKLE_TUPLE          = 't'   # build tuple from topmost stack items
+math PICKLE_EMPTY_TUPLE    = ')'   # push empty tuple
+math PICKLE_SETITEMS       = 'u'   # modify dict by adding topmost key+value pairs
+math PICKLE_BINFLOAT       = 'G'   # push float; arg is 8-byte float encoding
+
+math PICKLE_TRUE           = 'I01\n'  # not an opcode; see INT docs in pickletools.py
+math PICKLE_FALSE          = 'I00\n'  # not an opcode; see INT docs in pickletools.py
+
+# Protocol 2
+
+math PICKLE_PROTO          = '\x80'  # identify pickle protocol
+math PICKLE_NEWOBJ         = '\x81'  # build object by applying cls.__new__ to argtuple
+math PICKLE_EXT1           = '\x82'  # push object from extension registry; 1-byte index
+math PICKLE_EXT2           = '\x83'  # ditto, but 2-byte index
+math PICKLE_EXT4           = '\x84'  # ditto, but 4-byte index
+math PICKLE_TUPLE1         = '\x85'  # build 1-tuple from stack top
+math PICKLE_TUPLE2         = '\x86'  # build 2-tuple from two topmost stack items
+math PICKLE_TUPLE3         = '\x87'  # build 3-tuple from three topmost stack items
+math PICKLE_NEWTRUE        = '\x88'  # push True
+math PICKLE_NEWFALSE       = '\x89'  # push False
+math PICKLE_LONG1          = '\x8a'  # push long from < 256 bytes
+math PICKLE_LONG4          = '\x8b'  # push really big long
+
+# Protocol 3 (Python 3.x)
+
+math PICKLE_BINBYTES       = 'B'   # push bytes; counted binary string argument
+math PICKLE_SHORT_BINBYTES = 'C'   #  "     "   ;    "      "       "      " < 256 bytes
+
+# Protocol 4
+
+math PICKLE_SHORT_BINUNICODE = '\x8c'  # push short string; UTF-8 length < 256 bytes
+math PICKLE_BINUNICODE8      = '\x8d'  # push very long string
+math PICKLE_BINBYTES8        = '\x8e'  # push very long bytes string
+math PICKLE_EMPTY_SET        = '\x8f'  # push empty set on the stack
+math PICKLE_ADDITEMS         = '\x90'  # modify set by adding topmost stack items
+math PICKLE_FROZENSET        = '\x91'  # build frozenset from topmost stack items
+math PICKLE_NEWOBJ_EX        = '\x92'  # like NEWOBJ but work with keyword only arguments
+math PICKLE_STACK_GLOBAL     = '\x93'  # same as GLOBAL but using names on the stacks
+math PICKLE_MEMOIZE          = '\x94'  # store top of the stack in memo
+math PICKLE_FRAME            = '\x95'  # indicate the beginning of a new frame
+
+# Protocol 5
+
+math PICKLE_BYTEARRAY8       = '\x96'  # push bytearray
+math PICKLE_NEXT_BUFFER      = '\x97'  # push next out-of-band buffer
+math PICKLE_READONLY_BUFFER  = '\x98'  # make top of stack readonly
+
+get PICKLE_SIZE asize
+savepos PICKLE_OFFSET
+for PICKLE_OFFSET = PICKLE_OFFSET != PICKLE_SIZE
+    math DATASZ = 0
+    math DATA = 0
+    set DATA string ""
+
+    get OPCODE byte
+    if OPCODE == PICKLE_PROTO
+        get DATA byte
+    elif OPCODE == PICKLE_FRAME
+        get DATA longlong
+    elif OPCODE == PICKLE_PERSID
+        get DATA string
+    elif OPCODE == PICKLE_BINPERSID
+    elif OPCODE == PICKLE_NONE
+    elif OPCODE == PICKLE_NEWTRUE
+        math DATA = 1
+    elif OPCODE == PICKLE_NEWFALSE
+        math DATA = 0
+    elif OPCODE == PICKLE_FALSE
+        math DATA = 0
+    elif OPCODE == PICKLE_TRUE
+        math DATA = 1
+    elif OPCODE == PICKLE_INT
+        get DATA string
+    elif OPCODE == PICKLE_BININT
+        get DATA long
+    elif OPCODE == PICKLE_BININT1
+        get DATA byte
+    elif OPCODE == PICKLE_BININT2
+        get DATA short
+    elif OPCODE == PICKLE_LONG
+        get DATA string
+    elif OPCODE == PICKLE_LONG1
+        get DATASZ byte
+        getdstring DATA DATASZ
+        callfunction PICKLE_LONGN 1
+    elif OPCODE == PICKLE_LONG4
+        get DATASZ long
+        getdstring DATA DATASZ
+        callfunction PICKLE_LONGN 1
+    elif OPCODE == PICKLE_FLOAT
+        get DATA string
+    elif OPCODE == PICKLE_BINFLOAT
+        get DATA longlong
+    elif OPCODE == PICKLE_STRING
+        get DATA string
+    elif OPCODE == PICKLE_BINSTRING
+        get DATASZ long
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_BINBYTES
+        get DATASZ long
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_UNICODE
+        get DATA string
+    elif OPCODE == PICKLE_BINUNICODE
+        get DATASZ long
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_BINUNICODE8
+        get DATASZ longlong
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_BINBYTES8
+        get DATASZ longlong
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_SHORT_BINBYTES8
+        get DATASZ short
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_SHORT_BINSTRING
+        get DATASZ byte
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_SHORT_BINBYTES
+        get DATASZ byte # yeah 1
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_SHORT_BINUNICODE
+        get DATASZ short
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_TUPLE
+    elif OPCODE == PICKLE_EMPTY_TUPLE
+    elif OPCODE == PICKLE_TUPLE1
+    elif OPCODE == PICKLE_TUPLE2
+    elif OPCODE == PICKLE_TUPLE3
+    elif OPCODE == PICKLE_EMPTY_LIST
+    elif OPCODE == PICKLE_EMPTY_DICT
+    elif OPCODE == PICKLE_EMPTY_SET
+    elif OPCODE == PICKLE_FROZENSET
+    elif OPCODE == PICKLE_LIST
+    elif OPCODE == PICKLE_DICT
+    elif OPCODE == PICKLE_INST
+        get DATA string
+        get DATA string
+    elif OPCODE == PICKLE_OBJ
+    elif OPCODE == PICKLE_NEWOBJ
+    elif OPCODE == PICKLE_NEWOBJ_EX
+    elif OPCODE == PICKLE_GLOBAL
+        get DATA line
+        get DATA line
+    elif OPCODE == PICKLE_STACK_GLOBAL
+    elif OPCODE == PICKLE_EXT1
+        get DATA byte
+    elif OPCODE == PICKLE_EXT2
+        get DATA short
+    elif OPCODE == PICKLE_EXT4
+        get DATA long
+    elif OPCODE == PICKLE_EXTENSION
+    elif OPCODE == PICKLE_CLASS
+    elif OPCODE == PICKLE_REDUCE
+    elif OPCODE == PICKLE_POP
+    elif OPCODE == PICKLE_POP_MARK
+    elif OPCODE == PICKLE_DUP
+    elif OPCODE == PICKLE_GET
+        get DATA string
+    elif OPCODE == PICKLE_BINGET
+        get DATA byte
+    elif OPCODE == PICKLE_LONG_BINGET
+        get DATA long
+    elif OPCODE == PICKLE_PUT
+        get DATA string
+    elif OPCODE == PICKLE_BINPUT
+        get DATA byte
+    elif OPCODE == PICKLE_LONG_BINPUT
+        get DATA long
+    elif OPCODE == PICKLE_MEMOIZE
+    elif OPCODE == PICKLE_APPEND
+    elif OPCODE == PICKLE_APPENDS
+    elif OPCODE == PICKLE_SETITEM
+    elif OPCODE == PICKLE_SETITEMS
+    elif OPCODE == PICKLE_ADDITEMS
+    elif OPCODE == PICKLE_BUILD
+    elif OPCODE == PICKLE_MARK
+    elif OPCODE == PICKLE_STOP
+    elif OPCODE == PICKLE_BYTEARRAY8
+        get DATASZ longlong
+        getdstring DATA DATASZ
+    elif OPCODE == PICKLE_NEXT_BUFFER
+    elif OPCODE == PICKLE_READONLY_BUFFER
+    else
+        print "Error: unknown opcode %OPCODE|x% at offset %PICKLE_OFFSET|x%"
+        cleanexit
+    endif
+
+    callfunction PICKLE_CALLBACK 1
+
+    savepos PICKLE_OFFSET
+next
+
+startfunction PICKLE_CALLBACK
+    print "%PICKLE_OFFSET|x% %OPCODE|x% %DATA%"
+endfunction
+
+startfunction PICKLE_LONGN
+    math DATA_RES = 0
+    for DATASZ - 1 >= 0
+        getvarchr DATA_TMP DATA DATASZ
+        math DATA_RES u<< 8
+        math DATA_RES | DATA_TMP
+    prev DATASZ
+    math DATA = DATA_RES
+endfunction

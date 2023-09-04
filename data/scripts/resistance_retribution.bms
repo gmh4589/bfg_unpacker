@@ -1,0 +1,32 @@
+# Resistance Retribution (HOG extractor)
+# for generating the HOG file from an HGZ one:
+#   use "offzip -a -1 UNFREED.HGZ c:\ 0x14"
+#   rename c:\00000014.dat to UNFREED.HOG
+# script for QuickBMS http://quickbms.aluigi.org
+
+#get DUMMY69 long
+idstring "iiii"
+get FILES long
+get DUMMY long
+get NAMES_OFF long
+get FILES_OFF long
+get OFFSET long
+savepos OFFSETS_OFF
+
+for i = 0 < FILES
+    goto OFFSETS_OFF
+    get NEXT_OFFSET long
+    savepos OFFSETS_OFF
+
+    goto NAMES_OFF
+    get NAME string
+    savepos NAMES_OFF
+
+    set SIZE long NEXT_OFFSET
+    math SIZE -= OFFSET
+    math OFFSET += FILES_OFF
+
+    log NAME OFFSET SIZE
+
+    set OFFSET long NEXT_OFFSET
+next i

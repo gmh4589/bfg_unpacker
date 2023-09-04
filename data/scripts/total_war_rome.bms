@@ -1,0 +1,21 @@
+# Total War Rome
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "idx"
+open FDDE "dat" 1
+getdstring NAME 8
+get VER long    # 4
+get FILES long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get FLAGS long      # 0xd
+    get NAME string
+    getdstring PAD 3    # senseless fixed 0xcd padding yeah
+    log NAME OFFSET SIZE 1
+next i

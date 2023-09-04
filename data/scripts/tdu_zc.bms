@@ -1,0 +1,25 @@
+# Test Drive Unlimited ZC
+
+get EXT extension
+if EXT != "zc"
+    print "Error: only files with ZC extension are supporteD"
+    cleanexit
+endif
+
+get NAME basename
+get ZC_SIZE asize
+
+endian big
+idstring ".ZC\0"
+get SIZE long   # total decompressed size
+math CHUNK_SIZE = 0xff78
+log NAME 0 0
+append
+do
+    get CHUNK_ZSIZE short
+    savepos OFFSET
+    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    math OFFSET + CHUNK_ZSIZE
+    goto OFFSET
+while OFFSET != ZC_SIZE
+append

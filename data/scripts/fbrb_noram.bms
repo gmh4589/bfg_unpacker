@@ -1,0 +1,93 @@
+# Battlefield: Bad Company (script 0.1.3) (low RAM version)
+# script for QuickBMS http://aluigi.org/papers.htm#quickbms
+
+endian big
+comtype deflate
+idstring "FbRB"
+get SIZE long
+savepos OFFSET
+set MEM_FILE long 1
+callfunction gzip_fbrb_sux
+
+math OFFSET += SIZE
+get SIZE asize
+math SIZE -= OFFSET
+goto OFFSET
+set MEM_FILE long 2
+callfunction gzip_fbrb_sux
+
+get VER long MEMORY_FILE
+get INFO_OFF long MEMORY_FILE
+savepos NAME_BASE MEMORY_FILE
+math INFO_OFF += NAME_BASE
+goto INFO_OFF MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMEOFF long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get XSIZE long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+
+    savepos TMP MEMORY_FILE
+    math NAMEOFF += NAME_BASE
+    goto NAMEOFF MEMORY_FILE
+    #getdstring NAME NAMESZ MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+
+    open "." TEMPORARY_FILE 1
+    log NAME OFFSET SIZE 1
+next i
+
+# fbrb sux, it specifies a wrong size for the gzip file in some archives (like ondemand_awards-00.fbrb)
+# so when QuickBMS goes at its end to find the uncompressed size field it finds a zero... bad
+startfunction gzip_fbrb_sux
+    savepos TMP_OFF
+    endian little
+    get GZIP_SIGN short
+    if GZIP_SIGN == 0x8b1f
+        get CM byte
+        get FLAGS byte
+        get MTIME long
+        get XFL byte
+        get OS byte
+        if FLAGS & 4
+            get TMP short
+            getdstring TMP TMP
+        endif
+        if FLAGS & 8
+            get TMP string
+        endif
+        if FLAGS & 16
+            get TMP string
+        endif
+        if FLAGS & 2
+            get TMP short
+        endif
+        savepos TMP
+        math SIZE += OFFSET
+        math SIZE -= 4  # uncompressed size
+        goto SIZE
+        get XSIZE long
+        math SIZE -= TMP
+        if XSIZE < SIZE # so also if it's 0
+            math XSIZE = SIZE
+            math XSIZE *= 12    # enough?
+        endif
+        if MEM_FILE == 1
+            clog MEMORY_FILE TMP SIZE XSIZE
+        else
+            clog TEMPORARY_FILE TMP SIZE XSIZE
+        endif
+    else
+        if MEM_FILE == 1
+            log MEMORY_FILE OFFSET SIZE
+        else
+            log TEMPORARY_FILE OFFSET SIZE
+        endif
+    endif
+    goto TMP_OFF
+    endian big
+endfunction

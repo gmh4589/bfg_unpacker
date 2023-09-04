@@ -1,0 +1,12 @@
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+get NAME basename
+get MAGIC long
+if MAGIC == 0x04034b50
+    putvarchr MEMORY_FILE 0 0x5047424a long
+    string NAME += ".bin"
+else
+    putvarchr MEMORY_FILE 0 0x04034b50 long
+    string NAME += ".zip"
+endif
+log NAME 0 SIZE MEMORY_FILE

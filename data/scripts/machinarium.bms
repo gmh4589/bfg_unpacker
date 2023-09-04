@@ -1,0 +1,22 @@
+# Machinarium
+
+goto -16
+get DUMMY long  # -2
+get DUMMY long
+get NEGATIVE_FILE_SIZE long
+get DUMMY long  # float?
+goto 0
+filexor "\x37\x9c\x7b\xa3\xf1\x3d\x55\x93\x03\x97\x71\x13\x6d\x9e\xfc\x71\x55\xcc\x11\x63\xbe\x56\xee\x55\xc3\xd5\xb9\xf7\x77\x9c\xa0\xe9"
+get FIRST_OFF asize
+do
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    if OFFSET != 0
+        if OFFSET u< FIRST_OFF
+            math FIRST_OFF = OFFSET
+        endif
+        log "" OFFSET SIZE
+    endif
+    savepos TMP
+while TMP != FIRST_OFF

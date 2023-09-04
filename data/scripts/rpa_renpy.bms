@@ -1,0 +1,50 @@
+# RPA archives (ren.py)
+#   you must have Python installed to use this script because it's necessary for the python pickle serialization (long to emulate in bms)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE3 binary "import sys\nimport pickle\n\nf = open(sys.argv[1], \"rb\")\ndata = f.read()\nf.close()\n\nindex = pickle.loads(data)\n\nf = open(sys.argv[2], \"wb\")\nf.write(str(len(index.keys()))+\"\\n\")\nfor key in index.keys():\n for offset, dlen, start in index[key]:\n  f.write(key+\"\\n\")\n  f.write(str(offset)+\"\\n\")\n  f.write(str(dlen)+\"\\n\")\n  f.write(str(start)+\"\\n\")\n  f.write(\"\\n\")\n\nf.close()\n"
+
+math OFFSET = 0
+math KEY = 0
+
+getdstring SIGN 8
+if SIGN == "RPA-3.0 "
+    goto 8
+    getdstring TMP 16
+    set OFFSET string "$"   # alternative to 0x, not handled internally
+    string OFFSET += TMP
+
+    goto 25
+    getdstring TMP 8
+    set KEY string "$"
+    string KEY += TMP
+
+elif SIGN == "RPA-2.0 "
+    goto 8
+    get TMP line
+    set OFFSET string "$"   # alternative to 0x, not handled internally
+    string OFFSET += TMP
+endif
+
+get SIZE asize
+math SIZE -= OFFSET
+comtype zlib_dynamic
+clog MEMORY_FILE OFFSET SIZE SIZE
+
+get TMP asize MEMORY_FILE3
+log TEMPORARY_FILE 0 TMP MEMORY_FILE3
+comtype execute "python TEMPORARY_FILE #INPUT# #OUTPUT#"
+get SIZE asize MEMORY_FILE
+clog MEMORY_FILE2 0 SIZE SIZE MEMORY_FILE
+
+get FILES line MEMORY_FILE2
+for i = 0 < FILES
+    get NAME line MEMORY_FILE2
+    get OFFSET line MEMORY_FILE2
+    get DLEN line MEMORY_FILE2
+    get START line MEMORY_FILE2
+    get EMPTY line MEMORY_FILE2
+    math OFFSET ^= KEY
+    math DLEN ^= KEY
+    log NAME OFFSET DLEN
+next i

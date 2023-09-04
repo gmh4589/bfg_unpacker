@@ -1,0 +1,127 @@
+# extract Electronic Arts BGFA containers
+# (c) 2012-09-17 by AlphaTwentyThree of XeNTaX
+
+set SUBFOLDER 1
+include "func_getTYPE.bms"
+idstring "BGFA"
+getDstring VER 4
+if VER != "1.05"
+   print "Unsupported BGFA version (%VER%)! Please contact me at XeNTaX"
+endif
+goto 0x21 # determine information per file
+   get LENGTH_FTYPE byte # boolean (?)
+   if LENGTH_FTYPE == 0
+      set FTYPE == ""
+      set SUBFOLDER 1
+   endif
+   get LENGTH_HASH byte
+   get LENGTH_OFFSET byte
+   get LENGTH_ZSIZE byte
+   get LENGTH_SIZE byte # 0 -> only uncompressed data
+   
+   math LENGTH_INFO = 1
+   math LENGTH_INFO += LENGTH_FTYPE
+   math LENGTH_INFO += LENGTH_HASH
+   math LENGTH_INFO += LENGTH_OFFSET
+   math LENGTH_INFO += LENGTH_ZSIZE
+   math LENGTH_INFO += LENGTH_SIZE
+   if LENGTH_SIZE != 0
+      set MULTI_OFF 0x10
+      if LENGTH_OFFSET == 3
+         set MULTI_OFF 4
+      endif
+      if LENGTH_ZSIZE == 0
+         set MULTI_OFF 1
+      endif
+   endif
+
+goto 0x10
+get HEADER long
+goto 0x28
+get JUMP long
+math JUMP *= 4
+
+goto 0x18
+get LENGTH_TOC long # file table plus unknown 4byte variable at start
+math LENGTH_TOC -= HEADER
+   #set FILES LENGTH_TOC
+   #math FILES /= LENGTH_INFO
+set OFF_INFO HEADER
+math OFF_INFO += JUMP
+goto 0xc
+get FILES long
+goto OFF_INFO
+
+for i = 0 < FILES
+    get DUMMY byte # always
+   if LENGTH_FTYPE == 1
+      get FTYPE byte
+   endif
+   if LENGTH_HASH == 8
+      get HASH longlong
+   elif LENGTH_HAS == 4
+      get HASH long
+   endif
+   if LENGTH_OFFSET == 2
+      get OFFSET short
+   elif LENGTH_OFFSET == 3
+      get OFFSET threebyte
+   elif LENGTH_OFFSET == 4
+      get OFFSET long
+   endif
+   if LENGTH_ZSIZE == 2
+      get ZSIZE short
+   elif LENGTH_ZSIZE == 3
+      get ZSIZE threebyte
+   elif LENGTH_ZSIZE == 4
+      get ZSIZE long
+   endif
+   if LENGTH_SIZE == 2
+      get SIZE short
+   elif LENGTH_SIZE == 3
+      get SIZE threebyte
+   elif LENGTH_SIZE == 4
+      get SIZE long
+   endif
+   math OFFSET *= MULTI_OFF
+   putVarChr MEMORY_FILE ZSIZE 0
+   log MEMORY_FILE 0 0
+    if LENGTH_SIZE != 0 # if compressed data present
+      if SIZE == 0
+         log MEMORY_FILE OFFSET ZSIZE
+      else
+         math SIZE += ZSIZE
+         
+         clog MEMORY_FILE OFFSET ZSIZE SIZE
+      endif
+   else # only uncompressed data
+      log MEMORY_FILE OFFSET ZSIZE
+   endif
+   savepos MYOFF
+   callfunction getTYPE 1
+   goto MYOFF
+   get NAME basename
+   string NAME += "_"
+   string NAME += i
+   if EXT == ""
+      string NAME += "."
+      string NAME += FTYPE
+      if FTYPE == 11
+         string NAME += ".xml"
+      elif FTYPE == 0
+         string NAME += ".xml"
+      endif
+   else
+      string NAME += EXT
+   endif
+   set WNAME ""
+   if SUBFOLDER == 1
+      get WNAME basename
+      string WNAME += "/"
+   endif
+   #string WNAME += FTYPE
+   #string WNAME += "/"
+   string WNAME += NAME
+   get SIZE asize MEMORY_FILE
+   log WNAME 0 SIZE MEMORY_FILE
+next i

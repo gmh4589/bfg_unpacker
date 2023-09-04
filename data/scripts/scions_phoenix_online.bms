@@ -1,0 +1,34 @@
+# Heroes:Scions of Phoenix Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+for
+    idstring "UZ\x03\x04"
+
+    get ver         short
+    get flag        short
+    get method      short
+    get timedate    long
+    get crc         long
+    get comp_size   long
+    get uncomp_size long
+    get name_len    short
+    get extra_len   short
+    filexor 0xb2
+    getdstring name     name_len
+    filexor ""
+    getdstring extra    extra_len
+    savepos offset
+
+    if method == 0
+        Log name offset uncomp_size
+    elif method == 8
+        CLog name offset comp_size uncomp_size
+    else
+        print "unsupported compression method %method%"
+        cleanexit
+    endif
+
+    math offset += comp_size
+    goto offset
+next

@@ -1,0 +1,19 @@
+endian big
+get FILESIZE asize
+for OFFSET = 0x2000 < FILESIZE
+    goto OFFSET
+    get ZSIZE long
+    if ZSIZE & 0x80000000
+        comtype xmemdecompress
+        math ZSIZE &= 0x7fffffff
+        get SIZE long
+    else
+        comtype unzip_dynamic
+        get DUMMY byte
+        math SIZE = ZSIZE
+    endif
+    savepos OFFSET
+    clog "" OFFSET ZSIZE SIZE
+    math OFFSET += ZSIZE
+    math OFFSET x= 0x1000
+next

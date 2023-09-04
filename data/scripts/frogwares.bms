@@ -1,0 +1,123 @@
+# Frogwares games (script 0.2)
+#   80 Days
+#   Journey To The Center Of The Earth
+#   Adventures Of Sherlock Holmes: The Case Of The Silver Earring
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "package"
+get VER long
+goto 0
+if VER == 1
+
+    getdstring DUMMY 19
+    get FILES long
+    getdstring DUMMY 5
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+        putarray 2 i NAME
+    next i
+    get TMP long
+    math TMP + 8
+    getdstring DUMMY TMP
+    savepos BASE_OFF
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        getarray NAME   2 i
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    if VER == 8
+        getdstring DUMMY 0x1f
+    else    # ???
+        getdstring DUMMY 23
+    endif
+    get FILES long
+    getdstring DUMMY 9
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        putarray 2 i NAME
+    next i
+    get NUM long
+    for i = 0 < NUM
+        get DUMMY long
+    next i
+
+    if VER == 8
+        get DUMMY long  # 0 or 1 is the same
+        get NUM long
+
+        # lame work-around, don't know what field tells this sub-version
+        savepos TMP
+            getdstring DUMMY 0x20
+            get DUMMY long
+            math GUESS_SOMETHING = 0
+            if DUMMY == 0xcdcdcdcd
+                math GUESS_SOMETHING = 1
+            endif
+        goto TMP
+
+        for x = 0 < NUM
+            getdstring DUMMY 0x20
+            if GUESS_SOMETHING != 0
+                getdstring DUMMY 0x14
+            endif
+        next x
+        get NUM long
+        for x = 0 < NUM
+            get NAMESZ long
+            getdstring NAME NAMESZ
+        next x
+        get NUM long
+        for x = 0 < NUM
+            get DUMMY long
+        next x
+        get NUM long
+        for x = 0 < NUM
+            get NAMESZ long
+            getdstring NAME NAMESZ
+        next x
+        get NUM long
+        for x = 0 < NUM
+            get DUMMY long
+        next x
+        get NUM long
+        for x = 0 < NUM
+            getdstring DUMMY 0x14
+        next x
+
+        # don't know how to get the starting point
+        do
+            savepos TMP
+            get DUMMY long
+        while DUMMY u< TMP
+        savepos TMP
+        math TMP y 4
+        goto TMP
+    else
+        get TMP byte
+        if TMP == 0
+            getdstring DUMMY 3
+            get TMP byte
+        endif
+        math TMP - 1
+        getdstring DUMMY TMP
+        getdstring DUMMY 4
+    endif
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        getarray NAME 2 i
+        log NAME OFFSET SIZE
+    next i
+
+endif

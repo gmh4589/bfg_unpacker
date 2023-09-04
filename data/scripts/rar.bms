@@ -1,0 +1,166 @@
+# RAR raw data dumper (do not use it, useless!)
+
+findloc OFFSET binary "Rar!\x1a\x07"    # for SFX archives
+goto OFFSET
+get RAR_SIZE asize
+
+idstring "Rar!\x1a\x07"
+get RAR_VERSION byte
+if RAR_VERSION == 0x01
+    get ZERO byte
+
+    for
+        savepos OFFSET
+        if OFFSET == RAR_SIZE
+            break
+        endif
+
+        callfunction GET_HEADER 1
+
+        if HEADER_TYPE == 1
+
+            # Main archive header
+            get ARCHIVE_FLAGS variable4
+            if ARCHIVE_FLAGS & 0x0002
+                get VOLUME_NUMBER variable4
+            endif
+
+        elif HEADER_TYPE == 2 || HEADER_TYPE == 3
+
+            # File header / Service header
+            get FILE_FLAGS variable4
+            get UNPACKED_SIZE variable4
+            get ATTRIB variable4
+            if FILE_FLAGS & 0x0002
+                get MTIME long
+            endif
+            if FILE_FLAGS & 0x0004
+                get DATA_CRC long
+            endif
+            get COMPRESSION_INFO variable4
+            get HOST_OS variable4
+            get NAMESZ variable4
+            getdstring NAME NAMESZ
+
+        elif HEADER_TYPE == 4
+
+            # Archive encryption header
+            get ENCRYPTION_VERSION variable4
+            get ENCRYPTION_FLAGS variable4
+            get KDF byte
+            getdstring SALT 16
+            getdstring CHECK_VALUE 12
+
+        elif HEADER_TYPE == 5
+
+            # End of archive header
+
+        else
+
+            print "Error: unknown header type %HEADER_TYPE%"
+            cleanexit
+
+        endif
+
+        #getdstring EXTRA EXTRA_SIZE    # no need
+
+        math HEADER_OFFSET + HEADER_SIZE
+        goto HEADER_OFFSET
+
+        #if NAME != "" || DATA_SIZE != 0
+        if DATA_SIZE != 0   # let's skip all the folders and empty files
+            savepos OFFSET
+            log NAME OFFSET DATA_SIZE
+            math OFFSET + DATA_SIZE
+            goto OFFSET
+        endif
+
+    next
+
+elif RAR_VERSION == 0x00
+
+    callfunction GET_HEADER 1
+    get RESERVED1 short
+    get RESERVED2 long
+
+    for
+        savepos OFFSET
+        if OFFSET == RAR_SIZE
+            break
+        endif
+
+        callfunction GET_HEADER 1
+        if HEADER_TYPE == 0x74
+            get ZSIZE long
+            get SIZE long
+            get HOST_OS byte
+            get DATA_CRC long
+            get MTIME long
+            get VER byte
+            get METHOD byte
+            get NAMESZ short
+            get ATTRIB long
+            if HEADER_FLAGS & 0x0100
+                get ZSIZE64 long
+                get SIZE64 long
+            endif
+            getdstring NAME NAMESZ
+            if HEADER_FLAGS & 0x0400
+                getdstring SALT 8
+            endif
+            if HEADER_FLAGS & 0x1000
+                # extra time unsupported
+            endif
+
+            math HEADER_OFFSET + HEADER_SIZE
+            goto HEADER_OFFSET
+
+            if ZSIZE != 0   # let's skip all the folders and empty files
+                savepos OFFSET
+                log NAME OFFSET ZSIZE
+                math OFFSET + ZSIZE
+                goto OFFSET
+            endif
+
+        endif
+    next
+
+else
+    print "Error: this RAR version is not supported"
+    cleanexit
+endif
+
+
+
+startfunction GET_HEADER
+    set NAME string ""
+    math EXTRA_SIZE = 0
+
+    if RAR_VERSION == 0x0000
+        savepos HEADER_OFFSET
+        get HEADER_CRC short
+        get HEADER_TYPE byte
+        get HEADER_FLAGS short
+        get HEADER_SIZE short
+        math EXTRA_SIZE = 0
+        if HEADER_TYPE == 0x73
+            if HEADER_FLAGS & 0x8000
+                get EXTRA_SIZE long
+            endif
+        endif
+
+    elif RAR_VERSION == 0x0001
+        get HEADER_CRC long
+        get HEADER_SIZE variable4
+        savepos HEADER_OFFSET
+        get HEADER_TYPE variable4
+        get HEADER_FLAGS variable4
+        if HEADER_FLAGS & 0x0001
+            get EXTRA_SIZE variable4
+        endif
+        math DATA_SIZE = 0
+        if HEADER_FLAGS & 0x0002
+            get DATA_SIZE variable4
+        endif
+    endif
+endfunction

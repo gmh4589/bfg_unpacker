@@ -1,0 +1,62 @@
+# Eclipse War (script 0.1.1)
+
+get EXT extension
+
+if EXT == "ewd"
+    get NAME basename
+    string NAME - 4
+    string NAME + ".ewp"
+    open FDSE NAME
+else
+    open FDDE "ewp"
+endif
+get NAME basename
+string NAME p "%s%04d.ewd" NAME 0
+open FDSE NAME 1
+
+getdstring NAME 8   # "FwFS"
+get DUMMY short
+get DUMMY short
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    callfunction GET_NAME 1
+    string PATH + NAME
+    string PATH + /
+    get DUMMY long
+    get DUMMY long
+    get ZERO byte
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    get FILES long
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get DUMMY long
+        get DUMMY long
+        get OFFSET long
+        get DUMMY short
+        get DUMMY short
+        get SIZE long
+        getdstring DUMMY 3
+        get ZSIZE long
+        string NAME p "%s%s" PATH NAME
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    next i
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    if NAME == ""   # root
+        getdstring DUMMY 6
+    endif
+endfunction

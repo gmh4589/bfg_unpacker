@@ -1,0 +1,22 @@
+idstring "KSS"
+goto 0x30
+get INFO_OFFSET long
+get INFO_SIZE long
+
+goto 0x40
+savepos INFO_OFFSET
+for INFO_OFFSET = INFO_OFFSET < INFO_SIZE
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    savepos INFO_OFFSET
+
+    if OFFSET == 0
+        if SIZE == 0
+            cleanexit
+        endif
+    endif
+
+    log "" OFFSET SIZE
+next

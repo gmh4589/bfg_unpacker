@@ -1,0 +1,38 @@
+# Yo-kai Sangokushi LINKDATA_A.BIN
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+get ALIGN long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE long
+    get XSIZE long
+    math OFFSET * ALIGN
+
+    savepos TMP
+    if XSIZE == 0
+        log "" OFFSET SIZE
+    else
+        math CHUNK_SIZE = 0x8000
+        goto OFFSET
+        get XSIZE long  # same as previous XSIZE
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != XSIZE
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            if CHUNK_ZSIZE == 0 # not tested
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            get MEM_SIZE asize MEMORY_FILE
+            goto CHUNK_ZSIZE 0 SEEK_CUR
+        next
+        append
+        log "" 0 XSIZE MEMORY_FILE
+    endif
+    goto TMP
+next i

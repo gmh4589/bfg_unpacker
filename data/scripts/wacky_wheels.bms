@@ -1,0 +1,10 @@
+# Wacky Wheels
+
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 14
+    get SIZE long
+    get OFFSET long
+    math OFFSET + 2
+    log NAME OFFSET SIZE
+next i

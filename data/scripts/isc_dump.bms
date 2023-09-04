@@ -1,0 +1,16 @@
+# lame and simple InstallShield setups dumper
+# it extracts the cab archives from the EXE
+# script for QuickBMS http://quickbms.aluigi.org
+
+findloc OFFSET string "data1.cab\0Disk1"
+get EXE_SIZE asize
+do
+    goto OFFSET
+    get NAME string
+    get NAME string
+    get VER string
+    get SIZE string
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+while OFFSET < EXE_SIZE

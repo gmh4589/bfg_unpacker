@@ -1,0 +1,68 @@
+# Barbie Riding Club (omt) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "0MFS"
+get OFFSET long
+goto OFFSET
+get INFO_ELEMENTS long
+getdstring TYPE 4   # "mCTy"
+get DUMMY long      # 1
+get DUMMY long      # negative number
+get NAMES_OFF long
+get NAMES_SIZE long
+savepos INFO_OFF
+
+goto NAMES_OFF
+get NAMES_ELEMENTS long
+getdstring TYPE 4   # "mCTy"
+get ZERO short
+get DUMMY long
+get DUMMY long
+get NAMESZ byte
+getdstring NAME NAMESZ
+
+math ELEMENTS = NAMES_ELEMENTS
+math IS_NAMES = 1
+callfunction EXTRACT 1
+
+math IDX = 0
+
+goto INFO_OFF
+math ELEMENTS = INFO_ELEMENTS
+math IS_NAMES = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    for x = 0 < ELEMENTS
+        getdstring TYPE 4
+        if TYPE u== "0HDR"
+            break
+        endif
+        if TYPE u== "BLIT"
+            break   # broken format with 2 consecutive names
+        endif
+        if TYPE u== "ANIM"
+            break   # unsupported
+        endif
+        if IS_NAMES != 0
+            get ZERO short
+        endif
+        get FILES long
+        for i = 0 < FILES
+            get ID long
+            if IS_NAMES != 0
+                get NAMESZ byte
+                getdstring NAME NAMESZ
+                putarray 0 -1 NAME
+            else
+                get OFFSET long
+                get SIZE long
+                getarray NAME 0 IDX
+                math IDX + 1
+                string NAME p "%s/%s." TYPE NAME
+                log NAME OFFSET SIZE
+            endif
+        next i
+    next x
+endfunction

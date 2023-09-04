@@ -1,0 +1,260 @@
+# God Eater 2 (script 0.2.3a)
+#   Experimental, it's a scanner.
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+math FLAGS_BITS = 4
+
+math LAST_OFF = 0   # used by the scanner
+set PATH string ""  # used by the scanner
+
+set SIGN_QPCK binary "\x58\x28\x40\x37"
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "Pres"
+    callfunction EXTRACT_PRES 1
+
+elif SIGN u== "rdp "
+    getdstring SIGN 16
+    getdstring DUMMY 16
+
+        #
+        # THIS IS A SCANNER! I don't have the game and I don't know where is the index file!
+        #
+
+    get RDP_SIZE asize
+    for FILE_NUM = 0
+        padding 0x800
+
+        savepos OFFSET
+        if OFFSET == RDP_SIZE
+            break
+        endif
+
+        math LAST_OFF = -1  # SIZE is not known and so we have to guess/scan
+        callfunction EXTRACT_FILE 1
+
+        goto LAST_OFF
+    next FILE_NUM
+
+elif SIGN u== SIGN_QPCK
+
+    get DUMMY long  # 0x37402858
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET longlong
+        get NAME_HASH longlong
+        get SIZE long
+
+        xmath LAST_OFF "OFFSET + SIZE"
+        savepos BCK_OFF
+        goto OFFSET
+
+        math FILE_NUM = i   # compatible with EXTRACT_FILE
+        callfunction EXTRACT_FILE # do not use 1 here
+        goto BCK_OFF
+    next i
+
+else
+    print "Error: unknown file type %SIGN%"
+    cleanexit
+endif
+
+
+
+startfunction EXTRACT_FILE
+    set PATH string FILE_NUM
+    #string NAME p "%s/" PATH
+    set NAME string ""
+
+    getdstring SIGN 4
+    set SIGN3 string SIGN
+    string SIGN3 - 1
+    goto OFFSET
+
+    if SIGN u== "Pres"
+        callfunction EXTRACT_PRES 1
+
+    elif SIGN3 u== "blz"
+        getdstring SKIP 0x10    # blz4
+        if LAST_OFF == -1
+            findloc LAST_OFF binary "\0\0\0\0"
+            findloc TMP binary SIGN # it's the full blz*
+            if TMP u< LAST_OFF
+                math LAST_OFF = TMP
+                math LAST_OFF - 2   # ???
+            endif
+            xmath SIZE "LAST_OFF - OFFSET"
+        endif
+        callfunction UNPACK_BLZ
+
+    elif SIGN u== "RIFF"
+        getdstring SIGN 4
+        get SIZE long
+        math SIZE + 8
+        log "" OFFSET SIZE
+        xmath LAST_OFF "OFFSET + SIZE"
+
+    else
+        #print "Error: unknown scanned signature %SIGN%"
+        #cleanexit
+
+        if LAST_OFF == -1
+            findloc LAST_OFF binary "Pres"
+            xmath SIZE "LAST_OFF - OFFSET"
+        endif
+        log "" OFFSET SIZE
+    endif
+endfunction
+
+
+startfunction EXTRACT_PRES
+    set NAME string ""
+    set FOLDER string ""
+    set EXT string ""
+
+    savepos PRES_OFF
+    idstring "Pres"
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DATA_OFF long
+    get ZERO long
+    get ZERO long
+    get SET_OF_FILES long    # I don't know how to call this number
+    if SET_OF_FILES <= 1
+        savepos OFFSET
+        math OFFSET - PRES_OFF 
+        putarray 0 0 OFFSET
+        math SET_OF_FILES = 1   # necessary or it will not work!
+    else
+        for SET_OF_FILES_IDX = 0 < SET_OF_FILES
+            get OFFSET long
+            get DUMMY long
+            putarray 0 SET_OF_FILES_IDX OFFSET
+        next SET_OF_FILES_IDX
+    endif
+    for SET_OF_FILES_IDX = 0 < SET_OF_FILES
+        getarray OFFSET 0 SET_OF_FILES_IDX
+        math OFFSET + PRES_OFF
+        goto OFFSET
+
+        get NAMES_OFF long
+        get NAMES_ELEMENTS long
+        get DUMMY_OFF long
+        get DUMMY long
+        get INFO_OFF long
+        get FILES long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY_OFF long
+        get DUMMY long
+
+        savepos LAST_OFF
+
+        math INFO_OFF + PRES_OFF
+        for i = 0 < FILES
+            goto INFO_OFF
+            get OFFSET long
+            get SIZE long
+            get NAME_OFF long
+            get NAME_ELEMENTS long
+            get DUMMYe long
+            get DUMMYf long
+            get DUMMYg long
+            get XSIZE long      # uncompressed size
+            savepos INFO_OFF
+
+            if OFFSET & 0x80000000  # there is also 0x40000000 but it will return less extracted files
+
+                xmath FLAGS "OFFSET >> FLAGS_BITS"
+                xmath OFFSET "OFFSET & ((1 << (32 - FLAGS_BITS)) - 1)"
+
+                math NAME_OFF + PRES_OFF
+                goto NAME_OFF
+                get NAME_OFF long
+                get EXT_OFF long
+                get FOLDER_OFF long
+
+                if NAME_ELEMENTS >= 1
+                    math NAME_OFF + PRES_OFF
+                    goto NAME_OFF
+                    get NAME string
+                    if NAME_ELEMENTS >= 2
+                        math EXT_OFF + PRES_OFF
+                        goto EXT_OFF
+                        get EXT string
+                        if NAME_ELEMENTS >= 3
+                            math FOLDER_OFF + PRES_OFF
+                            goto FOLDER_OFF
+                            get FOLDER string
+                        endif
+                    endif
+                endif
+
+                #string NAME p "%s/%s.%s" FOLDER NAME EXT
+                string NAME p "%s/%s/%s.%s" PATH FOLDER NAME EXT
+
+                math OFFSET + PRES_OFF
+
+                xmath TMP "OFFSET + SIZE"
+                if TMP u> LAST_OFF
+                    math LAST_OFF = TMP
+                endif
+
+                if SIZE == XSIZE
+                    log NAME OFFSET SIZE
+                else
+                    callfunction UNPACK_BLZ
+                endif
+
+            endif
+        next i
+    next SET_OF_FILES_IDX
+endfunction
+
+startfunction UNPACK_BLZ
+    savepos BACKUP_OFF
+    goto OFFSET
+    getdstring SIGN3 3
+    if SIGN3 u== "blz"
+        math UNCOMPRESSED_SIZE = -1
+        get BLZ_VER byte
+        if BLZ_VER u== '4'
+            comtype zlib
+            get UNCOMPRESSED_SIZE long
+            get ZERO long
+            get ZERO long
+            getdstring DUMMY 0x10
+        elif BLZ_VER u== '2'
+            comtype deflate
+        else
+            print "Error: unknown blz %BLZ_VER%, contact me"
+            cleanexit
+        endif
+        xmath OFFSET_LIMIT "(OFFSET + SIZE) - 15"   # the "minus" is a work-around
+        log MEMORY_FILE 0 0
+        append
+        do
+            get CHUNK_ZSIZE short
+            savepos CHUNK_OFF
+            if CHUNK_ZSIZE == 0
+                log MEMORY_FILE CHUNK_OFF 0x10000
+            else
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE 0x10000
+            endif
+            math CHUNK_OFF + CHUNK_ZSIZE
+            goto CHUNK_OFF
+            get MEM_SIZE asize MEMORY_FILE
+        while CHUNK_OFF u< OFFSET_LIMIT
+        append
+        get SIZE asize MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto BACKUP_OFF
+endfunction

@@ -1,0 +1,9 @@
+quickbmsver "0.11"
+comtype SL01
+idstring "SL01"
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME filename
+clog NAME OFFSET ZSIZE SIZE

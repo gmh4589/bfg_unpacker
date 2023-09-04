@@ -1,0 +1,14 @@
+# Simpsons Wrestling
+# script for QuickBMS http://quickbms.aluigi.org
+
+for
+    get OFFSET long
+    if OFFSET == 0x20444150 # "PAD "
+        break
+    endif
+    get SIZE long
+    getdstring NAME 0x10
+    if OFFSET != 0xffffffff
+        log NAME OFFSET SIZE
+    endif
+next

@@ -1,0 +1,47 @@
+# Playstation XA extractor
+# extracts playable cdxa files from deinterleaved xa packs
+# (c) 2012-07-14 by AlphaTwentyThree of XeNTaX
+
+include "func_header_CDXA.bms"
+set OFFSET 0x0
+set NEGBIAS 4
+set EXT ".xa"
+set SEARCH OFFSET
+set QUIT 0
+set SINGLE 0
+set i 1
+do
+   goto SEARCH
+   FindLoc SIZE string \xA2\xF1\xA6\x1B 0 "" # negbias 4 (CDXA split marker)
+   if SIZE == ""
+      set QUIT 1
+      get SIZE asize
+      if i == 0
+         goto 0
+         set SINGLE 1
+      endif
+   endif
+   math SIZE -= OFFSET
+   get NAME basename
+   if SINGLE != 1
+      string NAME += "_"
+      string NAME += i
+      if i != 0
+         string NAME += EXT
+      endif
+   else
+      string NAME += EXT
+   endif
+   if QUIT != 1
+      math SIZE += NEGBIAS
+   endif
+   if SIZE > 0x930
+      callfunction CDXA 1
+      math i += 1
+   endif
+   if QUIT != 1
+      math OFFSET += SIZE
+      set SEARCH OFFSET
+      math SEARCH += 4
+   endif
+while QUIT != 1

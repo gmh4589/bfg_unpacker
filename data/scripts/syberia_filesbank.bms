@@ -1,0 +1,11 @@
+# Syberia Xbox Live Arcade (filesBank.Bin)
+
+get DUMMY byte  # 1
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

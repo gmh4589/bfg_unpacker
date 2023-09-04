@@ -1,0 +1,25 @@
+# Birthday Party
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "CDGaCube"
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+    get TSTAMP longlong
+    get SIZE long
+    get ID long
+    get OFFSET long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+for i = 0 < FILES
+    get NAME string
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    if OFFSET != 0
+        math OFFSET * 0x800
+        log NAME OFFSET SIZE
+    endif
+next i

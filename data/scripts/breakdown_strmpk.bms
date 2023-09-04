@@ -1,0 +1,58 @@
+# Breakdown sth/stw
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "sth"
+open FDDE "stw" 1
+
+idstring "strmpk"
+goto 0x28
+get FILES long
+get FOLDERS long
+get FOLDERS_OFF long
+get NAMES_SIZE long
+get NAMES_OFF long
+get OFFSETS_OFF long
+
+goto FOLDERS_OFF
+for i = 0 < FOLDERS
+    get FILES_IDX long
+    get NAME_OFF long
+    getdstring NAME 8
+    math NAME_OFF + NAMES_OFF
+    putarray 10 i FILES_IDX
+    putarray 11 i NAME_OFF
+    putarray 12 i NAME
+next i
+
+goto OFFSETS_OFF
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize 1
+    putarray 0 i OFFSET
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math i - 1
+    math SIZE - OFFSET
+
+    for x = 0 < FOLDERS
+        getarray FILES_IDX 10 x
+        if i >= FILES_IDX
+            break
+        endif
+    next x
+    getarray NAMES_OFF 11 x
+    getarray PATH      12 x
+
+    goto NAMES_OFF
+    get NAME string
+    savepos NAMES_OFF
+    putarray 11 x NAMES_OFF
+
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE 1
+next i

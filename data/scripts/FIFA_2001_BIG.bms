@@ -1,0 +1,22 @@
+# FIFA 2001 (BIG)
+
+ImpType Standard ;
+IDString 0 BIGF ;
+Get D Long 0 ;
+Get FC Long 0 ;
+ReverseLong FC ;
+Get D Long 0 ;
+SavePos FS 0 ;
+For T = 1 To FC ;
+GoTo FS 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+ReverseLong FO ;
+SavePos FSO 0 ;
+Get FSI Long 0 ;
+ReverseLong FSI ;
+Get FN String 0 ;
+SavePos FS 0 ;
+Log FN FO FSI #FOO FSO ;
+Next T ;
+

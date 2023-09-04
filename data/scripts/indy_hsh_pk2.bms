@@ -1,0 +1,33 @@
+# Indiana Jones and the Emperor's Tomb (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "hsh"
+get ARCHIVE_NAME basename
+
+math LAST_PCK_NUM = -1
+math HAS_PCK_NUM = 0
+    get TMP line
+    string ELEMENTS S TMP NAME PCK_NUM SIZE OFFSET
+if ELEMENTS >= 4
+    math HAS_PCK_NUM = 1
+endif
+goto 0
+
+if HAS_PCK_NUM == 0
+    open FDDE "pk2" 1
+endif
+
+for
+    get TMP line
+    if HAS_PCK_NUM == 0
+        string ELEMENTS S TMP NAME SIZE OFFSET
+    else
+        string ELEMENTS S TMP NAME PCK_NUM SIZE OFFSET
+        if PCK_NUM != LAST_PCK_NUM
+            math LAST_PCK_NUM = PCK_NUM
+            string TMP p "%s_%d.pk2" ARCHIVE_NAME PCK_NUM
+            open FDSE TMP 1
+        endif
+    endif
+    log NAME OFFSET SIZE 1
+next

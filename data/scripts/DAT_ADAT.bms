@@ -1,0 +1,22 @@
+<bms games="'Anachronox'" platforms="'PC'" ext="DAT">
+IDString 0 ADAT ;
+ImpType Standard ;
+SavePos TailOffOff 0 ;
+Get TO Long 0 ;
+Get TS Long 0 ;
+Math TS /= 144 ;
+GoTo TO 0 ;
+For t = 1 To TS ;
+SavePos TO 0 ;
+Get FN String 0 ;
+Math TO += 128 ;
+GoTo TO 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Get FS Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get D Long 0 ;
+Log FN FO FS #FOO FSO ;
+Next t ;
+</bms>

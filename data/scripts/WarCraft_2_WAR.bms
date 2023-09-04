@@ -1,0 +1,19 @@
+# WarCraft 2 (WAR)
+
+ImpType None ;
+GoTo 4 0 ;
+Get FN Int 0 ;
+GoTo 8 0 ;
+SavePos FileOffOff 0 ;
+For i = 1 To FN ;
+SavePos FileOffOff 0 ;
+Get FO Long 0 ;
+SavePos FJ 0 ;
+GoTo FO 0 ;
+Math FO += 4 ;
+SavePos FileSizeOff 0 ;
+Get FS Long 0 ;
+GoTo FJ 0 ;
+Log "" FO FS #FileOffOff FileSizeOff ;
+Next i ;
+

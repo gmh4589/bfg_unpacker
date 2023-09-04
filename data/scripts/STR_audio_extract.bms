@@ -1,0 +1,93 @@
+# (c) 2012-02-15 by AlphaTwentyThree of XeNTaX
+
+callfunction detectstreams 1
+set SIMPLE 1
+if STREAMS > 1
+   set SIMPLE 0
+endif
+
+for i = 0 < STREAMS
+   callfunction getstreamsize 1
+   math SSIZE *= 0x930
+   if SSIZE != 0
+      putVarChr MEMORY_FILE SSIZE 0
+      log MEMORY_FILE 0 0
+      get FSIZE asize
+      set OFFSET 0
+      append
+      DO
+         set IDENT OFFSET
+         math IDENT += 0x11
+         goto IDENT
+         get STREAM byte
+         get DAT byte
+         if DAT == 0x64 # audio marker
+            if SIMPLE == 1
+               log MEMORY_FILE OFFSET 0x930
+            else
+               if STREAM == i
+                  log MEMORY_FILE OFFSET 0x930
+               endif
+            endif
+         endif
+         math OFFSET += 0x930
+      WHILE OFFSET < FSIZE
+      append
+      
+      callfunction CDXA 1
+      get NAME basename
+      if SIMPLE == 0
+         string NAME += "_"
+         string NAME += i
+      endif
+      string NAME += ".xa"
+      get SIZE asize MEMORY_FILE2
+      log NAME 0 SIZE MEMORY_FILE2
+   endif
+next i
+   
+startfunction detectstreams
+   get FSIZE asize
+   set STREAMS 0
+   DO # brute-force run though whole file
+      set IDENT OFFSET
+      math IDENT += 0x11
+      goto IDENT
+      get STREAM byte
+      if STREAM > STREAMS
+         set STREAMS STREAM
+      endif
+      math OFFSET += 0x930
+   WHILE OFFSET < FSIZE
+endfunction
+
+startfunction getstreamsize
+   set SSIZE 0
+   get FSIZE asize
+   set OFFSET 0
+   DO
+      set IDENT OFFSET
+      math IDENT += 0x11
+      goto IDENT
+      get STREAM byte
+      if STREAM == i
+         math SSIZE += 1
+      endif
+      math OFFSET += 0x930
+   WHILE OFFSET < FSIZE
+endfunction
+
+startfunction CDXA
+   log MEMORY_FILE2 0 0
+   set MEMORY_FILE2 binary "\x52\x49\x46\x46\xe4\x04\xbe\x02\x43\x44\x58\x41\x66\x6d\x74\x20\x10\x0\x0\x0\x0\x0\x0\x0\x1\x55\x58\x41\x1\x0\x0\x0\x0\x0\x0\x0\x64\x61\x74\x61\xc0\x4\xbe\x2"
+   get SIZE asize MEMORY_FILE
+   append
+   log MEMORY_FILE2 0 SIZE MEMORY_FILE
+   append
+   set RIFFSIZE SIZE
+   math RIFFSIZE -= 8
+   set DSIZE SIZE
+   math DSIZE -= 0x2c
+   putVarChr MEMORY_FILE2 0x04 RIFFSIZE long
+   putVarChr MEMORY_FILE2 0x28 DSIZE long
+endfunction

@@ -1,0 +1,80 @@
+# Deus EX: Mankind Divided (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math PARSE_SOMETHING = 0    # try to dump the FSB files from the SBSF containers
+
+idstring "ARCH"
+get DUMMY long
+get FILES long  # it's more like FOLDERS
+get NAMES long
+get OFFSET longlong
+goto OFFSET
+for i = 0 < NAMES
+    callfunction GET_NAME 1
+next i
+for i = 0 < FILES
+    get TSTAMP longlong
+    getdstring HASH 16
+    callfunction GET_NAME 1
+    get CHUNKS long
+    string NAME + /
+    if PARSE_SOMETHING != 0
+        log MEMORY_FILE 0 0
+        append
+    endif
+    for x = 0 < CHUNKS  # it's more like FILES
+        get ZERO long
+        get DUMMY longlong
+        get OFFSET longlong
+        get SIZE longlong
+        if PARSE_SOMETHING != 0
+            log MEMORY_FILE OFFSET SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next x
+    if PARSE_SOMETHING != 0
+        append
+
+        goto 0 MEMORY_FILE
+        get SIZE asize MEMORY_FILE
+        math MEM_SIZE = SIZE
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN == "BILR"
+            getdstring ZERO 8 MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+            get ZERO long MEMORY_FILE
+            for OFFSET = 16 != MEM_SIZE
+                savepos OFFSET MEMORY_FILE
+                getdstring SIGN 4 MEMORY_FILE
+                if SIGN == "SBSF"
+                    getdstring ZERO 8 MEMORY_FILE
+                    get SIZE long MEMORY_FILE
+                    getdstring DUMMY 8 MEMORY_FILE
+                    findloc FSB_OFF binary "FSB5" MEMORY_FILE
+                    math SIZE + 0x18
+                    xmath NEXT_OFF "OFFSET + SIZE"
+                    if FSB_OFF u< NEXT_OFF
+                        math OFFSET = FSB_OFF
+                        xmath SIZE "NEXT_OFF - OFFSET"
+                    endif
+                    log NAME OFFSET SIZE MEMORY_FILE
+                    math OFFSET = NEXT_OFF
+                    goto OFFSET MEMORY_FILE
+                else
+                    log NAME OFFSET SIZE MEMORY_FILE
+                    math OFFSET = MEM_SIZE
+                endif
+            next
+        else
+            log NAME 0 SIZE MEMORY_FILE
+        endif
+    endif
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+endfunction

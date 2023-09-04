@@ -1,0 +1,36 @@
+# Hokuto No Ken PS2 IDX/BIN
+#   "Hokuto for Atomiwave, Sammy ARC System Works co."
+
+get EXT extension
+if EXT != "idx"
+    print "Error: please open the IDX file"
+    cleanexit
+endif
+
+idstring "FARC"
+get VER long    # 1
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+next i
+getdstring NAME 0x18
+open FDSE NAME 1
+for i = 0 < FILES
+    getdstring NAME 4
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+
+    savepos TMP
+    goto OFFSET
+    getdstring NAME 4   # same as before
+    string NAME + /
+    get NUM long
+    for x = 0 < NUM
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE 1
+    next x
+    goto TMP
+next i

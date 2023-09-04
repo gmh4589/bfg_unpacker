@@ -1,0 +1,68 @@
+# Team17 games
+#   Worms series, Flockers
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MOIK"
+goto 0x18
+get TYPES long
+get DUMMY long
+get DUMMY long
+goto 0x40
+for i = 0 < TYPES
+    idstring "TYPE"
+    get ZERO long
+    get DUMMY long
+    get ZERO long
+    getdstring DUMMY 0x10
+    getdstring NAME 0x20
+next i
+
+for
+    savepos CHUNK_OFFSET
+    getdstring SIGN 4
+    string NAME p= "%s/" SIGN   # automatic incremental files
+
+    if SIGN == "GUID"
+        getdstring DUMMY 0xc
+
+    elif SIGN == "SCHM"
+        getdstring DUMMY 0xc
+
+    elif SIGN == "STRS"
+        get ELEMENTS long
+        get STRS_SIZE long
+        savepos OFFSET
+        xmath OFFSET "OFFSET + (ELEMENTS * 4)"
+        log MEMORY_FILE OFFSET STRS_SIZE
+        for i = 0 < ELEMENTS
+            get OFFSET long
+            goto OFFSET MEMORY_FILE
+            get STR string MEMORY_FILE
+            strlen SIZE STR
+            log NAME OFFSET SIZE MEMORY_FILE
+        next i
+        savepos OFFSET
+        math OFFSET += STRS_SIZE
+        goto OFFSET
+
+    elif SIGN == "CTNR"
+        # they are a sequence of compressed numbers
+        findloc NEXT_OFFSET string "CTNR"
+        getdstring DUMMY 3
+        savepos OFFSET
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        log NAME OFFSET SIZE
+        goto NEXT_OFFSET
+
+    else
+        findloc NEXT_OFFSET string "CTNR"
+        math OFFSET -= 4
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        log "" OFFSET SIZE
+        goto NEXT_OFFSET
+
+        #print "Error: unknown type %SIGN% at offset %CHUNK_OFFSET|x%"
+        #cleanexit
+    endif
+next
+

@@ -1,0 +1,46 @@
+# WWE Raw 2 (fpk)
+#   directory tree not supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xff\xff\x01\xf0"
+get DUMMY long
+get DUMMY long
+get FOLDERS long
+get MAX_FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+
+set PATH string ""
+for i = 0 < FOLDERS
+    getdstring NAME 0x14
+    get SUB_FOLDERS short
+    get FILES short
+    get DUMMY long
+    get DUMMY long
+    putarray 10 i NAME
+    putarray 11 i SUB_FOLDERS
+    putarray 12 i FILES
+next i
+for FOLDER = 0 < FOLDERS
+    getarray PATH  10 FOLDER
+    getarray FILES 12 FOLDER
+    for i = 0 < FILES
+        getdstring NAME 0x14
+        get OFFSET long
+        get SIZE long
+        string NAME p "%s/%s" PATH NAME
+        putarray 0 -1 OFFSET
+        putarray 1 -1 SIZE
+        putarray 2 -1 NAME
+    next i
+next FOLDER
+
+savepos BASE_OFF
+for i = 0 < MAX_FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray NAME   2 i
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

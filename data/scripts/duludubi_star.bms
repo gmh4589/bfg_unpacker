@@ -1,0 +1,56 @@
+# Duludubi Star
+# script for QuickBMS http://quickbms.aluigi.org
+
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    get sign long
+    if sign != 0x04034b50
+        break
+    endif
+
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    if method == 0
+        Log name offset comp_size
+    else
+        if method == 8
+            ComType deflate
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+
+        log MEMORY_FILE 0 0
+        append
+        do
+            get IS_LAST byte
+            get SIZE short
+            get XSIZE short
+            if SIZE == 0 && XSIZE == 0  # corrupted archive?
+                break
+            endif
+            savepos TMP
+            log MEMORY_FILE TMP SIZE
+            math TMP + SIZE
+            goto TMP
+        while IS_LAST == 0
+        append
+        get uncomp_size asize MEMORY_FILE
+        log NAME 0 uncomp_size MEMORY_FILE
+    endif
+
+    math offset += comp_size
+    goto offset
+next

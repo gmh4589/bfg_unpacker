@@ -1,0 +1,76 @@
+# New Super Mario Bros U
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    do
+        savepos MAIN_BASE_OFF
+        getdstring CHUNK_NAME 4 # FSAR / FSEQ
+        strlen TMP CHUNK_NAME
+    while TMP != 4
+    string PATH + CHUNK_NAME
+    string PATH + /
+    get DUMMY short # 0xfeff
+    get CHUNKS_OFF short
+    get DUMMY long
+    get NEXT_OFF long
+    math NEXT_OFF + MAIN_BASE_OFF
+    get CHUNKS short
+    get ZERO short
+    for CHUNK = 0 < CHUNKS
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        math OFFSET + MAIN_BASE_OFF
+
+        savepos BACKUP_OFF
+        goto OFFSET
+        getdstring CHUNK_TYPE 4
+        get CHUNK_SIZE long
+        xmath CHUNK_LIMIT "BACKUP_OFF + CHUNK_SIZE"
+        savepos BASE_OFF
+
+        if CHUNK_TYPE == "DATA"
+            xmath TMP_SIZE "CHUNK_SIZE - 8"
+            string TMP_NAME p "%s%s/." PATH CHUNK_TYPE
+            log TMP_NAME BASE_OFF TMP_SIZE
+
+        elif CHUNK_TYPE == "STRG"
+            /*
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            savepos BASE_OFF
+            get NAMES long
+            for i = 0 < NAMES
+                get DUMMY long
+                get NAME_OFF long
+                get NAMESZ long
+                savepos TMP
+                math NAME_OFF + BASE_OFF
+                goto NAME_OFF
+                getdstring NAME NAMESZ
+                goto TMP
+                putarray 0 i NAME
+            next i
+            */
+
+        elif CHUNK_TYPE == "FILE"
+            getdstring ZERO 0x18
+            for
+                savepos TMP
+                if TMP u>= CHUNK_LIMIT
+                    break
+                endif
+                callfunction EXTRACT
+            next
+
+        endif
+        goto BACKUP_OFF
+    next CHUNK
+    goto NEXT_OFF
+endfunction

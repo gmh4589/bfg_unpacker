@@ -1,0 +1,18 @@
+# PlayMechanix GLCGZ2
+
+comtype zlib_noerror
+idstring "GLCGZ"
+goto 0x15
+get FILES long
+goto 0x71
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    get DUMMY byte  # 0 or 1
+    savepos OFFSET
+    clog "" OFFSET SIZE SIZE
+    goto TMP
+next i

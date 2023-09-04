@@ -1,0 +1,23 @@
+# Resident Evil Mercenaries VS. Bin
+
+get FILES long
+get NAMES_OFF long
+get BASE_OFF long
+for i = 0 < FILES
+    get NAME_OFF long
+    get NAMESZ long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+    goto TMP
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

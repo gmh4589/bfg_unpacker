@@ -1,0 +1,11 @@
+# Criminal Girls
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PS3FS_V1"
+get FILES longlong
+for i = 0 < FILES
+    getdstring NAME 0x30
+    get SIZE longlong
+    get OFFSET longlong
+    log NAME OFFSET SIZE
+next i

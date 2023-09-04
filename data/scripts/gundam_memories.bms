@@ -1,0 +1,23 @@
+# Gundam Memories: Tatakai no Kioku
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+idstring "BARC"
+goto 0x10
+get FILES long
+get DUMMY long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    savepos TMP
+    goto OFFSET
+    get NAMESZ short
+    math NAMESZ -= 2
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    goto TMP
+next i

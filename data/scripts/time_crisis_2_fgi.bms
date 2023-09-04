@@ -1,0 +1,22 @@
+# Time Crisis 2 (PS2) - FGI.BIN
+
+open FDSE "slus_202.19" 1
+
+findloc OFFSET binary "unknown\0" 1
+goto OFFSET 1
+get NAME string 1
+for i = 0
+    get DUMMY1 long 1
+    get ID long 1
+    if ID >= 0x800
+        break
+    endif
+    get XSIZE long 1
+    get SIZE long 1
+    get FLAGS long 1
+    get OFFSET long 1
+    get DUMMY7 long 1
+    get DUMMY8 long 1
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next i

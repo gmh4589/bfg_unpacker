@@ -1,0 +1,25 @@
+# Dance Evolution Arcade
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+get DUMMY long
+get VER long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

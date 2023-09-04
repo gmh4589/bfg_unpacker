@@ -1,0 +1,33 @@
+# extracts the BGMLink.g1l from Warriors Orochi 3 (Xbox 360)
+#
+# (c) 2012-04-01 by AlphaTwentyThree of XeNTaX
+
+include "func_getTYPE.bms"
+idstring "G1L_0000"
+endian big
+get FILESIZE long
+get DATASTART long
+get UNK long
+get FILES long
+for i = 1 <= FILES
+   get OFFSET long
+   if i != FILES
+      savepos MYOFF
+      get SIZE long
+      goto MYOFF
+   else
+      get SIZE asize
+   endif
+   math SIZE -= OFFSET
+   log MEMORY_FILE SIZE 0 # pre-alloc
+   log MEMORY_FILE 0 0
+   log MEMORY_FILE OFFSET SIZE
+   callfunction getTYPE 1
+   get NAME basename
+   string NAME += "_"
+   string NAME += i
+   string NAME += EXT
+   endian little
+   log NAME 0 SIZE MEMORY_FILE
+   endian big
+next i

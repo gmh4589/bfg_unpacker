@@ -1,0 +1,29 @@
+# Ghost Whisperer
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GRF"
+goto 8
+get OFFSET long
+get SIZE asize
+math SIZE -= OFFSET
+comtype unzip_dynamic
+clog MEMORY_FILE OFFSET SIZE SIZE
+math CURR = 5
+goto CURR MEMORY_FILE
+get FILESIZE asize
+get MEMSIZE asize MEMORY_FILE
+for CURR = CURR < MEMSIZE
+    get DUMMY byte MEMORY_FILE
+    get NUM long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY byte MEMORY_FILE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZIP byte MEMORY_FILE
+    math ZSIZE = FILESIZE
+    math ZSIZE -= OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    savepos CURR MEMORY_FILE
+next

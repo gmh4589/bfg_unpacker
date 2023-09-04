@@ -1,0 +1,28 @@
+# Dune 2 - Westwood
+
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get NAME string
+    putarray 0 -1 OFFSET
+    putarray 1 -1 NAME
+next
+
+get OFFSET asize
+putarray 0 -1 OFFSET
+putarray 1 -1 ""
+sortarray 0 1
+
+for i = 0
+    getarray OFFSET 0 i
+    getarray NAME   1 i
+    if NAME == ""
+        break
+    endif
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

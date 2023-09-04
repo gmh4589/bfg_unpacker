@@ -1,0 +1,13 @@
+# Boolat Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BPK0"
+get FILES long
+get OFFSET long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

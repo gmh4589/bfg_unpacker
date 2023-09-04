@@ -1,0 +1,51 @@
+# Tetsujin 28-gou PS2 (script 0.1.1)
+
+codepage 932
+comtype lzss0
+idstring "VFS\0"
+get FOLDERS long
+get ENTRY_SIZE long # 0x10
+get HEADER_SIZE long
+for FOLDER = 0 < FOLDERS
+    savepos ENTRY_OFF
+    get NAME_OFF long
+    get FILES long
+    get OFFSET long
+    get DUMMY long
+    savepos TMP_BCK
+
+    math NAME_OFF + ENTRY_OFF
+    goto NAME_OFF
+    get PATH string
+
+    goto OFFSET
+    for i = 0 < FILES
+        savepos ENTRY_OFF
+        get SIZE long
+        get OFFSET long
+        get NAME_OFF long
+        get XSIZE long
+        get ZERO long
+        savepos TMP
+        
+        math NAME_OFF + ENTRY_OFF
+        goto NAME_OFF
+        get NAME string
+
+        string NAME p "%s%s" PATH NAME
+        if XSIZE == 0
+            log NAME OFFSET SIZE
+        else
+            goto OFFSET
+            get XSIZE long
+            savepos OFFSET
+            math ZSIZE - 4
+
+            clog NAME OFFSET SIZE XSIZE
+        endif
+
+        goto TMP
+    next i
+
+    goto TMP_BCK
+next FOLDER

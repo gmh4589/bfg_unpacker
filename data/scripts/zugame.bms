@@ -1,0 +1,108 @@
+# http://yzwd.zugame.com (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib
+idstring "ZPAK"
+getdstring VER 4
+get OFFSET long
+get FILES long
+get OFFSET1 longlong
+get OFFSET2 longlong
+get ZSIZE1 long
+get ZSIZE2 long
+get SIZE2 long
+
+xmath SIZE1 "FILES * 0x48"
+clog MEMORY_FILE  OFFSET1 ZSIZE1 SIZE1
+clog MEMORY_FILE2 OFFSET2 ZSIZE2 SIZE2
+
+for i = 0 < FILES
+    get OFFSET longlong MEMORY_FILE
+    get DUMMY longlong MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZIP short MEMORY_FILE
+    get DUMMY short MEMORY_FILE
+    get CHUNK_SIZE long MEMORY_FILE
+    get ZERO longlong MEMORY_FILE
+    get SIZE2 longlong MEMORY_FILE
+    get ZERO longlong MEMORY_FILE
+    get DUMMY longlong MEMORY_FILE
+    get ZERO longlong MEMORY_FILE
+
+    get NAME line MEMORY_FILE2
+
+    # set algorithms
+    callfunction SET_ZIP_ALGO 1
+
+    # chunked files, for some unknown reasons only the first chunk is correctly unpacked
+    math OK = 1
+    if ZIP != 0
+        goto OFFSET
+        get TMP byte
+        if TMP != 0
+
+            goto OFFSET
+            log MEMORY_FILE3 0 0
+            append
+                get CHUNK_OFF long
+                get ZIP short
+                get DUMMY short
+            xmath CHUNKS "CHUNK_OFF / 8"
+            for x = 1 <= CHUNKS
+                get NEXT_CHUNK_OFF long
+                if x == CHUNKS
+                    math NEXT_CHUNK_OFF = ZSIZE
+                endif
+                xmath CHUNK_ZSIZE "NEXT_CHUNK_OFF - CHUNK_OFF"
+                math CHUNK_OFF += OFFSET
+                callfunction SET_ZIP_ALGO 1
+                if ZIP == 0
+                    log MEMORY_FILE3 CHUNK_OFF CHUNK_ZSIZE
+                else
+
+                    # necessary or it will not work
+                    get TMP asize MEMORY_FILE3
+                    xmath TMP "SIZE - TMP"
+                    if TMP > CHUNK_SIZE
+                        math TMP = CHUNK_SIZE
+                    endif
+                    if TMP == CHUNK_ZSIZE
+                        log MEMORY_FILE3 CHUNK_OFF CHUNK_ZSIZE
+                    else
+                        clog MEMORY_FILE3 CHUNK_OFF CHUNK_ZSIZE TMP
+                    endif
+                endif
+                get ZIP short
+                get DUMMY short
+                math CHUNK_OFF = NEXT_CHUNK_OFF
+            next x
+            append
+            log NAME 0 SIZE MEMORY_FILE3
+
+            math OK = 0
+        endif
+    endif
+
+    # unpack
+    if OK != 0
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+
+next i
+
+startfunction SET_ZIP_ALGO
+    if ZIP == 0
+    elif ZIP == 1
+        comtype zlib
+    elif ZIP == 2
+        comtype LZMA_0
+    else
+        print "Error: unknown compression type %ZIP%"
+        cleanexit
+    endif
+endfunction

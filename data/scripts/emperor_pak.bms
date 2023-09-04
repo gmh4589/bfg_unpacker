@@ -1,0 +1,24 @@
+# Emperor PAK decompressor
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xaa\xba\xdc\xfe"
+set MYSIGN binary "\xff\xef\xcd\xab"
+log MEMORY_FILE 0 0
+append
+for
+    getdstring SIGN 4
+    if SIGN != MYSIGN
+        break
+    endif
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math OFFSET += ZSIZE
+    goto OFFSET
+next
+append
+
+get NAME basename
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

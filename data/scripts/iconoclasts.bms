@@ -1,0 +1,64 @@
+# Iconoclasts (script 0.1.1)
+
+comtype zlib_noerror    # unknown decompressed size
+math LAST_OFF = 0
+math FILES = -1
+for i = 0 != FILES
+    get OFFSET long
+    if FILES < 0
+        if OFFSET != 0
+            if OFFSET u>= 0x01000000
+                goto -2 0 SEEK_CUR
+                get OFFSET long
+            endif
+            math FILES = OFFSET
+            math FILES / 4
+        endif
+    else
+        if OFFSET u< LAST_OFF
+            break
+        endif
+    endif
+
+    /*
+    # not used yet
+    xmath TMP "i + 1"
+    if TMP >= FILES
+        get NEXT_OFF asize
+    else
+        get NEXT_OFF long
+        goto -4 0 SEEK_CUR
+    endif
+    */
+
+    if OFFSET != 0
+        savepos TMP
+        goto OFFSET
+        get DUMMY long
+        if DUMMY & 0xffff0000
+            get DUMMY short
+            get DUMMY short
+            get NUM byte
+            for x = 0 < NUM
+                get DUMMY long
+            next x
+            get SIZE long
+            savepos OFFSET
+            if SIZE != 0
+                # some files are just zero bytes
+                clog "" OFFSET SIZE SIZE
+            endif
+        else
+            savepos OFFSET
+            get SIZE long
+            if SIZE u< 0xffffff
+                savepos OFFSET
+            else
+                math SIZE = DUMMY
+            endif
+            log "" OFFSET SIZE
+        endif
+        goto TMP
+        math LAST_OFF = OFFSET
+    endif
+next i

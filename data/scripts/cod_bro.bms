@@ -1,0 +1,105 @@
+# game: Call of Duty: Big Red One (2005)
+# file types: *.gcv, *.psv, *.xbv
+# script type: demultiplexer
+#
+# written 2015-10-06 by AlphaTwentyThree of Zenhax
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AFMV"
+get SIZE long # file size
+get VIDSIZE long # video data
+get AUDSIZE long # audio data
+putVarChr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+putVarChr MEMORY_FILE2 SIZE 0
+log MEMORY_FILE2 0 0
+get NAME basename
+string PNAME p= "%s.palette" NAME
+log PNAME 0x10 0x80 # palette?
+goto 0x90
+for
+   get BLOCKSIZE long
+   get AUD_ID long
+   getDstring DATA BLOCKSIZE
+   if AUD_ID == 0x80
+      putDstring DATA BLOCKSIZE MEMORY_FILE
+   else
+      putDstring DATA BLOCKSIZE MEMORY_FILE2
+   endif
+   savepos TEST
+   if TEST >= SIZE
+      break
+   endif
+next
+
+get EXT extension
+if EXT == "PSV"
+   callfunction PS2 1
+elif EXT == "xbv"
+   callfunction XBOX 1
+else
+   string ANAME p= "%s.aud" NAME
+   get SIZE asize MEMORY_FILE
+   log ANAME 0 SIZE MEMORY_FILE
+endif
+   
+get SIZE asize MEMORY_FILE2
+if SIZE != 0
+   if EXT == "PSV"
+      string VNAME p= "%s.m2v" NAME
+   else
+      string VNAME p= "%s.vid" NAME
+   endif
+   log VNAME 0 SIZE MEMORY_FILE2
+endif
+
+startfunction PS2
+   get SIZE asize MEMORY_FILE
+   set MSIZE SIZE
+   math MSIZE += 0x38
+   putVarChr MEMORY_FILE3 MSIZE 0
+   log MEMORY_FILE3 0 0
+   set MEMORY_FILE3 binary "\x53\x53\x68\x64\x18\x00\x00\x00\x10\x00\x00\x00\xb0\x36\x00\x00\x02\x00\x00\x00\xc0\x2f\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x53\x53\x62\x64\x00\xe8\x11\x00"
+   append
+   log MEMORY_FILE3 0 SIZE MEMORY_FILE
+   append
+   
+   putVarChr MEMORY_FILE3 0xc 44100 long
+   putVarChr MEMORY_FILE3 0x10 2 byte
+   putVarChr MEMORY_FILE3 0x14 0x400 long
+   putVarChr MEMORY_FILE3 0x24 SIZE long
+   string ANAME p= "%s.ss2" NAME
+   get SIZE asize MEMORY_FILE3
+   log ANAME 0 SIZE MEMORY_FILE3
+endfunction
+
+startfunction XBOX
+   get SIZE asize MEMORY_FILE
+   set MEMORY_FILE3 binary "\x52\x49\x46\x46\x18\x51\xa3\x0\x57\x41\x56\x45\x66\x6d\x74\x20\x14\x0\x0\x0\x69\x0\x2\x0\x44\xac\x0\x0\xcc\xc1\x0\x0\x48\x0\x4\x0\x2\x0\x40\x0\x64\x61\x74\x61\xf0\x50\xa3\x0"
+   set RIFFSIZE SIZE
+   math RIFFSIZE += 0x28
+   set CH 2
+   set FREQ 44100
+   putVarChr MEMORY_FILE3 0x04 RIFFSIZE long
+   putVarChr MEMORY_FILE3 0x16 CH byte
+   putVarChr MEMORY_FILE3 0x18 FREQ long
+   set VAR1 0x3073
+   math VAR1 *= CH
+   if FREQ == 48000
+      math VAR1 *= 44100
+   else
+      math VAR1 *= FREQ
+   endif
+   math VAR1 /= 22050
+   putVarChr MEMORY_FILE3 0x1c VAR1 long   
+   set VAR2 0x24
+   math VAR2 *= CH
+   putVarChr MEMORY_FILE3 0x20 VAR2 short
+   putVarChr MEMORY_FILE3 0x2c SIZE long
+   append
+   log MEMORY_FILE3 OFFSET SIZE MEMORY_FILE
+   append
+   string ANAME p= "%s.lwav" NAME
+   get SIZE asize MEMORY_FILE3
+   log ANAME 0 SIZE MEMORY_FILE3
+endfunction

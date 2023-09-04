@@ -1,0 +1,18 @@
+<bms games="'GTA San Andreas'" platforms="'PC'" ext="IMG">
+ImpType Standard ;
+IDString VER2 ;
+Get NUMFILES Long 0 ;
+SavePos CURPOS 0 ;
+For T = 1 To NUMFILES ;
+SavePos FOO ;
+Get FILEOFF Long 0 ;
+Math FILEOFF *= 2048 ;
+SavePos FSO ;
+Get FILESIZE Long 0 ;
+Math FILESIZE *= 2048 ;
+Get FILENAME String 0 ;
+Log FILENAME FILEOFF FILESIZE #FOO FSO ;
+Math CURPOS += 32 ;
+GoTo CURPOS 0 ;
+Next T ;
+</bms>

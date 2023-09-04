@@ -1,0 +1,19 @@
+# Life is Feudal
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+goto -4
+get OFFSET long
+goto OFFSET
+get FILES long
+for i =  0 < FILES
+    get NAMESZ long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    getdstring DUMMY 0x20
+    clog NAME OFFSET ZSIZE SIZE
+next i

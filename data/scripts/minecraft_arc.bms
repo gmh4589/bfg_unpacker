@@ -1,0 +1,11 @@
+# Minecraft PS3's .arc
+
+endian big
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

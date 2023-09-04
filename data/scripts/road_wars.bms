@@ -1,0 +1,24 @@
+# Road Wars
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "pkh" 0
+open FDDE "pak" 1
+
+get INFO_SIZE asize
+for INFO_OFF = 0 < INFO_SIZE
+    get NAMESZ long
+    filerot 0xff
+    getdstring NAME NAMESZ
+    filerot ""
+    string NAME -= 1
+    get OFFSET longlong
+    get SIZE long
+
+    set PATH filepath NAME
+    if PATH == "localization"
+        filerot 0x01
+    endif
+    log NAME OFFSET SIZE 1
+    filerot ""
+    savepos INFO_OFF
+next

@@ -1,0 +1,18 @@
+# Sprout Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FFAS"
+get DUMMY long
+get OFFSET long
+goto OFFSET
+get DUMMY long
+getdstring DUMMY 0x10
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 0x10
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

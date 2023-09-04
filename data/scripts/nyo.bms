@@ -1,0 +1,15 @@
+# Battle Engine Aquila (PS2/XBOX/PC) - *.nyo
+
+idstring "RCDF"
+get DUMMY1 long
+get INFO_OFF long
+
+goto INFO_OFF
+
+get FILES long
+for i = 0 < FILES
+	getdstring NAME 0x100
+	get OFFSET long
+	get SIZE long
+	log NAME OFFSET SIZE
+next i

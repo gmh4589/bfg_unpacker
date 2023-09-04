@@ -1,0 +1,15 @@
+# Barbie and Her Sisters: Puppy Rescue
+
+get HNK_SIZE asize
+do
+    get SIZE long
+    get TYPE short
+    get DUMMY short # 4
+    savepos OFFSET
+    string NAME p "%d/" TYPE
+    if SIZE != 0
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET + SIZE
+    goto OFFSET
+while OFFSET != HNK_SIZE

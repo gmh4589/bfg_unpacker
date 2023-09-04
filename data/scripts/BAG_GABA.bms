@@ -1,0 +1,19 @@
+<bms games="'Emperor: Battle For Dune'" platforms="'PC'" ext="BAG">
+IDString 0 GABA ;
+ImpType Standard ;
+GoTo 8 0 ;
+Get Filenumber Long 0 ;
+Set Start Long 16 ;
+For Count = 1 To Filenumber ;
+GoTo Start 0 ;
+Get Filename String 0 ;
+Math Start += 32 ;
+GoTo Start 0 ;
+SavePos FileOffOff 0 ;
+Get FileOff Long 0 ;
+SavePos FileSizeOff 0 ;
+Get FileSize Long 0 ;
+Math Start += 32 ;
+Log Filename FileOff FileSize #FileOffOff FileSizeOff ;
+Next Count ;
+</bms>

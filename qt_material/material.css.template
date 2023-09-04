@@ -8,11 +8,13 @@
 
   font-family: {{font_family}};
 
+/*
   {% if font_size %}
     font-size: {{font_size|density(density_scale, density_interval=1)}}px;
   {% else %}
     font-size: {{13|density(density_scale, density_interval=1)}}px;
   {% endif %}
+*/
 
   {% if line_height %}
     line-height: {{line_height|density(density_scale, density_interval=8)}}px;
@@ -356,7 +358,9 @@ QPushButton:checked:disabled {
   border-color:  {{secondaryLightColor}};
 }
 
-QToolButton:focus,
+QToolButton:focus{
+  background-color: {{secondaryDarkColor}};
+}
 QPushButton:focus {
   background-color: {{primaryColor|opacity(0.2)}};
 }
@@ -462,8 +466,8 @@ QTabBar::close-button:hover {
 QGroupBox {
   padding: 0px;
   padding-top: 0px;
-  line-height: {{font_size}};
-  font-size: {{font_size}};
+  /* line-height: {{font_size}};
+  font-size: {{font_size}}; */
 }
 
 QGroupBox::title {
@@ -487,7 +491,6 @@ QCheckBox {
   height: 20px;
   background-color: transparent;
   spacing: 5px;
-  font-size: 12px;
 }
 
 QRadioButton:disabled,

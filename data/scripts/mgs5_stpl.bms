@@ -1,0 +1,19 @@
+# Metal Gear Solid V STP
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "STPL"
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

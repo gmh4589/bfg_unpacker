@@ -1,0 +1,22 @@
+# Battleship: Surface Thunder
+
+idstring "MGFs"
+get VER long
+get MGF_SIZE long
+get FILES long
+get BASE_OFF long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get DUMMY long
+    get OFFSET long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

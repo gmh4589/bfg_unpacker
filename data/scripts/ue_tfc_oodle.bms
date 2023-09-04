@@ -1,0 +1,40 @@
+# TFC Unreal Engine oodle test
+
+comtype oodle
+get TFC_SIZE asize
+for i = 0
+    savepos TMP
+    if TMP == TFC_SIZE
+        break
+    endif
+    idstring "\xc1\x83\x2a\x9e"
+    get CHUNK_SIZE long
+    get SIZE long
+    get XSIZE long
+    xmath CHUNKS "XSIZE / CHUNK_SIZE"
+    if XSIZE % CHUNK_SIZE
+        math CHUNKS + 1
+    endif
+
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        get CHUNK_SIZE long
+        putarray 0 x CHUNK_ZSIZE
+        putarray 1 x CHUNK_SIZE
+    next x
+
+    get NAME basename
+    string NAME p "%s_%d" NAME i
+    log NAME 0 0
+    append
+    savepos OFFSET
+    for x = 0 < CHUNKS
+        getarray CHUNK_ZSIZE 0 x
+        getarray CHUNK_SIZE  1 x
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    next x
+    append
+
+    goto OFFSET
+next i

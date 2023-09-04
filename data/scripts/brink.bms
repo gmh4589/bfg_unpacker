@@ -1,0 +1,246 @@
+# Brink sdpk2 PSAR PSARC (script 0.4.3a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# http://svn.gib.me/public/brink
+# https://github.com/komiga/brinktools
+
+quickbmsver "0.11"
+endian big
+idstring "PSAR"
+get MajorVersion short
+get MinorVersion short
+getdstring CompressionFormat 4
+get headerSize long
+get entrySize long
+get entryCount long
+get DataBlockSize long
+get Flags long  # was CompressedBlockValueSize
+
+savepos TMP
+math headerSize - TMP
+savepos INFO_OFF
+xmath EXTRA_OFF "INFO_OFF + (entryCount * entrySize)"
+xmath EXTRA_Limit "EXTRA_OFF + (headerSize - (entryCount * entrySize))"
+goto EXTRA_OFF
+
+math CompressedBlockValueSize = 0
+math i = 1
+do
+    math CompressedBlockValueSize + 1
+    math i u<< 8
+while i < DataBlockSize
+
+math i = 0
+for EXTRA_OFF = EXTRA_OFF u< EXTRA_Limit
+    if CompressedBlockValueSize == 1
+        get ZSIZE byte
+    elif CompressedBlockValueSize == 2
+        get ZSIZE short
+    elif CompressedBlockValueSize == 3
+        get ZSIZE threebyte
+    elif CompressedBlockValueSize == 4
+        get ZSIZE long
+    elif CompressedBlockValueSize == 8
+        get ZSIZE longlong
+    else
+        get ZSIZE long  # ???
+    endif
+    savepos EXTRA_OFF
+    putarray 0 i ZSIZE
+next i
+goto EXTRA_Limit
+
+math x_FAST = 0
+
+for i = 0 < entryCount
+    goto INFO_OFF
+    getdstring NAME_HASH 16
+    get CompressedBlockSizeIndex long
+
+    get TMP byte
+    if TMP != 0
+        callfunction QUICKBMS_4GB_CHECK 1   # do not use: quickbmsver "-64"
+    endif
+    get UncompressedSize long
+    math TMP u<< 32
+    math UncompressedSize | TMP
+
+    get TMP byte
+    get Offset long
+    math TMP u<< 32
+    math Offset | TMP
+
+    math INFO_OFF + entrySize
+
+    # here due to DUMP_ZARC
+    if CompressionFormat == "lzx "
+        comtype xmemdecompress
+    elif CompressionFormat == "lzma"
+        comtype lzma86head
+    elif CompressionFormat == "zlib"
+        comtype zlib
+    endif
+
+    math USE_MEMORY_FILE = 1
+    if UncompressedSize u>= 0x80000000
+        math USE_MEMORY_FILE = 0
+    endif
+
+    if USE_MEMORY_FILE != 0
+        putvarchr MEMORY_FILE UncompressedSize 0
+        log MEMORY_FILE 0 0
+    else
+        math SIZE = 0
+        log TEMPORARY_FILE 0 0
+    endif
+    append
+    for SIZE = 0 u< UncompressedSize
+        getarray ZSIZE 0 CompressedBlockSizeIndex
+        if ZSIZE == 0
+            math ZSIZE = DataBlockSize
+        endif
+        math REMAINING = UncompressedSize
+        math REMAINING - SIZE
+        if zsize == DataBlockSize || zsize == REMAINING
+            if USE_MEMORY_FILE != 0
+                log MEMORY_FILE    Offset zsize
+            else
+                log TEMPORARY_FILE Offset zsize
+            endif
+        else
+            if USE_MEMORY_FILE != 0
+                clog MEMORY_FILE    Offset zsize DataBlockSize
+            else
+                clog TEMPORARY_FILE Offset zsize DataBlockSize
+            endif
+        endif
+        if USE_MEMORY_FILE != 0
+            get SIZE asize MEMORY_FILE
+        else
+            math SIZE + DataBlockSize
+        endif
+        math Offset + zsize
+    next CompressedBlockSizeIndex
+    append
+
+    if USE_MEMORY_FILE != 0
+        math FILENUM = -1   # it's MEMORY_FILE
+    else
+        open "." TEMPORARY_FILE 1
+        math FILENUM = 1
+    endif
+
+    if i == 0
+        callfunction LOAD_FILENAMES 1
+    endif
+
+    string NAME_HASH 0b NAME_HASH # fix for quickbms 0.11
+    putvarchr NAME_HASH 32 0    # variables in quickbms are weird
+
+    set NAME string ""
+    callfunction SEARCH_NAME 1
+    if NAME == ""
+        math x_FAST = 0
+        callfunction SEARCH_NAME 1
+    endif
+    if NAME == ""
+        set NAME string NAME_HASH
+        string NAME + .
+    endif
+
+    callfunction DUMP_ZARC 1
+next i
+
+startfunction SEARCH_NAME
+    for x = x_FAST < NAMES
+        getarray TMP1 11 x
+        getarray TMP2 12 x
+        getarray TMP3 13 x
+        if TMP1 == NAME_HASH || TMP2 == NAME_HASH || TMP3 == NAME_HASH
+            getarray NAME 10 x
+            math x_FAST = x
+            math x_FAST + 1
+            break
+        endif
+    next x
+endfunction
+
+startfunction LOAD_FILENAMES
+    goto 0 FILENUM
+    math NAMES = 0
+    for x = 0 u< UncompressedSize
+        get TMP byte FILENUM
+        if TMP == '\n' || TMP == 0
+            math NAMES + 1
+        endif
+    next x
+    math NAMES + 2
+    putarray 10 entryCount ""   # name
+    putarray 11 entryCount ""   # md5 as-is
+    putarray 12 entryCount ""   # md5 upper-case
+    putarray 13 entryCount ""   # md5 lower-case
+    if NAMES >= entryCount # it was == in the past and it's still correct... let's stay openminded :)
+        goto 0 FILENUM
+        math NAMES - 1
+        for x = 1 <= NAMES
+            get NAME line FILENUM
+            putarray 10 x NAME
+            encryption md5 NAME
+            putarray 11 x QUICKBMS_HEXHASH
+            string NAME u NAME
+            encryption md5 NAME
+            putarray 12 x QUICKBMS_HEXHASH
+            string NAME l NAME
+            encryption md5 NAME
+            putarray 13 x QUICKBMS_HEXHASH
+            encryption "" ""
+        next x
+        math NAMES + 1
+    endif
+endfunction
+
+startfunction DUMP_ZARC
+    math DUMP_ZARC_DONE = 0
+    comtype deflate
+    goto 0 FILENUM
+    if UncompressedSize u> 4
+        getdstring SIGN 4 FILENUM
+        if SIGN == "zarc"
+            get VER short FILENUM
+            get CHUNKS short FILENUM
+            get UncompressedSize long FILENUM
+            get CompressedSize long FILENUM
+            set NAME fullbasename NAME
+            log NAME 0 0
+            append
+            for x = 0 < CHUNKS
+                get CHUNK_ZSIZE short FILENUM
+                get CHUNK_SIZE short FILENUM
+                get CHUNK_OFFSET long FILENUM
+                if CHUNK_SIZE == 0
+                    math CHUNK_SIZE = 0x10000
+                endif
+                math CHUNK_OFFSET - 1
+                if CHUNK_ZSIZE == CHUNK_SIZE
+                    log NAME CHUNK_OFFSET CHUNK_ZSIZE FILENUM
+                else
+                    clog NAME CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE FILENUM
+                endif
+            next x
+            append
+            math DUMP_ZARC_DONE = 1
+        endif
+    endif
+    if DUMP_ZARC_DONE == 0
+        log NAME 0 UncompressedSize FILENUM
+    endif
+endfunction
+
+startfunction QUICKBMS_4GB_CHECK
+    math TMP64 = 0x10000000
+    math TMP64 * 16
+    if TMP64 == 0
+        print "you must use quickbms_4gb_files.exe with big archives"
+        cleanexit
+    endif
+endfunction

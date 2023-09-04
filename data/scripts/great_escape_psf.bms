@@ -1,0 +1,53 @@
+# Great Escape PSF (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PSF_SIZE asize
+for BASE_OFF = 0 < PSF_SIZE
+    goto BASE_OFF
+    idstring "PSF"
+    get DUMMY byte  # 0x31, 0x60 and so on
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get CHANNELS short  # ???
+        math OFFSET += BASE_OFF
+        putarray 0 i OFFSET
+    next i
+
+    math MAX_OFF = 0
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+
+        math NEXT_OFFSET = PSF_SIZE
+        for j = 0 < FILES
+            getarray TMP 0 j
+            if TMP > OFFSET
+            if TMP < NEXT_OFFSET
+                math NEXT_OFFSET = TMP
+            endif
+            endif
+        next j
+        if NEXT_OFFSET == PSF_SIZE
+            goto OFFSET
+            findloc TMP binary "PSF\x60" 0 ""
+            if TMP != ""
+                math NEXT_OFFSET = TMP
+            endif
+        endif
+
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        if SIZE > 0
+            log "" OFFSET SIZE
+        endif
+
+        if NEXT_OFFSET > MAX_OFF
+            math MAX_OFF = NEXT_OFFSET
+        endif
+    next i
+
+    math BASE_OFF = MAX_OFF
+next

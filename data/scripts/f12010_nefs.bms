@@ -1,0 +1,44 @@
+# Codemasters F1 2010 Nefs
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP *= 16
+if TMP == 0
+    print "Error: you must use quickbms_4gb_files.exe for this archive" # or sortarray will not work!
+    cleanexit
+endif
+
+comtype lzss
+endian big
+getdstring DUMMY 0x80
+
+for FILES = 0
+    get ZERO long
+    if ZERO != 0
+        break
+    endif
+    get OFFSET long
+    get DUMMY3 long # ZIP?  2=file doesn't exist
+    get ID1 long
+    get ID2 long
+    get ID3 long
+    if OFFSET != 0
+        putarray 0 FILES OFFSET
+        math FILES + 1
+    endif
+next
+
+sortarray 0
+
+    getarray OFFSET 0 0
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFF asize
+    else
+        getarray NEXT_OFF 0 i
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    xmath XSIZE "SIZE * 10"
+    clog "" OFFSET SIZE XSIZE
+    math OFFSET = NEXT_OFF
+next i

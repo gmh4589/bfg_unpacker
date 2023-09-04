@@ -1,0 +1,13 @@
+# Blood+ Souyoku no Battle Rondo
+
+open FDDE "bin"
+open FDDE "pak" 1
+get FILES long
+getdstring ZERO 12
+for i = 0 < FILES
+    get XSIZE long  # aligned size
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 0x100
+    log NAME OFFSET SIZE 1
+next i

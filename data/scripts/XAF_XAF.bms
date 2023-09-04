@@ -1,0 +1,24 @@
+<bms games="'Beat Down: Fists Of Vengeance'" platforms="'PS2'" ext="XAF">
+ImpType Standard ;
+IDString 0 XAF ;
+Set TEMP Long 40 ;
+GoTo TEMP 0 ;
+Get FILENUM Long 0 ;
+Set FNAMEX Long FILENUM ;
+Math FNAMEX *= 8 ;
+Math FNAMEX += 64 ;
+Set TEMP Long 64 ;
+GoTo TEMP 0 ;
+For F = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+SavePos NEXTFILE 0 ;
+GoTo FNAMEX 0 ;
+GetDString FNAME 260 0 ;
+SavePos FNAMEX 0 ;
+GoTo NEXTFILE 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next F ;
+</bms>

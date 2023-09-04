@@ -1,0 +1,41 @@
+# Ed Edd n Eddy: The Mis-Edventures
+
+goto 0x40
+for x = 0 < 0x100
+    get FILES long
+    get OFFSET long
+    if OFFSET != 0xffffffff
+        savepos TMP
+        goto OFFSET
+        for i = 0 < FILES
+            get DUMMY long
+            get OFFSET long
+            putarray 0 -1 OFFSET
+        next i
+        goto TMP
+    endif
+next x
+
+get ARCHIVE_SIZE asize
+putarray 0 -1 ARCHIVE_SIZE
+sortarray 0 1
+
+for i = 0
+    getarray OFFSET 0 i
+    if OFFSET == ARCHIVE_SIZE
+        break
+    endif
+    math i + 1
+    getarray SIZE   0 i
+    if SIZE != OFFSET
+        math OFFSET + 0x10
+        goto OFFSET
+        getdstring NAME 0x20
+        getdstring DUMMY 0x10
+        savepos OFFSET
+        math SIZE - OFFSET
+        string NAME + _
+        string NAME + i # avoid duplicates
+        log NAME OFFSET SIZE
+    endif
+next

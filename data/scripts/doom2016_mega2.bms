@@ -1,0 +1,31 @@
+idstring "\x21\xbb\x3f\xa6"
+get VER long
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get DUMMY10 long
+get DUMMY11 long
+get DUMMY12 long
+get OFF longlong
+get OFF2 longlong
+get OFF_QUANT long
+get OFF2_QUANT long
+
+goto OFF2
+for i = 0 < OFF2_QUANT
+	get CRC threebyte
+	get ZERO byte
+next i
+goto OFF
+for i = 0 < OFF_QUANT
+	get OFFSET longlong
+	get SIZE longlong
+	string NAME p "%08d." i
+	log NAME OFFSET SIZE
+next i

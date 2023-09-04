@@ -1,0 +1,15 @@
+# Wipeout PSP
+
+get VER long
+get FILES long
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if ZSIZE == SIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

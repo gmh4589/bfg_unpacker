@@ -1,0 +1,42 @@
+# Simraceway get key
+#   how to use:
+#   start the game and as soon as possible launch the following
+#   command from the command-line or from a BAT file:
+#
+#     quickbms.exe -p simraceway_getkey.bms process://simraceway/debug
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.17"
+
+# search the function
+findloc OFFSET string "\x55\x8B\xEC\x8B\x55\x0C\x0F\xB6\x0A"
+goto OFFSET
+
+print "set breakpoint at offset %OFFSET|x%"
+put 0xcc byte
+
+# wait till breakpoint
+for EIP = 0 == 0
+    # do nothing
+next
+
+# debug purpose
+print "EAX %eax|x%\nEBX %ebx|x%\nECX %ecx|x%\nEDX %edx|x%\nESI %esi|x%\nEDI %edi|x%\nEBP %ebp|x%\nESP %esp|x%\nEIP %eip|x%"
+
+goto ESP
+get RET_ADDR long
+get ARG1 long
+get ARG2 long
+get ARG3 long
+goto ARG2
+getdstring KEY 32
+
+set OUTPUT string "set MYKEY binary \""
+for i = 0 < 32
+    getvarchr TMP KEY i
+    string TMP p= " %02x" TMP
+    string OUTPUT += TMP
+next i
+string OUTPUT += " \""
+print "your key is:\n\n%OUTPUT%"

@@ -1,0 +1,32 @@
+# Pier Solar and the Great Architects (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1z
+for i = 0
+    getdstring NAME 8
+    if NAME == ""
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    string NAME + "."
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+    get OFFSET asize
+    putarray 1 i OFFSET
+math FILES = i
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    math i + 1
+    getarray ZSIZE  1 i
+    math ZSIZE - OFFSET
+    if SIZE <= ZSIZE
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next

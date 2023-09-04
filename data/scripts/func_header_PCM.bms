@@ -1,0 +1,40 @@
+# add a wave pcm header to any data and write to disk
+# input variables: SIZE, OFFSET, FREQ, CH, BITS, BLOCKALIGN, CODEC, NAME (or set to "")
+# (c) 2012-10-16 by AlphaTwentyThree of XeNTaX
+
+startfunction PCM
+   endian little
+   set PRE SIZE
+   math PRE += 0x2c
+   putVarChr MEMORY_FILE PRE 0
+   log MEMORY_FILE 0 0
+   set MEMORY_FILE binary "\x52\x49\x46\x46\x20\xC0\xB1\x00\x57\x41\x56\x45\x66\x6D\x74\x20\x10\x00\x00\x00\x01\x00\x02\x00\x44\xAC\x00\x00\x10\xB1\x02\x00\x04\x00\x10\x00\x64\x61\x74\x61\xFC\xBF\xB1\x00"
+   append
+   log MEMORY_FILE OFFSET SIZE
+   append
+   set RIFFSIZE SIZE
+   math RIFFSIZE += 36
+   set AVGBYTES FREQ
+   if CODEC != 2
+      math AVGBYTES *= BLOCKALIGN
+   endif
+   
+   putvarchr MEMORY_FILE 0x04 RIFFSIZE long
+   putvarchr MEMORY_FILE 0x14 CODEC short          # wFormatTag: Microsoft PCM Format (0x0001)
+   putvarchr MEMORY_FILE 0x16 CH short   # wChannels
+   putvarchr MEMORY_FILE 0x18 FREQ short   # dwSamplesPerSec
+   putvarchr MEMORY_FILE 0x1c AVGBYTES long    # dwAvgBytesPerSec
+   putvarchr MEMORY_FILE 0x20 BLOCKALIGN short # wBlockAlign
+   putvarchr MEMORY_FILE 0x22 BITS short       # wBitsPerSample
+   putvarchr MEMORY_FILE 0x28 SIZE long
+   if NAME == ""
+      get NAME basename
+      if CODEC == 2
+         string NAME += ".lwav"
+      else
+         string NAME += ".wav"
+      endif
+   endif
+   get SIZE asize MEMORY_FILE
+   log NAME 0 SIZE MEMORY_FILE
+endfunction

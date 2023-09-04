@@ -1,0 +1,16 @@
+# Dance Mission 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get DUMMY long
+    get NAME string
+
+    clog NAME OFFSET ZSIZE SIZE
+next i

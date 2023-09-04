@@ -1,0 +1,32 @@
+# Blackwell Epiphany CLIB vox
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "CLIB"
+get DUMMY long
+get FILES long
+goto 0x17
+for i = 0 < FILES
+    getdstring NAME 0xd
+    strlen NAMESZ NAME
+    for j = 0 < NAMESZ
+        getvarchr TMP NAME j
+        math TMP -= 20
+        putvarchr NAME j TMP
+    next j
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 1 i SIZE
+next i
+do
+    get TMP byte
+while TMP == 0
+savepos OFFSET
+math OFFSET -= 1
+for i = 0 < FILES
+    getarray NAME 0 i
+    getarray SIZE 1 i
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

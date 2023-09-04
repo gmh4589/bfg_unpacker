@@ -1,0 +1,23 @@
+# Big Mutha Truckers 2: Truck Me Harder
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ARCC"
+get FILES long
+get SIZE long
+goto 128
+xmath BASE_OFF "128 + i * 16"
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    getdstring DUMMY 8
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    log "" OFFSET SIZE
+next

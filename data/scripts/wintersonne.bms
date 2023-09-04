@@ -1,0 +1,14 @@
+# Under cover: Operation Wintersun
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Wintersonne\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+get FILES long
+goto 64
+
+for i = 1 to FILES
+    getdstring NAME 104
+    get OFFSET long
+    get SIZE long
+    getdstring SKIP 16
+    log NAME OFFSET SIZE
+next i

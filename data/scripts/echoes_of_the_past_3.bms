@@ -1,0 +1,19 @@
+idstring "\xcf\x01"
+get ZSIZE short
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE 0x10000
+
+get DUMMY byte MEMORY_FILE  # zip?
+get FILES short MEMORY_FILE
+for i = 0 < FILES
+    math OFFSET += ZSIZE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    # thanx bacter
+    filexor  "0x65 0x33 0x34 0x35 0x39 0x36" OFFSET   # Echoes of the Past 3 - The Citadels of Time CE
+    clog NAME OFFSET ZSIZE SIZE
+    filexor ""
+next i

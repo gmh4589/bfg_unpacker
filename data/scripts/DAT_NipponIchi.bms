@@ -1,0 +1,20 @@
+<bms ext="DAT" version="1.0" author="Mr.Mouse" platforms="'PS2'" games="'Nippon Ichi'" silence="no" verbose="no">
+#Note that this needs the right SECTOR.H file in the same folder as the DAT file!
+Open FileDir sector.h 1 ;
+SavePos ST 1 ;
+GoTo EOF 1 ;
+SavePos ED 1 ;
+Math ED -= 40 ;
+GoTo ST 1 ;
+Do ;
+SavePos PE 1 ;
+Get FileName String 1 ;
+Math PE += 32 ;
+GoTo PE 1 ;
+Get BlockOff Long 1 ;
+Get Size Long 1 ;
+Math BlockOff *= 2048 ;
+Log FileName BlockOff Size 0 0 ;
+SavePos PE 1 ;
+While PE < ED ;
+</bms> 

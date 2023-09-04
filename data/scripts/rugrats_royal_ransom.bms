@@ -1,0 +1,31 @@
+# Avalanche Software: Rugrats Royal Ransom PS2 / Meet the Robinsons (HOG) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER_MAJ short   # 1
+get VER_MIN short   # 1
+if VER_MIN >= 2
+    get INFO_OFF longlong
+    get SOME_CRC long
+endif
+get FILES long
+get INFO_SIZE long
+if VER_MIN >= 2
+    get SOME_CRC long
+    goto INFO_OFF
+endif
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    if VER_MIN >= 2
+        get SOME_CRC long
+    endif
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

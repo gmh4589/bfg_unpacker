@@ -1,0 +1,21 @@
+# Anomaly Warzone Earth / Anomaly 2 / Frostpunk (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+open FDDE "idx"
+open FDDE "dat" 1
+get DUMMY threebyte # 0x010200
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get NAME_CRC long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get ZIP byte
+    if ZIP == 0
+        log "" OFFSET SIZE 1
+    else
+        clog "" OFFSET ZSIZE SIZE 1
+    endif
+next i

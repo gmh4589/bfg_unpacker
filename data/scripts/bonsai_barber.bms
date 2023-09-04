@@ -1,0 +1,21 @@
+# Bonsai Barber
+
+endian big
+comtype unzip_dynamic
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+get DUMMY long MEMORY_FILE  # 8
+get DATA_OFF long MEMORY_FILE
+get ZERO long MEMORY_FILE
+get CRC long MEMORY_FILE
+get FILES long MEMORY_FILE
+get BASE_OFF asize MEMORY_FILE
+math BASE_OFF - DATA_OFF
+for i = 0 < FILES
+    getdstring NAME 0x20 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

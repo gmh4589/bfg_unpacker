@@ -1,0 +1,30 @@
+# Alien Rage Unlimited (2013) PC
+# extracts the sounds from the SNDTABLE.AFB/SNDCACHE.AFB
+# (c) 2013-10-20 by AlphaTwentyThree of XeNTaX
+# script for QuickBMS #http://quickbms.aluigi.org
+
+open FDSE "SNDTABLE.AFB" 0
+open FDSE "SNDCACHE.AFB" 1
+
+get FILES long 0
+for i = 1 <= FILES
+   get OFFSET long 0
+   get SIZE long 0
+   get NAMEL long 0
+   math NAMEL *= 2
+   getDstring UNINAME NAMEL 0
+   set NAME unicode UNINAME
+   callfunction transname 1
+   string NAME += ".ogg"
+   log NAME OFFSET SIZE 1
+next i
+
+startfunction transname
+   math NAMEL /= 2
+   for k = 0 < NAMEL
+      getVarChr TEST NAME k
+      if TEST == 0x2e
+         putVarChr NAME k 0x2f
+      endif
+   next k
+endfunction

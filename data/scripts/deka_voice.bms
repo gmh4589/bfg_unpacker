@@ -1,0 +1,18 @@
+# Deka Voice data.vol
+
+get EXT extension
+if EXT == "afs" || EXT == "dat"
+    print "Error: you must use the script http://aluigi.org/bms/afs.bms"
+    cleanexit
+endif
+
+idstring "\x22\x87\xf3\x81"
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    get DUMMY longlong
+    get SIZE long
+    get OFFSET long
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next i

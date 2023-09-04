@@ -1,0 +1,22 @@
+# Moto Racer BKF
+# script for QuickBMS http://aluigi.org
+
+get FILES signed_long
+if FILES > 9
+    for i = 0 < FILES
+        getdstring NAME 36
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE
+    next i
+else    # -2
+    get FILES long
+    get NAMESZ long
+    for i = 0 < FILES
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        get DUMMY longlong
+        log NAME OFFSET SIZE
+    next i
+endif

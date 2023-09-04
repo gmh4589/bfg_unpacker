@@ -1,0 +1,12 @@
+# Bugatron Worlds NDX/WAD
+
+open FDDE "ndx"
+open FDDE "wad" 1
+get NDX_SIZE asize
+for TMP = 0 != NDX_SIZE
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE 1
+    savepos TMP
+next

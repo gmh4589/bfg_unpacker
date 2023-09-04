@@ -1,0 +1,19 @@
+append
+for i = 0
+    set NAME string "win_000"
+    set MYEXT string i
+    strlen MYEXTSZ MYEXT
+
+    if MYEXTSZ == 1
+        string NAME += ".00"
+    elif MYEXTSZ == 2
+        string NAME += ".0"
+    else
+        string NAME += "."
+    endif
+    string NAME += MYEXT
+
+    open FDSE NAME
+    get SIZE asize
+    log "win_000.full" 0 SIZE
+next i

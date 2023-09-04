@@ -1,0 +1,64 @@
+# Def Jam Vendetta (lame dumper script)
+
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    savepos OFFSET
+    getdstring SIGN 4
+    if SIGN == "TIM2"
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get SIZE long
+        math SIZE += 0x10
+    elif SIGN == "PAK "
+        get SIZE long
+        math SIZE += 8
+    elif SIGN == "WAZA"
+        math SIZE = 0x2d000 # fixed
+    elif SIGN == "WRS "
+        getdstring DUMMY 0x54
+        get SIZE long
+        math SIZE += 0x58
+    elif SIGN == "AUD "
+        get SIZE long
+        math SIZE += 8
+    elif SIGN == "PRM "
+        get SIZE long
+        math SIZE += 8
+    elif SIGN == ""
+        math SIZE = 0
+    else
+        getvarchr SIGN SIGN 0
+        if SIGN == 0x80
+            get SIZE long
+            math SIZE += 0x80
+        else
+            do
+                findloc SIZE string "\0\0\0\0\0\0\0\0\0\0\0\x80\x00\x00\x00" ""
+                if SIZE == ""
+                    # end of the archive
+                    cleanexit
+                endif
+                goto SIZE
+                findloc SIZE string "\x80\x00\x00\x00"
+                if SIZE % 0x800
+                    goto SIZE
+                    math SIZE = 0
+                endif
+            while SIZE == 0
+            math SIZE -= OFFSET
+        endif
+    endif
+    if SIZE == 0
+        math SIZE = 1
+    else
+        log "" OFFSET SIZE
+    endif
+    math OFFSET += SIZE
+    goto OFFSET
+    get DUMMY long
+    if DUMMY == 0
+        math OFFSET x= 0x800
+    endif
+    goto OFFSET
+next

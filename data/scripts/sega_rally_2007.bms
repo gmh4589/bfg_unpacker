@@ -1,0 +1,98 @@
+# Sega Rally 2007
+# script for QuickBMS http://quickbms.aluigi.org
+
+# make your choice:
+# 1 = uses the size field specified in the table
+#     but some archives have more data at the end,
+#     like carlivery_data.sbf
+# 2 = calculates the size from the next offsets
+#     so it takes everything
+
+math METHOD = 2
+
+getdstring SIGN 4
+if SIGN == "SBZ1"
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME basename
+    get EXT extension
+    string NAME + "_unpack."
+    string NAME + EXT
+    clog NAME OFFSET ZSIZE SIZE
+else
+    goto 0x14
+    get FILES long
+
+    if METHOD == 1
+
+        for i = 0 < FILES
+            get DUMMY long
+            get OFFSET long
+            math DUMP_SIZE = -1
+            callfunction DUMP 1
+        next i
+
+    elif METHOD == 2
+
+        for i = 0 < FILES
+            get DUMMY long
+            get OFFSET long
+            putarray 0 i OFFSET
+        next i
+
+        sortarray 0
+
+            getarray OFFSET 0 0
+        for i = 1 <= FILES
+            if i == FILES
+                get NEXT_OFF asize
+            else
+                getarray NEXT_OFF 0 i
+            endif
+            xmath DUMP_SIZE "NEXT_OFF - OFFSET"
+            callfunction DUMP 1
+            math OFFSET = NEXT_OFF
+        next i
+
+    else
+
+        print "Error: unexistent method %METHOD%"
+        cleanexit
+
+    endif
+
+endif
+
+startfunction DUMP
+    savepos TMP_OFF
+    goto OFFSET
+    savepos BACKUP_OFFSET
+    get TYPE long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+
+    if DUMP_SIZE >= 0
+        xmath SIZE "DUMP_SIZE - (OFFSET - BACKUP_OFFSET)"
+    endif
+
+    math SKIP_BYTES = 0
+    if TYPE == 4
+        math SKIP_BYTES = 0x28
+    endif
+
+    math OFFSET + SKIP_BYTES
+    math SIZE   - SKIP_BYTES
+
+    if SIZE > 0
+        string NAME p "%d/." TYPE
+        log NAME OFFSET SIZE
+    endif
+    goto TMP_OFF
+endfunction

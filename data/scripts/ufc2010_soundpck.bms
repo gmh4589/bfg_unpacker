@@ -1,0 +1,38 @@
+# AKPK UFC2010 (script 0.1.1a)
+
+endian big
+idstring AKPK
+get INFO_SIZE long
+endian guess INFO_SIZE
+get DUMMY long  # 1
+get DUMMY long  # 24
+get DUMMY long  # 154
+get DUMMY long  # 41fbc
+get DUMMY long  # 2
+get DUMMY long  # 14
+get DUMMY long  # 1
+get DUMMY long  # 20
+get DUMMY long  # 0
+get NAME string
+get FOLDER string
+
+for
+    savepos MYOFF
+    if MYOFF u>= INFO_SIZE
+        break
+    endif
+    get DUMMY long
+    get CRC long
+    do
+        get ALIGN long
+    while ALIGN != 0x800
+    get SIZE long
+    if SIZE == 0
+        get SIZE long
+    else    # some games have it inverted (endian?)
+        get ZERO long
+    endif
+    get OFFSET long
+    math OFFSET *= 0x800
+    log "" OFFSET SIZE
+next

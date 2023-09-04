@@ -1,0 +1,137 @@
+# Darkeden / Prius Online (script 0.3.1)
+#   This script is experimental, the filenames may not match the extracted files
+# script for QuickBMS http://quickbms.aluigi.org
+
+math MODE = 0
+open FDDE "dpk" 1 EXISTS
+if EXISTS != 0
+    math MODE = 0   # Darkeden
+    open FDDE "dpi" 0 EXISTS
+    comtype zlib_noerror    # ???
+else
+    math MODE = 1   # Prius Online
+    open FDDE "dat" 1
+    open FDDE "idx" 0 EXISTS
+endif
+if EXISTS == 0
+    callfunction OLD_METHOD 1
+    cleanexit
+endif
+
+idstring "ABCD"
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+padding 0x1000
+
+set FNAME string ""
+get DPI_SIZE asize
+savepos DPI_OFF
+for DPI_OFF = DPI_OFF < DPI_SIZE
+    for i = 0 < 0x400
+        getdstring DUMMY 0x10
+    next i
+    for i = 0 < 0x200
+        get NAMEX long
+        getdstring NAME 0x3c
+        string FNAME + NAME
+        math NAMEX & 0x7fffffff
+        if NAMEX == 0
+            if FNAME != ""
+            if FNAME != "."
+            if FNAME != ".."
+                putarray 0 -1 FNAME
+            endif
+            endif
+            endif
+            set FNAME string ""
+        endif
+    next i
+    for i = 0 < 0x100
+        get ZIP long
+        get SIZE long
+        get OFFSET long
+        get DUMMY long  # often zero except few cases
+        math OFFSET * 0x200
+        if SIZE != 0
+            putarray 1 -1 ZIP
+            putarray 2 -1 SIZE
+            putarray 3 -1 OFFSET
+        endif
+    next i
+    for i = 0 < 0x1000
+        get DUMMY long
+    next i
+    padding 0x1000
+    savepos DPI_OFF
+next
+
+putarray 0 -1 ""
+putarray 1 -1 -1
+for i = 0
+    getarray NAME   0 i
+    if NAME == ""
+        break
+    endif
+    getarray ZIP    1 i
+    if ZIP < 0
+        break
+    endif
+    getarray SIZE   2 i
+    getarray OFFSET 3 i
+
+    goto OFFSET 1
+    callfunction DUMP 1
+next i
+
+
+# the old script
+startfunction OLD_METHOD
+    get DPK_SIZE asize 1
+    for OFFSET = 0x200 < DPK_SIZE
+        goto OFFSET 1
+        padding 0x200 1
+        savepos OFFSET 1
+        if OFFSET >= DPK_SIZE
+            cleanexit
+        endif
+        callfunction DUMP 1
+        math OFFSET += ZSIZE
+    next
+endfunction
+
+startfunction DUMP
+    if MODE == 0
+        get SIZE long 1
+        get DUMMY byte 1
+        get DUMMY byte 1
+        get ZSIZE long 1
+        get NO_ZIP byte 1
+        savepos OFFSET 1
+        if NO_ZIP != 0
+            log NAME OFFSET SIZE 1
+        else
+            math OFFSET + 2
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    else
+        get DUMMY long 1    # 1, zip?
+        get XSIZE long 1
+        get TSTAMP longlong 1
+        get TSTAMP longlong 1
+        get TSTAMP longlong 1
+        savepos OFFSET 1
+        xmath SIZE "SIZE - (4 + 4 + 8 + 8 + 8)"
+        if ZIP == 0
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET SIZE XSIZE 1
+        endif
+    endif
+endfunction

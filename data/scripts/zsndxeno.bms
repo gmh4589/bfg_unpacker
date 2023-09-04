@@ -1,0 +1,25 @@
+# ZSND XENO PS2 XBOX (script 0.2)
+#   Marvel Ultimate Alliance (X360)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ZSND"
+getdstring PLATFORM 4   # "XENO", "PS2 ", "XBOX" and so on
+get ZSD_SIZE long   # don't use these 2 fields to guess endianess!
+get INFO_SIZE long
+get FILES long  # no, this is not the number of files!
+endian guess FILES
+goto 0x30
+get OFFSET long
+goto OFFSET
+for i = 0 #< FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get ZERO1 long
+    get ZERO2 long
+    getdstring NAME 0x40
+    if ZERO1 != 0
+        break
+    endif
+    log NAME OFFSET SIZE
+next i

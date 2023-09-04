@@ -1,0 +1,20 @@
+# Zero Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4   # bc 9a 78 56
+get DUMMY long
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZIP long
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

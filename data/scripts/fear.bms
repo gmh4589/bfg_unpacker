@@ -1,0 +1,265 @@
+# FEAR / FEAR2 / ARCH00 archives (script 0.6.4a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.5,-9" # -9 is necessary for this script
+
+comtype unzip_dynamic
+getdstring SIGN 4
+
+if SIGN == "LTAR"
+elif SIGN == "RATL"
+    set SIGN string "LTAR"
+    endian big
+
+elif SIGN == "LTAX"
+    comtype xmemdecompress
+elif SIGN == "XATL"
+    comtype xmemdecompress
+    set SIGN string "LTAX"
+    endian big
+
+elif SIGN == "PTAR"
+elif SIGN == "RATP"
+    set SIGN string "PTAR"
+    endian big
+
+elif SIGN == "PSCA"
+elif SIGN == "ACSP"
+    set SIGN string "PSCA"
+    endian big
+
+elif SIGN == "HBEK"
+elif SIGN == "KEBH"
+    set SIGN string "HBEK"
+    endian big
+
+else
+    cleanexit
+endif
+get VERSION long
+
+# it's possible to make the check on the version or using this solution
+savepos TMP
+get FULL_SIZE asize
+get DUMMY1 long
+get DUMMY2 long
+if SIGN == "LTAR"
+    # https://zenhax.com/viewtopic.php?p=69402#p69402
+    if DUMMY2 == 0xd
+        comtype xmemdecompress
+        set SIGN string "LTAX"
+    endif
+endif
+math AUTOGUESS = 0
+if DUMMY1 u> FULL_SIZE
+    math AUTOGUESS = 1
+endif
+if DUMMY2 u> FULL_SIZE
+    math AUTOGUESS = 1
+endif
+goto TMP
+
+if SIGN == "PTAR"
+    callfunction SET_PTAR_ENCRYPTION 1
+endif
+
+if SIGN == "PSCA"
+    get DUMMY long
+    get FOLDERS long
+    get NAMESSZ long
+    get DUMMY long
+    get FILES long
+    get DUMMY long
+    getdstring HASH 16
+
+elif AUTOGUESS == 0
+    get NAMESSZ long
+    get FOLDERS long
+    get FILES long
+    get DUMMY long      # 1
+    get DUMMY long      # 0
+    get DUMMY long      # 0
+    getdstring HASH 16
+
+else
+    getdstring HASH 16
+    get DUMMY long      # 1
+    get DUMMY long      # 0
+    get DUMMY long      # 0
+
+    # PTAR compatible
+    savepos PTAR_OFFSET
+    log MEMORY_FILE PTAR_OFFSET 4
+    get FILES long MEMORY_FILE
+    get DUMMY long
+
+    savepos PTAR_OFFSET
+    log MEMORY_FILE PTAR_OFFSET 4
+    get FOLDERS long MEMORY_FILE
+    get DUMMY long
+
+    savepos PTAR_OFFSET
+    log MEMORY_FILE PTAR_OFFSET 4
+    get NAMESSZ long MEMORY_FILE
+    get DUMMY long
+
+    math PTAR_OFFSET = 0
+endif
+
+savepos OFFSET
+log MEMORY_FILE OFFSET NAMESSZ
+
+math OFFSET + NAMESSZ
+set FILESSZ long FILES
+xmath TMP "4 + 8 + 8 + 8 + 4"
+if SIGN == "HBEK"
+    math TMP + 8
+    math TMP + 8
+endif
+math FILESSZ * TMP
+log MEMORY_FILE2 OFFSET FILESSZ
+
+math OFFSET + FILESSZ
+set FOLDERSSZ long FOLDERS
+xmath TMP "4 + 4 + 4 + 4"
+math FOLDERSSZ * TMP
+log MEMORY_FILE3 OFFSET FOLDERSSZ
+
+set FOLDER string ""
+if SIGN == "PTAR"
+    # no handling of folders (different encryption?)
+    put 0 long MEMORY_FILE3 # NAME_OFF
+    put 0 long MEMORY_FILE3 # SUB_FOLDERS
+    put 0 long MEMORY_FILE3 # NEXT_FOLDERS
+    put FILES long MEMORY_FILE3 # NUM_FILES
+    goto 0 MEMORY_FILE3
+    encryption "" ""
+    get FOLDER basename
+elif SIGN == "HBEK"
+    open FDDE "ResDt"
+endif
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos CURR_OFF MEMORY_FILE3
+    if CURR_OFF u>= FOLDERSSZ
+        cleanexit
+    endif
+    get NAME_OFF     long MEMORY_FILE3
+    get SUB_FOLDERS  long MEMORY_FILE3
+    get NEXT_FOLDERS long MEMORY_FILE3
+    get NUM_FILES    long MEMORY_FILE3
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+
+    # don't have the minimal idea if it's correct, it's an update of the old script
+    if AUTOGUESS == 0
+        set FOLDER string NAME
+    else
+        string FOLDER + NAME
+    endif
+    string FOLDER + /
+
+    for i = 0 < NUM_FILES
+        savepos CURR_OFF MEMORY_FILE2
+        if CURR_OFF u>= FILESSZ
+            cleanexit
+        endif
+        get NAME_OFF long    MEMORY_FILE2
+        get OFFSET  longlong MEMORY_FILE2
+        get ZSIZE   longlong MEMORY_FILE2
+        get SIZE    longlong MEMORY_FILE2
+        get ZIP     long     MEMORY_FILE2
+        if SIGN == "HBEK"
+            get NEW_OFFSET longlong MEMORY_FILE2
+            get NEW_ZSIZE  longlong MEMORY_FILE2
+            if NEW_OFFSET != 0
+            if NEW_ZSIZE != 0
+                math OFFSET = NEW_OFFSET
+                math ZSIZE  = NEW_ZSIZE
+            endif
+            endif
+        endif
+
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        if FOLDER != "CRC/" # they are not files
+        if SIZE != 0    # .deleteDirectory
+            set FNAME string FOLDER
+            string FNAME + NAME
+            if ZIP == 0
+                log FNAME OFFSET SIZE
+            else
+                # compression 9, it's the same for both zlib and xmem
+                callfunction ZIP_DUMP 1 # 1 only for being faster
+            endif
+        endif
+        endif
+    next i
+
+    for i = 0 < SUB_FOLDERS
+        callfunction EXTRACT
+    next i
+
+    set FOLDER string ""
+    for i = 0 < NEXT_FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction
+
+startfunction SET_PTAR_ENCRYPTION
+    get TMP filename
+    string TMP u TMP
+    encryption md5 ""
+    string TMP E TMP
+    set MEMORY_FILE10 binary "\x55\x8b\x6c\x24\x08\x56\x57\x8b\xf8\x8d\x47\x0f\x33\xf6\x25\x0f\x00\x00\x80\x79\x05\x48\x83\xc8\xf0\x40\x39\x74\x24\x14\x8a\x94\x28\x00\x00\x00\x00\x88\x54\x24\x10\x0f\x8e\x91\x00\x00\x00\x2b\xf9\x53\x8a\x19\xb8\xab\xaa\xaa\xaa\xf7\xe6\xd1\xea\x8d\x04\x52\x8b\xd0\x8b\xc6\x2b\xc2\x83\xe8\x00\x74\x46\x83\xe8\x01\x74\x23\x83\xe8\x01\x75\x5a\x8d\x04\x0f\x25\x0f\x00\x00\x80\x79\x05\x48\x83\xc8\xf0\x40\x8a\x94\x28\x00\x00\x00\x00\x02\xd3\x02\x54\x24\x14\xeb\x3a\x8d\x04\x0f\x25\x0f\x00\x00\x80\x79\x05\x48\x83\xc8\xf0\x40\x8a\x94\x28\x00\x00\x00\x00\x32\xd3\x32\x54\x24\x14\xeb\x1c\x8d\x04\x0f\x25\x0f\x00\x00\x80\x79\x05\x48\x83\xc8\xf0\x40\x8a\xd3\x2a\x94\x28\x00\x00\x00\x00\x2a\x54\x24\x14\x88\x11\x46\x41\x3b\x74\x24\x18\x88\x5c\x24\x14\x0f\x8c\x73\xff\xff\xff\x5b\x5f\x5e\x5d\xc2\x08\x00"
+    encryption calldll "MEMORY_FILE10 0 watcom RET PTAR_OFFSET 0x22222222 0x33333333 #INPUT# QUICKBMS_HASH #INPUT_SIZE#"
+endfunction
+
+startfunction ZIP_DUMP
+    if SIGN == "HBEK"
+        clog FNAME OFFSET ZSIZE SIZE
+    else
+        putvarchr MEMORY_FILE4 SIZE 0
+        log MEMORY_FILE4 0 0
+        math LIMIT = OFFSET
+        math LIMIT + ZSIZE
+        append
+        for
+            goto OFFSET
+            padding 4
+            savepos OFFSET
+            if OFFSET u>= LIMIT
+                break
+            endif
+            math CHUNK_PACKED = 1
+            get CHUNK_ZSIZE long
+            if SIGN == "LTAR"
+                get CHUNK_SIZE long
+                savepos OFFSET
+                if CHUNK_ZSIZE == CHUNK_SIZE
+                    math CHUNK_PACKED = 0
+                endif
+            else    # "LTAX"
+                math CHUNK_SIZE = 0x10000
+                savepos OFFSET
+                if CHUNK_ZSIZE & 0x80000000 #0xf0000000
+                    math CHUNK_PACKED = 0
+                    math CHUNK_ZSIZE &= 0x0fffffff
+                endif
+            endif
+            if CHUNK_PACKED == 0
+                log MEMORY_FILE4 OFFSET CHUNK_ZSIZE
+            else
+                clog MEMORY_FILE4 OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            #math OFFSET x= 4
+        next
+        append
+        get SIZE asize MEMORY_FILE4
+        log FNAME 0 SIZE MEMORY_FILE4
+    endif
+endfunction

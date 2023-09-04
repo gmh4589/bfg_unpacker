@@ -1,0 +1,62 @@
+# COFF - Common Object File Format
+# https://wiki.osdev.org/COFF
+
+unsigned short 	f_magic;	/* Magic number */	
+unsigned short 	f_nscns;	/* Number of Sections */
+long 		f_timdat;	/* Time & date stamp */
+long 		f_symptr;	/* File pointer to Symbol Table */
+long 		f_nsyms;	/* Number of Symbols */
+unsigned short 	f_opthdr;	/* sizeof(Optional Header) */
+unsigned short 	f_flags;	/* Flags */
+
+if f_opthdr > 0
+	unsigned short 	magic;          /* Magic Number                    */
+	unsigned short 	vstamp;         /* Version stamp                   */
+	unsigned long 	tsize;          /* Text size in bytes              */
+	unsigned long 	dsize;          /* Initialised data size           */
+	unsigned long 	bsize;          /* Uninitialised data size         */
+	unsigned long 	entry;          /* Entry point                     */
+	unsigned long 	text_start;     /* Base of Text used for this file */
+	unsigned long 	data_start;     /* Base of Data used for this file */
+endif
+
+for i = 0 < f_nscns
+	char		s_name[8];	/* Section Name */
+	long		s_paddr;	/* Physical Address */
+	long		s_vaddr;	/* Virtual Address */
+	long		s_size;		/* Section Size in Bytes */
+	long		s_scnptr;	/* File offset to the Section data */
+	long		s_relptr;	/* File offset to the Relocation table for this Section */
+	long		s_lnnoptr;	/* File offset to the Line Number table for this Section */
+	unsigned short	s_nreloc;	/* Number of Relocation table entries */
+	unsigned short	s_nlnno;	/* Number of Line Number table entries */
+	long		s_flags;	/* Flags for this section */
+
+    savepos TMP
+    goto s_scnptr
+    getdstring DATA s_size
+    goto s_relptr
+    for x = 0 < s_nreloc
+        long		r_vaddr;	/* Reference Address */
+        long		r_symndx;	/* Symbol index */
+        unsigned short	r_type;		/* Type of relocation */
+    next x
+    goto s_lnnoptr
+    for x = 0 < s_nlnno
+		long		l_addr	/* Symbol Index / Physical Address */
+        unsigned short		l_lnno;		/* Line Number */
+    next x
+    goto TMP
+next i
+
+goto f_symptr
+for i = 0 < f_nsyms
+	char		n_name[8];	/* Symbol Name */
+	long		n_value;	/* Value of Symbol */
+	short		n_scnum;	/* Section Number */
+	unsigned short	n_type;		/* Symbol Type */
+	char		n_sclass;	/* Storage Class */
+	char		n_numaux;	/* Auxiliary Count */
+    math n_numaux * 18
+    getdstring DATA n_numaux
+next i

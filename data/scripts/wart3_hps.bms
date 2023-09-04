@@ -1,0 +1,76 @@
+# WART3.00 HOG/HPS (script 0.2.2)
+
+comtype dbpf    # same as xrefpack0
+idstring "WART3.00"
+get FILES long
+endian guess FILES
+get NAMES_OFF long
+get NAMES_SIZE long
+
+math VERSION = 0
+get TMP asize
+math TMP - NAMES_SIZE
+if TMP > NAMES_OFF  # we can only guess it
+    math VERSION = 1
+endif
+
+if VERSION != 0
+    get PATH_NAMES_SIZE long
+    math PATH_NAMES_OFF = NAMES_OFF
+    math NAMES_OFF + PATH_NAMES_SIZE
+endif
+
+for i = 0 < FILES
+    callfunction GET_INFO 1
+
+    if VERSION != 0
+        get PATH_NAME_OFF long
+
+        savepos TMP
+        math PATH_NAME_OFF + PATH_NAMES_OFF
+        goto PATH_NAME_OFF
+        get PATH string
+        goto TMP
+    endif
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if VERSION != 0
+        string NAME p "%s%s" PATH NAME
+    endif
+
+    callfunction DUMP 1
+next i
+
+startfunction GET_INFO
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get SOME_CRC long
+    get NAME_OFF long
+endfunction
+
+startfunction DUMP
+    savepos TMP
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        log NAME 0 0
+        append
+        for ZSIZE = ZSIZE != 0
+            goto OFFSET
+            get CHUNK_ZSIZE long
+            math OFFSET + 4
+            clog NAME OFFSET CHUNK_ZSIZE 0x20000
+            math ZSIZE - 4
+            math ZSIZE - CHUNK_ZSIZE
+            math OFFSET + CHUNK_ZSIZE
+        next
+        append
+    endif
+    goto TMP
+endfunction

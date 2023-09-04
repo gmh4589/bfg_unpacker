@@ -1,0 +1,58 @@
+# Chicken Invaders Universe TGA decoder/encoder
+#   the script uses the same filename, remember to use different folders
+
+get NAME filename
+get WIDTH long
+get HEIGHT long
+get DEPTH long
+
+if DEPTH == 0
+
+    # encoding
+    #string NAME + "_enc.tga"
+
+    goto 0
+    getdstring DUMMY 12 # ID length, color map and image stuff
+    get WIDTH short
+    get HEIGHT short
+    get DEPTH byte
+    get IMG_DESC byte
+
+    log MEMORY_FILE 0 0
+    put WIDTH long MEMORY_FILE
+    put HEIGHT long MEMORY_FILE
+    put DEPTH long MEMORY_FILE
+
+else
+
+    # decoding
+    #string NAME + "_dec.tga"
+
+    log MEMORY_FILE 0 0
+    put 0 byte  MEMORY_FILE # ID length
+    put 0 byte  MEMORY_FILE # color map type
+    if DEPTH == 8           # image type (grayscale/true-color)
+        put 3 byte  MEMORY_FILE
+    else
+        put 2 byte  MEMORY_FILE
+    endif
+    put 0 short MEMORY_FILE # color map origin
+    put 0 short MEMORY_FILE # color map length
+    put 0 byte  MEMORY_FILE # color map depth
+    put 0 short MEMORY_FILE # X origin
+    put 0 short MEMORY_FILE # Y origin
+    put WIDTH short MEMORY_FILE
+    put HEIGHT short MEMORY_FILE
+    put DEPTH byte MEMORY_FILE
+    put 0 byte MEMORY_FILE
+
+endif
+
+get TMP asize MEMORY_FILE
+log NAME 0 TMP MEMORY_FILE
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+append
+log NAME OFFSET SIZE
+append

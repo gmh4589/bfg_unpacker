@@ -1,0 +1,38 @@
+# PS2 Sega Ages 2500 Series (script 0.1.1)
+#   updated by AKuHAK
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "ccf"
+    idstring "CCF\0"
+    get DUMMY long
+    get FILES long
+    goto 0x20
+    for i = 0 < FILES
+        getdstring NAME 0x18
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+comtype sega_lzs2
+endian big
+idstring "PAKFILE\0"
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    getdstring NAME 0x33
+    get PACKED byte
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+    math OFFSET *= 0x800
+    if PACKED == 1
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif    
+next i
+

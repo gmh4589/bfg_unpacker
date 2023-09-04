@@ -1,0 +1,16 @@
+# Lost in the City
+# script for QuickBMS http://quickbms.aluigi.org
+
+math XOR_KEY_SIZE = 1
+get DATA_SIZE asize
+for OFFSET = 0 != DATA_SIZE
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    getdstring XOR_KEY XOR_KEY_SIZE
+    get SIZE long
+    savepos OFFSET
+    encryption xor XOR_KEY "" 0 XOR_KEY_SIZE
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

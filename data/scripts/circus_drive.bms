@@ -1,0 +1,22 @@
+# Circus Drive
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+    get FLAGS long  # &2 is compressed
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    log MEMORY_FILE OFFSET SIZE
+for i = 0 < FILES
+    get FLAGS long  # &2 is compressed
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get NAME string MEMORY_FILE
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        string NAME p= "unknown_compression/%s" NAME
+        log NAME OFFSET SIZE
+    endif
+next i

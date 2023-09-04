@@ -1,0 +1,16 @@
+# Rainbow Six 3 LIN (decompressor)
+#   the extracted file contains a sequence of Unreal Engine uasset files, no references or TOC
+
+get NAME basename
+log NAME 0 0
+get LIN_SIZE asize
+append
+for OFFSET = 0 != LIN_SIZE
+    goto OFFSET
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+next
+append

@@ -1,0 +1,73 @@
+# Gun Metal PCK archives (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE10 string "
+    static unsigned int seed;
+    static unsigned char _772480[0x61];
+    static unsigned char _772410[0x6d];
+    static unsigned char _7726D8[0x83];
+    static unsigned char _7724E8[0x95];
+
+    int myrand(void) {
+        seed *= 0x343FD;
+        seed += 0x269EC3;
+        return (seed >> 0x10) & 0x7FFF;
+    }
+
+    void PACKFILE_init(int mode) {
+        if(mode != 2) return;
+        int     i;
+
+        seed = 0xA9730543;  for(i = 0; i < sizeof(_772480); i++) _772480[i] = myrand();
+        seed = 0x3403AC4;   for(i = 0; i < sizeof(_772410); i++) _772410[i] = myrand();
+        seed = 0x213FE01;   for(i = 0; i < sizeof(_7726D8); i++) _7726D8[i] = myrand();
+        seed = 0x91EDA10;   for(i = 0; i < sizeof(_7724E8); i++) _7724E8[i] = myrand();
+    }
+
+    void PACKFILE_key(unsigned int offset, unsigned char *key, int size) {
+        int     i;
+        for(i = 0; i < size; i++) {
+            key[i] =
+                _772480[offset % sizeof(_772480)]
+            ^   _772410[offset % sizeof(_772410)]
+            ^   _7726D8[offset % sizeof(_7726D8)]
+            ^   _7724E8[offset % sizeof(_7724E8)];
+            offset++;
+        }
+    }
+"
+
+math MODE = 0
+get NAME basename
+if NAME & "level"
+    math MODE = 1
+elif NAME & "MainFE"
+    math MODE = 1
+elif NAME & "Init"
+    math MODE = 2
+elif NAME & "Coms"
+    math MODE = 0
+endif
+
+calldll MEMORY_FILE10 "PACKFILE_init" "tcc" "" MODE
+
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+
+    if MODE == 0
+        encryption "" ""
+    elif MODE == 1
+        encryption xor "\xab"   # 0xab
+    else
+        set MEMORY_FILE binary ""   # don't use variables
+        putvarchr MEMORY_FILE SIZE 0
+        calldll MEMORY_FILE10 "PACKFILE_key" "tcc" "" OFFSET MEMORY_FILE SIZE
+        encryption xor MEMORY_FILE "" 0 SIZE
+    endif
+    log "" OFFSET SIZE
+    encryption "" ""
+next i
+

@@ -1,0 +1,29 @@
+# Spy Bot Chronicles
+
+comtype deflate
+endian big
+idstring "IGL"
+get DUMMY byte  # 1
+get DUMMY byte  # 4
+get DUMMY byte  # 0
+get FILES short
+get DUMMY long
+for i = 0 < FILES
+    get NAME_CRC long   # not really a CRC
+    get OFFSET long
+
+    string NAME p "%08x." NAME_CRC
+
+    savepos TMP
+    math OFFSET & 0x7fffffff    # they are all 0x80000000
+    goto OFFSET
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    if ZSIZE == SIZE
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    goto TMP
+next i

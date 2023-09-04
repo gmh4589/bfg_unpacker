@@ -1,0 +1,23 @@
+<bms games="'Giants Citizen Kabuto'" platforms="'PC'" ext="GZP">
+Get DUMMYL Long 0 ;
+Get TAILOFF Long 0 ;
+GoTo TAILOFF 0 ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+SavePos TAILOFF 0 ;
+Do ;
+GoTo TAILOFF 0 ;
+Get FILESIZE Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILEOFF Long 0 ;
+Math FILEOFF += 16 ;
+SavePos TAILOFF 0 ;
+Math TAILOFF += 2 ;
+GoTo TAILOFF 0 ;
+Get FILENAME String 0 ;
+SavePos TAILOFF 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

@@ -1,0 +1,33 @@
+# Sunday vs Magazine FAC/FAH (script 0.1.1)
+
+open FDDE "fah" 0 EXISTS
+math FILENUM = 0
+if EXISTS == 0
+    math FILENUM = 1
+endif
+open FDDE "fac" 1
+
+idstring FILENUM "FARC"
+get DUMMY long FILENUM  # 0x100
+get FILES long FILENUM
+get ZERO long FILENUM
+for i = 0 < FILES
+    get OFFSET long FILENUM
+    get SIZE long FILENUM
+    #get NAME_HASH longlong FILENUM # no longer works and DUMMY is still 0x100 here too
+    if SIZE != 0
+        log "" OFFSET SIZE 1
+    endif
+next i
+if FILENUM == 0
+    padding 0x1000 FILENUM
+    for i = 0 < FILES
+        get TMP line FILENUM
+        string ELEMENTS S TMP OFFSET SIZE NAME
+        string OFFSET p "0x%s" OFFSET
+        string SIZE   p "0x%s" SIZE
+        if SIZE != 0
+            log NAME OFFSET SIZE 1
+        endif
+    next i
+endif

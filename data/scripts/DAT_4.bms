@@ -1,0 +1,30 @@
+<bms games="'Outlive'" platforms="'PC'" ext="DAT">
+Get FILECNTL Long 0 ;
+SavePos FILEJMP 0 ;
+SavePos FILESTART 0 ;
+GoTo EOF 0 ;
+SavePos TAILOFF 0 ;
+Set DUMMYL Long FILECNTL ;
+Math DUMMYL *= 36 ;
+Math DUMMYL += 4 ;
+Math FILECNTL -= 1 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 32 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Set FILEJMP Long FILESTART ;
+Math FILEJMP += 32 ;
+GoTo FILEJMP 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 32 0 ;
+Get FILEOFF Long 0 ;
+Set FILESIZE Long TAILOFF ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+</bms>

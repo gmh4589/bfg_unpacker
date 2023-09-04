@@ -1,0 +1,27 @@
+# PSE text DB file
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "PSE "
+
+    idstring "PSE text DB file"
+    get FILES long
+    get ZERO long
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get DUMMY long
+        slog "" OFFSET -1 unicode
+    next i
+
+else
+
+    comtype zlib_noerror
+    get NAME basename
+    get EXT extension
+    string NAME + "_unpack."
+    string NAME + EXT
+    get SIZE asize
+    clog NAME 0 SIZE SIZE
+
+endif

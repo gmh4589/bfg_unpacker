@@ -1,0 +1,155 @@
+# Anno 2070 / 2205 (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.0"
+
+getdstring SIGN 32
+if SIGN & "Resource File V2.2"
+    goto 0x310
+    get FIRST_NEXT long
+    math RES_FILE_TYPE = 2
+else
+    set SIGN unicode SIGN
+    if SIGN & "Resource File"   # "Resource File V2.0"
+        math FIRST_NEXT = 0x404
+        math RES_FILE_TYPE = 1
+    else
+        print "Error: no magic signature found"
+        cleanexit
+    endif
+endif
+
+get FULLSIZE asize
+for NEXT_OFF = FIRST_NEXT u< FULLSIZE
+    goto NEXT_OFF
+    math OFFSET = NEXT_OFF
+    get TYPE long
+    get FILES long
+    if RES_FILE_TYPE <= 1
+        get ZSIZE long
+        get SIZE long
+        get NEXT_OFF long
+    else
+        get ZSIZE longlong
+        get SIZE longlong
+        get NEXT_OFF longlong
+    endif
+    math OFFSET -= ZSIZE
+    savepos BACKUP_OFFSET
+
+    # type & 4 uses a compressed container
+    # instead of single compressed files
+
+    # MEMORY_FILE   table of information
+    # MEMORY_FILE2  decompressed file system
+
+    if SIZE != 0
+        if TYPE & 4
+            if RES_FILE_TYPE <= 1
+                math OFFSET -= 8
+            else
+                math OFFSET -= 16
+            endif
+        endif
+
+        # copy&paste except for the target file
+        callfunction SET_ENCRYPTION 1
+        if TYPE & 1
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        else
+            log MEMORY_FILE OFFSET ZSIZE
+        endif
+        encryption "" ""
+
+        if TYPE & 4
+            math TMP = OFFSET
+            math TMP += ZSIZE
+            goto TMP
+            if RES_FILE_TYPE <= 1
+                get ZSIZE long
+                get SIZE long
+            else
+                get ZSIZE longlong
+                get SIZE longlong
+            endif
+            math OFFSET -= ZSIZE
+
+            callfunction SET_ENCRYPTION 1
+            if TYPE & 1
+                clog MEMORY_FILE2 OFFSET ZSIZE SIZE
+            else
+                log MEMORY_FILE2 OFFSET ZSIZE
+            endif
+            encryption "" ""
+        endif
+
+        for i = 0 < FILES
+            getdstring NAME 0x208 MEMORY_FILE
+            set NAME unicode NAME
+            if RES_FILE_TYPE <= 1
+                get OFFSET long MEMORY_FILE
+                get ZSIZE long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                get CRC long MEMORY_FILE
+                get ZERO long MEMORY_FILE
+            else
+                get OFFSET longlong MEMORY_FILE
+                get ZSIZE longlong MEMORY_FILE
+                get SIZE longlong MEMORY_FILE
+                get CRC long MEMORY_FILE
+                get ZERO long MEMORY_FILE
+                get ZERO long MEMORY_FILE
+                get ZERO long MEMORY_FILE
+            endif
+
+            if SIZE != 0
+                if TYPE & 4
+                    log NAME OFFSET ZSIZE MEMORY_FILE2
+                else
+                    callfunction SET_ENCRYPTION 1
+                    if TYPE & 1
+                        clog NAME OFFSET ZSIZE SIZE
+                    else
+                        log NAME OFFSET ZSIZE
+                    endif
+                    encryption "" ""
+                endif
+            endif
+        next i
+
+        goto BACKUP_OFFSET
+    endif
+next
+
+startfunction SET_ENCRYPTION
+    # Crypt "34AT9fdY33uT16m7" is used for signature in 2070
+    if TYPE & 2
+        if RES_FILE_TYPE <= 1
+            math KEY = 666666
+        elif RES_FILE_TYPE == 2
+            math KEY = 0x71C71C71
+        else
+            print "Error: Encrypted TYPE %RES_FILE_TYPE% not supported, contact me"
+            cleanexit
+        endif
+
+        #encryption random "5 KEY" 16   # not valid because needs >>16 on xor!
+        putvarchr MEMORY_FILE3 ZSIZE 0 short
+        log MEMORY_FILE3 0 0
+        math TMPSZ = ZSIZE
+        math TMPSZ / 2
+        math TMPSZ * 2
+        for x = 0 u< TMPSZ
+            math KEY * 0x000343fd
+            math KEY + 0x00269ec3
+            math TMP = KEY
+            math TMP >> 16
+            math TMP & 0x7fff
+            putvarchr MEMORY_FILE3 x TMP short
+        next x + 2
+            putvarchr MEMORY_FILE3 x 0 short # padding
+        getdstring XOR_KEY ZSIZE MEMORY_FILE3   # wastes some memory
+        encryption xor XOR_KEY "" 0 ZSIZE
+    endif
+endfunction
+

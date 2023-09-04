@@ -1,0 +1,36 @@
+# Sims 2 Gamecube
+
+get OFFSET long
+endian big
+goto OFFSET
+get OBJECTS long
+get DUMMY long
+for OBJECT = 0 < OBJECTS
+    get OBJECT_OFF long
+    get OBJECT_SIZE long
+    get OBJECT_NAME string
+    getdstring DUMMY 12
+
+    savepos TMP_OFF
+    goto OBJECT_OFF
+    for i = 0 < 0x15
+        get DUMMY long
+        get OFFSET1 long
+        get SIZE1 long
+        get OFFSET2 long
+        get SIZE2 long
+        get DUMMY long
+
+        math OFFSET1 + OBJECT_OFF
+        math OFFSET2 + OBJECT_OFF
+
+        #if i == 0
+        #    log MEMORY_FILE OFFSET1 SIZE1
+        #    get DUMMY long MEMORY_FILE
+        #else
+            string NAME p "%s/%s" OBJECT_NAME ""
+            log NAME OFFSET1 SIZE1
+        #endif
+    next i
+    goto TMP_OFF
+next OBJECT

@@ -1,0 +1,39 @@
+# Payday / Payday 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+if NAME & "_h"
+else
+    string NAME p= "%s_h.%s" NAME EXT
+    open FDSE NAME
+endif
+
+get NAME basename
+get EXT extension
+string NAME -= 2
+string NAME p= "%s.%s" NAME EXT
+open FDSE NAME 1
+
+get DUMMY long
+get FILES long
+get FILES long
+get DUMMY long
+get DUMMY long
+
+math FILES -= 1
+    get CRC long
+    get OFFSET long
+for i = 0 <= FILES
+    if i == FILES
+        get NEXT_OFFSET asize 1
+    else
+        get NEXT_CRC long
+        get NEXT_OFFSET long
+    endif
+
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+    log "" OFFSET SIZE 1
+    math OFFSET = NEXT_OFFSET
+next i

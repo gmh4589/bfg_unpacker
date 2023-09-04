@@ -1,0 +1,30 @@
+# 单机群侠传 (kdqht) LUA decrypter/encrypter (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set SUFFIX string "_decrypt"
+get NAME basename
+get EXT extension
+if NAME & SUFFIX
+    math DO_ENCRYPT = 1
+    string NAME - SUFFIX
+    string NAME p "%s.%s" NAME EXT
+else
+    math DO_ENCRYPT = 0
+    string NAME p "%s%s.%s" NAME SUFFIX EXT
+endif
+
+if DO_ENCRYPT == 0
+    idstring "data1"
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+else
+    set MEMORY_FILE binary "data1"
+    log NAME 0 5 MEMORY_FILE
+    get SIZE asize
+    math OFFSET = 0
+    append
+endif
+encryption xor "KKQxZYrcwHWx124JXMqd9Gf4CxYPnu1t"
+log NAME OFFSET SIZE

@@ -1,0 +1,40 @@
+# SOE Pirates: Constructible Strategy Game
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "0KPN" # "NPK0"
+get VER long    # 4
+get DATA_OFF long
+math BASE_OFF = DATA_OFF
+math BASE_OFF + 8
+set PATH string ""
+do
+    getdstring TYPE 4
+    if TYPE == "_RID" || TYPE == "DIR_"
+        get FILES long
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        string PATH + /
+        string PATH + NAME
+    elif TYPE == "ELIF" || TYPE == "FILE"
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        string NAME p "%s/%s" PATH NAME
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    elif TYPE == "DNED" || TYPE == "DEND"
+        get DUMMY long
+        string PATH >> /
+    elif TYPE == "ATAD" || TYPE == "DATA"
+        get DATA_SIZE long
+        savepos BASE_OFF
+    else
+        print "Error: unknown type %TYPE%, contact me"
+        cleanexit
+    endif
+    savepos TMP
+while TMP <= DATA_OFF # yeah here ("<=") it's all correct because DATA_OFF points to "DATA"
+
+

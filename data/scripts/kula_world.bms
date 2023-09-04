@@ -1,0 +1,22 @@
+# Kula World
+
+comtype zlib_noerror
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+for i = 0 < FILES
+    get NAME_OFF long
+    putarray 2 i NAME_OFF
+next i
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray SIZE     1 i
+    getarray NAME_OFF 2 i
+    goto NAME_OFF
+    get NAME string
+    clog NAME OFFSET SIZE SIZE
+next i

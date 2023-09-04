@@ -1,0 +1,18 @@
+# Dragon Ball Heroes: Ultimate Mission 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+get BIN_SIZE asize
+for OFFSET = 0 != BIN_SIZE
+    idstring "3DS-LZ\r\n"
+    savepos OFFSET
+    findloc NEXT_OFF binary "3DS-LZ\r\n" 0 ""
+    if NEXT_OFF == ""
+        get NEXT_OFF asize
+    endif
+    math SIZE = NEXT_OFF
+    math SIZE - OFFSET
+    clog "" OFFSET SIZE SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

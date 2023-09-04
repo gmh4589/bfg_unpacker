@@ -1,0 +1,22 @@
+# Stoked: Big Air Edition
+# script for QuickBMS http://quickbms.aluigi.org
+
+get HEADER line
+get SIZE line
+get FILES line
+for i = 0 < FILES
+    get NAME line
+    set SIZE string NAME
+    string NAME >= "|"
+    string SIZE &= "|"
+    string SIZE <= 1
+    putarray 0 i NAME
+    putarray 1 i SIZE
+next i
+savepos OFFSET
+for i = 0 < FILES
+    getarray NAME 0 i
+    getarray SIZE 1 i
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

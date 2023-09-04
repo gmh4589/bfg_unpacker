@@ -1,0 +1,63 @@
+# Drakan
+#
+# The archive uses lot of compressed data in each file,
+# so the script tries to dump directly the decompressed
+# data instead of the file "as-is"
+
+math DUMP_ORIGINAL_FILES = 0
+
+comtype zlib_noerror
+
+idstring "SRSC"
+get DUMMY byte
+get DUMMY byte
+get OFFSET long
+get FILES short
+
+goto OFFSET
+for i = 0 < FILES
+    get TYPE byte
+    get TYPE2 byte
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+
+    if DUMP_ORIGINAL_FILES != 0
+        log "" OFFSET SIZE
+    else
+        math SKIP_BYTES = 0
+        if TYPE == 0x40
+            math SKIP_BYTES = 0x36
+        elif TYPE == 2
+            if TYPE2 == 3
+                callfunction SKIP_BYTES_TYPE_2 1
+            endif
+        endif
+
+        math OFFSET + SKIP_BYTES
+        math SIZE   - SKIP_BYTES
+        clog "" OFFSET SIZE SIZE
+    endif
+next i
+
+startfunction SKIP_BYTES_TYPE_2
+    savepos TMP_OFF
+    goto OFFSET
+    callfunction GET_NAME 1
+    get DUMMY long
+    get CHANNELS short
+    get BITS short
+    get FREQUENCY long
+    getdstring DUMMY 0xc
+    get TMP_SIZE long
+    get TMP_ZIP long
+    get TMP_ZSIZE long
+    savepos SKIP_BYTES
+    math SKIP_BYTES - OFFSET
+    goto TMP_OFF
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ short
+    getdstring NAME NAMESZ
+endfunction

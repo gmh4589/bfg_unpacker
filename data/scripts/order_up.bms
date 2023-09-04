@@ -1,0 +1,111 @@
+# Order Up!
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "map" 1 EXISTS
+if EXISTS != 0
+
+    open FDDE "wad"
+    for
+        get TMP line 1
+        if TMP & "----------"
+            break
+        endif
+    next
+    for
+        get TMP line 1
+        if TMP & "----------"
+            break
+        endif
+
+        # 0xb3a43484 :      61552 :     912111 :   890.7 KB :          0 :    ----    :     No     : wad/worldmap.wad
+
+        set OFFSET string TMP
+        string OFFSET << 12
+        math OFFSET = OFFSET
+
+        set SIZE string TMP
+        string SIZE << 25
+        math SIZE = SIZE
+
+        set NAME string TMP
+        string NAME << 91
+
+        callfunction WAD0_CHECK
+    next
+
+else
+
+    set NAME string ""
+    callfunction WAD0_EXTRACT 1
+
+endif
+
+startfunction WAD0_EXTRACT
+    string NAME + /
+    savepos BASE_OFF
+    idstring "0DAW"
+    get VER long
+    get FILES long
+    get HEADER_SIZE long
+    get ALIGN long
+    get COMPRESSION long
+    get DATA_SIZE long
+    get MEM_SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get SOME_CRC long
+
+    # compression: 1=filesystem 2:file
+    math DATA_OFF = HEADER_SIZE
+    if COMPRESSION == 2
+        math DATA_OFF x ALIGN
+    endif
+    math DATA_OFF + BASE_OFF
+    if COMPRESSION == 1
+        clog MEMORY_FILE DATA_OFF MEM_SIZE DATA_SIZE
+    else
+        log MEMORY_FILE DATA_OFF MEM_SIZE
+    endif
+    math DATA_OFF - BASE_OFF
+
+    for i = 0 < FILES
+        get SOME_CRC long
+        get DUMMY long
+    next i
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+
+        # not good for nested archives due to compression
+        #math OFFSET + BASE_OFF
+        #callfunction WAD0_CHECK
+
+        if COMPRESSION == 2
+            xmath TMP "(FILES - 1) * (4 + 4)"
+            savepos TMP2
+            goto TMP 0 SEEK_CUR
+            get OFFSET long
+            get ZSIZE long
+            goto TMP2
+            math OFFSET - DATA_OFF
+            clog NAME OFFSET ZSIZE SIZE MEMORY_FILE
+        else
+            math OFFSET - DATA_OFF
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+endfunction
+
+startfunction WAD0_CHECK
+    savepos BCK_OFF
+    goto OFFSET
+    getdstring TMP 4
+    if TMP == "0DAW"
+        goto OFFSET
+        callfunction WAD0_EXTRACT # 1
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto BCK_OFF
+endfunction

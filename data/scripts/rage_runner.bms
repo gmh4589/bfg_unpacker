@@ -1,0 +1,35 @@
+# Rage Runner
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FLAGS byte
+get VER long        # 8
+getdstring DUMMY 8  # ""
+getdstring KEY 4
+get FILES long
+get BASE_OFF long
+
+savepos OFFSET
+math INFO_SIZE = BASE_OFF
+math INFO_SIZE - OFFSET
+encryption xor KEY "" 0 4
+log MEMORY_FILE OFFSET INFO_SIZE
+encryption "" ""
+
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get CRC long MEMORY_FILE
+    get FLAGS short MEMORY_FILE
+
+    math OFFSET + BASE_OFF
+    encryption xor KEY "" 0 4
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    encryption "" ""
+next i

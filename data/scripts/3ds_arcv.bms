@@ -1,0 +1,30 @@
+# 3DS ARCV
+
+idstring "ARCV"
+get FILES long
+get ARC_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_CRC long
+    get DUMMY long  # 0 or 1
+
+    set NAME string ""
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "CTPK"
+        getdstring DUMMY 0x10
+        get XOFF long
+        getdstring DUMMY 0x2c
+        get NAME string
+        math OFFSET + XOFF
+        math SIZE   - XOFF
+        # they are uncompressed images, not ready readable images
+        string NAME p "CTPK/%d_%s" i NAME
+    endif
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

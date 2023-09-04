@@ -1,0 +1,29 @@
+# Realm of the Titans
+#   maybe other Aeria games too
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+for
+    get PK_SIGN long
+    if PK_SIGN != 0x04034b50
+        cleanexit
+    endif
+    get DUMMY short
+    get ZSIZE long
+    get SIZE long
+    get ENTRYSZ short
+    get NAMESZ short
+    get EXTRASZ short
+    getdstring ENTRY ENTRYSZ
+    getdstring NAME NAMESZ
+    getdstring EXTRA EXTRASZ
+    savepos OFFSET
+    getvarchr METHOD ENTRY 0
+    if METHOD == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET += ZSIZE
+    goto OFFSET
+next

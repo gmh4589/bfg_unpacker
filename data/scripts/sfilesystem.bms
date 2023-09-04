@@ -1,0 +1,60 @@
+# SFILESYSTEM (script 0.2)
+#   Unsupported things:
+#   1) directory tree
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.3"
+
+# thanks zhade https://zenhax.com/viewtopic.php?p=21127#p21127
+set MEMORY_FILE10 string "
+void func(unsigned char *byte, int size) {
+    unsigned KEY1 = 0x04C478BD;
+    unsigned KEY2 = 0x0015DCB2;
+    unsigned KEY3 = 0x00241AE7;
+    size /= 4;
+    for(int i = 0; i < size; i++) {
+       unsigned X = (KEY1 >> 8) ^ byte[0];
+       unsigned Y = (KEY1 + byte[0]) * KEY3 + KEY2;
+       byte[0] = X & 0x000000FF;        // Decrypted first byte
+       unsigned Z = (Y >> 8) ^ byte[1];
+       X = (Y + byte[1]) * KEY3 + KEY2;
+       byte[1] = Z & 0x000000FF;        // Decrypted second byte
+       Z = (X >> 8) ^ byte[2];
+       Y = (X + byte[2]) * KEY3 + KEY2;
+       byte[2] = Z & 0x000000FF;        // Decrypted third byte
+       X = (Y >> 8) ^ byte[3];
+       byte[3] = X & 0x000000FF;        // Decrypted fourth byte
+       byte += 4;
+    }
+}
+"
+
+encryption calldll "MEMORY_FILE10 func tcc RET #INPUT# #INPUT_SIZE#"
+get ARCHIVE_SIZE asize
+idstring "SFILESYSTEM\0"
+do
+    get ZIP long
+    getdstring NAME 256
+    get ZSIZE long
+    get SIZE long
+    get PREV_ENTRY_OFF long # "."
+    get NEXT_ENTRY_OFF long
+    savepos OFFSET
+    if PREV_ENTRY_OFF == 0
+        string NAME p "%s/%s" PATH NAME
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        if NAME != "."
+        if NAME != ".."
+        set PATH string NAME
+        endif
+        endif
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+while OFFSET != ARCHIVE_SIZE
+

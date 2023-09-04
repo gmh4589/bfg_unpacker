@@ -1,0 +1,40 @@
+# LEGO Chess
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+get SIZE asize
+math SIZE - OFFSET
+log MEMORY_FILE OFFSET SIZE
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    for
+        get NEXT_FOLDER_OFF long MEMORY_FILE
+        get SAME_FOLDER_OFF long MEMORY_FILE
+        get TYPE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        set OLD_PATH string PATH
+        string PATH + /
+        string PATH + NAME
+
+        if TYPE == 0
+            log PATH OFFSET SIZE
+        endif
+
+        if NEXT_FOLDER_OFF != 0xffffffff
+            goto NEXT_FOLDER_OFF MEMORY_FILE
+            callfunction EXTRACT
+        endif
+
+        if SAME_FOLDER_OFF == 0xffffffff
+            break
+        endif
+        goto SAME_FOLDER_OFF MEMORY_FILE
+        set PATH string OLD_PATH
+    next
+endfunction

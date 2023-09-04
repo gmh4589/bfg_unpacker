@@ -1,0 +1,27 @@
+# Bless Online BLML<->XML
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "uirdjklfsdkjfokoiewntvuioewfjehw"
+
+get SIZE asize
+get NAME basename
+get EXT extension
+if EXT == "blml"
+
+    encryption aes KEY
+    string NAME + ".xml"
+    log NAME 0 SIZE
+
+elif EXT == "xml"
+
+    # AES alignment
+    math XSIZE = SIZE
+    math XSIZE x 16
+    comtype copy
+    clog MEMORY_FILE 0 SIZE XSIZE
+
+    encryption aes KEY "" 1
+    string NAME + ".blml"
+    log NAME 0 XSIZE MEMORY_FILE
+
+endif

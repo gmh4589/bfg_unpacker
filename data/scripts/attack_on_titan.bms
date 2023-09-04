@@ -1,0 +1,39 @@
+# Attack on Titan
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x77df9
+get FILES long
+get ALIGN longlong
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE long
+    get XSIZE long
+    math OFFSET * ALIGN
+    if XSIZE == 0
+        log "" OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != SIZE
+            get CHUNK_ZSIZE long
+            math CHUNK_SIZE = 0x8000
+            savepos OFFSET
+            if CHUNK_ZSIZE == 0 || CHUNK_ZSIZE >= CHUNK_SIZE    # ???
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+                math OFFSET + CHUNK_SIZE
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                math OFFSET + CHUNK_ZSIZE
+            endif
+            get MEM_SIZE asize MEMORY_FILE
+            goto OFFSET
+        next
+        append
+        log "" 0 SIZE MEMORY_FILE
+        goto TMP
+    endif
+next i

@@ -1,0 +1,151 @@
+# AbbeyGames
+#   Renowned Explorers
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.7a"
+
+comtype lzham # brute forcer :)
+
+endian big
+    // Archive id 'YURI'
+    //uint32_t id = 'YURI';
+idstring "YURI"
+
+    // Size of the archive header
+    uint32_t headerSize
+
+    // Version format of the archive (0 = default)
+    uint16_t version
+    padding 4
+
+    // Number of files contained in the archive
+    uint32_t fileCount;
+
+    // Offset from the beginning of the archive to the directory listing
+    uint64_t directoryListingOffset;
+
+    // The uncompressed size of the directory
+    uint32_t directoryListingSize;
+
+    // The compressed size of the directory listing
+    uint32_t directoryListingCompressedSize;
+
+    // Offset from the beginning of the archive to the file registry
+    uint64_t fileRegistryOffset;
+
+    // Compressed size of the file registry
+    uint32_t fileRegistryCompressedSize;
+
+    if version >= 1
+        get DUMMY long
+    endif
+
+    // Offset from the beginning of the archive to the hashtable
+    uint64_t hashtableOffset;
+
+    // Size of the hashtable when compressed
+    uint32_t hashtableCompressedSize;
+
+    if version >= 1
+        get DUMMY long
+    endif
+
+    // Offset from the beginning of the archive to the bucket table
+    uint64_t bucketTableOffset;
+
+    // Size of the bucket table when compressed
+    uint32_t bucketTableCompressedSize;
+
+    // Directory listing MD5 before compression
+    uint8_t directoryListingDigest[16];
+
+    // File registry MD5 before compression
+    uint8_t fileRegistryDigest[16];
+
+    // Hash table MD5 before compression
+    uint8_t hashtableDigest[16];
+
+    // Bucket table MD5 before compression
+    uint8_t bucketTableDigest[16];
+//};
+
+clog MEMORY_FILE directoryListingOffset directoryListingCompressedSize directoryListingSize
+
+xmath TMP "fileRegistryCompressedSize * 20"
+clog MEMORY_FILE2 fileRegistryOffset fileRegistryCompressedSize TMP
+
+xmath TMP "bucketTableCompressedSize * 20"
+clog MEMORY_FILE3 bucketTableOffset bucketTableCompressedSize TMP
+
+set PATH string ""
+set NAME string ""
+callfunction TIMDirectoryInfo
+
+startfunction TIMDirectoryInfo
+  //struct TIMDirectoryInfo
+  //{
+    // The size of the struct including its children
+    get size uint16_t MEMORY_FILE
+    
+    // The number of characters that make up the name of the directory
+    get nameLength uint16_t MEMORY_FILE
+
+    // The number of sub directories
+    get numDirectories uint16_t MEMORY_FILE
+
+    // The number of files in the directory
+    get numFiles uint16_t MEMORY_FILE
+
+    // Followed by nameLength char's
+    getdstring NAME nameLength MEMORY_FILE
+    string PATH + NAME
+    string PATH + /
+
+    // Followed by numDirectories TIMDirectoryInfo's
+    for i = 0 < numDirectories
+        callfunction TIMDirectoryInfo
+    next i
+
+    // Followed by numFiles TIMFileInfo's
+    for i = 0 < numFiles
+        //struct TIMFileInfo
+        //{
+            // The number of characters that make up the name of the file
+            get nameLength uint16_t MEMORY_FILE
+        //};
+        // Followed by nameLength char's
+        getdstring NAME nameLength MEMORY_FILE
+
+        string FNAME p "%s%s" PATH NAME
+        callfunction TIMFile 1
+    next i
+  //};
+endfunction
+
+startfunction TIMFile
+  //struct TIMFile
+  //{
+    // The offset of the file from the beginning of the archive
+    get fileOffset uint64_t MEMORY_FILE2
+
+    // Size of the file uncompressed
+    get uncompressedSize uint32_t MEMORY_FILE2
+
+    // Size of the file compressed
+    get compressedSize uint32_t MEMORY_FILE2
+
+    // Flags for the file (see TIMFileFlags)
+    get flags uint8_t MEMORY_FILE2
+    padding 4 MEMORY_FILE2
+
+    if version >= 1
+        get ZERO long MEMORY_FILE2
+    endif
+
+    if flags == 0   // kNone
+        log FNAME fileOffset uncompressedSize
+    else            // kCompressed = 1 << 0
+        clog FNAME fileOffset compressedSize uncompressedSize
+    endif
+  //};
+endfunction

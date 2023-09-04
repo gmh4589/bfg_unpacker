@@ -1,0 +1,31 @@
+<bms games="'Ascendancy'" platforms="'PC'" ext="COB">
+Set DUMMYL Long 50 ;
+Get FILECNTL Long 0 ;
+Set DUMMYL Long DUMMYL ;
+Math DUMMYL *= FILECNTL ;
+SavePos FILESTART 0 ;
+SavePos TAILSIZEU 0 ;
+Math TAILSIZEU += DUMMYL ;
+Math FILECNTL -= 1 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 50 0 ;
+SavePos FILESTART 0 ;
+GoTo TAILSIZEU 0 ;
+Get FILEOFF Long 0 ;
+SavePos TAILSIZEU 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 50 0 ;
+SavePos FILESTART 0 ;
+GoTo TAILSIZEU 0 ;
+Get FILEOFF Long 0 ;
+GoTo EOF 0 ;
+SavePos FILESIZE 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+</bms>

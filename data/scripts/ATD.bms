@@ -1,0 +1,12 @@
+<bms games="'Die By The Sword'" platforms="'PC'" ext="ATD">
+ImpType Standard ;
+Get FC Long 0 ;
+For T = 1 To FC ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+GetDString FN 80 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+</bms>

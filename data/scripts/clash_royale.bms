@@ -1,0 +1,53 @@
+# Clash Royale / Clash of Clans (script 0.2.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+
+if EXT == "csv"
+    getdstring PROP 5
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE -= OFFSET
+    string NAME p= "%s_unpack.%s" NAME EXT
+    comtype lzma_0 PROP
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+
+endian big
+idstring "SC"
+get VER long
+if VER >= 4
+	get DUMMY long	# 1
+endif
+get DUMMYSZ long
+getdstring DUMMY DUMMYSZ
+get SIZE asize
+endian little
+
+savepos OFFSET
+getdstring SIGN 4
+goto OFFSET
+get SIGN32 long
+
+math XSIZE = -1
+if SIGN == "SCLZ"
+    get FLAGS byte      # 0x12
+    comtype lzham "18 8 0 0 0"
+elif SIGN32 == 0xfd2fb528
+    comtype zstd
+    math XSIZE = SIZE   # no matter
+else
+    goto OFFSET
+    getdstring LZMA_PROP 5
+    comtype lzma_0 LZMA_PROP
+endif
+
+if XSIZE < 0
+    get XSIZE long
+    savepos OFFSET
+endif
+math SIZE - OFFSET
+clog NAME OFFSET SIZE XSIZE

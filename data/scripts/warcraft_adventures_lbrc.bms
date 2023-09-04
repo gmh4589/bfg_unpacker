@@ -1,0 +1,44 @@
+# Warcraft Adventures: Lord of the Clans (RSC) (script 0.1.1)
+
+idstring "LBRC"
+get DATA_OFF long
+get DATA_SIZE long
+get DUMMY long
+
+get FOLDERS long
+get DATA_OFF long
+get ZERO long
+get ZERO long
+for FOLDER = 0 < FOLDERS
+    getdstring PATH[FOLDER] 4
+    get PATH_OFF[FOLDER] long
+    math PATH_OFF[FOLDER] + 0x20
+next FOLDER
+    math PATH_OFF[FOLDER] = -1
+
+get RSC_SIZE asize
+for
+    savepos TMP
+    for FOLDER = 0 #< FOLDERS
+        if PATH_OFF[FOLDER] < 0
+            cleanexit
+        endif
+        if TMP < PATH_OFF[FOLDER]
+            break
+        endif
+        set PATH string PATH[FOLDER]
+    next FOLDER
+
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get DUMMY long
+    get ZERO long
+
+    math OFFSET + 0x10
+    xmath TMP "OFFSET + SIZE"
+    if TMP u<= RSC_SIZE
+        string NAME p "%s/" PATH
+        log NAME OFFSET SIZE
+    endif
+next

@@ -1,0 +1,23 @@
+# The Emptiness
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype base64
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get NAME2SZ short MEMORY_FILE
+    getdstring NAME2 NAME2SZ MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+
+    log NAME OFFSET SIZE MEMORY_FILE
+
+    math OFFSET + SIZE
+    goto OFFSET MEMORY_FILE
+next i

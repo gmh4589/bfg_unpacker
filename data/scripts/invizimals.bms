@@ -1,0 +1,74 @@
+# Invizimals The Lost Kingdom (MPK)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN == "FPAK"
+    idstring "FPAK"
+    get MPAK_SIZE long
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+
+        savepos TMP # add an extension... maybe useful
+        goto OFFSET
+        getdstring SIGN 4
+        goto TMP
+        if SIGN == "RIFF"
+            string NAME += ".wav"
+        elif SIGN == "FPAK"
+            string NAME += ".mpak"
+        elif SIGN == "ptex"
+            string NAME += ".ptex"
+        elif SIGN == "�PNG"
+            string NAME += ".png"
+        endif
+
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+set PATH string ""
+set NAME string ""
+endian big
+callfunction EXTRACT_NPAK
+
+startfunction EXTRACT_NPAK
+    string PATH += NAME
+    string PATH += /
+
+    savepos BASE_OFF
+    idstring "NPAK"
+    get DUMMY long
+    get DUMMY short
+    get DUMMY short
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        get FLAGS long
+
+        savepos TMP
+        math OFFSET += BASE_OFF
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "NPAK"
+            goto OFFSET
+            callfunction EXTRACT_NPAK
+        else
+            set FNAME string PATH
+            string FNAME += NAME
+            string FNAME += "." # guess extension
+            log FNAME OFFSET SIZE
+        endif
+        goto TMP
+    next i
+endfunction

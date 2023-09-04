@@ -1,0 +1,42 @@
+# Ape Escape: Pumped & Primed (DSKIMG.INF/BIN) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+
+comtype gzip
+open FDDE "inf" 0 EXISTS
+if EXISTS != 0
+    open FDDE "bin" 1
+else
+    set NUM string NAME
+    string NAME >> 1
+    string NUM  << -1
+    math NUM & -2
+    string TMP p "%s%d.%s" NAME NUM EXT
+    open FDSE TMP
+    math NUM + 1
+    string TMP p "%s%d.%s" NAME NUM EXT
+    open FDSE TMP 1
+endif
+
+get SIZE asize
+xmath FILES "SIZE / (4 + 4 + 4)"
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET * 0x800
+    string NAME p "%08x." NAME_CRC
+
+    math SIGN = 0
+    if SIZE >= 4
+        goto OFFSET 1
+        get SIGN threebyte 1
+    endif
+    if SIGN == 0x088b1f
+        clog NAME OFFSET SIZE SIZE 1
+    else
+        log NAME OFFSET SIZE 1
+    endif
+next i

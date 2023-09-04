@@ -1,0 +1,74 @@
+# Pokémon: Alpha Sapphire 3DS (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+for
+    savepos TAG_OFF
+    getdstring TAG_NAME 4
+    get TAG_SIZE long
+
+    if TAG_NAME == "GRAC"
+        get DUMMY short
+        get DUMMY short
+        get DUMMY long
+        get FIMB_OFF long
+
+    elif TAG_NAME == "OTAF"
+        get FATO_ELEMENTS short
+        get DUMMY short # -1
+        for i = 0 < FATO_ELEMENTS
+            get DUMMY long
+        next i
+
+    elif TAG_NAME == "BTAF"
+        savepos FATB_OFF
+
+    elif TAG_NAME == "BMIF"
+        get FIMB_SIZE long
+        savepos FIMB_OFF
+
+        goto FATB_OFF
+        get FATB_ELEMENTS long
+        for i = 0 < FATB_ELEMENTS
+            if FATB_ELEMENTS == FATO_ELEMENTS
+                get ONE long    # it's ever 1 for both compressed and non compressed data
+            else
+                if i == 0
+                    get ONE long
+                endif
+            endif
+            get OFFSET long
+            get NEXT_OFFSET long
+            get SIZE long
+            math OFFSET + FIMB_OFF
+
+            math ZIP = 0
+            if SIZE u> 0x10
+                savepos TMP
+                goto OFFSET
+                get TEST byte
+                get TEST_SIZE threebyte
+                xmath TEST2 "SIZE * 10"
+                if TEST == 0x11
+                if TEST_SIZE u> SIZE
+                if TEST_SIZE u< TEST2
+                    math ZIP = 1
+                endif
+                endif
+                endif
+                goto TMP
+            endif
+
+            if ZIP == 0
+                log "" OFFSET SIZE
+            else
+                clog "" OFFSET SIZE SIZE
+            endif
+        next i
+
+        cleanexit
+    endif
+
+    math TAG_OFF + TAG_SIZE
+    goto TAG_OFF
+next

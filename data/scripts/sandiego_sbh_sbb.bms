@@ -1,0 +1,63 @@
+# Carmen Sandiego SBH/SBB
+
+open FDDE "sbh"
+open FDDE "sbb" 1
+getdstring TYPE 4   # A2M
+getdstring PLATFORM 4
+get DUMMY long
+get INFO_OFF long
+get ZERO long
+get INFO_OFF long
+get INFO_SIZE long
+get EVENTS_OFF long
+get EVENTS_SIZE long
+goto INFO_OFF
+xmath FILES "INFO_SIZE / (0x80 + 4 + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get ZERO long
+    get FREQUENCY long
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+    putarray 2 i FREQUENCY
+next i
+    get OFFSET asize 1
+    putarray 1 i OFFSET
+for i = 0 < FILES
+    getarray NAME       0 i
+    getarray OFFSET     1 i
+    getarray FREQUENCY  2 i
+    math i + 1
+    getarray SIZE       1 i
+    math SIZE - OFFSET
+    #log NAME OFFSET SIZE 1
+    math CHANNELS = 0   # or 1 is the same
+    math INTERLEAVE = 0
+    callfunction DUMP_VAGp 1
+next
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS
+startfunction DUMP_VAGp
+    endian save CURRENT_ENDIAN
+    endian big
+    log MEMORY_FILE 0 0
+    putdstring "VAGp" 4 MEMORY_FILE
+    put 6 long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    for x = 0 < 10
+        put 0 byte MEMORY_FILE
+    next x
+    put CHANNELS byte MEMORY_FILE
+    put 0 byte MEMORY_FILE
+    putdstring NAME 0x10 MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE 1
+    append
+    endian restore CURRENT_ENDIAN
+endfunction

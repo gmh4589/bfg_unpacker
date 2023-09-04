@@ -1,0 +1,12 @@
+# HUGO 5
+
+get OFFSET long
+math OFFSET + 4
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

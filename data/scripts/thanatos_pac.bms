@@ -1,0 +1,36 @@
+# Thanatos DB.PAC
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MSP\0"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get OFFSET long
+    get CRC long
+    get FILES long
+    get TYPE byte
+    getdstring NAME 0x80
+    padding 4
+    if TYPE == 0
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+    else
+        string NAME p "%s%s" PATH NAME
+        savepos TMP
+        goto OFFSET
+        get ID long
+        get SIZE long
+        goto TMP
+        math OFFSET + 0x11c
+        log NAME OFFSET SIZE
+    endif
+endfunction

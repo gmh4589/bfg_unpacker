@@ -1,0 +1,20 @@
+# Juicy Lucy: XXXtreme Slut Machines
+
+idstring "NGS\0"
+get DUMMY short
+get FILES short
+get TMP asize
+xmath TMP "TMP - (FILES * 4)"
+goto TMP
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    math OFFSET - 6
+    goto OFFSET
+    get SIZE long
+    get DUMMY short
+    savepos OFFSET
+    log "" OFFSET SIZE
+    goto TMP
+next i

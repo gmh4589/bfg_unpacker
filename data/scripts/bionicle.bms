@@ -1,0 +1,58 @@
+# Bionicle Heroes (partial folders?)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TABLE_OFF long
+get TABLE_SIZE long
+
+goto TABLE_OFF
+get DUMMY long
+get FILES long
+savepos OFFSET
+math SIZE = FILES
+math SIZE *= 16
+log MEMORY_FILE OFFSET SIZE
+
+math OFFSET += SIZE
+goto OFFSET
+get FILES long
+get FILES2 long
+savepos OFFSET
+math SIZE = FILES
+math SIZE *= 8
+log MEMORY_FILE2 OFFSET SIZE
+
+math OFFSET += SIZE
+goto OFFSET
+math SIZE = TABLE_OFF
+math SIZE += TABLE_SIZE
+math SIZE -= OFFSET
+log MEMORY_FILE3 OFFSET SIZE
+
+set FOLDER string ""
+for i = 0 < FILES
+    get NAME_OFF long MEMORY_FILE2
+    get FILE_NUM short MEMORY_FILE2
+    get DIR_NUM short MEMORY_FILE2
+
+    if DIR_NUM == 0
+        goto NAME_OFF MEMORY_FILE3
+        get FOLDER string MEMORY_FILE3
+    else
+        goto NAME_OFF MEMORY_FILE3
+        get NAME string MEMORY_FILE3
+
+        get OFFSET long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE # or inverted?
+        get SIZE long MEMORY_FILE  # or inverted?
+        get ZIP long MEMORY_FILE
+
+        set FULLNAME string FOLDER
+        string FULLNAME += /
+        string FULLNAME += NAME
+        if ZIP == 0
+            log FULLNAME OFFSET SIZE
+        else
+            clog FULLNAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

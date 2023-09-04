@@ -1,0 +1,49 @@
+# SPOGS Racing BIN
+
+comtype deflate
+
+get FILES long
+get NAMES_SIZE long
+goto 0x20   # zeroes
+
+savepos TMP
+xmath NAMES_OFF "TMP + (0x20 * FILES)"
+xmath BASE_OFF "NAMES_OFF + NAMES_SIZE"
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get FLAGS long
+    get PREV_ID long
+    get NEXT_ID long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+
+    savepos BCK_OFF
+    math OFFSET + BASE_OFF
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+    putarray 1 i PREV_ID
+
+    set NAME string ""
+    for IDX = i != 0xffffffff
+        getarray TMP 0 IDX
+        getarray IDX 1 IDX
+        string NAME p "/%s%s" TMP NAME
+    next
+
+    if FLAGS & 1
+        # folder
+    else
+        if FLAGS & 2
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+
+    goto BCK_OFF
+next i

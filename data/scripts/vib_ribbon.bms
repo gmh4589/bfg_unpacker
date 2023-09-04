@@ -1,0 +1,16 @@
+# Vib-Ribbon (ビブリボン Bibu Ribon)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    savepos TMP
+    goto OFFSET
+    get NAME string
+    padding 4
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto TMP
+next i
+

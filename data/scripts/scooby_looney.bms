@@ -1,0 +1,188 @@
+# WayForward Technologies (DATA and VOL) (script 0.1.5)
+#   various games of WayForward Technologies like:
+#   Scooby Doo & Looney Tunes Cartoon Universe: Adventure
+#   Shantae and the Pirates Curse
+# script for QuickBMS http://quickbms.aluigi.org
+
+ComType deflate
+
+get SIGN long
+
+if SIGN == 0x48a6647d
+    get DUMMY long
+    get DUMMY1_OFF long
+    get FILES long
+    get NAMES_OFF long
+    get INFO_OFF long
+    get OFFSETS_OFF long
+    get DATA_OFF long
+
+    goto NAMES_OFF
+    for i = 0 < FILES
+        get NAME_OFF long
+        putarray 0 i NAME_OFF
+    next i
+
+    goto INFO_OFF
+    for i = 0 < FILES
+        get CRC long
+        get ZIP long
+        get ZSIZE longlong
+        get SIZE longlong
+        putarray 1 i ZIP
+        putarray 2 i ZSIZE
+        putarray 3 i SIZE
+    next i
+
+    goto OFFSETS_OFF
+    for i = 0 < FILES
+        get OFFSET longlong
+        putarray 4 i OFFSET
+    next i
+
+    for i = 0 < FILES
+        getarray NAME_OFF 0 i
+        getarray ZIP 1 i
+        getarray ZSIZE 2 i
+        getarray SIZE 3 i
+        getarray OFFSET 4 i
+
+        goto NAME_OFF
+        get NAME string
+        string NAME R= "_" "/"
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif SIGN == 0xb53d32cb
+    get DUMMY short # 2
+    get DUMMY short # 0 or 4
+    get DUMMY long  # 0x1c
+    if DUMMY == 0x1c
+        get FILES long
+        get INFO_OFF long
+        get DATA_OFF long
+    else
+        get DUMMY long # 0x1c
+        get DATA_OFF long
+        get FILES long
+        get INFO_OFF long
+    endif
+
+    goto INFO_OFF
+    for i = 0 < FILES
+        get CRC long
+        get NAME_OFF long
+        get OFFSET longlong
+        get SIZE long
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        string NAME R= "_" "/"
+        log NAME OFFSET SIZE
+    next i
+
+elif SIGN == 0x18f32f12
+    get DUMMY short
+    get DUMMY short
+    get DUMMY short
+    get DUMMY short
+    get OFFSET1 long
+    get FILES long
+    get NAMES_OFF long
+    get OFFSET2 long
+    get OFFSET3 long
+    get OFFSET4 long
+    get OFFSET5 long
+    get OFFSET6 long
+    get BASE_OFF long
+
+    goto NAMES_OFF
+    for i = 0 < FILES
+        get NAME_OFF long
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        putarray 0 i NAME
+    next i
+
+    goto OFFSET4
+    for i = 0 < FILES
+        get ZSIZE longlong
+        putarray 2 i ZSIZE
+    next i
+
+    goto OFFSET5
+    for i = 0 < FILES
+        get SIZE longlong
+        putarray 3 i SIZE
+    next i
+
+    goto OFFSET6
+    for i = 0 < FILES
+        get OFFSET longlong
+        putarray 1 i OFFSET
+    next i
+
+    goto OFFSET3
+    for i = 0 < FILES
+        get ZIP byte
+        putarray 4 i ZIP
+    next i
+
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        getarray ZSIZE  2 i
+        getarray SIZE   3 i
+        getarray ZIP    4 i
+        string NAME R= "_" "/"
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif SIGN == 0x9ee6c000
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    get OFFSET long
+    goto OFFSET
+    xmath NAME_OFF "OFFSET + (FILES * 0x18)"
+    for i = 0 < FILES
+        get CRC long
+        get DUMMY long
+        get OFFSET long
+        get ZERO long
+        get ZERO long
+        get SIZE long
+
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        savepos NAME_OFF
+        goto TMP
+
+        log NAME OFFSET SIZE
+    next i
+
+elif SIGN == 0xd177f050
+    get DUMMY long  # 0x0101
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+
+else
+    print "Error: unsupported file type %SIGN|x%"
+    cleanexit
+endif

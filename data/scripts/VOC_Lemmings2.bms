@@ -1,0 +1,28 @@
+<bms games="'Lemmings 2'" platforms="'PC'" ext="VOC">
+Get D Long 0 ;
+SavePos FST 0 ;
+Get FS Long 0 ;
+Set FO Long 512 ;
+Log "" FO FS 0 0 ;
+Set FN Long 512 ;
+Math FN /= 4 ;
+Math FN -= 1 ;
+For T = 1 To FN ;
+GoTo FST 0 ;
+Get FO Long 0 ;
+Math FO += 512 ;
+SavePos FST 0 ;
+Get FS Long 0 ;
+If FS = 0 ;
+GoTo EOF 0 ;
+SavePos FS 0 ;
+Math FS += 1 ;
+Math FS -= FO ;
+Log "" FO FS 0 0 ;
+Set T Long FN ;
+Else ;
+Math FS -= FO ;
+Log "" FO FS 0 0 ;
+EndIf ;
+Next T ;
+</bms>

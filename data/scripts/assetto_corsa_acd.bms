@@ -1,0 +1,134 @@
+# Assetto Corsa DATA.ACD extractor (script 0.1.1a)
+#   the key is the name of the folder so don't modify their name
+# script for QuickBMS http://quickbms.aluigi.org
+
+# generate the key
+
+get NAME fullname
+string NAME l NAME
+string NAME >>= \
+string NAME != \
+strlen NAMESZ NAME
+
+math KEY1 = 0
+for i = 0 < NAMESZ
+    getvarchr TMP NAME i
+    math KEY1 += TMP
+next i
+
+xmath TMPSZ "NAMESZ - 1"
+math KEY2 = 0
+for i = 0 < TMPSZ
+    getvarchr TMP NAME i
+    math KEY2 *= TMP
+    math i += 1
+    getvarchr TMP2 NAME i
+    math KEY2 -= TMP2
+next i
+
+xmath TMPSZ "NAMESZ - 3"
+math KEY3 = 0
+for i = 1 < TMPSZ
+    getvarchr TMP NAME i
+    math KEY3 *= TMP
+    math i += 1
+    getvarchr TMP2 NAME i
+    math TMP2 += 0x1b
+    math KEY3 /= TMP2
+    math i -= 2
+    getvarchr TMP3 NAME i
+    math TMP = -0x1b
+    math TMP -= TMP3
+    math KEY3 += TMP
+next i += 4
+
+math KEY4 = 0x1683
+for i = 1 < NAMESZ
+    getvarchr TMP NAME i
+    math KEY4 -= TMP
+next i
+
+xmath TMPSZ "NAMESZ - 4"
+math KEY5 = 0x42
+for i = 1 < TMPSZ
+    getvarchr TMP NAME i
+    math TMP += 0xf
+    math TMP *= KEY5
+    math i -= 1
+    getvarchr TMP2 NAME i
+    math i += 1
+    math TMP2 += 0xf
+    math TMP2 *= TMP
+    math TMP2 += 0x16
+    math KEY5 = TMP2
+next i += 4
+
+xmath TMPSZ "NAMESZ - 2"
+math KEY6 = 0x65
+for i = 0 < TMPSZ
+    getvarchr TMP NAME i
+    math KEY6 -= TMP
+next i += 2
+
+xmath TMPSZ "NAMESZ - 2"
+math KEY7 = 0xab
+for i = 0 < TMPSZ
+    getvarchr TMP NAME i
+    math KEY7 %= TMP
+next i += 2
+
+xmath TMPSZ "NAMESZ - 1"
+math KEY8 = 0xab
+for i = 0 < TMPSZ
+    getvarchr TMP NAME i
+    math KEY8 /= TMP
+    math i += 1
+    getvarchr TMP2 NAME i
+    math KEY8 += TMP2
+    math i -= 1
+next i
+
+math KEY1 &= 0xff
+math KEY2 &= 0xff
+math KEY3 &= 0xff
+math KEY4 &= 0xff
+math KEY5 &= 0xff
+math KEY6 &= 0xff
+math KEY7 &= 0xff
+math KEY8 &= 0xff
+
+string TMP  p= "%d-%d-%d-%d-" KEY1 KEY2 KEY3 KEY4
+string TMP2 p= "%d-%d-%d-%d" KEY5 KEY6 KEY7 KEY8
+string KEY  p= "%s%s" TMP TMP2
+
+print "KEY %NAME% -> %KEY%"
+
+
+# extraction
+
+get ACD_SIZE asize
+
+get DUMMY signed_long
+if DUMMY < 0
+    get DUMMY long
+else
+    goto 0
+endif
+
+for ACD_OFF = 0 < ACD_SIZE
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    for x = 0 < SIZE
+        get TMP long
+        putvarchr MEMORY_FILE x TMP byte
+    next x
+
+    encryption rot KEY "" 1
+    log NAME 0 SIZE MEMORY_FILE
+    encryption "" ""
+    savepos ACD_OFF
+next

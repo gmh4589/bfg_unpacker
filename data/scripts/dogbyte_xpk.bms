@@ -1,0 +1,113 @@
+# Dogbyte Games XPK
+#   script based on the analysis and source code provided by Ekey
+#   https://zenhax.com/viewtopic.php?p=62891#p62891
+
+idstring "XPAK"
+get VER long
+get ARCHIVE_SIZE long
+if VER >= 1
+    getdstring lpHash 16
+endif
+if VER >= 2
+    get dwReserved long
+endif
+
+encryption math "^ 0xAC54DF34 1" 32 # it's applied to the first 16 bytes only!
+filecrypt 1
+
+if VER <= 1
+
+    getdstring lpLZMAProps 5
+    comtype lzma_0 lpLZMAProps
+
+elif VER == 2
+
+    comtype brotli
+
+else
+
+    print "Error: unsupported version %VER%"
+    cleanexit
+
+endif
+
+get dwTableZSize long
+encryption "" ""
+filecrypt 0
+savepos TMP
+xmath OFFSET "TMP + dwTableZSize"
+
+math IS_COMPRESSED = 1
+callfunction DECRYPT 1 TMP dwTableZSize
+log MEMORY_FILE2 0 MEM_SIZE MEMORY_FILE
+
+get dwTotalFiles long MEMORY_FILE2
+for i = 0 < dwTotalFiles
+    get dwNameLength long MEMORY_FILE2
+    getdstring lpFileName dwNameLength MEMORY_FILE2
+    get dwCompressedSize long MEMORY_FILE2
+    get bByte byte MEMORY_FILE2
+
+    if bByte & 0x40 # hope it works also for the others
+
+        savepos TMP MEMORY_FILE2
+        log lpFileName TMP dwCompressedSize MEMORY_FILE2
+        goto dwCompressedSize MEMORY_FILE2 SEEK_CUR
+
+    else
+
+        math IS_COMPRESSED = 0
+        if VER == 0
+            if bByte == 1
+                math IS_COMPRESSED = 1
+            endif
+        elif VER == 1
+            if bByte > 3
+                math IS_COMPRESSED = 1
+            endif
+        else
+            if bByte >= 0x40
+                math IS_COMPRESSED = 1
+            endif
+        endif
+
+        callfunction DECRYPT 1 OFFSET dwCompressedSize
+        log lpFileName 0 MEM_SIZE MEMORY_FILE
+        math OFFSET + dwCompressedSize
+
+    endif
+
+next i
+
+startfunction DECRYPT
+    # quickbms edits the original content of the arguments, sort of "return"
+    # therefore make a copy first
+    math DECRYPT_OFFSET = DECRYPT_ARG1
+    math DECRYPT_ZSIZE  = DECRYPT_ARG2
+
+    # sorry for the mess... but only the first 16 bytes are obfuscated
+    encryption math "^ 0xAC54DF34 1" 32
+    if DECRYPT_ZSIZE <= 16
+        log MEMORY_FILE DECRYPT_OFFSET DECRYPT_ZSIZE
+        encryption "" ""
+    else
+        log MEMORY_FILE DECRYPT_OFFSET 16
+        encryption "" ""
+        math DECRYPT_OFFSET + 16
+        math DECRYPT_ZSIZE  - 16
+        append
+        log MEMORY_FILE DECRYPT_OFFSET DECRYPT_ZSIZE
+        append
+        math DECRYPT_ZSIZE + 16
+    endif
+    goto 0 MEMORY_FILE  # required
+    get MEM_SIZE asize MEMORY_FILE
+
+    if IS_COMPRESSED != 0
+        get MEM_SIZE long MEMORY_FILE
+        savepos TMP MEMORY_FILE
+        math DECRYPT_ZSIZE - TMP
+        clog MEMORY_FILE TMP DECRYPT_ZSIZE MEM_SIZE MEMORY_FILE
+        goto 0 MEMORY_FILE  # required
+    endif
+endfunction

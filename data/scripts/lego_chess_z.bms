@@ -1,0 +1,49 @@
+# Lego Chess (main.z)
+
+comtype explode # explode and pkware_dcl are the same
+get DUMMY short # 0x5d13 or "13 5d 65 8c 3a 01 02"
+get DUMMY long  # some size?
+get DUMMY short
+get ZERO long
+get FILES short
+get DUMMY long
+get ARCHIVE_SIZE long
+get DUMMY long
+getdstring DUMMY 0xf
+get FOLDERS_OFF long
+get FOLDERS_SIZE long
+get FOLDERS short
+get FILES_OFF long
+
+goto FOLDERS_OFF
+for i = 0 < FOLDERS
+    get DUMMY short
+    get DUMMY short
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get ZERO byte
+    get ZERO long
+    putarray 0 i NAME
+next i
+
+for i = 0 < FILES
+    goto FILES_OFF
+    get ZERO byte
+    get FOLDER short
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get SOME_CRC long
+    get FLAGS long  # 0x20 or 1, doesn't matter
+    get ENTRY_SIZE long
+    get ZERO short
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    #getdstring ZERO 0xd
+
+    getarray PATH 0 FOLDER
+    string NAME p "%s/%s" PATH NAME
+    clog NAME OFFSET ZSIZE SIZE
+
+    math FILES_OFF + ENTRY_SIZE
+next i

@@ -1,0 +1,16 @@
+<bms ext="'ph2', 'phk', 'pak'" games="'Jack Orlando'" author="Mr.Mouse" platforms="'PC'" version="1.0" silence="no" verbose="no">
+ImpType Standard ;
+Get MW Long 0 ;
+Get FileNum Long 0 ;
+Get DataStart Long 0 ;
+Get NUL Long 0 ;
+For T = 1 To FileNum ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get FNS Long 0 ;
+GetDString FName FNS 0 ;
+Log FName FO FS #FOO FSO ;
+Next T ;
+</bms>

@@ -1,0 +1,54 @@
+# Top Gun: Hard Lock RPMC (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+getdstring SIGN 4
+if SIGN == "RPMC"
+    get NAME basename
+    get EXT extension
+    string NAME += "_unpacked."
+    string NAME += EXT
+
+    get ZSIZE asize
+    math ZSIZE -= 8
+    get SIZE long
+    clog NAME 8 ZSIZE SIZE
+    cleanexit
+endif
+
+goto 0
+get FILES long
+savepos OFFSET
+math SIZE = FILES
+math SIZE *= 0x10
+log MEMORY_FILE OFFSET SIZE
+math OFFSET += SIZE
+goto OFFSET
+get SIZE long
+savepos OFFSET
+log MEMORY_FILE2 OFFSET SIZE
+math OFFSET += SIZE
+math BASE_OFF = OFFSET
+
+for i = 0 < FILES
+    get CRC long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+    math OFFSET += BASE_OFF
+
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "RPMC"
+        math ZSIZE = SIZE
+        math ZSIZE -= 8
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+

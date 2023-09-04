@@ -1,0 +1,24 @@
+# Husky Express
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring BPFS
+get DUMMY long
+get LIMIT_OFFSET long
+
+set OFFSET 0x8c
+do
+    goto OFFSET
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+
+    set UNAMESZ NAMESZ
+    math UNAMESZ *= 2
+    getdstring UNAME UNAMESZ
+    set NAME unicode UNAME
+
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+while OFFSET <= LIMIT_OFFSET

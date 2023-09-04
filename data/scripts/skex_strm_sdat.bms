@@ -1,0 +1,34 @@
+idstring "SKEX"
+
+get DUMMY long
+
+get OFFSET long
+get SIZE long
+log MEMORY_FILE OFFSET SIZE
+
+get OFFSET long
+get SIZE long
+log MEMORY_FILE2 OFFSET SIZE
+
+get FILES long
+
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE2
+    get DUMMY2 long MEMORY_FILE2
+    get DUMMY3 long MEMORY_FILE2
+    putarray 0 i OFFSET
+next i
+
+sortarray 0
+
+    getarray OFFSET 0 0
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFF asize
+    else
+        getarray NEXT_OFF 0 i
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

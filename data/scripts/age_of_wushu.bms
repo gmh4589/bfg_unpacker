@@ -1,0 +1,31 @@
+# Age of Wushu (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PCK"  # PCK0
+get TMP byte
+
+    savepos MYOFF
+    get NAMESZ short
+    get ZERO long
+    get FILES long
+    get HEAD_SIZE long
+    savepos TMP
+    math TMP -= MYOFF
+    math NAMESZ -= TMP
+    getdstring NAME NAMESZ
+
+for i = 0 < FILES
+    savepos MYOFF
+    get NAMESZ short
+    get OFFSET long
+    get TYPE long
+    get SIZE long
+    get ZSIZE long
+    getdstring DUMMY 5
+    get DUMMY long
+    savepos TMP
+    math TMP -= MYOFF
+    math NAMESZ -= TMP
+    getdstring NAME NAMESZ
+    clog NAME OFFSET ZSIZE SIZE
+next i

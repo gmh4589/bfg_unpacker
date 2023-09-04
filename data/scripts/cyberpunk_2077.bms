@@ -1,0 +1,106 @@
+# Cyberpunk 2077 (script 0.2)
+
+callfunction QUICKBMS_4GB_CHECK 1
+
+open FDSE "archivehashes.csv" 1 EXISTS
+if EXISTS != 0
+    get NAME filename 1
+    print "collecting names and hashes from %NAME%"
+    get CSV_SIZE asize 1
+    putvarchr MEMORY_FILE CSV_SIZE 0
+    log MEMORY_FILE 0 0
+    do
+        get TMP line 1
+        string ELEMENTS S TMP NAME HASH
+        string TMP p "%s %s" HASH NAME
+        put TMP line MEMORY_FILE
+        savepos TMP 1
+    while TMP != CSV_SIZE
+    goto 0 MEMORY_FILE  # required! Not sure if it can be considered a bug in quickbms... or a "feature" (seeking) :D
+else
+    print "If you want the original filenames, please download the file https://github.com/rfuzzo/CP77Tools/blob/main/CP77Tools/Resources/archivehashes.zip"
+    log MEMORY_FILE 0 0
+endif
+
+comtype oodle
+idstring "RDAR"
+get VER long    # 0xc
+get INFO_OFF longlong
+get INFO_SIZE longlong
+get ZERO longlong
+get ARCHIVE_SIZE longlong
+
+goto INFO_OFF
+get DUMMY long  # 8
+get INFO_SIZE long
+get SOME_CRC longlong
+get FILES long
+get CHUNKS long
+get CRCS long
+
+for i = 0 < FILES
+    get NAME_HASH longlong
+    get TSTAMP longlong
+    get DUMMY long  # 0 or 1
+    get START_IDX long
+    get END_IDX long
+    get START_IDX_CRCS long
+    get END_IDX_CRCS long
+    getdstring DUMMY 0x10
+    get SOME_CRC long
+
+    putarray 0 i START_IDX
+    putarray 1 i END_IDX
+    putarray 2 i NAME_HASH
+next i
+
+for i = 0 < CHUNKS
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long
+
+    putarray 10 i OFFSET
+    putarray 11 i ZSIZE
+    putarray 12 i SIZE
+next i
+
+for i = 0 < CRCS
+    get SOME_CRC longlong
+next i
+
+for i = 0 < FILES
+    getarray START_IDX 0 i
+    getarray END_IDX   1 i
+    getarray NAME_HASH 2 i
+
+    namecrc NAME NAME_HASH MEMORY_FILE
+
+    log NAME 0 0
+    append
+    for x = START_IDX < END_IDX
+        getarray OFFSET 10 x
+        getarray ZSIZE  11 x
+        getarray SIZE   12 x
+
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE
+        else
+            goto OFFSET
+            idstring "KARK"
+            get SIZE long
+            math OFFSET + 8
+            math ZSIZE  - 8
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next x
+    append
+next i
+
+startfunction QUICKBMS_4GB_CHECK
+    math TMP64 = 0x10000000
+    math TMP64 * 16
+    if TMP64 == 0
+        print "\nError: Use quickbms_4gb_CHUNKS.exe with these archives"
+        cleanexit
+    endif
+endfunction

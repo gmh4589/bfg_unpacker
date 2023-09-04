@@ -1,0 +1,255 @@
+# PCAP + IP/UDP/TCP format parsing
+#
+#   If you want to modify the packets take a look at the "YOUR CODE HERE" comment
+#
+#   Note that pcapng is NOT supported
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+# set it to 1 for dumping all the packets in one big file
+math DUMP_ALL_THE_PACKETS_IN_ONE_FILE = 0
+
+math TH_FIN = 0x01
+math TH_SYN = 0x02
+math TH_RST = 0x04
+math TH_PSH = 0x08
+math TH_ACK = 0x10
+math TH_URG = 0x20
+math TH_ECN = 0x40
+math TH_CWR = 0x80
+
+get MAGIC long
+if MAGIC == 0xd4c3b2a1
+    endian big
+endif
+get major_version short
+get minor_version short
+get timezone_offset long
+get timestamp_accuracy long
+get snapshot_length long
+get linklayer_type long
+callfunction pcap_hdrlen 1
+
+savepos PCAP_NEXT
+get PCAP_SIZE asize
+for PCAP_NEXT = PCAP_NEXT < PCAP_SIZE
+    goto PCAP_NEXT
+    if MAGIC == 0xd4c3b2a1
+        endian big
+    else
+        endian little
+    endif
+    get seconds long
+    get microseconds long
+    get caplen long
+    get pcklen long
+    savepos PCAP_OFFSET
+    math PCAP_NEXT = PCAP_OFFSET
+    math PCAP_NEXT += caplen
+    #log "" PCAP_OFFSET caplen  # raw logging
+    
+    
+
+    # IP/TCP/UDP handling
+    endian big
+    xmath TMP "if_offset - 2"
+    getdstring DUMMY TMP
+    get iflen short
+    callfunction ether_hdrlen 1
+    getdstring DUMMY ethernet_len
+    
+    # IPv4 header
+    savepos DATA_OFFSET
+    math IP_OFFSET = DATA_OFFSET
+    uint8_t     ihl_ver
+    uint8_t     tos
+    uint16_t    tot_len
+    uint16_t    id
+    uint16_t    frag_off
+    uint8_t     ttl
+    uint8_t     protocol
+    uint16_t    check
+    uint32_t    saddr
+    uint32_t    daddr
+    
+    xmath TMP "ihl_ver >> 4"
+    if TMP == 4
+        xmath iplen "(ihl_ver & 15) << 2"
+        math DATA_OFFSET += iplen
+        goto DATA_OFFSET
+        
+        # UDP
+        if protocol == 17
+            uint16_t    source
+            uint16_t    dest
+            uint16_t    len
+            uint16_t    check
+            
+            savepos DATA_OFFSET
+            xmath DATA_LEN "len - 8"
+            
+        # TCP
+        elif protocol == 6
+            uint16_t    source
+            uint16_t    dest
+            uint32_t    seq
+            uint32_t    ack_seq
+            uint8_t     doff
+            uint8_t     flags
+            uint16_t    window
+            uint16_t    check
+            uint16_t    urg_ptr
+            
+            xmath DATA_OFFSET "DATA_OFFSET + (doff >> 2)"
+            xmath DATA_LEN "tot_len - (DATA_OFFSET - IP_OFFSET)"
+            
+            if flags & TH_PSH
+            else
+                math DATA_OFFSET = -1
+            endif
+            
+        else
+            math DATA_OFFSET = -1
+        endif
+        
+        if DATA_OFFSET != -1
+        if DATA_LEN > 0
+
+            # YOUR CODE HERE
+            
+            # dump the content of the UDP/TCP packet
+            if DUMP_ALL_THE_PACKETS_IN_ONE_FILE == 0
+                log "" DATA_OFFSET DATA_LEN
+            else
+                append
+                log MEMORY_FILE DATA_OFFSET DATA_LEN
+                append
+            endif
+            
+        endif
+        endif
+
+    endif
+next
+
+if DUMP_ALL_THE_PACKETS_IN_ONE_FILE != 0
+    get SIZE asize MEMORY_FILE
+    log "" 0 SIZE MEMORY_FILE
+endif
+
+
+startfunction pcap_hdrlen
+    if linklayer_type == 1      # DLT_EN10MB
+        math if_offset = 14
+    elif linklayer_type == 113  # DLT_LINUX_SLL
+        math if_offset = 16
+    elif linklayer_type == 6    # DLT_IEEE802
+        math if_offset = 22
+    elif linklayer_type == 12   # DLT_RAW
+        math if_offset = 0
+    elif linklayer_type == 0    # DLT_NULL
+        math if_offset = 4
+    elif linklayer_type == 108  # DLT_LOOP
+        math if_offset = 4
+    elif linklayer_type == 9    # DLT_PPP
+        math if_offset = 24
+    elif linklayer_type == 16   # DLT_PPP_BSDOS
+        math if_offset = 24
+    elif linklayer_type == 50   # DLT_PPP_SERIAL
+        math if_offset = 24
+    elif linklayer_type == 51   # DLT_PPP_ETHER
+        math if_offset = 24
+    elif linklayer_type == 109  # DLT_ENC
+        math if_offset = 12
+    elif linklayer_type == 8    # DLT_SLIP
+        math if_offset = 24
+    elif linklayer_type == 15   # DLT_SLIP_BSDOS
+        math if_offset = 24
+    elif linklayer_type == 10   # DLT_FDDI
+        math if_offset = 21
+    elif linklayer_type ==  11  # DLT_ATM_RFC1483
+        math if_offset = 8
+    elif linklayer_type ==  19  # DLT_ATM_CLIP
+        math if_offset = 8
+    else
+        math if_offset = -1
+    endif
+endfunction
+
+startfunction ether_hdrlen
+    if iflen == 0x0004
+        math ethernet_len = 4
+    elif iflen == 0x0005
+        math ethernet_len = 4
+    elif iflen == 0x0006
+        math ethernet_len = 4
+    elif iflen == 0x0007
+        math ethernet_len = 4
+    elif iflen == 0x0008
+        math ethernet_len = 4
+    elif iflen == 0x0009
+        math ethernet_len = 4
+    elif iflen == 0x0010
+        math ethernet_len = 4
+    elif iflen == 0x0011
+        math ethernet_len = 4
+    elif iflen == 0x0015
+        math ethernet_len = 4
+    elif iflen == 0x0016
+        math ethernet_len = 4
+    elif iflen == 0x0017
+        math ethernet_len = 4
+    elif iflen == 0x001
+        math ethernet_len = 4
+    elif iflen == 0x0060
+        math ethernet_len = 4
+    elif iflen == 0x0200
+        math ethernet_len = 4
+    elif iflen == 0x0201
+        math ethernet_len = 4
+    elif iflen == 0x0bad
+        math ethernet_len = 18
+    elif iflen == 0x2001
+        math ethernet_len = 4
+    elif iflen == 0x6000
+        math ethernet_len = 2
+    elif iflen == 0x6558
+        math ethernet_len = 30
+    elif iflen == 0x8035
+        math ethernet_len = 8
+    elif iflen == 0x8038
+        math ethernet_len = 27
+    elif iflen == 0x809B
+        math ethernet_len = 13
+    elif iflen == 0x80D5
+        math ethernet_len = 3
+    elif iflen == 0x80F3
+        math ethernet_len = 8
+    elif iflen == 0x80FF
+        math ethernet_len = 2
+    elif iflen == 0x8100
+        math ethernet_len = 4
+    elif iflen == 0x8137
+        math ethernet_len = 30
+    elif iflen == 0x8847
+        math ethernet_len = 18
+    elif iflen == 0x8863
+        math ethernet_len = 10
+    elif iflen == 0x8864
+        math ethernet_len = 8
+    elif iflen == 0x886D
+        math ethernet_len = 16
+    elif iflen == 0x888E
+        math ethernet_len = 4
+    elif iflen == 0x889A
+        math ethernet_len = 5
+    elif iflen == 0x88AE
+        math ethernet_len = 42
+    elif iflen == 0x9021
+        math ethernet_len = 4
+    elif iflen == 0x9022
+        math ethernet_len = 1
+    else
+        math ethernet_len = 0
+    endif
+endfunction

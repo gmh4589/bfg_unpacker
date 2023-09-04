@@ -1,0 +1,27 @@
+# cheaterproject CheEngine_GI
+# script for QuickBMS http://quickbms.aluigi.org
+
+for EXTRACT = 0 < 2
+    goto 0
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get TSTAMP long
+        get ZERO long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE
+            else
+                # not verified, not available in sample
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

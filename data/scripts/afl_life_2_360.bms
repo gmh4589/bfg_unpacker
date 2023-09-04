@@ -1,0 +1,34 @@
+# extracts the game data from "AFL Live 2" (X360, 2013)
+# (c) 2013-09-08 by AlphaTwentyThree of XeNTaX
+# script for QuickBMS http://quickbms.aluigi.org
+
+include "func_getTYPE.bms"
+open FDDE wad0 0
+open FDDE wad1 1
+endian big
+get FILES long 0
+get UNK long 0
+set BIAS files
+math BIAS *= 0x10
+math BIAS += 8
+for i = 1 <= FILES
+   get NAME long # crc
+   string NAME p= "0x%08x" NAME
+   get SIZE long
+   get FILE long
+   get OFFSET long
+   putVarChr MEMORY_FILE SIZE 0
+   log MEMORY_FILE 0 0
+   append
+   append
+   if FILE == 0
+      math OFFSET += BIAS
+      log MEMORY_FILE OFFSET SIZE 0
+   elif FILE == 1
+      log MEMORY_FILE OFFSET SIZE 1
+   endif
+   callfunction getType 1
+   endian big
+   string NAME += EXT
+   log NAME 0 SIZE MEMORY_FILE
+next i

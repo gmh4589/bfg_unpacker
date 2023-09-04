@@ -1,0 +1,205 @@
+# ThriXXX 3dsexgames TXX T3X (script 0.1.2)
+#   3d SexVilla, 3d SexVilla 2, Hentai 2 3d, 3d GoGo, Virtually Jenna, Virtually Jenna 2, 3d GayVilla 2, Hustler 3D, Chathouse 3d Roulette and others
+#   note: this script has been written on the fly without much interest and
+#         moreover with compatibility in mind, that's why I have preferred to
+#         not handle the directory structure (SDIR) and the encrypted filenames.
+# script for QuickBMS http://quickbms.aluigi.org
+
+# callfunction bxx_decrypt   # it's only a classical TEA with a modified init value, calldll is faster than writing a bms!
+set MEMORY_FILE2 binary "\x55\x89\xe5\x57\x56\x53\x83\xec\x10\x8b\x45\x10\x85\xc0\x0f\x84\x97\x00\x00\x00\xc7\x45\xe4\x00\x00\x00\x00\x90\x8d\x74\x26\x00\x8b\x45\xe4\x8b\x55\x0c\x8b\x0c\x02\x8b\x54\x02\x04\x8b\x45\x08\x8b\x58\x0c\x8b\x70\x08\x8b\x00\x89\x5d\xe8\x8b\x5d\x08\x89\x45\xf0\x8b\x5b\x04\x89\x5d\xec\xbb\x98\xaf\xa7\xf7\x8d\x74\x26\x00\x89\xcf\x89\xc8\xc1\xef\x05\x03\x7d\xe8\xc1\xe0\x04\x01\xf0\x31\xf8\x8d\x3c\x0b\x31\xf8\x29\xc2\x89\xd0\x89\xd7\xc1\xe0\x04\xc1\xef\x05\x03\x45\xf0\x03\x7d\xec\x31\xf8\x8d\x3c\x1a\x81\xc3\x47\x86\xc8\x61\x31\xf8\x29\xc1\x81\xfb\x08\x14\x30\x14\x75\xc1\x8b\x45\xe4\x8b\x5d\x0c\x89\x0c\x03\x89\x54\x03\x04\x83\xc0\x08\x39\x45\x10\x89\x45\xe4\x0f\x87\x75\xff\xff\xff\x83\xc4\x10\x5b\x5e\x5f\x5d\xc3"
+set MEMORY_FILE3 binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+
+get BXX_NAME basename
+comtype gzip
+set BASE_OFF long 0
+idstring "BX"
+get SIGNX byte
+get VERSION byte
+getdstring TYPE 4
+if TYPE == "ARCH"
+    get DUMMY longlong
+    get DUMMY longlong
+    get SIZE longlong
+    savepos BASE_OFF
+
+    #if SIZE == 0   # more compatible between various versions
+        get SIZE asize
+        math SIZE -= BASE_OFF
+    #endif
+
+    log MEMORY_FILE BASE_OFF SIZE
+    if SIGNX == 0x58
+        set i long 0
+        do
+            if i == 0   # 3D SexVilla 2 / 3D Slut 2
+                put 0x88957D69 long MEMORY_FILE3
+                put 0xFB714ACA long MEMORY_FILE3
+                put 0xBD32A8BC long MEMORY_FILE3
+                put 0x36D56631 long MEMORY_FILE3
+            elif i == 1 # Hentai3D 2
+                put 0xB7318850 long MEMORY_FILE3
+                put 0x1A7711DD long MEMORY_FILE3
+                put 0xBD0B0800 long MEMORY_FILE3
+                put 0xBD0B0800 long MEMORY_FILE3
+            elif i == 2 # 3D SexVilla / 3D Slut
+                put 0x6559185A long MEMORY_FILE3
+                put 0xFBA8524D long MEMORY_FILE3
+                put 0x39EADE34 long MEMORY_FILE3
+                put 0xC73A2D05 long MEMORY_FILE3
+            elif i == 3 # Hentai3D 2 / Chathouse 3d Roulette
+                put 0xB539945D long MEMORY_FILE3
+                put 0x9C13407E long MEMORY_FILE3
+                put 0x958CDC47 long MEMORY_FILE3
+                put 0x9CEC0BBA long MEMORY_FILE3
+            elif i == 4 # Virtually Jenna
+                put 0x821B3FAC long MEMORY_FILE3
+                put 0x398742C0 long MEMORY_FILE3
+                put 0xB7ED394B long MEMORY_FILE3
+                put 0x4A68E012 long MEMORY_FILE3
+            elif i == 5 # Virtually Jenna 2
+                put 0xBE11003C long MEMORY_FILE3
+                put 0xA98C422E long MEMORY_FILE3
+                put 0xA3987CE9 long MEMORY_FILE3
+                put 0x0B6D0E76 long MEMORY_FILE3
+            elif i == 6 # 3D GayVilla 2
+                put 0x7923C4A2 long MEMORY_FILE3
+                put 0x63D8546E long MEMORY_FILE3
+                put 0x91A6964F long MEMORY_FILE3
+                put 0x267B5E22 long MEMORY_FILE3
+            elif i == 7 # Hustler 3D
+                put 0x0DA778590 long MEMORY_FILE3
+                put 0x0C6111DD long MEMORY_FILE3
+                put 0x0BD0B0800 long MEMORY_FILE3
+                put 0x200C9A66 long MEMORY_FILE3
+            else
+                print "Error: unsupported decryption key, contact me"
+                cleanexit
+            endif
+            callfunction TEST_KEY 1
+            math i += 1
+        while SIGN != "BX"
+        calldll MEMORY_FILE2 0 cdecl "" MEMORY_FILE3 MEMORY_FILE SIZE
+    endif
+else
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+endif
+
+#log "dump.arch" 0 SIZE MEMORY_FILE
+#cleanexit
+
+for i = 0
+    do
+        findloc OFFSET string "BX" MEMORY_FILE
+        goto OFFSET MEMORY_FILE
+        idstring MEMORY_FILE "BX"   # lame check
+        get SIGNY byte MEMORY_FILE
+    while SIGNX != SIGNY
+    goto OFFSET MEMORY_FILE
+
+    idstring MEMORY_FILE "BX"
+    get SIGNX byte MEMORY_FILE
+    get VERSION byte MEMORY_FILE
+    getdstring TYPE 4 MEMORY_FILE
+    get OLD_SIZE longlong MEMORY_FILE
+    get DUMMY longlong MEMORY_FILE
+    get SIZE longlong MEMORY_FILE
+    if TYPE == "INDX"
+        getdstring DUMMY 16 MEMORY_FILE
+        getdstring DUMMY 16 MEMORY_FILE
+    elif TYPE == "TREE"
+    elif TYPE == "SDIR"
+    elif TYPE == "DATA"
+    elif TYPE == "FILE"
+        # md5 with initializers 0x200, 0, 3A2D09EA FBA8591D C73DE354 6552485A (useful for the main key)
+        if VERSION <= 2
+            set SIZE long OLD_SIZE
+        endif
+        savepos OFFSET MEMORY_FILE
+        math OFFSET += 16
+        log MEMORY_FILE3 OFFSET 16 MEMORY_FILE  # the key
+        math OFFSET += 16
+        math TMP_OFF = OFFSET
+        math TMP_SIZE = SIZE
+        math TMP_SIZE += 15
+        math TMP_SIZE &= 0xfffffff0
+        math TMP_OFF += BASE_OFF
+        log MEMORY_FILE4 TMP_OFF TMP_SIZE
+        if SIGNX == 0x58
+            calldll MEMORY_FILE2 0 cdecl "" MEMORY_FILE3 MEMORY_FILE4 TMP_SIZE
+        endif
+        callfunction COOL_NAME 1
+        if DO_GZIP == 0
+            log NAME 0 SIZE MEMORY_FILE4
+        else
+            clog NAME 0 SIZE SIZE MEMORY_FILE4
+        endif
+        math OFFSET += TMP_SIZE
+        goto OFFSET MEMORY_FILE
+    else
+        print "Alert: unknown chunk type (%TYPE%) at offset %OFFSET%"
+        #cleanexit
+    endif
+next i
+
+startfunction TEST_KEY
+    goto 0 MEMORY_FILE3
+    log MEMORY_FILE4 0 8 MEMORY_FILE
+    calldll MEMORY_FILE2 0 cdecl "" MEMORY_FILE3 MEMORY_FILE4 8
+    goto 0 MEMORY_FILE4
+    getdstring SIGN 2 MEMORY_FILE4
+endfunction
+
+startfunction COOL_NAME
+    set DO_GZIP long 0
+    set EXT string "."
+    if SIZE >= 4
+        goto 0 MEMORY_FILE4
+        getdstring SIGN 4 MEMORY_FILE4
+        getvarchr SIGN1 SIGN 0
+        if SIGN == "DDS "
+            set EXT string ".dds"
+        elif SIGN == "‰PNG"
+            set EXT string ".png"
+        elif SIGN == "OggS"
+            set EXT string ".ogg"
+        elif SIGN == "RIFF"
+            set EXT string ".wav"
+        elif SIGN == "FEV1"
+            set EXT string ".fev"
+        elif SIGN == "FSB4"
+            set EXT string ".fsb"
+        elif SIGN == "FSB3"
+            set EXT string ".fsb"
+        elif SIGN == "ÿØÿà"
+            set EXT string ".jpg"
+        elif SIGN == "ÿOÿQ"
+            set EXT string ".jp2"
+        elif SIGN1 == 0x1f
+            set EXT string ".bsb"   # gzipped, can be any ext
+            set DO_GZIP long 1
+        elif SIGN1 == 0x00
+            set EXT string ".jp2"
+        elif SIGN1 == 0x2f
+            set EXT string ".bs"
+        elif SIGN1 == 0x22
+            set EXT string ".bh"
+        elif SIGN1 == 0x23
+            set EXT string ".control"
+        elif SIGN1 == 0x2e
+            set EXT string ".length"
+        else
+            string SIGN -= 1
+            if SIGN == "BSB"
+                set EXT string ".bsb"
+            else
+                set EXT string "."
+            endif
+        endif
+    endif
+
+    set NAME string BXX_NAME
+    string NAME += /
+    string NAME += i
+    string NAME += EXT
+endfunction

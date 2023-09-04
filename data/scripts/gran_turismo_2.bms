@@ -1,0 +1,123 @@
+# Gran Turismo 2
+# GT2.VOL, GT2.OVL
+
+get polyphony_archivename basename
+get polyphony_archivextension extension
+
+if polyphony_archivename == "GT2"
+	if polyphony_archivextension == "VOL"
+		idstring "GTFS"
+		get zero_01 long
+		get individual_entries short
+		get overall_entries short
+		get zero_02 long
+		for i = 0 < individual_entries
+			get entry_value long
+			putarray 1 i entry_value
+		next i
+
+		getarray info_off_01 1 1
+		xmath overall_entry_info_offset "info_off_01 - (info_off_01 & 0x7ff)"
+		goto overall_entry_info_offset
+		for j = 0 < overall_entries
+			get file_timestamp time
+			putarray 2 j file_timestamp
+			get entry_info_index short
+			putarray 3 j entry_info_index
+			get entry_flag byte
+			putarray 4 j entry_flag
+			getdstring entry_name 0x19
+			putarray 5 j entry_name
+		next j
+
+		math last_overall_entry = overall_entries
+		math last_overall_entry - 1
+		math previous_entry = 0
+		math current_entry_number = 0
+		math last_file = 0
+		math last_directory = 0
+		for z = 0
+			set file_name string ""
+			putarray 11 z current_entry_number
+			putarray 12 current_entry_number previous_entry
+			putarray 13 current_entry_number z
+			getarray file_timestamp 2 z
+			getarray entry_info_index 3 z
+			getarray entry_flag 4 z
+			getarray entry_name 5 z
+			xmath entry_type "entry_flag & 0x01"
+			xmath final_entry "(entry_flag >> 7) & 0x01"
+			if entry_type == 0
+				if final_entry = 1
+					math last_file = 1
+				endif
+				getarray entry_value 1 entry_info_index
+				xmath file_offset "entry_value - (entry_value & 0x7ff)"
+				math next_entry_info_index = entry_info_index
+				math next_entry_info_index + 1
+				getarray next_entry_value 1 next_entry_info_index
+				xmath file_size "((next_entry_value - (next_entry_value & 0x7ff)) - (entry_value - (entry_value & 0x7ff))) - (entry_value & 0x7ff)"
+				math name_entries = current_entry_number
+				for n = 0 <= name_entries	
+					string file_name + /
+					getarray name_entry_number 13 n
+					getarray name_entry_string 5 name_entry_number
+					string file_name + name_entry_string
+				next n
+				log file_name file_offset file_size
+			elif entry_type == 1
+				if final_entry = 1
+					math last_directory = 1
+				endif
+				if entry_name != ".."
+					math previous_entry == z
+					math z == entry_info_index
+					math current_entry_number + 1
+				endif
+			endif
+			if last_file == 1
+				if last_directory = 0
+					getarray previous_entry 12 current_entry_number
+					math z == previous_entry
+					math current_entry_number - 1
+				elif last_directory = 1
+					if z == last_overall_entry
+						break
+					else
+						for
+							getarray previous_entry 12 current_entry_number
+							# (to-do) "gtmenu" folder has a few additional folders depending on which GT2.VOL file it is(across all Gran Turismo 2 releases that is)
+							# at best, this script will only parse that folder as intended
+							# at worst, this script will not even handle multi-foldered entries correctly so there is a pretty good chance
+							# it'll parse the same folders again and again and again until the end of eternity
+							if current_entry_number = 0
+								math z == previous_entry
+								math z + 1
+								break
+							endif
+							math current_entry_number - 1
+						next
+					endif
+					math last_directory = 0
+				endif
+				math last_file = 0
+			endif
+		next z
+	elif polyphony_archivextension == "OVL"
+		get header_limit long
+		goto 0
+		do
+			get file_offset long
+			get file_size long
+			savepos curr_off
+			xmath count "curr_off / 8"
+			string file_name p "GT2_%02d.OVL.GZ" count
+			# ^ all i saw from PS1 games are "uppercase" filenames so this script will attempt to stick with protocol if needed
+			log file_name file_offset file_size
+		while curr_off < header_limit
+	else
+		break
+	endif
+else
+	break
+endif

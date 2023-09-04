@@ -1,0 +1,56 @@
+# Metal Gear Solid HD Collection (script 0.2.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype xmemdecompress
+endian big
+idstring "XBAR"
+get ZERO long
+get FILES long
+get CHUNK_SIZE long
+get SIZES long
+for i = 0 < FILES
+    get NAME_CRC long
+    getdstring HASH 0x10
+    get ID long
+    get SIZE long
+    get ZERO1 long
+    get ZERO2 long
+    if ZERO1 != 0 || ZERO2 != 0
+        print "Error: the ZERO fields are not zero (%ZERO1%/%ZERO2%), contact me"
+        cleanexit
+    endif
+    get OFFSET long
+    putarray 0 ID OFFSET
+    putarray 1 ID SIZE
+next i
+for i = 0 < SIZES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    math CHUNKS = SIZE
+    math CHUNKS x CHUNK_SIZE
+    math CHUNKS / CHUNK_SIZE
+    if CHUNKS == 0
+        math CHUNKS = 1
+    endif
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        get MEM_SIZE asize MEMORY_FILE
+        xmath TMP "SIZE - MEM_SIZE"
+        if TMP u> CHUNK_SIZE
+            math TMP = CHUNK_SIZE
+        endif
+        if CHUNK_ZSIZE == 0
+            log MEMORY_FILE OFFSET TMP
+            math OFFSET + TMP
+        else
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE TMP
+            math OFFSET + CHUNK_ZSIZE
+        endif
+    next x
+    append
+    get MEM_SIZE asize MEMORY_FILE
+    log "" 0 SIZE MEMORY_FILE
+next i + CHUNKS

@@ -1,0 +1,65 @@
+goto -1
+get FILETYPE byte
+goto -5
+get FILES long
+goto -9
+get LISTOFFSET long
+goto LISTOFFSET
+
+for MYFILES = 0 < FILES
+    get FNAMELEN byte
+    get TYPE byte
+    math FNAMELEN += 1
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    getdstring NAME FNAMELEN
+
+    if TYPE == 1
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            log MEMORY_FILE OFFSET ZSIZE
+            log MEMORY_FILE2 0 SIZE     # blah, assign memory
+
+            set readlen long 0
+            set r long 0
+            for readlen = readlen < ZSIZE
+                get codeinfo byte MEMORY_FILE
+                math readlen += 1
+                for i = 0 < 8
+                    if codeinfo & 1
+                        if readlen >= ZSIZE
+                            break
+                        endif
+                        get codepair short MEMORY_FILE
+                        math readlen += 2
+                        set len long codepair
+                        math len >>= 12
+                        math len &= 0xf
+                        math len += 2
+                        math codepair &= 0xfff      # offset
+                        for j = 0 < len
+                            set tmp long r
+                            math tmp -= codepair    # offset
+                            getvarchr charbuffer MEMORY_FILE2 tmp
+                            putvarchr MEMORY_FILE2 r charbuffer
+                            math r += 1
+                        next j
+                    else
+                        if readlen >= ZSIZE
+                            break
+                        endif
+                        get charbuffer byte MEMORY_FILE
+                        math readlen += 1
+                        putvarchr MEMORY_FILE2 r charbuffer
+                        math r += 1
+                    endif
+                    math codeinfo >>= 1
+                next i
+            next
+
+            log NAME 0 SIZE MEMORY_FILE2
+        endif
+    endif
+next MYFILES

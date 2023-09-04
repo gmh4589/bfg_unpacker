@@ -1,0 +1,11 @@
+# Age Of Empires 3 Compressed Scenario
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "l33t"
+get SIZE long
+get ZSIZE long
+savepos OFFSET
+math ZSIZE - OFFSET
+get NAME basename
+string NAME + ".scn"
+clog NAME OFFSET ZSIZE SIZE

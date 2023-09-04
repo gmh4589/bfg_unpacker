@@ -1,0 +1,33 @@
+# Biart 7 games (script 0.2.1)
+#   Deep Black
+#   Deep Black: Reloaded
+#   Depth Hunter
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "UWFP"
+getdstring 10FV_MAGIC 4 # do NOT use idstring or will invert the previous guessed endianess!
+get EXTS long
+get DUMMY long
+get FILES long
+get BASE_OFF long
+for i = 0 < EXTS
+    getdstring EXT 4
+    get XOFFSET long
+    get XFILES long
+    savepos TMP
+    math OFFSET = XOFFSET
+    math OFFSET *= 0x28
+    math OFFSET += BASE_OFF
+    goto OFFSET
+    for j = 0 < XFILES
+        getdstring NAME 0x20
+        get OFFSET long
+        get SIZE long
+        string NAME += "."
+        string NAME += EXT
+        string NAME R= "_" "/"
+        log NAME OFFSET SIZE
+    next j
+    goto TMP
+next i
+

@@ -1,0 +1,49 @@
+# androidgarden_assets.pack.mid
+
+get EXT extension
+if EXT != "mid"
+    print "Error: the script only supports the mid extension"
+    cleanexit
+endif
+get NAME basename
+set EXT extension NAME
+
+if EXT == "packinfo"
+    print "Error: nothing to extract from packinfo files"
+    cleanexit
+endif
+
+if EXT == "cct"
+    comtype zlib_noerror
+    idstring "CCTX"
+    get VER long    # 2
+    get DUMMY long
+    get DUMMY long
+    get ZERO long
+    get ZERO long
+    get ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE ZSIZE
+    cleanexit
+endif
+
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+get FILES long MEMORY_FILE
+getdstring SIGN 4 MEMORY_FILE   # "_PTR"
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

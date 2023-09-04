@@ -1,0 +1,29 @@
+# CHAOS;CHILD / Steins;Gate / 5pb. Inc (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MPK"
+getdstring ZERO 3
+get VER short
+get FILES short
+goto 0x40
+for i = 0 < FILES
+    if VER <= 1
+        get ZIP long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        getdstring ZERO 0x10
+    else
+        get ZIP long
+        get ID long
+        get OFFSET longlong
+        get ZSIZE longlong
+        get SIZE longlong
+    endif
+    getdstring NAME 0xe0
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

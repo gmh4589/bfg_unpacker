@@ -1,0 +1,20 @@
+# Mobile Suit Gundam: Extreme Vs. Maxi Boost ON
+
+comtype deflate
+idstring "KPKA"
+get VER long    # 4
+get FILES long
+get SOME_CRC long
+for i = 0 < FILES
+    get SOME_HASH longlong
+    get OFFSET longlong
+    get ZSIZE longlong
+    get SIZE longlong
+    get FLAGS longlong  # 0, 0x400, 0x401
+    get SOME_HASH longlong
+    if FLAGS & 1
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET ZSIZE
+    endif
+next i

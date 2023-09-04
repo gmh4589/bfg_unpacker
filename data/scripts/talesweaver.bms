@@ -1,0 +1,79 @@
+# TalesWeaver DAT (script 0.1b)
+#   only TalesWeaver.DAT supported
+#   the encryption of the d2d files is not supported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get NAME basename
+
+if EXT == "zip"
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE -= OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+
+if EXT == "dat"
+    set TMP string NAME
+    string TMP -= -3
+    if TMP == "TEX"
+        print "Error: you must use offzip -a to dump the files contained in the TEX archives"
+        cleanexit
+    endif
+endif
+
+idstring "D2PACKFILE"
+get KEYSZ long
+getdstring KEY KEYSZ
+get DUMMY long
+get FOLDERS long
+get DUMMY long
+
+set PATH string ""
+set NAME string ""
+for i = 0 < FOLDERS
+    callfunction EXTRACT
+next i
+
+startfunction EXTRACT
+    callfunction GET_NAME 1
+    get DUMMY long
+    get DUMMY long
+    get SUB_FOLDERS long    # ???
+    get SUB_FILES long
+
+    string PATH += NAME
+    string PATH += /
+
+    for i = 0 < SUB_FOLDERS
+        callfunction EXTRACT
+    next i
+    for i = 0 < SUB_FILES
+        callfunction GET_NAME 1
+        get SIZE long
+        get ZSIZE long
+        get XSIZE long
+        savepos OFFSET
+        string FNAME p= "%s%s" PATH NAME
+
+        if NAME & ".d2d" || NAME & ".qel" #encrypted
+            log FNAME OFFSET ZSIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET += ZSIZE
+        goto OFFSET
+    next i
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ long
+    encryption xor KEY "" 0 KEYSZ
+    savepos TMP
+    getdstring NAME NAMESZ
+    log MEMORY_FILE TMP NAMESZ
+    encryption "" ""
+    getdstring NAME NAMESZ MEMORY_FILE
+endfunction

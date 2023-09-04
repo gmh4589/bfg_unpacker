@@ -1,0 +1,28 @@
+# Afterlife
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FFIJ"
+get ZERO long
+idstring "DAEH"
+get DUMMY long
+get FILES long
+getdstring DUMMY 8
+xmath BASE_OFF "36 + (FILES * (4 + 4))"
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    putarray 0 i OFFSET
+next i
+getdstring DUMMY 8
+for i = 0 < FILES
+    get ID long
+    putarray 1 i ID
+next i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    goto OFFSET
+    get DUMMY long
+    get SIZE long
+    savepos OFFSET
+    log "" OFFSET SIZE
+next i    

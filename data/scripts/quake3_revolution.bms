@@ -1,0 +1,68 @@
+# Quake 3 Revolution FKNL (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype dk2
+idstring "FKNL"
+get FLAGS long
+get DATA_OFF long
+
+math FILENUM = 0
+if FLAGS & 2    # just 0 or 2 in samples, flag or version
+    get SIZE long
+    get ZSIZE long
+    clog MEMORY_FILE DATA_OFF ZSIZE SIZE
+    math FILENUM = -1
+    get FILES long
+    get DUMMY long  # 1
+endif
+get DUMMY long
+set PATH string ""
+
+        callfunction GET_NAME 1
+        get OFFSET long
+        callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    goto OFFSET
+
+    get FILES_OFF long
+    get FOLDERS_OFF long
+    get FILES long
+    get FOLDERS long
+
+    string PATH + NAME
+    string PATH + /
+
+    goto FILES_OFF
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        string NAME p "%s%s" PATH NAME
+
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE FILENUM
+        else
+            clog NAME OFFSET ZSIZE SIZE FILENUM
+        endif
+    next i
+
+    goto FOLDERS_OFF
+    for i = 0 < FOLDERS
+        callfunction GET_NAME 1
+        get OFFSET long
+        callfunction EXTRACT
+    next i
+
+    goto BCK_OFF
+endfunction
+
+startfunction GET_NAME
+    get NAME_OFF long
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

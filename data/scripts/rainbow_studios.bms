@@ -1,0 +1,131 @@
+# Rainbow Studios RES/PAK/XBR/PSR (script 0.1.2)
+#   MX Unleashed
+#   Cars: Race-O-Rama XBR
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "res"
+
+    Get VER Long
+    SavePos TMP
+    Get FJ Long
+    Get DUMMY Long
+    Get DUMMY Long
+    Get DUMMY Long
+    SavePos CHUNKS_OFFSET
+    Math TMP += FJ
+    GoTo TMP
+    Get DUMMY Long
+    Get FILES Long
+    Get TMP Long
+    SavePos OFFSET
+    Math OFFSET += TMP
+    For i = 0 < FILES
+        Get NAMESZ Long
+        GetDString NAME NAMESZ
+        Get DUMMY Long
+        Get SIZE Long
+        savepos TMP_OFF
+
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for x = 0 < SIZE
+            GoTo CHUNKS_OFFSET
+            Get CHUNK_SIZE short
+            SavePos CHUNKS_OFFSET
+            goto OFFSET
+            if CHUNK_SIZE >= 0x6000
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+            else
+                get DUMMY byte  # some files are malformed
+                if DUMMY == 0xff
+                    savepos OFFSET
+                endif
+                CLog MEMORY_FILE OFFSET CHUNK_SIZE 0x6000
+            endif
+            Math x += 0x6000
+            Math OFFSET += CHUNK_SIZE
+        next
+        append
+        log NAME 0 SIZE MEMORY_FILE
+
+        goto TMP_OFF
+    Next i
+
+elif EXT == "pak"
+
+    get FILES long
+    savepos INFO_OFF
+    for EXTRACT = 0 < 2
+        goto INFO_OFF
+        for i = 0 < FILES
+            getdstring NAME 100
+            get OFFSET long
+            get SIZE long
+            if EXTRACT != 0
+                math OFFSET += BASE_OFF
+                log NAME OFFSET SIZE
+            endif
+        next i
+        savepos BASE_OFF
+    next EXTRACT
+
+elif EXT == "soi"
+
+    endian big
+    goto 0x28
+    get MAX_OFFSET long
+    for OFFSET = 0x58 < MAX_OFFSET
+        goto OFFSET
+        getdstring ZERO 0x38
+        get DUMMY longlong
+        getdstring NAME 260
+        getdstring DUMMY 8
+        get SIZE long
+        savepos OFFSET
+        string NAME += ".*"
+        log NAME OFFSET SIZE
+        math OFFSET += SIZE
+    next
+
+else
+
+    get VER short
+    if VER == 0
+        endian big
+    endif
+    goto 0
+
+    get VER long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+
+    if VER < 3
+
+        get DUMMY long
+        get DUMMY long
+
+        for i = 0 < FILES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get SIZE long
+            get OFFSET long
+            math OFFSET *= 0x800
+            log NAME OFFSET SIZE
+        next i
+
+    else
+
+        for i = 0 < FILES
+            get SIZE long
+            get OFFSET long
+            get NAME_CRC long
+            math OFFSET *= 0x800
+            log "" OFFSET SIZE
+        next i
+
+    endif
+
+endif

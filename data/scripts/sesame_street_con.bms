@@ -1,0 +1,32 @@
+# Sesame Street: Create & Draw in Elmo's World .CON
+
+get TOC_SIZE short
+get CON_SIZE long
+xmath FILES "TOC_SIZE / (9 + 4 + 1)"
+for i = 0 < FILES
+    getdstring NAME 9
+    get OFFSET long
+    get ZERO byte
+
+    string NAME _ NAME
+    set EXT string NAME
+    strlen TMP NAME
+    math TMP - 3
+    putvarchr NAME TMP 0
+    string EXT  < TMP
+    string NAME + "."
+    string NAME + EXT
+
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+    putarray 1 i CON_SIZE
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,62 @@
+# Brutal Legend
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "~h" 0
+open FDDE "~p" 1
+
+endian big
+idstring dfpf
+get DUMMY long
+get DUMMY long
+get DUMMY long  # align?
+get DUMMY long
+get NAME_OFF long
+get DUMMY long
+get DUMMY long
+get FILES long
+
+math INFO_SIZE = FILES
+math INFO_SIZE <<= 4
+math INFO_OFF = NAME_OFF
+math INFO_OFF -= INFO_SIZE
+goto INFO_OFF
+
+for i = 0 < FILES
+    get SIZE threebyte
+    get DUMMY short
+    get ZSIZE threebyte
+    get OFFSET threebyte
+    get DUMMY byte
+    get NAMEX threebyte
+    get COMTYPE byte
+
+    savepos INFO_OFF
+    math NAMEX >>= 3
+    math NAMEX += NAME_OFF
+    goto NAMEX
+    get NAME string
+    goto INFO_OFF
+
+    if COMTYPE & 2
+        comtype XMemDecompress
+    else
+        comtype zlib
+    endif
+
+    if SIZE & 0x800000
+        math SIZE -= 0x800000
+    endif
+    if ZSIZE & 0x800000
+        math ZSIZE -= 0x800000
+    endif
+
+    #math SIZE >>= 1
+    math ZSIZE >>= 1
+    math OFFSET <<= 5
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+    math OFFSET += ZSIZE
+next i

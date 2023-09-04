@@ -1,0 +1,13 @@
+# defT
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "defT"
+get DUMMY long
+get SIZE long
+get ZSIZE long
+savepos OFFSET
+get NAME basename
+get EXT extension
+string NAME += "_unpack."
+string NAME += EXT
+clog NAME OFFSET ZSIZE SIZE

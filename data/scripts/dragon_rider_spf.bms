@@ -1,0 +1,8 @@
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    math OFFSET * 0x10
+    log "" OFFSET SIZE
+next i

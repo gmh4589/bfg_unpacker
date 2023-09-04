@@ -1,0 +1,132 @@
+# Strike Fighters 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN unicode
+if SIGN != "CAT"
+    print "The file is not a supported CAT version"
+    cleanexit
+endif
+get VERSION short
+get FLAGS short # FLAGS & 4 means protected file but you cannot change it on the file
+get FILES long
+get DUMMY2 long
+get DUMMY3 long
+
+get DUMMY4 long
+get DUMMY5 long
+get KEY long
+get DUMMY6 long
+
+callfunction SET_KEYS 1
+
+get DUMMY7 long
+math DUMMY7 -= KEY_005913D0
+
+if FLAGS & 2
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    math NAME_KEY = KEY_005913CC
+    callfunction DECRYPT_NAME 1 # CAT name
+endif
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+
+    if FLAGS & 2
+        math TMP = i
+        math TMP += KEY_005913C4
+        math OFFSET -= KEY_005913C0
+        math SIZE   -= KEY_005913BC
+        math NAMESZ -= TMP
+    endif
+
+    getdstring NAME NAMESZ
+    if FLAGS & 2
+        math NAME_KEY = KEY_005913C8
+        callfunction DECRYPT_NAME 1
+    endif
+
+    if FLAGS & 2
+        math SIZE1 = SIZE
+        math SIZE2 = SIZE
+        math SIZE1 /= 2
+        math SIZE2 -= SIZE1
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+            math OFFSET += SIZE2
+            log MEMORY_FILE OFFSET SIZE1
+            math OFFSET -= SIZE2
+            log MEMORY_FILE OFFSET SIZE2
+        append
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+
+# functions
+
+startfunction SET_KEYS
+    math KEY_005913B8 = 0
+    math KEY_005913CC = 0
+    math KEY_005913BC = 0
+    math KEY_005913C0 = 0
+    math KEY_005913C4 = 0
+    math KEY_005913C8 = 0
+    math KEY_005913D0 = 0
+    math KEY_005913D4 = 0
+    math KEY_005913D8 = 0
+
+    if FLAGS & 2
+        math KEY0 = 0
+        math KEY_005913B8 = KEY
+        math KEY_005913CC = KEY
+        if VERSION == 2
+            math KEY_005913B8 u>>= 9
+            math KEY_005913CC u>>= 5
+        elif VERSION == 3
+            math KEY_005913B8 u>>= 3
+            math KEY_005913CC u>>= 7
+        elif VERSION == 4
+            math KEY_005913B8 u>>= 5
+            math KEY_005913CC u>>= 9
+        else
+            math KEY_005913B8 = 0
+            math KEY_005913CC = 0
+            math KEY0 = 1
+        endif
+        if KEY0 == 0
+            math KEY_005913B8 &= 0x7fff
+            math KEY_005913B8 += 1
+            math KEY_005913CC &= 0x1f
+            math KEY_005913CC += 7
+        endif
+
+        math FILES -= KEY_005913B8
+        log MEMORY_FILE2 0 0
+        putvarchr MEMORY_FILE2 0x1c 0
+        set MEMORY_FILE3 compressed "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"
+        calldll MEMORY_FILE3 "SF2_keys" "cdecl" RET DUMMY5 FILES VERSION MEMORY_FILE2
+        get KEY_005913BC long MEMORY_FILE2
+        get KEY_005913C0 long MEMORY_FILE2
+        get KEY_005913C4 long MEMORY_FILE2
+        get KEY_005913C8 long MEMORY_FILE2
+        get KEY_005913D0 long MEMORY_FILE2
+        get KEY_005913D4 long MEMORY_FILE2
+        get KEY_005913D8 long MEMORY_FILE2
+    endif
+endfunction
+
+startfunction DECRYPT_NAME
+    for x = 0 < NAMESZ
+        getvarchr TMP NAME x short
+        math TMP -= NAME_KEY
+        putvarchr NAME x TMP short
+        math x += 2
+    next
+    set NAME unicode NAME
+endfunction

@@ -1,0 +1,32 @@
+# Lazeska - Sky Fantasy
+# script for QuickBMS http://quickbms.aluigi.org
+
+set DATA_OFFSET long 0x1400020
+
+idstring "DAF\0"
+get DUMMY long
+get FILES long
+goto 32
+
+for i = 1 to FILES
+    filexor 0xac
+    get FILEID long
+    get FILESIZE long
+    get OFFSET long
+    get DUMMY long
+    get FILEDIR long
+    getdstring FILENAME 52
+    filexor ""
+
+    if FILEID == 0
+        set MYFOLDER string FILENAME
+        string MYFOLDER += \
+    endif
+
+    if FILEID == 1
+        set FULLNAME string MYFOLDER
+        string FULLNAME += FILENAME
+        math OFFSET += DATA_OFFSET
+        log FULLNAME OFFSET FILESIZE
+    endif
+next i

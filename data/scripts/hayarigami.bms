@@ -1,0 +1,37 @@
+# Hayarigami TRE/DAT
+
+comtype lz77wii
+
+open FDDE "tre" 0 EXISTS
+if EXISTS != 0
+    # the "tre" index is totally useless, no filenames or other useful info
+    get SIZE asize
+    clog MEMORY_FILE 0 SIZE SIZE
+    idstring MEMORY_FILE "TRDS"
+    get VER long MEMORY_FILE    # 3
+    get FILES long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get TRE_SIZE long MEMORY_FILE
+endif
+
+open FDDE "dat"
+get SIZE asize
+clog MEMORY_FILE2 0 SIZE SIZE
+
+get DATA_OFF long MEMORY_FILE2
+get FILES long MEMORY_FILE2
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize MEMORY_FILE2
+    putarray 0 i OFFSET
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE MEMORY_FILE2
+next

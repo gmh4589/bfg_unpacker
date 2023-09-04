@@ -1,0 +1,30 @@
+# 3D Baseball (BIFFILE)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OFFSET = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    goto OFFSET
+    savepos BASE_OFF
+    get FILES long
+    endian guess FILES
+    get ZERO long
+    get DUMMY long
+    math FILES - 1
+    for i = 0 < FILES
+        get SIZE long
+        get OFFSET long
+        get TYPE long   # 0 or 3
+        math OFFSET * 0x800
+        math OFFSET + BASE_OFF
+        if TYPE == 3
+            savepos TMP
+            callfunction EXTRACT
+            goto TMP
+        else
+            string NAME p "%08x/" BASE_OFF
+            log NAME OFFSET SIZE
+        endif
+    next i
+endfunction

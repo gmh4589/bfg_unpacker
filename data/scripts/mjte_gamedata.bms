@@ -1,0 +1,35 @@
+# Michael Jackson The Experience / Ubisoft Onyx Engine / gamedata (script 0.1.1)
+
+open FDDE "fat"
+get SIZE asize
+comtype zlib_noerror
+clog MEMORY_FILE 0 SIZE SIZE
+
+open FDDE ""
+
+comtype zlib
+get FILES long MEMORY_FILE
+
+math WORKAROUND = 0
+    get DUMMY long MEMORY_FILE
+    get TEST long MEMORY_FILE
+    if TEST != 0
+        math WORKAROUND = 1
+    endif
+goto 4 MEMORY_FILE
+
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+    if WORKAROUND != 0
+        get DUMMY long MEMORY_FILE
+    endif
+    get OFFSET longlong MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get FLAGS byte MEMORY_FILE
+    if FLAGS & 1    # or just == 1
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

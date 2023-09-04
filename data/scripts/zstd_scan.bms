@@ -1,0 +1,67 @@
+# ZSTD scanner (script 0.1.1)
+# https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
+
+comtype zstd
+# comtype zstd DICT DICT_SIZE
+
+for
+    findloc OFFSET binary "\x28\xb5\x2f\xfd"
+    goto OFFSET
+    idstring "\x28\xb5\x2f\xfd"
+    getbits Dictionary_ID_flag 2
+    getbits Content_Checksum_flag 1
+    getbits Reserved_bit 1
+    getbits Unused_bit 1
+    getbits Single_Segment_flag 1
+    getbits Frame_Content_Size_flag 2
+
+    if Single_Segment_flag == 0
+        get Window_Descriptor byte
+    endif
+
+    if Dictionary_ID_flag == 0  # DID_Field_Size
+        math Dictionary_ID = 0
+    elif Dictionary_ID_flag == 1
+        get Dictionary_ID byte
+    elif Dictionary_ID_flag == 2
+        get Dictionary_ID short
+    elif Dictionary_ID_flag == 3
+        get Dictionary_ID long
+    endif
+    if Dictionary_ID != 0
+        print "Dictionary required, it must be set with: comtype zstd DICT DICT_SIZE"
+    endif
+
+    if Frame_Content_Size_flag == 0
+        if Single_Segment_flag == 0     # FCS_Field_Size 0
+            math Frame_Content_Size = 0
+        else                            # FCS_Field_Size 1
+            get Frame_Content_Size byte
+        endif
+    elif Frame_Content_Size_flag == 1   # FCS_Field_Size 2
+        get Frame_Content_Size short
+        math Frame_Content_Size + 256
+    elif Frame_Content_Size_flag == 2   # FCS_Field_Size 4
+        get Frame_Content_Size long
+    elif Frame_Content_Size_flag == 3   # FCS_Field_Size 8
+        get Frame_Content_Size longlong
+    endif
+
+    do
+        getbits Last_Block 1
+        getbits Block_Type 2
+        getbits Block_Size 21
+        if Block_Type == 1  # RLE_Block
+            goto 1          0 SEEK_CUR
+        else
+            goto Block_Size 0 SEEK_CUR
+        endif
+        if Content_Checksum_flag != 0
+            get Content_Checksum long
+        endif
+    while Last_Block == 0
+    savepos SIZE
+    math SIZE - OFFSET
+
+    clog "" OFFSET SIZE Frame_Content_Size
+next

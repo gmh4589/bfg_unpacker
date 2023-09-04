@@ -1,0 +1,25 @@
+Code:
+#quickbms Script for the witcher 2
+#aluigi.altervista.org/papers.htm#quickbms
+idstring DZIP
+comtype COMP_LZF
+get unk01 long
+get files long
+get unk02 long
+get tableoff longlong
+for i = 0 < files
+goto tableoff
+get nsize short
+getdstring name nsize
+get unk03 long
+get unk04 long
+get size longlong
+get offset longlong
+get zsize longlong
+savepos tableoff
+goto offset
+get offadd long
+math offset + offadd
+math zsize - offadd
+clog name offset zsize size
+next i

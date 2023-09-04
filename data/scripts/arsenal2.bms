@@ -1,0 +1,12 @@
+# Arsenal 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+    get DUMMY string
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog "" OFFSET ZSIZE SIZE
+next OFFSET + SIZE

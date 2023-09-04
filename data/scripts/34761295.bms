@@ -1,0 +1,7 @@
+filexor "0x34 0x76 0x12 0x95"
+get NAME basename
+get EXT extension
+string NAME += "_decrypted."
+string NAME += EXT
+get SIZE asize
+log NAME 0 SIZE

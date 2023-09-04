@@ -1,0 +1,187 @@
+# Spider Man Web Of Shadows (script 0.2.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "res\n"
+get DUMMY short
+get DUMMY short
+get ZERO1 long
+get DATA_OFF long
+endian guess DATA_OFF
+get DATA_SIZE long
+get INFO_OFF2 long
+get ZERO long
+math METHOD = 1 # the ZERO check is not valid
+if ZERO != 0
+    math METHOD = 1
+endif
+get NAME basename
+if NAME & "streams"
+    math METHOD = 2
+endif
+get OFFSET2 long
+get INFO_OFF long
+
+/*
+// useless and not compatible with all formats
+get DUMMY long
+get ZERO long
+get ZERO long
+get ZERO long
+get ENTRIES long
+for i = 0 < ENTRIES
+    getdstring NAME 4
+    get DUMMY long
+next i
+*/
+
+xmath TMP "DATA_OFF + DATA_SIZE"
+get ARCHIVE_SIZE asize
+if METHOD < 2
+    if TMP u> ARCHIVE_SIZE
+        math METHOD = 3
+    endif
+endif
+
+savepos TMP_OFF
+goto 0x2c
+get INFO_OFF3 long
+get INFO_SIZE3 long
+xmath TMP "INFO_OFF3 + INFO_SIZE3"
+if TMP == ARCHIVE_SIZE
+    math METHOD = 4
+endif
+goto TMP_OFF
+
+if METHOD == 0
+
+    goto INFO_OFF
+    callfunction EXTRACT_TOC 1
+
+elif METHOD == 1
+
+    goto INFO_OFF2
+    callfunction EXTRACT_TOC 1
+
+elif METHOD == 2
+
+    math OFFSET2 + DATA_OFF
+    goto OFFSET2
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get DUMMY long
+        getdstring TYPE 4
+        get DUMMY long
+    next i
+    for i = 0 < FILES
+        get NAME string
+        padding 4
+        putarray 0 i NAME
+    next i
+
+    goto DATA_OFF
+    for i = 0 < FILES
+        get TYPE short
+        get CHANNELS short
+        get FREQUENCY long
+        get SIZE long
+        get OFFSET long
+        getdstring DUMMY 0x60
+        math OFFSET + INFO_OFF2
+        getarray NAME 0 i
+
+        if TYPE == 1
+            string NAME + ".wav"
+            callfunction DUMP_WAV 1
+        elif TYPE == 2
+            string NAME + ".ss2"
+            callfunction DUMP_VAG 1
+        else
+            string NAME + "."
+            log NAME OFFSET SIZE
+        endif
+    next i
+
+elif METHOD == 3
+
+    goto 8
+    get DATA_OFF long
+    goto OFFSET2
+    callfunction EXTRACT_TOC 1
+
+elif METHOD == 4
+
+    goto INFO_OFF3
+    callfunction EXTRACT_TOC 1
+
+endif
+
+# you must provide the following values: OFFSET SIZE FREQUENCY and CHANNELS
+
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    xmath TMP "SIZE / CHANNELS"
+    put TMP long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    append
+    log MEMORY_FILE OFFSET SIZE
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+endfunction
+
+startfunction DUMP_WAV
+    math BITS = 16
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    append
+    log MEMORY_FILE OFFSET SIZE
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+endfunction
+
+startfunction EXTRACT_TOC
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get OFFSET long
+        get SIZE long
+        get DUMMY1 long
+        get DUMMY2 long
+        if DUMMY1 == 0x20 || DUMMY1 == 0x40 || DUMMY1 == 0x80
+            get DUMMY long
+        endif
+        math OFFSET + DATA_OFF
+        string NAME p "%s/" TYPE
+        log NAME OFFSET SIZE
+    next i
+endfunction

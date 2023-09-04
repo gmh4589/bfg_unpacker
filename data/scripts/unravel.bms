@@ -1,0 +1,48 @@
+# Unravel (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.5" # requires a newer implementation of lz4x
+comtype lz4x
+
+get EXT extension
+if EXT != "kit"
+    print "Error: you must open the small file with the KIT extension"
+    cleanexit
+endif
+
+get KIT_NAME filename
+idstring "kit!"
+get DUMMY long  # 1
+get DUMMY long  # 1
+get DUMMY long  # 1
+get INFO_OFF longlong
+get FILES long
+get DUMMY long
+get DUMMY byte
+get DUMMY long
+savepos OFFSET
+math OFFSET + INFO_OFF
+goto OFFSET
+
+math LAST_PAK = -1
+for i = 0 < FILES
+    get FLAGS long
+    get PAK_NUM short
+    get OFFSET long
+    get ZERO short  # maybe the 48bit part of OFFSET ?
+    get ZSIZE longlong
+    get SIZE longlong
+    getdstring HASH 20
+    get ZERO long
+    get DUMMY long
+    if PAK_NUM != LAST_PAK
+        string TMP p "%s.%d" KIT_NAME PAK_NUM
+        open FDSE TMP 1
+        math LAST_PAK = PAK_NUM
+    endif
+    if FLAGS & 8
+        clog "" OFFSET ZSIZE SIZE 1
+    else
+        log "" OFFSET SIZE 1
+    endif
+next i

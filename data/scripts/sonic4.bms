@@ -1,0 +1,31 @@
+# Sonic The Hedgehog 4
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "#AMB"
+get DUMMY byte
+if DUMMY == 0
+    endian big
+endif
+goto 0x10
+get FILES long
+get INFO_OFF long
+get FILES_OFF long
+get NAMES_OFF long
+for i = 0 < FILES
+    goto INFO_OFF
+    get OFFSET long
+    get SIZE long
+    get VALID long
+    get DUMMY long
+    savepos INFO_OFF
+    if NAMES_OFF == 0
+        set NAME string ""
+    else
+        goto NAMES_OFF
+        getdstring NAME 0x20
+        savepos NAMES_OFF
+    endif
+    if SIZE != 0
+        log NAME OFFSET SIZE
+    endif
+next i

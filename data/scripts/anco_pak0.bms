@@ -1,0 +1,37 @@
+# Kick Off 2002 (Anco Software) PKI/PKD PAK0/CMP0
+
+quickbmsver "0.10.2"
+
+open FDDE "pki"
+open FDDE "pkd" 1
+
+comtype anco
+idstring "PAK0"
+get DUMMY long  # 0x18
+get FILES long
+get ENTRY_SIZE long
+get NAMES_OFF long
+get NAMES_SIZE long
+for i = 0 < FILES
+    savepos TMP
+    get ZIP long
+    get OFFSET long
+    get ZSIZE long
+    get NAME_OFF long
+    get SIZE long
+    math TMP + ENTRY_SIZE
+    goto TMP
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if ZIP == 0
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i
+

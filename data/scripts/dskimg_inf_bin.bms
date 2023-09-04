@@ -1,0 +1,61 @@
+# Gacha Mecha Stadium Saru Battle/Ape Escape: Pumped & Primed - dskimg[.inf/.bin]
+# Saru! Get You! Million Monkeys - data0.bin/data1.bin, data2.bin/data3.bin
+
+comtype gzip
+
+get INF_BIN_BNAME basename
+
+if INF_BIN_BNAME == "dskimg"
+	open FDDE "inf" 0
+	open FDDE "bin" 1
+	callfunction PARSE_INF
+elif INF_BIN_BNAME == "data0" || INF_BIN_BNAME == "data1"
+	open FDSE "data0.bin" 0
+	open FDSE "data1.bin" 1
+	callfunction PARSE_INF
+elif INF_BIN_BNAME == "data2" || INF_BIN_BNAME == "data3"
+	open FDSE "data2.bin" 0
+	open FDSE "data3.bin" 1
+	callfunction PARSE_INF
+endif
+
+startfunction PARSE_INF
+	get INF_SIZE asize 0
+	get DAT_SIZE asize 1
+	xmath FILES "INF_SIZE / 12"
+
+	for i = 0 < FILES
+		get HASH long
+		get OFFSET long
+		get SIZE long
+		
+		math OFFSET * 0x800
+		if OFFSET u>= DAT_SIZE
+			break
+		endif
+		
+		goto OFFSET 1
+		get SIGN short 1
+		if SIGN == 0x8b1f
+			get GZIP_COMPRESSION_SIGN byte 1
+			get GZIP_FLAGS byte 1
+			get GZIP_UNIX_TIMESTAMP long 1
+			if GZIP_COMPRESSION_SIGN == 8
+				get GZIP_EXTRA_COMPRESSION_FLAGS byte 1
+			endif
+			get GZIP_OS_ORIGIN byte 1
+			savepos GZIP_TMP1 1
+			xmath GZIP_TMP2 "GZIP_TMP1 + (SIZE - 18)" # gzip uses deflate compression anyway
+			goto GZIP_TMP2 1
+			get GZIP_CRC32 long 1
+			get GZIP_ZSIZE long 1
+			string FNAME p "%08x_%08x." HASH GZIP_CRC32
+			clog FNAME OFFSET SIZE GZIP_ZSIZE 1
+		else
+			string FNAME p "%08x." HASH
+			if SIZE != 0
+				log FNAME OFFSET SIZE 1
+			endif
+		endif
+	next i
+endfunction

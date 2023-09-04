@@ -1,0 +1,29 @@
+# Spirit of Speed 1937
+# script for QuickBMS http://quickbms.aluigi.org
+
+encryption xor "H12f4J4o^5$Ep8&a^7kl%5I4$n$3\x9cnIS3e[2]Z1A;b'e[7]t'7;h8"
+log MEMORY_FILE 0 0x50
+
+idstring MEMORY_FILE "\xde\xce\xaf\xde"
+goto 0x44 MEMORY_FILE
+get FILES long MEMORY_FILE
+get OFFSET long MEMORY_FILE
+
+get SIZE asize
+math SIZE - OFFSET
+encryption xor "lqoaks'))!(****$90128390jdhfksksjdhfJH&%*$(%$&*%*%*$&%(klsd89090sd8reckonanyonewillguesskasjd3-230-3239490-490"
+log MEMORY_FILE OFFSET SIZE
+
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE  # 0x03040000
+    get TSTAMP long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get FLAGS long MEMORY_FILE  # 0, 2 or 0x10000
+    getdstring PATH 0x80 MEMORY_FILE
+    getdstring NAME 0x100 MEMORY_FILE
+    string NAME p "%s/%s" PATH NAME
+
+    encryption xor "sjdklfjskldjfweortu2304048n02384v90285pnerugeiyn237 4b97897(&(&\x9c(*$&(23905b02n840yyyyyyyyy2034v20b8!9089034b8230480IOUIOSUDhqjw4289742byAsidyaify09e8rb02802n3v5902808)(*s90e8naviosasfuwniorub034b082904ap][]35[24[5]2452-40sledgehammersledgehammeraardvarksledgehammerfish2304820384v20389090)(*)*()*3loosefishbadeggsadlumpscapegraceskldfjlksdjfw2*(&(*&W(*&(\x9c$&(\x9c*$&(*&!(((!&&e23io58b29050238nv28903800*n(Nd)*)(w*v02380428304280368349068b306830498304n68"
+    log NAME OFFSET SIZE
+next i

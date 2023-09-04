@@ -1,0 +1,128 @@
+# Thimbleweed Park (script 0.1.4)
+#   select R when quickbms will ask about files that already exist
+# thanks atom0s for the new key
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.0"
+
+# https://github.com/mstr-/twp-ggdump/blob/master/ggdump/ggdump.py
+set MEMORY_FILE10 string "
+    void decode_unbreakable_xor(unsigned char *magic_bytes, unsigned char *buffer, int buf_len, int encrypt) {
+        unsigned char var4 = buf_len;
+        int     c;
+        for(int i = 0; i < buf_len; i++) {
+            c = buffer[i];
+            buffer[i] = c ^ (((i & 0xFF) * 0x6D) ^ magic_bytes[i & 0x0F]) ^ var4;
+            if(encrypt) var4 ^= c;
+            else        var4 ^= buffer[i];
+        }
+    }
+"
+
+get data_offset long
+get data_size long
+
+set KEY binary "\x4F\xD0\xA0\xAC\x4A\x5B\xB9\xE5\x93\x79\x45\xA5\xC1\xCB\x31\x93"
+encryption calldll "MEMORY_FILE10 decode_unbreakable_xor tcc RET KEY #INPUT# #INPUT_SIZE# 0"
+log MEMORY_FILE data_offset data_size
+get SIGN long MEMORY_FILE
+if SIGN u!= 0x04030201 && SIGN u!= 0x01020304
+    set KEY binary "\x3F\x41\x41\x60\x95\x87\x4A\xE6\x34\xC6\x3A\x86\x29\x27\x77\x8D\x38\xB4\x96\xC9\x38\xB4\x96\xC9\x00\xE0\x0A\xC6\x00\xE0\x0A\xC6\x00\x3C\x1C\xC6\x00\x3C\x1C\xC6\x00\xE4\x40\xC6\x00\xE4\x40\xC6 "
+    encryption calldll "MEMORY_FILE10 decode_unbreakable_xor tcc RET KEY #INPUT# #INPUT_SIZE# 0"
+    log MEMORY_FILE data_offset data_size
+endif
+goto 0 MEMORY_FILE
+
+# uncomment if you want to reimport the files
+#encryption calldll "MEMORY_FILE10 decode_unbreakable_xor tcc RET KEY #INPUT# #INPUT_SIZE# 1"
+
+idstring MEMORY_FILE "\x01\x02\x03\x04"
+get DUMMY long MEMORY_FILE
+get NAMES_OFF long MEMORY_FILE
+math NAMES_OFF + 1
+
+/*
+# boring opcode stuff...
+for
+    get OPCODE byte MEMORY_FILE
+    if OPCODE == 2
+
+        savepos TMP MEMORY_FILE
+        goto NAMES_OFF MEMORY_FILE
+        get NAME_OFF long MEMORY_FILE
+        savepos NAMES_OFF MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto TMP MEMORY_FILE
+
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+
+    elif OPCODE == 3
+
+        get DUMMY long MEMORY_FILE  # number of files
+
+    elif OPCODE == 4
+
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+
+    elif OPCODE == 5
+
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY byte MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY byte MEMORY_FILE
+
+    else
+
+        cleanexit
+
+    endif
+next
+*/
+
+set NAME string ""
+math XOFFSET = 0
+math XSIZE   = 0
+
+goto NAMES_OFF MEMORY_FILE
+for i = 0
+    get NAME_OFF long MEMORY_FILE
+    if NAME_OFF == 0xffffffff
+        break
+    endif
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get STR string MEMORY_FILE
+    goto TMP MEMORY_FILE
+
+      if STR == "files"
+    elif STR == "filename"
+    elif STR == "offset"
+    elif STR == "size"
+    else
+        # 0:name, 1:offset, 2:size
+        # BUT sometimes SIZE is not specified so let's guess it
+
+        math TMP = i
+        math i + 1
+        math TMP % 3
+        if TMP == 0
+            set NAME string STR
+        elif TMP == 1
+            math XOFFSET = STR
+        elif TMP == 2
+            math TMP = STR
+            if TMP == 0
+                set NAME string STR
+                math i + 1
+                # take the old XSIZE
+            else
+                math XSIZE = STR
+            endif
+            log NAME XOFFSET XSIZE
+        endif
+    endif
+next

@@ -1,0 +1,15 @@
+# Wave of Darkness
+
+goto -8
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    getdstring NAME 520
+    set NAME unicode NAME
+    get SIZE long
+    get OFFSET long
+    get ZERO long
+    log NAME OFFSET SIZE
+next i

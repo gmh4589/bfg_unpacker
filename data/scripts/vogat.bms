@@ -1,0 +1,70 @@
+# Vogat Interactive games (script 0.2b)
+#   Gravely Silent: House of Deadlock
+#   Columbus: Ghost of the Mystery Stone
+#   Reincarnations: Uncover The Past
+#   Elixir of Immortality
+#   Reincarnations: Awakening
+#   Shades of Death: Royal Blood
+#   The Theatre of Shadows - As You Wish
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "YYST"
+    comtype unzip_dynamic
+    get DUMMY long
+    get FILES long
+    get HEAD_SIZE long
+    for i = 0 < FILES
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get SIZE long
+        get OFFSET long
+        set TMP extension NAME
+        if TMP == "ccz"
+            clog NAME OFFSET SIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next i
+    cleanexit
+endif
+goto 0
+
+comtype lzma86head
+get OFFSET long
+goto OFFSET
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get FOLDERS short
+    get FILES short
+
+    string PATH += NAME
+    string PATH += /
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get ZIP byte
+
+        set FNAME string PATH
+        string FNAME += NAME
+
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    next i
+endfunction

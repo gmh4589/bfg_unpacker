@@ -1,0 +1,24 @@
+# Retrovirus
+# script for QuickBMS http://quickbms.aluigi.org
+
+for
+    get NAMESZ byte
+    if NAMESZ == 0
+        cleanexit
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    savepos TMP_OFF
+
+    get TMP byte
+    if TMP == 0
+        get SIZE asize
+    else
+        getdstring TMP TMP
+        get SIZE longlong
+    endif
+    goto TMP_OFF
+
+    math SIZE -= OFFSET
+    log NAME OFFSET SIZE
+next

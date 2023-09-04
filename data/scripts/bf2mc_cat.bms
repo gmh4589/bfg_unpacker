@@ -1,0 +1,17 @@
+# Battlefield 2: Modern Combat (PS2) .CAT (script 0.1.1)
+
+get CAT_NAME basename
+
+get CAT_SIZE asize
+for OFFSET = 0 != CAT_SIZE
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if CAT_NAME & "audio"
+        get DUMMY long  # 0 or 1
+    endif
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

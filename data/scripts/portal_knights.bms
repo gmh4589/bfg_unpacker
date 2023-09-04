@@ -1,0 +1,49 @@
+# Portal Knights files renamer (0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "rip"
+    print "Error: you must select the resource.rip file"
+    cleanexit
+endif
+
+idstring "RIPF"
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get FILES long
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get DUMMY10 long
+for i = 0 < FILES
+    get DUMMY long
+    getdstring TYPE 4
+    get DUMMY long
+    get DUMMY long
+    getdstring HASH 20
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+
+    string HASH 0b HASH # fix for quickbms 0.11
+    putvarchr HASH 40 0
+    putarray 0 i HASH
+    putarray 1 i TYPE
+next i
+findloc OFFSET string "recipe"  # yeah, lame solution
+goto OFFSET
+for i = 0 < FILES
+    get NAME string
+    getarray HASH 0 i
+    getarray TYPE 1 i
+    open FDSE HASH 1 EXISTS
+    if EXISTS != 0
+        string NAME p "%s/%s" TYPE NAME
+        get SIZE asize 1
+        log NAME 0 SIZE 1
+    endif
+next i

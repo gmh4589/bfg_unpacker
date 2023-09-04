@@ -1,0 +1,42 @@
+# Depth Hunter 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+idstring "UWLZVF02"
+get EXTENSIONS long
+get DUMMY long  # 0x18
+get FILES long
+get FILES_OFF long
+for EXTENSION = 0 < EXTENSIONS
+    getdstring EXT 4
+    get FILES_IDX long
+    get FILES long
+
+    xmath OFFSET "FILES_OFF + (FILES_IDX * (0x20 + 4 + 4))"
+    savepos BACKUP_OFF
+    goto OFFSET
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get OFFSET long
+        get SIZE long
+
+        string NAME + "."
+        string NAME + EXT
+
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "LZO1"
+            get SIZE long
+            get ZIP long    # ???
+            get ZSIZE long
+            savepos OFFSET
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+        goto TMP
+    next i
+
+    goto BACKUP_OFF
+next EXTENSION

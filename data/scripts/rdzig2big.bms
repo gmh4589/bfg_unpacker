@@ -1,0 +1,27 @@
+# Race Driver series ZIG to BIG decrypter 0.1
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+set ADDNUM long 7
+set MEMORY_FILE2 binary "This file is (C) Codemasters Software Company ltd. It took a lot of time and effort to produce. Leave it alone."
+
+set j long 0
+for i = 0 < SIZE
+    getvarchr BYTE MEMORY_FILE i
+    getvarchr BYTE2 MEMORY_FILE2 j
+    math BYTE += BYTE2
+    math j += 1
+    if j >= 0x6f
+        set j long 0
+    endif
+    math BYTE += ADDNUM
+    math ADDNUM *= 0x5b
+    math ADDNUM &= 0xff
+    putvarchr MEMORY_FILE i BYTE
+next i
+
+string NAME += ".big"
+log NAME 0 SIZE MEMORY_FILE

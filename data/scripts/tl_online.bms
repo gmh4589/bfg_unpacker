@@ -1,0 +1,10 @@
+# TL online
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KFXArchive"
+math OFFSET = 0x32
+get SIZE asize
+math SIZE -= OFFSET
+get NAME filename
+filexor 0x9d
+log NAME OFFSET SIZE

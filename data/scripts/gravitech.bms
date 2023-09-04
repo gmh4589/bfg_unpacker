@@ -1,0 +1,30 @@
+# GRAVITECH2 pack system v3.0
+#   Achtung Panzer
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AZP"
+get VER byte
+get FILES long
+get INFO_OFF long
+get DUMMY long
+get INFO_SIZE long
+math INFO_OFF *= 8
+math INFO_OFF += 0x40
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    padding 16
+    getdstring NAME 32
+    getdstring TYPE 32
+    getdstring PATH 32
+    set FULLNAME string PATH
+    string FULLNAME += /
+    string FULLNAME += NAME
+    string FULLNAME += .
+    string FULLNAME += TYPE
+    log FULLNAME OFFSET SIZE
+next i

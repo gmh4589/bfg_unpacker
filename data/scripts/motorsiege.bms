@@ -1,0 +1,32 @@
+# Motorsiege: Warriors of Primetime (FSPS2.INF/DAT)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+
+open FDDE "INF"
+open FDDE "DAT" 1
+
+get FILES long
+get DUMMY long  # 0x20
+get TSTAMP longlong
+for i = 0 < FILES
+    if i != 0
+        getdstring TYPE 8
+        get DUMMY long
+    endif
+    get DUMMY long
+    get ZIP long
+    get DUMMY long
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    getdstring ZERO 0xc
+    get OFFSET long
+    getdstring NAME 0x100
+    math OFFSET * 0x800
+    if ZIP == 0
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i

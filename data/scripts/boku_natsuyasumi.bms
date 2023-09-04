@@ -1,0 +1,26 @@
+# Boku no Natsuyasumi
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+set EXT extension NAME
+comtype gzip
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE -= OFFSET
+if EXT == "bin"
+    set NAME basename NAME
+    string NAME += "/"
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    endian big
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        if SIZE != 0
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+else
+    clog NAME OFFSET ZSIZE SIZE
+endif

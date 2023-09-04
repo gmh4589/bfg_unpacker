@@ -1,0 +1,19 @@
+comtype unzip_dynamic   # trick for compatibility
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        if SIZE < ZSIZE # trick for compatibility
+            math TMP = SIZE
+            math SIZE = ZSIZE
+            math ZSIZE = TMP
+        endif
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

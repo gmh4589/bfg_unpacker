@@ -1,0 +1,12 @@
+<bms author="Mr.Mouse" ext="DAT" version="1.0" games="'Far Cry Evolution'" platforms="'XBox'" verbose="no" silence="no">
+#Make sure a FAT file with the same name is in the folder!
+Open FDDE FAT 1 ;
+GetDString MW 4 1 ;
+Get FN Long 1 ;
+For T = 1 To FN ;
+Get Off Long 1 ;
+Get Size Long 1 ;
+Get Hash Long 1 ;
+Log "" Off Size 0 0 ;
+Next T ;
+</bms> 

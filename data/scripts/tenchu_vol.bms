@@ -1,0 +1,37 @@
+# Tenchu VOL
+#   info by Stickman on http://forum.xentax.com/viewtopic.php?f=10&t=11410
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AFS_VOL_200\0"
+get ENTRIES long
+endian guess ENTRIES
+get OFFSET long
+goto OFFSET
+for i = 0 < ENTRIES
+    get DUMMY short # "IX"
+    get TYPE short
+    get OFFSET long
+    get SIZE long
+    get XSIZE long  # probably a compressed size?
+    getdstring NAME 20
+
+    math PREV_IDX = -1
+    getvarchr TMP NAME 0
+    if TMP == '@'
+        string NAME << 1
+        set PREV_IDX string NAME
+        string PREV_IDX % "_"
+        string NAME | "_"
+    endif
+    if TYPE == 1
+        for PREV_IDX = PREV_IDX >= 0
+            getarray TMP      0 PREV_IDX
+            getarray PREV_IDX 1 PREV_IDX
+            string NAME p "%s/%s" TMP NAME
+        next
+        log NAME OFFSET SIZE
+    elif TYPE == 2
+        putarray 0 i NAME
+        putarray 1 i PREV_IDX
+    endif
+next i

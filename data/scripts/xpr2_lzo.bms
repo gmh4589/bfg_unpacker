@@ -1,0 +1,12 @@
+comtype lzo1x
+idstring XPR2
+get FILE_SIZE long
+get HEADER_SIZE long
+for FILE_OFFSET = 12 < HEADER_SIZE
+    getdstring NAME 0x74
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    clog NAME OFFSET ZSIZE SIZE
+    savepos FILE_OFFSET
+next

@@ -1,0 +1,16 @@
+# FIFA Android DAT
+
+comtype oodle
+endian big
+get DAT_SIZE asize
+for OFFSET = 0 != DAT_SIZE
+    get ZSIZE long
+    get SIZE long
+    get ZERO byte
+    savepos OFFSET
+    math ZSIZE & 0x7fffffff
+    math ZSIZE - 9
+    clog "" OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+    goto OFFSET
+next

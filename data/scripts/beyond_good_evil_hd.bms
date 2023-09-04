@@ -1,0 +1,57 @@
+# Beyond Good & Evil HD (Xbox 360 / PS3) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math SEARCH_NAMES_OFF = 0
+
+idstring "BIG\0"
+get DUMMY long
+get FILES long
+math INFO_OFF = 0x44
+math NAMES_OFF = 0x15b68
+
+        goto INFO_OFF
+        get OFFSET long
+        get DUMMY long
+        savepos INFO_OFF
+
+if SEARCH_NAMES_OFF != 0
+    findloc TMP binary "\0\0\0\0\0\0\0\0"
+    math TMP y 4
+    goto TMP
+    do
+        get TMP long
+    while TMP == 0
+    savepos NAMES_OFF
+    math NAMES_OFF - 4
+    math NAMES_OFF y 8
+endif
+
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFFSET asize
+    else
+        goto INFO_OFF
+        get NEXT_OFFSET long
+        get DUMMY long
+        savepos INFO_OFF
+    endif
+
+    goto NAMES_OFF
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get TSTAMP long
+    getdstring NAME 0x40
+    if SEARCH_NAMES_OFF != 0
+        getdstring DUMMY 0x24
+    endif
+    savepos NAMES_OFF
+
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+    string NAME R= "_" "/"
+    log NAME OFFSET SIZE
+    math OFFSET = NEXT_OFFSET
+next i

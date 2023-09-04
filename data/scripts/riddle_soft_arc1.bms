@@ -1,0 +1,15 @@
+# Riddle Soft resource archive PAC1
+#   converted from GARBro (untested)
+
+idstring "PAC1"
+get FILES long
+xmath OFFSET "8 + FILES * 0x20"
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get SIZE long
+    get DUMMY long
+    get XSIZE long
+    get DUMMY long
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

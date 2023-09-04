@@ -1,0 +1,64 @@
+# The Nightmare Before Christmas: Oogie's Revenge (STM) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "stm" || EXT == "lz"
+
+    math FILE_NUM = 0
+
+    get ALGO byte
+    if ALGO == 0x02
+        comtype alz
+        get SIZE long
+        savepos OFFSET
+        get ZSIZE asize
+        math ZSIZE - OFFSET
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+        math FILE_NUM = -1
+    endif
+    goto 0 FILE_NUM
+
+    idstring FILE_NUM "@STM"
+    getdstring ZERO 20 FILE_NUM
+    get BASE_OFF long FILE_NUM
+    get ENTRIES long FILE_NUM
+
+    set NAME string ""
+    set PATH string ""
+    savepos OFFSET FILE_NUM
+    callfunction EXTRACT 1
+
+else
+
+    idstring "Wpbb"
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+
+endif
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math NUM = ENTRIES
+    savepos TMP FILE_NUM
+    goto OFFSET FILE_NUM
+    for i = 0 < NUM
+        getdstring NAME 0x18 FILE_NUM
+        get OFFSET long FILE_NUM
+        get SIZE long FILE_NUM
+        if SIZE & 0x80000000
+            math SIZE & 0x7fffffff
+            math ENTRIES = SIZE
+            callfunction EXTRACT
+        else
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE FILE_NUM
+        endif
+    next i
+    goto TMP FILE_NUM
+endfunction
+

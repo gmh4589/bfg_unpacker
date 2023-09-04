@@ -1,0 +1,75 @@
+# Xenosaga (script 0.1.1b)
+
+open FDDE "00"
+get INFO_SIZE byte
+for i = 0
+    do
+        get FLAGS byte
+        if FLAGS == 0
+            math FILES = i
+            callfunction EXTRACT 1
+            cleanexit
+        endif
+        math NAMESZ = FLAGS
+        if FLAGS & 0x80
+            get DUMMY byte
+            math NAMESZ - 1
+        endif
+        math NAMESZ & 0x3f
+        math NAMESZ - 1
+        getdstring NAME NAMESZ
+    while FLAGS & 0x80
+
+    get OFFSET threebyte
+
+    math OFFSET - INFO_SIZE
+    math OFFSET * 0x800
+
+    math XSIZE = 0
+    get SIZE threebyte
+    get ZERO byte
+    if FLAGS & 0x40
+        get XSIZE threebyte
+    endif
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i XSIZE
+    putarray 3 i NAME
+next i
+
+startfunction EXTRACT
+    math PCK_OFF    = 0
+    math PCK_LIMIT  = 0
+    math PCK_NUM    = 1
+
+    sortarray 0 1   # necessary
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        getarray XSIZE  2 i
+        getarray NAME   3 i
+
+        xmath TMP "OFFSET + SIZE"
+        if TMP u> PCK_LIMIT
+            math PCK_OFF = PCK_LIMIT
+            math PCK_OFF x 0x800
+            do
+                string TMP p "%02d" PCK_NUM
+                open FDDE TMP 0 EXISTS
+                math PCK_NUM + 1
+            while EXISTS == 0
+            get TMP asize
+            math PCK_LIMIT + TMP
+        endif
+        math OFFSET - PCK_OFF
+
+        if XSIZE == 0
+            log NAME OFFSET SIZE
+        else
+            string NAME p "%s/%s" "compressed" NAME
+            log NAME OFFSET SIZE
+            #clog NAME OFFSET SIZE XSIZE
+        endif
+    next i
+endfunction

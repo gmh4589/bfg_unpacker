@@ -1,0 +1,31 @@
+# Warhammer 40000: Space Marine
+# script for QuickBMS http://quickms.aluigi.org
+
+math DIDX_OFF  = 0
+math DIDX_SIZE = 0
+math DATA_OFF  = 0
+get PCK_SIZE asize
+do
+    getdstring SIGN 4
+    get SIZE long
+    savepos OFFSET
+    if SIGN == "DIDX"
+        math DIDX_OFF = OFFSET
+        math DIDX_SIZE = SIZE
+    elif SIGN == "DATA"
+        math DATA_OFF = OFFSET
+    endif
+    math OFFSET += SIZE
+    goto OFFSET
+while OFFSET < PCK_SIZE
+
+goto DIDX_OFF
+math FILES = DIDX_SIZE
+math FILES /= 12
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET += DATA_OFF
+    log "" OFFSET SIZE
+next i

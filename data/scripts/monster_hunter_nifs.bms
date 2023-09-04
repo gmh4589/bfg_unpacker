@@ -1,0 +1,111 @@
+# Monster Hunter nifs experimental (script 0.1.2)
+#   Notes:
+#   - this is a work-in-progress!
+#   - it works mainly with archives containing compressed files
+#   - I have some samples in which the script doesn't work and will never work
+#   - don't worry if it will give an error at about 3 megabytes before the end.
+# script for QuickBMS http://quickbms.aluigi.org
+
+# edit this variable in some cases, in the past it was 0x10000, 0x8000 was necessary with one sample, use -1 to auto-guess
+math CHECK_WORKAROUND_SIZE = -1
+
+comtype zlib_noerror    # everything here is experimental, this is necessary
+idstring "nifs"
+get DUMMY long
+get DUMMY long
+get INFO_OFF1 longlong
+get INFO_OFF2 longlong
+get INFO_OFF3 longlong
+get INFO_OFF4 longlong
+get INFO_OFF5 longlong
+get DUMMY longlong
+get DUMMY longlong
+get DUMMY longlong
+get DUMMY longlong
+get CHUNK_SIZE long
+get CHUNK_SIZE long
+for i = 0 < 5
+    getdstring DUMMY 0x10
+next i
+
+if CHECK_WORKAROUND_SIZE < 0
+    math TMP = 128  # let's say the maximum compressed file is 128 megabytes
+    math TMP * 1024 # kb
+    math TMP * 1024 # mb
+    math TMP / CHUNK_SIZE
+    math TMP * 4
+    math CHECK_WORKAROUND_SIZE = TMP
+endif
+
+for DO_EXIT = 0 == 0
+    log MEMORY_FILE 0 0
+    append
+    savepos BASE_OFF
+        get OFFSET long
+    xmath CHUNKS "OFFSET / 4"
+    math OFFSET += BASE_OFF
+    for CHUNK = 1 < CHUNKS
+        get NEXT_OFFSET long
+        math NEXT_OFFSET += BASE_OFF
+        xmath CHUNK_ZSIZE "NEXT_OFFSET - OFFSET"
+
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE OFFSET CHUNK_ZSIZE
+        else
+            savepos TMP
+            goto OFFSET
+            get TYPE byte
+            goto TMP
+            if TYPE == 2
+                math OFFSET += 1
+                math CHUNK_ZSIZE -= 1
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            else
+                # we don't know what chunks are compressed and what aren't!
+                #print "Alert: unknown compression type %TYPE|x% at offset %OFFSET|x%"
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE
+            endif
+        endif
+        math OFFSET = NEXT_OFFSET
+    next CHUNK
+    append
+    get SIZE asize MEMORY_FILE
+    log "" 0 SIZE MEMORY_FILE
+
+    # work-around to guess the next offset
+    goto OFFSET
+    do
+        math OK = 0
+        savepos OFFSET
+        if OFFSET == INFO_OFF3
+            cleanexit
+        endif
+        get TMP long
+        if TMP u<= CHECK_WORKAROUND_SIZE
+            if TMP % 4
+            else
+                math TMP_CHUNKS = TMP
+                math TMP_CHUNKS / 4
+                goto OFFSET
+                for x = 0 < TMP_CHUNKS
+                    math PREV_TMP = TMP
+                    get TMP2 long
+                    math TMP = TMP2
+                    math TMP2 - PREV_TMP
+                    if TMP2 u> CHUNK_SIZE
+                        math x = TMP_CHUNKS
+                        math OK = -1
+                    endif
+                next x
+                if OK == 0
+                    math OK = 1
+                endif
+            endif
+        endif
+        if OK <= 0
+            math OFFSET + 1
+            goto OFFSET
+        endif
+    while OK == 0
+    goto OFFSET
+next

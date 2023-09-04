@@ -1,0 +1,47 @@
+# Invisible Inc.
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KLEIPKG2"
+get KWAD_SIZE long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get ZERO long
+    get SIZE long
+    get OFFSET long
+    getdstring TYPE 4
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i TYPE
+next i
+get NAMES long
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 4
+    get ID long
+    putarray 3 ID NAME
+next i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray TYPE   2 i
+    getarray NAME   3 i
+
+    goto OFFSET
+    getdstring TYPE 8
+
+    # you can just use 'log NAME OFFSET SIZE' or replace "KLEISRF1" with "" if you want to dump the original file "as-is"
+    if TYPE == "KLEISRF1"
+        getdstring DUMMY 0x18
+        get SIZE long
+        getdstring DUMMY 0x8
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        math OFFSET + 12
+        math SIZE   - 12
+        log NAME OFFSET SIZE
+    endif
+next i

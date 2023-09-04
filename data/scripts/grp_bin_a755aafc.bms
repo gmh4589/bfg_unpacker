@@ -1,0 +1,54 @@
+# grp.bin 0xa755aafc scanner (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.1"
+comtype dr12ae
+get SIGN long
+goto 0
+if SIGN == 0x00335847   # "GX3\0"
+    get SIGN long   # old
+    get SIGN long   # new
+    goto 4
+endif
+if SIGN == 0xa755aafc
+    callfunction DR_DEC 1
+    cleanexit
+endif
+
+get FILES long
+get ALIGN long  # not correct, files are also concatenated in some occasions, probably fragments?
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get SOME_CRC long
+next i
+for i = 0 < FILES
+    get SOME_CRC long
+next i
+for i = 0 < FILES
+    get NAME string
+    putarray 0 i NAME
+next i
+
+# do not consider FILES for this scanner
+for
+    findloc OFFSET binary "\xfc\xaa\x55\xa7"
+    goto OFFSET
+    callfunction DR_DEC 1
+    math OFFSET + ZSIZE
+    goto OFFSET
+next
+
+startfunction DR_DEC
+    idstring "\xfc\xaa\x55\xa7"
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    math ZSIZE - 12
+    clog "" OFFSET ZSIZE SIZE
+endfunction

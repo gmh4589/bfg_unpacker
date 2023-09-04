@@ -1,0 +1,129 @@
+# Lair (PS3) - *.dat/*.txt/*.data
+
+endian big
+comtype unzip_dynamic
+
+math parse_data = 0
+
+get ext extension
+if ext == "dat"
+	get base_off long
+	get files long
+	get dat03 long
+	get dat04 long
+	for i = 0 < files
+		get name_off long
+		get dat06 long
+		get dat07 long
+		get offset long
+		get uncompressed_size long
+		get compressed_size long
+		
+		savepos tmp1
+		goto name_off
+		get name string
+		goto offset
+		if compressed_size == 0
+			if parse_data = 0
+				log name offset uncompressed_size
+			elif parse_data = 1
+				log temporary_file offset uncompressed_size
+			endif
+		else
+			idstring "RCMP"
+			get rcmp01 long
+			get rcmp_uncompressed_size long
+			get rcmp_compressed_size long
+			get rcmp_hash long
+			get rcmp05 long
+			savepos rcmp_offset
+			if parse_data = 0
+				clog name rcmp_offset rcmp_compressed_size rcmp_uncompressed_size
+			elif parse_data = 1
+				clog temporary_file rcmp_offset rcmp_compressed_size rcmp_uncompressed_size
+			endif
+		endif
+		goto tmp1
+		
+		if parse_data = 1
+			open "." temporary_file 1
+			math filenum = 1
+			
+			get subfile_base_number long filenum
+			for
+				get subfile_name_off long filenum
+				if subfile_name_off == 0
+					break
+				endif
+				get subfile_offset long filenum
+				math subfile_offset + subfile_base_number
+				get subfile_size long filenum
+				savepos tmp2 filenum
+				goto subfile_name_off filenum
+				get subfile_name string filenum
+				goto tmp2 filenum
+				
+				set backup_name string name
+				string subfile_filename p "[%s].%s" backup_name subfile_name
+				log subfile_filename subfile_offset subfile_size filenum
+			next
+		endif
+	next i
+elif ext == "data"
+	idstring "FCLC"
+	get fclc01 long
+	get fclc_shaders long
+	get fclc_start_off long
+	for i = 0 < fclc_shaders
+		get fclc04 long
+		get fclc05 long
+		get fclc06 long
+	next i
+elif ext == "txt"
+	get txt_filesize asize
+	get base_filename basename
+	if base_filename & ".dat"
+		open FDSE base_filename 1
+		math a = 0
+		math b = 0
+		for
+			get base_line line
+			savepos txt_off
+			if base_line == "[RC:0005]"
+				get base_loading_info line
+			elif base_line == "[resources]"
+				for
+					get base_resource_info line
+					savepos txt_off
+					if base_resource_info == "[/resources]"
+						break
+					else
+						string file_elements_1 S base_resource_info name hash
+						putarray 1 a name
+						putarray 2 a hash
+						math a + 1
+					endif
+				next
+			elif base_line == "[targets]"
+				for
+					get base_target_info line
+					savepos txt_off
+					if base_target_info == "[/targets]"
+						break
+					else
+						string file_elements_2 S base_target_info hash1 hash2 uncompressed_size compressed_size file_position unknown
+						putarray 3 b hash1
+						putarray 4 b hash2
+						putarray 5 b uncompressed_size
+						putarray 6 b compressed_size
+						putarray 7 b file_position
+						putarray 8 b unknown
+						math b + 1
+					endif
+				next
+			elif base_line == "[/RC:0005]"
+				break
+			endif
+		next
+	endif
+endif

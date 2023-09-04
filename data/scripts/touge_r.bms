@@ -1,0 +1,22 @@
+# Touge R
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RAX\0"
+get INFO_OFF long
+get ALIGN long
+get FILES long
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY long
+    get NAME_OFF long
+    get NAMESZ long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

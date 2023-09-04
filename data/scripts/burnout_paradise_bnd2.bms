@@ -1,0 +1,78 @@
+# bnd2 (script 0.1.2)
+#   Burnout Paradise
+#   Need for Speed Most Wanted
+#   Need for Speed Hot Pursuit
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # for those files that are not compressed
+idstring "bnd2"
+get FULL_SIZE asize
+math TYPE = 0   # Burnout Paradise
+do
+    get DUMMY long
+while DUMMY != FULL_SIZE
+savepos TMP
+if TMP < 0x10
+    math TYPE = 1
+endif
+get FILES long
+get INFO_OFF long
+get OFFSET long
+math REMAINING = OFFSET
+math REMAINING -= INFO_OFF
+math REMAINING /= FILES
+for i = 0 < FILES
+    goto INFO_OFF
+    getdstring DUMMY 8
+    if TYPE == 0
+        getdstring DUMMY 8
+    endif
+    get SIZE long
+    get SIZE2 long
+    get SIZE3 long
+    putarray 0 -1 SIZE2
+    putarray 0 -1 SIZE3
+    if TYPE == 0
+        get DUMMY long
+        if DUMMY == 0
+            get ZSIZE long
+        else
+            math ZSIZE = DUMMY
+        endif
+    else
+        getdstring DUMMY 4
+        get ZSIZE long
+    endif
+    xmath NEXT_INFO_OFF "INFO_OFF + REMAINING"
+    get ZSIZE2 long
+    get ZSIZE3 long
+    putarray 1 -1 ZSIZE2
+    putarray 1 -1 ZSIZE3
+    math INFO_OFF = NEXT_INFO_OFF
+    callfunction DUMP 1
+next i
+
+putarray 0 -1 -1
+putarray 1 -1 -1
+for i = 0
+    math OFFSET x 0x80
+    getarray SIZE  0 i
+    getarray ZSIZE 1 i
+    if ZSIZE < 0
+        break
+    endif
+    if ZSIZE != 0
+        callfunction DUMP 1
+    endif
+next i
+
+startfunction DUMP
+    if OFFSET u< FULL_SIZE
+        math SIZE &= 0xffffff #???  compression
+        clog "" OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+        if TYPE == 0
+            math OFFSET x= 0x10
+        endif
+    endif
+endfunction

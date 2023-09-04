@@ -1,0 +1,91 @@
+# Escape from Paradice City LFM
+# script for QuickBMS http://quickbms.aluigi.org
+
+# code by Ekey
+# https://zenhax.com/viewtopic.php?p=39689#p39689
+set MEMORY_FILE10 string "
+typedef unsigned char BYTE;
+BYTE * lfm_decrypt(int dwKey, BYTE *pBuffer, int dwSize)
+{
+  int v3; // edx@1
+  unsigned int v4; // ecx@1
+  int v5; // ebx@1
+  BYTE *result; // eax@2
+  unsigned int v7; // ebp@2
+  BYTE *v8; // eax@3
+  int v9; // edx@7
+
+  v3 = dwSize;
+  v4 = 0x1001 * dwKey - 0x6F0B34D9;
+  v5 = 0;
+  if ( (signed int)(dwSize & 0xFFFFFFFC) <= 0 )
+  {
+    result = pBuffer;
+  }
+  else
+  {
+    result = pBuffer;
+    v7 = (((dwSize & 0xFFFFFFFC) - 1) >> 2) + 1;
+    v5 = 4 * v7;
+    do
+    {
+      *result ^= v4 >> 4;
+      v8 = result + 1;
+      *v8++ ^= v4 >> 10;
+      *v8++ ^= v4 >> 16;
+      *v8 ^= v4 >> 22;
+      result = v8 + 1;
+      v4 = (dwKey ^ (dwKey << 8) ^ 0xE08ADA15) + (0x10001 * dwKey + 0x4D3B1949) * v4;
+      --v7;
+    }
+    while ( v7 );
+    v3 = dwSize;
+  }
+  if ( v5 < v3 )
+  {
+    v9 = v3 - v5;
+    do
+    {
+      *result++ ^= v4;
+      --v9;
+    }
+    while ( v9 );
+  }
+  return result;
+}
+"
+
+math KEY = 0
+get LFM_NAME basename
+if LFM_NAME == "Text"
+    math KEY = 0xE6C2CF
+elif LFM_NAME == "Lua"
+    math KEY = 0xE7017A
+endif
+print "Use KEY %KEY|x%, if zero the encrypted files will be invalid"
+
+endian big
+get OFFSET long
+get FLAGS byte
+if FLAGS == 5
+    encryption calldll "MEMORY_FILE10 lfm_decrypt tcc RET KEY #INPUT# #INPUT_SIZE#"
+endif
+savepos TMP
+xmath SIZE "OFFSET - TMP"
+log xMEMORY_FILE TMP SIZE
+encryption "" ""
+
+get FILES short MEMORY_FILE
+for i = 0 < FILES
+    get NAME string MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    if FLAGS == 2
+        get FLAG byte MEMORY_FILE
+        if FLAG == 1
+            encryption calldll "MEMORY_FILE10 lfm_decrypt tcc RET KEY #INPUT# #INPUT_SIZE#"
+        endif
+    endif
+    log NAME OFFSET SIZE
+    encryption "" ""
+    math OFFSET + SIZE
+next i

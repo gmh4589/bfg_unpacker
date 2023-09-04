@@ -1,0 +1,39 @@
+# Fallout 4 (BA2 format)
+# Written by Ekey (h4x0r)
+# 
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BTDX"
+get VERSION long
+get MAGIC long
+get FILES long
+get NAMES_TABLE_OFFSET long
+get NULL long
+savepos TEMP
+
+goto NAMES_TABLE_OFFSET
+for i = 0 < FILES
+  get NSIZE short
+  getdstring NAME NSIZE
+  putarray 0 i NAME
+next i
+
+goto TEMP
+for i = 0 < FILES
+  get CHECKSUM long
+  getdstring EXT 4
+  get DUMMY long
+  get DUMMY long
+  get OFFSET long
+  get NULL long
+  get ZSIZE long
+  get SIZE long
+  get DUMMY long
+  getarray NAME 0 i
+   
+  if ZSIZE == SIZE
+    log NAME OFFSET ZSIZE
+  else
+    clog NAME OFFSET ZSIZE SIZE
+  endif
+next i

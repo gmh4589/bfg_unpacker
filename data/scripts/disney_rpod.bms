@@ -1,0 +1,13 @@
+# Disney .POD
+
+idstring "RPOD"
+get DUMMY long  # 1
+getdstring ZERO 16
+get FILES long
+get DATA_OFF long
+for i = 0 < FILES
+    getdstring NAME 0x18
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,27 @@
+# C9
+#   cfs files from Steam
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PATH FULLNAME
+string PATH |= \C9\
+string PATH <<= \
+
+comtype lzma
+idstring "cfs"
+goto 0xc
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get NAMESZ long
+    filexor 0x3a
+    getdstring NAME NAMESZ
+    filexor ""
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    # all the files are compressed so no SIZE == ZSIZE
+
+    set FNAME string PATH
+    string FNAME += NAME
+    clog FNAME OFFSET ZSIZE SIZE
+next i

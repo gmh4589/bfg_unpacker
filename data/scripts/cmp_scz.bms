@@ -1,0 +1,57 @@
+# $CMP scz files (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+getdstring SIGN 4
+goto 0
+if SIGN u== "STPZ"  # STPK is not an archive
+    idstring "STPZ"
+    get DUMMY long
+    get CHUNKS long
+    get OFFSET long
+endif
+
+get NAME basename
+if NAME & "."
+else
+    string NAME + "."
+endif
+
+savepos OFFSET
+getdstring TYPE 4
+if TYPE u== "$CMP"
+
+    get ZSIZE long
+    getdstring ZERO 8
+    get SIZE long
+    get ZSIZE long
+    math ZSIZE + 0x10
+
+    #get ZSIZE asize
+    #math ZSIZE - OFFSET
+
+    comtype DRV3_SRD
+    clog NAME OFFSET ZSIZE SIZE
+
+elif TYPE u== "SCD0"
+
+    comtype DRAGONBALLZ
+    get SIZE long
+    get ZSIZE long
+    get CHUNK_SIZE long
+    log NAME 0 0
+    append
+    for MEM_SIZE = 0 != SIZE
+        idstring "SCL0"
+        get CHUNK_SIZE long
+        get CHUNK_ZSIZE long
+        get ZERO long
+        savepos CHUNK_OFF
+        math CHUNK_ZSIZE - 0x10
+        clog NAME CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+        goto CHUNK_ZSIZE 0 SEEK_CUR
+    next MEM_SIZE + CHUNK_SIZE
+    append
+
+endif
+

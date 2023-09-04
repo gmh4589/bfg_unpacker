@@ -1,0 +1,26 @@
+# Agent Armstrong
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + /
+    string PATH + NAME
+    savepos BACKUP_OFF
+    goto OFFSET
+    savepos BASE_OFF
+    getdstring MAGIC 12
+    if MAGIC == "KotJCo01Dir "
+        get FILES long
+        for i = 0 < FILEs
+            getdstring NAME 16
+            get OFFSET long
+            get SIZE long
+            callfunction EXTRACT
+        next i
+    else
+        log PATH OFFSET SIZE
+    endif
+    goto BACKUP_OFF
+endfunction

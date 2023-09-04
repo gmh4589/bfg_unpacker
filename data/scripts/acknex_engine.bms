@@ -1,0 +1,23 @@
+# Acknex Engine 8
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\xaa"
+comtype lzss0   # lzss or lzss0? same results with samples
+endian big
+idstring "WRS4"
+get INFO_OFF long
+savepos OFFSET
+goto INFO_OFF
+get ZSIZE long
+get SIZE long
+savepos INFO_OFF
+clog MEMORY_FILE INFO_OFF ZSIZE SIZE
+xmath FILES "SIZE / (0x20 + 4 + 4)"
+for i = 0 < FILES
+    getdstring NAME 0x20 MEMORY_FILE
+    string NAME ^ KEY
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+next i

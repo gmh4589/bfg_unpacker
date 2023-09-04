@@ -1,0 +1,37 @@
+# Amagami.img
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss "11 5 2 2 0"
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+get SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+
+for i = 0 < FILES
+    get NAME_OFF long MEMORY_FILE
+    putarray 1 i NAME_OFF
+next i
+
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE
+    putarray 0 i OFFSET
+next i
+    putarray 0 i SIZE
+
+for i = 0 < FILES
+    getarray NAME_OFF 1 i
+    getarray OFFSET   0 i
+    math i + 1
+    getarray SIZE     0 i
+    math SIZE - OFFSET
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    string NAME + "."
+
+    log NAME OFFSET SIZE MEMORY_FILE
+next

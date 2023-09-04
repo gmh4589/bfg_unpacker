@@ -1,0 +1,48 @@
+# Wooden Dragon: Inquisitor
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype sfl_block_chunked
+idstring "DRPK"
+filexor 0x4a
+
+goto -16
+savepos OFFSET
+get FILES long
+get DIRSZ long
+get NAMESZ long
+get DUMMY long
+
+math OFFSET -= NAMESZ
+math NAME_OFF = OFFSET
+
+math OFFSET -= DIRSZ
+math DIR_OFF = OFFSET
+
+math TMP = FILES
+math TMP *= 24
+math OFFSET -= TMP
+math INFO_OFF = OFFSET
+
+goto INFO_OFF
+for i = 0 < FILES
+    get DIRX long
+    get NAMEX long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+
+    savepos INFO_OFF
+    math NAMEX += NAME_OFF
+    goto NAMEX
+    get NAME string
+    math DIRX += DIR_OFF
+    goto DIRX
+    get DIR string
+    goto INFO_OFF
+
+    set FULLNAME string DIR
+    string FULLNAME += /
+    string FULLNAME += NAME
+    clog FULLNAME OFFSET ZSIZE SIZE
+next i

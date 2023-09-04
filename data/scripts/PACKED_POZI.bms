@@ -1,0 +1,14 @@
+<bms author="Xennex" ext="packed" games="'Scrapland'" platforms="'PC'" version="1.0" verbose="Yes" silence="no">
+ImpType Standard ;
+Goto 8 0 ;
+Get FNum Long 0 ;
+For n = 1 to FNum ;
+Get FNLen Long 0 ;
+GetDString FN FNLen 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log FN FS FO FSO FOO ;
+Next n ;
+</bms>

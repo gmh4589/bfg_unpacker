@@ -1,0 +1,49 @@
+# Backyard Skateboarding / Hockey .MET (script 0.1.1)
+
+get INFO_OFF long
+get INFO_SIZE long
+get FILES long
+get NAMES_OFF long
+get NAMES_SIZE long
+get BASE_OFF long
+goto INFO_OFF
+
+# patch by GHFear
+get TEST_GOTY long
+if TEST_GOTY == 0x30
+    goto 0x30
+else if TEST_GOTY != 0x30
+    goto INFO_OFF
+endif
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NEXT_OFF long
+    get PREV_OFF long
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if NEXT_OFF == 0
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    else
+        string PATH + NAME
+        string PATH + /
+        for
+            savepos TMP
+            if TMP == NEXT_OFF
+                break
+            endif
+            callfunction EXTRACT
+        next
+    endif
+endfunction

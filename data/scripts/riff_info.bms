@@ -1,0 +1,49 @@
+# RIFF WAVE info
+#   this script display informations about RIFF WAVE audio files
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "RIFF"
+elif SIGN == "RIFX"
+elif SIGN == "FFIR"
+    endian big
+elif SIGN == "XFIR"
+    endian big
+else
+    print "Error: unsupported signature (%SIGN%)"
+    cleanexit
+endif
+
+get SIZE asize
+get RIFF_SIZE long
+if RIFF_SIZE u> SIZE
+    endian big
+endif
+getdstring WAVE_SIGN 4
+
+math RIFF_SIZE += 8 # faster for()
+for RIFF_OFF = 12 < RIFF_SIZE
+    getdstring TYPE 4
+    get DATA_SIZE long
+
+    if TYPE == "fmt "
+        savepos OFFSET
+        get wFormatTag short
+        get nChannels short
+        get nSamplesPerSec long
+        get nAvgBytesPerSec long
+        get nBlockAlign short
+        get wBitsPerSample short
+        savepos TMP
+        math TMP -= OFFSET
+        math SIZE = DATA_SIZE
+        math SIZE -= TMP
+        getdstring REST SIZE
+        print "\n  wFormatTag:      %wFormatTag|x%\n  nChannels:       %nChannels%\n  nSamplesPerSec:  %nSamplesPerSec%\n  nAvgBytesPerSec: %nAvgBytesPerSec%\n  nBlockAlign:     %nBlockAlign%\n  wBitsPerSample:  %wBitsPerSample%"
+        break
+    endif
+
+    math RIFF_OFF += 8
+    math RIFF_OFF += DATA_SIZE
+    goto RIFF_OFF
+next

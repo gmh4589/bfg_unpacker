@@ -1,0 +1,15 @@
+<bms author="Mr.Mouse" games="'3D Ultra Pinball', '3D Ultra Pinball: Creep Night', '3D Ultra Pinball: The Lost Continent', 'Betrayal At Krondor'" ext="'001', '002'" platforms="'PC', 'PC', 'PC', 'PC'" version="1.0" verbose="no" silence="no">
+ImpType SFileSize ;
+Do ;
+GetDString FNAME 13 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+If FSIZE = 0 ;
+CleanExit ;
+EndIf ;
+SavePos FOFFSET 0 ;
+Log FNAME FOFFSET FSIZE 0 FSIZEX ;
+Math FOFFSET += FSIZE ;
+GoTo FOFFSET 0 ;
+While NotEOF <> 0 ;
+</bms>

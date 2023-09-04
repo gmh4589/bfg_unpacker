@@ -1,0 +1,79 @@
+# Naruto Shippuden: Kizuna Drive (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+if EXT == "gz"
+    # no, it's not gzip
+    get NAME basename
+    set EXT extension NAME
+    print "Error: these gz files are not supported yet"
+    cleanexit
+endif
+
+if EXT == "par"
+    idstring "PAR"
+    get ENDIAN_MODE byte
+    if ENDIAN_MODE != 0
+        endian big
+    endif
+    get VER long    # 2
+    endian guess VER    # just in case...
+    if VER >= 3
+        math NAMESZ = 0x80
+    else
+        math NAMESZ = 0x20
+    endif
+    get FILES long
+    get DUMMY long  # 1
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    padding 0x10
+    for i = 0 < FILES
+        getdstring NAME NAMESZ
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+    cleanexit
+endif
+
+open FDDE "bin"
+open FDDE "arc" 1
+
+comtype gzip
+idstring "PAA\0"
+get ZERO long
+get FILES long
+get INFO_OFF long
+get SOME_OFF long
+get DUMMY long
+goto INFO_OFF
+math OFFSET = 0x10
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    goto OFFSET 1
+    get IS_GZIP threebyte 1
+    if IS_GZIP == 0x088b1f
+        clog NAME OFFSET SIZE SIZE 1
+    else
+        log NAME OFFSET SIZE 1
+    endif
+    math OFFSET + SIZE
+    math OFFSET x 0x10
+next i

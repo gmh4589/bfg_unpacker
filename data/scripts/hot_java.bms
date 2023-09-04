@@ -1,0 +1,36 @@
+# Hot Java developers (script 0.1.1)
+
+idstring "\xce\xde\xed\xec"
+get VER long
+get OFFSET longlong
+get ZERO longlong
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    get TYPE long
+    get NAME_OFF long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i TYPE
+    putarray 3 i NAME_OFF
+next i
+
+get NAMES_SIZE long
+savepos TMP
+log MEMORY_FILE TMP NAMES_SIZE
+
+for i = 0 < FILES
+    getarray OFFSET     0 i
+    getarray SIZE       1 i
+    getarray TYPE       2 i
+    getarray NAME_OFF   3 i
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string
+
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    endif
+next i

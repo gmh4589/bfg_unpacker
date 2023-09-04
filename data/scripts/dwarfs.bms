@@ -1,0 +1,38 @@
+# D.W.A.R.F.S.
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "AGR\x03"
+get DUMMY long
+goto -4
+get OFFSET long
+math OFFSET + 4
+goto OFFSET
+
+set PATH string ""
+set NAME string ""
+math SUB_ENTRIES = 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    for ENTRIES = SUB_ENTRIES != 0
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        get OFFSET long
+        get ZERO long
+        getdstring DUMMY 0x10
+        get ZERO long
+        get ZERO long
+        get IS_FOLDER long
+        get SUB_ENTRIES long
+        if IS_FOLDER == 0xffffffff
+            callfunction EXTRACT
+        else
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+    prev ENTRIES
+endfunction

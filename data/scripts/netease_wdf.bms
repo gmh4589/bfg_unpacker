@@ -1,0 +1,94 @@
+# NetEase WDF (script 0.1.1)
+#   based on tool and info by Ekey (h4x0r) for NetEase WindSoul Engine
+#   https://zenhax.com/viewtopic.php?p=7055#p7055
+#   https://forum.xentax.com/viewtopic.php?t=10530#p88844
+
+set MEMORY_FILE10 string "
+typedef unsigned char   BYTE;
+typedef unsigned int    DWORD;
+
+typedef struct {
+    int     idx;
+    DWORD   key1;
+    DWORD   key2;
+} ctx_t;
+ctx_t   ctx;
+
+void Decrypt_Init(void) {
+    ctx.idx  = 0;
+    ctx.key1 = 0xDEADBEEF;
+    ctx.key2 = 0xBEEFDEAD;
+}
+
+void Decrypt_Core(BYTE* result, int dwSize)
+{
+  char nResult;
+  while(--dwSize) { // correct, one less
+      ctx.key2 = (0x343FD * ctx.key2) + 0x269EC3;
+      nResult = *result;
+      *result++ ^= ((BYTE*)&ctx.key1)[ctx.idx] + (ctx.key2 >> 16);
+      ((BYTE*)&ctx.key1)[ctx.idx] += nResult;
+      ctx.idx = (ctx.idx + 1) & 3;
+  }
+}
+
+void DecryptTable(unsigned char *pScrBuffer, int dwSize)
+{   DWORD dwBlockSize = 16;
+    DWORD dwNext = 0;
+    DWORD dwBlocks = dwSize / dwBlockSize;
+
+    for (DWORD i = 0; i < dwBlocks; i++)
+    {
+        Decrypt_Core((int)pScrBuffer + dwNext, 16);
+        dwNext = dwNext + 16;
+    }
+}
+"
+
+comtype lzma_dynamic    # lzma
+log MEMORY_FILE 0 16
+getdstring SIGN 4 MEMORY_FILE
+goto 0 MEMORY_FILE
+
+if SIGN u!= "PFDW"
+    calldll MEMORY_FILE10 Decrypt_Init "tcc"
+    calldll MEMORY_FILE10 Decrypt_Core "tcc" RET MEMORY_FILE 16
+endif
+
+idstring MEMORY_FILE "PFDW"
+get VER1 short MEMORY_FILE  # 0 or 0x101
+get VER2 short MEMORY_FILE  # 0 or 0x4e
+get FILES long MEMORY_FILE
+get OFFSET long MEMORY_FILE
+
+get SIZE asize
+math SIZE - OFFSET
+log MEMORY_FILE OFFSET SIZE
+if SIGN u!= "PFDW"
+    calldll MEMORY_FILE10 DecryptTable "tcc" RET MEMORY_FILE SIZE
+endif
+
+for i = 0 < FILES
+    get NAME_CRC long MEMORY_FILE
+    if VER1 == 0
+        get SIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        math ZSIZE = 0
+    else
+        get OFFSET long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        encryption xor "\xEB\xC2\xDC\xC3\xC4\xB5\xD2\xCA\xF7\xD7\xA4\xB9\xF0\xBB\xD7\xC0"
+    endif
+    get ZERO long MEMORY_FILE
+
+    string NAME p "%08x." NAME_CRC
+
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+
+    encryption "" ""
+next i

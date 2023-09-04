@@ -1,0 +1,35 @@
+# Naruto The Broken Bond
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring FRSA
+get DUMMY long
+
+get OFFSET long
+get INFO_SIZE long
+math INFO_SIZE *= 28
+log MEMORY_FILE OFFSET INFO_SIZE
+
+get OFFSET long
+get FILES long
+goto OFFSET
+
+for i = 0 < FILES
+    get DUMMY long
+    get TYPE long       # 1=CLIP files, 2=DDS, others?
+    get DUMMY long
+    getdstring NAME 0x80
+
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

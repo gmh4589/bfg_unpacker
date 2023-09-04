@@ -1,0 +1,93 @@
+# Iron Storm IBF / 4X3 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate_noerror
+idstring "RIFF"
+get RIFF_SIZE long
+getdstring RIFF_TYPE 4  # "ISBF", "SCEN", "IMAG" and so on
+print "- RIFF_TYPE: %RIFF_TYPE%"
+
+log MEMORY_FILE 0 0 # for the "zip!" chunks
+math MEM_FILES = 0
+
+math RIFF_SIZE + 8
+savepos NEXT_OFF
+for NEXT_OFF = NEXT_OFF != RIFF_SIZE
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+
+    savepos CHUNK_OFF
+    xmath NEXT_OFF "CHUNK_OFF + CHUNK_SIZE"
+
+    if CHUNK_TYPE u== "4X.v"
+        # header
+
+    elif CHUNK_TYPE u== "LIST"
+
+        idstring "FILE"
+        set NAME string ""
+        savepos OFFSET
+        for OFFSET = OFFSET != NEXT_OFF
+            getdstring TYPE 4
+            get TYPESZ long
+            savepos OFFSET
+            if TYPE u== "@nam"
+                getdstring NAME TYPESZ
+            elif TYPE u== "SIZE"
+                get FILESIZE long
+            elif TYPE u== "DATA"
+                log NAME OFFSET TYPESZ
+            else
+                print "Error: unknown type %TYPE% at offset %OFFSET|x%"
+                cleanexit
+            endif
+            math OFFSET + TYPESZ
+            math OFFSET x 2
+            goto OFFSET
+        next
+
+    elif CHUNK_TYPE u== "zip!"
+
+        getdstring NAME 4
+        get MEM_SIZE long
+        math CHUNK_SIZE - 8
+        math MEM_SIZE - 4
+        savepos OFFSET
+        append
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+        append
+
+        putarray 0 MEM_FILES NAME
+        putarray 1 MEM_FILES MEM_SIZE
+        math MEM_FILES + 1
+
+    elif CHUNK_TYPE u== "@nam"
+        #getdstring NAME CHUNK_SIZE # "4X Studio Builder Generated Scene"
+
+    elif CHUNK_TYPE u== "Aupm"
+
+    else
+
+        string NAME p "%s/." CHUNK_TYPE
+        log NAME CHUNK_OFF CHUNK_SIZE
+
+    endif
+
+    math NEXT_OFF x 2
+    goto NEXT_OFF
+next
+
+if MEM_FILES > 0
+    get MEM_SIZE asize MEMORY_FILE
+    clog MEMORY_FILE2 0 MEM_SIZE MEM_SIZE MEMORY_FILE
+
+    get PATH basename
+    math OFFSET = 0
+    for i = 0 < MEM_FILES
+        getarray NAME 0 i
+        getarray MEM_SIZE 1 i
+        string NAME p "%s/%s/" PATH NAME
+        log NAME OFFSET MEM_SIZE MEMORY_FILE2
+        math OFFSET + MEM_SIZE
+    next i
+endif

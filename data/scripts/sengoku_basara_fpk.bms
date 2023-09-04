@@ -1,0 +1,12 @@
+# Sengoku Basara 2
+
+idstring "#fpk"
+get FILES long
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

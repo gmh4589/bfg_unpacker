@@ -1,0 +1,27 @@
+# Battle Chess 4000
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+for i = 0
+    get OFFSET long
+    if OFFSET == 0x67657247 # "Greg"
+        break
+    endif
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    goto OFFSET
+    findloc TMP binary "GregGreg" 0 ""
+    if TMP != ""
+        math SIZE = TMP
+    endif
+    math SIZE - OFFSET
+    xmath XSIZE "SIZE * 20"
+    clog "" OFFSET SIZE XSIZE
+next

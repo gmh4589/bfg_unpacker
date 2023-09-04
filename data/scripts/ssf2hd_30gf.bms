@@ -1,0 +1,13 @@
+# Super Street Fighter 2 HD
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "30GF"
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    clog "" OFFSET ZSIZE SIZE
+next i

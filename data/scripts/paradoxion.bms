@@ -1,0 +1,18 @@
+# Paradoxion
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get NAME string
+    get FOLDER string
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    set FNAME string FOLDER
+    string FNAME += /
+    string FNAME += NAME
+    log FNAME OFFSET SIZE
+next i

@@ -1,0 +1,80 @@
+# Pro Beach Soccer
+#   direcotyr structure not supported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAM_PAK\0"
+get FILES short
+get DUMMY short
+get NAMES_SIZE long
+get BASE_OFF long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+for i = 0 < FILES
+    get DUMMY1 short
+    get DUMMY2 short
+    get DUMMY3 short
+    get DUMMY4 short
+    putarray 11 i DUMMY1
+    putarray 12 i DUMMY2
+    putarray 13 i DUMMY3
+    putarray 14 i DUMMY4
+next i
+
+savepos LIMIT
+math LIMIT + NAMES_SIZE
+for i = 0
+    savepos TMP
+    if TMP >= LIMIT
+        break
+    endif
+    get NAME string
+    putarray 15 i NAME
+next i
+
+for i = 0 < FILES
+    set NAME string ""
+
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "PAM-"
+        getdstring SIGN 4
+        if SIGN == "ZLB"
+            get CHUNKS long
+            get CHUNK_SIZE long
+            get LAST_CHUNK_ZSIZE long   # or 0
+            get FILESIZE long
+            log MEMORY_FILE 0 0
+            append
+            for x = 1 <= CHUNKS
+                get CHUNK_OFF long
+                if x < CHUNKS
+                    get NEXT_CHUNK_OFF long
+                    goto -4 0 SEEK_CUR
+                else
+                    math NEXT_CHUNK_OFF = SIZE
+                endif
+                xmath CHUNK_ZSIZE "NEXT_CHUNK_OFF - CHUNK_OFF"
+                math CHUNK_OFF + OFFSET
+                if CHUNK_ZSIZE == CHUNK_SIZE
+                    log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+                else
+                    clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+                endif
+            next x
+            append
+            log NAME 0 FILESIZE MEMORY_FILE
+        else
+            print "Error: unknown PAM %SIGN%, contact me"
+            cleanexit
+        endif
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

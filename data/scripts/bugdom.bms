@@ -1,0 +1,41 @@
+# Bugdom / Ideas from the Deep (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BRGR"
+get VERSION long
+if VERSION == 2
+    comtype lzss0   # ???
+endif
+get INFO_SIZE long
+savepos BASE_OFF
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    savepos TMP
+
+    if NAME_OFF == 0
+        set NAME string ""
+    else
+        math NAME_OFF + BASE_OFF
+        goto NAME_OFF
+        get NAME string
+        string NAME R ":" /
+    endif
+
+    if OFFSET u>= 0x20000000    # includes also the others
+        math OFFSET & 0x1fffffff
+        goto OFFSET
+        get XSIZE long
+        savepos OFFSET
+        math SIZE - 4
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+
+    goto TMP
+next i

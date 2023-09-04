@@ -1,0 +1,14 @@
+# Underworld: The Eternal War (TOC/HFF)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "TOC"
+open FDDE "HFF" 1
+get FILES line
+for i = 0 < FILES
+    getct NAME string '|'
+    getct PATH string '|'
+    getct SIZE string '|'
+    get OFFSEt line
+    string NAME p "%s%s" PATH NAME
+    log NAME OFFSET SIZE 1
+next i

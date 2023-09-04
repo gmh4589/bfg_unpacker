@@ -1,0 +1,66 @@
+# Slotomania
+
+idstring "SV3a"
+get SV3_SIZE long
+get TSTAMP long
+get FILES long
+get ZSIZE long
+get SIZE long
+get DUMMY long  # 1
+savepos BASE_OFF
+clog MEMORY_FILE BASE_OFF ZSIZE SIZE
+math BASE_OFF + ZSIZE
+
+get DUMMY long MEMORY_FILE  # 1
+get NUM long MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+next i
+get DUMMY long MEMORY_FILE  # 2
+get SIZE long MEMORY_FILE
+get NAMES long MEMORY_FILE
+for i = 0 < NAMES
+    get NAMESZ long MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+    putarray 0 i NAMESZ
+    putarray 1 i NAME_OFF
+next i
+get DUMMY long MEMORY_FILE
+get XSIZE long MEMORY_FILE
+get SIZE long MEMORY_FILE
+savepos NAMES_OFF MEMORY_FILE
+for i = 0 < NAMES
+    getarray NAMESZ   0 i
+    getarray NAME_OFF 1 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    putarray 2 i NAME
+next i
+math NAMES_OFF + XSIZE
+goto NAMES_OFF MEMORY_FILE
+get SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE
+    get DUMMY1 long MEMORY_FILE
+    get DUMMY2 long MEMORY_FILE
+    math OFFSET + BASE_OFF
+    putarray 0 i OFFSET
+    getarray NAME 2 DUMMY1
+    putarray 1 i NAME
+next i
+    math OFFSET = SV3_SIZE
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray NAME 1 i
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

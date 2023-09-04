@@ -1,0 +1,26 @@
+# Shaolin Plus Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto 20
+get DUMMY_SIZE long
+math DUMMY_SIZE -= 14
+
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY short
+filexor 0x99
+getdstring NAME DUMMY_SIZE
+filexor ""
+
+get DUMMY long
+get SIZE long
+get DUMMY long
+get DUMMY long
+
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE -= OFFSET
+
+comtype LZO1X
+clog NAME OFFSET ZSIZE SIZE

@@ -1,0 +1,21 @@
+# Azangara
+
+idstring "PACK"
+get DUMMY byte
+get DUMMY byte
+get BASE_OFF long
+for
+    savepos TMP
+    if TMP >= BASE_OFF
+        break
+    endif
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    set EXT extension NAME
+    if EXT == "txt"
+        encryption rotate 4
+    endif
+    log NAME OFFSET SIZE
+    encryption "" ""
+next

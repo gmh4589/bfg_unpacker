@@ -1,0 +1,301 @@
+# Shadow of Mordor (script 0.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT & "xml"
+    cleanexit
+endif
+
+quickbmsver "0.8.1"     # not really necessary but there are unicode strings in SKDB
+comtype unzip_dynamic   # handle both zlib and deflate (ps3)
+math UNPACKED = 0
+for TRY = 0 < 2     # automatic decompression of compressed archives
+    goto 0
+    getdstring TYPE 4
+
+    # endian
+    if TYPE u== "RXET"
+        set TYPE string "TEXR"
+        endian big
+    elif TYPE u== "IMTL"
+        set TYPE string "LTMI"
+        endian big
+    elif TYPE u== "LDNB"
+        set TYPE string "BNDL"
+        endian big
+    elif TYPE u== "RATL"
+        set TYPE string "LTAR"
+        endian big
+    elif TYPE u== "BBME"
+        set TYPE string "EMBB"
+        endian big
+    endif
+
+    if TYPE u== "TEXR"
+        goto 0x10
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        getdstring DUMMY 3
+        savepos OFFSET
+        get SIZE asize
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+        cleanexit   # NECESSARY!
+
+    elif TYPE u== "LTMI"
+        goto 0x18
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        savepos OFFSET
+        get SIZE asize
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+        cleanexit   # NECESSARY!
+
+    elif TYPE u== "BNDL"
+        get VER long    # 6
+        get NAMES_SIZE long
+        get OFFSET long
+        get ZERO long
+        if ZERO != 0
+            # mah, they contain nothing, just a copy of the filenames in embb
+            math OTHER_NAMES = ZERO
+            math FILES = 0
+            for i = 0 < OTHER_NAMES
+                get DUMMY long
+            next i
+        else
+            get OTHER_NAMES long
+            get FILES long
+        endif
+        savepos TMP
+        log MEMORY_FILE TMP NAMES_SIZE
+        math OFFSET + TMP
+
+        goto OFFSET
+        for i = 0 < OTHER_NAMES
+            get NAME_OFF long
+        next i
+        savepos OFFSET
+
+        for i = 0 < FILES
+            goto OFFSET
+            get NAME_OFF long
+            get SIZE long
+            savepos OFFSET
+
+            goto NAME_OFF MEMORY_FILE
+            get NAME string MEMORY_FILE
+
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+        next i
+        cleanexit   # NECESSARY!
+
+    elif TYPE u== "LTAR"
+        comtype xmemdecompress
+        get VER long
+        if VER >= 4
+            comtype oodle
+        endif
+        get NAMES_SIZE long
+        get FOLDERS long
+        get FILES long
+        getdstring DUMMY 0x1c
+        savepos INFO_OFF
+        log MEMORY_FILE INFO_OFF NAMES_SIZE
+        math INFO_OFF + NAMES_SIZE
+
+        goto INFO_OFF
+        for i = 0 < FILES
+            callfunction GET_LTAR_ENTRY 1
+        next i
+
+        # directory tree, luckily paths are full so no need of nested functions
+            putarray 10 0 FILES
+            putarray 11 0 ""
+        math IDX = 0
+        for FOLDER = 0 < FOLDERS
+            get NAME_OFF long
+            get NEXT_SUB_FOLDER_ID long
+            get NEXT_FOLDER_ID long
+            get SUB_FILES long
+            goto NAME_OFF MEMORY_FILE
+            get PATH string MEMORY_FILE
+            if SUB_FILES != 0
+                putarray 10 IDX SUB_FILES
+                putarray 11 IDX PATH
+                math IDX + 1
+            endif
+        next FOLDER
+        math FOLDER = 0
+
+        goto INFO_OFF
+        for i = 0 < FILES
+
+            getarray SUB_FILES 10 FOLDER
+            if SUB_FILES <= 0
+                math FOLDER + 1
+                getarray SUB_FILES 10 FOLDER
+            endif
+            math SUB_FILES - 1
+            putarray 10 FOLDER SUB_FILES
+            getarray PATH 11 FOLDER
+
+            callfunction GET_LTAR_ENTRY 1
+
+            goto NAME_OFF MEMORY_FILE
+            get NAME string MEMORY_FILE
+            string NAME p "%s/%s" PATH NAME
+
+            if ZSIZE > 0
+                if SIZE != ZSIZE    # or FLAGS & 1 (FLAGS is usually 9)
+                    math START_OFF = OFFSET
+                    savepos TMP
+                    math CHUNK_SIZE = 0x10000
+                    math OFFSET_LIMIT = OFFSET
+                    math OFFSET_LIMIT + ZSIZE
+                    log NAME 0 0
+                    append
+                    for OFFSET = OFFSET < OFFSET_LIMIT
+                        goto OFFSET
+                        get CHUNK_ZSIZE long
+                        if VER >= 4
+                            get CHUNK_SIZE long
+                        endif
+                        savepos OFFSET
+                        math IS_COMPRESSED = 0
+                        if VER >= 4
+                            if CHUNK_ZSIZE != CHUNK_SIZE
+                                math IS_COMPRESSED = 1
+                            endif
+                        else
+                            if CHUNK_ZSIZE & 0xf0000000 # 0x80000000 is ok too
+                                math CHUNK_ZSIZE & 0x0fffffff
+                            else
+                                math IS_COMPRESSED = 1
+                            endif
+                        endif
+
+                        if IS_COMPRESSED == 0
+                            log NAME OFFSET CHUNK_ZSIZE
+                        else
+                            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                        endif
+                        math OFFSET + CHUNK_ZSIZE
+                        math OFFSET - START_OFF # it's aligned from the offset!
+                        math OFFSET x 4
+                        math OFFSET + START_OFF
+                    next
+                    append
+                    goto TMP
+                else
+                    log NAME OFFSET SIZE
+                endif
+            endif
+        next i
+
+        cleanexit   # NECESSARY!
+
+    elif TYPE u== "SKDB"
+        get VER long        # 9
+        get INFO_OFF long
+        get STRINGS long
+        get DUMMY long      # 0
+        get DUMMY long      # max unicode_char_offset
+        goto INFO_OFF
+        xmath BASE_OFF "INFO_OFF + (STRINGS * (4 + 4))"
+        for i = 0 < STRINGS
+            get SOME_CRC long   # not really because same OFFSET have different CRC
+            get OFFSET long
+            math OFFSET * 2     # it's like a unicode_char_offset
+            math OFFSET + BASE_OFF
+            slog "string.txt" OFFSET -1 unicode
+        next i
+        cleanexit   # NECESSARY!
+
+    elif TYPE u== "SRHR"
+    elif TYPE u== "ANIX"
+    elif TYPE u== "LTFX"
+    elif TYPE u== "MMSH"
+    elif TYPE u== "SKEL"
+    elif TYPE u== "<?xm"    # xml
+
+    elif TYPE u== "EMBB"
+        get EMBB_SIZE asize
+        goto -4 0 SEEK_CUR
+        do
+            idstring "EMBB"
+            get VER long    # 5
+            get NAMES_SIZE long
+            get FILES long
+            savepos TMP
+            log MEMORY_FILE TMP NAMES_SIZE
+            math TMP + NAMES_SIZE
+            goto TMP
+            for i = 0 < FILES
+                get NAME_OFF long
+                goto NAME_OFF MEMORY_FILE
+                get NAME string MEMORY_FILE
+                putarray 0 i NAME
+            next i
+            for i = 0 < FILES
+                getarray NAME 0 i
+                get SIZE long
+                savepos OFFSET
+                log NAME OFFSET SIZE
+                math OFFSET + SIZE
+                goto OFFSET
+            next i
+        while OFFSET != EMBB_SIZE
+        cleanexit   # NECESSARY!
+
+    else
+        if UNPACKED == 0
+            callfunction UNPACK 1
+            math UNPACKED + 1
+        else
+            print "Error: unknown file type %TYPE%"
+            cleanexit
+        endif
+    endif
+next TRY
+
+print "Error: unsupported file type %TYPE%, probably not an archive"
+cleanexit
+
+startfunction UNPACK
+    # unpack the compressed chunks
+    get FULL_SIZE asize
+    xmath TMP "FULL_SIZE * 2"
+    log TEMPORARY_FILE 0 0
+    append
+    for OFFSET = 0 < FULL_SIZE
+        goto OFFSET
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        if ZSIZE == SIZE
+            log TEMPORARY_FILE OFFSET SIZE
+        else
+            clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+        endif
+        math OFFSET + ZSIZE
+        math OFFSET x 4
+    next
+    append
+    open "." TEMPORARY_FILE
+endfunction
+
+startfunction GET_LTAR_ENTRY
+            get NAME_OFF long
+            get OFFSET longlong
+            get ZSIZE longlong
+            get SIZE longlong
+            if VER >= 4
+                get DUMMY byte  # 1
+                get FLAGS byte  # usually 9 for compressed chunks
+            else
+                get FLAGS long  # usually 9 for compressed chunks
+            endif
+endfunction

@@ -1,0 +1,12 @@
+open FDSE "data.bin"
+open FDSE "boot.bin" 1
+goto 0x3cb0b4 1
+for OFFSET = 0
+    get SIZE long 1
+    if SIZE == 0
+        break
+    endif
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+    math OFFSET x 0x800
+next

@@ -1,0 +1,27 @@
+# FIFA Manager ENC files decrypter/encrypter
+#	tested only FIFAM, probably other EA games are compatible too
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+# encryption random "5 SIZE"
+log MEMORY_FILE 0 SIZE
+math SEED = SIZE
+for i = 0 < SIZE
+    getvarchr C MEMORY_FILE i
+    math SEED *= 0x343FD
+    math SEED += 0x269EC3
+    math TMP = SEED
+    math TMP u>>= 0x10
+    math C ^= TMP
+    putvarchr MEMORY_FILE i C
+next i
+get NAME basename
+get EXT extension
+if EXT == "enc"
+    set EXT string "txt"
+else
+    set EXT string "enc"
+endif
+string NAME += "."
+string NAME += EXT
+log NAME 0 SIZE MEMORY_FILE

@@ -1,0 +1,36 @@
+# Deus Ex: Narrative Divided (PC, PS4, XBOXONE)
+# Deus Ex: Sixty-Hour Arcade Hacking Game (PC(Steam))
+
+idstring "ARCH"
+get arch_02 long
+get arch_total_files long
+get arch_archive_names long
+get arch_info_offset longlong
+
+goto arch_info_offset
+for i1 = 1 <= arch_archive_names
+	callfunction get_string 1
+next i1
+
+for i2 = 1 <= arch_total_files
+	get file_generation_date time64
+	getdstring file_hash 16
+	callfunction get_string 1
+	get file_chunks long
+	append
+	for j1 = 1 <= file_chunks
+		get chunk_info_01 long
+		get chunk_position longlong
+		get chunk_offset longlong
+		get chunk_size longlong
+		
+		log asset_string chunk_offset chunk_size
+	next j1
+	append
+next i2
+
+startfunction get_string
+	get asset_string_size long
+	math asset_string_size + 1
+	getdstring asset_string asset_string_size
+endfunction

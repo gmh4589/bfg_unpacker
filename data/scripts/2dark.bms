@@ -1,0 +1,46 @@
+# 2Dark
+#   excellent job spider91 :)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x10
+get FILES long
+get OFFSET long
+get SOME_CRC long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * (4 + 4))"
+for i = 0 < FILES
+    get NAMESZ long
+    get SIZE long
+    savepos TMP
+
+    goto NAMES_OFF
+    getdstring NAME NAMESZ
+    savepos NAMES_OFF
+
+    if SIZE == 0
+        log NAME OFFSET SIZE
+    else
+        goto OFFSET
+        get TYPE byte
+        if TYPE == 0x4f
+            comtype blackdesert
+            get ZSIZE long
+            get SIZE long
+        elif TYPE == 0x47 || TYPE == 0x4e
+            comtype quicklz
+            get ZSIZE long
+            get SIZE long
+        elif TYPE == 0x44 || TYPE == 0x45
+            comtype quicklz
+            get ZSIZE byte
+            get SIZE byte
+        else
+            print "Error: unknown compression type %TYPE|x% at offset %OFFSET|x%"
+            cleanexit
+        endif
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+    endif
+
+    goto TMP
+next i

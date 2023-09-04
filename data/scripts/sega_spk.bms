@@ -1,0 +1,14 @@
+# SEGA Bass Fishing
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SPK\0"
+get VER long
+get FILES long
+get DATA_OFF long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

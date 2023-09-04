@@ -1,0 +1,52 @@
+# Date A Live: Ars Install (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+idstring "Filename"
+get OFFSET long
+
+math VER = 0
+if OFFSET == 0x20202020
+    math VER = 1
+    endian little
+    goto 0x14
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    savepos NAMES_OFF
+    goto OFFSET
+    idstring "Pack                "
+else
+    savepos NAMES_OFF
+    math OFFSET x 4
+    goto OFFSET
+    idstring "Pack    "
+endif
+
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+
+goto NAMES_OFF
+for i = 0 < FILES
+    if VER == 0
+        get NAME_OFF long
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+    else
+        get NAME string
+    endif
+
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    log NAME OFFSET SIZE
+next i

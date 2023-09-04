@@ -1,0 +1,22 @@
+# Ultimate Race Pro
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LIBSYSHEADER"
+getdstring VER 4
+get FILES long
+math FILES -= 1
+for i = 0 < FILES
+    getdstring NAME 120
+    get OFFSET long
+    get ZERO long
+
+    savepos INFO_OFF
+    getdstring NAME2 120
+    get OFFSET2 long
+    get ZERO2 long
+    goto INFO_OFF
+
+    math SIZE = OFFSET2
+    math SIZE -= OFFSET
+    log NAME OFFSET SIZE
+next i

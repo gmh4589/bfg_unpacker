@@ -1,0 +1,95 @@
+# Sonic Forces PAC (untested)
+#   just a conversion from https://gist.github.com/blueskythlikesclouds/887d227301dd3c0ea3c62ab6984388cc
+#
+# Please use Switch Toolbox for these PAC files!
+#   https://github.com/KillzXGaming/Switch-Toolbox
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PACx301L"
+get entryChecksum long
+get fileSize long
+get nodeTreeSectionSize long
+get pacDependsSectionSize long
+get entrySectionSize long
+get stringTableSize long
+get dataSectionSize long
+get offsetTableSize long
+get pacType short
+get constant short
+get dependPacCount long
+
+set fullPath string ""
+callfunction PacNodeTree
+
+startfunction PacNodeTree
+    get nodeCount long
+    get dataNodeCount long
+    get rootNodeOffset longlong
+    get dataNodeIndicesOffset longlong
+    goto rootNodeOffset
+    callfunction PacNode
+endfunction
+
+startfunction PacNode
+    get nameOffset longlong
+    get dataOffset longlong
+    get childIndicesOffset longlong
+    get parentIndex signed_long
+    get index signed_long
+    get dataIndex signed_long
+    get childCount short
+    get hasData byte
+    get fullPathSize byte
+    savepos nodeEndOffset
+        
+    if nameOffset > 0
+        goto nameOffset
+        get self.name string
+        string fullPath p "%s/%s.%s" fullPath self.name # ???
+    endif
+
+    if hasData != 0
+        goto dataOffset
+        get TMP long
+        if TMP == entryChecksum
+            get dataSize long
+            get padding1 longlong
+            get dataOffset longlong
+            get padding2 longlong
+            get extensionOffset longlong
+            get dataType long
+            
+            goto extensionOffset
+            get extension string
+
+            string entry.name p "%s.%s" fullPath extension  # ???
+            math entry.offset = dataOffset
+            math entry.size = dataSize
+            if dataType == 1
+                math entry.isProxy = 1
+            else
+                math entry.isProxy = 0
+                log entry.name entry.offset entry.size
+            endif
+        else
+            goto dataOffset
+            callfunction PacNodeTree
+        endif
+    endif
+    
+    if childIndicesOffset > 0
+        goto childIndicesOffset
+        
+        for i < childCount
+            get childIndices[i] signed_long
+        next i
+    
+        for i < childCount
+            math index = childIndices[i]
+            xmath TMP "rootNodeOffset + (index * 40)"
+            goto TMP
+            callfunction PacNode
+        next i
+    endif
+endfunction

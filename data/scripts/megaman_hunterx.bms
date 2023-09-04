@@ -1,0 +1,25 @@
+# Mega Man Maverick Hunter X cpk CPK0 (script 0.1.1)
+
+get CPK_SIZE asize
+math CPK_SIZE - 10
+
+comtype PUYO_LZ01
+for
+    findloc OFFSET string "CPK0"
+    goto OFFSET
+    idstring "CPK0"
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    savepos OFFSET
+
+    if ZSIZE >= CPK_SIZE
+        math ZSIZE - OFFSET
+    else # original solution
+        math ZSIZE -= 2
+    endif
+    clog "" OFFSET ZSIZE SIZE
+
+    math OFFSET + ZSIZE
+    goto OFFSET
+next

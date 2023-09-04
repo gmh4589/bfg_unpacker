@@ -1,0 +1,223 @@
+# Alpha72 games / Snail Mail (script 0.3.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math GUESS_EXTENSIONS = 1
+
+comtype zlib
+get ARCHIVE_SIZE asize
+
+getdstring TEST 4
+goto 0
+
+if TEST == "PACK"   # PACKData or PACKROF and so on
+    goto 0x58
+    get FILES long
+    get DATA_OFF long
+    get NAMES_SIZE long
+    math NAMES_OFF = DATA_OFF
+    math NAMES_OFF - NAMES_SIZE
+    math NAMES_OFF y 4
+    for i = 0 < FILES
+        get SIZE long
+        get FLAGS long
+        get ZSIZE long
+        get DUMMY long
+        get NAME_OFF long
+        get OFFSET long
+        math NAME_OFF + NAMES_OFF
+
+        if FLAGS & 4    # WorldChromaA.tga
+            math OFFSET + 8
+            math ZSIZE  - 8
+        else
+            math SIZE = ZSIZE
+            math ZSIZE = 0
+        endif
+
+        if FLAGS & 0x00040000
+            # do nothing, the OFFSET is an ID
+        else
+            callfunction DUMP
+        endif
+    next i
+    cleanexit
+endif
+
+comtype lz77wii
+
+# guess if and what encryption is used
+get EXT extension
+if EXT == "dat"
+    filexor "\x00\x02\x02\x00\x1c\x16\x36\x24\x58\x4a\x7a\x58\xb4\x8e\xee\xcc\x30\x12\x72\x50\xac\x86\xa6\x54\x08\x3a\xea\x88\x44\x1e\xde\x9c\x60\x22\xe2\xa0\x7c\x36\xd6\x84\x38\xea\x9a\xb8\x14\x6e\xce\x2c\x90\xf2\x52\xb0\x0c\x66\xc6\x74\xe8\x1a\x8a\x28\xa4\x3e\xbe\x3c\xc0\x42\xc2\x40\xdc\x56\xf6\x64\x98\x0a\xba\x18\x74\xce\x2e\x8c\xf0\x52\xb2\x10\x6c\xc6\xe6\x94\x48\xfa\xaa\x48\x04\xde\x9e\x5c\x20\xe2\xa2\x60\x3c\xf6\x96\x44\x78\x2a\xda\xf8\xd4\x2e\x0e\x6c\x50\xb2\x92\xf0\xcc\x26\x06\x34\x28\x5a\x4a\x68\x64\x7e\x7e\x7c\x80\x82\x82\x80\x9c\x96\xb6\xa4\xd8\xca\xfa\xd8\x34\x0e\x6e\x4c\xb0\x92\xf2\xd0\x2c\x06\x26\xd4\x88\xba\x6a\x08\xc4\x9e\x5e\x1c\xe0\xa2\x62\x20\xfc\xb6\x56\x04\xb8\x6a\x1a\x38\x94\xee\x4e\xac\x10\x72\xd2\x30\x8c\xe6\x46\xf4\x68\x9a\x0a\xa8\x24\xbe\x3e\xbc\x40\xc2\x42\xc0\x5c\xd6\x76\xe4\x18\x8a\x3a\x98\xf4\x4e\xae\x0c\x70\xd2\x32\x90\xec\x46\x66\x14\xc8\x7a\x2a\xc8\x84\x5e\x1e\xdc\xa0\x62\x22\xe0\xbc\x76\x16\xc4\xf8\xaa\x5a\x78\x54\xae\x8e\xec\xd0\x32\x12\x70\x4c\xa6\x86\xb4\xa8\xda\xca\xe8\xe4\xfe\xfe\xfc"
+else
+    math BYTE_00 = 0
+    math BYTE_80 = 0
+    for i = 0 < 0x100
+        get TMP byte
+        if TMP == 0
+            math BYTE_00 + 1
+        elif TMP == 0x80
+            math BYTE_80 + 1
+        endif
+    next i
+    if BYTE_80 > BYTE_00
+        filexor 0x80
+    endif
+endif
+goto 0
+
+math METHOD = 0
+get TEST long
+if TEST u> 0xffff
+    math METHOD = 1
+endif
+goto 0
+
+math METHOD2 = 0
+
+if METHOD = 0
+
+    get FILES long
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        get TEST1 long
+        get TEST2 long
+        get TEST3 long
+        if TEST3 == 0
+            math METHOD2 = 1
+        endif
+    goto 0
+
+    get FILES long
+    for i = 0 < FILES
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        math ZSIZE = 0
+        if METHOD2 == 1
+            get ZSIZE long
+            get DUMMY long
+            get ZERO long
+            math SIZE = ZSIZE
+        endif
+
+        callfunction DUMP
+    next i
+
+else
+
+    get DUMMY longlong
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get TEST long
+    goto -4 0 SEEK_CUR
+    if TEST != 0xcdcdcdcd
+        math METHOD2 = 1
+    endif
+    for i = 0 < FILES
+        if METHOD2 == 0
+            padding 16
+        endif
+        get NAME_OFF long
+        if METHOD2 == 0
+            get OFFSET long
+            get SIZE long
+            get ZSIZE long
+            get DUMMY short
+            get DUMMY long
+        else
+            get OFFSET longlong
+            get SIZE long
+            get ZSIZE long
+            get FLAGS long
+            do
+                get TMP long
+            while TMP <= 0x10   # long story short, I have to guess EVERYTHING!
+            goto -4 0 SEEK_CUR
+        endif
+
+        callfunction DUMP
+    next i
+
+endif
+
+startfunction GET_NAME
+    if NAME_OFF u< ARCHIVE_SIZE
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        # bad idea to guess the extensions, for example mp3 can't be recognized
+        if GUESS_EXTENSIONS != 0
+            set EXT extension NAME
+            if EXT == "wav"
+                set NAME FULLBASENAME NAME
+                string NAME + "."
+            endif
+        endif
+    else
+        set NAME string ""
+    endif
+endfunction
+
+startfunction DUMP
+    callfunction GET_NAME 1
+
+    # the following never happens, just in case it's a new format
+    if SIZE == 0
+        math SIZE  = ZSIZE
+        math ZSIZE = 0
+    endif
+
+    if SIZE != 0    # one sample had "Data\" with a size of zero, better to skip it
+        if ZSIZE == 0
+            log NAME OFFSET SIZE
+        else
+
+            savepos TMP
+            goto OFFSET
+            get TEST long
+
+            if TEST == 0x04034b50   # PK ZIP
+            get ver             short
+            get flag            short
+            get method          short
+            get modtime         short
+            get moddate         short
+            get zip_crc         long
+            get comp_size       long
+            get uncomp_size     long
+            get name_len        short
+            get extra_len       short
+            getdstring name     name_len
+            getdstring extra    extra_len
+            savepos offset
+            if method == 0
+                comtype copy
+            else
+                if method == 8
+                    ComType deflate
+                else
+                    print "unsupported compression method %method%"
+                    cleanexit
+                endif
+            endif
+            math ZSIZE = comp_size
+            math SIZE  = uncomp_size
+            endif
+
+            # the flags are just chaos, boring stuff...
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+
+            goto TMP
+        endif
+    endif
+endfunction

@@ -1,0 +1,15 @@
+# Figure Heads decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FigureHeadsDT00\0"
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+math XSIZE = SIZE
+math XSIZE y 0x10
+
+get NAME basename
+string NAME + .
+
+encryption aes "QBCFBCAUCABSABCIBCAOCABNABCABCAW" "" 0 32
+log NAME OFFSET SIZE

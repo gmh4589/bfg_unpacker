@@ -1,0 +1,15 @@
+# Army Of Two 40th Day PSP Demo .DAT
+
+get FILES long
+math TMP = FILES
+math TMP *= 4
+math TMP += 4
+goto TMP
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    math OFFSET *= 0x800
+    log "" OFFSET SIZE
+next i

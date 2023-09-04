@@ -1,0 +1,53 @@
+# Agarest 2 / Hakuoki PS3 SEC/SIA files (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype UNKNOWN11
+endian big
+idstring "secB"
+get DUMMY long  # 1
+get ALIGN long
+get NAMES_OFF long
+get BASE_OFF long
+get TYPE long   # TYPE and TYPE2 are the same
+get TYPE2 long
+get FILES long
+get NAMES long  # ???
+
+if TYPE == 2
+    getdstring DUMMY 0x24
+endif
+
+for i = 0 < FILES
+    get ID long
+    get DUMMY long
+    get NAME_OFF long
+    if TYPE <= 1
+        get OFFSET long
+        get ZERO long
+        math OFFSET * ALIGN
+    else
+        get DUMMY long
+        get OFFSET long
+        math OFFSET + BASE_OFF
+    endif
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+
+    if NAMES_OFF == 0
+        set NAME string ""
+    else
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        string NAME + "."
+    endif
+
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

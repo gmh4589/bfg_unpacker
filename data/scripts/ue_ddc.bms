@@ -1,0 +1,63 @@
+# UE DDC/DDP - Unreal Engine Derived Data Cache
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DDC_NAME basename
+math IS_SEQUENTIAL = 0
+
+goto -12
+savepos END_OFFSET
+get OFFSET longlong
+get SIGN long
+if SIGN == 0x0cac1ddc
+    # UT Boot.ddc
+    math IS_SEQUENTIAL = 1
+    goto 4
+    math FILES = 0x7fffffff
+else
+    goto -12
+    get DUMMY long
+    get OFFSET longlong
+    goto OFFSET
+
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    get INFO_SIZE long
+endif
+
+for i = 0 < FILES
+    savepos TMP
+    if TMP == END_OFFSET
+        break
+    endif
+
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if IS_SEQUENTIAL == 0
+        get OFFSET longlong
+        get SIZE longlong
+        get CRC long
+    else
+        get ZERO long
+        get SIZE long
+        savepos OFFSET
+    endif
+    string NAME R "__" "::"
+    string NAME R "_" "/"
+
+    if DDC_NAME & "compress"
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        savepos OFFSET
+        goto TMP
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+
+    if IS_SEQUENTIAL != 0
+        math OFFSET + SIZE
+        goto OFFSET
+    endif
+next i

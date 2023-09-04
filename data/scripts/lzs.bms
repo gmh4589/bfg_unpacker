@@ -1,0 +1,25 @@
+# LZS (PSP_Nanoha) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.25"
+idstring "LZS\0"
+getdstring DUMMY 4
+get OFFSET long
+if OFFSET u> 0x10000
+	endian big
+	reverselong OFFSET
+    encryption swap 16  # http://forum.xentax.com/viewtopic.php?p=125188
+endif
+get DICT_OFFSET long
+get SIZE long
+get ZSIZE long
+getdstring DUMMY 8
+get NAME string
+goto DICT_OFFSET
+math DICT_SIZE = ZSIZE
+math DICT_SIZE -= DICT_OFFSET
+getdstring DICT DICT_SIZE
+comtype LZS_UNZIP DICT DICT_SIZE
+math ZSIZE = DICT_OFFSET
+math ZSIZE -= OFFSET
+clog NAME OFFSET ZSIZE SIZE

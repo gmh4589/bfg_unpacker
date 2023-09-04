@@ -1,0 +1,53 @@
+# Pit People (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "securitythroughobscurity"
+strlen KEYSZ KEY
+for i = 0 < KEYSZ
+    getvarchr TMP KEY i long
+    reverselong TMP
+    putvarchr KEY i TMP long
+next i + 4
+
+idstring "PKTB"
+get VER long    # 3
+
+    math SIZE = 0x10
+    callfunction INFO_DECRYPT 1
+
+    getvarchr FILES     INFO 0 long
+    getvarchr BASE_OFF  INFO 4 long
+    getvarchr NAMES_OFF INFO 8 long
+    getvarchr NAMES_SZ  INFO 12 long
+
+log MEMORY_FILE NAMES_OFF NAMES_SZ
+
+for i = 0 < FILES
+    math SIZE = 0x15
+    callfunction INFO_DECRYPT 1
+
+    getvarchr OFFSET    INFO 4 long
+    getvarchr SIZE      INFO 8 long
+    getvarchr ZSIZE     INFO 12 long
+    getvarchr SOME_OFF  INFO 16 long
+
+    get NAME string MEMORY_FILE
+
+    # unknown obfuscation of the names, so set them to nameless
+    set NAME string ""
+
+    math OFFSET + BASE_OFF
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction INFO_DECRYPT
+    savepos TMP
+    filexor KEY TMP
+    getdstring INFO SIZE
+    filexor ""
+    padding 0x10
+endfunction

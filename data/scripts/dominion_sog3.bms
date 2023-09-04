@@ -1,0 +1,15 @@
+# Dominion: Storm Over Gift 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\0\0\0\0"
+get OFFSET long
+math OFFSET + 60
+getdstring DUMMY 32
+get FILES long
+getdstring DUMMY 16
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 252
+    log "" OFFSET SIZE
+next i

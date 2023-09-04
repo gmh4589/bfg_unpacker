@@ -1,0 +1,111 @@
+# True Crime - Los Angeles and New York City (script 0.2.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.1"
+
+set PATH string ""
+set NAME string ""
+math OFFSET = 0
+
+getdstring TEST 8
+goto 0
+if TEST == "DATA    " # or 0x30 ENTRY_SIZE for "."
+
+    # True Crime - Los Angeles
+    math ENTRY = -1
+    callfunction EXTRACT_LA
+
+else
+
+    # True Crime - New York City
+    callfunction EXTRACT_NYC
+
+endif
+
+# an extension of ISO9660
+startfunction EXTRACT_NYC
+    savepos BCK_OFF
+    string PATH + NAME
+    string PATH + /
+    math ENTRY_LIMIT = OFFSET
+    math ENTRY_OFF   = OFFSET
+    do
+        goto ENTRY_OFF
+        for
+            get ENTRY_SIZE byte
+            if ENTRY_SIZE != 0x00 && ENTRY_SIZE != 0x01 && ENTRY_SIZE != 0xff
+                break
+            endif
+            padding 0x800
+            savepos ENTRY_OFF   # checking ENTRY_LIMIT is useless
+            math ENTRY_LIMIT = ENTRY_OFF
+        next
+        get EXTRA_SIZE byte
+        get OFFSET long
+        get OFFSET_BE long
+        get SIZE long
+        get SIZE_BE long
+        getdstring DUMMY 6
+        get ZERO byte
+        get FLAGS byte
+        get ZERO byte
+        get ZERO byte
+        get VOLUME short    # ever 1
+        get VOLUME_BE short
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        string NAME > ";"  # all filenames have a ";1"
+        math OFFSET * 0x800
+        if FLAGS & 2
+            getvarchr TMP NAME 0
+            if TMP == 0x00      # .
+                math ENTRY_LIMIT + SIZE # ENTRY_LIMIT is ENTRY_OFF
+            elif TMP == 0x01    # ..
+            else
+                callfunction EXTRACT_NYC
+            endif
+        else
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+        math ENTRY_OFF + ENTRY_SIZE
+        math ENTRY_OFF + EXTRA_SIZE
+    while ENTRY_OFF u< ENTRY_LIMIT
+    goto BCK_OFF
+endfunction
+
+startfunction EXTRACT_LA
+    math ENTRY + 1
+    savepos BCK_OFF
+    for
+        goto OFFSET
+        getdstring NAME 8
+        get SUB_FOLDER_OFF long
+        get NEXT_FOLDER_OFF long
+        get FILES long
+        set BCK_PATH string PATH
+        string PATH + NAME
+        string PATH + /
+        for i = 0 < FILES
+            getdstring NAME 12
+            get OFFSET long
+            get SIZE long
+            math OFFSET * 0x800
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        next i
+        if SUB_FOLDER_OFF != 0
+            math OFFSET = SUB_FOLDER_OFF
+            callfunction EXTRACT_LA
+        endif
+        if NEXT_FOLDER_OFF == 0
+            break
+        endif
+        if ENTRY == 0   # unfortunately the root "DATA" has NEXT_FOLDER_OFF != 0 which leads to invalid data
+            break
+        endif
+        set PATH string BCK_PATH
+        math OFFSET = NEXT_FOLDER_OFF
+    next
+    goto BCK_OFF
+endfunction

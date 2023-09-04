@@ -1,0 +1,40 @@
+# Tony Hawk Ride / Shred (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "PAK\0"
+idstring "\xfe\xeb"
+get VER short
+get FILES long
+get NAME_SIZE long
+
+for i = 0 < FILES
+    get CRC long
+    get NAME_OFF long
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    if VER >= 4
+        get ZERO long
+        get ZERO long
+    endif
+
+    putarray 0 i NAME_OFF
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+
+savepos OFFSET
+log MEMORY_FILE OFFSET NAME_SIZE
+
+for i = 0 < FILES
+    getarray NAME_OFF 0 i
+    getarray OFFSET   1 i
+    getarray SIZE     2 i
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+
+    log NAME OFFSET SIZE
+next i

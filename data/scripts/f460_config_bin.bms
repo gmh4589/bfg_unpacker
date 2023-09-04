@@ -1,0 +1,32 @@
+# F460 F660 F420 config.bin
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # just in case some chunks are not compressed
+endian big
+idstring "\x99\x99\x99\x99"
+idstring "\x44\x44\x44\x44"
+idstring "\x55\x55\x55\x55"
+idstring "\xaa\xaa\xaa\xaa"
+math BASE_OFF = 0x90
+goto BASE_OFF
+get DUMMY long
+get ZERO long
+get FILE_SIZE long
+math OFFSET = 0xcc
+log MEMORY_FILE 0 0
+append
+for MEM_SIZE = 0 < FILE_SIZE
+    goto OFFSET
+    get SIZE long
+    get ZSIZE long
+    get NEXT_OFF long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    xmath OFFSET "BASE_OFF + NEXT_OFF"
+    get MEM_SIZE asize MEMORY_FILE
+next
+append
+
+get NAME basename
+string NAME + ".xml"
+log NAME 0 FILE_SIZE MEMORY_FILE

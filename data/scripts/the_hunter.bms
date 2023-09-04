@@ -1,0 +1,19 @@
+# The Hunter (tested with 2009072101)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXTENSION extension
+if EXTENSION != TAB
+    open FDDE TAB 0
+endif
+open FDDE ARC 1
+
+get CHUNKSZ long
+get FILES asize
+math FILES /= 12
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get SIZE long
+
+    log "" OFFSET SIZE 1
+next i

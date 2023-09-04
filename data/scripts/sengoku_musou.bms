@@ -1,0 +1,53 @@
+# Sengoku Musou / SAMURAI WARRIORS (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MAGIC long  # 0x00102a49
+endian GUESS MAGIC
+get FILES long
+get ALIGN long
+get ZERO long
+math CHUNK_SIZE = 0x8000
+for i = 0 < FILES
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long
+    math OFFSET * ALIGN
+
+    if SIZE == 0
+        log "" OFFSET ZSIZE
+    else
+        savepos BCK_OFF
+        goto OFFSET
+        get XSIZE long  # same as SIZE
+        math CHUNKS = SIZE
+        math CHUNKS / CHUNK_SIZE
+        if SIZE % CHUNK_SIZE
+            math CHUNKS + 1
+        endif
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for x = 0 < CHUNKS
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            if CHUNK_ZSIZE >= CHUNK_SIZE || CHUNK_ZSIZE == 0    # not verified
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+                math CHUNK_ZSIZE = CHUNK_SIZE
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            goto OFFSET
+        next x
+        append
+        get TMP asize MEMORY_FILE
+        if TMP != SIZE
+        if TMP != XSIZE
+            print "Error: something wrong with the decompressed chunks %TMP% %SIZE% %ZSIZE%"
+            cleanexit
+        endif
+        endif
+        log "" 0 SIZE MEMORY_FILE
+        goto BCK_OFF
+    endif
+next i

@@ -1,0 +1,24 @@
+# Hard Truck 2: King of the Road (RES)
+#   the OVL files are totally useless
+# script for QuickBMS http://quickbms.aluigi.org
+
+get RES_SIZE asize
+for OFFSET = 0 != RES_SIZE
+    get TMP string
+    string ELEMENTS S TMP TYPE_NAME NUM
+    if TYPE_NAME & "FILES"  # don't use FILES var
+        for i = 0 < NUM
+            get NAME string
+            string NAME p "%s/%s" TYPE_NAME NAME
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            goto SIZE 0 SEEK_CUR
+        next i
+    else
+        for i = 0 < NUM
+            slog "" -1 -1
+        next i
+    endif
+    savepos OFFSET
+next

@@ -1,0 +1,35 @@
+# Dragon ball Z Sagas DBU (created by DBLMerge)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE line
+getdstring DBLMerge_STRING SIZE
+
+getdstring DB_STRING 8
+get DUMMY long  # 0x100
+get ZERO long
+get DUMMY long  # 0x28
+get DUMMY long  # some size?
+get ARCHIVE_SIZE asize
+do
+    savepos OFFSET
+    get DUMMY long
+    get SIZE long
+    get FLAGS short
+    getdstring DUMMY 0x36
+    if DUMMY != "1000"  # lame work-around, some files have problems
+        math OFFSET - 1
+        goto OFFSET
+    else
+        savepos OFFSET
+        if FLAGS == 1 && SIZE == 0x100  # another work-around
+            getdstring NAME SIZE
+            log NAME 0 0
+        else
+            append
+            log NAME OFFSET SIZE
+            append
+            math OFFSET + SIZE
+            goto OFFSET
+        endif
+    endif
+while OFFSET != ARCHIVE_SIZE

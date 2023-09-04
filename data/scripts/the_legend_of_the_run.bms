@@ -1,0 +1,27 @@
+# The legend of the run (work-in-progress)
+#   obfuscation is not supported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MPK\x1a"
+getdstring NUM 4
+get MPK_SIZE long
+get DUMMY long
+get OFFSET1 long
+get SIZE1 long
+get OFFSET2 long
+get SIZE2 long
+get OFFSET3 long
+get SIZE3 long
+for i = 0
+    savepos TMP
+    if TMP u>= OFFSET2
+        break
+    endif
+    get ENTRY_SIZE long
+    get SIZE long
+    get ZERO long
+    savepos OFFSET
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next i

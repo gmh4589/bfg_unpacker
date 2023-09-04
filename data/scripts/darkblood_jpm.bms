@@ -1,0 +1,32 @@
+# Dark blood online (Heroes of Atarsia) JPK / JPM
+#   unknown obfuscation probably XOR with a sequence of readable numbers
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "JPM"
+get DUMMY byte
+goto 0x328
+get INFO_SIZE long
+savepos BASE_OFF
+math BASE_OFF += INFO_SIZE
+get FILES long
+get DATA_SIZE long
+get DUMMY byte
+get DUMMY byte
+get ENCRYPTED byte  # ???
+get DUMMY long
+for i = 0 < FILES
+    get NAMESZ variable3
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    get XNAMESZ variable3
+    getdstring XNAME XNAMESZ
+    set XNAME unicode XNAME
+    get DUMMY long
+    get DUMMY long  # 0
+    get SIZE long
+    get OFFSET long
+    get DUMMY byte
+    
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

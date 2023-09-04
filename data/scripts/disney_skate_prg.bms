@@ -1,0 +1,26 @@
+# Disney Extreme Skate Adventure (PRG) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+get ARCHIVE_SIZE long
+get DUMMY short     # 0x2, endianess swaps these 2 shorts
+get DUMMY short     # 0xabcd
+get FILES long
+endian guess FILES  # ignore the previous fields
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get NAMESZ short
+    get ZERO short
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+    endif
+    math OFFSET x 4
+    goto OFFSET
+next i

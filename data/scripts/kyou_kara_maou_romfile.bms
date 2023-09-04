@@ -1,0 +1,42 @@
+# Kyou Kara Maou - Hajimari no Tabi ROMFILE.BIN
+
+for EXTRACT = 0
+    savepos BASE_OFF
+    idstring "PAK\0"
+    get FILES long
+    get NAMES_OFF long
+    get INFO_OFF long
+    if NAMES_OFF != 0
+        math NAMES_OFF + BASE_OFF
+        goto NAMES_OFF
+        for i = 0 < FILES
+            get NAME_OFF long
+            math NAME_OFF + NAMES_OFF
+            savepos TMP
+            goto NAME_OFF
+            get NAME string
+            goto TMP
+            putarray 0 i NAME
+        next i
+    endif
+    math INFO_OFF + BASE_OFF
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        math OFFSET + BASE_OFF
+        if NAMES_OFF != 0
+            getarray NAME 0 i
+            string NAME p "%d/%s" EXTRACT NAME
+        else
+            string NAME p "%d/" EXTRACT
+        endif
+        log NAME OFFSET SIZE
+    next i
+
+    math OFFSET + SIZE
+    goto OFFSET
+
+    findloc OFFSET binary "PAK\0"
+    goto OFFSET
+next EXTRACT

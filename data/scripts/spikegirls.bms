@@ -1,0 +1,58 @@
+# Spike Girls sgp decoder
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+strlen NAMELEN NAME
+
+set TAB "bafedcgnmlopxwuvtsrqkjihzy"
+strlen TABLEN TAB
+
+for i = 0 < NAMELEN
+    getvarchr A NAME i
+
+    if A == 0x2e
+        break
+    endif
+
+    if A >= 0x41
+        if A <= 0x5a
+            math A += 0x20
+        endif
+    endif
+
+    if A >= 0x61
+        if A <= 0x7a
+            for j = 0 < TABLEN
+                getvarchr T TAB j
+                if T == A
+                    break
+                endif
+            next j
+            set A j
+            math A += 0x61
+        endif
+    endif
+
+    putvarchr NAME i A
+next i
+
+get BOH long
+get HEADER_SIZE long
+savepos OFFSET
+
+get FILESIZE asize
+math FILESIZE -= OFFSET
+
+log MEMORY_FILE OFFSET FILESIZE
+
+for i = 0 < HEADER_SIZE
+    getvarchr A MEMORY_FILE i
+    if A & 1
+        math A -= 1
+    else
+        math A += 1
+    endif
+    putvarchr MEMORY_FILE i A
+next i
+
+log NAME 0 FILESIZE MEMORY_FILE

@@ -1,0 +1,105 @@
+# dsPackX archives (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4   # I don't remember if dspackx have a signature, contact me
+if SIGN == "mgf "
+    endian little
+elif SIGN == " fgm"
+    endian big
+else
+    endian big
+    goto 8
+    get CHUNKS long
+    get FILESIZE long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+
+    print "\n\nthis script uses a temporary file, type a and press RETURN to skip all the\noverwriting confirmations!!!\nand press y at the end to delete it\n\n"
+
+    log TEMPORARY_FILE 0 0  # clean it
+    append
+    for i = 0 < CHUNKS
+        get OFFSET long
+        get ZSIZE long
+        get CRC long
+        if ZSIZE == 0
+            log TEMPORARY_FILE OFFSET SIZE
+        elif ZSIZE == SIZE
+            log TEMPORARY_FILE OFFSET SIZE
+        else
+            clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+
+    open "." TEMPORARY_FILE 0
+
+    getdstring SIGN 4
+    idstring "mgf "
+endif
+
+get DUMMY long
+get DUMMY long
+get FILES long
+get INFO_SIZE long
+get INFO_OFF long
+get TREES long
+get DUMMY long
+get TREE_OFF long
+get NAMES_SIZE long
+get NAMES_OFF long
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+goto INFO_OFF
+for i = 0 < FILES
+    get NUM long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    getdstring DUMMY 8
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+
+    savepos TMP
+    set FULLNAME string ""
+    callfunction TREE_JOB 1
+    string FULLNAME -= 1
+    goto TMP
+
+    if SIZE == ZSIZE
+        log FULLNAME OFFSET SIZE
+    else
+        clog FULLNAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction TREE_JOB
+    math NUM *= 0x20
+    math NUM += TREE_OFF
+    goto NUM
+
+    getdstring DUMMY 8
+    get PREV_NUM long
+    get NEXT_NUM long
+    get NUM long
+    get NAME_OFF long
+    get TYPE long
+    get DUMMY long
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    string NAME += /
+    string NAME += FULLNAME
+    set FULLNAME string NAME
+
+    if PREV_NUM != 0xffffffff
+        set NUM long PREV_NUM
+        callfunction TREE_JOB 1
+    endif
+endfunction

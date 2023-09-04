@@ -1,0 +1,8 @@
+# IHF Handball Challenge 12 v->zip
+# script for QuickBMS
+
+filexor 0x55
+get NAME basename
+string NAME += ".zip"
+get SIZE asize
+log NAME 0 SIZE

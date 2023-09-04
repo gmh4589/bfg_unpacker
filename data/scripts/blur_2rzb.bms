@@ -1,0 +1,38 @@
+# Blur 2RZB
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "2RZB"
+get DUMMY short
+get DATA_OFF short
+get INFO_SIZE long
+get DATA_SIZE long
+get DUMMY long
+get ENTRY_SIZE long
+math BASE_OFF = 0x14
+math FILES = INFO_SIZE
+math FILES /= ENTRY_SIZE
+math NAMES_OFF = INFO_SIZE
+math NAMES_OFF += BASE_OFF
+goto BASE_OFF
+math BASE_OFF += DATA_OFF
+for i = 0 < FILES
+    get DUMMY short
+    get NAME_OFF short
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY short
+    get DUMMY short
+    get DUMMY short
+    get DUMMY short
+
+    savepos TMP
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

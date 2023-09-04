@@ -1,0 +1,26 @@
+# Alundra 2
+
+get ARCHIVE_SIZE asize
+get FILES long
+math FILES / 4
+goto 0
+for i = 0 < FILES
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    if OFFSET u<= ARCHIVE_SIZE
+        putarray 0 -1 OFFSET
+    endif
+next i
+    putarray 0 -1 ARCHIVE_SIZE
+for i = 0
+    getarray OFFSET 0 i
+    if OFFSET == ARCHIVE_SIZE
+        break
+    endif
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

@@ -1,0 +1,162 @@
+# Macross PSP PIDX (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TMP filename
+open FDSE TMP 1     # use filenum 0 for data files
+
+idstring 1 "PIDX"
+get PACKS_OFF long 1
+get PACKS long 1
+get INFO_OFF long 1
+get FILES long 1
+get DUMMY long 1    # 0, 1, 3 and so on
+get OFFSET2 long 1
+get OFFSET2_SIZE long 1
+get NAMES_OFF long 1
+get NAMES_SIZE long 1
+
+log MEMORY_FILE2 NAMES_OFF NAMES_SIZE 1
+
+math LAST_PACK_NAME_OFF = -1
+
+/*
+# not needed because the name of the package is used
+# in the table instead of its id
+goto PACKS_OFF 1
+for i = 0 < PACKS
+    get NAME_OFF long 1
+    get ZERO long 1
+    get ZERO long 1
+    get ZERO long 1
+    getdstring HASH 16 1
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+    putarray 0 i NAME
+next i
+*/
+
+goto INFO_OFF 1
+
+math HAS_FOLDER = 1
+if FILES == 0   # or DUMMY 0
+    math HAS_FOLDER = 0
+    get FILES long 1
+    for i = 0 < FILES
+        get DUMMY long 1
+    next i
+endif
+
+for i = 0 < FILES
+    if HAS_FOLDER == 0
+        math IS_FOLDER = 0
+    else
+        get IS_FOLDER long 1
+    endif
+    # the following values have different meaning if IS_FOLDER is set
+    get NAME_OFF long 1
+    get PACK_NAME_OFF long 1
+    get OFFSET long 1
+    get SIZE long 1
+    get ZSIZE long 1    # sometimes it's a flag
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    if IS_FOLDER == 0
+
+        if PACK_NAME_OFF != LAST_PACK_NAME_OFF
+            math LAST_PACK_NAME_OFF = PACK_NAME_OFF
+            goto PACK_NAME_OFF MEMORY_FILE2
+            get TMP string MEMORY_FILE2
+            open FDSE TMP 0 EXISTS
+            if EXISTS == 0
+                set TMP filename TMP    # remove data/pack/
+                open FDSE TMP 0 EXISTS
+            endif
+            # please note that there are duplicated names not related to
+            # the name of the pack, therefore using its basename as path
+            # is totally useless because duplicates persist
+        endif
+
+        if EXISTS != 0  # used mainly for my tests
+
+            if HAS_FOLDER == 0
+                math ZSIZE = 0  # it acts as a sort of flag
+            endif
+
+            if ZSIZE == 0
+                log NAME OFFSET SIZE
+            elif ZSIZE >= SIZE
+                log NAME OFFSET SIZE
+            else
+                savepos TMP
+                goto OFFSET
+                getdstring SIGN 4
+                if SIGN == "segs"
+                    goto OFFSET
+                    callfunction SEGS_UNPACK
+                elif SIGN == " 3;0" ||  SIGN == " 3;1"
+                    #get SIZE long
+                    #savepos OFFSET
+                    #math ZSIZE - 8
+                    string NAME p "%s/%s" "unknown" NAME
+                    log NAME OFFSET ZSIZE   # unknown type
+                else
+                    comtype zlib
+                    clog NAME OFFSET ZSIZE SIZE
+                endif
+                goto TMP
+            endif
+
+        endif
+
+    endif
+next i
+
+startfunction SEGS_UNPACK
+    endian save CURRENT_ENDIAN
+    comtype deflate
+    endian big
+    savepos BASE_OFF
+    idstring "segs"
+    get FLAGS short
+    get CHUNKS short
+    get FULL_SIZE long
+    get FULL_ZSIZE long
+    savepos BASE2_OFF
+    xmath BASE2_OFF "BASE2_OFF + (CHUNKS * (2 + 2 + 4))"
+    math WORKAROUND = 0
+    putvarchr MEMORY_FILE 0 FULL_SIZE
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        get ZSIZE short
+        get SIZE short
+        get OFFSET long
+        math OFFSET -= 1
+        if i == 0
+        if OFFSET == 0
+            math WORKAROUND = 1
+        endif
+        endif
+        if WORKAROUND != 0
+            math OFFSET + BASE2_OFF
+        else
+            math OFFSET + BASE_OFF
+        endif
+        if SIZE == 0
+            math SIZE = 0x00010000
+        endif
+        if SIZE == ZSIZE
+            log MEMORY_FILE OFFSET ZSIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+    log NAME 0 FULL_SIZE MEMORY_FILE
+    if CURRENT_ENDIAN == 0
+        endian little
+    endif
+endfunction

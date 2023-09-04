@@ -1,0 +1,34 @@
+<bms games="'Time Splitters Future Perfect'" platforms="'PC'" ext="PAK">
+IDString 0 P5CK ;
+SavePos TailOffOff 0 ;
+Get TailOff Long 0 ;
+Get TailSize Long 0 ;
+Set J Long 2048 ;
+GoTo J 0 ;
+Get FileNum Int 0 ;
+SavePos D 0 ;
+Get B Byte 0 ;
+GoTo D 0 ;
+Set FNT String file ;
+Set TJ Long TailOff ;
+For T = 1 To FileNum ;
+If B > 0 ;
+GoTo D 0 ;
+Get FNS Byte 0 ;
+GetDString FN FNS 0 ;
+SavePos D 0 ;
+Else ;
+Set FN String FNT ;
+String FN += T ;
+EndIf ;
+GoTo TJ 0 ;
+Get DUM Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get DUM Long 0 ;
+SavePos TJ 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+</bms>

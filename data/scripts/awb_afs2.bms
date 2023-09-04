@@ -1,0 +1,37 @@
+# AWB AFS2 (script 0.1.3)
+#   thanks to Taylor&Lion for the alignment field
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AFS2"
+get FLAGS long
+get FILES long
+get MYALIGN long
+for i = 0 < FILES
+    get ALIGN short
+    putarray 0 i ALIGN
+next i
+
+    callfunction GET_OFFSET 1
+    math OFFSET = VALUE
+for i = 0 < FILES
+    callfunction GET_OFFSET 1
+    math NEXT_OFFSET = VALUE
+    if MYALIGN != 0
+        math ALIGN = MYALIGN
+    else
+        getarray ALIGN 0 i
+    endif
+    math OFFSET x= ALIGN
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFFSET
+next i
+
+startfunction GET_OFFSET
+    if FLAGS & 0x200
+        get VALUE short
+    else
+        get VALUE long
+    endif
+endfunction

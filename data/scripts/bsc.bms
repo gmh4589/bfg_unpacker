@@ -1,0 +1,33 @@
+# BSC compression
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.2"
+comtype bsc
+idstring "bsc1"
+get CHUNKS long
+
+log MEMORY_FILE 0 0
+append 1
+for CHUNK = 0 < CHUNKS
+    get blockOffset longlong
+    get recordSize byte
+    get sortingContexts byte
+
+    savepos OFFSET
+    get ZSIZE long
+    get SIZE long
+    putvarchr MEMORY_FILE blockOffset 0
+    goto blockOffset MEMORY_FILE
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+    math OFFSET += ZSIZE
+    goto OFFSET
+next CHUNK
+append 1
+
+get NAME basename
+get EXT extension
+string NAME += "_unpack."
+string NAME += EXT
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

@@ -1,0 +1,47 @@
+# Ace Combat Assault Horizon (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math METHOD = 0
+
+open FDDE "qdf"
+get EXT extension
+
+idstring "QDF\0"
+get unknown long
+get QDF_SPLIT_SIZE longlong
+get FILES long
+get INFO_SIZE long
+savepos TMP
+log MEMORY_FILE TMP INFO_SIZE
+math CURRENT_QDF = 0
+get QDF_SPLIT_LIMIT asize
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+    get OFFSET longlong MEMORY_FILE
+    get SIZE longlong MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get NAME string MEMORY_FILE
+
+    math CHANGE_FILE = 0
+    math TMP = OFFSET
+    #math TMP + SIZE # better to not use this instruction!
+    if METHOD == 0
+        math TMP / QDF_SPLIT_SIZE
+        if TMP != CURRENT_QDF
+            math CHANGE_FILE = 1
+        endif
+    else
+        if TMP u>= QDF_SPLIT_LIMIT
+            math CHANGE_FILE = 1
+        endif
+    endif
+    if CHANGE_FILE != 0
+        string TMP p "%s%d" EXT TMP
+        open FDDE TMP
+        get TMP asize
+        math QDF_SPLIT_LIMIT + TMP
+        math CURRENT_QDF + 1
+    endif
+
+    log NAME OFFSET SIZE
+next i

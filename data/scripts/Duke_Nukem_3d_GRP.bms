@@ -1,0 +1,19 @@
+# Duke Nukem 3d (GRP)
+
+ImpType SFileSize ;
+IDString 0 KenSilverman ;
+Get FC Long 0 ;
+Set MFC Long FC ;
+Math MFC *= 16 ;
+Math MFC += 16 ;
+SavePos FS 0 ;
+For TE = 1 To FC ;
+GoTo FS 0 ;
+GetDString FN 12 0 ;
+SavePos FSO 0 ;
+Get FSI Long 0 ;
+SavePos FS 0 ;
+Log FN MFC FSI 0 FSO ;
+Math MFC += FSI ;
+Next TE ;
+

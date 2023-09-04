@@ -1,0 +1,34 @@
+idstring "RKV2"
+get FILES long
+get NAME_SIZE long
+get FULLNAME_FILES long
+get DUMMY long
+get INFO_OFF long               # 0x2ac9a00
+get DUMMY long
+
+math NAME_OFF = FILES
+math NAME_OFF *= 20
+math NAME_OFF += INFO_OFF       # 0x2adb2dd
+
+math INFO2_OFF = NAME_OFF
+math INFO2_OFF += NAME_SIZE     # 0x2af0394
+
+math FULLNAME_OFF = FILES
+math FULLNAME_OFF *= 16
+math FULLNAME_OFF += INFO2_OFf  # 0x2AFE444
+
+for i = 0 < FILES
+    goto INFO_OFF
+    get NAMEOFF long
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get CRC long
+    savepos INFO_OFF
+
+    math NAMEOFF += NAME_OFF    # use FULLNAME_OFF if you like
+    goto NAMEOFF
+    get NAME string
+
+    log NAME OFFSET SIZE
+next i

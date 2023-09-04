@@ -1,0 +1,48 @@
+# LEGO Creator: Knights Kingdom
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DPAK"
+get VER_MIN short
+get VER_MAJ short
+get TREE_OFF long
+get INFO_OFF long
+get NAMES_OFF long
+get DATA_OFF long
+goto TREE_OFF
+
+set NAME string ""
+set PATH string ""
+math IDX = -1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math IDX + 1
+
+    get ENTRIES long
+    for i = 0 < ENTRIES
+        get NAME_OFF long
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        putarray IDX i NAME
+    next i
+
+    for i = 0 < ENTRIES
+        getarray NAME IDX i
+        get OFFSET long
+        savepos TMP
+        goto OFFSET
+        if NAME & "."
+            get SIZE long
+            get OFFSET long
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        else
+            callfunction EXTRACT
+        endif
+        goto TMP
+    next i
+endfunction

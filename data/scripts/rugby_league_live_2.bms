@@ -1,0 +1,230 @@
+# Rugby League Live 2 / Big Ant Studios (script version 0.5)
+#   Don Bradman Cricket
+#   Rugby League Live 3
+#   maybe others using the Big Ant Studios engine
+#   http://en.wikipedia.org/wiki/Big_Ant_Studios
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+endian big
+
+getdstring TMP 4
+if TMP == "M3MP"
+    callfunction M3MP_UNPACK 1
+    cleanexit
+endif
+
+goto 0
+if TMP != "BLOB" && TMP != "BOLB"
+    getdstring DUMMY 20
+endif
+idstring "BLOB"
+get BLOBS long
+get FILES long
+
+get BLOB_SIZE asize
+
+savepos MEM_OFF
+get MEM_SIZE long   # the first offset
+xmath TMP "MEM_OFF + (FILES * (4+4+4 + 4+4+4 + 4+4))"
+if TMP > MEM_SIZE
+    math MEM_SIZE = TMP
+endif
+log MEMORY_FILE3 0 MEM_SIZE
+goto MEM_OFF MEMORY_FILE3
+
+get BLOB_EXT extension
+get BLOB_NAME basename
+string BLOB_NAME R "-0" "-%d"
+string BLOB_NAME + "."
+string BLOB_NAME + BLOB_EXT
+
+math LAST_BLOB_NUM = 0  # the current one
+for MYFILE = 0 < FILES
+    get OFFSET long MEMORY_FILE3
+    get ZSIZE long MEMORY_FILE3
+    get SIZE long MEMORY_FILE3
+
+    get VRAM_OFFSET long MEMORY_FILE3   # vram?
+    get VRAM_ZSIZE long MEMORY_FILE3
+    get VRAM_SIZE long MEMORY_FILE3
+
+    get DUMMY long MEMORY_FILE3
+    get BLOB_NUM long MEMORY_FILE3
+
+    if BLOB_NUM != LAST_BLOB_NUM
+        math LAST_BLOB_NUM = BLOB_NUM
+        string TMP p BLOB_NAME BLOB_NUM
+        open FDSE TMP
+    endif
+
+    # pre-allocate memory
+    math TMP = SIZE
+    math TMP + VRAM_SIZE
+    putvarchr MEMORY_FILE TMP 0
+    log MEMORY_FILE 0 0
+
+    # 1st data
+    set NAME string ""
+    callfunction EXTRACT 1
+
+    get VRAM_BASE asize MEMORY_FILE
+
+    # 2nd data
+    math OFFSET = VRAM_OFFSET
+    math ZSIZE  = VRAM_ZSIZE
+    math SIZE   = VRAM_SIZE
+    callfunction EXTRACT 1
+
+    # parsing and extraction of the files
+    get SIZE asize MEMORY_FILE
+    if SIZE != 0
+        goto 0 MEMORY_FILE
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN == "M3MP"
+            callfunction M3MP_UNPACK 1
+        elif SIGN == "KPXT"
+            callfunction KPXT_UNPACK 1
+        else
+            math IS_DDS = 0
+            math TMP = 0x14
+            if SIZE > TMP
+                xmath TMP2 "VRAM_BASE - TMP"
+                if TMP2 > 10    # give a minimum length
+                if TMP2 < 200   # give a maximum length
+                    goto TMP MEMORY_FILE
+                    getdstring TMP TMP2 MEMORY_FILE
+                    strlen TMPSZ TMP
+                    math TMPSZ + 1
+                    if TMPSZ == TMP2
+                        math OK = 1
+                        for x = 0 < TMPSZ
+                            getvarchr TMP3 TMP x
+                            if TMP3 == 0
+                            elif TMP3 >= 0x80 || TMP3 < ' '
+                                math OK = 0
+                                break
+                            endif
+                        next x
+                        if OK != 0
+                            set NAME string TMP
+                            math IS_DDS = 1
+                        endif
+                    endif
+                endif
+                endif
+            endif
+            if IS_DDS != 0
+                math SIZE - VRAM_BASE
+                log NAME VRAM_BASE SIZE MEMORY_FILE
+            else
+                log NAME 0 SIZE MEMORY_FILE
+            endif
+        endif
+    endif
+next MYFILE
+
+startfunction EXTRACT
+    if SIZE != 0
+        if SIZE == ZSIZE
+            append
+            log MEMORY_FILE OFFSET SIZE
+            append
+        else
+            # append is already used in the function
+            callfunction UNPACK 1
+        endif
+    endif
+endfunction
+
+startfunction UNPACK
+    goto OFFSET
+    get CHUNKS long
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        putarray 0 x CHUNK_ZSIZE
+    next x
+    savepos OFFSET
+
+    append
+    for x = 0 < CHUNKS
+        getarray CHUNK_ZSIZE 0 x
+        goto OFFSET
+        get CHUNK_SIZE long
+        math CHUNK_ZSIZE -= 4
+        savepos OFFSET
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE OFFSET CHUNK_SIZE
+        else
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        math OFFSET += CHUNK_ZSIZE
+    next x
+    append
+endfunction
+
+startfunction M3MP_UNPACK
+    goto 0 MEMORY_FILE
+    idstring MEMORY_FILE "M3MP"
+    get M3MP_FILES long MEMORY_FILE
+    get M3MP_CHUNKS long MEMORY_FILE
+    get M3MP_DATA_OFF long MEMORY_FILE
+    savepos M3MP_OFF MEMORY_FILE
+    savepos M3MP_INFO_OFF MEMORY_FILE
+    math M3MP_OFF -= 0x10
+
+    math M3MP_DATA_OFF += M3MP_OFF
+    goto M3MP_DATA_OFF MEMORY_FILE
+    log MEMORY_FILE2 0 0
+    append
+    for j = 0 < M3MP_CHUNKS
+        get CHUNK_OFFSET long MEMORY_FILE
+        get CHUNK_ZSIZE long MEMORY_FILE
+        get CHUNK_SIZE long MEMORY_FILE
+        math CHUNK_OFFSET += M3MP_OFF
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log MEMORY_FILE2 CHUNK_OFFSET CHUNK_SIZE MEMORY_FILE
+        else
+            clog MEMORY_FILE2 CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE
+        endif
+    next j
+    append
+    
+    goto M3MP_INFO_OFF MEMORY_FILE
+    for j = 0 < M3MP_FILES
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAME_OFF long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        savepos TMP MEMORY_FILE
+        math NAME_OFF += M3MP_OFF
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto TMP MEMORY_FILE
+        if SIZE != 0
+            log NAME OFFSET SIZE MEMORY_FILE2
+        endif
+    next j
+endfunction
+
+startfunction KPXT_UNPACK
+    goto 0 MEMORY_FILE
+    idstring MEMORY_FILE "KPXT"
+    get KPXT_FILES long MEMORY_FILE
+    for j = 0 < KPXT_FILES
+        get KPXT_NAME_OFF long MEMORY_FILE
+        get KPXT_NAMESZ long MEMORY_FILE
+        get KPXT_OFFSET long MEMORY_FILE
+        get KPXT_SIZE long MEMORY_FILE
+        savepos TMP MEMORY_FILE
+        math KPXT_OFFSET + VRAM_BASE
+        math KPXT_NAME_OFF + 0x14
+        goto KPXT_NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        string NAME p "%s_%d." NAME MYFILE  # folder + auto-guess
+        if KPXT_SIZE != 0
+            log NAME KPXT_OFFSET KPXT_SIZE MEMORY_FILE
+        endif
+        goto TMP MEMORY_FILE
+    next j
+endfunction

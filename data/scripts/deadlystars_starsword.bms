@@ -1,0 +1,30 @@
+# DeadlyStars, StarSword and possibly other GameTop/GameTeam/Media Contact LLC games with the GRP extension
+# script for QuickBMS http://quickbms.aluigi.org
+
+set PATH string ""
+get VER long
+callfunction extract
+
+startfunction extract
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    string PATH += NAME
+    string PATH += /
+
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+
+        set FULLNAME string PATH
+        string FULLNAME += NAME
+        log FULLNAME OFFSET SIZE
+    next i
+
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        callfunction extract
+    next i
+endfunction

@@ -1,0 +1,14 @@
+# 102 Dalmatians
+
+for
+    get OFFSET long
+    get SIZE long
+    if OFFSET == 0
+        break
+    endif
+    if OFFSET != 0xffffffff
+        math OFFSET + 4 # useless TYPE
+        math SIZE   - 4
+        log "" OFFSET SIZE
+    endif
+next

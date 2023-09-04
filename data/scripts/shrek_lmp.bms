@@ -1,0 +1,29 @@
+# Shrek LMP Xbox (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+endian guess FILES
+
+# xbox uses deflate, others use zlib so let's use unzip_dynamic and avoid guessing :)
+comtype unzip_dynamic
+/*
+endian save CURRENT_ENDIAN
+if CURRENT_ENDIAN == 0
+    comtype deflate
+endif
+*/
+
+goto 0x80
+for i = 0 < FILES
+    getdstring NAME 108
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZIP long
+    get CRC long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

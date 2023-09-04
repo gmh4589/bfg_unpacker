@@ -1,0 +1,45 @@
+# Atelier ktsl2asbin ktsl2stbin
+
+open FDDE "ktsl2asbin"
+open FDDE "ktsl2stbin" 1
+
+idstring "KTSR"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ZERO long
+get ZERO long
+get FILE_SIZE long
+get FILE_SIZE long  # same
+getdstring ZERO 0x20
+do
+    savepos ENTRY_OFF
+    get ENTRY_TYPE long
+    get ENTRY_SIZE long
+    math ENTRY_OFF + ENTRY_SIZE
+
+    if ENTRY_TYPE == 0x368c88bd
+    elif ENTRY_TYPE == 0x70cbccc5
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get NAMESZ long
+        get DUMMY long
+        math NAMESZ - 0x1c
+        getdstring NAME NAMESZ
+        math TMP = ENTRY_OFF
+        do
+            math TMP - 4
+            goto TMP
+            get DUMMY long
+        while DUMMY == 0
+        goto -12 0 SEEK_CUR
+        get OFFSET long
+        get SIZE long
+        get FLAGS long  # 0x200
+        log NAME OFFSET SIZE 1
+    endif
+
+    goto ENTRY_OFF
+while ENTRY_OFF != FILE_SIZE
+

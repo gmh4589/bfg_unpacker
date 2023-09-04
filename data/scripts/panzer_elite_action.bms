@@ -1,0 +1,26 @@
+# Panzer Elite Action
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "xp10"
+get DUMMY long
+get FILES long
+
+getdstring DUMMY 0x10
+getdstring DUMMY 0x40
+getdstring DUMMY 0x10
+get NUMS long
+do
+    get NAMESZ short
+    getdstring NAME NAMESZ
+while NAMESZ != 0
+get DUMMY short
+
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,71 @@
+# ImaginEngine / Hamtaro Wake Up Snoozer .INX/.BUL
+#   Note: the archive is incremental which means that it also contains old copies,
+#   that's why the size of the extracted files is smaller than the archive
+
+get EXT extension
+if EXT != "inx"
+    print "Error: please open root.inx"
+    cleanexit
+endif
+
+get SECTIONS long
+for SECTION = 0 < SECTIONS
+    get OFFSET long
+
+    savepos TMP3
+    goto OFFSET
+    get FLAGS short
+    if FLAGS & 0x80
+        callfunction EXTRACT_FILE 1
+    else    # 0x400
+        get ENTRY_SIZE long
+        get SECTION_NAME string
+        goto ENTRY_SIZE # necessary in one sample, I no longer have the original
+        get FILES long
+        if SECTION_NAME & "*bulkFiles"
+            math PACKAGES = FILES
+            math PACKAGES - 1
+        else
+            for i = 0 < PACKAGES
+                getarray TMP 0 i
+                string TMP > "."
+                if TMP == SECTION_NAME
+                    getarray TMP 0 i
+                    open FDSE TMP 1 EXISTS
+                endif
+            next i
+        endif
+        for i = 0 < FILES
+            get OFFSET long
+
+            savepos TMP2
+            goto OFFSET
+            get FLAGS short  # &0x280 for *bulkFiles
+            callfunction EXTRACT_FILE 1
+            goto TMP2
+        next i
+    endif
+    goto TMP3
+next SECTION
+
+startfunction EXTRACT_FILE
+        get ID short
+        get OFFSET long
+        get SIZE long
+        getdstring ZERO 6
+        get NAME string
+        if SECTION_NAME & "*bulkFiles"
+            putarray 0 i NAME
+        else
+            if EXISTS != 0
+                goto OFFSET 1
+                get NAME string 1
+                savepos TMP 1
+                math TMP - OFFSET
+                math OFFSET + TMP
+                math SIZE   - TMP
+                log NAME OFFSET SIZE 1
+            endif
+        endif
+endfunction
+

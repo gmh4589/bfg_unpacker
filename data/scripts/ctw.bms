@@ -1,0 +1,13 @@
+# CTW unpacker
+
+comtype ctw
+endian big
+get DUMMY long
+get SIZE long
+get CRC long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE -= OFFSET
+get NAME filename
+string NAME += ".unpacked"
+clog NAME OFFSET ZSIZE SIZE

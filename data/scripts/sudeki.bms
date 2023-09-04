@@ -1,0 +1,49 @@
+# Sudeki (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "sf"
+
+    idstring "CSSF"
+    get VER short
+    get FILES short
+    for i = 0 < FILES
+        get DUMMY short
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+
+elif EXT == "baf"
+    math HEADER_SIZE = 0xc
+    get OFFSET asize
+    math OFFSET -= 0x80c
+    goto OFFSET
+
+    idstring "baf"
+    get VER byte
+    get SIZE long
+    get FILES long
+    get HEADER_OFFSET long
+    math OFFSET -= SIZE
+    goto OFFSET
+
+    for i = 0 < FILES
+        do
+            get CHUNKS long
+        while CHUNKS == 0
+        for j = 0 < CHUNKS
+            get OFFSET long
+            get SIZE long
+            get CRC long
+            log "" OFFSET SIZE
+        next j
+        math i += CHUNKS
+    next
+
+else
+
+    print "Error: unknown extension %EXT%"
+    cleanexit
+
+endif

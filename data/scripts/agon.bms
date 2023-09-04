@@ -1,0 +1,26 @@
+# extracts *.sfl files from Agon (PC)
+# (c) 2012-05-17 by AlphaTwentyThree of XeNTaX
+
+idstring "SFL10"
+get UNK long
+get INFO long
+get NAMEOFF long
+get UNK long
+get FILES threebyte
+goto INFO
+for i = 1 <= FILES
+   get NAMEPOS long
+   math NAMEPOS += NAMEOFF
+   get DUMMY byte
+   get FILE_NUMBER long
+   get OFFSET long
+   get SIZE long
+   savepos MYOFF
+   goto NAMEPOS
+   get NAME string
+   goto MYOFF
+   get FNAME basename
+   string FNAME += "/"
+   string FNAME += NAME
+   log FNAME OFFSET SIZE # use NAME to disable subfolder
+next i

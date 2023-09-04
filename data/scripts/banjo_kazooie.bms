@@ -1,0 +1,17 @@
+# Banjo-Kazooie: Nuts & Bolts
+
+endian big
+get DUMMY long
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY long
+get DUMMY3 long
+for i = 0 < DUMMY3
+    get DUMMY long
+next i
+for i = 0 < DUMMY2
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

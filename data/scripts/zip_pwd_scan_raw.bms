@@ -1,0 +1,43 @@
+# RAW ZIP password scanner - zipcrypto (script 0.1)
+#   Not fast but it works
+# script for QuickBMS http://quickbms.aluigi.org
+
+# put the list of passwords in the following file!
+set PASSWORD_FILE string "passwords_list.txt"
+
+open FDSE PASSWORD_FILE 1 EXISTS
+if EXISTS == 0
+    open "." PASSWORD_FILE 1 EXISTS
+    if EXISTS == 0
+        print "Error: you must put the list of passwords in %PASSWORD_FILE%"
+        cleanexit
+    endif
+endif
+get PASSWORD_FILE_SIZE asize 1
+
+#print "the error \"incomplete input file number 1\" means that no password was found"
+
+        get comp_size       asize
+        xmath uncomp_size "comp_size * 10"
+        math offset = 0
+
+        Log MEMORY_FILE2 offset comp_size   # load in memory
+
+        ComType deflate_noerror   #deflate but it terminates
+
+            for
+                get ZIP_PASSWORD line 1
+
+                encryption zipcrypto ZIP_PASSWORD 1
+
+                CLog MEMORY_FILE 0 comp_size uncomp_size MEMORY_FILE2
+
+                get SIZE asize MEMORY_FILE
+                if SIZE > comp_size
+                        print "POSSIBLE Password found:\n\n%ZIP_PASSWORD%"
+                        print "(hex visualization for debugging)\n%ZIP_PASSWORD|x%"
+                endif
+
+            next
+
+            print "Error: no password found"

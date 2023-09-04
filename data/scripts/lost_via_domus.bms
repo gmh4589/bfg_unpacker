@@ -1,0 +1,25 @@
+# Lost: Via Domus (yeti.big)
+#   decompression not supported yet, so the script is quite useless
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+get DUMMY short
+get DUMMY short
+get FILES long
+goto 0x268
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * (4 + 4 + 3 + 1))"
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY2 long
+    get SIZE threebyte
+    get FOLDER byte
+    math OFFSET + BASE_OFF
+    string NAME p "compressed/%d/" FOLDER
+    if OFFSET u> ARCHIVE_SIZE   # some files have offsets like 0xfe080a13
+        math OFFSET = LAST_OFFSET
+    endif
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+    math LAST_OFFSET = OFFSET
+next i

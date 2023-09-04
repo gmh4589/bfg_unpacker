@@ -1,0 +1,10 @@
+idstring "QPACK\0"
+goto 10
+get FILES long
+goto 0x15
+for i = 0 < FILES
+    getdstring NAME 0x200
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

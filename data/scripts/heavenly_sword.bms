@@ -1,0 +1,17 @@
+idstring "WAD0" # automatic endian
+get DUMMY long
+get FILES long
+get BASE_OFFSET long
+getdstring DUMMY 0x20
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get CRC long
+    math OFFSET += BASE_OFFSET
+    if ZSIZE == SIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

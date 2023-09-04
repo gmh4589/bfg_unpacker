@@ -1,0 +1,123 @@
+# Trickstar games toc.w32/big.w32 (script 0.5.1)
+#   Heroes Over Europe
+#   Jane's Advanced Strike Fighters
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.3"
+
+math SECTOR_SIZE = 0x10
+math CHUNK_SIZE  = 0x10000
+comtype deflate
+
+get EXT extension
+if EXT == "dat" # one of the files extracted with quickbms
+    get FILES long
+    if FILES == 0x6e727274  # trrn
+        cleanexit
+    endif
+    get NAME basename
+    string NAME + /
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get ZERO long
+        get ZSIZE long
+        get SIZE long
+        math OFFSET * SECTOR_SIZE
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+get NAME filename   # *.toc.w32
+if NAME & ".toc"
+else
+    print "Error: you must select the TOC file"
+    cleanexit
+endif
+
+get EXT_PLATFORM extension  # w32
+get BIG_NAME basename
+set EXT extension BIG_NAME
+set BIG_NAME basename BIG_NAME
+
+string TMP p "%s.toc.%s" BIG_NAME EXT_PLATFORM
+open FDSE TMP 100   # 100 is ok since every big is 4Gb
+
+string TMP p "%s.toc.names.%s" BIG_NAME EXT_PLATFORM
+open FDSE TMP 101 NAMES_EXISTS  # not implemented yet
+
+for i = 0
+    if i == 0
+        string TMP p "%s.big.%s"   BIG_NAME   EXT_PLATFORM
+    else
+        string TMP p "%s%d.big.%s" BIG_NAME i EXT_PLATFORM
+    endif
+    open FDSE TMP i EXISTS
+    if EXISTS == 0
+        break
+    endif
+next i
+
+idstring 100 "toc"
+get VER byte 100    # 1
+get FILES long 100
+endian guess FILES
+get BIG_FILES long 100
+get ZERO long 100
+for i = 0 < FILES
+    get NAME_CRC long 100
+    get OFFSET long 100
+    get BIG_FILE long 100
+    get SIZE long 100
+    get ZSIZE long 100  # ZSIZE is untrusted because it's smaller than the real value like 0x0003fd90 instead of 0x016e797
+    get SIZE2 long 100  # DDS files
+    get ZSIZE2 long 100
+    math OFFSET * SECTOR_SIZE
+
+    string NAME p "%08x." NAME_CRC
+    callfunction DUMP_FILE 1
+
+    if SIZE2 != 0
+        # OFFSET is already set from the previous DUMP_FILE
+        math SIZE  = SIZE2
+        math ZSIZE = ZSIZE2
+        string NAME p "%08x_2." NAME_CRC
+        callfunction DUMP_FILE 1
+    endif
+next i
+
+startfunction DUMP_FILE
+    if ZSIZE == 0
+        log NAME OFFSET SIZE BIG_FILE
+        math OFFSET + SIZE  # necessary for SIZE2
+    else
+        goto OFFSET BIG_FILE
+        get NUM long BIG_FILE
+        for x = 1 < NUM
+            get DUMMY long BIG_FILE
+        next x
+        math CHUNKS = SIZE
+        math CHUNKS / CHUNK_SIZE
+        if SIZE % CHUNK_SIZE
+            math CHUNKS + 1
+        endif
+        savepos OFFSET BIG_FILE
+        xmath OFFSET "OFFSET + (CHUNKS * 2)"
+        log NAME 0 0
+        append
+        for x = 0 < CHUNKS
+            get CHUNK_ZSIZE short BIG_FILE
+            math OFFSET x SECTOR_SIZE
+            if CHUNK_ZSIZE == 0
+                log NAME OFFSET CHUNK_SIZE BIG_FILE
+                math OFFSET + CHUNK_SIZE
+            else
+                clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE BIG_FILE
+                math OFFSET + CHUNK_ZSIZE
+            endif
+        next x
+        append
+    endif
+    math OFFSET x SECTOR_SIZE   # necessary for SIZE2
+endfunction

@@ -1,0 +1,73 @@
+# The Unfinished Swan (PS3) (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "GSPK"
+get FILES long
+get ZERO long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long
+    get NAME_OFF long
+
+    savepos TMP
+
+    goto NAME_OFF
+    get NAME string
+
+    goto OFFSET
+    callfunction SEGS_UNPACK
+
+    goto TMP
+next i
+
+# http://aluigi.org/bms/segs.bms
+startfunction SEGS_UNPACK
+    endian save CURRENT_ENDIAN
+    comtype deflate
+    endian big
+    savepos BASE_OFF
+    idstring "segs"
+    get FLAGS short
+    get CHUNKS short
+    get FULL_SIZE long
+    get FULL_ZSIZE long
+    savepos BASE2_OFF
+    xmath BASE2_OFF "BASE2_OFF + (CHUNKS * (2 + 2 + 4))"
+    math WORKAROUND = 0
+    putvarchr MEMORY_FILE 0 FULL_SIZE
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        get ZSIZE short
+        get SIZE short
+        get OFFSET long
+        math OFFSET -= 1
+        if i == 0
+        if OFFSET == 0
+            math WORKAROUND = 1
+        endif
+        endif
+        if WORKAROUND != 0
+            math OFFSET + BASE2_OFF
+        else
+            math OFFSET + BASE_OFF
+        endif
+        if SIZE == 0
+            math SIZE = 0x00010000
+        endif
+        if SIZE == ZSIZE
+            log MEMORY_FILE OFFSET SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next i
+    append
+    log NAME 0 FULL_SIZE MEMORY_FILE
+    if CURRENT_ENDIAN == 0
+        endian little
+    endif
+endfunction

@@ -1,0 +1,27 @@
+<bms games="'Desert Strike', 'Jungle Strike'" platforms="'PC'" ext="DAT">
+Get FC Long 0 ;
+SavePos CP 0 ;
+Math CP += 12 ;
+Math FC -= 1 ;
+GoTo CP 0 ;
+For T = 1 To FC ;
+SavePos FOO 0 ;
+GetDString FN 8 0 ;
+Get FO Long 0 ;
+Get DUM Long 0 ;
+SavePos CP 0 ;
+GetDString FD 8 0 ;
+Get FS Long 0 ;
+Math FS -= FO ;
+Log FN FO FS FOO 0 ;
+GoTo CP 0 ;
+Next T ;
+GoTo EOF 0 ;
+SavePos FS 0 ;
+GoTo CP 0 ;
+GetDString FN 8 0 ;
+Get FO Long 0 ;
+Get DUM Long 0 ;
+Math FS -= FO ;
+Log FN FO FS FOO 0 ;
+</bms>

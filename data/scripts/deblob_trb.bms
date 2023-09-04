@@ -1,0 +1,43 @@
+# De Blob 2: The Underground
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "TRB\0"
+get DUMMY long
+get DUMMY2 long
+get ENTRIES long
+get OFFSET2 long
+get FILES long
+get NAMES_OFF long
+get DATA_SIZE long
+math OFFSET2 + 0x80
+math NAMES_OFF + 0x80
+math NAMES_OFF x 0x800
+
+goto 0x90
+for i = 0 < ENTRIES
+    get SIZE long
+    get XSIZE long
+    get OFFSET long
+    get DUMMY4 long
+    get DUMMY5 long
+    get DUMMY6 long
+    get DUMMY7 long
+    get DUMMY8 long
+    get DUMMY9 long
+    get NAME_OFF long
+    get DUMMY11 long
+    get DUMMY12 long
+
+    callfunction GET_NAME 1
+
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    math NAME_OFF + NAMES_OFF
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

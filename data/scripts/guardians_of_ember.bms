@@ -1,0 +1,38 @@
+# Guardians of Ember
+# script for QuickBMS http://quickbms.aluigi.org
+
+math METHOD = 1
+
+open FDDE "idx"
+get DUMMY long  # 0x09785222
+getdstring VER 0x10
+get FILES long
+math PACK_NUM = -1
+for i = 0 < FILES
+    get DUMMY long      # 2
+    get DUMMY long      # 0xb???????
+    get DUMMY long      # 0x01d0a1a1
+    get OFFSET long
+    get SOME_CRC long
+    get SIZE long
+    get PACK_NUM byte   # 0
+    get DUMMY long      # 1
+    get NAMESZ long
+    getdstring NAME NAMESZ
+
+    if PACK_NUM != LAST_PACK_NUM
+        math LAST_PACK_NUM = PACK_NUM
+        string TMP p "p%03d" PACK_NUM
+        open FDDE TMP 1
+        # idstring "\x01BDF"
+    endif
+
+    if METHOD == 0
+        math OFFSET + 0x1c # skip some sort of header
+    else
+        goto OFFSET 1
+        get SIZE long 1
+    endif
+
+    log NAME OFFSET SIZE 1
+next i

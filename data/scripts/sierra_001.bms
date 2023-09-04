@@ -1,0 +1,15 @@
+# Sierra 001
+#   Betrayal At Krondor
+#   3D Ultra Pinball
+#   3D Ultra Pinball: The Lost Continent
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+math ARCHIVE_SIZE - 18
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+    getdstring NAME 13
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+next OFFSET + SIZE

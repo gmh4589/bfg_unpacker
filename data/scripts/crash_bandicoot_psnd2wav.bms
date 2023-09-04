@@ -1,0 +1,19 @@
+# psnd to wav
+# converts the *.psnd files from Crash Bandicoot: Nitro Kart 2 (iP, 2010) to playable wave files
+# find the func_header_PCM.bms at http://forum.xentax.com/viewtopic.php?f=13&p=71565#p71565
+# (c) 2012-12-05 by AlphaTwentyThree of XeNTaX
+
+include "func_header_PCM.bms"
+idstring "PSND"
+get UNK long
+get UNK long
+get FREQ short
+get CH byte
+get BITS byte
+savepos OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+set BLOCKALIGN 1
+set CODEC 1
+set NAME ""
+callfunction PCM 1

@@ -1,0 +1,40 @@
+# Hamilton's Great Adventure
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MYSIZE asize
+get FILES long
+if FILES & 0xf0000000
+    get FINAL_SIZE longlong
+    set SIZE long 0x10000
+    append
+    do
+        get ZSIZE long
+        savepos OFFSET
+        if ZSIZE == SIZE
+            log MEMORY_FILE OFFSET 0x10000
+        else
+            clog MEMORY_FILE OFFSET ZSIZE 0x10000
+        endif
+        math OFFSET += ZSIZE
+        goto OFFSET
+    while OFFSET < MYSIZE
+    append
+else
+    math FINAL_SIZE = MYSIZE
+    log MEMORY_FILE 0 MYSIZE
+endif
+
+math FILES &= 0x0fffffff
+math OFFSET = FILES
+math OFFSET *= 0x10
+math OFFSET += 0x104
+for i = 0 < FILES
+    goto OFFSET MEMORY_FILE
+    getdstring DUMMY 0x10 MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    log "" OFFSET SIZE MEMORY_FILE
+    math OFFSET += SIZE
+next i

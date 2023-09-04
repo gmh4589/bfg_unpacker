@@ -1,0 +1,64 @@
+# Asphyre engine
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+get FILES long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    if SIGN == "VTDb" || SIGN == "ASDb"
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+    elif SIGN == "ASVF"
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get OFFSET longlong
+    else    # PXLA
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get OFFSET long
+    endif
+
+    savepos TMP
+    goto OFFSET
+      if SIGN == "VTDb"
+        get Value short
+        get FOriginalSize long
+        get FPhysicalSize long
+        get FChecksum long
+        get FDateTime double
+        math FSecure = 0
+    elif SIGN == "ASDb"
+        get Value short
+        get FOriginalSize long
+        get FPhysicalSize long
+        get FDateTime double
+        getdstring FExtraField 16
+        get FSecure short
+        get FInitVector longlong
+    elif SIGN == "ASVF"
+        get   Value byte
+        xmath FSecure "Value >> 4"
+        get   FOriginalSize long
+        get   FPhysicalSize long
+        get   FDateTime double
+        get   FChecksum long
+        if FSecure != 0
+            get FInitVector longlong
+        endif
+    else
+        get Value byte
+        xmath FSecure "Value >> 4"
+        get FOriginalSize long
+        get FPhysicalSize long
+        get FDateTime longlong
+        get FChecksum long
+        if FSecure != 0
+            get FInitVector longlong
+        endif
+    endif
+    savepos OFFSET
+    clog NAME OFFSET FPhysicalSize FOriginalSize
+    goto TMP
+next i

@@ -1,0 +1,61 @@
+open FDDE "CFG"
+open FDDE "WFP" 1
+
+findloc OFFSET binary "IECSigaV"
+math BASE_OFF = OFFSET
+math OFFSET += 8
+goto OFFSET
+get DUMMY long
+get FILES long
+math FILES += 1
+for i = 0 < FILES
+    get OFFSET long
+    savepos TMP
+    math OFFSET += BASE_OFF
+    goto OFFSET
+    get OFFSET long
+    get FREQ threebyte
+    get DUMMY byte
+    goto TMP
+    putarray 0 i OFFSET
+    putarray 1 i FREQ
+next i
+
+    getarray OFFSET 0 0
+    getarray FREQ   1 0
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFFSET asize 1
+    else
+        getarray NEXT_OFFSET 0 i
+        getarray NEXT_FREQ   1 i
+    endif
+    xmath SIZE "NEXT_OFFSET - OFFSET"
+
+    endian big
+    log MEMORY_FILE 0 0
+    putdstring "VAGp" 4 MEMORY_FILE
+    put 32 long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    put FREQ long MEMORY_FILE
+    for x = 0 < 12
+        put 0 byte MEMORY_FILE
+    next x
+    string NAME p= "%016x" i
+    putdstring NAME 16 MEMORY_FILE
+    for x = 0 < 16
+        put 0 byte MEMORY_FILE
+    next x
+    append
+    log MEMORY_FILE OFFSET SIZE 1
+    append
+    endian little
+
+    string NAME += ".vag"
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+
+    math OFFSET = NEXT_OFFSET
+    math FREQ = NEXT_FREQ
+next i

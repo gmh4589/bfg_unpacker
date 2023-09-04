@@ -1,0 +1,27 @@
+comtype lz4
+idstring "LZ"
+get DUMMY threebyte # 4
+get FILES short
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    get ZIP byte
+
+    if ZIP == 0
+        math SIZE   - 1
+        math OFFSET + 1
+        clog NAME OFFSET SIZE XSIZE
+    else
+        get XSIZE long
+        math SIZE   - 5
+        math OFFSET + 5
+        clog NAME OFFSET SIZE XSIZE
+    endif
+
+    goto TMP
+next i

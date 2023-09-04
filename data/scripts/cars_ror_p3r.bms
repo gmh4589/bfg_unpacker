@@ -1,0 +1,15 @@
+# Cars Race-o-Rama (PS3) .p3r
+
+endian big
+get VER long    # 3
+get FILES long
+get DUMMY long
+get DUMMY long
+get INFO_SIZE long
+get ZERO long
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    get OFFSET long
+    log "" OFFSET SIZE
+next i

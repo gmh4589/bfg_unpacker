@@ -1,0 +1,49 @@
+# Higurashi no Naku Koro ni Sui
+#   directories are not handled.
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ROM "
+get DUMMY short
+get DUMMY short
+get INFO_SIZE long
+get DUMMY long
+
+savepos TMP
+xmath INFO_LIMIT "TMP + INFO_SIZE"
+
+for FOLDER = 0
+    savepos BASE_OFF
+    if BASE_OFF >= INFO_LIMIT
+        break
+    endif
+
+    get FILES long
+    for i = 0 < FILES
+        get NAME_OFF long
+        if NAME_OFF & 0x80000000
+            math NAME_OFF & 0x7fffffff
+            math IS_FOLDER = 1
+        else
+            math IS_FOLDER = 0
+        endif
+
+        get OFFSET long
+        get SIZE long
+        math OFFSET * 0x800
+
+        savepos TMP
+        math NAME_OFF + BASE_OFF
+        goto NAME_OFF
+        get NAME string
+        savepos LAST_OFF
+        goto TMP
+
+        if IS_FOLDER == 0
+            string NAME p "%d/%s" FOLDER NAME
+            log NAME OFFSET SIZE
+        endif
+    next i
+
+    goto LAST_OFF
+    padding 0x10
+next FOLDER

@@ -1,0 +1,15 @@
+# FatGS Group File
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FatGS Group File\0"
+get BASE_OFF long
+math BASE_OFF *= 0x800
+get FILES long
+get FOLDER string
+for i = 0 < FILES
+    get NAME string
+    get SIZE long
+    get OFFSET long
+    xmath OFFSET "(OFFSET * 0x800) + BASE_OFF"
+    log NAME OFFSET SIZE
+next i

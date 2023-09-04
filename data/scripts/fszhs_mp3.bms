@@ -1,0 +1,38 @@
+# FSZHS Zhengshi (封神召唤师) MP3
+# pd_fszhs_zhengshi.apk
+# Info by Ekey:
+# https://github.com/Ekey/FS.MP3.Tool/blob/main/FS.Unpacker/FS.Unpacker/FileSystem/Package/Mp3Unpack.cs
+
+comtype lzo1x
+
+idstring "CTC\x1a"
+get dwTableOffset long
+get dwTotalFiles long
+get dwTableZSize long
+xmath dwTableSize "dwTotalFiles * 40"
+getdstring lpMD5 16
+clog MEMORY_FILE dwTableOffset dwTableZSize dwTableSize
+
+for i = 0 < dwTotalFiles
+    get dwFileNameCRC long MEMORY_FILE
+    get dwFolderNameCRC long MEMORY_FILE
+    get dwOffset long MEMORY_FILE
+    get dwZSize long MEMORY_FILE
+    get dwSize long MEMORY_FILE
+    get bFileFlag byte MEMORY_FILE
+    get bCompressionFlag byte MEMORY_FILE
+    get wFileNameLength short MEMORY_FILE
+    getdstring lpEntryMD5 16 MEMORY_FILE
+
+    if bFileFlag == 1
+        goto dwOffset
+        goto dwZSize 0 SEEK_CUR
+        getdstring NAME wFileNameLength
+        string NAME p "%08x/%s" dwFolderNameCRC NAME
+        if bCompressionFlag == 1
+            log NAME dwOffset dwZSize
+        else
+            clog NAME dwOffset dwZSize dwSize
+        endif
+    endif
+next i

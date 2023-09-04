@@ -1,0 +1,75 @@
+# Iron Lore ARZ database
+#   format from atom0s https://github.com/atom0s/grimarz
+#   this is an experimental (and probably useless) parser, there is no data to extract:
+#   quickbms.exe iron_lore_arz.bms FILE.ARZ > dump.txt
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+
+get Unknown long
+get RecordTableStart long
+get RecordTableSize long
+get RecordTableEntryCount long
+get StringTableStart long
+get StringTableSize long
+savepos BASE_OFF
+
+goto StringTableStart
+get STRINGS long
+for i = 0 < STRINGS
+    get STRSZ long
+    getdstring STR STRSZ
+    putarray 0 i STR
+    #print "STRING(%i%) = %STR%"
+next i
+
+# strings
+xmath OFFSET "RecordTableStart + RecordTableSize"
+goto OFFSET
+get STRINGS long
+for i = 0 < STRINGS
+    get STRSZ long
+    getdstring STR STRSZ
+    putarray 1 i STR
+next i
+
+goto RecordTableStart
+for i = 0 < RecordTableEntryCount
+    get STR_ID long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get TSTAMP longlong
+
+    math OFFSET += BASE_OFF
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+    getarray STR 0 STR_ID
+    print "%NAME% :: %STR%"
+
+    for MEM_OFF = 0 < SIZE
+        get TYPE short MEMORY_FILE
+        get VALUES short MEMORY_FILE
+        get KEY_ID long MEMORY_FILE
+        for V = 0 < VALUES
+            get VALUE long MEMORY_FILE
+            getarray KEY 1 KEY_ID
+            if TYPE == 0
+                print "%KEY% = %VALUE%"
+            elif TYPE == 1
+                print "%KEY% = %VALUE%f"
+            elif TYPE == 2
+                getarray STR 1 VALUE
+                print "%KEY% = %STR%"
+            elif TYPE == 3
+                print "%KEY% = %VALUE%"
+            else
+                print "Error: unknown data type %TYPE%"
+                cleanexit
+            endif
+        next V
+        savepos MEM_OFF MEMORY_FILE
+    next
+next i

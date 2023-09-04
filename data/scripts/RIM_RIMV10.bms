@@ -1,0 +1,18 @@
+<bms games="'Jade Empire'" platforms="'PC'" ext="RIM">
+ImpType Standard ;
+GoTo 12 0 ;
+Get FNum Long 0 ;
+Get DirOff Long 0 ;
+GoTo DirOff 0 ;
+For n = 1 To FNum ;
+SavePos FNJump 0 ;
+Math FNJump += 24 ;
+Get FN String 0 ;
+GoTo FNJump 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log FN FO FS #FOO FSO ;
+Next n ;
+</bms>

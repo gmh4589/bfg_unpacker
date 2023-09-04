@@ -1,0 +1,33 @@
+# Syndicate Wars (SNDCREDS (DAT)
+
+ImpType StandardTail ;
+GoTo EOF 0 ;
+SavePos TE 0 ;
+Math TE -= 3 ;
+GoTo TE 0 ;
+Get TEND Long 0 ;
+Math TE -= 52 ;
+GoTo TE 0 ;
+Get TS Long 0 ;
+Math TEND -= TS ;
+Math TEND += 32 ;
+Set FN Long TS ;
+Math FN /= 32 ;
+Math FN -= 1 ;
+GoTo TEND 0 ;
+SavePos FST 0 ;
+For T = 1 To FN ;
+Get FNAME String 0 ;
+Math FST += 18 ;
+GoTo FST 0 ;
+SavePos FOO 0 ;
+Get FOFF Long 0 ;
+Get D Long 0 ;
+SavePos FSO 0 ;
+Get FSIZE Long 0 ;
+SavePos FST 0 ;
+Math FST += 2 ;
+GoTo FST 0 ;
+Log FNAME FOFF FSIZE #FOO FSO ;
+Next T ;
+

@@ -1,0 +1,50 @@
+# Resident Evil Revelations 2 Vita
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+string NAME R "package" "toc"
+open FDSE NAME
+string NAME R "toc" "package"
+open FDSE NAME 1
+
+get DUMMY long  # 0xc
+get DUMMY long  # 0x733
+get FILES long
+for i = 0 < FILES
+    get CRC long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    get OFFSET long
+    get ZERO long
+
+    if SIZE == 0
+        # do nothing
+    elif SIZE == ZSIZE
+        log "" OFFSET SIZE 1
+    else
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        math CHUNK_SIZE = 0x1000
+        math CHUNKS = SIZE
+        math CHUNKS / CHUNK_SIZE
+        if SIZE % CHUNK_SIZE
+            math CHUNKS + 1
+        endif
+        goto OFFSET 1
+        xmath OFFSET "OFFSET + (CHUNKS * 2)"
+        for x = 0 < CHUNKS
+            get CHUNK_ZSIZE signed_short 1
+            if CHUNK_ZSIZE < 0
+                math CHUNK_ZSIZE n CHUNK_ZSIZE
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE 1
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+            endif
+            math OFFSET + CHUNK_ZSIZE
+        next x
+        append
+        log "" 0 SIZE MEMORY_FILE
+    endif
+next i

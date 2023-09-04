@@ -1,0 +1,26 @@
+# Doctor Who - The Adventure Games
+
+get FULLSIZE asize
+do
+    savepos OFFSET
+    get DUMMY long
+    get DUMMY long
+    getdstring SIGN 4
+    get SIZE long
+    math NEXT_OFF = OFFSET
+    math NEXT_OFF += SIZE
+    if SIGN == "EMTR"
+        math OFFSET += 0x7c
+        goto OFFSET
+        get SIZE long
+        math OFFSET += 0x14
+        math TMP = OFFSET
+        math TMP += SIZE
+        goto TMP
+        get NAME string
+    else
+        set NAME string ""
+    endif
+    log NAME OFFSET SIZE
+    goto NEXT_OFF
+while NEXT_OFF < FULLSIZE

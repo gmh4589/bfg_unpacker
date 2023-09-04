@@ -1,0 +1,31 @@
+# 4x4 Evolution 1/2
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "POD2"
+    get DUMMY long
+    getdstring NAME 80
+    get FILES long
+    get TRAILS long
+    for i = 0 < FILES
+        get NAME_OFF long
+        get SIZE long
+        get OFFSET long
+        get DUMMY longlong
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        log NAME OFFSET SIZE
+    next i
+else
+    goto 0
+    get FILES long
+    getdstring NAME 80
+    for i = 0 < FILES
+        getdstring NAME 32
+        get SIZE long
+        get OFFSET long
+        log NAME OFFSET SIZE
+    next i
+endif

@@ -1,0 +1,35 @@
+# Dragons Dogma
+
+get EXT extension
+
+if EXT == "pck"
+
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+
+elif EXT == "gmd"
+
+    idstring "GMD\0"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get STRINGS long
+    get DUMMY long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get NAME basename
+    string NAME + ".txt"
+    for i = 0 < STRINGS
+        slog NAME -1 -1
+    next i
+
+endif

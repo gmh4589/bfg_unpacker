@@ -1,0 +1,13 @@
+# Tory's Shop N' Rush
+
+get PCK_SIZE asize
+for OFFSET = 0 != PCK_SIZE
+    get FIRST_QUOTE byte
+    getct NAME string '"'
+    get SPACE byte
+    getdstring SIZE 9
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

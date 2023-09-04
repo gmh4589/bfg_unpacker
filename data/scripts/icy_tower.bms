@@ -1,0 +1,288 @@
+# Allegro 4.x load_datafile / Icy Tower (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# put your password here, for example "happy" for Happyland Adventures
+set packfile_password string ""
+
+# use this field for some games that use this method, for example Zelda Classic with packfile_password_xor "longtan"
+set packfile_password_xor string ""
+
+comtype lzss0
+endian big
+
+if packfile_password == ""
+    get TEST threebyte
+    if TEST == 0x031c09
+        set packfile_password string "happy"
+    elif TEST == 0x146c66
+        set packfile_password_xor string "longtan"
+    endif
+    goto 0
+endif
+
+if packfile_password_xor != ""
+    # this code simply allow to use packfile_password_xor with filexor, but "filexor packfile_password_xor" works too
+    strlen TMPSZ packfile_password_xor
+    set KEY string ""
+    for x = 0 < TMPSZ
+        getvarchr TMP packfile_password_xor x
+        string KEY + TMP
+        string KEY + " "
+    next x
+    filexor KEY
+    set packfile_password string packfile_password_xor
+endif
+math packfile_password_idx = 0
+strlen packfile_password_len packfile_password
+
+# idstring "slh!"
+# idstring "slh."
+# idstring "slh+"
+math F_PACK_MAGIC    = 0x736C6821L    /* magic number for packed files */
+math F_NOPACK_MAGIC  = 0x736C682EL    /* magic number for autodetect */
+math F_EXE_MAGIC     = 0x736C682BL    /* magic number for appended data */
+
+math PACKFILE_FLAG_WRITE      = 1     /* the file is being written */
+math PACKFILE_FLAG_PACK       = 2     /* data is compressed */
+math PACKFILE_FLAG_CHUNK      = 4     /* file is a sub-chunk */
+math PACKFILE_FLAG_EOF        = 8     /* reached the end-of-file */
+math PACKFILE_FLAG_ERROR      = 16    /* an error has occurred */
+math PACKFILE_FLAG_OLD_CRYPT  = 32    /* backward compatibility mode */
+math PACKFILE_FLAG_EXEDAT     = 64    /* reading from our executable */
+
+get TYPE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+
+# encrypt_id doesn't seem to work (?!?) ...
+
+for new_format = 0 < 2
+    math x = F_PACK_MAGIC
+    callfunction encrypt_id 1
+    math xF_PACK_MAGIC = x
+
+    math x = F_NOPACK_MAGIC
+    callfunction encrypt_id 1
+    math xF_NOPACK_MAGIC = x
+
+    if TYPE == xF_PACK_MAGIC || TYPE == xF_NOPACK_MAGIC
+        break
+    endif
+next new_format
+
+if packfile_password_xor != ""
+    # only the headers use this solution
+    set packfile_password string ""
+endif
+
+# ... so let's use a work-around in case new_format is not enough
+if TYPE != xF_PACK_MAGIC
+if TYPE != xF_NOPACK_MAGIC
+    getdstring SIGN_ALL 4
+    if SIGN_ALL != "ALL."
+        if SIGN_ALL & "ALL"
+            math TYPE = xF_PACK_MAGIC
+        else
+            math TYPE = xF_NOPACK_MAGIC
+        endif
+    endif
+endif
+endif
+
+if TYPE == xF_PACK_MAGIC
+
+    xmath SIZE "ZSIZE * 10"
+    if packfile_password != ""
+        log MEMORY_FILE OFFSET ZSIZE
+        log MEMORY_FILE2 0 0
+        putvarchr MEMORY_FILE2 SIZE 0
+        callfunction ALLEGRO_LZSS 1
+        log MEMORY_FILE3 0 SIZE MEMORY_FILE2
+    else
+        clog MEMORY_FILE3 OFFSET ZSIZE SIZE
+    endif
+
+elif TYPE == xF_NOPACK_MAGIC
+
+    log MEMORY_FILE OFFSET ZSIZE
+    if packfile_password != ""
+        for x = 0 < ZSIZE
+            getvarchr BYTE MEMORY_FILE x
+            callfunction GET_PASSWORD_BYTE 1
+            math BYTE ^ TMP
+            putvarchr MEMORY_FILE x BYTE
+        next x
+    endif
+    log MEMORY_FILE3 0 ZSIZE MEMORY_FILE
+
+else
+
+    print "Error: unsupported pack type %TYPE|X%"
+    cleanexit
+
+endif
+
+if packfile_password_xor != ""
+    filexor ""
+endif
+
+getdstring SIGN_ALL 4 MEMORY_FILE3
+if SIGN_ALL != "ALL."
+    get SIZE asize MEMORY_FILE3
+    get NAME basename
+    log NAME 0 SIZE MEMORY_FILE3
+    cleanexit
+endif
+get FILES long MEMORY_FILE3
+for CUR_FILE = 0 < FILES
+    set FNAME string ""
+    for
+        getdstring TYPE 4 MEMORY_FILE3
+        if TYPE != "prop"
+            break
+        endif
+        getdstring TYPE 4 MEMORY_FILE3
+        get DATASZ long MEMORY_FILE3
+        getdstring DATA DATASZ MEMORY_FILE3
+        if TYPE == "ORIG"
+            set ORIG_NAME string DATA
+        endif
+        if TYPE == "NAME"
+        if FNAME == ""
+            set FNAME string DATA
+        endif
+        endif
+    next
+
+    set PATH filepath ORIG_NAME
+    string FNAME p "%s/%s" PATH FNAME
+
+    get ZSIZE long MEMORY_FILE3
+    get SIZE long MEMORY_FILE3
+    savepos OFFSET MEMORY_FILE3
+
+    #string FNAME - "c:\Program\Microsoft Visual Studio\MyProjects\tower"    # for Icy Tower
+
+    if ZSIZE == SIZE
+        log FNAME OFFSET SIZE MEMORY_FILE3
+    else
+        clog FNAME OFFSET ZSIZE SIZE MEMORY_FILE3
+    endif
+
+    math OFFSET + ZSIZE
+    goto OFFSET MEMORY_FILE3
+next CUR_FILE
+
+# you must set: MEMORY_FILE (input), ZSIZE (input size), MEMORY_FILE2 (output), SIZE (max size)
+startfunction ALLEGRO_LZSS
+    set LZSS_EI long 12
+    set LZSS_EJ long 4
+    set LZSS_P long 2
+    set LZSS_rless long LZSS_P
+    set LZSS_init_chr long 0x00
+
+    set LZSS_N long 1
+    math LZSS_N <<= LZSS_EI
+    set LZSS_F long 1
+    math LZSS_F <<= LZSS_EJ
+
+    # pre-allocate memory for faster performances
+    putvarchr MEMORY_FILE3 LZSS_N 0
+    for LZSS_i = 0 < LZSS_N
+        putvarchr MEMORY_FILE3 LZSS_i LZSS_init_chr
+    next LZSS_i
+    putvarchr MEMORY_FILE2 SIZE 0
+
+    math LZSS_r = LZSS_N
+    math LZSS_r -= LZSS_F
+    math LZSS_r -= LZSS_rless
+    math LZSS_N -= 1
+    math LZSS_F -= 1
+
+    math LZSS_src = 0
+    math LZSS_dst = 0
+    math LZSS_srcend = ZSIZE
+    math LZSS_dstend = SIZE
+
+    math LZSS_flags = 0
+    for LZSS_src = 0 < LZSS_srcend
+        if LZSS_flags & 0x100
+        else
+            getvarchr LZSS_flags MEMORY_FILE LZSS_src
+            if packfile_password != ""
+                callfunction GET_PASSWORD_BYTE 1
+                math LZSS_flags ^ TMP
+            endif
+            math LZSS_src += 1
+            math LZSS_flags |= 0xff00
+        endif
+        if LZSS_flags & 1
+            getvarchr LZSS_c MEMORY_FILE LZSS_src
+            math LZSS_c ^= XOR_BYTE     # Reload customization
+            math LZSS_src += 1
+            putvarchr MEMORY_FILE2 LZSS_dst LZSS_c
+            math LZSS_dst += 1
+            putvarchr MEMORY_FILE3 LZSS_r LZSS_c
+            math LZSS_r += 1
+            math LZSS_r &= LZSS_N
+        else
+            getvarchr LZSS_i MEMORY_FILE LZSS_src
+            math LZSS_src += 1
+            getvarchr LZSS_j MEMORY_FILE LZSS_src
+            math LZSS_src += 1
+            math LZSS_TMP = LZSS_j
+            math LZSS_TMP >>= LZSS_EJ
+            math LZSS_TMP <<= 8
+            math LZSS_i |= LZSS_TMP
+            math LZSS_j &= LZSS_F
+            math LZSS_j += LZSS_P
+            for LZSS_k = 0 <= LZSS_j
+                math LZSS_TMP = LZSS_i
+                math LZSS_TMP += LZSS_k
+                math LZSS_TMP &= LZSS_N
+                getvarchr LZSS_c  MEMORY_FILE3 LZSS_TMP
+                putvarchr MEMORY_FILE2 LZSS_dst LZSS_c
+                math LZSS_dst += 1
+                putvarchr MEMORY_FILE3 LZSS_r LZSS_c
+                math LZSS_r += 1
+                math LZSS_r &= LZSS_N
+            next LZSS_k
+        endif
+        math LZSS_flags >>= 1
+    next
+    math SIZE = LZSS_dst
+    #log NAME 0 SIZE MEMORY_FILE2
+endfunction
+
+startfunction encrypt_id
+   math mask = 0
+   if packfile_password != ""
+      for i = 0 < packfile_password_len
+        getvarchr TMP packfile_password i
+        xmath mask "mask ^ (TMP << ((i&3) * 8))"
+      next i
+
+      math packfile_password_idx = 0
+      for i = 0 < 4
+        callfunction GET_PASSWORD_BYTE 1
+        xmath mask "mask ^ (TMP << (24-i*8))";
+      next i
+      math packfile_password_idx = 0
+
+      if new_format != 0
+        math mask ^ 42;
+      endif
+   endif
+   math x ^ mask
+endfunction
+
+startfunction GET_PASSWORD_BYTE
+    getvarchr TMP packfile_password packfile_password_idx
+    if TMP == 0
+        math packfile_password_idx = 0
+        getvarchr TMP packfile_password packfile_password_idx
+    endif
+    math packfile_password_idx + 1
+endfunction
+

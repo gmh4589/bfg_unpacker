@@ -1,0 +1,79 @@
+# example of rebuilding for Star Defender 4
+# this game uses the following format:
+#   - small header
+#   - file info table
+#   - files content
+# usage example:
+#   - cd c:\input_folder
+#   - quickbms -w c:\thisfile.bms output.pak .
+# script for QuickBMS http://quickbms.aluigi.org
+
+# some checks for quickbms, only the first 2 instructions are needed
+quickbmsver 0.3.12a
+get PAK_NAME fullname           # used later to avoid the wasting of too much memory
+if PAK_NAME & ":"
+    print "Error: you must create the archive in this same input folder"
+    cleanexit
+endif
+get INPUT_FOLDER input_folder
+if INPUT_FOLDER != "."
+    print "Error: you must create the archive from the current folder"
+    cleanexit
+endif
+print "- start the rebuilding of the archive %PAK_NAME%"
+
+# set the offset specifying the size of the initial header
+math OFFSET = 0
+math OFFSET += 2                # 16bit version
+math OFFSET += 4                # number of files
+
+# scan the folder and collect the informations
+math FILES = 0
+for
+    scanDir INPUT_FOLDER NAME SIZE  # get the file from the current folder
+    if NAME == ""               # no other files are available so break
+        break
+    endif
+
+    if NAME != PAK_NAME         # avoid to add the same archive to itself
+        putarray 0 FILES NAME   # store the name in array 0
+        putarray 1 FILES SIZE   # store the size in array 1
+
+        strlen NAMESZ NAME
+        math OFFSET += 2        # filename length
+        math OFFSET += NAMESZ   # filename
+        math OFFSET += 4        # offset
+        math OFFSET += 4        # size
+        math FILES += 1         # increment the number of files
+    endif
+next
+
+# build the index
+put 1 short                     # 16bit version
+put FILES long                  # number of files
+for i = 0 < FILES
+    getarray NAME 0 i           # get the name
+    getarray SIZE 1 i           # the the size
+    strlen NAMESZ NAME
+
+    put NAMESZ short            # write the 16bit filename length
+    filexor 0xcd                # the format requires the xoring of the rest
+    putdstring NAME NAMESZ      # write the xored filename
+    put OFFSET long             # write the xored offset
+    put SIZE long               # write the xored size
+    filexor ""                  # stop the xoring
+
+    math OFFSET += SIZE
+next i
+
+# append the files
+# exists also another alternative but consumes lot of memory
+open INPUT_FOLDER "" 0          # not needed, forces the flushing of the file
+append
+for i = 0 < FILES
+    getarray NAME 0 i
+    getarray SIZE 1 i
+    open INPUT_FOLDER NAME 1
+    log PAK_NAME NAME SIZE 1    # append the file in the archive
+next i
+append

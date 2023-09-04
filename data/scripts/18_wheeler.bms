@@ -1,0 +1,16 @@
+# extracts the MUSIC.STR and VOICES.STR from 18 Wheeler: American Pro Trucker for PS2
+# (c) 2012-08-07 by AlphaTwentyThree of XeNTaX
+
+include "func_header_SS2.bms"
+get FILES long
+goto 0x10
+for i = 1 <= FILES
+   getDstring NAME 0x20
+   get OFFSET long
+   get SIZE long
+   get UNK long
+   get CH short
+   get FREQ short
+   get INTERLEAVE long
+   callfunction SS2 1
+next i

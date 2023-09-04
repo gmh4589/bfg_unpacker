@@ -1,0 +1,32 @@
+# Butterfly iSoft
+#   Natural Threat 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+idstring "SFP"
+get DUMMY byte
+get FILES long
+get PACK_SIZE long
+for i = 0 < FILES
+    get FLAGS long
+    get DUMMY long
+    math OFFSET *= 0x10
+    getdstring NAME 0x70
+    get SIZE long
+    get OFFSET long
+    string EXT extension NAME
+    if EXT & "lzo"
+        string NAME -= 3
+        savepos TMP_OFF
+        math ZSIZE = SIZE
+        math ZSIZE -= 4
+        math TMP = OFFSET
+        math TMP += ZSIZE
+        goto TMP
+        get SIZE long
+        clog NAME OFFSET ZSIZE SIZE
+        goto TMP_OFF
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

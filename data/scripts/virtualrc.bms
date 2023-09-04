@@ -1,0 +1,186 @@
+# Virtual RC Racing
+# script for QuickBMS http://quickbms.aluigi.org
+
+# the game uses the twofish encryption:
+# - the key is the SHA1 hash of "e<r0\"5ja\\0%a99@p#b/" plus the name of the rct file (vrc and cby not)
+# - the ivec is the encryption of 16 zeroes
+
+quickbmsver 0.4.2c
+get ZIP_SIZE asize
+getdstring SIGN 14
+string SIGN -= -7
+set ZIP_KEY string "123264356AUG"
+set ENC_PASS binary "e<r0\"5ja\\0%a99@p#b/"
+set ENC_IV   binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+if SIGN == "VRC/dat"
+    # do nothing
+elif SIGN == "VRC/cby"
+    set ZIP_KEY binary "f7g&a\xf6r45"   # yeah the 6th char is 0xf6 that is read as 0x9a if you use it on windows
+elif SIGN == "VRC/rct"
+    get NAME filename
+    string ENC_PASS += NAME
+
+    get DUMMY short
+    get PATHSZ byte
+    getdstring PATH PATHSZ
+    goto 0x3a
+
+    get NAME basename
+    string NAME += ".rtf"
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+
+    get NAME basename
+    string NAME += ".png"
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+
+else
+    print "Error: the input file doesn't seem encrypted"
+    cleanexit
+endif
+savepos OFFSET
+math LAME_OFFSET = OFFSET
+math ZIP_SIZE -= OFFSET
+
+strlen TMP ENC_PASS
+putvarchr MEMORY_FILE2 TMP 0
+putdstring ENC_PASS TMP MEMORY_FILE2
+encryption sha1 ""
+log MEMORY_FILE2 0 TMP MEMORY_FILE2
+encryption "" ""
+goto 0 MEMORY_FILE2
+print "- twofish key:  %QUICKBMS_HEXHASH%"
+
+math TMP = 16
+putvarchr MEMORY_FILE2 TMP 0
+putdstring ENC_IV TMP MEMORY_FILE2
+encryption mcrypt_twofish_ecb QUICKBMS_HASH "" 1 20
+log MEMORY_FILE2 0 TMP MEMORY_FILE2
+encryption "" ""
+goto 0 MEMORY_FILE2
+getdstring ENC_IV TMP MEMORY_FILE2
+
+encryption mcrypt_twofish_cbc QUICKBMS_HASH ENC_IV 0 20
+log MEMORY_FILE OFFSET ZIP_SIZE
+encryption "" ""
+
+if ZIP_SIZE & 15    # yeah ugly, but no choice
+    math TMP = ZIP_SIZE
+    math TMP &= 15
+    math TMP += 16
+    math OFFSET += ZIP_SIZE
+    math OFFSET -= TMP
+    encryption mcrypt_twofish_ecb QUICKBMS_HASH "" 1 20
+    log MEMORY_FILE2 OFFSET 16
+    encryption "" ""
+    math OFFSET += 16
+    math TMP -= 16
+    math OFFSET -= LAME_OFFSET
+    for i = 0 < TMP
+        getvarchr TMP2 MEMORY_FILE OFFSET
+        getvarchr TMP3 MEMORY_FILE2 i
+        math TMP2 ^= TMP3
+        putvarchr MEMORY_FILE OFFSET TMP2
+        math OFFSET += 1
+    next i
+endif
+
+for OFFSET = 0 < ZIP_SIZE
+    get SIGN long MEMORY_FILE
+    #goto OFFSET MEMORY_FILE
+    if SIGN == 0x66ba8bbd
+        #put 0x04034b50 long MEMORY_FILE
+        get ver             short MEMORY_FILE
+        get flag            short MEMORY_FILE
+        get method          short MEMORY_FILE
+        get modtime         short MEMORY_FILE
+        get moddate         short MEMORY_FILE
+        get crc             long MEMORY_FILE
+        get comp_size       long MEMORY_FILE
+        get uncomp_size     long MEMORY_FILE
+        get name_len        short MEMORY_FILE
+        get extra_len       short MEMORY_FILE
+        getdstring name     name_len MEMORY_FILE
+        getdstring extra    extra_len MEMORY_FILE
+        savepos offset MEMORY_FILE
+
+        encryption zipcrypto ZIP_KEY
+        log MEMORY_FILE2 offset comp_size MEMORY_FILE
+        encryption "" ""
+        math tmp = comp_size
+        math tmp -= 12
+
+        if method == 0
+            Log name 12 uncomp_size MEMORY_FILE2
+        else
+            if method == 8
+                ComType deflate
+            elif method == 1
+                ComType unshrink
+            elif method == 6
+                ComType explode
+            elif method == 9
+                ComType deflate64
+            elif method == 12
+                ComType bzip2
+            elif method == 14
+                ComType lzmaefs
+            elif method == 21
+                ComType XMemDecompress
+            elif method == 64
+                ComType darksector
+            elif method == 98
+                ComType ppmd
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name 12 tmp uncomp_size MEMORY_FILE2
+        endif
+
+        math offset += comp_size
+        goto offset MEMORY_FILE
+    elif SIGN == 0x29373ed1
+        #put 0x02014b50 long MEMORY_FILE
+        get ver_made        short MEMORY_FILE
+        get ver_need        short MEMORY_FILE
+        get flag            short MEMORY_FILE
+        get method          short MEMORY_FILE
+        get modtime         short MEMORY_FILE
+        get moddate         short MEMORY_FILE
+        get crc             long MEMORY_FILE
+        get comp_size       long MEMORY_FILE
+        get uncomp_size     long MEMORY_FILE
+        get name_len        short MEMORY_FILE
+        get extra_len       short MEMORY_FILE
+        get comm_len        short MEMORY_FILE
+        get disknum         short MEMORY_FILE
+        get int_attr        short MEMORY_FILE
+        get ext_attr        long MEMORY_FILE
+        get rel_offset      long MEMORY_FILE
+        getdstring name     name_len MEMORY_FILE
+        getdstring extra    extra_len MEMORY_FILE
+        getdstring comment  comm_len MEMORY_FILE
+    elif SIGN == 0xe6ac56cc
+        #put 0x06054b50 long MEMORY_FILE
+        get disk_num        short MEMORY_FILE
+        get disk_start      short MEMORY_FILE
+        get central_entries short MEMORY_FILE
+        get central_entries short MEMORY_FILE
+        get central_size    long MEMORY_FILE
+        get central_offset  long MEMORY_FILE
+        get comm_len        short MEMORY_FILE
+        getdstring comment  comm_len MEMORY_FILE
+    else
+        print "Error: unknown ZIP signature %sign% at offset %offset%"
+        cleanexit
+    endif
+    savepos offset MEMORY_FILE
+next

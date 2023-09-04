@@ -1,0 +1,14 @@
+# Danganronpa TP
+
+idstring "TP"
+get DUMMY byte  # 1
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    getdstring HASH 16
+    log NAME OFFSET SIZE
+next i

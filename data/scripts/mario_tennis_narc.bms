@@ -1,0 +1,51 @@
+# Mario Tennis Aces NARC
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+idstring "NARC"
+get DUMMY long
+get NARC_SIZE long
+get DUMMY short
+get DUMMY short
+savepos CHUNK_OFF
+for CHUNK_OFF = CHUNK_OFF != NARC_SIZE
+    goto CHUNK_OFF
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+
+    if CHUNK_TYPE u== "BTAF"
+        get FILES long
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            math SIZE - OFFSET
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+        next i
+    elif CHUNK_TYPE u== "BTNF"
+        get DUMMY long
+        get DUMMY long
+        for i = 0 < FILES
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+            putarray 2 i NAME
+        next i
+    elif CHUNK_TYPE u== "GMIF"
+        savepos BASE_OFF
+        for i = 0 < FILES
+            getarray OFFSET 0 i
+            getarray SIZE   1 i
+            getarray NAME   2 i
+            math OFFSET + BASE_OFF
+            goto OFFSET
+            get TYPE byte
+            get XSIZE long
+            reverselong XSIZE
+            math OFFSET + 0x10
+            math SIZE   - 0x10
+            clog NAME OFFSET SIZE XSIZE
+        next i
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+next

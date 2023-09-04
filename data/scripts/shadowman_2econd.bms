@@ -1,0 +1,68 @@
+# Shadow Man: 2econd Coming (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "DIR" 1
+open FDDE "BIN"
+goto 0x2000 1
+get NUM long 1
+for i = 0
+    endian little
+    get NAME_CRC long 1
+    if NAME_CRC == 0
+        break
+    endif
+    get OFFSET long 1
+    get SIZE long 1
+    get ZSIZE long 1
+    if ZSIZE & 0x80000000
+        math ORIGINAL_SIZE = SIZE
+        math ZSIZE & 0x7fffffff
+        log MEMORY_FILE 0 0
+        append
+        do
+            goto OFFSET
+            get REMAINING long
+            savepos OFFSET
+            getdstring CHECK 3
+            if CHECK == "RNC"
+                goto OFFSET
+                callfunction RNC_DECOMPRESS 1
+            else
+                log MEMORY_FILE OFFSET ZSIZE
+                math ZSIZE = 0x8000
+            endif
+            math OFFSET + ZSIZE
+            math OFFSET x 4
+        while REMAINING != 0
+        append
+        log "" 0 ORIGINAL_SIZE MEMORY_FILE
+    else
+        log "" OFFSET SIZE
+    endif
+next i
+
+startfunction RNC_DECOMPRESS
+    endian save CURRENT_ENDIAN
+    endian big
+    goto OFFSET
+    idstring "RNC"
+    get VER byte
+    if VER == 1
+        comtype rnc
+    elif VER == 2
+        comtype rnc2
+    else
+        print "Error: unsupported rnc version %VER%"
+        cleanexit
+    endif
+    get SIZE long
+    get ZSIZE long
+    get CRC short
+    get CRC short
+    get DUMMY short
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    if CURRENT_ENDIAN == 0
+        endian little
+    endif
+endfunction

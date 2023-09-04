@@ -1,0 +1,23 @@
+# Dragon Ball Xenoverse EMB
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "#EMB"
+goto 0xc
+get FILES long
+math OFFSET = 0x20
+goto OFFSET
+get SIZE long
+math OFFSET += SIZE
+for i = 0 < FILES
+    goto OFFSET
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get HEADER_SIZE long
+    math OFFSET += HEADER_SIZE
+    string NAME p= "%08x.dds" i
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

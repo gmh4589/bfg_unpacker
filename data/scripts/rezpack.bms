@@ -1,0 +1,18 @@
+# RezPack RedRocketGames
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # my sample contained only zlib files
+get DUMMY long
+idstring "RezPack"
+goto 0x129
+get FILES long
+for i = 0 < FILES
+    getdstring HASH 32
+    get DUMMY short # 0x0100
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    clog NAME OFFSET ZSIZE SIZE
+next i

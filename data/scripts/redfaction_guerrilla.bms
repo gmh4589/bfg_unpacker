@@ -1,0 +1,45 @@
+# Red Faction Guerrilla
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "use http://svn.gib.me/builds/volition/"
+cleanexit
+
+comtype zlib_noerror #unzip_dynamic?
+idstring "\xce\x0a\x89\x51"
+get VERSION long
+goto 0x154
+get FILES long
+get VPP_SIZE long
+get INFO_SIZE long
+get NAMES_SIZE long
+get DATA_SIZE long
+savepos INFO_OFF
+math INFO_OFF x= 0x800
+math NAMES_OFF = INFO_OFF
+math NAMES_OFF += INFO_SIZE
+math NAMES_OFF x= 0x800
+math BASE_OFF = NAMES_OFF
+math BASE_OFF += NAMES_SIZE
+math BASE_OFF x= 0x800
+for i = 0 < FILES
+    goto INFO_OFF
+    get NAME_OFF long
+    get ZERO long
+    get OFFSET long
+    if VERSION < 6
+        get CRC long
+    endif
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    savepos INFO_OFF
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    math OFFSET += BASE_OFF
+    if ZSIZE == 0xffffffff
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,113 @@
+# Persona 5 RDB/RDB.BIN
+
+get EXT extension
+
+# rdb is useful ONLY for getting the filenames
+if EXT != "rdb"
+    print "Error: please open the RDB file"
+    cleanexit
+endif
+
+if EXT == "rdb"
+    idstring "_DRK0000"
+    get OFFSET long
+    get DUMMY long  # 0x10
+    get FILES long
+    get DUMMY long
+    get PATH string
+    goto OFFSET
+    for i = 0 < FILES
+        callfunction GET_INFO 1
+        padding 4
+
+        putarray 0 i NAME
+        putarray 1 i SOME_CRC1
+    next i
+
+    get NAME filename
+    string NAME + ".bin"
+    open FDSE NAME
+else
+    math FILES = -1
+endif
+
+math CHUNK_SIZE = 0x00004000
+
+# there are less files than those reported in .rdb
+# probably I have to include only those with flags 0x00120000
+get RDB_BIN_SIZE asize
+for i = 0 != FILES
+    savepos TMP
+    if TMP u>= RDB_BIN_SIZE
+        break
+    endif
+
+    for OK = 0 == 0
+        savepos OFFSET
+        getdstring CHECK 8
+        if CHECK u== "IDRK0000"
+            math OK = 1
+        else
+            padding 0x10000
+        endif
+    next
+    goto OFFSET
+
+    callfunction GET_INFO 1
+
+    set NAME string ""
+    for x = 0 < FILES
+        getarray TMP 1 x
+        if TMP == SOME_CRC1
+            getarray NAME 0 x
+            break
+        endif
+    next x
+
+    math CHUNKS = SIZE
+    math CHUNKS / CHUNK_SIZE
+    if SIZE % CHUNK_SIZE
+        math CHUNKS + 1
+    endif
+
+    log NAME 0 0
+    append
+    for x = 0 < CHUNKS
+        goto OFFSET
+        get CHUNK_ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    next x
+    append
+
+    goto ENTRY_OFF
+next i
+
+startfunction GET_INFO
+    savepos ENTRY_OFF
+    idstring "IDRK0000"
+    get ENTRY_SIZE longlong
+    get DUMMY longlong
+    get SIZE longlong
+    get NUM1 long
+    get SOME_CRC1 long
+    get SOME_CRC2 long
+    get FLAGS long
+    get ZERO long
+    get NUM2 long   # sometimes 1
+    for x = 0 < NUM2
+        get DUMMY long
+        get DUMMY long
+        get SOME_CRC3 long
+    next x
+    getdstring DUMMY NUM1
+    if FLAGS & 0x20000  # 0x00120000:files, 0x00110000:??? (in rdb.bin are all 0x00100000)
+        get NAME string
+    else
+        set NAME string ""
+    endif
+    savepos OFFSET
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+endfunction

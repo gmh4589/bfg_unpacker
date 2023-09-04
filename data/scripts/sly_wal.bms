@@ -1,0 +1,215 @@
+# Sly Cooper WAC/WAL (script 0.2.2a)
+#   Original code: http://forum.xentax.com/viewtopic.php?p=103180#p103180
+# script for QuickBMS http://quickbms.aluigi.org
+
+# Sly 1
+#   WAC information (encrypted)
+#   WAL data
+
+# Sly 2 and others
+#   WAL header (encrypted)
+#   WAL data
+
+math DECRYPT_ONLY = 0   # set to 1 to decrypt the input file without WAC/WAL parsing and extraction
+
+if DECRYPT_ONLY == 0
+    get NAME filename
+    open FDDE "WAC" 0 EXISTS
+    if EXISTS == 0
+        open FDSE NAME
+    endif
+endif
+
+log MEMORY_FILE 0 4
+getvarchr TMP2 MEMORY_FILE 2
+getvarchr TMP3 MEMORY_FILE 3
+if TMP2 == 0
+if TMP3 == 0
+    set v0_scanner string ""
+    callfunction EXTRACT 1
+endif
+endif
+
+math SIZE = 8   # we need only the bytes at offset 3, 6 and 7
+for v0_scanner = 0 <= 0xffff
+    callfunction DECRYPT 1
+
+    getvarchr TMP3 MEMORY_FILE 3
+    getvarchr TMP6 MEMORY_FILE 6
+    getvarchr TMP7 MEMORY_FILE 7
+    if TMP3 == 0
+    if TMP6 == 0
+    if TMP7 == 0
+        print "KEY %v0_scanner|x%"
+
+        callfunction EXTRACT 1
+
+    endif
+    endif
+    endif
+next v0_scanner
+
+startfunction EXTRACT
+    if DECRYPT_ONLY != 0
+        get SIZE asize
+        callfunction DECRYPT 1
+
+        get NAME filename
+        string NAME += ".dec"
+        log NAME 0 SIZE MEMORY_FILE
+        cleanexit
+    endif
+
+    get EXT extension
+    if EXT == "WAC" # Sly 1
+        get SIZE asize
+        callfunction DECRYPT 1
+
+        get DUMMY long MEMORY_FILE
+        get FOLDERS long MEMORY_FILE
+
+        if FOLDERS u> 0x10000000    # "text"
+
+            goto 0 MEMORY_FILE
+            get FILES long MEMORY_FILE
+            for i = 0 < FILES
+                getdstring NAME 0x18 MEMORY_FILE
+                get OFFSET long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                math OFFSET *= 0x800
+                putarray 0 i NAME
+                putarray 1 i OFFSET
+                putarray 2 i SIZE
+            next i
+
+        else
+
+            get FILES long MEMORY_FILE
+            for i = 0 < FOLDERS
+                get FOLDER string MEMORY_FILE
+                putarray 4 i FOLDER
+            next i
+            for i = 0 < FILES
+                get NAME string MEMORY_FILE
+                putarray 0 i NAME
+            next i
+            padding 4 MEMORY_FILE
+            for i = 0 < FILES
+                get OFFSET long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                math OFFSET *= 0x800
+                putarray 1 i OFFSET
+                putarray 2 i SIZE
+            next i
+        endif
+
+        open FDDE "WAL"
+
+    else
+
+        math MODE = 0
+
+        xmath SIZE "8 + 0x40"
+        callfunction DECRYPT 1
+
+        get DUMMY long MEMORY_FILE
+        get FILES long MEMORY_FILE
+        getdstring NAME 0x40 MEMORY_FILE
+        strlen NAMESZ NAME
+        for i = NAMESZ < 0x40
+            getvarchr TMP NAME i
+            if TMP != 0x00
+                math MODE = 1
+            endif
+        next i
+
+        if MODE == 0
+
+            xmath SIZE "8 + (FILES * 0x48)"
+            callfunction DECRYPT 1
+            goto 8 MEMORY_FILE
+
+            for i = 0 < FILES
+                getdstring NAME 0x40 MEMORY_FILE
+                get OFFSET long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                math OFFSET *= 0x800
+                putarray 0 i NAME
+                putarray 1 i OFFSET
+                putarray 2 i SIZE
+            next i
+
+        else
+
+            xmath SIZE "8 + (FILES * 0x100)"    # the entries have a dynamic length, so 0x100 is just a big value
+            callfunction DECRYPT 1
+            goto 8 MEMORY_FILE
+
+            for i = 0 < FILES
+                get NAME string MEMORY_FILE
+                get SUB_FILES string MEMORY_FILE
+                padding 4 MEMORY_FILE
+                strlen CHUNKS SUB_FILES
+
+                # apparently they are not chunks (no compression and similar sizes)
+                #log MEMORY_FILE2 0 0
+                #append
+
+                for CHUNK = 0 < CHUNKS
+                    get OFFSET long MEMORY_FILE
+                    get SIZE long MEMORY_FILE
+                    math OFFSET *= 0x800
+                    #log MEMORY_FILE2 OFFSET SIZE
+
+                    getvarchr TMP SUB_FILES CHUNK
+                    string TMP p= "%s/%c" NAME TMP
+                    log TMP OFFSET SIZE
+                next CHUNK
+
+                #append
+                #get SIZE asize MEMORY_FILE2
+                #log NAME SIZE MEMORY_FILE2
+            next i
+            cleanexit   # files already handled so quit
+
+        endif
+
+    endif
+
+    get WAL_SIZE asize
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        getarray SIZE   2 i
+        string NAME R= \ _
+
+        xmath TMP "OFFSET + SIZE"
+        if TMP u> WAL_SIZE
+            xmath SIZE "WAL_SIZE - OFFSET"
+        endif
+
+        log NAME OFFSET SIZE
+    next i
+
+    cleanexit
+endfunction
+
+startfunction DECRYPT
+    log MEMORY_FILE 0 SIZE
+    if v0_scanner != ""
+        math v0 = v0_scanner
+        set MEMORY_FILE3 binary "\x55\x89\xe5\x8b\x4d\x0c\x56\x8b\x75\x10\x53\xbb\x62\x72\x00\x00\x01\xce\x39\xf1\x74\x22\x69\x45\x08\xa3\x01\x00\x00\x31\xd2\x05\x1d\x18\x00\x00\xf7\xf3\x69\xc2\xff\x00\x00\x00\x89\x55\x08\x31\xd2\xf7\xf3\x30\x01\x41\xeb\xda\x5b\x5e\x5d\xc3"
+        calldll MEMORY_FILE3 0 cdecl RET v0 MEMORY_FILE SIZE
+    endif
+endfunction
+
+startfunction DECRYPT_BMS
+    for i = 0 < SIZE
+        xmath v0 "((v0 * 0x01A3) + 0x181D) % 0x7262"
+        xmath a0 "((v0 << 8) - v0) / 0x7262"
+
+        getvarchr a2 MEMORY_FILE i
+        math a2 ^= a0
+        putvarchr MEMORY_FILE i a2
+    next i
+endfunction

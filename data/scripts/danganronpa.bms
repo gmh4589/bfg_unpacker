@@ -1,0 +1,110 @@
+# Danganronpa Trigger Happy Havoc (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN == "AGAR"
+
+    idstring "AGAR"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE longlong
+        math SIZE & 0x7FFFFFFFFFFFFFFF
+        get OFFSET longlong
+        math OFFSET & 0x7FFFFFFFFFFFFFFF
+
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+    next i
+
+    get ENTRIES long
+    for i = 0 < ENTRIES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get NUM long
+        for x = 0 < NUM
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get IS_FOLDER byte
+        next x
+    next i
+
+    savepos BASE_OFF
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        getarray SIZE   2 i
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+
+elif SIGN == "CPS."
+
+    print "ALERT: compression is not supported yet!"
+    comtype copy # COMPRESSION IS UNKNOWN!!!
+    idstring "CPS."
+    get ZERO long
+    getdstring DUMMY 8
+    goto 0x20
+
+    set PATH string ""
+    set NAME string ""
+    callfunction CPS_EXTRACT
+
+else
+
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+    math FILES - 1
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+
+endif
+
+startfunction CPS_EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get FLAGS long
+    get ZSIZE long
+    get SIZE long
+    get NAMESZ long
+    getdstring ZERO 0x10
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    padding 0x10
+    savepos OFFSET
+
+    if FLAGS == 0   # folders
+        math FOLDERS = ZSIZE
+        math FILES   = SIZE
+        for i = 0 < FOLDERS
+            callfunction CPS_EXTRACT
+        next i
+        for i = 0 < FILES
+            callfunction CPS_EXTRACT
+        next i
+    else    # 0x00040002 or 0x00080002
+        string NAME p "%s%s" PATH NAME
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+    endif
+
+    goto OFFSET
+    padding 0x10
+endfunction
+

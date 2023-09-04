@@ -1,0 +1,15 @@
+# Jigsaw USA
+
+idstring "CDPW"
+get FILES long
+getdstring ZERO 0x100
+for i = 0 < FILES
+    getdstring NAME 260
+    get FLAGS long
+    get OFFSET long
+    get SIZE long
+    get CRC long
+    get DUMMY long
+    getdstring ZERO 0x20
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,23 @@
+# DoDonpachi Saidaioujou .bin
+
+#comtype ???
+endian big
+get DUMMY long  # 0xc0090117
+get BIN_SIZE long
+get INFO_SIZE long
+get FILES long
+getdstring ZERO 20
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    getdstring NAME 260
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        string NAME p "%s/%s" "COMPRESSED" NAME
+        log NAME OFFSET ZSIZE
+        #clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

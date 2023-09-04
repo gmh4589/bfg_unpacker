@@ -1,0 +1,21 @@
+# Agile Warrior
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    getdstring NAME 13
+    putarray 0 -1 OFFSET
+    putarray 1 -1 NAME
+next i
+
+sortarray 0 1
+math FILES - 1
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray NAME   1 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

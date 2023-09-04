@@ -1,0 +1,18 @@
+# Tokyo Xtreme Racer Zero (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "CDDATA.LOC"
+open FDSE "CDDATA.000" 1 EXISTS
+if EXISTS == 0
+    open FDSE "CDDATA.000.DAT" 1
+endif
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get BLOCKS long
+    math OFFSET *= 0x800
+    math BLOCKS *= 0x800
+    log "" OFFSET SIZE 1
+next i

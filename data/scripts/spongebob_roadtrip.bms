@@ -1,0 +1,36 @@
+# SpongeBob Surf & Skate Roadtrip
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES long
+get INFO_OFF long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get NAMES_OFF long
+
+math INFO_OFF * 0x10
+math NAMES_OFF * 0x10
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get CRC long
+    get SIZE long
+    get NAME_OFF long
+    get DUMMY long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET * 0x10
+    log NAME OFFSET SIZE
+next i

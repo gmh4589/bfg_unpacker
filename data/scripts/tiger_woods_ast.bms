@@ -1,0 +1,62 @@
+# Tiger Woods PGA Tour 06/07 (Xbox 360) ast (script 0.2.1)
+
+# 0 = dump each XMA sample
+# 1 = keep it
+math CONCAT = 0
+
+get AST_SIZE long
+get REAL_SIZE asize
+if AST_SIZE != REAL_SIZE
+    endian big
+    reverselong AST_SIZE
+endif
+math BASE_OFF = 0x80
+math FILE = 0
+for OFFSET = BASE_OFF != AST_SIZE
+    goto OFFSET
+    getdstring CHECK 4
+    goto OFFSET
+    if CHECK == "SCHl"
+        idstring "SCHl"
+        findloc NEXT_OFF binary "SCHl" 0 ""
+        if NEXT_OFF == ""
+            math NEXT_OFF = AST_SIZE
+        endif
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    else
+        if CONCAT != 0
+            log MEMORY_FILE 0 0
+            append
+        endif
+        for OK = 1 != 0
+            goto OFFSET
+            get SIZE long
+            get DUMMY1 long
+            get DUMMY2 long
+            savepos OFFSET2
+            if SIZE & 0x80000000
+                math OK = 0
+            endif
+            math SIZE & 0x7fffffff
+            if CONCAT == 0
+                math SIZE - OFFSET2
+                math SIZE + OFFSET
+                math OFFSET = OFFSET2
+                string TMP p "%d/" FILE
+                log TMP OFFSET SIZE
+            else
+                log MEMORY_FILE OFFSET SIZE
+            endif
+            math OFFSET + SIZE
+        next
+        if CONCAT != 0
+            append
+            get SIZE asize MEMORY_FILE
+            log "" 0 SIZE MEMORY_FILE
+        endif
+        math OFFSET + 4
+    endif
+    math OFFSET x 0x80
+next FILE

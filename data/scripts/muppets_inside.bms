@@ -1,0 +1,48 @@
+# The Muppet CD-ROM: Muppets Inside
+#   experimental
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "MUPPET.ASP"
+open FDSE "MCD1.CD" 1
+
+idstring "FDIR"
+get FDIR_SIZE long
+get DRIVES long
+for i = 0 < DRIVES
+    get DUMMY short
+    get NAMESZ short
+    getdstring NAME NAMESZ
+next i
+get ZERO long
+get FOLDERS long
+for i = 0 < FOLDERS
+    get SUB_FILES short
+    get DUMMY long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+
+get NUM long
+for i = 0 < NUM
+    get DUMMY long
+next i
+
+get FILES short
+for i = 0 < FILES
+    get TYPE long
+    get OFFSET long
+    get SIZE long
+    get FOLDER_ID long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get DUMMY long  # -1
+    getarray PATH 0 FOLDER_ID
+    string NAME p "%s%s" PATH NAME  # ???
+    if SIZE != 0
+        log NAME OFFSET SIZE 1
+    endif
+next i
+
+#get ZERO short
+#idstring "RDIR"

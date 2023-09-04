@@ -1,0 +1,48 @@
+# EZBIND (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+idstring "EZBIND\0\0"
+get FILES long
+get VER long
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get OFFSET long
+    get CRC long
+
+    savepos BACKUP_OFF
+    goto NAME_OFF
+    get FNAME string
+    get NAME basename
+    string NAME += /
+    string NAME += FNAME
+
+    goto OFFSET
+    get TEST_GZIP short
+    if TEST_GZIP == 0x8b1f
+        if VER >= 4 # custom gzip
+            get CM byte
+            get FLAGS byte
+            if CM == 0
+                comtype copy
+            elif CM == 8
+                comtype deflate
+            elif CM == 9
+                comtype deflate # yeah it should be deflate64 but it isn't!
+            else
+                print "Error: unknown gzip CM %CM%, contact me"
+                cleanexit
+            endif
+            get XSIZE long
+            savepos OFFSET
+            clog NAME OFFSET SIZE XSIZE
+        else        # normal gzip
+            clog NAME OFFSET SIZE SIZE
+        endif
+    else
+        log NAME OFFSET SIZE
+    endif
+
+    goto BACKUP_OFF
+next i

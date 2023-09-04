@@ -1,0 +1,21 @@
+# Dragon Age 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+getdstring SIGN 0x10
+set SIGN unicode SIGN
+if SIGN & "ERF V"   # "ERF V3.0"
+    get ZERO long
+    get FILES long
+    goto 0x30
+    for i = 0 < FILES
+        getdstring DUMMY 0x10
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+
+        math OFFSET + 1
+        math ZSIZE  - 1
+        clog "" OFFSET ZSIZE SIZE
+    next i
+endif

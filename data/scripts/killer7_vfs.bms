@@ -1,0 +1,114 @@
+# Killer7 VFS (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VFS3"
+get VER long    # 1
+
+get FOLDERS long
+for i = 0 < FOLDERS
+    get SOME_CRC long
+    get ID long
+    get PREV_FOLDER long
+    get NEXT_FOLDER long
+    get FILES_IDX long
+    putarray 15 i ID
+    putarray 16 i PREV_FOLDER
+    putarray 17 i NEXT_FOLDER
+    putarray 18 i FILES_IDX
+next i
+
+get FILES long
+for i = 0 < FILES
+    if VER >= 16    # 16, 32
+        get OFFSET longlong
+        get SIZE longlong
+        get XSIZE longlong
+        callfunction GET_INFO 1
+    else
+        callfunction GET_INFO 1
+        get OFFSET long
+        get SIZE long
+        math XSIZE = SIZE
+    endif
+    putarray 0 i ID
+    putarray 1 i FLAGS
+    putarray 2 i FOLDER_ID
+    putarray 3 i OFFSET
+    putarray 4 i SIZE
+    putarray 5 i XSIZE
+next i
+
+if VER >= 16
+    get NAMES_OFF longlong
+    if VER >= 32
+        padding 32
+    else
+        padding 16
+    endif
+else
+    get NAMES_OFF long
+endif
+savepos BASE_OFF
+goto NAMES_OFF
+
+get NAMES long  # file names
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 10 i NAME
+next i
+
+get NAMES long  # folder names
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 11 i NAME
+next i
+
+for i = 0 < FILES
+    getarray ID         0  i
+    getarray FLAGS      1  i
+    getarray FOLDER_ID  2  i
+    getarray OFFSET     3  i
+    getarray SIZE       4  i
+    getarray XSIZE      5  i
+    getarray NAME       10 ID
+
+    set FNAME string NAME
+    for FOLDER = FOLDER_ID != 0xffffffff
+        getarray ID          15 FOLDER
+        getarray PREV_FOLDER 16 FOLDER
+        #getarray NEXT_FOLDER 17 FOLDER
+        #getarray FILES_IDX   18 FOLDER
+        getarray NAME        11 ID
+        string FNAME p "%s/%s" NAME FNAME
+        math FOLDER = PREV_FOLDER
+    next
+
+    math OFFSET + BASE_OFF
+    if FLAGS & 2
+        comtype zlib
+        if FLAGS & 1
+            comtype zstd
+        endif
+        if VER >= 16
+            # nothing to do
+        else
+            goto OFFSET
+            get XSIZE long
+            math OFFSET + 4
+            math SIZE   - 4
+        endif
+        clog FNAME OFFSET SIZE XSIZE
+    else
+        log FNAME OFFSET SIZE
+    endif
+
+next i
+
+startfunction GET_INFO
+    get SOME_CRC long
+    get ID long
+    get FLAGS long
+    get FOLDER_ID long
+endfunction

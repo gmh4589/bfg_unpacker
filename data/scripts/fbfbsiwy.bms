@@ -1,0 +1,36 @@
+# Kyoto Colorful Days
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FBFBSIWY"
+get ALIGN long
+get ZERO long
+get ZERO long
+get ZERO long
+get DUMMY long
+get ZERO long
+get DUMMY long
+get DUMMY long
+savepos BASE_OFF
+get FILES long
+for i = 0 < FILES
+    get TYPE short
+    get NAMESZ short
+    get DUMMY long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    get SIZE longlong
+    get OFFSET longlong
+
+    #string NAME h NAME # still obfuscated
+    string NAME + "."
+
+    savepos TMP
+    math OFFSET * ALIGN
+    math OFFSET + BASE_OFF
+    goto OFFSET
+    get XSIZE longlong
+    savepos OFFSET
+    math SIZE - 8
+    clog NAME OFFSET SIZE XSIZE
+    goto TMP
+next i

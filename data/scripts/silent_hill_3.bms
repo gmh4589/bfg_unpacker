@@ -1,0 +1,13 @@
+# Silent Hill 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+getdstring DUMMY 8
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get XSIZE long
+    log "" OFFSET SIZE
+next i

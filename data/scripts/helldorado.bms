@@ -1,0 +1,78 @@
+# Helldorado (script version 0.2.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SBPAK V 1.0\r\n\0"
+get DUMMY short
+get DUMMY long      # ever the same
+get DUMMY long      # ever the same
+get MYXOR long      # it's ever 0xffffffff so it can be used to autoguess the value
+math MYXOR &= 0xff
+math MYXOR ^= 0xff
+filexor MYXOR
+print "xor value %MYXOR%"
+
+get DUMMY long      # ever 0x10000
+get DUMMY long      # checksum
+get FILES long
+get DUMMY long
+get BASE_OFFSET long
+get TOTAL_SIZE long
+
+savepos INFO_OFFSET
+set NAMES_OFFSET long FILES
+math NAMES_OFFSET *= 16
+math NAMES_OFFSET += INFO_OFFSET
+set NAMES_SIZE long BASE_OFFSET
+math NAMES_SIZE -= NAMES_OFFSET
+
+log MEMORY_FILE NAMES_OFFSET NAMES_SIZE
+
+set XBYTE long NAMES_SIZE
+for i = 0 < NAMES_SIZE
+    getvarchr BYTE MEMORY_FILE i
+    math BYTE ^= 0xc4
+
+    # uncomment the following 5 lines if you get wrong filenames!
+    #if XBYTE & 1
+    #    math BYTE ^= 0x6e   # 'n'   you could modify these values setting your language
+    #else
+    #    math BYTE ^= 0x65   # 'e'   you could modify these values setting your language
+    #endif
+
+    math BYTE += XBYTE
+    math XBYTE -= 1
+    putvarchr MEMORY_FILE i BYTE
+next i
+
+goto INFO_OFFSET
+for i = 0 < FILES
+    filexor MYXOR
+    get SIZE long
+    get OFFSET long
+    get NAMEOFF threebyte
+    get DUMMY byte
+    get DUMMY long
+
+    math NAMEOFF += 2
+    goto NAMEOFF MEMORY_FILE
+    filexor ""
+
+    get XNAME string MEMORY_FILE
+    set NAME string XNAME
+    strlen NAMELEN NAME
+    set XNAMELEN long NAMELEN
+    for j = 0 < NAMELEN
+        getvarchr BYTE XNAME j
+        math XNAMELEN -= 1
+        putvarchr NAME XNAMELEN BYTE
+    next j
+
+    math OFFSET += BASE_OFFSET
+
+    if NAME & ".bik"
+        filexor ""
+    else
+        filexor MYXOR
+    endif
+    log NAME OFFSET SIZE
+next i

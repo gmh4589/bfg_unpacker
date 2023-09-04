@@ -1,0 +1,15 @@
+# Peria Chronicles .tarc
+
+idstring "Thing Archive\n"
+get VER short   # 1
+savepos BASE_OFF
+get DUMMY long  # 1
+get ZERO long
+idstring "DRC0"
+get FILES long
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,46 @@
+# Cabal 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+set XOR_KEY string "0x16 0x95 0x50 0x54 0x9F 0x75 0x7D 0xAC 0x81 0xA3 0xAA 0x95 0x31 0xB3 0x09 0x54 0xA8 0x8A 0x75 0x32 0x12 0x73 0x14 0xCF 0xC3 0x56 0x7C 0x2E 0xCD 0xDE 0xEE 0xEE 0xEB 0x3C 0xd3 0x85 0x16 0x37 0x30 0x28 0x7c"  # incomplete!
+
+get SIGN long
+if SIGN == 0x04034b50
+    set XOR_KEY string ""   # no longer encrypted
+endif
+
+for OFFSET = 0
+    goto OFFSET
+    filexor XOR_KEY OFFSET
+    get SIGN long
+    if SIGN != 0x04034b50
+        cleanexit
+    endif
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    savepos OFFSET
+    filexor XOR_KEY OFFSET
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos OFFSET
+    filexor ""
+
+    if name_len > 41
+        putvarchr name 41 0
+    endif
+
+    if method == 0
+        log name OFFSET uncomp_size
+    else
+        clog name OFFSET comp_size uncomp_size
+    endif
+    math OFFSET += comp_size
+next

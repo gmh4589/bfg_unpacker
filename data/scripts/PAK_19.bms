@@ -1,0 +1,16 @@
+<bms games="'Dead To Right 2'" platforms="'PS2'" ext="PAK">
+ImpType Standard ;
+Get U1 Long 0 ;
+Get U2 Long 0 ;
+Get U3 Long 0 ;
+Get FileNum Long 0 ;
+For T = 1 To FileNum ;
+GetCT FName String 10 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get U3 Long 0 ;
+Log FName FO FS #FOO FSO ;
+Next T ;
+</bms>

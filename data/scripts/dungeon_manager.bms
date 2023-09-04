@@ -1,0 +1,40 @@
+# Dungeon Manager
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+idstring "LE-7"
+get ZSIZE long
+get SIZE long
+get ZERO long
+savepos OFFSET
+filexor 0xff
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+filexor ""
+
+math DIFF_OFF = SIZE
+math DIFF_OFF - ZSIZE
+
+get NAMESZ byte MEMORY_FILE
+get DUMMY threebyte MEMORY_FILE
+get INFO_SIZE long MEMORY_FILE
+get ZERO long MEMORY_FILE
+getdstring NAME NAMESZ MEMORY_FILE
+savepos CURR_OFF MEMORY_FILE
+math INFO_SIZE + CURR_OFF
+for CURR_OFF = CURR_OFF < INFO_SIZE
+    get NAMESZ byte MEMORY_FILE
+    get ZIP byte MEMORY_FILE
+    get ZERO short MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    savepos CURR_OFF MEMORY_FILE
+
+    math OFFSET - DIFF_OFF
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next

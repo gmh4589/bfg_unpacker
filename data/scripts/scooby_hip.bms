@@ -1,0 +1,30 @@
+# Scooby-Doo! Night of 100 Frights (HIP)
+
+endian big
+
+savepos OFFSET
+get SIZE asize
+set NAME string ""
+set PATH string ""
+math LEVEL = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    math LEVEL + 1
+    xmath LIMIT "OFFSET + SIZE"
+    string PATH + NAME
+    string PATH + /
+    for OFFSET = OFFSET != LIMIT
+        getdstring NAME 4
+        get SIZE long
+        savepos OFFSET
+        if LEVEL <= 1
+            callfunction EXTRACT
+        else
+            string FNAME p "%s%s" PATH NAME
+            log FNAME OFFSET SIZE
+        endif
+        math OFFSET + SIZE
+        goto OFFSET
+    next
+endfunction

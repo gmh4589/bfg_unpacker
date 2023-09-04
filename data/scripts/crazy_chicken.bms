@@ -1,0 +1,16 @@
+# extracts the datafile.dat from "Crazy Chicken: Pirates (PC, 2006)"
+# (c) 2012-11-26 by AlphaTwentyThree of XeNTaX
+
+idstring "MHP XXL"
+goto 0x50
+for
+   getDstring NAME 0x40
+   if NAME == "****"
+      cleanexit
+   endif
+   get OFFSET long
+   get SIZE long
+   get ZERO long
+   get ZERO long
+   log NAME OFFSET SIZE
+next 

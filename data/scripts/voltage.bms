@@ -1,0 +1,37 @@
+# Voltage
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring LPK2
+set XOFFSET 16
+goto XOFFSET
+get NAMES_OFFSET long
+set LIMIT_OFFSET NAMES_OFFSET
+math LIMIT_OFFSET += 20
+math NAMES_OFFSET += 24
+savepos XOFFSET
+
+for XOFFSET = XOFFSET < LIMIT_OFFSET
+    goto XOFFSET
+    get DUMMY long
+    get OFFSET long
+    savepos XOFFSET
+
+    math OFFSET += 8
+    goto OFFSET
+    get DUMMY long
+    get SIZE long
+    math SIZE -= 16
+    getdstring DUMMY 12
+    savepos OFFSET
+
+    goto NAMES_OFFSET
+    get NAME string
+    savepos NAMES_OFFSET
+    do  # padding
+        if NAMES_OFFSET & 3
+            math NAMES_OFFSET += 1
+        endif
+    while NAMES_OFFSET & 3
+
+    log NAME OFFSET SIZE
+next

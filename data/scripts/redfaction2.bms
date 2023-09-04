@@ -1,0 +1,47 @@
+# Red Faction 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "toc_group"
+    print "Error: you must select the toc_group file"
+    cleanexit
+endif
+
+get FOLDER basename
+get NAME string
+get NAME string
+get TYPE long
+get FILES long
+if TYPE <= 4
+
+    print "There is nothing to extract, the files are already available"
+    for i = 0 < FILES
+        get NAME string # current filename on disk
+        get VALUE long
+        get NAME string # original full filename (same name with path)
+    next i
+
+elif TYPE == 6
+
+    get PACK_NAME string
+    open FDSE PACK_NAME 1 EXISTS
+    if EXISTS == 0
+        set PACK_NAME filename PACK_NAME
+        open FDSE PACK_NAME 1 EXISTS
+        if EXISTS == 0
+            string PACK_NAME p "%s/%s" FOLDER PACK_NAME
+            open FDSE PACK_NAME 1
+        endif
+    endif
+    get FILES long
+    for i = 0 < FILES
+        get NAME string
+        get SIZE long
+        get OFFSET long
+        log NAME OFFSET SIZE 1
+    next i
+
+else
+    print "Error: unknown type %TYPE%"
+    cleanexit
+endif

@@ -1,0 +1,16 @@
+# Dance Dance Show
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FileEnt\0"
+get DUMMY long
+get DUMMY long
+get FILES long
+get OFFSET long
+for i = 0 < FILES
+    goto OFFSET
+    get SIZE long
+    getdstring NAME 0x10c
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

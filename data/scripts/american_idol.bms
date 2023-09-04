@@ -1,0 +1,19 @@
+# American Idol
+
+comtype lzss0
+get ZERO long
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 4
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,78 @@
+# Nihon Falcom LB DIR/DAT
+#   Dinosaur Resurrection
+#   The Legend of Heroes: Trails in the Sky
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.7"
+comtype falcom_din
+
+get EXT extension
+if EXT == "arc"
+
+    get DUMMY long  # 0xbc614e
+    get EXTENSIONS long
+    for ENTRY = 0 < EXTENSIONS
+        getdstring EXT 4
+        get OFFSET long
+        get FILES long
+        savepos TMP
+        goto OFFSET
+        for i = 0 < FILES
+            getdstring NAME 8
+            get SIZE long
+            get OFFSET long
+            string NAME + .
+            string NAME + EXT
+            log NAME OFFSET SIZE
+        next i
+        goto TMP
+    next ENTRY
+
+elif EXT == "atc"
+
+    get FILES long
+    for i = 0 < FILES
+        get TSTAMP longlong
+        getdstring NAME 0x100
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next i
+
+elif EXT == "dir" || EXT == "dat"
+
+    open FDDE "dir"
+    open FDDE "dat" 1
+
+    idstring "LB DIR"
+    goto 0x10
+    get DIR_SIZE asize
+    do
+        getdstring NAME 12
+        get ZERO long
+        get ZSIZE long
+        get SIZE long   # a sort of max size, not a real size
+        get ZSIZE2 long
+        get TSTAMP long
+        get OFFSET long
+        if ZSIZE != 0   # or TSTAMP
+            math TMP = ZSIZE
+            math TMP x 0x1000
+            if TMP == SIZE
+                log NAME OFFSET ZSIZE 1
+            else
+                math SIZE * 2   # or the decompression may fail
+                clog NAME OFFSET ZSIZE SIZE 1
+            endif
+        endif
+        savepos TMP
+    while TMP != DIR_SIZE
+
+else
+
+    print "Error: format %EXT% not supported"
+    cleanexit
+
+endif

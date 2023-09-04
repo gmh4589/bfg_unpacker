@@ -1,0 +1,79 @@
+# Dead Rising 2 Off the Record (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math ZIP = -1
+
+get SIGN long
+  if SIGN == 0x03040506
+elif SIGN == 0x06050403
+    endian big
+else
+    cleanexit
+endif
+get BASE_NAME basename
+get TABLE_SIZE long
+get FULLSIZE long
+get FILES long
+get INFO_OFF long
+get NAMES_OFF long
+for i = 0 < FILES
+    get NAME_OFF long
+    get CRC long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY1 long
+    get DUMMY2 long
+
+    savepos TMP
+    goto NAME_OFF
+    get XNAME string
+
+    set NAME string BASE_NAME
+    string NAME += /
+    string NAME += XNAME
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        endian big
+        goto OFFSET
+        get FULL_CHUNK_SIZE long
+        if ZIP < 0
+            get TEST long
+            goto -4 0 SEEK_CUR
+            if TEST u>= 0x10000000
+                math ZIP = 1
+                comtype zlib
+            else
+                math ZIP = 0
+            endif
+        endif
+        if ZIP == 0
+        get CHUNK_ZMODE long
+        comtype xmemdecompress CHUNK_ZMODE
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        do
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            append
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0x10000
+            append
+            math OFFSET += CHUNK_ZSIZE
+            goto OFFSET
+            get XSIZE asize MEMORY_FILE
+        while XSIZE < FULL_CHUNK_SIZE
+        log NAME 0 FULL_CHUNK_SIZE MEMORY_FILE
+        else
+            savepos OFFSET
+            math ZSIZE - 4
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+
+    if SIGN == 0x03040506
+        endian little
+    endif
+    goto TMP
+next i

@@ -1,0 +1,19 @@
+# Planet Alcatraz
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    getdstring DUMMY 12
+    get ZIP long
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,28 @@
+<bms games="'Rock Manager'" platforms="'PC'" ext="CXT">
+ImpType SFileSize ;
+IDString 0 XFIR ;
+Get ARCSIZE Long 0 ;
+Get TEMP Long 0 ;
+Set FNTITLE String File_ ;
+Set FNID String 1 ;
+Set FNDOT String . ;
+Set FNREMOVE String * ;
+Do ;
+GetDString FNEXT 4 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+If FSIZE = 0 ;
+CleanExit ;
+EndIf ;
+SavePos FOFFSET 0 ;
+Math FNID += 1 ;
+Set FNAME String FNTITLE ;
+String FNAME += FNID ;
+String FNAME += FNDOT ;
+String FNAME += FNEXT ;
+String FNAME -= FNREMOVE ;
+Log FNAME FOFFSET FSIZE 0 FSIZEX ;
+Math FOFFSET += FSIZE ;
+GoTo FOFFSET 0 ;
+While NotEOF <> 0 ;
+</bms>

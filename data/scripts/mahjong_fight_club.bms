@@ -1,0 +1,36 @@
+# Mahjong Fight Club
+
+idstring "PACK"
+get DUMMY short # 0x2009
+get FILES short
+get NAMES_OFF_OFF long
+get NAMES_OFF long
+get SOME_OFF long
+get PAK_SIZE long
+get PAK_SIZE long
+get ZERO long
+for i = 0 < FILES
+    getdstring TYPE 4
+    get ZERO long
+    get SIZE long
+    get OFFSET long
+    get ZERO long
+    get ZERO long
+    get DUMMY1 long  # SIZE copy-paste
+    get DUMMY2 long  # OFFSET copy-paste
+
+    savepos TMP
+    goto NAMES_OFF_OFF
+    get NAME_OFF long
+    savepos NAMES_OFF_OFF
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if DUMMY1 != 0
+        string NAME p "%s/%s" "append" NAME
+    endif
+
+    log NAME OFFSET SIZE
+next i

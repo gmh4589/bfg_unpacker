@@ -1,0 +1,90 @@
+# Bullet Witch CPR / dpk (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math NAMES_OFF = 0
+
+get EXT extension
+if EXT == "dpk"
+    idstring "dpk\0"
+    get INFO_OFF long
+    get DUMMY long  # 1
+    get DATA_OFF long
+    get FILES long
+    goto INFO_OFF
+    for i = 0 < FILES
+        getdstring DUMMY 16
+        get ZSIZE long
+        get SIZE long
+        get OFFSET long
+        get NAME_OFF long
+        callfunction GET_NAME 1
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE
+        else    # I have no compressed samples
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    cleanexit
+endif
+
+idstring "CPR1"
+get VER long    # 1
+idstring "\x44\x33\x22\x11"
+get ZERO long
+get SIZE1 long
+get SIZE2 long
+get NAMES_SIZE long
+get SIZE3 long
+get SIZE4 long
+get SIZE5 long
+savepos NEWS_OFF
+get ZERO long
+get SIZE6 long
+get ZERO long
+get DUMMY long
+padding 0x10
+getdstring NAME 0x20
+savepos INFO_OFF
+xmath FILES "SIZE1 / 0x30"
+xmath NAMES_OFF "INFO_OFF + SIZE1 + SIZE2"
+xmath BASE_OFF1 "NAMES_OFF + NAMES_SIZE + SIZE3"
+xmath BASE_OFF2 "BASE_OFF1 + SIZE4"
+for i = 0 < FILES
+    getdstring TYPE 4
+    get NAME_OFF long
+    get DUMMY long  # 0 or 1
+    get NEW_OFF long  # usually -1, used for new files
+    get DUMMY long  # 0
+    get DUMMY long  # 0
+    get DUMMY_OFF long  # * 0x10
+    get DUMMY_SIZE long
+    get OFFSET1 long
+    get SIZE1 long
+    get OFFSET2 long
+    get SIZE2 long
+    callfunction GET_NAME 1
+
+    math OFFSET = 0
+    math SIZE = 0
+    if SIZE1 != 0
+        xmath OFFSET "OFFSET1 + BASE_OFF1"
+        math SIZE = SIZE1
+    elif SIZE2 != 0
+        xmath OFFSET "OFFSET2 + BASE_OFF2"
+        math SIZE = SIZE2
+    endif
+    if NEW_OFF != 0xffffffff
+        xmath OFFSET "NEW_OFF + NEWS_OFF"
+    endif
+    if OFFSET != 0
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction GET_NAME
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

@@ -1,0 +1,24 @@
+# extracts the FSalldata archive from "Frozen Synapse Prime ~ 2014 ~ PC"
+# (c) 2014-12-12 by AlphaTwentyThree
+# script for QuickBMS #http://quickbms.aluigi.org
+
+include "func_getTYPE.bms"
+open FDDE "pkiwin" 0
+open FDDE "pkdwin" 1
+get INFOSIZE long 0
+get ZERO long 0
+get FILES long 0
+get FOLDER basename
+for i = 1 <= FILES
+   get SIZE long 0
+   get OFFSET long 0
+   get CRC long 0
+   putVarChr MEMORY_FILE SIZE 0
+   log MEMORY_FILE 0 0
+   append
+   log MEMORY_FILE OFFSET SIZE 1
+   append
+   callfunction getTYPE 1
+   string NAME p= "%s/0x%08x%s" FOLDER CRC EXT
+   log NAME 0 SIZE MEMORY_FILE
+next i

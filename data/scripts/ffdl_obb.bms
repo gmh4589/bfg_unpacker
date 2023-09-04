@@ -1,0 +1,121 @@
+# Final Fantasy Dimensions Legends main.113.com.square_enix.android_googleplay.ffl_gp.obb FFDL (script 0.2)
+
+get NAME filename
+if NAME & "msg"
+if NAME & ".dat"
+    math OFFSET = 0
+    get SIZE asize
+    math SIZE - OFFSET
+    callfunction MSG_EXTRACT 1
+    cleanexit
+endif
+endif
+
+if NAME & "message"
+if NAME & ".dat"
+    # doesn't work well
+    print "Error: %NAME% is not supported"
+    cleanexit
+    get NUM long
+    get OFFSET long
+    get SIZE asize
+    math SIZE - OFFSET
+    callfunction MSG_EXTRACT 1
+    cleanexit
+endif
+endif
+
+idstring "FFDL"
+filexor 0x14
+get OBB_SIZE long
+get DATA_BLOCKS long
+get INFO_OFF long
+for i = 0 < DATA_BLOCKS
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+goto INFO_OFF
+idstring "FFDL"
+get HEADER_SIZE long
+get INFO_SIZE long
+get NAMES_SIZE long
+xmath NAMES_OFF "INFO_OFF + INFO_SIZE"
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get ZSIZE long
+    get SIZE long
+    get BLOCK long
+    get OFFSET long
+    get ZERO long
+
+    if ZSIZE != SIZE
+        print "Error: ZSIZE != SIZE. Contact me"
+        cleanexit
+    endif
+
+    savepos TMP_OFF
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+
+    math BLOCK - 1
+    getarray BLOCK_OFFSET 0 BLOCK
+    math OFFSET + BLOCK_OFFSET
+
+    goto OFFSET
+    getdstring SIGN 3
+    if SIGN u== "INP"   # INP\x00
+        math OFFSET + 4
+        math SIZE   - 4
+        string NAME + "."
+    elif SIGN u== "ICP" # ICP\x01
+        math OFFSET + 12
+        math SIZE   - 12
+        string NAME + "."
+    elif SIGN u== "mtx" # mtxs
+        math OFFSET + 16
+        math SIZE   - 16
+        string NAME + "."
+    elif SIGN u== "Ogg" # OggS
+        string NAME + "."
+    elif NAME & "img"
+        string NAME + "."
+    endif
+    if SIZE > 0 # necessary due to the header-removal
+        log NAME OFFSET SIZE
+    endif
+    goto TMP_OFF
+next i
+
+startfunction MSG_EXTRACT
+    string NAME + ".txt"
+    goto OFFSET
+    xmath LIMIT "OFFSET + SIZE"
+    get DUMMY byte
+    get DUMMY short
+    do
+        get STRSZ byte
+        if STRSZ != 0
+            #if STRSZ == 0x80
+                # this check is necessary because there are very few strings
+                # in the middle of nowhere, like the text 0x00 0x80 0x8d 0x00
+                # which is a string without the size at the beginning
+                savepos TMP
+                get STR string
+                savepos TMP2
+                math TMP2 - TMP
+                math TMP2 - 1   # NUL
+                goto TMP
+            #else
+            #    math TMP2 = STRSZ
+            #endif
+            if TMP2 == STRSZ
+                slog NAME -1 STRSZ
+            endif
+        endif
+        savepos TMP
+    while TMP < LIMIT
+endfunction

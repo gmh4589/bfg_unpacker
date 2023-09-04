@@ -1,0 +1,51 @@
+# Archery Hero
+
+idstring "A\0R\0"
+get INFO_OFF long   # 0x28
+get PAK_SIZE longlong
+get SOME_SIZE long
+get INFO_OFF long
+get FILES long
+goto INFO_OFF
+for i = 0 < FILES
+    get TYPE long   # 1
+    #get NAME_CRC longlong  # yes, it's 64bits
+    get NAME_CRC2 long
+    get NAME_CRC1 long
+    get DUMMY long  # 0xffffffff
+    get OFFSET longlong
+    get DUMMY long  # 1
+    get ZSIZE long
+    get SIZE long
+    get DUMMY long  # 0xffffffff
+
+    if SIZE != ZSIZE
+        print "Error: SIZE != ZSIZE, contact me"
+        cleanexit
+    endif
+
+    if TYPE != 0xffffffff
+        if NAME_CRC1 == 0x59addba6 && NAME_CRC2 == 0x1fa8b4ca
+            encryption xor "3dengine"
+            log MEMORY_FILE OFFSET SIZE
+            getdstring NAMES SIZE MEMORY_FILE
+            set NAMES unicode NAMES
+            goto 0 MEMORY_FILE
+            put NAMES string MEMORY_FILE
+            put "" line MEMORY_FILE
+            goto 0 MEMORY_FILE
+            math x = 0
+            do
+                get NAME line MEMORY_FILE
+                putarray 0 x NAME
+                print "NAME %x%: %NAME%"
+                math x + 1
+            while NAME != ""
+        endif
+
+        string NAME p "%08x%08x." NAME_CRC1 NAME_CRC2
+        encryption xor "3dengine"
+        log NAME OFFSET SIZE
+        encryption "" ""
+    endif
+next i

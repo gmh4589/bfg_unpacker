@@ -1,0 +1,35 @@
+# SYSTEM-ε PACKDAT
+#   converted from GARBro (untested)
+
+idstring "PACK"
+idstring "DAT."
+get FILES long
+goto 0x10
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get FLAGS long
+    get SIZE long
+    get XSIZE long
+
+    set EXT extension NAME
+    if EXT == "s"
+        filexor 0xff
+        log NAME OFFSET SIZE
+        filexor ""
+    elif FLAGS & 0x10000
+        log MEMORY_FILE OFFSET SIZE
+        xmath SIZE32 "SIZE >> 2"
+        xmath KEY "SIZE32 ^ (SIZE32 << ((SIZE32 & 7) + 8))"
+        for x = 0 < SIZE32
+            getvarchr TMP MEMORY_FILE x long
+            math TMP ^ KEY
+            putvarchr MEMORY_FILE x TMP long
+            math TMP % 24
+            math KEY l TMP
+        next x
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

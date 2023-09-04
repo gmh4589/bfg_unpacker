@@ -1,0 +1,25 @@
+# Golden Axe: Beast Rider
+
+get DUMMY short
+get DUMMY short
+endian big
+get HEAD_SIZE long
+goto 0x18
+get DUMMY long
+savepos INFO_OFF
+for INFO_OFF = INFO_OFF != HEAD_SIZE
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+    get DUMMY long
+    get ZSIZE long
+    savepos INFO_OFF
+
+    if ZSIZE == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next

@@ -1,0 +1,31 @@
+# NoScrubs Iris Online ZIP passwords
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "ns"
+
+    print "PASSWORD: #7qlcRkfanwlrodld"
+
+elif EXT == "dat"
+
+    print "PASSWORD: Failed open dat"
+
+elif EXT == "nss"
+
+    get DATA basename
+    string DATA $ "_"
+    #print "%DATA%"
+    string DATA r DATA
+    string DATA R "_" "0"
+    string DATA R "a" "0"
+    string DATA R "e" "0"
+    string DATA R "i" "0"
+    string DATA R "o" "0"
+    string DATA R "u" "0"
+    print "PASSWORD: 0%DATA%"
+
+else
+
+    print "Error: unsupported extension %EXT%"
+
+endif

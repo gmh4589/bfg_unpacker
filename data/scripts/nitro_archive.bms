@@ -1,0 +1,36 @@
+# nitro_archive (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "NTRO"
+get ARCHIVE_SIZE long
+goto 0x20
+get INFO_OFF long
+goto 0x2c
+get BASE_OFF long
+if INFO_OFF == 0x34
+    goto 0x30
+    get FILES long
+    for i = 0 < FILES
+        putarray 0 i ""
+    next i
+else
+    goto 0x34
+    get NAMES_SIZE long
+    get NAMES_OFF long
+    get FILES long
+    goto NAMES_OFF
+    for i = 0 < FILES
+        getdstring NAME 0x80
+        putarray 0 i NAME
+    next i
+endif
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    math OFFSET += BASE_OFF
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

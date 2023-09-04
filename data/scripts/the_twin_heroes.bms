@@ -1,0 +1,38 @@
+# The Twin Heroes 新绝代双骄 (Tth3Datachs.Bin Tth3chs.Idx)
+#   use the script on Tth3chs.Idx
+# script for QuickBMS http://quickbms.aluigi.org
+
+get BASE_NAME basename
+string BASE_NAME - "Data"
+string BASE_NAME - "Image"
+string BASE_NAME - "chs"
+
+string TMP p "%s%s.Idx" BASE_NAME "chs"
+open FDSE TMP
+
+string TMP p "%s%s%s.Bin" BASE_NAME "Data" "chs"
+putarray 0 -1 TMP
+string TMP p "%s%s%s.Bin" BASE_NAME "Image" "chs"
+putarray 0 -1 TMP
+
+getdstring STR 20   # The Twin Heroes
+getdstring STR 20   # Image Data or File Index and so on
+get PACKS long
+get IDX_SIZE long
+for PACK = 0 < PACKS
+    get OFFSET long
+    get SIZE long
+
+    getarray TMP 0 PACK
+    open FDSE TMP 1
+
+    savepos TMP
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE 1
+    next i
+    goto TMP
+next PACK

@@ -1,0 +1,50 @@
+# NZV executable
+# script for QuickBMS http://quickbms.aluigi.org
+
+findloc OFFSET string "NZV\0"
+math OFFSET += 0xc
+goto OFFSET
+
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math OFFSET += ZSIZE
+    goto OFFSET
+next i
+
+/*
+# Not supported because doesn't have a sense, use offzip
+idstring "PAMU"
+for i = 0
+    get FLAGS long
+    get DUMMY2 long
+    get DUMMY3 long
+    xmath CHUNKS "FLAGS >> 9"
+    for x = 0 < CHUNKS
+        get ID long
+        get XSIZE long
+        savepos TMP_OFF
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        if SIZE == 0
+            log "" OFFSET ZSIZE
+        else
+            clog "" OFFSET ZSIZE SIZE
+        endif
+        math TMP_OFF += XSIZE
+        goto TMP_OFF
+    next x
+next i
+*/

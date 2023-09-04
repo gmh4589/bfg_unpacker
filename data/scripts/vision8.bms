@@ -1,0 +1,13 @@
+# Vision 8 engine .v ZIP decrypter
+#   Grotesque Tactics: Evil Heroes
+#   Hinter Gittern
+#   Trapped Dead
+#   IceBreakers
+#   http://www.trinigy.net/en/clients/game-customers
+# script for QuickBMS http://quickbms.aluigi.org
+
+filexor 0x55
+get SIZE asize
+get NAME basename
+string NAME += ".zip"
+log NAME 0 SIZE

@@ -1,0 +1,99 @@
+# Battleline: Steel Warfare
+# script for QuickBMS http://quickbms.aluigi.org
+
+# fast zip.bms
+get zip_filesize asize
+for offset = offset u< zip_filesize
+    idstring "TS"
+    get sign short
+    if sign != 0x0403
+        break
+    endif
+
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    math NAMESZ = name_len
+    callfunction NAME_DECRYPT 1
+
+    if method == 0
+        Log name offset comp_size   # was uncomp_size before AES
+    else
+        if method == 8
+            ComType deflate
+        elif method == 14
+            ComType lzmaefs
+        elif method == 98
+            ComType ppmd
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+        CLog name offset comp_size uncomp_size
+    endif
+
+    math offset += comp_size
+    goto offset
+next
+
+
+startfunction NAME_DECRYPT
+    set KEY binary "\x00\xa4\x11\x4c\x0a\x82\x31\x2b\x27\x40\x23\x1f\x6a\x72\x26\xa3\xb7\xb4\x4b\xcc\xcd\x78\x46\x33\x3c\x15\x01\x43\x44\x4d\xad\x54\x0f\x22\x57\x34\x5b\xc0\x80\x87\xab\x77\x14\x61\x32\x02\x52\xf7\x24\x97\x6d\x49\x76\xc9\x45\x3b\xb3\x7f\x6e\x0e\x25\x1e\xa6\x8a\x85\xa5\x03\x29\xd7\x2d\xd9\x08\x1a\x53\x9f\x20\x17\x67\x9d\xf3\x4e\x8d\x2c\x05\x63\xe9\xa0\xbb\xfc\xc7\xe1\x83\xbf\x5a\x8b\x9c\xaf\x1d\xfb\x42\x12\x28\x48\x6b\x7e\x3a\x0d\x51\xe8\x8c\x18\xe4\x3e\x4a\x9b\xa1\x19\xda\x70\x73\x37\xba\xbe\x9a\x0c\xa8\xc6\xfe\x0b\x38\x89\x81\x95\x07\xb8\x47\x69\x06\xdb\xde\x9e\x65\x92\xac\xc4\xb0\xdc\x5d\x60\xbc\xd2\x7b\x2f\x5c\x64\x04\x6c\xc2\x09\xae\x5f\x93\x94\x1b\x66\x2e\xc1\xe7\xd1\x50\xee\x41\x7d\x3d\x90\xce\x58\x56\x5e\x2a\x36\x84\x62\xb6\xf4\xe2\x59\xc8\x75\x79\xdf\x4f\x7c\x13\xa9\xef\xe5\xd5\xfd\xb5\xb2\xaa\x98\xd3\x74\x88\xe6\xd0\xec\x71\xcf\x96\xcb\xc5\x1c\xc3\xd4\xf8\x55\x86\x91\xeb\x30\x6f\xdd\x21\xea\xff\x16\xb9\xfa\xa7\xca\x68\x3f\xbd\xf0\xf5\xe3\xf6\xf1\x7a\xf2\xed\x10\xb1\x35\xd8\x39\x99\xf9\xa2\xd6\xe0\x8e\x8f"
+    string KEY2 p "%d" NAMESZ
+    strlen KEY2SZ KEY2
+    for CYCLES = 0x21 >= 0
+        math NAMESZ - 1
+        for x = 0 < NAMESZ
+            getvarchr DL NAME x
+            math x + 1
+            getvarchr EDI NAME x
+            callfunction NAME_DECRYPT2 1
+            math x - 1
+            putvarchr NAME x DL
+        next x
+        math NAMESZ + 1
+        for x = x > 0
+            getvarchr DL NAME x
+            math x - 1
+            getvarchr EDI NAME x
+            callfunction NAME_DECRYPT2 1
+            math x + 1
+            putvarchr NAME x DL
+        prev x
+        math TMP_CYCLES = CYCLES
+        for x = 0 < NAMESZ
+            math TMP = TMP_CYCLES
+            math TMP % KEY2SZ
+            math TMP_CYCLES + 1
+            getvarchr EDI KEY2 TMP
+            getvarchr DL NAME x
+            callfunction NAME_DECRYPT2 1
+            putvarchr NAME x DL
+        next x
+    next CYCLES - 3
+endfunction
+
+startfunction NAME_DECRYPT2
+    math ECX = EDI
+    math ECX & 7
+    xmath DL "((DL >> ECX) | (DL << (8 - ECX))) & 0xff"
+    getvarchr ECX KEY DL
+    math ECX - EDI
+    if ECX < 0
+        math DL = 0
+    else
+        math DL = 1
+    endif
+    math DL + ECX
+endfunction

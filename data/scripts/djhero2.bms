@@ -1,0 +1,95 @@
+# DJ Hero 2 X360 DISC0.IMG (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.7"
+
+math TMP = 0x10000000
+math TMP *= 16
+if TMP == 0
+    print "Error: you must use quickbms_4gb_files.exe for this archive" # or sortarray will not work!
+    cleanexit
+endif
+
+endian big
+idstring "FSG-FILE-SYSTEM\0"
+get DUMMY long      # 2
+get HEADER_SIZE long
+get SECTORS long
+get SECTORS_OFF long
+get BASE_OFF long
+get DUMMY long      # 16000 or 10000
+get DUMMY long      # 8
+get FILES long
+get ZERO long
+get SOME_CRC long
+
+for i = 0 < FILES
+    get NAME_CRC long
+    get TYPE byte
+    get OFFSET threebyte
+    savepos TMP
+    goto OFFSET
+    get OFFSET long
+    get SIZE long
+    math OFFSET * 1024
+    math OFFSET + BASE_OFF
+    putarray 0 i TYPE
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+    goto TMP
+next i
+
+print "Sorting offsets, wait some seconds..."
+sortarray 1 1
+
+#log MEMORY_FILE 0 0
+#put "" string MEMORY_FILE
+#goto 0 MEMORY_FILE
+#set PATH string ""
+
+math BASE_SIZE = 0
+get MAX_SIZE asize
+
+for i = 0 < FILES
+    getarray TYPE   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+
+    math OFFSET - BASE_SIZE
+    if OFFSET u> MAX_SIZE
+        get NAME basename
+        get EXT extension
+
+        string EXT << 4
+        math EXT + 1
+        string TMP p "%s.part%d" NAME EXT
+        open FDSE TMP 0 EXISTS
+        if EXISTS == 0
+            string TMP p "%s.part%03d" NAME EXT
+            open FDSE TMP 0 EXISTS
+            if EXISTS == 0
+                print "Error: file %TMP% not found"
+                cleanexit
+            endif
+        endif
+
+        get MAX_SIZE asize
+        math BASE_SIZE + MAX_SIZE
+    endif
+
+    if TYPE == 1
+        #get PATH string MEMORY_FILE
+        #log MEMORY_FILE OFFSET SIZE
+        #math MEM_SIZE = SIZE
+    else
+        #savepos TMP MEMORY_FILE
+        #if TMP >= MEM_SIZE
+        #    set NAME string ""
+        #else
+        #    get NAME string MEMORY_FILE
+        #endif
+        #string FNAME p "%s/%s" PATH NAME
+
+        log "" OFFSET SIZE
+    endif
+next i

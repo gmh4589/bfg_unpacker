@@ -1,0 +1,83 @@
+# Assassin's Creed raw data files decompressor (script 0.1.4)
+#   the script must be used on the files extracted from the forge archives.
+#   format: http://wiki.tbotr.net/index.php?title=Assassins_Creed:Forge_Files
+# script for QuickBMS http://quickbms.aluigi.org
+
+math GUESSED_CHUNKS_SIZE = 0
+get ARCHIVE_SIZE asize
+math i = 0
+for OFFSET = 0 != ARCHIVE_SIZE
+    #findloc OFFSET binary "\x33\xaa\xfb\x57\x99\xfa\x04\x10"    # necessary for some games
+    findloc OFFSET binary "\xaa\xfb\x57\x99\xfa"
+    math OFFSET - 1 # "\x33" or "\x34"
+    math OFFSET + 8
+    goto OFFSET
+    #idstring "\x33\xaa\xfb\x57\x99\xfa\x04\x10"
+    get VER short
+    get TYPE byte
+    if TYPE <= 1
+        comtype lzo1x
+    elif TYPE == 2
+        comtype lzo2a
+    elif TYPE == 3
+        comtype zstd
+    elif TYPE == 4
+        comtype oodle
+    elif TYPE == 5
+        comtype lzo1c
+    elif TYPE == 7
+        comtype oodle
+    elif TYPE == 8
+        comtype oodle
+    else
+        comtype oodle   # we will get an error if it's wrong, apparently it's all oodle now
+        #print "Error: unknown type %TYPE% at offset %OFFSET|x%"
+        #cleanexit
+    endif
+    get MIN_SIZE short
+    get MAX_SIZE short
+    if GUESSED_CHUNKS_SIZE == 0
+        # no, it's not 100% reliable. no other ways...
+        get CHUNKS long
+        if CHUNKS u>= 0x10000
+            math GUESSED_CHUNKS_SIZE = 2
+        else
+            math GUESSED_CHUNKS_SIZE = 4
+        endif
+        goto -4 0 SEEK_CUR
+    endif
+    if GUESSED_CHUNKS_SIZE == 2
+        get CHUNKS short
+    else
+        get CHUNKS long
+    endif
+    get NAME basename
+    string NAME p "%s/%d.dat" NAME i
+    log NAME 0 0
+    append
+    for x = 0 < CHUNKS
+        if VER <= 1
+            get SIZE short
+            get ZSIZE short
+        else
+            get SIZE long
+            get ZSIZE long
+        endif
+        putarray 0 x SIZE
+        putarray 1 x ZSIZE
+    next x
+    savepos OFFSET
+    for x = 0 < CHUNKS
+        math OFFSET + 4 # crc
+        getarray SIZE  0 x
+        getarray ZSIZE 1 x
+        if ZSIZE == SIZE
+            log NAME OFFSET ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET + ZSIZE
+    next x
+    append
+    goto OFFSET
+next i

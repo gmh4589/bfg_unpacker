@@ -1,0 +1,12 @@
+# Apache Longbow (BLK)
+
+Set FILESTART Long 9 ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILEOFF 0 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+SavePos FILESTART 0 ;
+While NotEOF <> 0 ;
+

@@ -1,0 +1,218 @@
+# Tales of Berseria (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP * 16
+if TMP == 0
+    print "you must use quickbms_4gb_files.exe with big archives"
+    cleanexit
+endif
+
+set MEMORY_FILE11 binary "\xef\x97\x61\xcd\x2e\x8a\x1b\x55\x34\x0e\x70\x94\xf3\x57\x6a\x18\x38\xb9\x12\x27\x30\x2e\x9f\x3e\xf2\x51\xc5\xcc\x03\x23\x4c\xe1\x33\x71\xc1\xf5\xa1\x8c\xf3\xcc\xdb\xc9\xb1\x23\x2f\x62\x53\x23\x17\x74\xae\x84\xac\xad\xaf\x34\xeb\x65\x93\x1d\xca\xca\x5d\x0a\x0f\x3c\xcd\x99\xcf\xbe\x62\xf2\x62\x19\x48\x2f\x4b\x5b\x12\x03\xaa\xa7\x82\x97\x03\xc4\x5e\xcd\xf3\x77\x7e\x31\xfc\xb2\x33\x7e\xfa\xd4\x40\xbb\x09\x54\xfb\xbe\xef\x24\x0e\x41\x9e\xc4\x68\x33\xbf\x6b\x3e\x7e\x61\x93\x96\x1e\xb1\x12\x89\x35\x8e\x27\x35\x9c"
+for i = 0 < 0x10
+    get KEY longlong MEMORY_FILE11
+    putarray 0 i KEY
+next i
+
+open FDSE "FILEHEADER.TOFHDA"
+get KEYS asize
+math KEYS / 8
+for i = 0 < KEYS
+    get KEY longlong
+    putarray 1 i KEY
+next i
+
+/*
+//void decrypt(unsigned long long key, unsigned char *data, int datasz) {
+void decrypt(unsigned int key64, unsigned int key32, unsigned char *data, int datasz) {
+    unsigned long long key = key64;
+    key <<= 32;
+    key |= key32;
+
+    unsigned long long tmp, t;
+    int     i;
+    for(i = 0; i < ((datasz / 0x10) * 0x10); i += 8) {
+        *(unsigned long long *)(data + i) ^= key;
+        tmp = key ^ 0x4e3362bf7a4c7c26LL;
+        tmp ^= tmp << 0xd;
+        tmp ^= tmp >> 7;
+
+        t =
+            ((signed int)data[i + 7]     << ((((i - 1) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 3] << ((((i - 4) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 6] << ((((i + 1) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 2] << ((((i - 3) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 7] << ((((i    ) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 5] << ((((i + 2) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 1] << ((((i - 2) & 7) << 3)) % 32)
+        |   ((signed int)data[i + 7 - 4] << ((((i + 3) & 7) << 3)) % 32);
+
+        key = tmp ^ (tmp << 0x11) ^ t;
+    }
+
+    for(; i < datasz; i++) {
+        data[i] ^= key >> ((i & 7) << 3);
+    }
+}
+*/
+set MEMORY_FILE10 binary "\x55\x89\xe5\x57\x56\x53\x83\xec\x34\x8b\x45\x08\x89\x45\xe8\xc7\x45\xec\x00\x00\x00\x00\x8b\x45\xe8\x8b\x55\xec\x89\xc2\xb8\x00\x00\x00\x00\x89\x45\xe8\x89\x55\xec\x8b\x45\x0c\xba\x00\x00\x00\x00\x09\x45\xe8\x09\x55\xec\xc7\x45\xe4\x00\x00\x00\x00\xe9\x7b\x02\x00\x00\x8b\x55\xe4\x8b\x45\x10\x8d\x0c\x02\x8b\x55\xe4\x8b\x45\x10\x01\xd0\x8b\x50\x04\x8b\x00\x89\xc7\x33\x7d\xe8\x89\x7d\xc8\x89\xd0\x33\x45\xec\x89\x45\xcc\x8b\x45\xc8\x8b\x55\xcc\x89\x01\x89\x51\x04\x8b\x45\xe8\x35\x26\x7c\x4c\x7a\x89\x45\xd8\x8b\x45\xec\x35\xbf\x62\x33\x4e\x89\x45\xdc\x8b\x45\xd8\x8b\x55\xdc\x0f\xa4\xc2\x0d\xc1\xe0\x0d\x31\x45\xd8\x31\x55\xdc\x8b\x45\xd8\x8b\x55\xdc\x0f\xac\xd0\x07\xc1\xea\x07\x31\x45\xd8\x31\x55\xdc\x8b\x45\xe4\x8d\x50\x07\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xe8\x01\x83\xe0\x07\x8d\x14\xc5\x00\x00\x00\x00\x89\xd0\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc1\x8d\x04\x0a\x83\xe0\x1f\x29\xc8\x89\xc1\xd3\xe3\x89\xde\x8b\x45\xe4\x8d\x50\x04\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xe8\x04\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x45\xe4\x8d\x50\x01\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xc0\x01\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x45\xe4\x8d\x50\x05\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xe8\x03\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x55\xe4\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x45\xe4\x8d\x50\x02\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xc0\x02\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x45\xe4\x8d\x50\x06\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xe8\x02\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xc6\x8b\x45\xe4\x8d\x50\x03\x8b\x45\x10\x01\xd0\x0f\xb6\x00\x0f\xb6\xd8\x8b\x45\xe4\x83\xc0\x03\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x89\xc8\xc1\xf8\x1f\xc1\xe8\x1b\x89\xc2\x8d\x04\x11\x83\xe0\x1f\x29\xd0\x89\xc1\xd3\xe3\x89\xd8\x09\xf0\x99\x89\x45\xd0\x89\x55\xd4\x8b\x45\xd8\x8b\x55\xdc\x0f\xa4\xc2\x11\xc1\xe0\x11\x89\xc7\x33\x7d\xd8\x89\x7d\xc0\x89\xd0\x33\x45\xdc\x89\x45\xc4\x8b\x75\xc0\x8b\x7d\xc4\x89\xf0\x33\x45\xd0\x89\x45\xe8\x89\xf8\x33\x45\xd4\x89\x45\xec\x83\x45\xe4\x08\x8b\x45\x14\x8d\x50\x0f\x85\xc0\x0f\x48\xc2\xc1\xf8\x04\xc1\xe0\x04\x3b\x45\xe4\x0f\x8f\x6b\xfd\xff\xff\xeb\x3d\x8b\x55\xe4\x8b\x45\x10\x8d\x1c\x02\x8b\x55\xe4\x8b\x45\x10\x01\xd0\x0f\xb6\x30\x8b\x45\xe4\x83\xe0\x07\x8d\x0c\xc5\x00\x00\x00\x00\x8b\x45\xe8\x8b\x55\xec\x0f\xad\xd0\xd3\xea\xf6\xc1\x20\x74\x04\x89\xd0\x31\xd2\x31\xf0\x88\x03\x83\x45\xe4\x01\x8b\x45\xe4\x3b\x45\x14\x7c\xbb\x83\xc4\x34\x5b\x5e\x5f\x5d\xc3"
+
+open FDSE "FILEHEADER.TOFHDB"
+getarray KEY1 1 12
+math KEY1 & 0xf
+getarray KEY2 1 4
+math KEY2 u>> 4
+math KEY2 & 0xf
+if KEY1 == KEY2
+    math KEY2 + 1
+    math KEY2 & 0xf
+endif
+getarray KEY1 0 KEY1
+getarray KEY2 0 KEY2
+math KEY = KEY1
+math KEY ^ KEY2
+
+get SIZE asize
+log MEMORY_FILE2 0 SIZE
+callfunction KEY_TO_32BIT 1
+calldll MEMORY_FILE10 0 __cdecl RET KEY64 KEY32 MEMORY_FILE2 SIZE
+
+open FDSE "TLFILE.TLDAT"
+
+get ZERO longlong MEMORY_FILE2
+savepos TMP MEMORY_FILE2
+get ENTRIES_OFF longlong MEMORY_FILE2
+math ENTRIES_OFF + TMP
+get ENTRIES longlong MEMORY_FILE2
+get ZERO longlong MEMORY_FILE2
+get ZERO longlong MEMORY_FILE2
+savepos TMP MEMORY_FILE2
+get INFO_OFF longlong MEMORY_FILE2
+math INFO_OFF + TMP
+get FILES longlong MEMORY_FILE2
+get ZERO longlong MEMORY_FILE2
+get ZERO longlong MEMORY_FILE2
+
+goto ENTRIES_OFF MEMORY_FILE2
+for i = 0 < FILES
+    get SOME_CRC long MEMORY_FILE2
+    get KEY long MEMORY_FILE2
+    putarray 2 i SOME_CRC MEMORY_FILE2
+    putarray 3 i KEY MEMORY_FILE2
+next i
+
+goto INFO_OFF MEMORY_FILE2
+for i = 0 < FILES
+    get SIZE longlong MEMORY_FILE2
+    get ZSIZE longlong MEMORY_FILE2
+    get OFFSET longlong MEMORY_FILE2
+    get SOME_CRC long MEMORY_FILE2
+    getdstring TYPE 8 MEMORY_FILE2
+    get FLAGS long MEMORY_FILE2
+
+    log MEMORY_FILE OFFSET ZSIZE
+
+    math KEY = 0
+    for x = 0 < ENTRIES
+        getarray TMP 2 x
+        if TMP == SOME_CRC
+            getarray KEY 3 x
+            math x = ENTRIES
+        endif
+    next x
+
+    xmath KEY "((3 - (KEY & 3)) << 2) | (KEY & 0xfffffffffffffff0) | ((KEY >> 2) & 3)"
+    getarray KEY 1 KEY
+    callfunction KEY_TO_32BIT 1
+    calldll MEMORY_FILE10 0 __cdecl RET KEY64 KEY32 MEMORY_FILE ZSIZE
+
+    string NAME p "%s/" TYPE
+    if SIZE == ZSIZE
+        log NAME 0 SIZE MEMORY_FILE
+    else
+
+        math OFFSET = 0
+
+        # copied from http://aluigi.altervista.org/bms/tales_of_xillia.bms
+        # with some modifications: 1->MEMORY_FILE
+
+        endian save CURRENT_ENDIAN
+        endian little
+        goto OFFSET MEMORY_FILE
+        math DIFF_OFFSET = OFFSET
+        get TLZC long MEMORY_FILE
+        if TLZC == 0x435a4c54   # TLZC
+            get TVER long MEMORY_FILE
+            get TZSIZE long MEMORY_FILE
+            get TSIZE long MEMORY_FILE
+            if TVER == 0x0201   # Tales of the Abyss
+                comtype deflate
+                getdstring DUMMY 8 MEMORY_FILE
+                savepos OFFSET MEMORY_FILE
+                xmath TZSIZE "TZSIZE - (OFFSET - DIFF_OFFSET)"
+                clog NAME OFFSET TZSIZE TSIZE MEMORY_FILE
+
+            elif TVER == 0x0401   # Tales of Symphonia IS NOT SUPPORTED: unknown lzma files and encrypted files
+                #comtype lzma_dynamic    # doesn't work!!!
+                comtype copy    # better than nothing
+
+                getdstring DUMMY 8 MEMORY_FILE
+                savepos OFFSET MEMORY_FILE
+                xmath TZSIZE "TZSIZE - (OFFSET - DIFF_OFFSET)"
+                clog NAME OFFSET TZSIZE TSIZE MEMORY_FILE
+
+            else
+                comtype MSF # lzma_0
+                getdstring DUMMY 9 MEMORY_FILE
+                get CHUNK_SIZE long MEMORY_FILE
+
+                xmath CHUNKS "TSIZE / CHUNK_SIZE"
+                xmath TMP "CHUNKS * CHUNK_SIZE"
+                if TMP != TSIZE
+                    math CHUNKS + 1
+                endif
+                for x = 0 < CHUNKS
+                    get CHUNK_ZSIZE short MEMORY_FILE
+                    putarray 0 x CHUNK_ZSIZE
+                next x
+                savepos OFFSET MEMORY_FILE
+
+                /*
+                putvarchr MEMORY_FILE TSIZE 0
+                log MEMORY_FILE 0 0
+                append
+                for x = 0 < CHUNKS
+                    getarray CHUNK_ZSIZE 0 x
+                    clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE
+                    math OFFSET + CHUNK_ZSIZE
+                next x
+                append
+                log NAME 0 TSIZE MEMORY_FILE
+                */
+
+                log NAME 0 0
+                append
+                for x = 0 < CHUNKS
+                    getarray CHUNK_ZSIZE 0 x
+                    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE
+                    math OFFSET + CHUNK_ZSIZE
+                next x
+                append
+
+            endif
+        else
+            string NAME p "%s/%s" "unsupported" NAME
+            log NAME OFFSET TZSIZE MEMORY_FILE
+        endif
+        if CURRENT_ENDIAN != 0
+            endian big
+        endif
+
+    endif
+next i
+
+startfunction KEY_TO_32BIT
+    math KEY64 = KEY
+    math KEY64 u>> 32
+    math KEY32 = KEY
+endfunction

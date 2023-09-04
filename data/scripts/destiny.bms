@@ -1,0 +1,16 @@
+# Destiny
+#   encrypted files not supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+goto 0xd0
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get FLAG long   # FLAG & 0x100 is encrypted
+    getdstring HASH 20
+    log "" OFFSET SIZE
+next i

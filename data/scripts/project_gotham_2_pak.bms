@@ -1,0 +1,42 @@
+# Project Gotham Racing 2 (.pak)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+idstring "INDX"
+get DUMMY long
+get SIZE long
+get FILES long
+for i = 0 < FILES
+    getdstring TYPE 4
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    math OFFSET + 0xc
+    string NAME p "%s/" TYPE
+
+    savepos TMP
+    goto OFFSET
+    if SIZE & 0xc0000000
+        xmath ZSIZE "SIZE & 0x3fffffff"
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        getdstring TMP_SIGN 4
+        if TMP_SIGN == "COLR"
+            get ZERO long
+            get ZSIZE long
+            get SIZE long
+            savepos OFFSET
+            if ZSIZE & 0xc0000000
+                math ZSIZE & 0x3fffffff
+                clog NAME OFFSET ZSIZE SIZE
+            else
+                log NAME OFFSET ZSIZE
+            endif
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+    goto TMP
+next i

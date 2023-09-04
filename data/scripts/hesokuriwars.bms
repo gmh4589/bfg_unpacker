@@ -1,0 +1,8 @@
+# Osomatsu-san no Hesokuri Wars (Vengeance of Franken-neet in Love) files decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME basename
+string NAME + ".unity3d"
+encryption xor "DFs5jgsW35G65iwjRrJgjpeEG4yh45hwgEge5hWRJw656hFGBW5A5w4tk8o9tue6"
+log NAME 0 SIZE

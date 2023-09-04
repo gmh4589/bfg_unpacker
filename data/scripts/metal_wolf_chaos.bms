@@ -1,0 +1,133 @@
+# Metal Wolf Chaos
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+getdstring SIGN 4
+goto 0
+
+if SIGN == "BND"    # ext is bnd and tex
+
+    idstring "BND\0"
+    get DUMMY long
+    get DUMMY long
+    get BND_SIZE long
+    get FILES long
+    get NAME_OFF long
+    callfunction GET_NAME 1
+    set PATH string NAME
+    get DUMMY long
+    get ZERO long
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get NAME_OFF long
+        callfunction GET_NAME 1
+        set FNAME string PATH
+        string FNAME + NAME
+        log FNAME OFFSET SIZE
+    next i
+
+elif EXT == "xps"
+
+    get XPS_SIZE long
+    get NUM long
+    get DUMMY long
+    getdstring DIFF_SIGN 4
+    for i = 0 < NUM
+        getdstring DUMMY 0xe0
+    next i
+    do
+        for
+            get ENTRY_SIZE long
+            if ENTRY_SIZE != 0
+                break
+            endif
+            padding 16
+        next
+        savepos ENTRY_OFF
+        getdstring SIGN 4
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get SIZE long
+        savepos OFFSET
+        if SIGN == "udss"
+            getdstring NAME SIZE
+        else        # "udsd"
+            log "" OFFSET SIZE
+        endif
+        math OFFSET + SIZE
+        goto OFFSET
+        padding 16
+        savepos OFFSET
+    while OFFSET != XPS_SIZE
+
+elif EXT == "dat"
+
+    get DUMMY long
+    get FILES long
+    get DUMMY long
+    goto 0x20
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get SIZE long
+        get ZERO long
+        get CODEC short # 0x69 is Xbox adpcm
+        get CHANNELS short
+        get FREQUENCY long
+        getdstring DUMMY 0x74
+        math BITS = 16
+        set NAME string ""
+        callfunction TOWAV
+    next i
+
+else
+
+    print "Error: unsupported file format"
+    cleanexit
+
+endif
+
+startfunction GET_NAME
+    if NAME_OFF == 0
+        set NAME string ""
+    else
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+    endif
+endfunction
+
+# Requirements: BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction

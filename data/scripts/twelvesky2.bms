@@ -1,0 +1,112 @@
+# TwelveSky 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MYSIZE asize
+get NAME basename
+get EXT extension
+
+if EXT == "IMG"
+    get SIZE long
+    get ZSIZE long
+    if ZSIZE > MYSIZE
+        string NAME + "."
+        string NAME + EXT
+        log NAME 0 MYSIZE
+    else
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+        math OFFSET = 0x24
+        math SIZE - OFFSET
+        string NAME + ".dds"
+        log NAME OFFSET SIZE MEMORY_FILE
+    endif
+
+elif EXT == "MOBJECT"
+    callfunction DO_DUMP 1
+
+elif EXT == "MOTION"
+    callfunction DO_DUMP 1
+
+elif EXT == "SOBJECT"
+    callfunction DO_DUMP 1
+
+elif EXT == "PARTICLE"
+    get XSIZE long
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    string NAME + ".dds"
+    clog NAME OFFSET ZSIZE SIZE
+
+elif EXT == "ISN"
+    get SIZE asize
+    string NAME + ".ogg"
+    log NAME 0 SIZE
+
+elif EXT == "BGM"
+    get SIZE asize
+    string NAME + ".ogg"
+    log NAME 0 SIZE
+
+else
+    print "Error: unknown extension %EXT%, contact me"
+    cleanexit
+endif
+
+startfunction DO_DUMP
+    getdstring SIGN 6
+    if SIGN == "MOTION"
+        callfunction DO_DUMP2
+    elif SIGN == "SOBJEC"
+        getdstring SIGN2 1
+        callfunction DO_DUMP2
+    else
+        goto 0
+        # use offzip here!
+        get FILES_LIKE long
+        get FILESIZE asize
+        string NAME + "/"
+        for OFFSET = 0 < FILESIZE
+            math IS_ONE = 0
+            for OFFSET = OFFSET < FILESIZE
+                get DUMMY long
+                savepos OFFSET
+                if DUMMY == 1
+                    math IS_ONE = 1
+                endif
+                if DUMMY > 1
+                    break
+                endif
+            next
+            if OFFSET >= FILESIZE
+                break
+            endif
+            if IS_ONE == 0
+                get SIZE long
+            else
+                math SIZE = DUMMY
+            endif
+            get ZSIZE long
+            xmath TMP "ZSIZE - 8"
+            if TMP == SIZE
+                math SIZE = ZSIZE
+                get ZSIZE long
+            endif
+            savepos OFFSET
+            clog NAME OFFSET ZSIZE SIZE
+            math OFFSET + ZSIZE
+            goto OFFSET
+        next
+    endif
+endfunction
+
+startfunction DO_DUMP2
+    getdstring VER 1
+    get FLAGS long
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    string NAME + "_."
+    string NAME + EXT
+    clog NAME OFFSET ZSIZE SIZE
+endfunction

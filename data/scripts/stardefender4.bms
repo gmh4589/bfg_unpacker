@@ -1,0 +1,11 @@
+get VER short
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    filexor 0xcd
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    filexor ""
+    log NAME OFFSET SIZE
+next i

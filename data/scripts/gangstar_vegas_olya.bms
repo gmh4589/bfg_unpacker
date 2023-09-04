@@ -1,0 +1,20 @@
+# Gangstar Vegas bdae->bres
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zstd
+idstring "OLYA"
+get CHUNKS long
+get CHUNK_SIZE long
+get BRES_SIZE long
+get ZERO long
+get ZERO long
+get NAME basename
+string NAME + ".bres"
+log NAME 0 0
+append
+for x = 0 < CHUNKS
+    get OFFSET long
+    get CHUNK_ZSIZE long
+    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+next x
+append

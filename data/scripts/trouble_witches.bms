@@ -1,0 +1,77 @@
+# Trouble Witches
+#   you must select the decrypted default.xex file
+#   some filenames "may" not match the extracted file
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype xmemdecompress
+endian big
+
+# XEX must be decrypted!
+get EXT extension
+if EXT != "xex"
+    open FDSE "default.xex" 0 EXISTS
+    if EXISTS == 0
+        open FDSE "default-hack.xex"
+    endif
+endif
+
+putarray 10 -1 "ID00000_DATAS.PACK"
+putarray 10 -1 "ID10000_STAGE.PACK"
+putarray 10 -1 "ID20000_SOUND.PACK"
+putarray 10 -1 "ID30000_ARCADE.PACK"
+putarray 10 -1 "ID40000_XBOX.PACK"
+putarray 10 -1 ""
+
+for EXTRACT = 0
+    getarray NAME 10 EXTRACT
+    if NAME == ""
+        break
+    endif
+    open FDSE NAME 1 EXISTS
+    if EXISTS == 0
+        string NAME p "DATA/%s" NAME
+        open FDSE NAME 1
+    endif
+
+    findloc OFFSET binary "\xff\xff\xff\xff\xff\xff\xff\xffC:"
+    goto OFFSET
+    do
+        goto -8 0 SEEK_CUR
+        get OFFSET long
+        get SIZE long
+        goto -8 0 SEEK_CUR
+    while OFFSET != 0
+    savepos OFFSET
+
+    for i = 0
+        get OFFSET long
+        get SIZE long
+        if OFFSET == 0xffffffff
+            break
+        endif
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+    next i
+    math FILES = i
+    for i = 0 < FILES
+        get NAME string
+        padding 4
+
+        getvarchr TMP NAME 0    # usually one or more filenames are missing
+        if TMP < ' ' || TMP > 'z'
+            set NAME string ""
+        endif
+
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        math OFFSET * 0x800
+
+        goto OFFSET 1
+        get TEST long 1
+        if TEST == 0x0ff512ee
+            clog NAME OFFSET SIZE SIZE 1
+        else
+            log NAME OFFSET SIZE 1
+        endif
+    next i
+next EXTRACT

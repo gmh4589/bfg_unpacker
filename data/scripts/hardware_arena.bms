@@ -1,0 +1,96 @@
+# Hardware: Online Arena / Dropship: United Peace Force (script 0.1.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 3
+goto 0
+if SIGN u== "WAD"
+    idstring "WAD"
+    get VER byte
+endif
+get NAMES_SIZE long
+savepos OFFSET
+log MEMORY_FILE OFFSET NAMES_SIZE
+math OFFSET + NAMES_SIZE
+goto OFFSET
+if SIGN == "WAD"
+    get DUMMY long
+endif
+
+get FOLDERS long
+for i = 0 < FOLDERS
+    get NAME_OFF long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    get SUB_FOLDERS long
+    get FOLDER_IDX long
+    get NEXT_FOLDER_IDX long
+    get SUB_FILES long
+    get FILE_IDX long
+    putarray 0 i NAME
+    putarray 1 i SUB_FOLDERS
+    putarray 2 i SUB_FILES
+    putarray 3 i FILE_IDX
+    putarray 4 i FOLDER_IDX
+    putarray 5 i NEXT_FOLDER_IDX
+next i
+
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    putarray 10 i NAME
+    putarray 11 i OFFSET
+    putarray 12 i SIZE
+next i
+
+padding 0x800
+savepos BASE_OFF
+
+set PATH string ""
+math FOLDER_IDX = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    for
+        getarray NAME            0 FOLDER_IDX
+        if NAME == ""
+            break                   # work-around
+        endif
+        getarray FOLDERS         1 FOLDER_IDX
+        getarray FILES           2 FOLDER_IDX
+        getarray FILE_IDX        3 FOLDER_IDX
+        getarray SUB_FOLDER_IDX  4 FOLDER_IDX
+        getarray NEXT_FOLDER_IDX 5 FOLDER_IDX
+        putarray 0 FOLDER_IDX ""    # work-around
+
+        set OLD_PATH string PATH
+        string PATH + NAME
+        string PATH + /
+
+        for i = 0 < FILES
+            getarray NAME   10 FILE_IDX
+            getarray OFFSET 11 FILE_IDX
+            getarray SIZE   12 FILE_IDX
+            math FILE_IDX + 1
+
+            math OFFSET + BASE_OFF
+            string FNAME p "%s%s" PATH NAME
+            log FNAME OFFSET SIZE
+        next i
+
+        math FOLDER_IDX = SUB_FOLDER_IDX
+        for i = 0 < FOLDERS
+            callfunction EXTRACT
+            math FOLDER_IDX + 1
+        next i
+
+        if NEXT_FOLDER_IDX == 0xffffffff
+            break
+        endif
+        math FOLDER_IDX = NEXT_FOLDER_IDX
+        set PATH string OLD_PATH
+    next
+endfunction

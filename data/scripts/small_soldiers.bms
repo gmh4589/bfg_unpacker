@@ -1,0 +1,33 @@
+# Small Soldiers: Squad Commander .CFS
+
+idstring "FSH2"
+get DUMMY long      # 0x1d
+get FILES long
+get ZERO long
+get ZERO long
+get ZERO long
+get FOLDERS long    # not sure, just guessed since it's ever 1
+for i = 0 < FOLDERS
+    get NAME string
+    get DUMMY long  # ???
+next i
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long  # 2
+    get OFFSET long
+    get NAME string
+
+    savepos TMP
+    goto OFFSET
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    math SIZE - OFFSET
+    get TSTAMP longlong
+    get ZERO long   # FOLDER_ID?
+    get DUMMY long  # 2
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

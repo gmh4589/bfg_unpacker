@@ -1,0 +1,52 @@
+# Empire of the Ants (Les Fourmis) DTA
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+get DTA_SIZE asize
+
+if SIGN == "BDTA"
+    get FILES long
+    goto 0x10
+        get OFFSET long
+    for i = 1 <= FILES
+        if i == FILES
+            math NEXT_OFF = DTA_SIZE
+        else
+            get NEXT_OFF long
+        endif
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    next i
+
+elif SIGN == "DAT "
+    get FILES long
+    goto 0x10
+    for i = 0 < FILES
+        get SIZE long
+        getdstring DUMMY 0x14
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math OFFSET += SIZE
+        math OFFSET x= 8
+        goto OFFSET
+    next i
+
+elif SIGN == "BKP "
+    get FILES long
+    goto 0x10
+    for i = 0 < FILES
+        get OFFSET long
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        get ZERO long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        goto TMP
+    next i
+
+else
+    print "Error: unsupported file type %SIGN%"
+    cleanexit
+endif

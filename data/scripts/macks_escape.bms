@@ -1,0 +1,11 @@
+# Mack's Escape PAK
+
+get DUMMY short # 0x1978
+get DUMMY short # ???
+get FILES short
+for i = 0 < FILES
+    get NAME string
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

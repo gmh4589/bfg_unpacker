@@ -1,0 +1,20 @@
+idstring YYAP
+goto 0x2a
+get FILES long
+get OFFSET long
+get DUMMY long
+get DUMMY long
+get BASE_OFF long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    getdstring DUMMY 0x16
+    get NAMESZ short
+    math NAMESZ *= 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

@@ -1,2 +1,2 @@
-venv\Scripts\python.exe main.py
+main.py
 pause

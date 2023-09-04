@@ -1,0 +1,25 @@
+# Soul Eater: Battle Resonance / Super Robot Taisen OG Infinite Battle (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FPK\0"
+get VER long
+endian guess VER
+get INFO_OFF long
+get BASE_OFF long
+for
+    savepos TMP
+    if TMP == BASE_OFF
+        break
+    endif
+    getdstring NAME 0x40
+    get OFFSET long
+    get ZSIZE long  # ???
+    get SIZE long   # ???
+    get ZIP long    # ???
+    math OFFSET + BASE_OFF
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next

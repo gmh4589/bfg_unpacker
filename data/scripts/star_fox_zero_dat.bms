@@ -1,0 +1,32 @@
+# Star Fox Zero DAT
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "DAT\0"
+get FILES long
+get OFFSET1 long
+get OFFSET2 long
+get OFFSET3 long
+get OFFSET4 long
+get OFFSET5 long
+goto OFFSET1
+for i = 0 < FILES
+    get OFFSET[i] long
+next i
+goto OFFSET2
+for i = 0 < FILES
+    get TYPE[i] string
+next i
+goto OFFSET3
+get DUMMY long
+for i = 0 < FILES
+    get NAME[i] string
+next i
+goto OFFSET4
+for i = 0 < FILES
+    get SIZE[i] long
+next i
+for i = 0 < FILES
+    string NAME p "%s/%s" TYPE[i] NAME[i]
+    log NAME OFFSET[i] SIZE[i]
+next i

@@ -1,0 +1,20 @@
+# Mortal Kombat: Armageddon
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring " KAP" # "PAK "
+get DUMMY long
+get FILES long
+get OFFSET long
+goto OFFSET
+xmath NAMES_OFF "OFFSET + (FILES * (4 + 4 + 4))"
+get NAMES_SIZE asize
+math NAMES_SIZE - NAMES_OFF
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    log NAME OFFSET SIZE
+next i

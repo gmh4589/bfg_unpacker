@@ -1,0 +1,43 @@
+# Agents of Mayhem .vpp_pc .vpp_ps4
+
+comtype lz4f
+get DUMMY long      # 0x51890ace
+get DUMMY long      # 0x11
+get DUMMY longlong
+get FILES long
+get DUMMY long      # 5
+get NAMES_OFF long
+get NAMES_SIZE long
+get VPP_SIZE longlong
+get DUMMY longlong  # estimated uncompressed size?
+get DATA_SIZE longlong
+get TSTAMP longlong
+get BASE_OFF longlong
+getdstring ZERO 0x30
+
+savepos TMP
+math NAMES_OFF + TMP
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+for i = 0 < FILES
+    get NAME_OFF longlong
+    get PATH_OFF longlong
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get FLAGS longlong
+
+    goto PATH_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get TMP string MEMORY_FILE
+    string NAME + /
+    string NAME + TMP
+
+    math OFFSET + BASE_OFF
+    if FLAGS & 1
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

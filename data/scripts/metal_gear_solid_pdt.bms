@@ -1,0 +1,19 @@
+# Metal Gear Solid: Peace Walker PSP (*.pdt)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto 0x18
+get FILES short
+get DUMMY short
+get DUMMY long
+for i = 0 < FILES
+    get ZSIZE long
+    get CRC long
+    get OFFSET long
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    math ZSIZE -= 4
+    goto TMP
+    clog "" OFFSET ZSIZE SIZE
+next i

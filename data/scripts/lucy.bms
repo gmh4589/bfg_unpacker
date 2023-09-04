@@ -1,0 +1,21 @@
+# Lucy: The eternity she wished for
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -4
+get INFO_OFF long
+math INFO_OFF ~ INFO_OFF
+goto INFO_OFF
+
+get NAMESZ long
+getdstring NAME NAMESZ
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get XSIZE long
+    get SIZE long
+    math OFFSET ~ OFFSET
+    math SIZE ~ SIZE
+    clog NAME OFFSET SIZE XSIZE
+next i

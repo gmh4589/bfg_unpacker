@@ -1,0 +1,15 @@
+# SAS: Anti-Terror Force
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE long
+getdstring DUMMY 20
+get OFFSET long
+xmath FILES "(SIZE - OFFSET) / 16"
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    log "" OFFSET SIZE
+next i

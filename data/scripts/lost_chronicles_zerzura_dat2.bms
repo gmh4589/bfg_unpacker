@@ -1,0 +1,53 @@
+# Lost Chronicles of Zerzura (dat2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "dat2"
+    get DUMMY short
+    get DUMMY short
+    get DUMMY long
+    get FILES long
+    get NAMES_SIZE long
+    savepos TMP
+    math NAMES_OFF = FILES
+    math NAMES_OFF *= 0x10
+    math NAMES_OFF += TMP
+    log MEMORY_FILE NAMES_OFF NAMES_SIZE
+    for i = 0 < FILES
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get NAME_OFF long
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        clog NAME OFFSET ZSIZE SIZE
+    next i
+else
+    print "only dat2 is supported by this script"
+    cleanexit
+
+    # type1 0x13 / type2 0x0a only supported
+    goto 0
+    get TYPE1 short
+    get TYPE2 short
+    get DUMMY byte
+    get DAT_SIZE asize
+    for
+        savepos TMP
+        if TMP >= DAT_SIZE
+            cleanexit
+        endif
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET += SIZE
+        goto OFFSET
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    next
+endif

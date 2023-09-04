@@ -1,0 +1,125 @@
+# Mafia SDS (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "SDS\0"
+get DUMMY long  # 0x13
+endian guess DUMMY  # maybe other games can be supported
+getdstring PLATFORM 4   #idstring "PS3\0"
+get DUMMY long
+get OFFSET1 long
+get OFFSET2 long
+get XML_OFFSET long
+get DUMMY long
+get DUMMY long
+goto OFFSET2
+getdstring DUMMY 4  # "lzEU"?
+get CHUNK_MAXSIZE long
+get DUMMY byte  # 4
+savepos OFFSET
+log MEMORY_FILE 0 0
+math LIMIT_OFF = XML_OFFSET
+if LIMIT_OFF == 0
+    get LIMIT_OFF asize
+endif
+append
+for OFFSET = OFFSET != LIMIT_OFF
+    get DUMMY1 long
+    get DUMMY2 byte
+    if DUMMY1 == 0 && DUMMY2 == 0
+        break
+    endif
+    if DUMMY1 == CHUNK_MAXSIZE
+        savepos OFFSET
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+        math OFFSET + CHUNK_SIZE
+    else
+        get SIZE long
+        get DUMMY long
+        get CHUNK_SIZE short
+        if CHUNK_SIZE == 0  # PC platform
+            math CHUNK_SIZE = CHUNK_MAXSIZE
+        endif
+        get CHUNKS short
+        get DUMMY long
+        math TMP = CHUNKS
+        math TMP * 2
+        math TMP x 16
+        savepos OFFSET
+        math OFFSET + TMP    
+        for x = 0 < CHUNKS
+            get CHUNK_ZSIZE short
+            if CHUNK_ZSIZE == 0 || CHUNK_ZSIZE >= CHUNK_SIZE    # ??? not in my samples
+                log MEMORY_FILE OFFSET CHUNK_SIZE
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            math OFFSET + CHUNK_ZSIZE
+        next x
+    endif
+    goto OFFSET
+next
+append
+
+get MEM_SIZE asize MEMORY_FILE
+goto 0 MEMORY_FILE
+
+if XML_OFFSET != 0
+    get SIZE asize
+    math SIZE - XML_OFFSET
+    log MEMORY_FILE2 XML_OFFSET SIZE
+endif
+
+for ENTRY_OFF = 0 != MEM_SIZE
+    savepos ENTRY_OFF MEMORY_FILE
+    get TYPE long MEMORY_FILE
+    get ENTRY_SIZE long MEMORY_FILE
+    get DUMMY short MEMORY_FILE
+    getdstring DUMMY 0x10 MEMORY_FILE
+    get CRC long MEMORY_FILE    # ???
+
+    savepos OFFSET MEMORY_FILE
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF MEMORY_FILE
+
+    math SIZE = ENTRY_OFF
+    math SIZE - OFFSET
+
+    set NAME string ""
+    if XML_OFFSET != 0
+        findloc TMP string "<SourceDataDescription>" MEMORY_FILE2 ""
+        if TMP != ""
+            goto TMP MEMORY_FILE2
+            get NAME line MEMORY_FILE2
+            string NAME | ">"
+            string NAME >> "<"
+        endif
+    endif
+
+    math DDS_OFF = 0x10
+
+    set EXT extension NAME
+    if EXT == ""
+        savepos TMP_OFF MEMORY_FILE
+        goto OFFSET MEMORY_FILE
+        getdstring DUMMY 0x10 MEMORY_FILE       # PS3 is 0x10
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN != "DDS "
+            goto OFFSET MEMORY_FILE
+            getdstring DUMMY 0x11 MEMORY_FILE   # PC is 0x11
+            getdstring SIGN 4 MEMORY_FILE
+        endif
+        if SIGN == "DDS "
+            set EXT string "dds"
+            savepos TMP MEMORY_FILE
+            xmath DDS_OFF "(TMP - 4) - OFFSET"
+        endif
+        goto TMP_OFF MEMORY_FILE
+    endif
+    if EXT == "dds"
+        math OFFSET + DDS_OFF
+        math SIZE   - DDS_OFF
+    endif
+
+    log NAME OFFSET SIZE MEMORY_FILE
+next

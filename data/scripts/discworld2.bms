@@ -1,0 +1,12 @@
+# Discworld 2
+
+open "FDDE" "LFI"
+open "FDDE" "LFD" 1
+get FILES asize
+math FILES / 20
+for i = 0 < FILES
+    getdstring NAME 12
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE 1
+next i

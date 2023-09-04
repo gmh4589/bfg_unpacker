@@ -1,0 +1,42 @@
+# ARCHIBALDS ADVENTURE data_psp.pdb
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+# "data_psp"
+goto 0x4a
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    putarray 0 i OFFSET
+next i
+
+get DUMMY short
+getdstring DUMMY 0x80
+
+savepos TMP
+math NAMES_OFF = FILES
+math NAMES_OFF *= 0x10
+math NAMES_OFF += TMP
+
+endian little
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    get NAME_OFF long
+    get DUMMY short
+    get DUMMY short
+    get ZSIZE long  # not sure about the ZSIZE/SIZE order
+    get SIZE long
+
+    savepos TMP
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,20 @@
+# Undefeated God of War 《不败战神》
+
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x40
+    if NAME == ""
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long  # 0x0101 for every file
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

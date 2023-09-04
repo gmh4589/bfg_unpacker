@@ -1,0 +1,14 @@
+# Adventures of Willy Beamish (script 0.1.1)
+
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+    getdstring NAME 0xd
+    get SIZE long
+    savepos OFFSET
+    if SIZE == 0xffffffff
+        math SIZE = 0
+    else
+        log NAME OFFSET SIZE
+    endif
+next OFFSET + SIZE

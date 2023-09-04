@@ -1,0 +1,15 @@
+# Simon the Sorcerer's Pinball (script 0.1.1)
+
+idstring "\x78\x56\x34\x12"
+getdstring ZERO 0xc
+get VER long
+get WAD_SIZE asize
+savepos OFFSET
+for OFFSET = OFFSET != WAD_SIZE
+    get NAME string
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

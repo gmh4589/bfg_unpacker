@@ -1,0 +1,56 @@
+# Street Fighter EX3 PS2.dat (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "DAT"
+
+    open FDSE "ARIKA.DAT"
+    open FDSE "PS2.DAT" 1
+
+    getdstring STR 0x10 # ARIKA-SFEX3!!!!!
+    get ZERO long
+    if ZERO != 0
+        # doesn't work, just experimental
+        filexor "0xEB 0xDA 0x6B 0x4B 0xf1 0x7c 0xCA 0x9B 0xAB 0x7A 0xCC 0xED 0xED 0xED 0xED 0xED" 0
+    endif
+    get BASE_OFF long   # ???
+    get ZERO long
+    get ZERO long
+    for i = 0
+        getdstring NAME 0x14
+        get OFFSET long
+        get XSIZE long
+        get SIZE long
+        if SIZE u>= 0x80000000
+            break
+        endif
+        math XSIZE * 0x800
+        xmath OFFSET "(OFFSET - BASE_OFF) * 0x800"
+        log NAME OFFSET SIZE 1
+    next i
+
+else
+    # pac, mdt and so on
+
+    getdstring NAME 12
+    get FILES long
+    math FILES / 0x10
+    goto 0
+    for i = 0 < FILES
+        getdstring NAME 12
+        get OFFSET long
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 1 i OFFSET
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+endif

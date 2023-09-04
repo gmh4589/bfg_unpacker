@@ -1,0 +1,18 @@
+# Close Combat 4 (PIX)
+
+IDString 0 PICS ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 32 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

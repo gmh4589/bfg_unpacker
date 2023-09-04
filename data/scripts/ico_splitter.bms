@@ -1,0 +1,41 @@
+# ICO icons splitter
+
+get RESERVED short
+get TYPE short
+if TYPE != 1
+    cleanexit
+endif
+get FILES short
+for i = 0 < FILES
+    get WIDTH byte
+    get HEIGHT byte
+    get COLORS byte
+    get RESERVED byte
+    get PLANES short
+    get BITS short
+    get SIZE long
+    get OFFSET long
+
+    get NAME basename
+    string NAME p "%s/%s_%d.ico" NAME NAME i
+
+    log MEMORY_FILE 0 0
+    put 0 short MEMORY_FILE
+    put TYPE short MEMORY_FILE
+    put 1 short MEMORY_FILE # FILES
+    put WIDTH byte MEMORY_FILE
+    put HEIGHT byte MEMORY_FILE
+    put COLORS byte MEMORY_FILE
+    put RESERVED byte MEMORY_FILE
+    put PLANES short MEMORY_FILE
+    put BITS short MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    get TMP asize MEMORY_FILE
+    math TMP + 4
+    put TMP long MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+next i
+

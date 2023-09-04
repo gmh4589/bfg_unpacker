@@ -1,0 +1,14 @@
+# Citizens of Earth
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -4
+savepos OFFSET
+get FILES long
+xmath OFFSET "OFFSET - (FILES * 12)"
+goto OFFSET
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

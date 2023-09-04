@@ -1,0 +1,12 @@
+# DS Download Station
+
+comtype lzo1x
+endian big
+idstring "LZOn"
+get DUMMY long
+get SIZE long
+get ZSIZE long
+savepos OFFSET
+get NAME filename
+string NAME + "_unpacked"
+clog NAME OFFSET ZSIZE SIZE

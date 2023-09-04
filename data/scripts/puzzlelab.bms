@@ -1,0 +1,19 @@
+# Puzzle Lab games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES short
+get DUMMY short
+savepos BASE_OFF
+math TMP = FILES
+math TMP *= 0x30
+math BASE_OFF += TMP
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME 0x23
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

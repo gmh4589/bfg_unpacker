@@ -1,0 +1,22 @@
+# Xenoblade Chronicles 3d (.arc)
+
+idstring "cram"
+get FILES long
+get DUMMY long  # 0x80
+get NAMES_OFF long
+for i = 0 < FILES
+    get SOME_CRC long
+    getdstring TYPE[i] 4
+    get OFFSET[i] long
+    get SIZE[i] long
+next i
+for i = 0 < FILES
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET[i] SIZE[i]
+next i

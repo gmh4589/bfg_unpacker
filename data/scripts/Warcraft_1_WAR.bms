@@ -1,0 +1,17 @@
+# Warcraft 1 (WAR)
+
+Get DUMMYL Long 0 ;
+Get FILECNTL Int 0 ;
+Get DUMMYI Int 0 ;
+SavePos FILESTART 0 ;
+Set FILECNTL Long 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEJMP Long 0 ;
+SavePos FILESTART 0 ;
+GoTo FILEJMP 0 ;
+Get FILESIZE Long 0 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

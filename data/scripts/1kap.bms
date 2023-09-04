@@ -1,0 +1,29 @@
+# Run Sackboy Run!
+#   probably also with other games but, apparently, many use some sort of encryption/obfuscation
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "1KAP"
+get FILES long
+get OFFSET long # for what?
+for STOP = 0 == 0
+    get DUMMY long
+    if DUMMY != 0xffffffff
+    if DUMMY u> FILES
+        math STOP = 1
+    endif
+    endif
+next
+
+goto -4 0 SEEK_CUR
+for i = 0 < FILES
+    get NAME_CRC long
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    if SIZE == ZSIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE   # unknown compression
+    endif
+next i

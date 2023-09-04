@@ -1,0 +1,20 @@
+# Army Men: Toys In Space (amm,atl)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FORM"
+getdstring DUMMY 8
+savepos OFFSET
+get ARCHIVE_SIZE asize
+math ARCHIVE_SIZE - 4
+for OFFSET = OFFSET < ARCHIVE_SIZE
+    goto OFFSET
+    getdstring NAME 4
+    get SIZE long
+    if NAME == "OATT"
+        math SIZE - 1
+    endif
+    savepos OFFSET
+    string NAME + /
+    log NAME OFFSET SIZE
+next OFFSET + SIZE
+

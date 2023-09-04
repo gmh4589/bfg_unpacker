@@ -1,0 +1,17 @@
+# Carnivores: Dinosaur Hunter Reborn
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get DUMMY long
+get FILES long
+get DATA_SIZE long
+get DUMMY long  # -1
+for i = 0 < FILES
+    get SOME_CRC long
+    getdstring NAME 0x40
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get TSTAMP longlong
+    log NAME OFFSET SIZE
+next i

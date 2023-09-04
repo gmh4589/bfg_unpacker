@@ -1,0 +1,106 @@
+# Kingdoms of Amalur: Re-Reckoning (script 0.1.2)
+
+get EXT extension
+if EXT == "veggie_streamable_bin"
+    comtype zlib
+    get NAME filename
+    string NAME + /
+    get FILE_SIZE asize
+    for OFFSET = 0 u< FILE_SIZE
+        goto OFFSET
+        get VER long    # 1
+        get SIZE long
+        get XZSIZE long
+        get ZERO long
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+        math OFFSET x 0x40
+    next
+    cleanexit
+endif
+
+comtype aplib
+idstring "KARl"
+get DUMMY long      # 1
+get ALIGN long      # 0x10
+get CHUNK_SIZE long # 0x1000
+get OFFSET longlong
+
+goto OFFSET
+get FILES long
+get FILES2 long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET * ALIGN
+    putarray 0 i NAME_CRC
+    putarray 1 i OFFSET
+next i
+
+# do NOT use 'i'!
+savepos TMP
+xmath NAMES_OFF2 "TMP + (FILES2 * 0x10)"
+for x = 0 < FILES2
+    get NAME_OFF short
+    get DUMMY short
+    get DUMMY long
+    get DUMMY long
+    get ZERO long
+    savepos TMP
+    math NAME_OFF + NAMES_OFF2
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+next x
+
+print "sorting array, wait some seconds"
+sortarray 1 1
+
+math i - 1
+getarray OFFSET 1 i
+goto OFFSET
+get SIZE long
+get ZERO long   # probably the chunks but let's keep it simple
+
+for i = 0 < FILES
+    get NAME_CRC long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+
+    math OFFSET = 0
+    for x = 0 < FILES
+        getarray TMP 0 x
+        if TMP == NAME_CRC
+            getarray OFFSET 1 x
+            break
+        endif
+    next x
+
+    if OFFSET == 0
+        print "Alert: NAME_CRC %NAME_CRC|x% not found"
+    else
+        savepos TMP_OFF
+        goto OFFSET
+        get SIZE long
+        get CHUNKS long
+        savepos OFFSET
+        if CHUNKS == 0
+            log NAME OFFSET SIZE
+        else
+            xmath OFFSET "OFFSET + (CHUNKS * 4)"
+            log NAME 0 0
+            append
+            for x = 0 < CHUNKS
+                get CHUNK_ZSIZE long    # all chunks are compressed, even if bigger
+                clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                math OFFSET + CHUNK_ZSIZE
+            next x
+            append
+        endif
+        goto TMP_OFF
+    endif
+next i

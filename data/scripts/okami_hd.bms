@@ -1,0 +1,22 @@
+# OKAMI HD / 大神 絶景版 decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+# https://forum.xentax.com/viewtopic.php?p=136391&sid=1a3483b47d0eec66ee9649f272131022#p136391
+#   "the actual key is read from the file data_pc/config/flower.cip. It's encrypted with master key"
+#   M2m2sukiYAKIx3pcWgj4Mue3Nh7gapQe
+set KEY binary "YaKiNiKuM2rrVrPJpGMkfe3EK4RbpbHw"
+
+set SUFFIX string "_decrypt"
+get NAME basename
+get EXT extension
+if NAME & SUFFIX
+    math DO_ENCRYPT = 1
+    string NAME - SUFFIX
+    string NAME p "%s.%s" NAME EXT
+else
+    math DO_ENCRYPT = 0
+    string NAME p "%s%s.%s" NAME SUFFIX EXT
+endif
+encryption blowfish KEY "" DO_ENCRYPT
+get SIZE asize
+log NAME 0 SIZE

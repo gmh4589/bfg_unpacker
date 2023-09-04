@@ -1,0 +1,18 @@
+# Da Capo
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PackFile    "
+get FILES long
+math BASE_OFF = FILES
+math BASE_OFF *= 32
+math BASE_OFF += 16
+for i = 0 < FILES
+    getdstring NAME 16
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

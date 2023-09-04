@@ -1,0 +1,28 @@
+# Jason Storm in Space Chase (*.SSP)
+
+get FILES short
+for i = 0 < FILES
+    get SIZE long
+    putarray 0 i SIZE
+next i
+getdstring DUMMY 0x80
+for i = 0 < FILES
+    get NAME string
+    putarray 1 i NAME
+    strlen NAMESZ NAME
+    do
+        get TMP byte
+    while TMP == 0
+    savepos TMP
+    math TMP -= 1
+    goto TMP
+next i
+get OFFSET asize
+math FILES -= 1
+for i = FILES >= 0
+    getarray SIZE 0 i
+    getarray NAME 1 i
+    math OFFSET -= SIZE
+    log NAME OFFSET SIZE
+    math i -= 1
+next

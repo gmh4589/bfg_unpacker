@@ -1,0 +1,15 @@
+# Kidou Senshi FHM
+
+endian big
+idstring "FHM "
+get FLAGS long  # 0x01010010
+get ZERO long
+get FHM_SIZE long
+get FILES long
+for i = 0 < FILES
+    get OFFSET[i] long
+next i
+for i = 0 < FILES
+    get SIZE long
+    log "" OFFSET[i] SIZE
+next i

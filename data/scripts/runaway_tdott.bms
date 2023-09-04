@@ -1,0 +1,10 @@
+# Runaway: The Dream Of The Turtle
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY byte
+    log "" OFFSET SIZE
+next i

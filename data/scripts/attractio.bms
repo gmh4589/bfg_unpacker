@@ -1,0 +1,14 @@
+# Attractio files decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get NAME filename
+if NAME & "_decrypt."
+    string NAME R "_decrypt." "."
+else
+    set NAME basename NAME
+    string NAME p "%s_decrypt.%s" NAME EXT
+endif
+get SIZE asize
+filexor "\x2a\x65\x45\x4b"
+log NAME 0 SIZE

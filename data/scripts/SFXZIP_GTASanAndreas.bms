@@ -1,0 +1,19 @@
+<bms games="'GTA San Andreas'" platforms="'PC'" ext="SFXZIP">
+Get FileNum Long 0 ;
+Math FileNum -= 1 ;
+For T = 1 To FileNum ;
+Get Offset Long 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+SavePos J 0 ;
+Get Size Long 0 ;
+Math Size -= Offset ;
+Log "" Offset Size 0 0 ;
+GoTo J 0 ;
+Next T ;
+Get Offset Long 0 ;
+GoTo EOF 0 ;
+SavePos Size 0 ;
+Math Size -= Offset ;
+Log "" Offset Size 0 0 ;
+</bms>

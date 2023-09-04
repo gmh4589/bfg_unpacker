@@ -1,0 +1,49 @@
+# Escape Dead Island (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNK_SIZE = 0x00010000
+get FLAGS long
+get FILE_SIZE longlong
+get FILE_ZSIZE asize
+savepos OFFSET
+putvarchr MEMORY_FILE FILE_SIZE 0
+log MEMORY_FILE 0 0
+append
+for OFFSET = OFFSET != FILE_ZSIZE
+    get CHUNK_ZSIZE long
+    savepos OFFSET
+    if CHUNK_ZSIZE == 0 || CHUNK_ZSIZE == CHUNK_SIZE    # ???
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+        math OFFSET + CHUNK_SIZE
+    else
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    endif
+    goto OFFSET
+next
+append
+
+get NAME filename
+# string NAME + ".dump"
+# log NAME 0 FILE_SIZE MEMORY_FILE
+# cleanexit
+
+string NAME + "_output/"
+goto 0 MEMORY_FILE
+get FILES long MEMORY_FILE
+goto 0x104 MEMORY_FILE
+for i = 0 < FILES
+    getdstring DUMMY 16 MEMORY_FILE
+next i
+for i = 0 < FILES
+    getdstring DUMMY 0x10 MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+    math OFFSET + SIZE
+    goto OFFSET MEMORY_FILE
+next i

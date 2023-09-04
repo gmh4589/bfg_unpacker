@@ -1,0 +1,361 @@
+# CRI CPK archives (script 0.3.3)
+#   derived from cpk_unpack of hcs - http://hcs64_com/vgm_ripping_html
+#
+#   THIS SCRIPT IS CURRENTLY UNSUPPORTED!
+#   Please use https://github.com/esperknight/CriPakTools
+#
+# script for QuickBMS http://quickbms_aluigi_org
+
+quickbmsver "0.7.6a"
+comtype cpk
+
+idstring "CPK " # all the CRI/TOC headers are little endian
+
+endian big
+
+set query_offset long 0
+set query_index long 0
+
+# DecryptUTF 0x0000655f 0x00004115
+set UTF_KEY string "95 203 167 179 175 91 119 195 255 235 71 211 79 123 23 227 159 11 231 243 239 155 183 3 63 43 135 19 143 187 87 35 223 75 39 51 47 219 247 67 127 107 199 83 207 251 151 99 31 139 103 115 111 27 55 131 191 171 7 147 15 59 215 163"
+math UTF_KEY_INIT = 0
+
+set query_name string "TocOffset"
+callfunction query_utf 1
+set toc_offset long UTF_VALUE
+
+set query_name string "ETocOffset"
+callfunction query_utf 1
+set etoc_offset long UTF_VALUE
+
+set query_name string "ITocOffset"
+callfunction query_utf 1
+set itoc_offset long UTF_VALUE
+
+set query_name string "ContentOffset"
+callfunction query_utf 1
+set content_offset long UTF_VALUE
+
+set query_name string "Files"
+callfunction query_utf 1
+set CpkHeader_count long UTF_VALUE
+
+set query_name string "Align"
+callfunction query_utf 1
+set CpkAlignment long UTF_VALUE
+
+set toc__offset long toc_offset
+if toc_offset == 0
+    set toc_offset long itoc_offset
+endif
+if toc_offset == 0
+    set toc_offset long etoc_offset
+endif
+
+goto toc_offset
+getdstring signature 4
+if signature != "TOC "
+if signature != "ITOC"
+if signature != "ETOC"
+    print "Error: TOC signature not found at offset %toc_offset|x%"
+    cleanexit
+endif
+endif
+endif
+
+set query_offset long toc_offset
+set query_index long 0
+
+set query_name string ""
+callfunction query_utf 1
+set CpkHeader_count2 long UTF_VALUE
+set toc_entries long table_info_rows    # it remains saved after the call
+
+if CpkHeader_count == 0
+    math CpkHeader_count = CpkHeader_count2
+endif
+
+    set query_offset long toc_offset
+    set query_index long 0
+
+    set query_name string "FilesL"
+    callfunction query_utf 1
+    set itoc_filesl string UTF_VALUE
+
+    set query_name string "FilesH"
+    callfunction query_utf 1
+    set itoc_filesh string UTF_VALUE
+
+    set query_name string "DataL"
+    callfunction query_utf 1
+    set itoc_datal string UTF_VALUE
+    xmath itoc_datal "itoc_datal + toc_offset + 8 + table_info_data_offset"
+
+    set query_name string "DataH"
+    callfunction query_utf 1
+    set itoc_datah string UTF_VALUE
+    xmath itoc_datah "itoc_datah + toc_offset + 8 + table_info_data_offset"
+
+    math FORCE_CONTENT_OFFSET = 1
+    math query_offset = itoc_datah
+    for query_index = 0 < itoc_filesh
+        callfunction EXTRACT 1
+        xmath content_offset "file_offset + file_size"
+    next query_index
+
+    math FORCE_CONTENT_OFFSET = 1
+    math query_offset = itoc_datal
+    for query_index = 0 < itoc_filesl
+        callfunction EXTRACT 1
+        xmath content_offset "file_offset + file_size"
+    next query_index
+
+math FORCE_CONTENT_OFFSET = 0
+math query_offset = toc_offset
+for query_index = 0 < toc_entries
+    callfunction EXTRACT 1
+next query_index
+
+
+
+startfunction EXTRACT
+    set query_name string "DirName"
+    callfunction query_utf 1
+    set file_name string UTF_VALUE
+
+    set query_name string "FileName"
+    callfunction query_utf 1
+    set file_name2 string UTF_VALUE
+
+    string file_name += /
+    string file_name += file_name2
+
+    set query_name string "FileSize"
+    callfunction query_utf 1
+    set file_size long UTF_VALUE
+
+    set query_name string "ExtractSize"
+    callfunction query_utf 1
+    set extract_size long UTF_VALUE
+
+    set query_name string "FileOffset"
+    callfunction query_utf 1
+    set file_offset long UTF_VALUE
+
+    set add_offset long 0           # query_offset here is TocOffset
+    if content_offset < 0           # "if" can't be unsigned
+        set add_offset long query_offset
+    elif query_offset < 0
+        set add_offset long content_offset
+    elif content_offset < query_offset
+        set add_offset long content_offset
+    else
+        if FORCE_CONTENT_OFFSET != 0
+            set add_offset long content_offset
+        else
+            set add_offset long query_offset
+        endif
+    endif
+    # work-around
+    if itoc_offset == 0 && etoc_offset == 0
+        math add_offset = 0x800
+    endif
+
+    math file_offset += add_offset
+    if CpkAlignment != 0
+        if file_offset % CpkAlignment
+            xmath file_offset "file_offset + CpkAlignment - (file_offset % CpkAlignment)"
+        endif
+    endif
+
+    # lame work-around for "Naruto shippuden Ultimate Ninja STORM 3 Full Burst version"
+    savepos TMP
+    goto file_offset
+    getdstring TMP_SIGN 4
+    goto TMP
+    if TMP_SIGN u== "CPK "  # xfbin files
+        math extract_size = file_size
+    endif
+
+    if extract_size > file_size
+        clog file_name file_offset file_size extract_size
+    else
+        log file_name file_offset file_size
+    endif
+endfunction
+
+
+
+startfunction query_utf
+    set COLUMN_STORAGE_MASK     long 0xf0
+    set COLUMN_STORAGE_PERROW   long 0x50
+    set COLUMN_STORAGE_CONSTANT long 0x30
+    set COLUMN_STORAGE_ZERO     long 0x10
+    set COLUMN_TYPE_MASK        long 0x0f
+    set COLUMN_TYPE_DATA        long 0x0b
+    set COLUMN_TYPE_STRING      long 0x0a
+    set COLUMN_TYPE_FLOAT       long 0x08
+    set COLUMN_TYPE_8BYTE2      long 0x07
+    set COLUMN_TYPE_8BYTE       long 0x06
+    set COLUMN_TYPE_4BYTE2      long 0x05
+    set COLUMN_TYPE_4BYTE       long 0x04
+    set COLUMN_TYPE_2BYTE2      long 0x03
+    set COLUMN_TYPE_2BYTE       long 0x02
+    set COLUMN_TYPE_1BYTE2      long 0x01
+    set COLUMN_TYPE_1BYTE       long 0x00
+
+    set UTF_VALUE_OFFSET long 0
+    set UTF_VALUE string ""
+    xmath offset "query_offset + 0x10" # needed by the tool
+    goto offset
+
+    set table_info_table_offset long offset
+    getdstring UTF_signature 4
+    if UTF_signature != "@UTF"
+        filexor UTF_KEY offset
+
+        goto offset
+        getdstring UTF_signature 4
+    endif
+    if UTF_signature != "@UTF"
+        print "Error: not a @UTF table at %offset|x%"
+        cleanexit
+    endif
+
+    get table_info_table_size long
+    set table_info_schema_offset long 0x20
+    get table_info_rows_offset long
+    get table_info_string_table_offset long
+    get table_info_data_offset long
+    get table_name_string long
+    get table_info_columns short
+    get table_info_row_width short
+    get table_info_rows long
+
+    for i = 0 < table_info_columns
+        get schema_type byte
+        get schema_column_name long
+        putarray 0 i schema_type
+        putarray 1 i schema_column_name
+        putarray 2 i -1     # schema_constant_offset
+
+        xmath TMP "schema_type & COLUMN_STORAGE_MASK"
+        if TMP == COLUMN_STORAGE_CONSTANT
+            savepos schema_constant_offset
+            putarray 2 i schema_constant_offset
+
+            xmath TMP "schema_type & COLUMN_TYPE_MASK"
+            if TMP == COLUMN_TYPE_STRING
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_DATA
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_FLOAT
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_8BYTE2
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_8BYTE
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_4BYTE2
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_4BYTE
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_2BYTE2
+                getdstring DUMMY 2
+            elif TMP == COLUMN_TYPE_2BYTE
+                getdstring DUMMY 2
+            elif TMP == COLUMN_TYPE_1BYTE2
+                getdstring DUMMY 1
+            elif TMP == COLUMN_TYPE_1BYTE
+                getdstring DUMMY 1
+            else
+                print "Error: unknown type for constant %TMP%"
+                cleanexit
+            endif
+        endif
+    next i
+
+    xmath MEMORY_FILE_OFFSET "table_info_string_table_offset + 8 + offset"
+    xmath string_table_size "table_info_data_offset - table_info_string_table_offset"
+
+    for i = query_index < table_info_rows
+        xmath row_offset "table_info_table_offset + 8 + table_info_rows_offset + (i * table_info_row_width)"
+
+        for j = 0 < table_info_columns
+            getarray type 0 j
+            getarray column_name 1 j
+            getarray constant_offset 2 j
+
+            if constant_offset >= 0
+                math data_offset = constant_offset
+            else
+                math data_offset = row_offset
+            endif
+
+            xmath TMP "type & COLUMN_STORAGE_MASK"
+            if TMP == COLUMN_STORAGE_ZERO
+                set value long 0
+            else
+                goto data_offset
+                xmath TMP "type & COLUMN_TYPE_MASK"
+                if TMP == COLUMN_TYPE_STRING
+                    get string_offset long
+                    math string_offset + MEMORY_FILE_OFFSET
+                    savepos TMP
+                    goto string_offset
+                    get value string
+                    goto TMP
+                elif TMP == COLUMN_TYPE_DATA
+                    get vardata_offset long
+                    get vardata_size long
+                    # currently ignore it
+                    #math vardata_offset + MEMORY_FILE_OFFSET
+                    #savepos TMP
+                    #goto vardata_offset
+                    #getdstring value vardata_size
+                    #goto TMP
+                    set value string vardata_offset
+                elif TMP == COLUMN_TYPE_FLOAT
+                    get value long
+                elif TMP == COLUMN_TYPE_8BYTE2
+                    get DUMMY long  # no 64 bit support!
+                    get value long
+                elif TMP == COLUMN_TYPE_8BYTE
+                    get DUMMY long  # no 64 bit support!
+                    get value long
+                elif TMP == COLUMN_TYPE_4BYTE2
+                    get value long
+                elif TMP == COLUMN_TYPE_4BYTE
+                    get value long
+                elif TMP == COLUMN_TYPE_2BYTE2
+                    get value short
+                elif TMP == COLUMN_TYPE_2BYTE
+                    get value short
+                elif TMP == COLUMN_TYPE_1BYTE2
+                    get value byte
+                elif TMP == COLUMN_TYPE_1BYTE
+                    get value byte
+                else
+                    print "Error: unknown normal type %TMP%"
+                    cleanexit
+                endif
+
+                if constant_offset < 0
+                    savepos row_offset  # row_offset += bytes_read
+                endif
+            endif
+
+            math column_name + MEMORY_FILE_OFFSET
+            savepos TMP
+            goto column_name
+            get column_name string
+            goto TMP
+            if column_name == query_name
+                set UTF_VALUE string value  # result_value_value (qthis)
+                math i = table_info_rows    # break
+                math j = table_info_columns # break
+            endif
+        next j
+    next i
+    filexor ""
+    #print "- %query_name%: %UTF_VALUE%"
+endfunction

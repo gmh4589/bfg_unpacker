@@ -1,0 +1,18 @@
+# Dynasty Warriors 4 linkdata.idx/bin
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "idx"
+open FDDE "bin" 1
+get FILES long
+get DUMMY long
+get ZERO long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    get XSIZE long
+    get SIZE long
+    get ZERO long   # arslan.bms is very different
+    math OFFSET * 0x800
+    math XSIZE  * 0x800
+    log "" OFFSET SIZE 1
+next i

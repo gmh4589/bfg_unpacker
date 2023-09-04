@@ -1,0 +1,45 @@
+# Wind Waker
+
+endian big
+idstring "RARC"
+get ARCHIVE_SIZE long
+get BASE_OFF long
+get DATA_OFF long
+get SIZE1 long
+get SIZE1b long
+get ZERO long
+get ZERO long
+get DUMMY1 long
+get DUMMY2 long
+get FILES long
+get OFFSET1 long
+get DUMMY5 long
+get NAMES_OFF long
+get DUMMY7 long
+get DUMMY8 long
+math OFFSET1 + BASE_OFF
+goto OFFSET1
+math NAMES_OFF + BASE_OFF
+math DATA_OFF + BASE_OFF
+for i = 0 < FILES
+    get DUMMY long
+    get FLAGS byte
+    get NAME_OFF threebyte
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET + DATA_OFF
+
+    if FLAGS & 2
+        # folders not supported
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

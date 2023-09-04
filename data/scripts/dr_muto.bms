@@ -1,0 +1,17 @@
+# Dr Muto
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+    getdstring NAME 4
+    get SIZE long
+    get DUMMY long
+    get DUMMY short
+    get DUMMY short
+    savepos OFFSET
+    math SIZE - 16
+    string NAME r NAME
+    string NAME + /
+    log NAME OFFSET SIZE
+next OFFSET + SIZE

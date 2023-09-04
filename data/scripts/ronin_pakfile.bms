@@ -1,0 +1,70 @@
+# Ronin PakFile
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Ronin PakFile\r\n\0"
+get OFFSET long
+goto OFFSET 0 SEEK_CUR
+/*
+# alternative way
+goto -0x18
+get SIZE1 signed_long
+get SIZE2 signed_long
+savepos OFFSET
+idstring "Ronin PakFile\r\n\0"
+math OFFSET + SIZE2
+goto OFFSET
+*/
+get ZERO long
+get NAMES long
+for i = 0 < NAMES
+    get ID long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 ID NAME
+next i
+getdstring ZERO 0x10
+get DUMMY1 long
+get DUMMY2 long
+get ENTRIES long
+for i = 0 < ENTRIES
+    get ID long
+    get ZERO long
+    get ZERO long
+    get NAME_ID long
+    get PREV_ID long
+    get DUMMY1 long
+    get DUMMY2 long
+    putarray 1 i NAME_ID
+    putarray 2 i ID
+    putarray 3 i PREV_ID
+next i
+get FILES long
+for i = 0 < FILES
+    get ZERO long
+    get ZERO long
+    get FLAGS long
+    get ID long
+    get DUMMY1 long
+    get DUMMY2 long
+    get OFFSET long
+    get SIZE long
+    callfunction GET_NAME 1
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    set NAME string ""
+    for PREV_ID = ID > 1
+        for x = 0 < ENTRIES
+            getarray TMP 2 x
+            if TMP == PREV_ID
+                break
+            endif
+        next x
+        getarray NAME_ID 1 x
+        getarray ID      2 x
+        getarray PREV_ID 3 x
+        getarray TMP 0 NAME_ID
+        string NAME p "/%s%s" TMP NAME
+    next
+endfunction

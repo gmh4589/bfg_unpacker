@@ -1,0 +1,21 @@
+# Final Fantasy IV dat
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+idstring "SSAM"
+get FILES long
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * (4 + 4 + 0x20))"
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x20
+    math OFFSET + BASE_OFF
+    set EXT extension NAME
+    if EXT == "lz"
+        set NAME fullbasename NAME
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

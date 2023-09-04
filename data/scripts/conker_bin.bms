@@ -1,0 +1,16 @@
+# Conker: Live & Reloaded
+
+get VER long  # 1
+get ZERO long
+get FILES long
+get DATA_SIZE long
+get BASE_OFF asize
+math BASE_OFF - DATA_SIZE
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

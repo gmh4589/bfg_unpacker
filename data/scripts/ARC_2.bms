@@ -1,0 +1,16 @@
+<bms games="'Silent Hill 3'" platforms="'PC'" ext="ARC">
+ImpType Standard ;
+Get U1 Long 0 ;
+Get FileNum Long 0 ;
+Get Dir2Size Long 0 ;
+Get U2 Long 0 ;
+For T = 1 To FileNum ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Get OffDir2 Long 0 ;
+SavePos FSO 0 ;
+Get ComSize Long 0 ;
+Get UnComSize Long 0 ;
+Log "" FO ComSize #FOO FSO ;
+Next T ;
+</bms>

@@ -1,0 +1,82 @@
+# NoLimits Roller Coaster 1/2 ZIP decrypter/encrypter 0.1.1
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+math TMP = SIZE
+math TMP -= 1
+math TMP2 = TMP
+for TMP2 >>= 10 > 100
+    math TMP2 /= 100
+next
+if TMP2 & 1
+    math TMP2 += 10
+else
+    math TMP2 += 9
+endif
+for i = 0 < 0x100
+    math TMP &= 0xff
+    putvarchr MEMORY_FILE2 i TMP
+    putvarchr MEMORY_FILE3 TMP i
+    math TMP += TMP2
+next i
+math INIT = 0x7f
+
+#log MEMORY_FILE 0 SIZE
+#for i = 0 < SIZE
+#    getvarchr TMP MEMORY_FILE i
+#    getvarchr TMP MEMORY_FILE3 TMP
+#    xmath TMP "0xff - (TMP ^ INIT)"
+#    putvarchr MEMORY_FILE i TMP
+#    math INIT += 1
+#    if INIT == 0x100
+#        math INIT = 1
+#    endif
+#next i
+
+get SIGN long
+goto 0
+math ENCRYPT = 0
+if SIGN == 0x04034b50
+    math ENCRYPT = 1
+endif
+
+log MEMORY_FILE 0 SIZE
+
+set KEY string ""
+for i = 0 < 0xff
+    string KEY += " "
+    string KEY += INIT
+    math INIT += 1
+    if INIT == 0x100
+        math INIT = 1
+    endif
+next i
+
+if ENCRYPT == 0
+    # fast alternative to make everything faster, *varchr is still very very slow
+    encryption charset MEMORY_FILE3 "" 0 0x100
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    encryption "" ""
+    filexor KEY
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    filexor 0xff    # 0xff - #INPUT# is xor 0xff
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    filexor ""
+
+    get NAME filename
+    string NAME += ".zip"
+else
+    filexor 0xff    # 0xff - #INPUT# is xor 0xff
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    filexor KEY
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    filexor ""
+    encryption charset MEMORY_FILE3 "" 1 0x100
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    encryption "" ""
+
+    get NAME basename
+endif
+
+log NAME 0 SIZE MEMORY_FILE
+

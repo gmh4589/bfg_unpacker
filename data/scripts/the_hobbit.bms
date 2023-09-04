@@ -1,0 +1,30 @@
+# The Hobbit
+#   similar to Area51
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dfs"
+open FDDE "000" 1
+getdstring DUMMY 16
+get FILES long
+getdstring DUMMY 16
+get BASE_OFF long
+get DUMMY long
+for i = 0 < FILES
+    get PATH_OFF long
+    math PATH_OFF + BASE_OFF
+    get NAME_OFF long
+    math NAME_OFF + BASE_OFF
+    getdstring DUMMY 8
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto PATH_OFF
+    get TMP1 string
+    goto NAME_OFF
+    get TMP2 string
+    goto TMP
+    string NAME p "%s/%s" TMP1 TMP2
+
+    log NAME OFFSET SIZE 1
+next i

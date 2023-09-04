@@ -1,0 +1,80 @@
+# Alan Wake's American Nightmare / Remedy (bin/packmeta/rmdp)
+
+open FDDE "bin"
+open FDDE "rmdp" 1
+
+endian big
+get DUMMY byte  # 1
+get NAMESZ long # ???
+endian guess NAMESZ
+get FOLDERS long
+get FILES long
+get DUMMY long  # 1
+get ZERO long
+get NAMES_SIZE long
+get NAMES_OFF asize
+math NAMES_OFF - NAMES_SIZE
+getdstring NAME NAMESZ
+get DUMMY short
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ZERO long
+get DUMMY long
+getdstring DUMMY 0x20
+get ZERO long
+get NUM long    # 0x32
+get DUMMY long
+get DUMMY byte  # 0
+getdstring DUMMY NUM
+
+for i = 0 < FOLDERS
+    get SOME_CRC long
+    get DUMMY long
+    get PREV_ID long
+    get DUMMY long
+    get NAME_OFF long
+    get DUMMY long
+    get DUMMY long
+    callfunction GET_NAME 1
+    putarray 0 i NAME
+    putarray 1 i PREV_ID
+next i
+
+for i = 0 < FILES
+    get SOME_CRC long
+    get DUMMY long
+    get PREV_ID long
+    get ZERO long
+    get NAME_OFF long
+    get OFFSET longlong
+    get ZERO long   # just in case it's a sort of ZSIZE, probably a 64bit SIZE
+    get SIZE long
+    getdstring DUMMY 0xc
+    callfunction GET_NAME 1
+    callfunction GET_PATH 1
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE 1
+next i
+
+startfunction GET_NAME
+    savepos TMP
+    set NAME string ""
+    if NAME_OFF != 0xffffffff
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+    endif
+    goto TMP
+endfunction
+
+startfunction GET_PATH
+    getarray PATH    0 PREV_ID
+    getarray PREV_ID 1 PREV_ID
+    for PREV_ID = PREV_ID != 0xffffffff
+        getarray TMP 0 PREV_ID
+        string PATH p "%s/%s" TMP PATH
+        getarray PREV_ID 1 PREV_ID
+    next
+endfunction

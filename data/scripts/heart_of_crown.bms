@@ -1,0 +1,172 @@
+# Heart of Crown / Rabi-Ribi / Corpse Party (script 0.2.2)
+#   version 6 uses an unknown method for calculating the offset of the key
+#   compression may not work with version 6
+# script for QuickBMS http://quickbms.aluigi.org
+
+putarray 10 -1 "\x87\x56\xF8\x09\x8F\xC3\x8D\x13\x6B\x1E\x30\xB4"
+putarray 10 -1 "\xBE\x43\xBD\x5A\xA5\xF6\xB4\xD7\x89\x4E\xC5\xFD"
+putarray 10 -1 "\x9d\xc6\xe5\x09\x9b\xcf\x90\x12\x5b\x16\x80\xae"
+putarray 10 -1 "\x9B\xF6\xFF\xD9\x93\xC9\x99\x51\x23\x18\x80\xA8"
+putarray 10 -1 "\xc7\x05\xca\x7d\x8d\xe3\xde\xf1\xd9\x0c\x85\xf4"
+putarray 10 -1 "\x55\xaa\x20\x55\x55\x06\x55\xaa\x55\xd5\x7c\x66"
+putarray 10 -1 "\x8c\x57\xed\xe9\x8d\xcf\x90\x12\x5b\x16\x80\xbf"
+putarray 10 -1 "\x8b\x96\xe1\xa8\x8e\x9e\x88\x19\x2b\x4e\xb0\xb8"
+putarray 10 -1 ""
+
+comtype wolf
+
+getdstring SIGN 2
+goto 0
+if SIGN u!= "DX"
+    math i = 0
+    do
+        getarray KEY 10 i
+        math i + 1
+        if KEY == ""
+            filexor ""
+            getdstring SIGN 2
+            getvarchr KEY0 SIGN 0
+            getvarchr KEY1 SIGN 1
+            math KEY0 ^ 'D'
+            math KEY1 ^ 'X'
+            string KEY p "%02x %02x" KEY0 KEY1
+            print "Error: encryption key not available, it must start with %KEY%, contact me!"
+            cleanexit
+        endif
+        filexor KEY 0
+        getdstring SIGN 2
+        goto 0
+    while SIGN u!= "DX"
+endif
+
+idstring "DX"
+get VER short   # 4
+get INFO_SIZE long
+if VER >= 6
+get BASE_OFF longlong
+get INFO_OFF longlong
+get ENTRIES_OFF longlong
+get FOLDERS_OFF longlong
+get MYCODEPAGE longlong # 1252
+if VER >= 8
+    get DUMMY longlong  # 10
+endif
+else
+get BASE_OFF long
+get INFO_OFF long
+get ENTRIES_OFF long
+get FOLDERS_OFF long
+get MYCODEPAGE long # 932
+endif
+
+math NAMES_OFF   = INFO_OFF
+math ENTRIES_OFF + INFO_OFF
+math FOLDERS_OFF + INFO_OFF
+
+if VER == 6 # the only one with this requirement
+    filexor KEY INFO_OFF
+endif
+
+get DAT_SIZE asize
+for MYOFF = FOLDERS_OFF != DAT_SIZE
+
+    set PATH string ""
+    goto MYOFF
+    callfunction GET_PATH 1
+
+    goto MYOFF
+    callfunction READ_FOLDER 1
+    savepos MYOFF
+
+    math OFFSET + ENTRIES_OFF
+    goto OFFSET
+    for i = 0 < ENTRIES
+        callfunction READ_ENTRY 1
+        if FLAGS & 0x10     # folder can be both 0x10 and 0x30
+        else                # file is just 0x20
+            math OFFSET + BASE_OFF
+            string NAME p "%s%s" PATH NAME
+            if SIZE != 0    # just be 100% sure to not get any folder
+                if VER == 6
+                    # it's not: offset, id, i, DUMMY or any other combo
+                    filexor KEY ID  # THIS IS WRONG! There is no known method used for calculating the offset of the key
+                endif
+                math ZSIZE & 0xffffffff # compatible with quickbms_4gb_files
+                if ZSIZE != 0xffffffff
+                clog NAME OFFSET ZSIZE SIZE
+                else
+                log NAME OFFSET SIZE
+                endif
+                if VER == 6
+                    filexor KEY INFO_OFF
+                endif
+            endif
+        endif
+    next i
+next
+
+startfunction GET_PATH
+    callfunction READ_FOLDER 1
+
+    math FOLDER_OFFSET + ENTRIES_OFF
+    goto FOLDER_OFFSET
+    callfunction READ_ENTRY 1
+    if FLAGS & 0x10
+        string PATH p "%s/%s" NAME PATH
+    endif
+
+    math PREV_OFFSET & 0xffffffff   # compatible with quickbms_4gb_files
+    if PREV_OFFSET != 0xffffffff
+        math PREV_OFFSET + FOLDERS_OFF
+        goto PREV_OFFSET
+        callfunction GET_PATH 1
+    endif
+endfunction
+
+startfunction READ_FOLDER
+    if VER == 6 # only version 6?
+    get FOLDER_OFFSET longlong
+    get PREV_OFFSET longlong
+    get ENTRIES longlong
+    get OFFSET longlong
+    else
+    get FOLDER_OFFSET long
+    get PREV_OFFSET long
+    get ENTRIES long
+    get OFFSET long
+    endif
+endfunction
+
+startfunction READ_ENTRY
+    if VER == 6 # only version 6?
+    get NAME_OFF longlong
+    get FLAGS longlong
+    else
+    get NAME_OFF long
+    get FLAGS long
+    endif
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    if VER == 6
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong  # -1
+    else
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long  # -1
+    endif
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get DUMMY short # or TYPE?
+    get ID short
+    if ID == 0
+        set NAME string ""
+    else
+        get NAME string
+    endif
+    goto TMP
+endfunction

@@ -1,0 +1,82 @@
+# Saboteur kilopack
+#   offzip is a great alternative for this specific file format
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # just to be sure in case of non-compressed files
+
+idstring "00PM"
+get ALBS_NUM long
+for i = 0 < ALBS_NUM
+    getdstring DUMMY 8
+    get SIZE long
+    get OFFSET longlong
+    putarray 0 i OFFSET
+next i
+
+for ALBS_i = 0 < ALBS_NUM
+    for EXTRACT = 0 < 2
+        math NEXT_OFFSET = 0
+        getarray INFO_OFF 0 ALBS_i
+        goto INFO_OFF
+        idstring "ALBS"
+
+        for i = 0
+            get DUMMY long  # 0 or 1
+            get DUMMY long
+            get OFFSET long
+            if OFFSET != NEXT_OFFSET
+                break
+            endif
+            get ZSIZE long
+            get SIZE long
+            get DUMMY long
+            set NAME string ""
+
+            xmath NEXT_OFFSET "OFFSET + ZSIZE"
+            if EXTRACT != 0
+                savepos TMP
+                math OFFSET += BASE_OFF
+                goto OFFSET
+
+                getdstring MAGIC 4
+                if MAGIC == "AHSM"
+                    get SIZE long
+                    get ZSIZE long
+                    get DUMMY long
+                    get DUMMY long
+                    getdstring NAME 0x100
+                    savepos OFFSET
+                else
+                    goto OFFSET
+                    get NAMESZ long
+                    if NAMESZ u<= 0x100  # type 1
+                        getdstring NAME NAMESZ
+                        get DUMMY long
+                        get DUMMY long
+                        get DUMMY short
+                        get DUMMY short
+                        get DUMMY short
+                        get SIZE long
+                        get ZIP long    # ???
+                        get ZSIZE long
+                        savepos OFFSET
+                    else
+                        # the file is stored compressed without additional info
+                    endif
+                endif
+
+                if NAME == ""
+                    string FNAME p= "%d/%08x" ALBS_i i
+                else
+                    string FNAME p= "%d/%s_%d" ALBS_i NAME i
+                endif
+                clog FNAME OFFSET ZSIZE SIZE
+
+                goto TMP
+            endif
+        next i
+
+        savepos BASE_OFF
+        math BASE_OFF -= 8
+    next EXTRACT
+next ALBS_i

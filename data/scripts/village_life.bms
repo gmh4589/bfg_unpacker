@@ -1,0 +1,37 @@
+# Village Life
+#   tga, wav and xml files aren't readable and need to be processed first
+
+idstring "TCF1"
+get FILES long
+get NAMES_SIZE long
+get SOME_CRC long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * 0x10)"
+xmath BASE_OFF "NAMES_OFF + NAMES_SIZE"
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get SOME_CRC long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET + BASE_OFF
+
+    /*
+    set EXT extension NAME
+    if EXT == "tga"
+        X, Y, 0, 0, zlib compression
+    elif EXT == "wav"
+        frequency + ???
+    elif EXT == "xml"
+        SPK1, SIZE, unknown compression
+    else
+    */
+        log NAME OFFSET SIZE
+    //endif
+next i

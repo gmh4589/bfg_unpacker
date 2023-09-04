@@ -1,0 +1,52 @@
+# Amplitude (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+math OFFSET = FILES
+math OFFSET *= 20
+math OFFSET += 8
+goto OFFSET
+get SIZE long
+math OFFSET += 4
+log MEMORY_FILE OFFSET SIZE
+math OFFSET += SIZE
+goto OFFSET
+get ENTRIES long
+savepos OFFSET
+math SIZE = ENTRIES
+math SIZE *= 4
+log MEMORY_FILE2 OFFSET SIZE
+goto 8
+for i = 0 < FILES
+    get OFFSET long
+    get NAME_OFF long
+    get FOLDER_OFF long
+    get SIZE long
+    get DUMMY long
+
+    if NAME_OFF == 0xffffffff
+        set NAME1 string ""
+    else
+        math NAME_OFF *= 4
+        goto NAME_OFF MEMORY_FILE2
+        get NAME_OFF long MEMORY_FILE2
+        goto NAME_OFF MEMORY_FILE
+        get NAME1 string MEMORY_FILE
+    endif
+
+    if FOLDER_OFF == 0xffffffff
+        set NAME string ""
+    else
+        math FOLDER_OFF *= 4
+        goto FOLDER_OFF MEMORY_FILE2
+        get FOLDER_OFF long MEMORY_FILE2
+        goto FOLDER_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+    endif
+
+    string NAME += /
+    string NAME += NAME1
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,30 @@
+# GDED BINARY FORMAT (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get GDW_SIZE asize
+do
+    idstring "GDED BINARY FORMAT"
+    get REST_OF_LINE string
+    for OK = 1 != 0
+        savepos TMP
+        if TMP == GDW_SIZE
+            cleanexit
+        endif
+        padding 4
+        getdstring CHUNK_NAME 4
+        get CHUNK_SIZE long
+        if CHUNK_SIZE == 0xffffffff
+            math OK = 0
+        else
+            savepos CHUNK_OFF
+
+            string NAME p "%s/" CHUNK_NAME
+            log NAME CHUNK_OFF CHUNK_SIZE
+
+            math CHUNK_OFF + CHUNK_SIZE
+            goto CHUNK_OFF
+        endif
+    next
+    padding 0x800
+    savepos OFFSET
+while OFFSET != GDW_SIZE

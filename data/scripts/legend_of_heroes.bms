@@ -1,0 +1,86 @@
+# The Legend of Heroes: Trails of Cold Steel I/III PKA/PKG (script 0.2.1)
+
+quickbmsver "0.11"
+
+get EXT extension
+if EXT == "pka"
+
+    putvarchr MEMORY_FILE 0x10000000 0  # don't use arrays!
+    log MEMORY_FILE 0 0
+
+    math HASH_SIZE = 0x20
+    xmath HEX_HASH_SIZE "HASH_SIZE * 2"
+
+    get DUMMY long
+    get PKGS long
+    for PKG = 0 < PKGS
+        getdstring PKG_NAME 0x20
+        get FILES long
+        for i = 0 < FILES
+            getdstring NAME 0x40
+            getdstring HASH HASH_SIZE
+            string NAME p "%s/%s" PKG_NAME NAME
+            string HASH 0b HASH
+            putvarchr HASH HEX_HASH_SIZE 0
+            putct HASH string -1 MEMORY_FILE
+            put NAME string MEMORY_FILE
+        next i
+    next PKG
+
+    get FILES long
+    for i = 0 < FILES
+        getdstring HASH HASH_SIZE
+        get OFFSET longlong
+        get ZSIZE long
+        get SIZE long
+        get ZIP long
+
+        string HASH 0b HASH
+        putvarchr HASH HEX_HASH_SIZE 0
+        goto 0 MEMORY_FILE
+        findloc TMP string HASH MEMORY_FILE ""
+        if TMP == ""
+            set NAME string ""
+        else
+            math TMP + HEX_HASH_SIZE
+            goto TMP MEMORY_FILE
+            get NAME string MEMORY_FILE
+        endif
+
+        callfunction UNZIP 1
+    next i
+
+else    # pkg
+
+    get TSTAMP long # or zero
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x40
+        get SIZE long
+        get ZSIZE long
+        get OFFSET long
+        get ZIP long
+
+        callfunction UNZIP 1
+    next i
+
+endif
+
+startfunction UNZIP
+    if ZIP & 1
+        comtype NISLZS
+        math OFFSET + 8 # skip the repeated SIZE/ZSIZE
+        math ZSIZE  - 8
+    elif ZIP & 4
+        comtype lz4
+    elif ZIP & 8
+        comtype lzma
+    elif ZIP & 0x10
+        comtype zstd
+    endif
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+endfunction

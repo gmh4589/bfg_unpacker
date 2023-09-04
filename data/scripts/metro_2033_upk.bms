@@ -1,0 +1,33 @@
+# Metro 2033 .upk checker v1.3
+# (hhrhhr@gmail.com 03-2010)
+# script for QuickBMS http://aluigi.org/papers.htm#quickbms
+
+# data section
+get num0 long
+get data_size long
+savepos pos
+math pos += data_size
+goto pos
+
+# filelist section
+get num1 long
+get list_size long
+savepos pos
+do
+	get current_xor byte
+	get tmp threebyte
+	get offset long
+	get size_unp long
+	get size_pak long
+	get strlen_filename long
+	math strlen_filename -= 1
+	filexor current_xor
+	getdstring name strlen_filename
+	filexor 0
+	get tmp byte
+
+	print "%offset% %size_unp% %size_pak% %strlen_filename% %name%"
+	log name offset size_pak
+	savepos list_pos
+	math list_pos -= pos
+while list_pos < list_size

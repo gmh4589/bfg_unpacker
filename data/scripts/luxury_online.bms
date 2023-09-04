@@ -1,0 +1,23 @@
+# Luxory Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+idstring "KGPK"
+goto 0x78
+get OFFSET longlong
+get MAX_OFFSET asize
+for OFFSET = OFFSET < MAX_OFFSET
+    goto OFFSET
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZIP long
+    get DUMMY longlong
+    get DUMMY long
+    savepos OFFSET
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+    math OFFSET += ZSIZE
+next

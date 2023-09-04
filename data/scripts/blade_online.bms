@@ -1,0 +1,37 @@
+# Blade 9 Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNK_SIZE = 0x10000
+idstring "VIRT"
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    getdstring EXT 4
+    get SIZE long
+    get OFFSET long
+
+    xmath CHUNKS "SIZE / CHUNK_SIZE"
+    if SIZE % CHUNK_SIZE
+        math CHUNKS + 1
+    endif
+
+    savepos TMP
+    goto OFFSET
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE short
+        putarray 0 x CHUNK_ZSIZE
+    next x
+    savepos OFFSET
+    for x = 0 < CHUNKS
+        getarray CHUNK_ZSIZE 0 x
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    next x
+    append
+    log "" 0 SIZE MEMORY_FILE
+    goto TMP
+next i

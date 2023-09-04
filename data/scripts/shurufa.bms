@@ -1,0 +1,10 @@
+get NAME basename
+get SIZE asize
+get XOR_VALUE byte
+savepos OFFSET
+math SIZE -= OFFSET
+filexor XOR_VALUE
+getdstring EXT 3
+string NAME += "."
+string NAME += EXT
+log NAME OFFSET SIZE

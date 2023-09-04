@@ -1,0 +1,132 @@
+# Video Strip Poker Supreme VSP->AVI (script 0.1.1)
+#   the files have usually extensions like VSP, VS4, VID and so on
+# script for QuickBMS http://quickbms.aluigi.org
+
+set SIGN_OFF long 0
+set MPG_MODE long 0
+get NAME basename
+getdstring SIGN 3
+if SIGN == "VSP"
+elif SIGN == "RIF"
+else
+    findloc SIGN_OFF string "VSP" ""
+    if SIGN_OFF == ""
+        findloc SIGN_OFF string "RIF" ""
+        if SIGN_OFF == ""
+            cleanexit
+        endif
+    endif
+    goto SIGN_OFF
+    getdstring SIGN 3
+    #findloc SIGN_END string "RIFF" ""   # wav file after it
+    #if SIGN_END == ""
+        get SIGN_END asize
+    #endif
+endif
+
+#set VS4_DO_NOTHING long 0
+#if VS4_DO_NOTHING != 0  # useless
+#    goto -0x2c
+#    get x54 long
+#    get x50 long
+#    get x4c long
+#    get x48 long
+#    get x44 long
+#    get x40 long
+#    get x3c long
+#    get x38 long
+#    get x34 long
+#    get x30 long
+#    get x2c long
+#
+#    math x44 ^= 0x214FE73
+#    math x40 ^= 0x16563E3
+#    math x3c ^= 0x29CC764
+#    math OFFSET = x30
+#    math OFFSET += x50
+#    math OFFSET += x38
+#    math OFFSET += x34
+#    math OFFSET += x3c
+#    math OFFSET += x40
+#    math OFFSET += x44
+#
+#    math OFFSET += SIGN_OFF
+#    goto OFFSET
+#    getdstring DATA 0x3c
+#    get DATASZ short
+#    getdstring DATA DATASZ
+#    get DATASZ short
+#    getdstring DATA DATASZ
+#    get DATASZ short
+#    getdstring DATA DATASZ
+#
+#    set NAME string DATA
+#    string NAME += ".avi"
+#endif
+#goto SIGN_OFF
+#getdstring SIGN 3
+
+get SIGN4 byte
+if SIGN == "VSP"
+    math SIGN4 ^= 0x46
+    filexor SIGN4
+    if SIGN4 == 0xc8
+        set XOR_SIZE long  500001
+    elif SIGN4 == 0xaa
+        set XOR_SIZE long 1500001
+    else
+        set SIGN4 long 0xc8
+        set XOR_SIZE long  500001
+        set MPG_MODE long 1
+        filexor SIGN4
+        #print "Error: unknown xor size for SIGN4 %SIGN4%"
+        #cleanexit
+    endif
+
+    if MPG_MODE == 0
+        get RIFF_SIZE long
+        math RIFF_SIZE += 8
+    else
+        math RIFF_SIZE = SIGN_END
+        math RIFF_SIZE -= SIGN_OFF
+    endif
+
+    log MEMORY_FILE SIGN_OFF XOR_SIZE
+    filexor ""
+    math TMP_SIZE = RIFF_SIZE
+    math TMP_SIZE -= XOR_SIZE
+    math TMP_OFF = XOR_SIZE
+    math TMP_OFF += SIGN_OFF
+    append
+        log MEMORY_FILE TMP_OFF TMP_SIZE
+    append
+elif SIGN == "RIF"  # change the codec only
+    get RIFF_SIZE long
+    math RIFF_SIZE += 8
+    log MEMORY_FILE SIGN_OFF RIFF_SIZE
+endif
+
+if MPG_MODE == 0
+    putvarchr MEMORY_FILE 0x00 0x52
+    putvarchr MEMORY_FILE 0x01 0x49
+    putvarchr MEMORY_FILE 0x02 0x46
+    putvarchr MEMORY_FILE 0x03 0x46
+
+    putvarchr MEMORY_FILE 0x70 0x64
+    putvarchr MEMORY_FILE 0x71 0x69
+    putvarchr MEMORY_FILE 0x72 0x76
+    putvarchr MEMORY_FILE 0x73 0x78
+
+    putvarchr MEMORY_FILE 0xbc 0x44
+    putvarchr MEMORY_FILE 0xbd 0x58
+    putvarchr MEMORY_FILE 0xbe 0x35
+    putvarchr MEMORY_FILE 0xbf 0x30
+    string NAME += ".avi"
+else
+    putvarchr MEMORY_FILE 0x00 0x00
+    putvarchr MEMORY_FILE 0x01 0x00
+    putvarchr MEMORY_FILE 0x02 0x01
+    string NAME += ".mpg"
+endif
+
+log NAME 0 RIFF_SIZE MEMORY_FILE

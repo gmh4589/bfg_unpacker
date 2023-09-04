@@ -1,0 +1,53 @@
+# Survarium (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring ENDIANESS 0x10
+if ENDIANESS == "big-endian"
+    endian big
+endif
+get DUMMY long
+get DUMMY long
+goto 0x3c0
+get OFFSET long
+if OFFSET == 0
+    math OFFSET = 0x510
+endif
+
+math LINK = 0
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    for OFFSET = OFFSET != 0
+        goto OFFSET
+
+        get SIZE longlong
+        get OFFSET longlong
+        get CRC long
+        getdstring DUMMY 0x1c
+        get NEXT_ENTRY longlong
+        get DUMMY longlong
+        get ZERO longlong
+        get TYPE byte   # 4 if it's the latest folder/file, 5 ?
+        get LINK byte   # 2 is a link
+        get DUMMY byte
+        get NAME string
+        padding 8
+
+        # links are not handled
+        if LINK == 0
+            if CRC == 0
+                callfunction EXTRACT
+            else
+                set FNAME string PATH
+                string FNAME += NAME
+                log FNAME OFFSET SIZE
+            endif
+        endif
+
+        math OFFSET = NEXT_ENTRY
+    next
+endfunction

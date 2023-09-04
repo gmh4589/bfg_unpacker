@@ -1,0 +1,12 @@
+# Legends
+
+get FILES long
+xmath BASE_OFF "8 + (FILES * (4 + 4))"
+math BASE_OFF x 0x800
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET & 0x7fffffff
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

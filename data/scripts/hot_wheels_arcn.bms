@@ -1,0 +1,32 @@
+# Hot Wheels: Beat That! WII .ARC
+
+endian big
+idstring "ARCN"
+get FILES long
+endian guess FILES
+math INFO_OFF = 0x80
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        get NAME_OFF long
+        get FLAGS byte
+        get SIZE threebyte
+        if EXTRACT != 0
+            if NAME_OFF == 0xffffffff
+                set NAME string ""
+            else
+                savepos TMP
+                math NAME_OFF + NAMES_OFF
+                goto NAME_OFF
+                get NAME string
+                goto TMP
+            endif
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+    math NAMES_OFF = OFFSET
+    math NAMES_OFF + BASE_OFF
+next EXTRACT

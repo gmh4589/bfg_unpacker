@@ -1,0 +1,16 @@
+# Life Quest (resource3.dat and resource4.dat)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+math SIZE = FILES
+math SIZE *= 4
+log MEMORY_FILE 4 SIZE
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE
+    goto OFFSET
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+next i

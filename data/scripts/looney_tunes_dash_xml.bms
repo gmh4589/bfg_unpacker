@@ -1,0 +1,6 @@
+# Looney Tunes Dash XML decrypter
+
+filexor 0xa5
+get SIZE asize
+get NAME filename
+log NAME 0 SIZE

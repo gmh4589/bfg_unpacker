@@ -1,0 +1,33 @@
+# Reflexive Arcade (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO long
+get DUMMY long
+get FILES long
+get BASE_OFF long
+getdstring NAME 0x10
+for i = 0 < FILES
+    savepos TMP_OFF
+    get ENTRYSZ long
+    get SIZE long
+    get OFFSET long
+    savepos TMP
+    xmath NAMESZ "ENTRYSZ - (TMP - TMP_OFF)"
+    filexor 0x13
+    getdstring NAME NAMESZ
+
+    # only the first 0x800 bytes are xored
+    math TMP = SIZE
+    if TMP > 0x800
+        math TMP = 0x800
+    endif
+    math SIZE - TMP
+    log NAME OFFSET TMP
+    filexor ""
+    if SIZE > 0
+        append
+        math OFFSET + TMP
+        log NAME OFFSET SIZE
+        append
+    endif
+next i

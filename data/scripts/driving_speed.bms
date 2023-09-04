@@ -1,0 +1,73 @@
+# Driving Speed 2 / Pro enc files decrypter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.5.7d
+get EXT extension
+if EXT != "enc"
+    cleanexit
+endif
+get NAME basename
+set EXT extension NAME
+if EXT == "wav"
+    filexor 0x27
+    get SIZE asize
+    log NAME 0 SIZE
+elif EXT == "txt"
+    math XSIZE = 0
+    log MEMORY_FILE3 0 0
+    encryption tea "\x40\x9F\x94\x46\x7F\x4B\x6D\xF4\x52\xE4\x7A\xF4\xCB\xFA\x64\xF4" "0xa390a694 0xce842bec 0 31"
+
+    get ENCSIZE asize
+    math ENCSIZE -= 4
+    do
+        get IDX long
+        get ELEMENTS long
+
+        if ELEMENTS == 0
+            do
+                get SIZE long
+                savepos OFFSET
+                callfunction TXT_DEC 1
+                goto OFFSET
+
+                putvarchr MEMORY_FILE3 XSIZE 0x0a
+                math XSIZE += 1
+            while OFFSET < ENCSIZE
+        else
+            for i = 0 < ELEMENTS
+                get LEVEL long
+
+                get SIZE long
+                savepos OFFSET
+                callfunction TXT_DEC 1
+                goto OFFSET
+
+                putvarchr MEMORY_FILE3 XSIZE 0x3d
+                math XSIZE += 1
+
+                get SIZE long
+                savepos OFFSET
+                callfunction TXT_DEC 1
+                goto OFFSET
+
+                putvarchr MEMORY_FILE3 XSIZE 0x0a
+                math XSIZE += 1
+            next i
+        endif
+    while OFFSET < ENCSIZE
+    encryption "" ""
+    log NAME 0 XSIZE MEMORY_FILE3
+else
+    print "unknown extension %EXT%, contact me"
+    cleanexit
+endif
+
+startfunction TXT_DEC
+    for j = 0 < SIZE
+        log MEMORY_FILE OFFSET 8
+        getvarchr TMP MEMORY_FILE 0
+        putvarchr MEMORY_FILE3 XSIZE TMP
+        math XSIZE += 1
+        math OFFSET += 8
+    next j
+endfunction

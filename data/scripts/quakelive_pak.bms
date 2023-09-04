@@ -1,0 +1,39 @@
+# QuakeLive PAK
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get ENTRIES long
+getdstring ZERO 3
+get INFO_OFF long
+
+    math OLD_FILE_NUM = 0
+    math OLD_OFFSET = 0
+for i = 0 < ENTRIES
+    get FILE_NUM short
+    get OFFSET long
+
+    putarray 0 FILE_NUM OFFSET
+
+    xmath SIZE "OFFSET - OLD_OFFSET"
+    putarray 1 OLD_FILE_NUM SIZE
+    math OLD_FILE_NUM = FILE_NUM
+    math OLD_OFFSET = OFFSET
+next i
+
+goto INFO_OFF
+get INFO_SIZE long
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    xmath NAMESZ "(NAMESZ + (NAMESZ & 1)) * 2"
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    get TYPE long
+    get FILE_NUM long
+
+    getarray OFFSET 0 FILE_NUM
+    getarray SIZE 1 FILE_NUM
+    log NAME OFFSET SIZE
+next i

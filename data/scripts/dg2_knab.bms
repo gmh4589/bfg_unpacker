@@ -1,0 +1,32 @@
+idstring "KNAB"
+goto 0x14
+get OFFSET long
+goto 0x28
+get FILES long
+goto OFFSET
+get NAMES_OFF long
+get OFFSET long
+get SIZE long
+get NAME basename
+string NAME + ".txt"
+log NAME OFFSET SIZE
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get NAME_OFF long
+    get DUMMY long
+    get OFFSET long
+    getdstring DUMMY 0xc
+    get SIZE long
+    getdstring DUMMY 0x20
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    log NAME OFFSET SIZE
+next i

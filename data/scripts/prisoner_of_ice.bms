@@ -1,0 +1,18 @@
+# Prisoner of Ice KRO
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+idstring "Burp"
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    get OFFSET long
+    get FLAGS long
+    if FLAGS & 4
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

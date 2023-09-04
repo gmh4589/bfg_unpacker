@@ -1,0 +1,20 @@
+# ARES - Midtown Madness
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ARES"
+get FILES long
+get DUMMY long
+get NAMES_SIZE long
+
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 12) + NAMES_SIZE"
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE threebyte
+    math SIZE & 0x007fffff
+    getdstring DUMMY 5
+    if OFFSET u>= BASE_OFF
+        log "" OFFSET SIZE
+    endif
+next i

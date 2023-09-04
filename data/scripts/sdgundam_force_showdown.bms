@@ -1,0 +1,27 @@
+# SD Gundam Force: Showdown! (PS2)
+
+open FDSE "slus_206.98"
+open FDSE "all3.bin" 1
+set INFO_OFF long 0x4e00f0
+set NAME_OFF long 0x50f160
+
+    for i = 0
+        goto INFO_OFF
+        get OFFSET long
+        if OFFSET == 0
+            if i != 0
+                cleanexit
+            endif
+        endif
+        get FOLDER long
+        get SIZE long
+        savepos INFO_OFF
+        math OFFSET *= 0x800
+        goto NAME_OFF
+        do
+            get NAME string
+            padding 8
+        while NAME == ""
+        savepos NAME_OFF
+        log NAME OFFSET SIZE 1
+    next i

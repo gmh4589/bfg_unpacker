@@ -1,0 +1,12 @@
+# Word Charm XXTEA decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "8VVTJ-UC2R1"
+encryption xxtea KEY "0x9e3779b9 0" 0 16    # cocos2d
+
+idstring "XXTEA"
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+get NAME filename
+log NAME OFFSET SIZE

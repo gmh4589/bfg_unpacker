@@ -1,0 +1,12 @@
+# Crystal Dynamics Archive Type 1 (Crash n' Burn)
+
+endian big
+
+get ENTRIES long
+math ENTRIES - 5
+getdstring DUMMY 0x30
+for i = 0 < ENTRIES
+	get SIZE long
+	get OFFSET long
+	log "" OFFSET SIZE
+next i

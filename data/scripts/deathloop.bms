@@ -1,0 +1,177 @@
+# Deathloop
+# information provided by h3x3r https://zenhax.com/viewtopic.php?p=66383#p66383
+
+get EXT extension
+if EXT != "index"
+    print "Error: you must select master_resources.index"
+    cleanexit
+endif
+callfunction BUILD_ARCHIVE_NUM 1
+
+get TYPE byte   # 5 for index, 4 for resources
+idstring "SER"
+endian big
+get IDXSIZE long
+getDString ZERO 0x18
+get FILES long
+endian little
+
+math LAST_ARCHIVENUM = -1
+for i = 0 < FILES
+    get FILEID long
+    get FTSTRLEN long
+    getDString FILETYPE FTSTRLEN
+    get FPSTRLEN long
+    getDString SHORT_NAME FPSTRLEN
+    get FFPSTRLEN long
+    getDString NAME FFPSTRLEN
+    get OFFSET longlong
+    get SIZE long
+    get ZSIZE long
+    get DUMMY long  # ever zero, even if compressed
+    get UNKN long   # ever zero, even if compressed
+    get ARCHIVENUM short
+
+    if ARCHIVENUM != LAST_ARCHIVENUM
+        math LAST_ARCHIVENUM = ARCHIVENUM
+        getarray TMP 0 ARCHIVENUM
+        open FDSE TMP 1 EXISTS  # I leave this choice in case we only want few archives
+    endif
+
+    if EXISTS != 0
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE 1
+        else
+            goto OFFSET 1
+            getdstring TYPE 4 1
+            if TYPE u== "OOD"
+                comtype oodle
+            else
+                print "Error: unknown compression %TYPE%, contact me"
+                cleanexit
+            endif
+
+            get DUMMY long 1    # ever 8, maybe a relative offset to data
+            get XSIZE long 1    # same as SIZE (it's not related to chunks)
+            savepos TMP 1
+            xmath ZSIZE "ZSIZE - (TMP - OFFSET)"
+            math OFFSET = TMP
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    endif
+
+next i
+
+startfunction BUILD_ARCHIVE_NUM
+# you can also use: putarray 0 -1 file
+putarray 0   0 rsc_decl_0.resources
+putarray 0   1 rsc_gen_0_0.resources
+putarray 0   2 rsc_gen_0_1.resources
+putarray 0   3 map_menu_0.resources
+putarray 0   4 map_antenna_01_p_0.resources
+putarray 0   5 map_antenna_02_p_0.resources
+putarray 0   6 map_antenna_03_p_0.resources
+putarray 0   7 map_antenna_04_p_0.resources
+putarray 0   8 map_island_01_p_0.resources
+putarray 0   9 map_island_02_p_0.resources
+putarray 0  10 map_island_03_p_0.resources
+putarray 0  11 map_outro_p_0.resources
+putarray 0  12 map_outro_02_0.resources
+putarray 0  13 map_tutorial_01_p_0.resources
+putarray 0  14 map_tutorial_02_0.resources
+putarray 0  15 map_upper_antenna_p_0.resources
+putarray 0  16 map_uppercity_01_p_0.resources
+putarray 0  17 map_uppercity_02_p_0.resources
+putarray 0  18 map_uppercity_03_p_0.resources
+putarray 0  19 map_uppercity_04_p_0.resources
+putarray 0  20 map_wharf_01_0.resources
+putarray 0  21 map_wharf_03_0.resources
+putarray 0  22 map_wharf_04_0.resources
+putarray 0  23 rsc_images_0_0.resources
+putarray 0  24 rsc_images_0_1.resources
+putarray 0  25 rsc_images_0_2.resources
+putarray 0  26 rsc_images_0_3.resources
+putarray 0  27 rsc_images_0_4.resources
+putarray 0  28 rsc_images_0_5.resources
+putarray 0  29 rsc_images_0_6.resources
+putarray 0  30 rsc_images_0_7.resources
+putarray 0  31 rsc_images_0_8.resources
+putarray 0  32 rsc_images_0_9.resources
+putarray 0  33 rsc_images_0_10.resources
+putarray 0  34 rsc_images_0_11.resources
+putarray 0  35 rsc_images_0_12.resources
+putarray 0  36 rsc_images_0_13.resources
+putarray 0  37 sfx/rsc_sounds_0_0.resources
+putarray 0  38 sfx/rsc_sounds_0_1.resources
+putarray 0  39 rsc_anims_0_0.resources
+putarray 0  40 rsc_ui_0_0.resources
+putarray 0  41 rsc_ui_0_1.resources
+putarray 0  42 rsc_ui_0_2.resources
+putarray 0  43 rsc_ui_0_3.resources
+putarray 0  44 rsc_ui_0_4.resources
+putarray 0  45 rsc_images_1_0.resources
+putarray 0  46 rsc_images_1_1.resources
+putarray 0  47 rsc_images_1_2.resources
+putarray 0  48 rsc_images_1_3.resources
+putarray 0  49 rsc_images_1_4.resources
+putarray 0  50 rsc_images_1_5.resources
+putarray 0  51 rsc_images_1_6.resources
+putarray 0  52 rsc_images_1_7.resources
+putarray 0  53 rsc_images_1_8.resources
+putarray 0  54 sfx/rsc_sounds_1_0.resources
+putarray 0  55 rsc_anims_1_0.resources
+putarray 0  56 rsc_images_2_0.resources
+putarray 0  57 rsc_images_2_1.resources
+putarray 0  58 sfx/rsc_sounds_2_0.resources
+putarray 0  59 rsc_anims_2_0.resources
+putarray 0  60 rsc_images_3_0.resources
+putarray 0  61 rsc_images_3_1.resources
+putarray 0  62 sfx/rsc_sounds_3_0.resources
+putarray 0  63 rsc_anims_3_0.resources
+putarray 0  64 rsc_images_4_0.resources
+putarray 0  65 sfx/rsc_sounds_4_0.resources
+putarray 0  66 rsc_anims_4_0.resources
+putarray 0  67 rsc_images_5_0.resources
+putarray 0  68 sfx/rsc_sounds_5_0.resources
+putarray 0  69 rsc_anims_5_0.resources
+putarray 0  70 rsc_images_6_0.resources
+putarray 0  71 sfx/rsc_sounds_6_0.resources
+putarray 0  72 rsc_anims_6_0.resources
+putarray 0  73 rsc_images_7_0.resources
+putarray 0  74 sfx/rsc_sounds_7_0.resources
+putarray 0  75 rsc_anims_7_0.resources
+putarray 0  76 rsc_images_8_0.resources
+putarray 0  77 sfx/rsc_sounds_8_0.resources
+putarray 0  78 rsc_anims_8_0.resources
+putarray 0  79 rsc_images_9_0.resources
+putarray 0  80 sfx/rsc_sounds_9_0.resources
+putarray 0  81 rsc_anims_9_0.resources
+putarray 0  82 rsc_images_10_0.resources
+putarray 0  83 sfx/rsc_sounds_10_0.resources
+putarray 0  84 rsc_anims_10_0.resources
+putarray 0  85 rsc_images_11_0.resources
+putarray 0  86 sfx/rsc_sounds_11_0.resources
+putarray 0  87 rsc_anims_11_0.resources
+putarray 0  88 rsc_images_12_0.resources
+putarray 0  89 sfx/rsc_sounds_12_0.resources
+putarray 0  90 rsc_anims_12_0.resources
+putarray 0  91 rsc_images_13_0.resources
+putarray 0  92 sfx/rsc_sounds_13_0.resources
+putarray 0  93 rsc_anims_13_0.resources
+putarray 0  94 rsc_images_14_0.resources
+putarray 0  95 sfx/rsc_sounds_14_0.resources
+putarray 0  96 rsc_anims_14_0.resources
+putarray 0  97 rsc_images_15_0.resources
+putarray 0  98 sfx/rsc_sounds_15_0.resources
+putarray 0  99 rsc_anims_15_0.resources
+putarray 0 100 eLID_English/rsc_sounds_16_0.resources
+putarray 0 101 eLID_French/rsc_sounds_17_0.resources
+putarray 0 102 eLID_Italian/rsc_sounds_18_0.resources
+putarray 0 103 eLID_German/rsc_sounds_19_0.resources
+putarray 0 104 eLID_Spanish/rsc_sounds_20_0.resources
+putarray 0 105 eLID_Russian/rsc_sounds_21_0.resources
+putarray 0 106 eLID_Polish/rsc_sounds_22_0.resources
+putarray 0 107 eLID_MexicanSpanish/rsc_sounds_23_0.resources
+putarray 0 108 eLID_BrazilianPortuguese/rsc_sounds_24_0.resources
+putarray 0 109 eLID_Japanese/rsc_sounds_26_0.resources
+endfunction

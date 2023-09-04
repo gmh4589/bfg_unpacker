@@ -1,0 +1,47 @@
+# Nascar the game 2011 REGION files (xbox360)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+if NAME & "_REGION"
+    # ok
+else
+    print "this script works only with REGION.rct files"
+    cleanexit
+endif
+
+endian big
+for EXTRACT = 0 < 2
+    goto 0x10
+    for i = 0
+        get CRC long
+        if CRC == 0
+            break
+        endif
+        get ENTRY_OFF long
+        get NAME_OFF long
+        get DUMMY long
+        get DUMMY long  # ffffffff
+        get OFFSET long
+        get DUMMY long  # ffffffff
+        get DUMMY byte
+        get SIZE threebyte
+        math OFFSET += BASE_OFF
+
+        if EXTRACT != 0
+            savepos TMP
+            math NAME_OFF += NAMES_OFF
+            goto NAME_OFF
+            get NAME string
+            goto TMP
+            log NAME OFFSET SIZE
+        endif
+    next i
+    math FILES = i
+    get DUMMY long
+    get ENTRY_SIZE long
+    get NAMES_OFF asize
+    math NAMES_OFF -= ENTRY_SIZE
+    math NAMES_OFF -= 14
+    savepos BASE_OFF
+    math BASE_OFF += 0x34
+next EXTRACT

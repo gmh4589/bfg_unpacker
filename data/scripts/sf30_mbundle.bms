@@ -1,0 +1,62 @@
+# Street Fighter 30th Anniversary Collection mbundle (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "bplist00"
+for
+    callfunction GET_CHUNK 1
+    savepos OFFSET
+next
+
+startfunction GET_CHUNK
+    get SIZE byte
+    xmath IS_NAME "SIZE & 0x10"
+    xmath FLAG1 "SIZE & 0x40"
+    xmath FLAG2 "SIZE & 0x80"
+    xmath TMP "SIZE & 0xf"
+    if TMP < 0xf
+        math SIZE = TMP
+    else
+        get DUMMY byte  # 0x12
+        get SIZE long
+    endif
+    savepos OFFSET
+
+    if FLAG2 != 0
+        math FILES = SIZE
+        for i = 0 < FILES
+            get NAME_ID long
+            putarray 0 i NAME_ID
+        next i
+        for i = 0 < FILES
+            get FILE_ID long
+            putarray 1 i FILE_ID
+        next i
+        savepos INFO_OFF
+        for i = 0 < FILES
+            getarray NAME_ID 0 i
+            getarray FILE_ID 1 i
+
+            xmath TMP "INFO_OFF + (NAME_ID * 4)"
+            goto TMP
+            get NAME_OFF long
+            goto NAME_OFF
+            callfunction GET_CHUNK 1
+
+            xmath TMP "INFO_OFF + (FILE_ID * 4)"
+            goto TMP
+            get OFFSET long
+            goto OFFSET
+            callfunction GET_CHUNK 1
+
+            log NAME OFFSET SIZE
+        next i
+        cleanexit
+
+    elif IS_NAME != 0
+        getdstring NAME SIZE
+
+    else
+        goto SIZE 0 SEEK_CUR
+    endif
+endfunction

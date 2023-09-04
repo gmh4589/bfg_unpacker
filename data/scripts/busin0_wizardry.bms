@@ -1,0 +1,13 @@
+# Busin 0: Wizardry Alternative Neo .DIG
+
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get SIZE long
+    get DUMMY long
+    math OFFSET * 0x800
+    math SIZE   * 0x800
+    log "" OFFSET SIZE
+next

@@ -1,0 +1,59 @@
+# Battlefield: Bad Company (script 0.1.1 ONLY for that big archive!)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+comtype gzip
+idstring "FbRB"
+get SIZE long
+endian little # for gzip
+savepos OFFSET
+get GZIP_SIGN short
+if GZIP_SIGN == 0x8b1f
+    clog MEMORY_FILE OFFSET SIZE SIZE
+else
+    log MEMORY_FILE OFFSET SIZE
+endif
+math OFFSET += SIZE
+get SIZE asize
+math SIZE -= OFFSET
+goto OFFSET
+get GZIP_SIGN short
+if GZIP_SIGN == 0x8b1f
+    #clog MEMORY_FILE2 OFFSET SIZE SIZE
+    print "Error: this script is made only for that big sound archive!"
+    cleanexit
+else
+    #log MEMORY_FILE2 OFFSET SIZE
+    math DATA_OFFSET = OFFSET
+endif
+
+endian big
+comtype zlib # not tested!
+get VER long MEMORY_FILE
+get INFO_OFF long MEMORY_FILE
+savepos NAME_BASE MEMORY_FILE
+math INFO_OFF += NAME_BASE
+goto INFO_OFF MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMEOFF long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+
+    savepos TMP MEMORY_FILE
+    math NAMEOFF += NAME_BASE
+    goto NAMEOFF MEMORY_FILE
+    #getdstring NAME NAMESZ MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+
+    math OFFSET += DATA_OFFSET
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE #MEMORY_FILE2
+    else
+        clog NAME OFFSET ZSIZE SIZE #MEMORY_FILE2
+    endif
+next i

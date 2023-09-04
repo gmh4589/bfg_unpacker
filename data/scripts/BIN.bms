@@ -1,0 +1,17 @@
+<bms games="'Star Wars: Battle For Naboo'" platforms="'PC'" ext="BIN">
+Get FILESTART Long 0 ;
+Get FILEJMP Long 0 ;
+Set FILECNTL Long FILEJMP ;
+Math FILECNTL /= 32 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+GetDString FILENAME 16 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

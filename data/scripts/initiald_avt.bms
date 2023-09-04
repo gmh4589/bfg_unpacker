@@ -1,0 +1,46 @@
+# Initial D Arcade Stage avt
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY short # 0xff
+get DUMMY short # dynamic, but not files
+get BASE_OFF long
+get ENTRY_SIZE long  # 0x20
+get NAME string
+goto ENTRY_SIZE
+savepos CURR_OFF
+math FILES = 0
+
+            # there is a part of the file which is not covered... mah
+            putarray 0 FILES BASE_OFF
+            putarray 1 FILES ""
+            math FILES + 1
+
+for CURR_OFF = CURR_OFF != BASE_OFF
+    get FLAGS short
+    get ID short
+    if FLAGS & 0x8000
+        get NAME string # "*mannequin*"
+    else
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        get NAME string # encrypted? encoded?
+        set NAME string ""
+        if FLAGS & 0x80
+            putarray 0 FILES OFFSET
+            putarray 1 FILES NAME
+            math FILES + 1
+        endif
+    endif
+    math CURR_OFF + ENTRY_SIZE
+    goto CURR_OFF
+next
+    get OFFSET asize
+    putarray 0 FILES OFFSET
+for i = 0 < FILES
+    getarray NAME   1 i
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

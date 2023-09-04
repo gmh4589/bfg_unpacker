@@ -1,0 +1,79 @@
+# Descent (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+get EXT extension
+getdstring SIGN 4
+if SIGN == "PPIG"
+
+    get DUMMY long
+    get FILES long
+    xmath BASE_OFF "0xc + (FILES * 0x12)"
+    for i = 0 < FILES
+        getdstring NAME 8
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        putarray 0 i OFFSET
+        putarray 1 i NAME
+    next i
+
+    putarray 0 i ARCHIVE_SIZE
+    putarray 1 i ""
+    sortarray 0 1
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray NAME   1 i
+        math i + 1
+        getarray NEXT_OFF 0 i
+        goto OFFSET
+        get SIZE long
+        xmath TMP "OFFSET + SIZE"
+        if TMP == NEXT_OFF
+            math OFFSET + 4
+            math SIZE   - 4
+        else
+            xmath SIZE "NEXT_OFF - OFFSET"
+        endif
+        string NAME + /
+        log NAME OFFSET SIZE
+    next
+
+
+elif SIGN == "DSND"
+
+    get DUMMY long
+    get FILES long
+    xmath BASE_OFF "0xc + (FILES * 0x14)"
+    for i = 0 < FILES
+        getdstring NAME 8
+        get ZSIZE long  # ???
+        get SIZE long
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+
+elif EXT == "hog"
+
+    goto 0
+    idstring "DHF"
+    savepos OFFSET
+    for OFFSET = OFFSET != ARCHIVE_SIZE
+        getdstring NAME 13
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next
+
+else
+
+    print "Error: unknown magic %SIGN%"
+    cleanexit
+
+endif

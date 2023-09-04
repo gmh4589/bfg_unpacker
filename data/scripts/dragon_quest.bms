@@ -1,0 +1,30 @@
+# Dragon Quest 1, 2, 3 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+# DQ1 and DQ2 use the same key
+filexor "0x46 0x78 0x63 0x15"
+get FILES short
+get NAMESZ short
+if NAMESZ > 0x100
+    # let's guess if the game is DQ3
+    filexor "0x4e 0x69 0x29 0x75"
+endif
+goto 0
+
+get FILES short
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+get FILES short
+savepos OFFSET
+xmath OFFSET "OFFSET + (FILES * 4)"
+for i = 0 < FILES
+    get SIZE long
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

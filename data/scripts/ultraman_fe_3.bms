@@ -1,0 +1,50 @@
+# Ultraman Fighting Evolution 3
+#   filenames are not supported
+
+open FDSE "SLPS_254.41"
+findloc OFFSET string "\\FILE1.BIN"
+goto OFFSET
+
+for PACKS = 0
+    goto -8 0 SEEK_CUR  # also skip the last zero
+    get DUMMY long
+    if DUMMY == 0
+        break
+    endif
+next PACKS
+
+for i = 0 < PACKS
+    get DUMMY long
+next i
+get ZERO long
+for i = 0 < PACKS
+    get NAME string
+    padding 4
+    putarray 0 i NAME
+next i
+for i = 0 < PACKS
+    get DUMMY long
+next i
+
+math LAST_PACK_NUM = -1
+for i = 0
+    get OFFSET long
+    get BLOCK_SIZE long
+    get SIZE long
+    get PACK_NUM long
+
+    if PACK_NUM >= PACKS
+        break
+    endif
+    if PACK_NUM != LAST_PACK_NUM
+        math LAST_PACK_NUM = PACK_NUM
+        getarray NAME 0 PACK_NUM
+        string NAME % ";"
+        open FDSE NAME 1
+    endif
+
+    get NAME basename 1
+    string NAME p "%s/%d." NAME i
+
+    log NAME OFFSET SIZE 1
+next i

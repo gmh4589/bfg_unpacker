@@ -1,0 +1,43 @@
+# Platypus PRPK
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PRPK"
+get FILESIZE long
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    getdstring NAME 0x28
+    get DUMMY long  # crc?
+    get DUMMY short # 0
+    get IS_FOLDER short
+    get PREV short
+    get NEXT short
+    get FOLDERS short
+    get FILES short
+    get OFFSET long
+    get SIZE long
+    if IS_FOLDER == 0
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    else
+        savepos TMP
+        math NEXT *= 0x40
+        math NEXT += 8
+        goto NEXT
+        for i = 0 < FOLDERS
+            callfunction EXTRACT
+        next i
+
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+        goto TMP
+    endif
+endfunction
+

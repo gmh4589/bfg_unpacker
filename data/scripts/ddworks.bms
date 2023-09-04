@@ -1,0 +1,32 @@
+# DDWORKS game system [DDWEngine]
+# script for QuickBMS http://quickbms.aluigi.org
+
+codepage 932
+comtype UNKNOWN2
+idstring "DDP3"
+get FILES long
+get BASE_OFF long
+goto 0x20
+for i = 0 < FILES
+    get DUMMY long
+    get ENTRY_OFF long
+
+    savepos TMP
+    goto ENTRY_OFF
+    get ENTRY_SIZE byte
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    savepos TMP2
+    xmath NAMESZ "ENTRY_SIZE - (TMP2 - ENTRY_OFF)"
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    goto TMP
+
+    if SIZE == ZSIZE    # ???
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

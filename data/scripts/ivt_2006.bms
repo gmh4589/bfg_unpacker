@@ -1,0 +1,78 @@
+# International Volleyball 2006 INI/PVS/IVT decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+
+get EXT extension
+if EXT == "INI" || EXT == "PVS"
+
+    get TYPE byte
+    callfunction SET_KEY 1
+    savepos OFFSET
+
+else
+
+    get FLAGS byte
+    #xmath FLAG1 "FLAGS & 7"                # usually 6
+    #xmath FLAG2 "((FLAGS >> 6) & 3) + 1"   # usually 3
+    get TYPE byte
+    callfunction SET_KEY 1
+    savepos OFFSET
+
+    # the following is just a simple xor with the first 6 bytes additionally xored with KEY2
+    # but this is something not easy to do with quickbms, so let's do it by hand.
+    # the alternative is skipping everything and then cutting the first 6 bytes from the resulted file.
+
+    # xor KEY2 with KEY and decrypt the first 6 bytes that are ever zeroes, so not important
+    strlen KEYSZ KEY
+    set KEY2 binary "IvbPcW"
+    strlen KEY2SZ KEY2
+    math x = 0
+    for x2 = 0 < KEY2SZ
+        if x >= KEYSZ
+            math x = 0
+        endif
+        getvarchr TMP KEY x
+        math x + 1
+        getvarchr TMP2 KEY2 x2
+        math TMP2 ^ TMP
+        putvarchr KEY2 x2 TMP2
+    next x2
+    encryption xor KEY2 "" 0 KEY2SZ
+
+    # xor the first 6 bytes
+    log MEMORY_FILE OFFSET KEY2SZ
+    math OFFSET + KEY2SZ
+
+    # this is just to keep the index of KEY or encryption will be wrong (it starts from index 0)
+    for z = 0 < x
+        getvarchr TMP KEY z
+        putvarchr KEY KEYSZ TMP
+        math KEYSZ + 1
+    next z
+    string KEY << z
+
+endif
+
+encryption xor KEY
+get SIZE asize
+math SIZE - OFFSET
+log NAME OFFSET SIZE
+
+startfunction SET_KEY
+    if TYPE > 3
+        math TYPE - 4
+    endif
+    if TYPE == 0
+        set KEY binary "\x66\xBB\x78\x66\xBB\x78\x66\xBB\x78"
+    elif TYPE == 1
+        set KEY binary "fEsTafEsTa"
+    elif TYPE == 2
+        set KEY binary "pAlerMOpAlerMO"
+    elif TYPE == 3
+        set KEY binary "KISTAbieda\xe8"
+    endif
+endfunction

@@ -1,0 +1,14 @@
+# CEF.PAK
+
+get DUMMY long
+get FILES long
+get DUMMY byte
+for i = 0 <= FILES
+    get DUMMY short
+    get NEXT_OFFSET long
+    if i != 0
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        log "" OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFFSET
+next i

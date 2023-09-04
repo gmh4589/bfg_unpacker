@@ -1,0 +1,94 @@
+# SQX archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.3"
+
+set	SQX_MAIN_HEAD_ID			0x52	//- BLOCK_TYPE = 0x52	archive main header 
+set	SQX_FILE_HEAD_ID			0x44	//- BLOCK_TYPE = 0x44   archive file block  
+set	SQX_DIR_HEAD_ID				0x56	//- BLOCK_TYPE = 0x56   archive directory block  
+set	SQX_END_ARC_HEAD_ID			0x53	//- BLOCK_TYPE = 0x53   archive 'end of archive' block 
+set	SQX_COMMENT_HEAD_ID			0x43	//- BLOCK_TYPE = 0x43   archive comment block 
+set	SQX_RDATA_HEAD_ID			0x58	//- BLOCK_TYPE = 0x58   archive data recovery record 
+set	SQX_AV_DATA_HEAD_ID			0x41	//- BLOCK_TYPE = 0x41   archive authenticity information 
+set	SQX_EXTERNAL_HEAD_ID		0x45	//- BLOCK_TYPE = 0x45	archive external block (reserved) 
+set	SQX_INTERNAL_HEAD_ID		0x49	//- BLOCK_TYPE = 0x49	archive internal block (reserved)
+
+set	SQX_NEXT_BLOCK_FLAG			0x8000	//- if set, another block or subblock follows
+
+comtype sqx1
+	u16		usHeadCRC;		//- crc over block (cHeadType to usReserved3)
+	UBYTE		cHeadType;		//- 0x52
+	u16		usHeadFlags;	//- BLOCK_FLAGS
+	u16		usHeadSize;		//- block size from usHeadCRC to usReserved3
+	UBYTE		cHeadID[5];		//- "-sqx-"	
+	UBYTE		cArcerVer;		//- SQX archiver version number used to create this archive
+	u16		usArcVolNum;	//- volume number of this archive. it is only used if bit 3 in usHeadFlags is set 
+	u32		u32ArcVolId;	//- unique volume ID of this archive. it is only used if bit 3 in usHeadFlags is set 
+	u16		usReserved1;	//- reserved
+	u16		usReserved2;	//- reserved
+	u16		usReserved3;	//- reserved
+
+for OFFSET = usHeadSize
+    goto OFFSET
+
+    u16		usHeadCRC;		//- crc over block (cHeadType to FILE_NAME)
+    UBYTE		cHeadType;		//- 0x44
+    u16		usHeadFlags;	//- BLOCK_FLAGS
+    u16		usHeadSize;		//- block size from usHeadCRC to FILE_NAME (including)
+
+    if cHeadType == SQX_FILE_HEAD_ID
+        UBYTE		cCompFlags;		//- compressor flags
+        u16		usExtraFlags;	//- EXTRA_FLAGS
+        UBYTE		cOsFilesys;		//- OS/filesys the archiver were running under when compressing this file 
+        UBYTE		cArcerExVer;	//- SQX archiver version number required to extract this file
+        UBYTE		cArcMethod;		//- compression/archiving method
+        u32		u32FileCRC32;	//- standard 32bit file crc
+        u32		u32FileAttr;	//- file attributes
+        u32		u32FileTime;	//- MSDOS file time stamp
+        u32		u32CompSize;	//- compressed file size
+        u32		u32OrigSize;	//- uncompressed file size
+        u16		usFileNameLen;	//- length of file name
+
+        getdstring NAME usFileNameLen
+
+        for usHeadFlags = usHeadFlags & SQX_NEXT_BLOCK_FLAG
+            u16		usHeadCRC;		//- crc over block (cHeadType to FILE_NAME)
+            UBYTE		cHeadType;		//- 0x44
+            u16		usHeadFlags;	//- BLOCK_FLAGS
+            u16		usHeadSize;		//- block size from usHeadCRC to FILE_NAME (including)
+            if cHeadType == SQX_COMMENT_HEAD_ID
+                UBYTE		cArcerExVer;	//- SQX archiver version number required to process this comment
+                UBYTE		cArcMethod;		//- compression/archiving method
+                u16		usCompSize;		//- compressed comment size
+                u16		usOrigSize;		//- uncompressed comment size
+                getdstring DUMMY usCompSize
+            else
+                xmath DUMMY "usHeadSize - (2 + 1 + 2 + 2)"
+                getdstring DUMMY DUMMY
+            endif
+        next
+
+        savepos OFFSET
+        if cArcMethod == 0
+            log NAME OFFSET u32OrigSize
+        elif cArcMethod == 5
+            print "Alert: compressed audio is not supported"
+            log NAME OFFSET u32CompSize
+        else
+            if cArcMethod >= 6
+                print "Alert: methods 6 and above are not supported by the SDK"
+            endif
+            clog NAME OFFSET u32CompSize u32OrigSize
+        endif
+
+        math OFFSET + u32CompSize
+
+    elif cHeadType == SQX_END_ARC_HEAD_ID
+        break
+
+    else
+
+        math OFFSET + usHeadSize
+
+    endif
+next

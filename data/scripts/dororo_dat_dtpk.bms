@@ -1,0 +1,82 @@
+# Dororo (PS2) DAT (experimental 0.1.1)
+
+callfunction GET_INFO 1 # DTPK
+getdstring ZERO 16
+
+savepos NEXT_OFF
+math NEXT_OFF + SIZE
+getdstring DUMMY 0x40
+callfunction GET_INFO 1 # TBLD
+getdstring ZERO 16
+
+# lame work-around
+savepos TMP
+math TMP + SIZE
+goto TMP
+do
+    goto -12 0 SEEK_CUR
+    get TMP long
+    goto -8 0 SEEK_CUR
+while TMP == 0
+goto 0x1c 0 SEEK_CUR
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get ZERO long
+    get DUMMY long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+
+goto NEXT_OFF
+do
+    savepos NEXT_OFF
+    getdstring SIGN 4
+    padding 0x10
+while SIGN u!= "ps2_"
+goto NEXT_OFF
+callfunction GET_INFO 1 # VAGD
+
+savepos BASE_OFF
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    math OFFSET + BASE_OFF
+    #log "" OFFSET SIZE
+
+    string NAME p "%d.ss2" i
+    math FREQUENCY = 44100
+    math CHANNELS = 1
+    math INTERLEAVE = 0
+    callfunction DUMP_VAG 1
+next i
+
+startfunction GET_INFO
+    idstring "ps2_"
+    getdstring TYPE 4
+    get DUMMY long
+    get SIZE long
+endfunction
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+endfunction

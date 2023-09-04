@@ -1,0 +1,10 @@
+# Mozilla lz4
+
+comtype lz4
+idstring "mozLz40\0"
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME basename	# .json.lz4, .json.mozlz4, .jsonlz4 and so on...
+clog NAME OFFSET ZSIZE SIZE

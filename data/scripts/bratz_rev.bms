@@ -1,0 +1,85 @@
+# Bratz (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY long  # CRC?
+get ALIGN long
+get DUMMY long
+get FILES long
+get INFO_OFF long
+get STRASTR_OFF long
+get DUMMY long
+get ZERO long
+get DUMMY_OFF long
+get DUMMY long
+get NAMES_OFF long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+math INFO_OFF    * ALIGN
+math STRASTR_OFF * ALIGN
+math DUMMY_OFF   * ALIGN
+math NAMES_OFF   * ALIGN
+
+get NAME basename
+if NAME & "_language_"    # this is the FileNameTable.pak.sys file
+
+    goto 0x2c
+    get FOLDERS long
+    get FILES long
+    math BASE_OFF = 0x800
+    goto BASE_OFF
+    get DUMMY long
+    get DUMMY long
+    xmath ELEMENTS "FOLDERS + FILES"
+    savepos TMP
+    xmath NAMES_OFF "TMP + (ELEMENTS * (1 + 3 + 4 + 4))"
+    for i = 0 < ELEMENTS
+        get IS_FOLDER byte
+        get NAME_OFF threebyte
+        get OFFSET long
+        get SIZE long
+        math NAME_OFF + NAMES_OFF
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        if IS_FOLDER == 0
+            if SIZE != 0
+                math OFFSET + BASE_OFF
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next i
+
+else
+
+    math WORKAROUND = 0
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get CRC long
+        get SIZE long
+        get NAME_OFF long
+        get TYPE long
+        if i == 0
+            get TMP long
+            if TMP u<= 4
+                math WORKAROUND = 0xc
+            endif
+            goto -4 0 SEEK_CUR
+        endif
+        getdstring DUMMY WORKAROUND
+
+        math NAME_OFF + NAMES_OFF
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        math OFFSET * ALIGN
+        log NAME OFFSET SIZE
+    next i
+
+endif

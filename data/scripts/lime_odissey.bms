@@ -1,0 +1,73 @@
+# Lime Odyssey
+#   Aluigi and Ekey
+# script for QuickBMS http://quickbms.aluigi.org
+
+for
+    math SIZE = 0x12
+    callfunction DECRYPT 1
+
+    idstring MEMORY_FILE "PK"
+    get sign short MEMORY_FILE
+    if sign != 0x0403
+        cleanexit
+    endif
+    get ver             short MEMORY_FILE
+    get flag            short MEMORY_FILE
+    get method          short MEMORY_FILE
+    get modtime         short MEMORY_FILE
+    get moddate         short MEMORY_FILE
+    get crc             long MEMORY_FILE
+    get comp_size       long
+    get uncomp_size     long
+
+    math SIZE = 0x4
+    callfunction DECRYPT 1
+
+    get name_len        short MEMORY_FILE
+    get extra_len       short MEMORY_FILE
+
+    xmath SIZE "name_len + extra_len"
+    callfunction DECRYPT 1
+
+    getdstring name     name_len MEMORY_FILE
+    getdstring extra    extra_len MEMORY_FILE
+
+        if method == 0
+            Log name offset uncomp_size
+        else
+            if method == 8
+                ComType deflate
+            elif method == 6
+                ComType explode
+            elif method == 14
+                ComType lzmaefs
+            elif method == 98
+                ComType ppmd
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+        endif
+
+    math offset += comp_size
+    goto offset
+next
+
+startfunction DECRYPT
+    savepos OFFSET
+    log MEMORY_FILE OFFSET SIZE
+
+    math dwSeed1 = 0x16B14
+    math dwSeed2 = 0
+    for x = 0 < SIZE
+        getvarchr TMP MEMORY_FILE x
+        xmath dwSeed2 "0xB1C8 * (dwSeed1 + TMP)"
+        xmath TMP "TMP ^ (dwSeed1 >> 8)"
+        putvarchr MEMORY_FILE x TMP
+        xmath dwSeed1 "dwSeed2 + 0x11894"
+    next x
+
+    math OFFSET += SIZE
+    goto OFFSET
+endfunction

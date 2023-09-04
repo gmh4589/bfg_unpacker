@@ -1,0 +1,91 @@
+# True Fear: Forsaken Souls (script 0.2a)
+#   compressed files not supported: unknown algorithm and no compressed size
+
+getdstring SIGN 4
+goto 0
+
+if SIGN == "PMLF"
+
+    idstring "PMLF"
+    get NAMES_OFF long
+    get NAMES_SIZE long
+    get MAIN_ENTRIES long
+    for MAIN_ENTRY = 0 < MAIN_ENTRIES
+        get MAIN_NAME long
+        reverselong MAIN_NAME
+        string MAIN_NAME = MAIN_NAME
+        
+        get ENTRIES long
+        for ENTRY = 0 < ENTRIES
+            get FILES long
+            for i = 0 < FILES
+                get NAME_OFF long
+                get OFFSET long
+
+                savepos TMP
+                goto NAME_OFF
+                get NAME string
+                goto TMP
+
+                string FNAME p "%s/%d/%s" MAIN_NAME ENTRY NAME
+                putarray 0 -1 FNAME
+                putarray 1 -1 OFFSET
+            next i
+        next ENTRY
+    next MAIN_ENTRY
+
+    putarray 0 -1 ""
+    putarray 1 -1 NAMES_OFF
+
+    sortarray 1 1
+
+    math i = 0
+    do
+        getarray NAME 0 i
+        if i == 0
+            getarray OFFSET 1 i
+        endif
+        math i + 1
+        getarray NEXT_OFF 1 i
+        xmath SIZE "NEXT_OFF - OFFSET"
+        if OFFSET != 0xffffffff
+            log NAME OFFSET SIZE
+        endif
+        math OFFSET = NEXT_OFF
+    while OFFSET != NAMES_OFF
+
+else
+
+    idstring "PACKFILE"
+    get FILES long
+    goto 0xd8
+    math FILES - 1
+    for i = 0 <= FILES
+        savepos ENTRY_OFF
+        get ENTRY_SIZE long # obfuscated
+        for  # guess
+            get DUMMY long
+            if DUMMY u<= 1
+                break
+            endif
+            goto -3 0 SEEK_CUR
+        next
+        math ZIP = DUMMY
+        get OFFSET long
+        get SIZE long   # note: this is the decompressed size, doesn't exist the compressed one!
+        get NEXT_ENTRY_SIZE long
+        if NEXT_ENTRY_SIZE u>= 0x0400 && i < FILES
+            math ENTRY_OFF + 1
+            goto ENTRY_OFF
+        else
+            if ZIP == 0
+                log "" OFFSET SIZE
+            else
+                log "compressed_no_zsize/" OFFSET SIZE
+            endif
+            goto -4 0 SEEK_CUR
+            math i + 1
+        endif
+    next
+
+endif

@@ -1,0 +1,74 @@
+# Sengoku Basara HD Collection FRD/AIO (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "frd"
+    print "Error: you must select the file with FRD extension"
+    cleanexit
+endif
+open FDSE "test.aio" 1
+
+endian big
+set NAME string ""
+set PATH string ""
+math FILES_IDX = 0
+putarray 0 0 0  # there is no field in folder or files that tells if a file is archived or already on the disk, so let's guess if offset zero has been already used
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    if FILES_IDX != 0
+        math TMP = FILES_IDX
+        math TMP * 0x40
+        goto TMP
+    endif
+    string PATH + NAME
+    string PATH + /
+
+    get ZIP long
+    get TYPE long   # or assigned folder, doesn't matter
+    get FILES long
+    get FILES_IDX long
+    getdstring NAME 0x20
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    math OFFSET * 0x10
+    if FILES_IDX == 0
+
+        math OK = 1
+        if OFFSET == 0
+            getarray TMP 0 0
+            if TMP != 0
+                math OK = 0
+            endif
+            putarray 0 0 1
+        endif
+        if OK != 0
+            string NAME p "%s%s" PATH NAME
+            #print "    %ZIP% %TYPE|x% %FILES|x% %FILES_IDX|x% %OFFSET|x% %SIZE|x% %NAME%"
+            if ZIP == 0
+                log NAME OFFSET SIZE 1
+            else
+                goto OFFSET 1
+                get IS_COMPRESSED long 1
+                get XSIZE long 1
+                math OFFSET + 8
+                math SIZE   - 8
+                if IS_COMPRESSED == 0   # SIZE is equal than XSIZE
+                    log NAME OFFSET SIZE 1
+                else
+                    clog NAME OFFSET SIZE XSIZE 1
+                endif
+            endif
+        endif
+    else
+        for i = 0 < FILES
+            callfunction EXTRACT
+            math FILES_IDX + 1
+        next i
+    endif
+
+    goto BCK_OFF
+endfunction

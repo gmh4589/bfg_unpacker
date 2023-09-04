@@ -1,0 +1,25 @@
+# Blood 1 (RFF)
+
+ImpType StandardTail ;
+IDString 0 RFF ;
+Set FT Long 8 ;
+GoTo FT 0 ;
+SavePos TailOffOff 0 ;
+Get FT Long 0 ;
+Get FC Long 0 ;
+For T = 1 To FC ;
+Math FT += 16 ;
+GoTo FT 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FT 0 ;
+Math FT += 9 ;
+GoTo FT 0 ;
+GetDString FN 11 0 ;
+Get D Long 0 ;
+SavePos FT 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+

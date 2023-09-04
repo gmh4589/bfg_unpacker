@@ -1,0 +1,16 @@
+# Paradise Cleaning
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GAMEDAT PAC2"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME[i] 0x20
+next i
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 8)"
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log NAME[i] OFFSET SIZE
+next i

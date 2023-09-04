@@ -1,0 +1,29 @@
+# Cities XL 0.1.1
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring MCPK
+goto 0x20
+get OFFSET long
+get FILES long
+get SIZE asize
+math SIZE -= OFFSET
+
+encryption rc4 "\x3e\xa9\xa0\x39\x4a\xab\x44\xaa\xdd\x14\x8c\xfa\xfa\x5c\x66\x93" # md5 of "allocator"
+log MEMORY_FILE OFFSET SIZE
+encryption "" ""
+
+for i = 0 < FILES
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    getdstring DUMMY 20 MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

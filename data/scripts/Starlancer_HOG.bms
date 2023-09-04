@@ -1,0 +1,20 @@
+# Starlancer (HOG)
+
+IDString 0 BIGF ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+ReverseLong FILECNTL ;
+Get DUMMYL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+ReverseLong FILEOFF ;
+Get FILESIZE Long 0 ;
+ReverseLong FILESIZE ;
+Get FILENAME String 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

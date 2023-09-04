@@ -1,0 +1,16 @@
+<bms games="'Still Life', 'Syberia'" platforms="'PC'" ext="SL">
+ImpType SFileSize ;
+IDString 0 VXBG ;
+Get DirSize Long 0 ;
+Set MaxSize Long 8 ;
+Math MaxSize += DirSize ;
+Set FO Long MaxSize ;
+Do ;
+Get FN String 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log FN FO FS 0 FSO ;
+Math FO += FS ;
+SavePos CO 0 ;
+While CO < MaxSize ;
+</bms>

@@ -1,0 +1,42 @@
+# ShiVa Engine S3DMain.smf / stk / ste (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FLAGS byte
+math FLAGS & 0x30
+if FLAGS & 0x10     # mask 0x30, 0:zlib, 0x10:lzma, 0x20:nothing
+    comtype lzma
+elif FLAGS & 0x20
+    comtype copy    # ???
+else
+    comtype zlib
+endif
+get NAMESZ long
+getdstring NAME NAMESZ  # usually just spaces
+getdstring KEY 4
+get FILES long
+get BASE_OFF long
+savepos TMP
+math SIZE = BASE_OFF
+math SIZE - TMP
+encryption xor KEY "" 0 4
+log MEMORY_FILE TMP SIZE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get SOME_CRC long MEMORY_FILE
+    get DUMMY short MEMORY_FILE # totally useless: 0, 4, 5
+    math OFFSET + BASE_OFF
+    encryption xor KEY "" 0 4
+
+    # we should check the DUMMY field instead
+    # in my sample it was 4 compressed and 6 uncompressed
+    # but it's not reliable
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

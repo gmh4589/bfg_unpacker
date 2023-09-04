@@ -1,0 +1,37 @@
+# Disney Heroes: Battle Mode tabb parser
+
+get EXT extension
+if EXT != "tabb"
+    print "Error: you must select the tabb file"
+    cleanexit
+endif
+
+comtype gzip
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+get DUMMY long MEMORY_FILE  # 0x00757ab5
+
+get ELEMENTS long MEMORY_FILE
+for i = 0 < ELEMENTS
+    get DUMMY byte MEMORY_FILE
+next i
+
+get ELEMENTS long MEMORY_FILE
+for i = 0 < ELEMENTS
+    get SIZE long MEMORY_FILE
+    slog "" -1 SIZE string MEMORY_FILE
+next i
+
+get ELEMENTS long MEMORY_FILE
+for i = 0 < ELEMENTS
+    get SIZE byte MEMORY_FILE
+    slog "" -1 SIZE string MEMORY_FILE
+next i
+
+get ELEMENTS long MEMORY_FILE
+for i = 0 < ELEMENTS
+    get DUMMY byte MEMORY_FILE
+next i
+
+get DUMMY long MEMORY_FILE  # 0x00757ab5

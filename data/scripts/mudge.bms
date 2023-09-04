@@ -1,0 +1,37 @@
+# Sven MUDGE
+
+idstring "MUDGE"    # "MUDGE4.001/10/2003Copyright by mudGE Entertainment"
+goto 0x38
+get INFO_OFF long   # just point to 0x00000000
+get INFO_OFF long
+goto INFO_OFF
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get TYPE byte
+    get DUMMY long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get FOLDERS long
+
+    string PATH + /
+    string PATH + NAME
+
+    if TYPE == 1
+        for i = 0 < FOLDERS
+            callfunction EXTRACT
+        next i
+    else
+        get OFFSET long
+        math OFFSET ^ 0xffaa5533
+        get SIZE long
+        math SIZE ^ 0x3355aaff
+        get ZERO long
+        filexor 0x88
+        log PATH OFFSET SIZE
+        filexor ""
+    endif
+endfunction

@@ -1,0 +1,17 @@
+# Horror of Moonstone Mansion /  Raycasting Game Maker
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype jcalg
+get PAKSIZE asize
+for OFFSET = 0 < PAKSIZE
+    goto OFFSET
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    if ZSIZE == SIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+    math OFFSET += ZSIZE
+next

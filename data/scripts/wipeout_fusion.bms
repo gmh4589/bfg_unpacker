@@ -1,0 +1,42 @@
+# Wipeout Fusion
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "wac"
+open FDDE "wad" 1
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get FILES long
+    get FOLDERS long
+    get NAME_OFF long
+    get FILES_OFF long
+    get FOLDERS_OFF long
+    goto NAME_OFF
+    get NAME string
+    string PATH + NAME
+    goto FILES_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        savepos TMP
+        goto OFFSET
+        get NAME_OFF long
+        get SIZE long
+        get DUMMY long
+        get OFFSET long
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE 1
+    next i
+    goto FOLDERS_OFF
+    for i = 0 < FOLDERS
+        get OFFSET long
+        savepos TMP
+        goto OFFSET
+        callfunction EXTRACT
+        goto TMP
+    next i
+endfunction

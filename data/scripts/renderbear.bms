@@ -1,0 +1,80 @@
+# DATA.ARF RenderBear.dll games
+# script for QuickBMS http://quickbms.aluigi.org
+
+putarray 10 -1 "VeryStrongPackKey"  # most games ("\x6E\x87\x75\x5A\x04\x89\x04\xD0\x00\x22\x94\x8D\x2A\xF9\x58\xE8")
+putarray 10 -1 "qwerty"             # My Life Farm ("\xD8\x57\x8E\xDF\x84\x58\xCE\x06\xFB\xC5\xBB\x76\xA5\x8C\x5C\xA4")
+putarray 10 -1 ""
+
+math ENCRYPTED_BYTES = 0x14
+
+idstring "RA\0\0"
+get FILES long
+get INFO_OFF long
+
+# key scanner
+savepos BACKUP_OFF
+for i = 0
+    goto BACKUP_OFF
+    getarray KEY 10 i
+    if KEY == ""
+        print "Error: encryption key not found, contact me"
+        cleanexit
+    endif
+    encryption md5 KEY
+    encryption "" ""
+    set KEY string ""
+    for x = 0 < 16
+        getvarchr TMP QUICKBMS_HASH x
+        string KEY p "%s 0x%02x" KEY TMP
+    next x
+
+    get NAMESZ long
+    savepos TMP
+    filexor KEY TMP
+    math OK = 1
+    for x = 0 < NAMESZ
+        get TMP short
+        math x + 2
+        if TMP >= 0x80
+            math OK = 0
+            math x = NAMESZ
+        endif
+    next
+    filexor ""
+    if OK != 0
+        break
+    endif
+next i
+goto BACKUP_OFF
+
+for i = 0 < FILES
+    get NAMESZ long
+    savepos TMP
+    filexor KEY TMP
+    getdstring NAME NAMESZ
+    filexor ""
+    set NAME unicode NAME
+    putarray 0 i NAME
+next i
+
+if INFO_OFF != 0
+    goto INFO_OFF
+endif
+
+for i = 0 < FILES
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    getarray NAME 0 i
+
+    filexor KEY OFFSET
+    log NAME OFFSET ENCRYPTED_BYTES
+    filexor ""
+    math OFFSET + ENCRYPTED_BYTES
+    math SIZE   - ENCRYPTED_BYTES
+    if SIZE > 0
+        append
+        log NAME OFFSET SIZE
+        append
+    endif
+next i

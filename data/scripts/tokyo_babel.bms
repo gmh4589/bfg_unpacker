@@ -1,0 +1,46 @@
+# Tokyo Babel (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzf
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    filexor 0x58
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    filexor ""
+
+    set EXT extension NAME
+    if EXT == "mgr"
+        string NAME + ".bmp"   # mgr are bmp (wildcards can't be used in memory file reimporting)
+        putvarchr MEMORY_FILE SIZE 0    # in reality it's the compressed size
+        log MEMORY_FILE 0 0
+        savepos TMP
+        goto OFFSET
+        get CHUNKS short
+        append
+        for x = 0 < CHUNKS
+            if CHUNKS > 1
+                get CHUNK_OFF long
+            else
+                math CHUNK_OFF = 2
+            endif
+            savepos TMP2
+            math CHUNK_OFF + OFFSET
+            goto CHUNK_OFF
+            get CHUNK_SIZE long
+            get CHUNK_ZSIZE long
+            savepos CHUNK_OFF
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            goto TMP2
+        next x
+        append
+        get SIZE asize MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+        goto TMP
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

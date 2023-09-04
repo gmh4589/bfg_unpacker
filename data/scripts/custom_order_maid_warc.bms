@@ -1,0 +1,86 @@
+# CUSTOM ORDER MAID 3D2 It's a Night Magic
+
+idstring "warc"
+get DUMMY long  # big number
+get DUMMY long  # 1000
+get DUMMY long  # 4
+get DUMMY long  # 2
+get INFO_OFF longlong
+
+savepos DATA_OFF
+math INFO_OFF + DATA_OFF
+
+get ARC_SIZE asize
+for INFO_OFF = INFO_OFF != ARC_SIZE
+    goto INFO_OFF
+    get TYPE long
+    get INFO_SIZE long
+    get ZERO long
+    savepos INFO_OFF
+    if TYPE == 3
+        get DUMMY long
+        get ZERO long
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+        for i = 0
+            savepos TMP MEMORY_FILE
+            if TMP == SIZE
+                break
+            endif
+            get ID longlong MEMORY_FILE
+            get NAMESZ long MEMORY_FILE
+            math NAMESZ * 2
+            getdstring NAME NAMESZ MEMORY_FILE
+            set NAME unicode NAME
+            putarray 10 i NAME
+            putarray 12 i ID
+        next i
+        math NAMES = i
+    else
+        get DUMMY long
+        get DUMMY long
+        get DUMMY longlong
+        get ZERO long
+        get FILES long
+        get ZERO long
+        get ZERO long
+        for i = 0 < FILES
+            get ID longlong
+            get VALUE longlong
+            putarray TYPE i VALUE
+            if TYPE == 0
+                putarray 11 i ID
+            endif
+        next i
+    endif
+    math INFO_OFF + INFO_SIZE
+next
+
+for i = 0 < FILES
+    getarray OFFSET 0  i
+    getarray SIZE   1  i
+    getarray ID     11 i
+    for x = 0 < NAMES
+        getarray NAME_ID 12 x
+        if ID == NAME_ID
+            getarray NAME 10 x
+            break
+        endif
+    next x
+
+    math OFFSET + DATA_OFF
+    goto OFFSET
+
+    get ZERO long
+    get ZERO long   # maybe flags for compressed files?
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

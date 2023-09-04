@@ -1,0 +1,23 @@
+# DJ Hero Wii FAR archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "FSAR"
+get DUMMY long
+get BASE_OFF long
+get FILES long
+goto 0x20
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get SIZE longlong
+    get ZSIZE longlong
+    get OFFSET longlong
+    get ZIP long
+    get DUMMY long
+    math OFFSET += BASE_OFF
+    if ZIP == 1
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

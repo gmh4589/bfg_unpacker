@@ -1,0 +1,51 @@
+# Yu-Gi-Oh! Legacy of the Duelist: Link Evolution YGO_DATA.dat
+
+endian big
+
+open FDDE "toc"
+open FDDE "dat" 1
+
+math OFFSET = 0
+
+get TOC_SIZE asize
+get TMP line    # "UT"
+do
+    getct TMP string '\n'
+    set SIZE string TMP
+    putvarchr SIZE 12 0
+    string SIZE _ SIZE
+    string SIZE p "0x%s" SIZE
+    set DUMMY string TMP
+    string DUMMY << 13
+    putvarchr DUMMY 12 0
+    set NAME string TMP
+    string NAME << 16
+
+    set EXT extension NAME
+    if EXT == "zib"
+        set PATH string NAME
+        callfunction ZIB_EXTRACT    # don't use 1 here
+    else
+        log NAME OFFSET SIZE 1
+    endif
+
+    math OFFSET + SIZE
+    math OFFSET x 4 # ???
+    savepos TMP
+while TMP < TOC_SIZE
+
+startfunction ZIB_EXTRACT
+    savepos BASE_OFF 1
+    get FILES long 1
+    math FILES / 0x40
+    goto -4 1 SEEK_CUR
+    for i = 0 < FILES
+        get OFFSET long 1
+        get SIZE long 1
+        getdstring NAME 0x38 1
+        math OFFSET y 0x10  # necessary because for some unknown reasons the first offset is wrong: 0x903d1 instead of 0x903d0
+        math OFFSET + BASE_OFF
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE 1
+    next i
+endfunction

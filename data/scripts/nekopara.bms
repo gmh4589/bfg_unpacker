@@ -1,0 +1,223 @@
+# Nekopara (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math HAVE_INFO = 0
+getdstring SIGN 3
+goto 0
+
+if SIGN == "XP3"
+
+    idstring "XP3"
+    goto 0x20
+    get OFFSET long
+
+    callfunction DUMP_INFO 1
+
+    putarray 10 0 0 # NAMES_IDX
+    putarray 11 0 0 # NAME_IDX
+    set NAME string ""
+    callfunction ADD_NAME_TO_DB 1   # the first file is ever this type?
+    get CHUNK_SIZE asize MEMORY_FILE
+    callfunction EXTRACT 1
+
+else
+
+    filexor 0xad
+    idstring "RSB\0"
+    get NAME basename
+    get EXT extension
+    string NAME + "_crypt."
+    string NAME + EXT
+    get SIZE asize
+    log NAME OFFSET SIZE
+
+endif
+
+
+startfunction EXTRACT
+    savepos CHUNK_OFFSET MEMORY_FILE
+    xmath CHUNK_LIMIT "CHUNK_OFFSET + CHUNK_SIZE"
+    for CHUNK_OFFSET = CHUNK_OFFSET != CHUNK_LIMIT
+        getdstring CHUNK_TYPE 4 MEMORY_FILE
+        get CHUNK_SIZE longlong MEMORY_FILE
+        savepos CHUNK_OFFSET MEMORY_FILE
+
+        if CHUNK_TYPE == "File"
+            callfunction EXTRACT
+
+        elif CHUNK_TYPE == "neko" || CHUNK_TYPE == "eliF"
+            get DUMMY long MEMORY_FILE
+            callfunction GET_NAME 1
+
+        elif CHUNK_TYPE == "adlr"
+            get CRC long MEMORY_FILE
+
+        elif CHUNK_TYPE == "time"
+            get TSTAMP longlong MEMORY_FILE
+
+        elif CHUNK_TYPE == "segm"
+            get ZIP long MEMORY_FILE
+            get OFFSET longlong MEMORY_FILE
+            get SIZE longlong MEMORY_FILE
+            get ZSIZE longlong MEMORY_FILE
+            if HAVE_INFO != 0
+                math ZIP   = INFO_ZIP
+                math SIZE  = INFO_SIZE
+                math ZSIZE = INFO_ZSIZE
+            endif
+            callfunction DUMP 1
+            math HAVE_INFO = 0
+
+        elif CHUNK_TYPE == "info"   # Tricolour Lovestory
+            get INFO_ZIP long MEMORY_FILE
+            get INFO_SIZE longlong MEMORY_FILE
+            get INFO_ZSIZE longlong MEMORY_FILE
+            callfunction GET_NAME 1
+            math HAVE_INFO = 1
+
+        else
+            getdstring DUMMY CHUNK_SIZE MEMORY_FILE
+        endif
+
+        math CHUNK_OFFSET + CHUNK_SIZE
+        goto CHUNK_OFFSET MEMORY_FILE
+    next
+endfunction
+
+startfunction DUMP
+    if HAVE_INFO != 0
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        if ZIP == 0
+            log MEMORY_FILE2 OFFSET SIZE
+        else
+            clog MEMORY_FILE2 OFFSET ZSIZE SIZE
+        endif
+        callfunction TRY_DECRYPT 1
+    endif
+endfunction
+
+startfunction DUMP_INFO
+    goto OFFSET
+    get ZIP byte
+    get ZSIZE longlong
+    get SIZE longlong
+    savepos OFFSET
+    if ZIP == 0
+        log MEMORY_FILE OFFSET ZSIZE
+    else
+        clog MEMORY_FILE OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+endfunction
+
+# The decryption consists of a XOR byte used on
+# - the first byte
+# - the remaining bytes
+# I don't know what's the exact algorithm to find these 2 bytes,
+# an idea is to use the CRC but works only on an archive
+startfunction TRY_DECRYPT
+    get SIZE asize MEMORY_FILE2
+    getarray NAMES_IDX 10 0
+    getarray NAME_IDX  11 0
+    if NAME_IDX < NAMES_IDX
+        getarray NAME 0 NAME_IDX
+        math NAME_IDX + 1
+        putarray 11 0 NAME_IDX
+    endif
+    if NAME != ""
+        set EXT extension NAME
+        math TMP = 0
+        if EXT == "png"
+            getvarchr TMP MEMORY_FILE2 1
+            math TMP ^ 'P'
+
+            math TMP0 = TMP
+            math TMP0 ^ 0x89
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "ogg"
+            getvarchr TMP MEMORY_FILE2 1
+            math TMP ^ 'g'
+
+            math TMP0 = TMP
+            math TMP0 ^ 'O'
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "bmp"
+            getvarchr TMP MEMORY_FILE2 1
+            math TMP ^ 'M'
+
+            math TMP0 = TMP
+            math TMP0 ^ 'B'
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "sli"
+            xmath TMP "SIZE - 1"
+            getvarchr TMP MEMORY_FILE2 TMP
+            math TMP ^ '\n'
+            math TMP0 = TMP
+            math TMP0 ^ '#'
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "scn"
+            getvarchr TMP MEMORY_FILE2 7
+
+        elif EXT == "cur"
+            getvarchr TMP MEMORY_FILE2 1
+            math TMP0 = TMP
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "otf"
+            getvarchr TMP MEMORY_FILE2 4
+            math TMP0 = TMP
+            math TMP0 ^ 'O'
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "ttf"
+            getvarchr TMP MEMORY_FILE2 2
+            math TMP0 = TMP
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        elif EXT == "txt"
+            xmath TMP "SIZE - 1"
+            getvarchr TMP MEMORY_FILE2 TMP
+            math TMP0 = TMP
+            math TMP0 ^ 0xff
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        else
+            getvarchr TMP MEMORY_FILE2 1    # utf16 text
+            math TMP ^ 0xfe
+            math TMP0 = TMP
+            math TMP0 ^ 0xff
+            putvarchr MEMORY_FILE2 0 TMP0
+
+        endif
+        filexor TMP
+    endif
+    log NAME 0 SIZE MEMORY_FILE2
+    filexor ""
+endfunction
+
+startfunction ADD_NAME_TO_DB
+    getarray NAMES_IDX 10 0
+    putarray 0 NAMES_IDX NAME
+    math NAMES_IDX + 1
+    putarray 10 0 NAMES_IDX
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ short MEMORY_FILE
+    if NAMESZ <= 0x100
+        math NAMESZ * 2
+        getdstring NAME NAMESZ MEMORY_FILE
+        set NAME unicode NAME
+        callfunction ADD_NAME_TO_DB 1
+    endif
+endfunction

@@ -1,0 +1,53 @@
+# killer7 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RMHG"
+get FILES long
+get INFO_OFF long
+get DUMMY long
+get NAMES_OFF long
+
+goto NAMES_OFF
+get NAMES long
+get DUMMY long
+padding 0x10
+for i = 0 < NAMES
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    putarray 0 i NAME
+next i
+
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get ID long
+    padding 0x10
+
+    /*
+    set NAME string ""
+    if i < NAMES
+        getarray NAME 0 i
+    endif
+    */
+    getarray NAME 0 ID
+
+    if OFFSET != 0
+
+        set EXT extension NAME
+        if EXT == "bin"
+            # 0x40 is "K7TX", 0x40 is referenced at offset 0x10 just in case
+            math OFFSET + 0x48
+            math SIZE   - 0x48
+            string NAME + .
+        endif
+
+        log NAME OFFSET SIZE
+    endif
+next i

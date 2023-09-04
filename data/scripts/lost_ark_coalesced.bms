@@ -1,0 +1,18 @@
+# Lost Ark coalesced_*.bin decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME basename
+get EXT extension
+if NAME & "_decrypt"
+    string NAME - "_decrypt"
+    string NAME + "_encrypt."
+    math DO_ENC = 1
+else
+    string NAME + "_decrypt."
+    math DO_ENC = 0
+endif
+string NAME + EXT
+
+encryption aes "12345678901234567890123456789012" "" DO_ENC
+log NAME 0 SIZE

@@ -1,0 +1,45 @@
+# MediEvil Resurrection / Primal .BIN (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "TOCS"
+get ARCHIVES long
+for i = 0 < ARCHIVES
+    get HEAD_SIZE long
+    get OFFSET long
+    getdstring NAME 0x20
+    savepos TMP_OFF
+    math OFFSET *= 0x800
+    goto OFFSET
+    savepos BASE_OFF
+    idstring "TOC"
+    get DUMMY byte
+    get XFILES long
+    get FILES long
+    get DUMMY long
+    for j = 0 < XFILES
+        get OFFSET threebyte
+        get FLAGS byte
+        get DUMMY short
+        get DUMMY short
+        putarray 0 j OFFSET
+    next j
+    for j = 0 < FILES
+        get CRC long
+        get SIZE long
+        getdstring TYPE 4
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        getarray OFFSET 0 j
+        if OFFSET != 0
+            math OFFSET -= 1
+            math OFFSET *= 0x800
+            math OFFSET += BASE_OFF
+            if SIZE != 0
+                log "" OFFSET SIZE
+            endif
+        endif
+    next j
+    goto TMP_OFF
+next i

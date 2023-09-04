@@ -1,0 +1,67 @@
+# DAVE - Angel Studios/Rockstar San Diego (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MAGIC1 binary "DAVE"    # necessary step because in quickbms "DAVE" and "Dave" are the same constant
+set MAGIC2 binary "Dave"
+set REV_CUSTOM_BASE64 binary "\x00 #$()-./?0123456789_abcdefghijklmnopqrstuvwxyz~"
+
+comtype deflate
+getdstring SIGN 4   #idstring "DAVE"
+if SIGN u!= MAGIC1
+if SIGN u!= MAGIC2
+    print "Error: unsupported file %SIGN%"
+    cleanexit
+endif
+endif
+get FILES long
+get INFO_SIZE long
+get NAMES_SIZE long
+padding 0x800
+savepos BASE_OFF
+math BASE_OFF + INFO_SIZE
+log MEMORY_FILE2 BASE_OFF NAMES_SIZE
+math BASE_OFF + NAMES_SIZE
+set NAME string ""
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    goto NAME_OFF MEMORY_FILE2
+    if SIGN u== MAGIC2
+        # I'm not sure at 100% about this algorithm but it seems to be really very close
+        set PREV_NAME string NAME
+        set NAME string ""
+        math x = 0
+        do
+            getbits TMP 6 MEMORY_FILE2
+            if TMP >= 48
+                math LEN = TMP
+                math LEN - 0x38
+                getbits TMP 6 MEMORY_FILE2
+                math TMP - 0x20
+                math TMP * 8
+                math LEN + TMP
+                math PREV_x = 0
+                for z = 0 < LEN
+                    getvarchr TMP PREV_NAME PREV_x
+                    putvarchr NAME x TMP
+                    math x + 1
+                    math PREV_x + 1
+                next z
+            else
+                getvarchr TMP REV_CUSTOM_BASE64 TMP
+                putvarchr NAME x TMP
+                math x + 1
+            endif
+        while TMP != 0
+    else
+        get NAME string MEMORY_FILE2
+    endif
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,13 @@
+# Metroid: Samus Returns (3DS)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_SIZE long
+get DATA_SIZE long
+get FILES long
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long   # END_OFFSET
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next i

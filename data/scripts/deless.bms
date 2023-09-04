@@ -1,0 +1,28 @@
+# DELESS.exe (Project Zero / PS2 Fatal Frame)
+
+comtype lzss0
+get SIZE long
+idstring "LESS"
+get CHUNK_SIZE long
+get CHUNKS long
+get OFFSET long
+get INFO_OFF long
+get ZERO long
+get ZSIZE long
+goto INFO_OFF
+get NAME filename
+string NAME + ".LED"
+log NAME 0 0
+append
+for x = 0 < CHUNKS
+    get ZIP short
+    get CHUNK_ZSIZE short
+    if ZIP == 0
+        log NAME OFFSET CHUNK_ZSIZE
+    else
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    endif
+    math OFFSET + CHUNK_ZSIZE
+    math OFFSET x 16
+next x
+append

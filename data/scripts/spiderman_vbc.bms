@@ -1,0 +1,71 @@
+# Spider-Man 1 (Ps2) *.VBC/SND
+
+open FDDE "SND"
+open FDDE "VBC" 1
+do
+    get TMP line
+while TMP != ""
+for
+    getct VAR1 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR2 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR3 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR4 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR5 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR6 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR7 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR8 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR9 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR10 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR11 string ' '
+    callfunction LAME_SKIP 1
+    getct VAR12 string ' '
+    callfunction LAME_SKIP 1
+    get VAR13 line
+
+    math rawlen = VAR4
+    math OFFSET = VAR6
+    math freq   = VAR8
+    if VAR12 == "stereo"
+        math chans = 2
+    else
+        math chans = 1
+    endif
+
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put freq long MEMORY_FILE
+    put chans long MEMORY_FILE
+    xmath TMP "rawlen / chans"
+    put TMP long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put rawlen long MEMORY_FILE
+    append
+    log MEMORY_FILE OFFSET rawlen 1
+    append
+
+    get SIZE asize MEMORY_FILE
+    string NAME p "%s/%s/%s.ss2" VAR13 VAR1 VAR2
+    log NAME 0 SIZE MEMORY_FILE
+next
+
+# will be fixed in quickbms 0.6.7 with: getct TMP -0x20
+startfunction LAME_SKIP
+    do
+        get TMP byte
+    while TMP == 0x20
+    goto -1 0 SEEK_CUR
+endfunction

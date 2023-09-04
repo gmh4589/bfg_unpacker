@@ -1,0 +1,79 @@
+# World Zero
+# script for QuickBMS http://quickbms.aluigi.org
+
+    # there are 2 databases, one I guess is a backup one
+    # so let's use the first one that contains 2 more files
+
+#for i = 0 < 2
+    idstring "\x01\x46\x50\x57" # FPW
+    get BASE_OFF short
+    get ALIGN short
+    get OFFSET1 longlong
+    get ENTRIES long
+    get OFFSET2 longlong
+    get FILES1 long
+    get FILES2 long
+    get DUMMY long
+    get OFFSET3 longlong
+    getdstring DUMMY 0x10
+#next i
+
+goto OFFSET1
+for i = 0 < ENTRIES
+    get DUMMY long
+    get DUMMY long
+next i
+
+math FILES = FILES1
+math FILES += FILES2
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get IS_FILE longlong
+    if IS_FILE != 0
+        math OFFSET *= ALIGN
+        math OFFSET += BASE_OFF
+    endif
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i IS_FILE
+next i
+
+for i = 0 < FILES
+    getdstring NAME 0x110
+    get DUMMY longlong
+    putarray 3 i NAME
+next i
+
+set NAME string ""
+set PATH string ""
+math SUB_ENTRIES = 1
+math SUB_IDX = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    
+    math IDX = SUB_IDX
+    math ENTRIES = SUB_ENTRIES
+    
+    for i = 0 < ENTRIES
+        getarray OFFSET 0 IDX
+        getarray SIZE 1 IDX
+        getarray IS_FILE 2 IDX
+        getarray NAME 3 IDX
+        
+        if IS_FILE == 0
+            math SUB_IDX = OFFSET
+            math SUB_ENTRIES = SIZE
+            callfunction EXTRACT
+        else
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        endif
+        math IDX += 1
+    next i
+endfunction

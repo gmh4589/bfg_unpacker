@@ -1,0 +1,62 @@
+# Marvel VS Capcom - Infinite PAK decrypter
+#   thanks to AltimorTASDK https://github.com/AltimorTASDK/dfpslayer/releases
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP * 16
+if TMP == 0
+    print "you must use quickbms_4gb_files.exe"
+    cleanexit
+endif
+
+set MEMORY_FILE10 string "
+    unsigned char decrypt(unsigned char key, unsigned char *data, int size) {
+        int             i;
+        unsigned char   c;
+        unsigned char   xor_val = key;
+        for(i = 0; i < size; i++) {
+			c = data[i];
+            data[i] ^= xor_val;
+			xor_val = (c ^ key) - i;
+        }
+        return xor_val;
+    }
+"
+
+goto -36
+get HEADER_SIZE long
+idstring "mcnxyxcmvmcxyxcmskdldkjshagsdhfj"
+get SIZE asize
+math SIZE - HEADER_SIZE
+
+goto 0
+get KEY byte
+goto 0
+xmath CHUNK_SIZE "256 * 1024 * 1024"    # 256 Mb
+math CHUNKS = SIZE
+math CHUNKS / CHUNK_SIZE
+if SIZE % CHUNK_SIZE
+    math CHUNKS + 1
+endif
+print "- decrypting %SIZE% bytes in %CHUNKS% blocks"
+
+get NAME basename
+string NAME + "_decrypt.pak"
+log NAME 0 0
+
+math OFFSET = 0
+for i = 1 <= CHUNKS
+    if i == CHUNKS
+        math CHUNK_SIZE = SIZE
+        math CHUNK_SIZE - OFFSET
+    endif
+    goto OFFSET
+    log MEMORY_FILE OFFSET CHUNK_SIZE
+    calldll MEMORY_FILE10 "decrypt" "tcc" KEY KEY MEMORY_FILE CHUNK_SIZE
+    append
+    log NAME 0 CHUNK_SIZE MEMORY_FILE
+    append
+    math OFFSET + CHUNK_SIZE
+next i
+
+print "Now use the following script on %NAME%\n\n  http://aluigi.org/bms/unreal_tournament_4.bms\n\n"

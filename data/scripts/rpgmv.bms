@@ -1,0 +1,48 @@
+# RPG Maker MV RPGMV decrypter
+#   original code by SilicaAndPina
+#   https://bitbucket.org/SilicaAndPina/rpgmv-decryptor
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "../../data/System.json" 1 EXISTS
+if EXISTS == 0
+    open FDSE "../data/System.json" 1 EXISTS
+endif
+if EXISTS == 0
+    open FDSE "data/System.json" 1 EXISTS
+endif
+if EXISTS == 0
+    open FDSE "System.json" 1 EXISTS
+endif
+
+get SIZE asize 1
+getdstring KEY SIZE 1
+string KEY | "\"encryptionKey\":\""
+string KEY % "\""
+print "KEY %KEY%"
+string KEY h KEY
+
+get EXT extension
+if EXT == "rpgmvo"
+    set EXT string "ogg"
+elif EXT == "rpgmvm"
+    set EXT string "m4a"
+elif EXT == "rpgmvp"
+    set EXT string "png"
+else
+    print "Error: file is not encrypted"
+    cleanexit
+endif
+get NAME basename
+string NAME + "."
+string NAME + EXT
+
+idstring "RPGMV"
+encryption xor KEY "" 0 16
+log NAME 0x10 0x10
+encryption "" ""
+math OFFSET = 0x20
+get SIZE asize
+math SIZE - OFFSET
+append
+log NAME OFFSET SIZE
+append

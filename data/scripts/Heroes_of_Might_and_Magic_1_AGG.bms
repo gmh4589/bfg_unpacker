@@ -1,0 +1,31 @@
+# Heroes of Might and Magic 1 (AGG)
+
+Get FC Int 0 ;
+Set FS Long 0 ;
+Set M Long FC ;
+Math M -= 1 ;
+Math M *= 14 ;
+Math M += 2 ;
+GoTo M 0 ;
+Get D Int 0 ;
+Get FO Long 0 ;
+Get FSI Long 0 ;
+Get DD Long 0 ;
+Set S Long 0 ;
+GoTo S 0 ;
+Set TO Long FO ;
+Math TO += FSI ;
+Get D Int 0 ;
+For T = 1 To FC ;
+Get D Int 0 ;
+Get FO Long 0 ;
+Get FSI Long 0 ;
+Get DD Long 0 ;
+SavePos S 0 ;
+GoTo TO 0 ;
+GetDString FN 15 0 ;
+SavePos TO 0 ;
+Log FN FO FSI 0 0 ;
+GoTo S 0 ;
+Next T ;
+

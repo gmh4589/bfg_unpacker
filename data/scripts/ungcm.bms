@@ -1,0 +1,31 @@
+# Cauldron GCM files unpacker
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+idstring "pack"
+get no_z_len short
+get filever short
+get chunks long
+savepos current_offset
+math chunk_offset = chunks
+math chunk_offset *= 2
+math chunk_offset += current_offset
+if filever == 0x8000
+    math chunk_offset += 4  # crc
+endif
+
+get name filename
+string name += ".unpacked"
+log name 0 0    # avoids to append if already exists
+append
+for i = 0 < chunks
+    get zlen short
+    if zlen == 0xffff
+        math zlen = no_z_len
+        log name chunk_offset zlen
+    else
+        clog name chunk_offset zlen 0x10000
+    endif
+    math chunk_offset += zlen
+next i
+append

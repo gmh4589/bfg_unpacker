@@ -1,0 +1,19 @@
+<bms games="'Battlespire', 'Elder Scrolls: Arena', 'Terminator: Future Shock'" platforms="'PC', 'PC', 'PC'" ext="BSA">
+Get FC Int 0 ;
+SavePos FS 0 ;
+GoTo EOF 0 ;
+SavePos TO 0 ;
+Set D Long FC ;
+Math D *= 18 ;
+Math TO -= D ;
+Math TO += 1 ;
+For T = 1 To FC ;
+Set FO Long FS ;
+GoTo TO 0 ;
+GetDString FN 14 0 ;
+Get FSI Long 0 ;
+SavePos TO 0 ;
+Log FN FO FSI 0 0 ;
+Math FS += FSI ;
+Next T ;
+</bms>

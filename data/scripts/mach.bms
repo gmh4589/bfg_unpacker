@@ -1,0 +1,135 @@
+# Mach - Combat Flight Simulator
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "&9'&/{mphll~ow|~rachpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mphll~ow|~machpassword098&9'&/{mp"
+set BASE_CONST long 0x5e28
+
+goto -4
+savepos INFO_OFF
+get FILES long
+
+log MEMORY_FILE 0 0x400
+goto 0x1fc MEMORY_FILE
+get ESI long MEMORY_FILE
+math TMP = BASE_CONST
+math TMP &= 0x3f
+math TMP *= 4
+getvarchr TMP KEY TMP long
+math TMP ^= ESI
+math FILES ^= TMP
+
+math SIZE = FILES
+math SIZE *= 0x1a8
+math INFO_OFF -= SIZE
+log MEMORY_FILE2 INFO_OFF SIZE
+callfunction DECRYPT_INFO_TABLE 1
+
+goto 0x1a8 MEMORY_FILE2
+for i = 1 < FILES
+    getdstring NAME 0x82 MEMORY_FILE2
+    getdstring NAME 0x106 MEMORY_FILE2
+    get TIMESTAMP longlong MEMORY_FILE2
+    get FOLDER long MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    get ZERO long MEMORY_FILE2
+    get ZERO long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    if FOLDER == 0
+        log MEMORY_FILE3 OFFSET SIZE
+        callfunction DECRYPT_FILE 1
+        log NAME 0 SIZE MEMORY_FILE3
+    endif
+next i
+
+startfunction DECRYPT_FILE
+    math BLOCKS = SIZE
+    math BLOCKS /= 4
+    math x = 0
+
+    math EBX = OFFSET
+    math EBX += BASE_CONST
+    if EBX & 3
+        # do nothing
+    else
+        math EAX = EBX
+        math EAX /= 4
+        for y = 0 < BLOCKS
+            math TMP = EAX
+            math TMP &= 0xff
+            math TMP *= 4
+            getvarchr ESI MEMORY_FILE TMP long
+            math TMP = EAX
+            math TMP &= 0x3f
+            math TMP *= 4
+            getvarchr TMP KEY TMP long
+            math ESI ^= TMP
+            getvarchr TMP MEMORY_FILE3 x long
+            math TMP ^= ESI
+            putvarchr MEMORY_FILE3 x TMP long
+            math x += 4
+            math EAX += 1
+        next y
+        math TMP = BLOCKS
+        math TMP *= 4
+        math EBX += TMP
+    endif
+    math BLOCKS *= 4
+    if BLOCKS != SIZE
+        math TMP = SIZE
+        math TMP -= BLOCKS
+        math BLOCKS = TMP
+        for y = 0 < BLOCKS
+            math TMP = EBX
+            math TMP &= 0x3ff
+            getvarchr EAX MEMORY_FILE TMP
+            math TMP = EBX
+            math TMP &= 0xff
+            getvarchr TMP KEY TMP
+            math EAX ^= TMP
+            getvarchr TMP MEMORY_FILE3 x
+            math TMP ^= EAX
+            putvarchr MEMORY_FILE3 x TMP
+            math x += 1
+            math EBX += 1
+        next y
+    endif
+endfunction
+
+startfunction DECRYPT_INFO_TABLE
+    for x = 0 < SIZE
+        math ESI = x
+        math ESI /= 4
+        math ESI += BASE_CONST
+        for y = 0 < 0x35
+            math TMP = ESI
+            math TMP &= 0xff
+            math TMP *= 4
+            getvarchr EBX MEMORY_FILE TMP long
+            math TMP = ESI
+            math TMP &= 0x3f
+            math TMP *= 4
+            getvarchr ECX KEY TMP long
+            math EBX ^= ECX
+            getvarchr TMP MEMORY_FILE2 x long
+            math TMP ^= EBX
+            putvarchr MEMORY_FILE2 x TMP long
+            math x += 4
+            math ESI += 1
+            math TMP = ESI
+            math TMP &= 0xff
+            math TMP *= 4
+            getvarchr EAX MEMORY_FILE TMP long
+            math TMP = ESI
+            math TMP &= 0x3f
+            math TMP *= 4
+            getvarchr TMP KEY TMP long
+            math EAX ^= TMP
+            getvarchr TMP MEMORY_FILE2 x long
+            math TMP ^= EAX
+            putvarchr MEMORY_FILE2 x TMP long
+            math x += 4
+            math ESI += 1
+        next y
+    next
+endfunction

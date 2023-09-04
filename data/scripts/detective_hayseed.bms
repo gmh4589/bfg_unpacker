@@ -1,0 +1,28 @@
+# Detective Hayseed - Hollywood (resource.res) (script 0.1.1)
+
+get VER long    # 1
+get ZSIZE long
+get SIZE long
+get OFFSET long
+get FILES long
+get DUMMY long
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+for i = 0 < FILES
+    get FLAGS long MEMORY_FILE
+    get DUMMY long MEMORY_FILE  # 1
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZERO long MEMORY_FILE   # OFFSET header is 32bit so it can't be 64bit here
+    get NAME string MEMORY_FILE
+    padding 4 MEMORY_FILE
+    if FLAGS & 4
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        # ZSIZE is 0xffffffff
+        log NAME OFFSET SIZE
+    endif
+next i

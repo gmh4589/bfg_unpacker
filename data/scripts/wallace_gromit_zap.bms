@@ -1,0 +1,30 @@
+# Wallace & Gromit: The Curse of the Were-Rabbit (script 0.1.1)
+#   maybe other games developed by Frontier Developments
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ZAP\0"
+get OFFSET long
+get ENTRIES long
+get DUMMY long
+set PATH string "/"
+for i = 0 < ENTRIES
+    get DUMMY short # 0x0a0d
+    get SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+
+    if SIZE == 0
+        if NAME == ".."
+            string PATH - 1
+            string PATH << /
+        else
+            string PATH + NAME
+        endif
+    else
+        set FNAME string PATH
+        string FNAME + NAME
+        log FNAME OFFSET SIZE
+        math OFFSET + SIZE
+        math OFFSET x 0x1000    # is it for every archive?
+    endif
+next i

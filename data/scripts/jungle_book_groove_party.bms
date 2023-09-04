@@ -1,0 +1,58 @@
+# The Jungle Book Groove Party FAT/000 (script 0.1.1)
+
+comtype lzo1x
+open FDDE "fat"
+get FAT_SIZE asize
+get DUMMY byte  # 1
+math LAST_DAT_FILE = -1
+do
+    get INFO_OFF long   # this offset
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get DAT_FILE byte
+    get IS_FILE byte
+    get TSTAMP long
+    get TSTAMP long
+    get DUMMY long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+
+    if IS_FILE == 1 # don't use other values since they may be invalid (0x69, 0x72 and so on), alternative is SIZE != 0
+        if LAST_DAT_FILE != DAT_FILE
+            math LAST_DAT_FILE = DAT_FILE
+            string TMP p "%03d" DAT_FILE
+            open FDDE TMP 1
+        endif
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE 1
+        else
+            goto OFFSET 1
+            log NAME 0 0
+            append
+            for MEM_FILE = 0 != SIZE
+                get ZIP byte 1  # usually 3
+                get CHUNK_SIZE long 1
+                get CHUNK_ZSIZE long 1
+                idstring 1 "\xbe\xba\xad\xde"
+                savepos OFFSET 1
+
+                if ZIP == 2
+                    log NAME OFFSET CHUNK_ZSIZE 1
+                elif ZIP == 3
+                    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                else
+                    print "Error: ZIP %ZIP% at offset %OFFSET|x%, contact me"
+                    cleanexit
+                endif
+
+                math OFFSET + CHUNK_ZSIZE
+                goto OFFSET 1
+                math MEM_FILE + CHUNK_SIZE
+            next
+            append
+        endif
+    endif
+
+    savepos TMP
+while TMP != FAT_SIZE

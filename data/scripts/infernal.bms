@@ -1,0 +1,54 @@
+idstring VFS2
+get BASE_NAME basename
+
+get FOLDERS long
+savepos OFFSET
+math SIZE = FOLDERS
+math SIZE *= 0x14
+log MEMORY_FILE2 OFFSET SIZE
+math OFFSET += SIZE
+
+goto OFFSET
+get FILES long
+savepos OFFSET
+math SIZE = FILES
+math SIZE *= 0x18
+log MEMORY_FILE OFFSET SIZE
+math OFFSET += SIZE
+
+goto OFFSET
+get NAMES_OFF long
+savepos BASE_OFF
+
+goto NAMES_OFF
+get NAMES long
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+get NAMES long
+for i = 0 < NAMES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 1 i NAME
+next i
+
+for i = 0 < FILES
+    get CRC long MEMORY_FILE
+    get NAME_NUM long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get FOLDER_NUM long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    math OFFSET += BASE_OFF
+    getarray NAME 0 NAME_NUM
+    getarray FOLDER 1 FOLDER_NUM
+    set FULLNAME string BASE_NAME
+    string FULLNAME += /
+    string FULLNAME += FOLDER
+    string FULLNAME += /
+    string FULLNAME += NAME
+    log FULLNAME OFFSET SIZE
+next i

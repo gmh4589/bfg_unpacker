@@ -1,0 +1,81 @@
+# Gaming Mind Studios FUK (script 0.2)
+#   Port Royale 3 and 4
+#   Railway Empire
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x78\x56\x34\x12"
+get VER long    # 0x20
+get ENTRIES long
+if VER & 0x20
+    get FILES long
+endif
+get NAMES_SIZE long
+if VER & 0x20
+    get DUMMY long  # folders? flags? ???
+endif
+
+putarray 0 ENTRIES ""
+for i = 0 < ENTRIES
+    get FILE_ID signed_long
+    get FOLDER_ID signed_long
+    get ROOT_ID signed_long
+    get NAME_OFF long
+    putarray 10 i FILE_ID
+    putarray 11 i FOLDER_ID
+    putarray 12 i ROOT_ID
+    putarray 13 i NAME_OFF
+next i
+for i = 0 < ENTRIES
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long
+    putarray 1 i SIZE
+    putarray 2 i ZSIZE
+    putarray 3 i FLAGS
+next i
+if VER & 0x20
+    for i = 0 < FILES
+        get OFFSET long
+        math OFFSET * 0x10
+        putarray 4 i OFFSET
+    next i
+endif
+savepos NAMES_OFF
+
+math OFFSET = NAMES_OFF
+math OFFSET + NAMES_SIZE
+math OFFSET x 0x10
+
+for i = 0 < ENTRIES
+    getarray SIZE   1 i
+    getarray ZSIZE  2 i
+    getarray FLAGS  3 i # (FILE_ID << 9) & 0x01
+    if FLAGS != 0   # let's stay compatible with any old/new format
+        set NAME string ""
+        for ID = i >= 0
+            getarray FILE_ID    10 ID
+            getarray FOLDER_ID  11 ID
+            getarray ROOT_ID    12 ID
+            getarray NAME_OFF   13 ID
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get TMP string
+            string NAME p "/%s%s" TMP NAME
+            math ID = ROOT_ID
+        next
+
+        xmath FILE_ID "FLAGS >> 9"
+
+        if VER & 0x20
+            getarray OFFSET 4 FILE_ID
+        else
+            math OFFSET = FLAGS
+        endif
+
+        if SIZE != ZSIZE
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i

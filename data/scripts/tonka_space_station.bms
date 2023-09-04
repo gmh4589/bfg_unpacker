@@ -1,0 +1,24 @@
+# Tonka Space Station
+
+idstring "PSWD"
+get FILES long
+get NAMES_OFF long
+get INFO_OFF long
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get PATH[FOLDER] string
+next FOLDER
+goto NAMES_OFF
+for i = 0 < FILES
+    get FOLDER byte
+    get NAME string
+    string NAME p "%s/%s" PATH[FOLDER] NAME
+    putarray 0 i NAME
+next i
+goto INFO_OFF
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

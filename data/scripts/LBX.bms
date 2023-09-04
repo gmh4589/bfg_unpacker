@@ -1,0 +1,15 @@
+<bms games="'Master Of Magic', 'Master Of Orion', 'Master Of Orion 2'" platforms="'PC'" ext="LBX">
+Get FILECNTL Int 0 ;
+Get DUMMYI Int 0 ;
+Get DUMMYL Long 0 ;
+SavePos TAILOFF 0 ;
+Do ;
+GoTo TAILOFF 0 ;
+Get FILEOFF Long 0 ;
+SavePos TAILOFF 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

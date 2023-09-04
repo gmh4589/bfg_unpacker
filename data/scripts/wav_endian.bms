@@ -1,0 +1,92 @@
+# RIFF wav endianess reverser (0.1.1a)
+#   this script reverses the endianess of the data, not the one of the header
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "RIFF"
+elif SIGN == "RIFX"
+elif SIGN == "FFIR"
+    endian big
+elif SIGN == "XFIR"
+    endian big
+else
+    print "Error: unsupported signature (%SIGN%)"
+    cleanexit
+endif
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+getdstring RIFF_SIGN 4 MEMORY_FILE
+get RIFF_SIZE long MEMORY_FILE
+if RIFF_SIZE u> SIZE
+    endian big
+    reverselong RIFF_SIZE
+endif
+getdstring WAVE_SIGN 4 MEMORY_FILE
+
+set BITS long 16
+math RIFF_SIZE += 8 # faster for()
+for RIFF_OFF = 12 < RIFF_SIZE
+    getdstring TYPE 4 MEMORY_FILE
+    get DATA_SIZE long MEMORY_FILE
+    savepos DATA_OFF MEMORY_FILE
+
+    if TYPE == "fmt "
+        getvarchr CODEC MEMORY_FILE DATA_OFF short
+        if CODEC != 1
+            print "Error: the file is not PCM (%CODEC%)"
+            cleanexit
+        endif
+        math DATA_OFF += 14
+        getvarchr BITS MEMORY_FILE DATA_OFF short
+        if BITS <= 8
+            print "Error: the file is at 8 bits so doesn't need endianess reversing"
+            cleanexit
+        elif BITS == 16
+        elif BITS == 24
+        elif BITS == 32
+        else
+            print "Error: the file uses an unsupported number of bits (%BITS%)"
+            cleanexit
+        endif
+    endif
+
+    if TYPE == "data"
+        math TMP = DATA_OFF     # all these instructions avoid to use 'j'
+        math TMP += DATA_SIZE   # and limit to handle off-by-one data (impossible)
+        if BITS == 16
+            math TMP -= 2
+        elif BITS == 24
+            math TMP -= 3
+        elif BITS == 32
+            math TMP -= 4
+        endif
+        for DATA_OFF = DATA_OFF <= TMP
+            if BITS == 16
+                getvarchr SAMPLE MEMORY_FILE DATA_OFF short
+                reverseshort SAMPLE
+                putvarchr MEMORY_FILE DATA_OFF SAMPLE short
+                math DATA_OFF += 2
+            elif BITS == 24
+                getvarchr SAMPLE MEMORY_FILE DATA_OFF threebyte
+                reverselong SAMPLE
+                math SAMPLE >>= 8
+                putvarchr MEMORY_FILE DATA_OFF SAMPLE threebyte
+                math DATA_OFF += 3
+            elif BITS == 32
+                getvarchr SAMPLE MEMORY_FILE DATA_OFF long
+                reverselong SAMPLE
+                putvarchr MEMORY_FILE DATA_OFF SAMPLE long
+                math DATA_OFF += 4
+            endif
+        next
+    endif
+
+    math RIFF_OFF += 8
+    math RIFF_OFF += DATA_SIZE
+    goto RIFF_OFF MEMORY_FILE
+next
+
+get NAME basename
+string NAME += "_reversed.wav"
+log NAME 0 SIZE MEMORY_FILE

@@ -1,0 +1,40 @@
+# lame compression scanner
+# - the number can be verified in defs.h from COMP_NONE
+#   where all the algorithms are numbered each 5
+# - associate the dmp extension with your hex editor for a
+#   faster viewing of the results
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZSIZE asize
+math SIZE = ZSIZE
+math SIZE *= 20
+for i = 0
+    set GO long 0
+    if i == 0       # add other commented "elif" if an algorithm crashes
+                    # the following are those most prone to crashes with invalid data
+    #elif i == 22    # XmemDecompress
+    #elif i == 39    # lzma2
+    #elif i == 41    # lzma2
+    #elif i == 56    # quicklz
+    #elif i == 59    # lz2k
+    #elif i == 62    # un49g
+    #elif i == 66    # tzar_lzss
+    #elif i == 83    # brieflz
+    #elif i == 84    # paq6
+    #elif i == 85    # shcodec
+    elif i == 86    # hstest1
+    elif i == 87    # hstest2
+    elif i == 89    # ashford
+    #elif i == 90    # jcalg
+    else
+        set GO long 1
+    endif
+
+    if GO != 0
+        print "test algorigthm number %i%"
+        comtype i
+        set NAME string i
+        string NAME += ".dmp"
+        clog NAME 0 ZSIZE SIZE
+    endif
+next i

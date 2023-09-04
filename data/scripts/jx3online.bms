@@ -1,0 +1,93 @@
+# JX3 Online (script 0.1.1)
+#   Trường Kiếm
+#   KiemThe
+#   wjx2
+#   njx
+#   jxonline3
+#   麻辣江湖
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype NRV2b
+
+getdstring SIGN 4
+if SIGN == "BMRX"
+    encryption xor "678iujhygrehFG$WE%*&iyukjhghU*&^890p-[;jhgfdvbjt5ijkbvfjklphgdfuijmfuiklmhngfre3uk;6"
+    log MEMORY_FILE 0 0x20
+    encryption "" ""
+    filexor 0x62
+    getdstring DUMMY 4 MEMORY_FILE  # skip the old sign
+else
+    log MEMORY_FILE 0 0x20
+    idstring MEMORY_FILE "PACK"
+endif
+get FILES long MEMORY_FILE
+get INFO_OFF long MEMORY_FILE
+get BASE_OFF long MEMORY_FILE
+goto INFO_OFF
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    set doit long 0
+    if CRC == -360607879    # some files are invalid!
+    #elif CRC == 12345678   # put their crc/name here
+    else                    # for skipping them!
+        set doit long 1
+    endif
+
+    if doit != 0
+        if ZSIZE & 0x10000000
+            math ZSIZE &= 0x0fffffff
+            callfunction unpack_0x10000000
+        elif ZSIZE & 0x20000000
+            math ZSIZE &= 0x0fffffff
+            clog "" OFFSET ZSIZE SIZE
+        elif ZSIZE & 0x40000000
+            print "Error: type 0x40000000 not supported"
+            cleanexit
+        elif ZSIZE & 0x80000000
+            print "Error: type 0x80000000 not supported"
+            cleanexit
+        else
+            log "" OFFSET SIZE
+        endif
+    endif
+next i
+
+startfunction unpack_0x10000000
+    savepos TMP
+    goto OFFSET
+    get CHUNKS long
+    get CHUNKS_OFFSET long
+    math CHUNKS_OFFSET += OFFSET
+    goto CHUNKS_OFFSET
+    putvarchr MEMORY_FILE SIZE 0    # pre-allocate for speed
+    log MEMORY_FILE 0 0             # reset
+    append
+    for x = 0 < CHUNKS
+        get OFFSETX long
+        get SIZEX long
+        get ZSIZEX long
+        math OFFSETX += OFFSET
+        if ZSIZEX & 0x10000000
+            print "Error: type2 0x10000000 not supported"
+            cleanexit
+        elif ZSIZEX & 0x20000000
+            math ZSIZEX &= 0x0fffffff
+            clog MEMORY_FILE OFFSETX ZSIZEX SIZEX
+        elif ZSIZEX & 0x40000000
+            print "Error: type2 0x40000000 not supported"
+            cleanexit
+        elif ZSIZEX & 0x80000000
+            print "Error: type2 0x80000000 not supported"
+            cleanexit
+        else
+            log MEMORY_FILE OFFSETX SIZEX
+        endif
+    next x
+    append
+    log "" 0 SIZE MEMORY_FILE
+    goto TMP
+endfunction

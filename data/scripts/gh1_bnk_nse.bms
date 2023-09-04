@@ -1,0 +1,65 @@
+# Guitar Hero 1 PS2 bnk/nse
+
+open FDDE "bnk"
+open FDDE "nse" 1
+
+get SOME_NUM long
+get ZERO long
+get ZERO long
+get NUM long
+for i = 0 < NUM
+    get ID long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+next i
+get NUM long
+for i = 0 < NUM
+    get ID long
+    getdstring DUMMY 8
+next i
+get FILES long
+for i = 0 < FILES
+    get ID threebyte
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get DUMMY long  # 1000
+    putarray 0 i NAME
+next i
+get FILES long
+putarray 0 FILES ""
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get FREQUENCY long
+
+    math INTERLEAVE = 0
+    math CHANNELS = 1
+    getarray NAME 0 i
+    if NAME == ""
+        set NAME string i
+    endif
+    string NAME + ".ss2"
+    callfunction DUMP_VAG 1
+next i
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE 1
+    append
+endfunction

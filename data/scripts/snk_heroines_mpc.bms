@@ -1,0 +1,27 @@
+# SNK Heroines Tag Team Frenzy
+
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    savepos ENTRY_OFF
+    get ENTRY_SIZE long
+    get TOC_SIZE long
+    savepos OFFSET
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    get SIZE long
+    get SOME_CRC long
+    get ZSIZE long
+
+    math OFFSET + TOC_SIZE
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+next i
+

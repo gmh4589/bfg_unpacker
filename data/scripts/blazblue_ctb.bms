@@ -1,0 +1,39 @@
+# BlazBlue: Cross Tag Battle decrypter/encrypter
+#   key from https://github.com/Geordan9/BBTAG_Decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE binary "\xF5\x5C\x84\x2A\xAD\x61\x54\xE7\x0A\xFC\x99\x6B\xD5\xA4\xD3\xD8\x48\x26\x69\xCB\x07\x42\x13\x5E\x10\x23\xD2\x6D\x36\xC7\xC1\x66\xDF\xA1\xAD\xF1\x44\x44\x7E\xC9\x8E\x24\x99"
+get KEYSZ asize MEMORY_FILE
+append
+log MEMORY_FILE 0 KEYSZ MEMORY_FILE # trick for using findloc, just duplicate the key :)
+append
+
+get EXT extension
+if EXT == "pac"
+
+    # decrypt (read KEY offset from filename)
+
+    get NAME basename
+    set OFFSET string NAME
+    string OFFSET ! "_"
+    string NAME >> "_"
+
+else
+
+    # encrypt (guess KEY offset)
+
+    get TEST long
+    math TEST ^ 0x43415046  # "FPAC"
+    findloc OFFSET long TEST MEMORY_FILE
+
+    get NAME basename
+    string NAME p "%s_%d.pac" NAME OFFSET
+
+endif
+
+goto OFFSET MEMORY_FILE
+getdstring KEY KEYSZ MEMORY_FILE
+encryption xor KEY "" 0 KEYSZ
+get SIZE asize
+log NAME 0 SIZE
+

@@ -1,0 +1,56 @@
+# Knowledge Adventure (script 0.3)
+#   thanks to Corak http://corak.pro for the "KA Archive" struct
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 10
+goto 0
+if SIGN == "KA Archive"
+    idstring "KA Archive"
+    goto 0x14
+    get FILES short
+    for i = 0 < FILES
+        getdstring NAME 13
+        get OFFSET long
+        get SIZE long
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    goto OFFSET
+    string PATH + NAME
+    string PATH + /
+    get FILES long
+    savepos TMP
+    xmath NAMES_OFF "TMP + (FILES * (4 + 4 + 4 + 4 + 4)) + 4"
+    for i = 0 < FILES
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        get FLAGS long
+        get ZERO long
+
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        if FLAGS & 0x8000
+            # skip folders, "." and ".."
+            if NAME != "." && NAME != ".."
+                callfunction EXTRACT
+            endif
+        else
+            string NAME p "%s/%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+    next i
+    goto BCK_OFF
+endfunction

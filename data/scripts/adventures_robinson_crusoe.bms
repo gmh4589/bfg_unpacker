@@ -1,0 +1,40 @@
+# Adventures of Robinson Crusoe
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MIS"
+goto 12
+get FILES long
+get BYTE byte
+if BYTE == 0
+    set ROT13 long 0x100
+    get BYTE byte
+    math ROT13 -= BYTE
+else
+    get ROT13 byte
+endif
+math ROT13 *= -1
+filerot13 ROT13
+
+goto 0x20
+for i = 0 < FILES
+    getdstring NAME 30
+    get DUMMY short
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+
+    log NAME OFFSET SIZE
+next i
+
+# idstring "MIS"
+# goto 12
+# get FILES long
+# goto 32
+# filerot 0xa8
+# for i = 0 < FILES
+#     getdstring NAME 32
+#     get SIZE long
+#     get OFFSET long
+#     get DUMMY long
+#     log NAME OFFSET SIZE
+# next i

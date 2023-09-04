@@ -1,0 +1,33 @@
+# Super Laser Racer
+#   This is just a lame work-around to get the files
+# script for QuickBMS http://quickbms.aluigi.org
+
+    callfunction SEARCH_OFFSET 1
+for
+    math DATA_OFFSET = NEXT_DATA_OFFSET
+    callfunction SEARCH_OFFSET 1
+
+    xmath SIZE "NEXT_OFFSET - DATA_OFFSET"
+    if NAME & "."
+    if SIZE > 512
+    log NAME DATA_OFFSET SIZE
+    endif
+    endif
+next
+
+startfunction SEARCH_OFFSET
+    findloc OFFSET string "\x10\x70\x64\x00\xff\xff\xff\x7f"
+    math NEXT_OFFSET = OFFSET
+
+    math OFFSET += 8
+    goto OFFSET
+
+    padding 4
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+
+    padding 4
+    savepos NEXT_DATA_OFFSET
+endfunction

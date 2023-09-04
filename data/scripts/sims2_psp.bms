@@ -1,0 +1,60 @@
+# Sims 2 PSP
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x1bacac8e
+get INFO_SIZE long
+get FILES long
+get DUMMY long
+
+putarray 0 0 0  # work-around
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAME_OFF long
+    get INFO_OFF long
+    get FOLDERS short
+    get FILES short
+
+    callfunction GET_NAME 1
+    string PATH + NAME
+    string PATH + /
+
+    for i = 0 < FOLDERS
+        goto INFO_OFF
+        callfunction EXTRACT
+        math INFO_OFF + 0xc
+    next i
+
+    for i = 0 < FILES
+        goto INFO_OFF
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        savepos INFO_OFF
+        math OFFSET * 0x800
+
+        callfunction GET_NAME 1
+        string NAME p "%s%s" PATH NAME
+        string NAME + "."   # auto-guess for obfuscated names
+        log NAME OFFSET SIZE
+    next i
+endfunction
+
+startfunction GET_NAME
+    if NAME_OFF == 0
+        set NAME string ""
+    else
+        savepos TMP
+        goto NAME_OFF
+        get NAME string # obfuscated
+        goto TMP
+    endif
+
+    # work-around for obfuscated names
+    getarray TMP 0 0
+    set NAME string TMP
+    math TMP + 1
+    putarray 0 0 TMP
+endfunction

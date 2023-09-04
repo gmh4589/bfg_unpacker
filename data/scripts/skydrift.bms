@@ -1,0 +1,94 @@
+# SkyDrift
+#   don't worry if you receive an xdbg_malloc() error on some files, it's all OK
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+idstring "TACH"
+get DUMMY short
+get DUMMY short
+savepos OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+
+clog MEMORY_FILE OFFSET SIZE SIZE
+
+endian big
+
+get TACH_SIZE asize MEMORY_FILE
+
+get DUMMY long MEMORY_FILE
+savepos OFFSET MEMORY_FILE
+for OFFSET = OFFSET < TACH_SIZE
+    goto OFFSET MEMORY_FILE
+    get INFO_SIZE long MEMORY_FILE
+    if INFO_SIZE == 0
+        get INFO_SIZE long MEMORY_FILE
+    endif
+    savepos OFFSET MEMORY_FILE
+
+    set FNAME string ""
+
+
+        # list of types
+    do
+        get DATASZ long MEMORY_FILE
+        if DATASZ != 0
+            getdstring DATA DATASZ MEMORY_FILE
+            get ID short MEMORY_FILE
+            putarray 0 ID DATA
+        endif
+    while DATASZ != 0
+
+        # cLocalizationResource and so on
+        get DATASZ long MEMORY_FILE
+        getdstring DATA DATASZ MEMORY_FILE
+        get ID short MEMORY_FILE
+
+        # list of objects
+    math OBJECTS = 0
+    do
+        get DATASZ long MEMORY_FILE
+        if DATASZ != 0
+            getdstring DATA DATASZ MEMORY_FILE
+            get ID short MEMORY_FILE
+            putarray 1 OBJECTS DATA
+            putarray 2 OBJECTS ID
+            math OBJECTS += 1
+        endif
+    while DATASZ != 0
+
+    # long story, check alaska_pc.exp offset 0x3c6662
+    get DUMMY long MEMORY_FILE
+    if DUMMY == 0
+        get DUMMY long MEMORY_FILE
+        get MAIN_ID short MEMORY_FILE
+
+        for i = 0 < OBJECTS
+            getarray ID 2 i
+            getarray OBJECT 1 i
+            getarray TYPE 0 ID
+
+            if TYPE == "String"
+                get DATASZ long MEMORY_FILE
+                getdstring DATA DATASZ MEMORY_FILE
+            else
+                get DUMMY long MEMORY_FILE
+            endif
+
+            if OBJECT == "Name"
+                set FNAME string DATA
+                math i = OBJECTS    # break is not much stable
+            endif
+        next i
+    endif
+
+    math OFFSET += INFO_SIZE
+    goto OFFSET MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    if SIZE != 0
+        log FNAME OFFSET SIZE MEMORY_FILE
+    endif
+    math OFFSET += SIZE
+
+next

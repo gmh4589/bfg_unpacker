@@ -1,0 +1,24 @@
+<bms games="'Traktor Racer'" platforms="'PC'" ext="SAR">
+IDString 0 SARC ;
+Get FILENUM Long 0 ;
+SavePos DIRSTART 0 ;
+For Z = 1 To FILENUM ;
+Get FNSIZE Byte 0 ;
+SavePos TEMP 0 ;
+Math TEMP += FNSIZE ;
+Math TEMP += 13 ;
+GoTo TEMP 0 ;
+Next Z ;
+SavePos DATASTRT 0 ;
+GoTo DIRSTART 0 ;
+For F = 1 To FILENUM ;
+Get FNSIZE Byte 0 ;
+GetDString FNAME FNSIZE 0 ;
+Get NULL Byte 0 ;
+Get FOFFSET Long 0 ;
+Get FSIZE Long 0 ;
+Get FOOBAR Long 0 ;
+Math FOFFSET += DATASTRT ;
+Log FNAME FOFFSET FSIZE 0 0 ;
+Next F ;
+</bms>

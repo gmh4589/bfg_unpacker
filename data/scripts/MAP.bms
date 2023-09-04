@@ -1,0 +1,20 @@
+<bms ext="MAP" games="'Halo'" platforms="'PC'" author="Matsy" version="1.2" silence="no" verbose="no">
+ImpType Standard ;
+Get Version Long 0 ;
+Get FDO Long 0 ;
+Get DO Long 0 ;
+Get FC Long 0 ;
+For T = 1 to FC ;
+Goto FDO 0 ;
+Get FN String 0 ;
+SavePos FDO 0 ;
+Goto DO 0 ;
+Get UK Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FP Long 0 ;
+SavePos DO 0 ;
+Log FN FP FS #FOO FSO ;
+Next T ;
+</bms>

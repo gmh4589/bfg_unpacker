@@ -1,0 +1,10 @@
+# Dynasty Warriors Online Z ("真・三國無双online") .BIN (0100/0800)
+
+idstring "CAPF"
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,15 @@
+# PRS Format Resource File
+
+idstring "PRS Format Resource File"
+get MAX_OFF asize
+for OFFSET = 0x30 != MAX_OFF
+    goto OFFSET
+    getdstring FOLDER 6
+    getdstring NAME 0x12
+    get SIZE long
+    xmath SIZE "SIZE - (6 + 0x12 + 4)"
+    savepos OFFSET
+    string FNAME p "%s/%s" FOLDER NAME
+    log FNAME OFFSET SIZE
+    math OFFSET + SIZE
+next

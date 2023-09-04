@@ -1,0 +1,50 @@
+# Voyeur II VOL raw audio extractor
+# script for QuickBMS http://quickbms.aluigi.org
+#
+# remember to use wavehead with the extracted file:
+#   wavehead SLIDES.VOL.raw SLIDES.VOL.wav 11025 1 8 1
+
+append
+get NAME filename
+string NAME += ".raw"
+
+idstring "ID\x0c\x00"
+get DUMMY short
+get FILES long
+get TOTAL_SIZE long
+savepos INFO_OFFSET
+
+for i = 0 < FILES
+    goto INFO_OFFSET
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFFSET
+
+    math OFFSET += 42
+    goto OFFSET
+    get FSIZE long
+    getdstring DUMMY 16
+    set REM long SIZE
+    math REM -= 62
+
+    for
+        get TYPE long
+        get LEN long
+        math REM -= 8
+        if LEN <= 0
+            break
+        endif
+        if REM <= 0
+            break
+        endif
+        math REM -= LEN
+
+        savepos OFFSET
+        if TYPE & 1
+            log NAME OFFSET LEN
+        endif
+        math OFFSET += LEN
+        goto OFFSET
+    next
+next i

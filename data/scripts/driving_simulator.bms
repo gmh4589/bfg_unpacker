@@ -1,0 +1,58 @@
+# Driving Simulator 2009 (*.UFL)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LiArFi\n"
+get DUMMY long
+get DUMMY byte
+get INFO_OFF long
+goto INFO_OFF
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get PREV_OFF long
+    get NEXT_OFF long
+    get ENTRIES long
+    set ENTRIES_MAIN long ENTRIES
+    for i = 0 < ENTRIES_MAIN
+        get NAMESZ byte
+        if PREV_OFF >= INFO_OFF
+            get DUMMY byte
+        endif
+        math NAMESZ += 1
+        getdstring NAME NAMESZ
+        if PREV_OFF >= INFO_OFF
+            set PATH string NAME
+            get TMP byte
+            math TMP += 1
+            getdstring TMP TMP
+            string NAME += /
+            string NAME += TMP
+        else
+            set TMP string NAME
+            set NAME string PATH
+            string NAME += /
+            string NAME += TMP
+        endif
+        get PREV_OFF long
+        if PREV_OFF < 0x20
+            get NEXT_OFF long
+            get ENTRIES long
+            if NEXT_OFF != 0
+                savepos TMP
+                goto NEXT_OFF
+                callfunction EXTRACT
+                goto TMP
+            endif
+        else
+            get OFFSET long
+            get DUMMY long
+            get SIZE long
+            get DUMMY long
+            get CRC long
+            get DUMMY long
+            log NAME OFFSET SIZE
+        endif
+    next i
+endfunction

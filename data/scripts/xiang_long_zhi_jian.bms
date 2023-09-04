@@ -1,0 +1,61 @@
+# Xiang Long Zhi Jian (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNK_SIZE = 0x10000
+comtype unzip_dynamic   # deflate but some files are not compressed
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get ZSIZE long
+    get OFFSET long
+    getdstring HASH 32
+    savepos TMP
+    goto OFFSET
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long # 0x309d4
+    get DUMMY6 long # 0x2f74e
+    get DUMMY7 long # 0x28
+    get CHUNKS long # 0x27
+    get DUMMY8 long # 0x1d4
+    get DUMMY9 long # 0x30ba8 (total size)
+    math OFFSET1 = OFFSET
+    math OFFSET1 += DUMMY5
+    math OFFSET2 = OFFSET
+    math OFFSET2 += DUMMY6
+    savepos OFFSET
+    math SIZE = CHUNKS
+    math SIZE *= CHUNK_SIZE
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for j = 0 < CHUNKS
+        goto OFFSET2
+        get DUMMY1 long
+        get DUMMY2 long     # 0x1a
+        get DUMMY3 short    # 0x200
+        get DUMMY4 short    # 0x200
+        get DUMMY5 short    # 0x90
+        get DUMMY6 short    # 0x70
+        get DUMMY7 short    # 0x28
+        get DUMMY8 short    # 0xa8
+        get DUMMY9 long     # 0xa4
+        get DUMMY10 long    # 0x28 (relative offset)
+        get DUMMY11 long    # 0x12d9 (zsize)
+        get DUMMY12 long    # 0x3f800000
+        get DUMMY13 long    # 0x3f8000
+        get DUMMY14 long    # 0x104
+        math DUMMY7 *= 2
+        getdstring DUMMY DUMMY7 # probably encoded name
+        savepos OFFSET2
+        clog MEMORY_FILE OFFSET DUMMY11 CHUNK_SIZE
+        math OFFSET += DUMMY11
+    next j
+    append
+    get SIZE asize MEMORY_FILE
+    log "" 0 SIZE MEMORY_FILE
+    goto TMP
+next i

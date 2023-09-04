@@ -1,0 +1,22 @@
+# Yakata
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BSArc\0\0\0"
+get DUMMY short
+get FILES short
+get OFFSET long
+goto OFFSET
+xmath NAMES_OFF "OFFSET + (FILES * (4 + 4 + 4))"
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,11 @@
+get OFFSET long
+goto OFFSET
+get FILES long
+for i = 1 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring EXT 4
+    set NAME string i
+    string NAME += EXT
+    log NAME OFFSET SIZE
+next i

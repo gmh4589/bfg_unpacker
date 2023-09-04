@@ -1,0 +1,68 @@
+cleanexit
+
+Use DXadecode.exe with key qppassqppass
+http://homepage2.nifty.com/natupaji/DxLib/dxdload.html
+
+Info:
+http://zenhax.com/viewtopic.php?p=11286#p11286
+
+
+# QP: Shooting Dangerous (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+#comtype unknown # I don't know what's the compression algorithm!
+
+filexor "\x8e\x07\xfa\xe9\x8c\xdf\x8e\xf1\x83\x1e\xe1\xbf"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get NAMES_OFF long
+get NAMES_SIZE long
+get DUMMY long
+get DUMMY long
+savepos BASE_OFF
+
+math OFFSET = NAMES_OFF
+math OFFSET + NAMES_SIZE
+goto OFFSET
+for
+    get NAME_OFF long
+    get DUMMY long
+    if DUMMY == 0xffffffff
+        break
+    endif
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    math OFFSET + BASE_OFF
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get DUMMY short
+    get DUMMY short
+    get NAME string
+    goto TMP
+
+    if SIZE > 0
+        if ZSIZE == 0xffffffff
+            log NAME OFFSET SIZE
+        else
+            string NAME p "compressed/%s" NAME
+            log NAME OFFSET ZSIZE
+
+            # compression algorithm?
+            #savepos TMP
+            #goto OFFSET
+            #get SIZE long
+            #get ZSIZE long
+            #math ZSIZE - 8
+            #savepos OFFSET
+            #goto TMP
+            #clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next

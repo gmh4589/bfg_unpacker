@@ -1,0 +1,17 @@
+<bms games="'Delta Force Land Warrior', 'F-16 Multirole Fighter'" platforms="'PC'" ext="SBF">
+ImpType Standard ;
+IDString 0 SBF0 ;
+Set TEMP Long 20 ;
+GoTo TEMP 0 ;
+Get FILENUM Long 0 ;
+For F = 1 To FILENUM ;
+GetDSTring FNAME 16 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Get FOO Long 0 ;
+Get BAR Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next F ;
+</bms>

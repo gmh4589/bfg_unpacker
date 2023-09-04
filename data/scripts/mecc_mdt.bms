@@ -1,0 +1,30 @@
+# The Learning Company - MECC MDT
+
+endian big
+get DUMMY short
+get DUMMY long
+idstring "MECC"
+get ZERO short
+getdstring NAME 0x40
+getdstring VER 8
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    getdstring NAME 8
+    get FILES long
+    get FILES_OFFSET long
+    putarray 0 i NAME
+    putarray 1 i FILES
+next i
+for FOLDER = 0 < FOLDERS
+    getarray PATH  0 FOLDER
+    getarray FILES 1 FOLDER
+    for i = 0 < FILES
+        getdstring NAME 8   # same as PATH
+        get DUMMY long
+        get SIZE long
+        get OFFSET long
+        string NAME p "%s/%d.dat" NAME i
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

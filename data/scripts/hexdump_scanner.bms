@@ -1,0 +1,61 @@
+# Quick hexdump visualization for comtype and encryption scanner
+
+math VIS_SIZE = 0x200
+
+set SEARCH_STRING string ""
+if quickbms_arg1 & "_arg1"
+else
+    math TMP = quickbms_arg1
+    if TMP > VIS_SIZE
+        math VIS_SIZE = TMP
+    else
+        set SEARCH_STRING string quickbms_arg1
+    endif
+endif
+
+get PATH file_folder
+for i = 0
+    ScanDir PATH NAME SIZE
+    if NAME == ""
+        break
+    endif
+    string NAME - PATH
+    putarray 0 i NAME
+    putarray 1 i SIZE
+next i
+math FILES = i
+
+sortarray 1 1
+
+for i = FILES > 0
+    math i - 1
+    getarray NAME 0 i
+    #getarray FILE_SIZE 1 i
+
+    open FDSE NAME
+
+    math OK = 1
+    if SEARCH_STRING != ""
+        findloc TMP string SEARCH_STRING 0 ""
+        if TMP == ""
+            math OK = 0
+        endif
+    endif
+
+    if OK != 0
+        get FILE_SIZE asize
+        math SIZE = FILE_SIZE
+        if SIZE > VIS_SIZE
+            math SIZE = VIS_SIZE
+        endif
+        getdstring DUMP SIZE
+        get NAME filename
+        # \n before hexdump needed from quickbms 0.11.1
+        print "%NAME%   %FILE_SIZE% -> %FILE_SIZE|x%:\n%DUMP|hexdump SIZE%"
+
+        set PRESS_RETURN ? ?   # wait input
+    endif
+next
+
+print "generate error to exit from the scanning"
+open FDSE "*generate_error*"

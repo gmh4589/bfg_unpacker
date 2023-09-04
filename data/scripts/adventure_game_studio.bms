@@ -1,0 +1,193 @@
+# Adventure Game Studio (CLIB) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math RAND_SEED_SALT   = 9338638
+set HeadSig binary "CLIB\x1a";
+set TailSig binary "CLIB\x1\x2\x3\x4SIGE";
+math SingleFilePswLen = 13
+math MaxAssets        = 10000
+math MaxMultifiles    = 25
+math MaxAssetFileLen  = 100
+math MaxDataFileLen   = 50
+math V10LibFileLen    = 20
+math V10AssetFileLen  = 25
+set EncryptionString binary "My\x1\xde\x4Jibzle";
+
+math EncryptionString_FIXED_SIZE = 11   # hard-coded in the source code...
+
+get EXT extension
+if EXT == "exe"
+    do
+        findloc OFFSET binary "CLIB\x1a"
+        goto OFFSET
+        idstring "CLIB\x1a"
+        get VER byte
+    while VER == 0  # some rare games
+    goto OFFSET
+endif
+
+callfunction GET_HEADER 1
+if DataFilenames_i != 0
+    get NAME basename
+    string NAME + ".exe"
+    print "Error: you must open the main data/exe file, maybe \"%NAME%\""
+    cleanexit
+endif
+
+if VER >= 30
+
+    getdstring ZERO 5
+    get DUMMY long  # 1
+    get NAME string
+    get FILES long
+    for i = 0 < FILES
+        get NAME string
+        get DATAFILE byte
+        get OFFSET longlong
+        get SIZE longlong
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+        putarray 3 i DATAFILE
+    next i
+
+elif VER >= 21
+
+    get SEED long
+    math SEED + RAND_SEED_SALT
+    encryption random "-5 SEED 0x7fff0000"
+    filecrypt 1
+
+    get DataFilenames long
+    for i = 0 < DataFilenames
+        get NAME string
+        putarray 10 i NAME
+    next i
+    get FILES long
+    for i = 0 < FILES
+        get NAME string
+        putarray 0 i NAME
+    next i
+    callfunction GET_FILE_INFO 1
+
+elif VER == 20
+
+    get DataFilenames long
+    for i = 0 < DataFilenames
+        getdstring NAME MaxDataFileLen
+        putarray 10 i NAME
+    next i
+    get FILES long
+    for i = 0 < FILES
+        get LEN short
+        math LEN / 5
+        encryption rot EncryptionString "" 1 EncryptionString_FIXED_SIZE
+        filecrypt 1
+        getdstring NAME LEN
+        filecrypt ""
+        encryption "" ""
+        putarray 0 i NAME
+    next i
+    callfunction GET_FILE_INFO 1
+
+elif VER >= 10 && VER <= 19
+
+    get DataFilenames long
+    for i = 0 < DataFilenames
+        getdstring NAME V10LibFileLen
+        putarray 10 i NAME
+    next i
+    get FILES long
+    for i = 0 < FILES
+        if VER >= 11
+            encryption rot EncryptionString "" 1 EncryptionString_FIXED_SIZE
+            filecrypt 1
+        endif
+        getdstring NAME V10AssetFileLen
+        filecrypt ""
+        encryption "" ""
+        putarray 0 i NAME
+    next i
+    callfunction GET_FILE_INFO 1
+
+elif VER < 10
+
+    getdstring passwmodifier 1
+    get DUMMY byte
+    get FILES short
+    getdstring DUMMY SingleFilePswLen
+    for i = 0 < FILES
+        getdstring NAME SingleFilePswLen
+        encryption rot passwmodifier "" 1 1
+        string NAME E NAME
+        encryption "" ""
+        putarray 0 i NAME
+    next i
+    for i = 0 < FILES
+        get SIZE long
+        putarray 2 i SIZE
+    next i
+    for i = 0 < FILES
+        get DUMMY short
+    next i
+    savepos OFFSET
+    math OFFSET - BASE_OFF  # yeah remember it!
+    for i = 0 < FILES
+        putarray 1 i OFFSET
+        getarray SIZE 2 i
+        math OFFSET + SIZE
+    next i
+
+else
+
+    print "Error: unsupported version %VER%, contact me"
+    cleanexit
+
+endif
+
+encryption "" ""
+filecrypt ""
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    if VER >= 10
+        getarray DATAFILE   3 i
+        if DATAFILE != DataFilenames_i
+            getarray TMP 10 DATAFILE
+            open FDSE TMP
+            callfunction GET_HEADER 1
+        endif
+    endif
+
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i
+
+
+startfunction GET_HEADER
+    savepos BASE_OFF
+    idstring "CLIB\x1a"
+    get VER byte
+    if VER >= 10
+        get DataFilenames_i byte
+    else
+        math DataFilenames_i = 0
+    endif
+endfunction
+
+startfunction GET_FILE_INFO
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 1 i OFFSET
+    next i
+    for i = 0 < FILES
+        get SIZE long
+        putarray 2 i SIZE
+    next i
+    for i = 0 < FILES
+        get DATAFILE byte
+        putarray 3 i DATAFILE
+    next i
+endfunction

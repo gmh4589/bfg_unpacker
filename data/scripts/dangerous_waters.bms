@@ -1,0 +1,17 @@
+# Dangerous Waters
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Aggregate "
+goto 22
+get OFFSET long
+math OFFSET + 12
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    get SIZE long
+    getdstring DUMMY 12
+    get OFFSET long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

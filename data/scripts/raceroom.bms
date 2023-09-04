@@ -1,0 +1,124 @@
+# RaceRoom PUBLIC/IBL/JCA files (script 0.2.1)
+#
+#   IMPORTANT NOTE FOR THE JCA FILES:
+#     From 2014 the JCA files no longer contain file information, they are simply
+#     stored in the archive as raw files with some size fields fixed (like some RIFF
+#     audio files) and so it's no longer possible to extract them correctly.
+#     You need a file ripper to dump the recognized files.
+#     .
+#     You need to decrypt the file with wtcced first, using the -k raceroom option:
+#       http://aluigi.org/papers.htm#wtcced
+#     For using -k raceroom it's enough to create a link to wtcced.exe and appending
+#     -k raceroom to the Target entry in the properties of the link.
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+
+get EXT extension
+if EXT == "public"
+
+    callfunction LZMA2_DECOMPRESS 1
+
+elif EXT == "ibl"
+
+    idstring "IBLC"
+    callfunction LZMA2_DECOMPRESS 1
+
+else
+
+    get FILES long
+
+
+    # JCA encrypted
+
+    if FILES == 0xffffb10f
+        print "Error: the file is encrypted, use wtcced -k raceroom to decrypt it:\n       http://aluigi.org/papers.htm#wtcced\n"
+        cleanexit
+    endif
+
+
+    # JCA new: just a slow ugly scanner
+
+    if FILES u> 0x01000000
+        goto 0
+        callfunction SCANNER 1
+        cleanexit
+    endif
+
+
+    # JCA old
+
+    for EXTRACT = 0 < 2
+        goto 4
+        for i = 0 < FILES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get OFFSET long
+            get SIZE long
+            if EXTRACT != 0
+                math OFFSET += BASE_OFF
+                log NAME OFFSET SIZE
+            endif
+        next i
+        savepos BASE_OFF
+    next EXTRACT
+
+endif
+
+startfunction LZMA2_DECOMPRESS
+    comtype lzma2_0 "\x18"
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE -= OFFSET
+    get NAME basename       # remove the public extension
+    clog NAME OFFSET ZSIZE SIZE
+endfunction
+
+startfunction SCANNER_INIT
+    math SCANNER_SIGNS = 0
+
+    putarray 0 SCANNER_SIGNS "RIFF"
+    math SCANNER_SIGNS + 1
+
+    putarray 0 SCANNER_SIGNS "CRID"
+    math SCANNER_SIGNS + 1
+
+    putarray 0 SCANNER_SIGNS "DDS "
+    math SCANNER_SIGNS + 1
+
+    putarray 0 SCANNER_SIGNS "CFX"
+    math SCANNER_SIGNS + 1
+endfunction
+
+startfunction SCANNER_NEXT
+    for x = 0 < SCANNER_SIGNS
+        getarray SIGN 0 x
+        findloc NEXT_OFFSET string SIGN 0 ""
+        if NEXT_OFFSET == ""
+            math NEXT_OFFSET = ARCHIVE_SIZE
+        endif
+        putarray 1 x NEXT_OFFSET
+    next x
+
+    sortarray 1
+    getarray NEXT_OFFSET 1 0
+endfunction
+
+startfunction SCANNER
+    print "\nDo not use this script with the JCA files because it's very slow!\nUse a file ripper.\n\nScanning archive..."
+
+    callfunction SCANNER_INIT 1
+
+        callfunction SCANNER_NEXT 1
+        math OFFSET = NEXT_OFFSET
+    do
+        goto OFFSET
+        get DUMMY long  # necessary to not take the same file
+        callfunction SCANNER_NEXT 1
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFFSET
+    while NEXT_OFFSET != ARCHIVE_SIZE
+endfunction

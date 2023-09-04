@@ -1,0 +1,32 @@
+# Terminal Reality games (POD2 format)
+#   4x4 Evolution
+#   4x4 Evolution 2
+#   Nocturne
+#   others
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "POD2"
+get DUMMY long
+getdstring TITLE 80
+get FILES long
+get DUMMY long
+
+set BASE_NAME long FILES
+math BASE_NAME *= 20
+math BASE_NAME += 0x60
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+
+    savepos INFO_OFF
+    math NAME_OFF += BASE_NAME
+    goto NAME_OFF
+    get NAME string
+    goto INFO_OFF
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,24 @@
+<bms games="'Restricted Area'" platforms="'PC'" ext="PAK">
+Set JC String .JC ;
+SavePos ST 0 ;
+GoTo EOF 0 ;
+SavePos END 0 ;
+GoTo ST 0 ;
+Set Num Long 0 ;
+Do ;
+Get UCS Long 0 ;
+SavePos CSO 0 ;
+Get CS Long 0 ;
+SavePos FO 0 ;
+SavePos J 0 ;
+GetDString ID 2 0 ;
+SavePos UCSO 0 ;
+Set FN String FILE ;
+String FN += Num ;
+String FN += JC ;
+Log FN FO CS 0 CSO ;
+Math Num += 1 ;
+Math J += CS ;
+GoTo J 0 ;
+While J < END ;
+</bms>

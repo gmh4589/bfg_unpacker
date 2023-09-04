@@ -1,0 +1,19 @@
+# ISLAND Frontwing PAK
+
+get DATA_OFF long
+get FILES long
+get DUMMY long  # 1
+get DUMMY long  # 0x200
+get NAME_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    savepos NAME_OFF
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

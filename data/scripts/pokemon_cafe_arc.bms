@@ -1,0 +1,34 @@
+# Pokémon Cafe Mix .ARC (script 0.1.1)
+
+comtype deflate
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get NAME_CRC long
+    get TYPE long
+    get BLOCK_SIZE long # just like ZSIZE aligned
+    get OFFSET long
+    get XZSIZE long     # aligned for encrypted
+    get ZSIZE long
+    get SIZE long
+    get SOME_CRC1 long
+    get ZERO long
+    get FLAGS long
+    get SOME_CRC2 long
+    get ZERO long
+    if FLAGS & 0x100
+        log "ENCRYPTED/" OFFSET XZSIZE
+    else
+        if SOME_CRC2 == 0
+            clog "" OFFSET ZSIZE SIZE
+        else    # yeah FLAGS 1 and XZSIZE != ZSIZE, no way to guess
+            log "ENCRYPTED/" OFFSET XZSIZE
+        endif
+    endif
+next i

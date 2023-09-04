@@ -1,0 +1,88 @@
+# Crystal Dynamics games (script 0.2.1)
+#   Project Snowblind
+#   Whiplash
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+math PCK_SIZE = 0
+for PCK_NUM = 0
+    callfunction CREATE_PCK_NAME 1
+    open FDDE TMP 1 EXISTS
+    if EXISTS == 0
+        break
+    endif
+    get TMP asize 1
+    if TMP u> PCK_SIZE
+        math PCK_SIZE = TMP
+    endif
+next PCK_NUM
+if PCK_NUM <= 1
+    math PCK_SIZE = 0
+else
+    math PCK_SIZE x 0x100000
+    print "PCK_SIZE %PCK_SIZE|x%"
+endif
+
+get VER long    # 1
+get INFO_SIZE long
+
+savepos BASE_OFF
+log MEMORY_FILE BASE_OFF INFO_SIZE
+math BASE_OFF + INFO_SIZE
+math BASE_OFF x 0x800
+
+for x = 0 < 2
+    get STRINGS long MEMORY_FILE
+    for i = 0 < STRINGS
+        get NAMESZ long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+    next i
+next x
+get FILES long MEMORY_FILE
+
+math LAST_PCK_NUM = 0   # current rkv
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE  # it seems 0 for files in the root and 1 for all the others (like music/*)
+    get NAMESZ long MEMORY_FILE
+    if NAMESZ == 0
+        break
+    endif
+    getdstring NAME NAMESZ MEMORY_FILE
+    get FLAGS long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    math OFFSET * 0x800
+
+    # use xmath instead of math because we need an unsigned operation
+    if PCK_SIZE == 0
+        math PCK_NUM = 0
+    else
+        xmath PCK_NUM "OFFSET / PCK_SIZE"
+        xmath OFFSET  "OFFSET % PCK_SIZE"
+    endif
+    if PCK_NUM != LAST_PCK_NUM
+        math LAST_PCK_NUM = PCK_NUM
+        callfunction CREATE_PCK_NAME 1
+        open FDDE TMP
+    endif
+
+    if PCK_NUM == 0
+        math OFFSET + BASE_OFF
+    endif
+
+    # some files like loading and intro_glue_screen are compressed
+    # but no way to know when compression is used and what's the
+    # uncompressed size, it seems to depend by the game that uses
+    # compressed or non-compressed goefile files
+
+    log NAME OFFSET SIZE
+next i
+
+startfunction CREATE_PCK_NAME
+    if PCK_NUM <= 0
+        set TMP string EXT  # "rkv"
+    else
+        string TMP p "%.1s%02d" EXT PCK_NUM
+    endif
+endfunction

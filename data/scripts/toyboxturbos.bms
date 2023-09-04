@@ -1,0 +1,46 @@
+# Toybox Turbos win_000.nfs / xml decrypter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+string NAME + "_new."
+string NAME + EXT
+get SIZE asize
+
+getdstring SIGN 5
+if SIGN == " EXML"
+    set KEY string "F717DFE284F003E87C55B14FFC1D5CCCC6E0D94D5D48C936467B8AB9C26E2C8F"
+    string KEY h KEY
+    encryption aes KEY "" 0 32
+    savepos OFFSET
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+    cleanexit
+endif
+goto 0
+
+getdstring SIGN 7
+if SIGN == "CMBDSE" # untested
+    set KEY string "074EE8148141151D916B2A707DA63111B2E4A1C3EB3C22B39A549A54977505E0"
+    string KEY h KEY
+    encryption aes KEY "" 0 32
+    savepos OFFSET
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+    cleanexit
+endif
+goto 0
+
+set KEY string "C35C7CD51B300E573BE15E0C8D6952056DD576B859870A14ABB9E04436AC4606"
+string KEY h KEY
+encryption aes KEY "" 0 32
+math SIZE1 = 0x40000
+xmath SIZE2 "SIZE - SIZE1"
+log MEMORY_FILE 0 SIZE1
+encryption "" ""
+append
+log MEMORY_FILE SIZE1 SIZE2
+append
+log NAME 0 SIZE MEMORY_FILE
+
+print "Now use this script: http://aluigi.org/papers/bms/codemasters_nefs.bms"

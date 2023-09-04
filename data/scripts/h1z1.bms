@@ -1,0 +1,49 @@
+# H1Z1 (script 0.2)
+#   Note that the extraction is correct even if the coverage is not complete
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO long
+if ZERO == 0
+    get FILES long
+    endian guess FILES
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        get CRC long
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+# *.pack2
+goto 0
+idstring "PAK\x01"
+get FILES long
+get PAK_SIZE longlong
+get OFFSET longlong
+get BLOCK_SIZE long
+get ZERO long
+goto OFFSET
+for i = 0 < FILES
+    get NAME_CRC longlong
+    get OFFSET longlong
+    get SIZE longlong
+    get ZIP long
+    get SOME_CRC long
+
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        idstring "\xa1\xb2\xc3\xd4"
+        get XSIZE long
+        reverselong XSIZE   # because it's big endian
+        math OFFSET + 8
+        math SIZE   - 8
+        clog "" OFFSET SIZE XSIZE
+        goto TMP
+    endif
+next i

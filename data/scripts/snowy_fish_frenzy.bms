@@ -1,0 +1,51 @@
+# Snowy: Fish Frenzy (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AR"
+get ZERO short
+get FILES long
+get TMP1 byte
+get TMP2 byte
+get TMP3 byte
+get TMP4 byte
+string KEY p "%d %d %d %d" TMP1 TMP2 TMP3 TMP4
+get OFFSET long
+for i = 0 < FILES
+    get NAMESZ byte
+    math TMP = NAMESZ
+    math TMP y 4
+    filexor KEY
+    getdstring NAME TMP
+    filexor ""
+    math NAMESZ % 4
+    getdstring TMP NAMESZ
+    string NAME + TMP
+    putarray 0 i NAME
+next i
+goto OFFSET
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    get KEY long
+    getarray NAME 0 i
+    math KEY & 0xff
+    if KEY == 0
+        log NAME OFFSET SIZE
+    else
+        math TMP = 0x14
+        if SIZE < TMP
+            math TMP = SIZE
+        endif
+        filexor KEY
+        log NAME OFFSET TMP
+        filexor "" ""
+        math OFFSET + TMP
+        math SIZE   - TMP
+        if SIZE > 0
+            append
+            log NAME OFFSET SIZE
+            append
+        endif
+    endif
+next i

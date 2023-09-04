@@ -1,0 +1,17 @@
+# Nibiru: Age Of Secrets
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get DUMMY long
+get BASE_OFF long
+math BASE_OFF * 40
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    getdstring NAME 32
+    get SIZE long
+    log NAME OFFSET SIZE
+next i
+

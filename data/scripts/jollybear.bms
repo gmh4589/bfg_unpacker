@@ -1,0 +1,53 @@
+# JollyBear games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get JBR_SIZE asize
+get FULLSIZE long
+goto FULLSIZE
+
+    callfunction GETNAME 1
+    get OFFSET2 long
+do
+    set FNAME string NAME
+    math OFFSET = OFFSET2
+    savepos CURR
+    if CURR < JBR_SIZE
+        callfunction GETNAME 1
+        get OFFSET2 long
+    else
+        math OFFSET2 = FULLSIZE
+    endif
+    math SIZE = OFFSET2
+    math SIZE -= OFFSET
+    set EXT extension FNAME
+    if EXT == "xml"
+        set CRYPT = 1
+    elif EXT == "inc"
+        set CRYPT = 1
+    elif EXT == "txt"
+        set CRYPT = 1
+    else
+        set CRYPT = 0
+    endif
+    if CRYPT != 0
+        encryption xor "\xd1\xc7"
+    endif
+    log FNAME OFFSET SIZE
+    encryption "" ""
+while CURR < JBR_SIZE
+
+startfunction GETNAME
+    set NAME string ""
+    for j = 0
+        get T byte
+        if T == 0
+            break
+        endif
+        if j & 1
+            math T ^= 0xc7
+        else
+            math T ^= 0xd1
+        endif
+        putvarchr NAME j T
+    next j
+endfunction

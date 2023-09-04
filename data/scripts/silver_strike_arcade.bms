@@ -1,0 +1,82 @@
+# Silver Strike Arcade (script 0.3.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.1"
+comtype lzrw1
+
+get EXT extension
+if EXT == "itm"
+
+    get DUMMY long  # 1
+    get DUMMY long  # 0
+    get DUMMY long  # 0x1e
+    get DUMMY long  # 0 or 1
+    get FILES long
+    get SIZE long
+    math OFFSET = 0x12c
+    for i = 0 < FILES
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+
+else
+
+    get DUMMY long  # 7
+    get DUMMY long
+    get INFO_SIZE long
+    savepos BASE_OFF
+    get DUMMY long   # 7
+    get FOLDERS long
+    get FOLDERS_OFF long
+    get FILES long
+    get INFO_OFF long
+    math FOLDERS_OFF + BASE_OFF
+    goto FOLDERS_OFF
+    for i = 0 < FOLDERS
+        get OFFSET long
+        savepos TMP
+        math OFFSET + BASE_OFF
+        goto OFFSET
+        get NAME string
+        goto TMP
+        putarray 10 i NAME
+    next i
+    math INFO_OFF + BASE_OFF
+    goto INFO_OFF
+    for i = 0 < FILES
+        get NAME_OFF long
+        get FOLDER long
+        get ZERO long
+        get FLAGS long
+        get OFFSET longlong
+        get SIZE longlong
+        get ZSIZE longlong
+
+        savepos TMP
+        math NAME_OFF + BASE_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        getarray PATH 10 FOLDER
+        string NAME p "%s%s" PATH NAME
+
+        if FLAGS & 3    # 1 or 2?
+            /*
+            # this operation is necessary because the algorithm expects
+            # a sort of 32bit at the beginning of the data set to zero
+            # but the files of the game don't have it
+            log MEMORY_FILE 0 0
+            putvarchr MEMORY_FILE 0 0 long
+            append
+            log MEMORY_FILE OFFSET ZSIZE
+            append
+            get ZSIZE asize MEMORY_FILE
+            */
+            clog NAME 0 ZSIZE SIZE MEMORY_FILE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next i
+
+endif

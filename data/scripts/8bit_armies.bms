@@ -1,0 +1,28 @@
+# 8-bit Armies
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FLAGS long
+if FLAGS != 0xffffffff
+    print "This archive is not supported yet"
+    cleanexit
+endif
+get DUMMY long
+get INFO_SIZE long
+get FILES long
+get NAMES long
+get NAMES_SIZE long
+for i = 0 < NAMES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+    get ZERO_NAMESZ short
+for i = 0 < FILES
+    get DUMMY long
+    get ZERO long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

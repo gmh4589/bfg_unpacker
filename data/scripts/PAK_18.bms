@@ -1,0 +1,18 @@
+<bms games="'Neocron', 'Neocron 2: Beyond Dome Of York'" platforms="'PC', 'PC'" ext="PAK">
+ImpType Standard ;
+ComType ZLib1 ;
+Get DATE Long 0 ;
+Get FileNum Long 0 ;
+For T = 1 To FileNum ;
+Get BlSize Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos UCSO 0 ;
+Get UCS Long 0 ;
+Get FNS Long 0 ;
+GetDString FN FNS 0 ;
+CLog FN FO FS UCS ; #CLog FN FO FS FOO FSO UCS UCSO ;
+Next T ;
+</bms>

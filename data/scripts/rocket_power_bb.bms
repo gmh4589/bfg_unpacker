@@ -1,0 +1,34 @@
+# Rocket Power - Beach Bandits
+#   directory tree not implemented, select 'r' when prompted
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAMES_SIZE long
+savepos TMP
+log MEMORY_FILE TMP NAMES_SIZE
+goto NAMES_SIZE 0 SEEK_CUR
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+
+# the last entry is the end and this is a work-around
+math FILES - 1
+get BASE_OFF asize
+getarray TMP 1 FILES
+math BASE_OFF - TMP
+math BASE_OFF - 0x1000
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,12 @@
+# Missing on Lost Island
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    if OFFSET != 0xffffffff
+    if SIZE   != 0xffffffff
+        log "" OFFSET SIZE
+    endif
+    endif
+next i

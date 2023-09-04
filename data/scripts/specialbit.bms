@@ -1,0 +1,53 @@
+# Specialbit Studio games (script 0.2)
+#   Haunted Hotel series
+#   Island: The Lost Medallion
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+goto 0
+math DUMMY ^= 0xbac04ac0
+if DUMMY == 0x54436841
+    filexor "0x41 0x68 0x43 0x54 0x75 0x54 0x33 0x47 0x35 0x23 0x55 0x69 0x33 0x50 0x30 0x39 0x42 0x67 0x69 0x55 0x69 0x4F 0x35"    # AhCTuT3G5#Ui3P09BgiUiO5
+elif DUMMY == 0x43706f50
+    filexor "0x50 0x6f 0x70 0x43 0x61 0x70 0x53 0x65 0x78 0x79 0x46 0x72 0x61 0x6d 0x65 0x77 0x6f 0x72 0x6b"                        # PopCapSexyFramework
+elif DUMMY == 0x63657073
+    filexor "0x73 0x70 0x65 0x63 0x69 0x61 0x6c 0x62 0x69 0x74"                                                                     # specialbit
+else
+    print "possible key %DUMMY%"
+    math DUMMY &= 0xff
+    filexor DUMMY
+    #print "the file seems unsupported, contact me if extraction fails!"
+endif
+
+idstring "\xc0\x4a\xc0\xba"
+get ZERO long
+
+for i = 0
+    get END byte
+    if END != 0
+        break
+    endif
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get SIZE long
+    get DATE longlong
+
+    putarray 0 i NAME
+    putarray 1 i SIZE
+next i
+savepos OFFSET
+
+math FILES = i
+for i = 0 < FILES
+    getarray NAME 0 i
+    getarray SIZE 1 i
+
+    goto OFFSET
+    get NUM short
+    getdstring ZERO NUM
+    savepos OFFSET
+
+    log NAME OFFSET SIZE
+
+    math OFFSET + SIZE
+next i

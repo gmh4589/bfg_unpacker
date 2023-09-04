@@ -1,0 +1,38 @@
+# Shadow of the Tomb Raider (tiger) (script 0.1.2)
+
+get EXT extension
+if EXT == "tiger"
+
+    idstring "TAFS"
+    get DUMMY long  # 5
+    get DUMMY long  # 1
+    get FILES long
+    get DUMMY long  # 0xb or 0xc
+    get DUMMY long
+    if DUMMY u> 0xffff
+        goto -4 0 SEEK_CUR
+    endif
+    getdstring NAME 0x20
+    for i = 0 < FILES
+        get NAME_HASH longlong
+        get DUMMY longlong
+        get SIZE long
+        get DUMMY long  # 0
+        get DUMMY long  # some flag
+        get OFFSET long
+        log "" OFFSET SIZE
+    next i
+
+else
+
+    get ZERO long
+    get STRINGS long
+    for i = 0 < STRINGS
+        get OFFSET long
+        get ZERO long
+        if OFFSET != 0
+            slog "" OFFSET -1
+        endif
+    next i
+
+endif

@@ -1,0 +1,34 @@
+# Sahmon Games
+#   The Island Game, World Voyage, IncaBall, AstroAvenger, AstroAvenger 2
+#   http://www.sahmon.com/sahmon/games.php
+# script for QuickBMS http://quickbms.aluigi.org
+
+set FILES long 0
+set PATH string ""
+set NAME string ""
+set FOLDER string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get SUB_FOLDERS long
+    for x = 0 < SUB_FOLDERS
+        get FOLDERSZ long
+        getdstring FOLDER FOLDERSZ
+        set OLD_PATH string PATH
+        string PATH += FOLDER
+        string PATH += /
+        get FILES long
+        for i = 0 < FILES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get OFFSET long
+            get SIZE long
+
+            set FULLNAME string PATH
+            string FULLNAME += NAME
+            log FULLNAME OFFSET SIZE
+        next i
+        callfunction EXTRACT
+        set PATH string OLD_PATH
+    next x
+endfunction

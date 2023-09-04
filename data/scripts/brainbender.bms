@@ -1,0 +1,48 @@
+# Nickelodeon's Brain Bender .PRX
+
+endian big
+get DUMMY long  # 1
+goto 0x8a
+get FILES short
+get FILES short # same
+get DUMMY long
+getdstring ZERO 6
+get DUMMY long
+getdstring ZERO 0xc
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 0x18)"
+
+math GET_INFO = 1
+
+for i = 0 < FILES
+    get ID short
+    get ZERO short
+    get ZERO long
+    get OFFSET long
+    getdstring TYPE 4
+    get FLAGS short
+    get ZERO short
+    get SIZE long
+
+    math OFFSET + BASE_OFF
+
+    set NAME string ""
+    if GET_INFO != 0
+        math OFFSET - 0x1c
+        savepos TMP
+        goto OFFSET
+        getdstring TYPE 4
+        get FLAGS short
+        getdstring NAME 0x10
+        get ZERO short
+        get XSIZE long
+        savepos OFFSET
+        # no changes to size
+        goto TMP
+        string TYPE _ TYPE  # bug in quickbms
+        string NAME _ NAME  # bug in quickbms
+        string NAME p "%s/%s." TYPE NAME
+    endif
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,17 @@
+# Shushan Jianxia
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bth"
+open FDDE "btp" 1
+
+get BTH_SIZE asize
+get VER long
+for BTH_OFF = 0 < BTH_SIZE
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get ZERO long   # OFFSET64?
+    get OFFSET long
+    get SIZE long
+    savepos BTH_OFF
+    log NAME OFFSET SIZE 1
+next

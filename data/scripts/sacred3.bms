@@ -1,0 +1,203 @@
+# Sacred 3 (script 0.1.1b)
+#   tested with PC and PS3 versions
+#   it automatically extract all the information from the FORK files (basically they are archives)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP *= 16
+if TMP == 0
+    print "Error: you must use quickbms_4gb_files.exe for this archive"
+    cleanexit
+endif
+
+comtype aplib
+
+get TMP_NAME basename
+open FDDE "packagedescription" 0 EXISTS
+if EXISTS == 0
+    string TMP_NAME >>= "_"
+    string TMP_NAME += ".packagedescription"
+    open FDSE TMP_NAME
+endif
+
+get ENDIANESS byte
+if ENDIANESS == 0
+    endian little
+else
+    endian big
+endif
+get DUMMY byte
+get DUMMY long  # crc?
+get NAMESZ long
+getdstring NAME NAMESZ
+get FILES long
+get DUMMY long
+if DUMMY == 0
+    get DUMMY long
+else
+    get DUMMY long
+    get DUMMY long
+endif
+get SIZE long
+savepos OFFSET
+log MEMORY_FILE2 OFFSET SIZE
+math OFFSET += SIZE
+goto OFFSET
+
+for i = 0 < FILES
+    get CRC long
+    getdstring TYPE 4
+    get NAME_OFF long
+    get SIZE longlong
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    #print "%CRC|x% %TYPE% %SIZE|x% %NAME%"
+
+    putarray 0 i CRC
+    putarray 1 i TYPE
+    putarray 2 i SIZE
+    putarray 4 i NAME
+next i
+
+get PACKAGE_BASENAME basename
+for PACKAGE_NUM = 0
+    if PACKAGE_BASENAME & "_"
+        if PACKAGE_NUM != 0
+            cleanexit
+        endif
+        string PACKAGE_NAME p= "%s.pak" PACKAGE_BASENAME
+    else
+        string PACKAGE_NAME p= "%s_%d.pak" PACKAGE_BASENAME PACKAGE_NUM
+    endif
+    open FDSE PACKAGE_NAME 0 EXISTS
+    if EXISTS == 0
+        cleanexit
+    endif
+
+    getdstring PAK_SIGN 4
+    if PAK_SIGN == "KPKl"
+        endian little
+    elif PAK_SIGN == "bKPK"
+        endian big
+    endif
+    get DUMMY long      # 0
+    get DUMMY long      # 0x10
+    get CHUNK_SIZE long
+    get FULL_SIZE asize
+    get DUMMY long      # crc?
+    savepos CHUNK_OFFSET
+    math CHUNK_FILE = 0
+    for CHUNK_OFFSET = CHUNK_OFFSET u< FULL_SIZE
+        if CHUNK_FILE >= FILES
+            break
+        endif
+        math CHUNK_FILE += 1
+
+        goto CHUNK_OFFSET
+        padding 0x10
+        savepos BASE_CHUNK_OFFSET
+        get FILE_SIZE long
+        get CHUNKS long
+        savepos CHUNK_OFFSET
+        xmath CHUNK_OFFSET "CHUNK_OFFSET + (CHUNKS * 4)"
+
+        if CHUNKS == 0
+            log MEMORY_FILE CHUNK_OFFSET FILE_SIZE
+            math CHUNK_OFFSET += FILE_SIZE
+        else
+            putvarchr MEMORY_FILE FILE_SIZE 0
+            log MEMORY_FILE 0 0
+            append
+            for CHUNK = 0 < CHUNKS
+                get CHUNK_ZSIZE long
+                if CHUNK_ZSIZE == 0 # ???
+                    log MEMORY_FILE CHUNK_OFFSET CHUNK_SIZE
+                    math CHUNK_OFFSET += CHUNK_SIZE
+                else
+                    clog MEMORY_FILE CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                    math CHUNK_OFFSET += CHUNK_ZSIZE
+                endif
+            next CHUNK
+            append
+        endif
+
+        # in case of errors uncomment the following and disable callfunction
+        #log "" 0 FILE_SIZE MEMORY_FILE
+
+        string NAME p= "%08x" BASE_CHUNK_OFFSET # in case we find no name
+        goto 0 MEMORY_FILE
+        getdstring FORK_SIGN 4 MEMORY_FILE
+        if FORK_SIGN == "FORK"
+            callfunction EXTRACT_FORK 1
+        else
+            log NAME 0 FILE_SIZE MEMORY_FILE
+        endif
+    next
+next PACKAGE_NUM
+
+
+startfunction EXTRACT_FORK
+    #idstring MEMORY_FILE "FORK"
+    get DUMMY byte MEMORY_FILE
+    get SKIPS byte MEMORY_FILE
+    get ELEMENTS byte MEMORY_FILE
+    get ZERO byte MEMORY_FILE
+    for SKIP = 0 < SKIPS
+        get DUMMY long MEMORY_FILE
+    next SKIP
+    savepos TMP MEMORY_FILE
+    for EXTRACT = 0 < 2
+        goto TMP MEMORY_FILE
+        for ELEMENT = 0 < ELEMENTS
+            endian big
+            get FLAG1 byte MEMORY_FILE
+            get FLAG2 byte MEMORY_FILE
+            get FLAG3 byte MEMORY_FILE
+            get FLAG4 byte MEMORY_FILE
+            get OFFSET long MEMORY_FILE
+            get ZSIZE long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            if PAK_SIGN == "KPKl"
+                endian little
+            endif
+
+            if EXTRACT == 0
+                if FLAG1 == 0
+                if FLAG2 == 0
+                if FLAG3 == 4
+                if FLAG4 == 0
+                    goto OFFSET MEMORY_FILE
+                    get DUMMY long MEMORY_FILE
+                    get MYCRC long MEMORY_FILE
+                    get DUMMY long MEMORY_FILE
+                    getdstring MYTYPE 4 MEMORY_FILE
+                    for ARRAY = 0 < FILES
+                        getarray CRC 0 ARRAY
+                        getarray TYPE 1 ARRAY
+                        getarray SIZE 2 ARRAY
+                        if MYCRC == CRC
+                        if MYTYPE == TYPE
+                        if FILE_SIZE == SIZE
+                            getarray NAME 4 ARRAY
+                            math ARRAY = FILES  # break
+                        endif
+                        endif
+                        endif
+                    next ARRAY
+                endif
+                endif
+                endif
+                endif
+            else
+                string FNAME p= "%s/%08x." NAME ELEMENT
+                if ZSIZE == SIZE
+                    log FNAME OFFSET SIZE MEMORY_FILE
+                else
+                    clog FNAME OFFSET ZSIZE SIZE MEMORY_FILE
+                endif
+            endif
+        next ELEMENT
+    next EXTRACT
+endfunction
+

@@ -1,0 +1,54 @@
+# And-Kensaku
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+idstring MEMORY_FILE "Pres"
+goto 0x80 MEMORY_FILE
+get FILES long MEMORY_FILE
+math FILES - 0x80
+math FILES / 0x20
+goto 0x80 MEMORY_FILE
+
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+    get NAME_ELEMENTS long MEMORY_FILE
+    getdstring DUMMY 0x10 MEMORY_FILE
+
+    if OFFSET != 0
+        savepos TMP MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+
+            # from god_eater_2.bms
+            get NAME_OFF long MEMORY_FILE
+            get EXT_OFF long MEMORY_FILE
+            get FOLDER_OFF long MEMORY_FILE
+
+            if NAME_ELEMENTS >= 1
+                math NAME_OFF + PRES_OFF
+                goto NAME_OFF MEMORY_FILE
+                get NAME string MEMORY_FILE
+                if NAME_ELEMENTS >= 2
+                    math EXT_OFF + PRES_OFF
+                    goto EXT_OFF MEMORY_FILE
+                    get EXT string MEMORY_FILE
+                    if NAME_ELEMENTS >= 3
+                        math FOLDER_OFF + PRES_OFF
+                        goto FOLDER_OFF MEMORY_FILE
+                        get FOLDER string MEMORY_FILE
+                    endif
+                endif
+            endif
+
+            #string NAME p "%s/%s.%s" FOLDER NAME EXT
+            string NAME p "%s/%s.%s" FOLDER NAME EXT
+
+        goto TMP MEMORY_FILE
+
+        log NAME OFFSET SIZE MEMORY_FILE
+    endif
+next i

@@ -1,0 +1,23 @@
+# dragonball trainers (吕小布外传商城版)
+
+comtype zlib_noerror
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+get FILE_SIZE asize MEMORY_FILE
+for OFFSET = 0 != FILE_SIZE
+    get NAMESZ variable4 MEMORY_FILE
+    if NAMESZ == 0
+        break
+    endif
+    getdstring NAME NAMESZ MEMORY_FILE
+    get SIZE variable4 MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    if NAME & "."
+    else
+        string NAME + "."
+    endif
+    log NAME OFFSET SIZE MEMORY_FILE
+    math OFFSET + SIZE
+    goto OFFSET MEMORY_FILE
+next

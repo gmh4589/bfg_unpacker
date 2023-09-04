@@ -1,0 +1,60 @@
+# TATE (script 0.1a)
+#   Kao the Kangaroo round 2 / Urban Trial Freestyle
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "zst1"
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    math ZSIZE -= OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+else
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+endif
+
+goto 0 MEMORY_FILE
+#getdstring SIGN 4 MEMORY_FILE
+get SIGN long MEMORY_FILE
+if SIGN == 0x45544154   # "TATE"
+
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get ENTRIES long MEMORY_FILE
+    getdstring NAME 0x30 MEMORY_FILE
+    for i = 0 < ENTRIES
+        getdstring NAME 8 MEMORY_FILE
+    next i
+    getdstring DUMMY 0x18 MEMORY_FILE
+
+    get PAK_SIZE asize MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    for OFFSET = OFFSET < PAK_SIZE
+        getdstring DUMMY 4 MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        getdstring NAME 0x70 MEMORY_FILE
+        savepos OFFSET MEMORY_FILE
+        if SIZE != 0
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+        math OFFSET += SIZE MEMORY_FILE
+        math OFFSET x= 0x80 MEMORY_FILE
+        goto OFFSET MEMORY_FILE
+    next
+
+elif SIGN == 0x65746174 # "tate"
+
+    print "Error: tate resources are not supported at the moment"
+    cleanexit
+
+    # no sizes or offsets, impossible to write a quick simple script
+    # impossible to guess them from their names because they are
+    # differents: objects, ui, gpobjects ...
+
+else
+    print "Error: the file is not a TATE archive"
+    cleanexit
+endif

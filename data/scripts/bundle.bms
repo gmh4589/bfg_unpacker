@@ -1,0 +1,48 @@
+# Bundle engine
+#   Tom Clancy's Ghost Recon Advanced Warfighter (PC version only, engine v6)
+#   Tom Clancy's Ghost Recon Advanced Warfighter 2 (PC version only, engine v7)
+#   Bionic Commando Rearmed
+#   Bionic Commando
+#   Wanted: Weapons of Fate
+#   Terminator Salvation
+#   ...others...
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BNDL"
+get VER long
+get FILE_OFF long
+get FILE_OFF64 long
+
+set FOLDER string ""
+set FULLPATH string ""
+do
+    callfunction bundle_extract
+    savepos INFO_OFF
+while INFO_OFF < FILE_OFF
+
+startfunction bundle_extract
+    string FULLPATH += FOLDER
+    string FULLPATH += /
+    do
+        get TYPE byte
+        if TYPE == 1
+            get TYPE2 byte
+            get FOLDER string
+            callfunction bundle_extract
+        elif TYPE == 2
+            get OFFSET long
+            get OFFSET64 long
+            get SIZE long
+            get TYPE2 byte
+            get NAME string
+            set PATH string FULLPATH
+            string PATH += NAME
+            log PATH OFFSET SIZE
+        elif TYPE == 3
+            #break not needed, I use while
+        else
+            print "Error: unknown TYPE %TYPE%"
+            cleanexit
+        endif
+    while TYPE != 3
+endfunction

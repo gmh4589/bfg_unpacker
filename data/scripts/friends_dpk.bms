@@ -1,0 +1,20 @@
+# Friends: The One with All the Trivia / Artech Digital Entertainment
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring DPK_NAME 0x48
+get DPK_SIZE long
+get FILES long
+get DUMMY short
+padding 4
+for i = 0 < FILES
+    get DUMMY long
+    getdstring FILE_TYPE 4
+    get SIZE long
+    get ZERO long   # probably something related to compression
+    get OFFSET long
+    getdstring NAME 0x86
+    getdstring NAME 260
+    padding 4
+    get TSTAMP long
+    log NAME OFFSET SIZE
+next i

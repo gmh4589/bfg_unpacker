@@ -1,0 +1,17 @@
+# 25 to life
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto 0x10
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get CRC long
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    log NAME OFFSET SIZE
+next i

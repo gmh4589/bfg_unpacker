@@ -1,0 +1,22 @@
+# God of War 1
+# script for QuickBMS http://quickbms.aluigi.org
+
+math LAST_PART_NUM = -1
+open FDSE "GODOFWAR.TOC"
+for
+    getdstring NAME 12
+    if NAME == ""
+        break
+    endif
+    get PART_NUM long
+    get SIZE long
+    get OFFSET long
+    math OFFSET * 0x800
+    if PART_NUM != LAST_PART_NUM
+        math LAST_PART_NUM = PART_NUM
+        math PART_NUM + 1
+        string TMP p "PART%d.PAK" PART_NUM
+        open FDSE TMP 1
+    endif
+    log NAME OFFSET SIZE 1
+next

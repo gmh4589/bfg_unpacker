@@ -1,0 +1,163 @@
+# InstallShield (version?) HDR/CAB (script 0.2.3)
+#   original struct information by wattostudios
+#   https://zenhax.com/viewtopic.php?t=4279&p=23854#p23854
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflatex
+
+open FDDE "hdr" 0 HDR_EXISTS
+if HDR_EXISTS == 0
+    open FDDE "cab"
+endif
+
+idstring "ISc("
+get VER long
+get ZERO long
+get INFO_OFF long
+get INFO_SIZE long
+get HDR_SIZE long
+
+goto INFO_OFF
+get OFFSET long
+get ZERO long
+get DUMMY long
+get SIZE long
+get ZERO long
+get DUMMY_SIZE long
+get DUMMY_SIZE long
+get FOLDERS long
+get ZERO long
+get DUMMY long  # 4
+get FILES long
+
+math INFO_OFF + SIZE
+goto INFO_OFF
+
+for i = 0 < FOLDERS
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF + INFO_OFF
+    goto NAME_OFF
+    callfunction GET_NAME 1
+    goto TMP
+    putarray 0 i NAME
+next i
+
+math LAST_DATA_ID = -1
+math DATA_ID = 1    # just in case
+
+get TMP short
+goto -2 0 SEEK_CUR
+if TMP u<= 0x10 # VER 0x01009500
+
+    math CHUNK_SIZE = 0x8000
+    for i = 0 < FILES
+        get TYPE short
+        get SIZE longlong
+        get ZSIZE longlong
+        get OFFSET longlong
+        getdstring HASH 16
+        get DUMMY short # 0 or 1
+        get DUMMY short # 0 or 0xa
+        get DUMMY short # 0 or 0xee
+        get DUMMY short # 0
+        get ZERO longlong
+        get NAME_OFF long
+        get FOLDER short
+        get FLAGS long
+        get DUMMY long
+        get DATA_ID long    # duplicate but sometimes it's zero when a cab is not available
+        getdstring DUMMY 9
+        get DATA_ID short   # yeah it's the same as before
+
+        callfunction DUMP 1
+    next i
+
+else
+
+    math CHUNK_SIZE = 0x10000
+    for i = 0 < FILES
+        get OFFSET long
+
+        savepos TMP
+        math OFFSET + INFO_OFF
+        goto OFFSET
+
+        get NAME_OFF long
+        get FOLDER long
+        get TYPE short
+        get SIZE long
+        get ZSIZE long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY short
+        get DUMMY long
+        get DUMMY short
+        get OFFSET long
+        get DUMMY longlong
+        get DUMMY longlong
+
+        math DATA_ID = 1    # needs to be fixed, don't have samples at the moment
+        callfunction DUMP 1
+
+        goto TMP
+    next i
+
+endif
+
+startfunction DUMP
+    savepos TMP2
+    getarray PATH 0 FOLDER
+
+    if TYPE == 4
+
+        if DATA_ID != LAST_DATA_ID
+            math LAST_DATA_ID = DATA_ID
+            get TMP_NAME basename
+            if DATA_ID >= 1
+                string TMP_NAME - 1 # data1 -> data
+                string TMP_NAME + DATA_ID
+            endif
+            string TMP_NAME + ".cab"
+            open FDSE TMP_NAME 1
+        endif
+
+        math NAME_OFF + INFO_OFF
+        goto NAME_OFF
+        callfunction GET_NAME 1
+
+        # it's also possible to use ZSIZE to know how much we have to read
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != SIZE
+            goto OFFSET 1
+            get CHUNK_ZSIZE short 1
+            savepos OFFSET 1
+            if CHUNK_ZSIZE == 0 # ???
+                log MEMORY_FILE OFFSET CHUNK_SIZE 1
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            get MEM_SIZE asize MEMORY_FILE
+        next
+        append
+
+        string NAME p "%s/%s" PATH NAME
+        string NAME | ":"  # http:// and https:// remover
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        putarray 0 i NAME
+    endif
+    goto TMP2
+endfunction
+
+startfunction GET_NAME
+    if VER & 0x04000000
+        get NAME unicode
+    else
+        get NAME string
+    endif
+endfunction

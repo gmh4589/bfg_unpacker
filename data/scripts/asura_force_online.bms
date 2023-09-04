@@ -1,0 +1,40 @@
+# Asura Force Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Z\0\0\0"
+get ZERO long
+get DUMMY long
+get BASE_OFF long
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    do
+        get TYPE byte
+        getdstring NAME 0x2f
+        if NAME == ""
+            break
+        endif
+        get CRC long
+        get ZERO long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get NEXT_ID long
+        get PREV_ID long
+        if TYPE & 2
+            callfunction EXTRACT
+        else
+            set FNAME string PATH
+            string FNAME + NAME
+            if ZSIZE == SIZE
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    while NEXT_ID != 0xffffffff
+endfunction

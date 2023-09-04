@@ -1,0 +1,14 @@
+# Soldier of Fortune 1
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring PACK
+get INFO_OFF long
+get FILES long
+math FILES /= 0x40
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x38
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

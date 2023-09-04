@@ -1,0 +1,31 @@
+# Azure Striker Gunvolt
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "irlst"
+open FDDE "irarc" 1
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+    if FLAGS & 0x10
+        goto OFFSET 1
+        savepos TMP 1
+        get DUMMY long 1    # 0x18
+        get ZERO long 1
+        get ZSIZE long 1
+        get SIZE long 1
+        get ZERO long 1
+        get ZERO long 1
+        savepos OFFSET 1
+        math ZSIZE - OFFSET
+        math ZSIZE + TMP
+
+        # unknown compression algorithm, LZFU_RAW is something close but not correct
+        #clog "" OFFSET ZSIZE SIZE 1
+        log "compressed/" OFFSET ZSIZE 1
+    else
+        log "" OFFSET SIZE 1
+    endif
+next i

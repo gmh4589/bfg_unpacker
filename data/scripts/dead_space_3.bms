@@ -1,0 +1,57 @@
+# Dead Space 3 Awakend (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "ols3"
+get DUMMY long
+get DUMMY long
+savepos CHUNK_OFFSET
+get STR_SIZE asize
+set OLD_NAME string ""
+for CHUNK_OFFSET = CHUNK_OFFSET < STR_SIZE
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+    getdstring CHUNK_NAME 4
+    xmath NEXT_CHUNK_OFFSET "CHUNK_OFFSET + CHUNK_SIZE"
+    #print "%CHUNK_OFFSET|x% %CHUNK_SIZE|x% %CHUNK_NAME%"
+    if CHUNK_NAME == "SHDR"
+        getdstring DUMMY 0x1c
+        get SIZE long
+        get NAME string
+        get NAME string
+    elif CHUNK_NAME == "LZXD"
+        comtype xmemdecompress
+        get ZSIZE long
+        savepos OFFSET
+        callfunction CHECK_NAME 1
+        clog FNAME OFFSET ZSIZE SIZE
+    elif CHUNK_NAME == "Rpak"
+        comtype dk2
+        get ZSIZE long
+        savepos OFFSET
+        callfunction CHECK_NAME 1
+        clog FNAME OFFSET ZSIZE SIZE
+    else
+        savepos OFFSET
+        xmath SIZE "NEXT_CHUNK_OFFSET - OFFSET"
+        callfunction CHECK_NAME 1
+        log FNAME OFFSET SIZE
+    endif
+    math CHUNK_OFFSET = NEXT_CHUNK_OFFSET
+    goto CHUNK_OFFSET
+next
+
+startfunction CHECK_NAME
+    set FNAME string NAME
+    if NAME == OLD_NAME
+        set TMP1 string NAME
+        string TMP1 <<= "."
+        string TMP1 -= 1
+        set TMP2 extension NAME
+        string FNAME p= "%s_%d.%s" TMP1 COUNTER TMP2
+        math COUNTER += 1
+    else
+        math COUNTER = 1
+    endif
+    set OLD_NAME string NAME
+endfunction

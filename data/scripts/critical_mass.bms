@@ -1,0 +1,16 @@
+# Critical Mass
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+get NAMESZ long MEMORY_FILE
+getdstring NAME NAMESZ MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

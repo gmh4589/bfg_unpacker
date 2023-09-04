@@ -1,0 +1,37 @@
+# WRC 6 FIA World Rally Championship (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4f    # "\x04\x22\x4d\x18" magic is lz4f
+idstring "PPKG"
+get VER long    # 2
+get FILES long
+get INFO_SIZE long
+getdstring ZERO 0x20
+# don't know why but a sample of wrc6 needed 0x21 instead of 0x20... maybe corrupted sample, better check
+get CHECK byte
+if CHECK != 0
+    goto -1 0 SEEK_CUR
+endif
+
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get NAME_CRC long
+    get OFFSET longlong
+    get TSTAMP longlong
+    get ZSIZE longlong  # PKGB + ZSIZE + PKGE
+    get SIZE longlong   # PKGB + SIZE  + PKGE
+    get ZIP long
+    get ZCRC long
+    get CRC long
+    getdstring ZERO 0x20
+
+    encryption xor "1QF5FsyDFFXX4NVeNPpYggyakreWkJfy"
+    math OFFSET + 4     # PKGB
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    encryption "" ""
+next i

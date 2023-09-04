@@ -1,0 +1,42 @@
+# Rush rally 3
+
+#comtype ???
+get ARCHIVE_SIZE asize
+for ENTRY_OFF = 0 != ARCHIVE_SIZE
+    get DUMMY long
+    get ZERO long
+    get ENTRY_SIZE long
+    get SOME_SIZE long
+    getdstring ZERO 0x10
+    savepos BASE_OFF
+    get DUMMY long
+    get ZERO long
+    get NAME_OFF longlong
+    get NAME_CRC long
+    get NAMESZ long
+    get ZERO long
+    get ZERO long
+    get OFFSET longlong
+    get SIZE long
+    get XSIZE long
+    get DUMMY long
+    if OFFSET != 0
+        math OFFSET + BASE_OFF
+        set NAME string ""
+        if NAME_OFF != 0xffffffff
+            math NAME_OFF + BASE_OFF
+            goto NAME_OFF
+            getdstring NAME NAMESZ
+        endif
+
+        if XSIZE == 0
+            log NAME OFFSET SIZE
+        else
+            #clog NAME OFFSET SIZE XSIZE
+            string NAME p "%s/%s" "compressed" NAME
+            log NAME OFFSET SIZE
+        endif
+    endif
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+next

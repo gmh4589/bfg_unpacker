@@ -1,0 +1,19 @@
+<bms games="'Cyclones'" platforms="'PC'" ext="'CD', 'HD'">
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Int 0 ;
+GetDString FILENAME DUMMYL 0 ;
+SavePos FILESTART 0 ;
+Get FILEOFF Long 0 ;
+GoTo FILESTART 0 ;
+Get TAILOFF Long 0 ;
+Set TAILOFF Long FILESTART ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

@@ -1,0 +1,21 @@
+# Silver Wings
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BAM!"
+get INFO_OFFSET long
+get INFO_SIZE long
+math INFO_SIZE += INFO_OFFSET
+
+goto INFO_OFFSET
+for
+   savepos INFO_OFFSET
+   if INFO_OFFSET >= INFO_SIZE
+      cleanexit
+   endif
+
+   getdstring NAME 0x38
+   get OFFSET long
+   get SIZE long
+
+   log NAME OFFSET SIZE
+next

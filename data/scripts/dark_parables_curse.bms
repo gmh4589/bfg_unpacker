@@ -1,0 +1,33 @@
+# Dark Parables Curse of Briar Rose
+
+encryption blowfish "012483 btg"
+get HOSIZE asize
+log MEMORY_FILE 0 HOSIZE
+encryption "" ""
+
+idstring MEMORY_FILE "HiddenObject"
+getdstring VER 3 MEMORY_FILE
+get PATH basename
+string PATH += /
+
+math FILES = 1
+for i = 0
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+        math TMP = OFFSET
+        math TMP += SIZE
+        goto TMP MEMORY_FILE
+    set NAME string PATH
+    string NAME += i
+    string NAME += ".dat"
+    log NAME OFFSET SIZE MEMORY_FILE
+    if i >= FILES
+        cleanexit
+    endif
+    if i == 0
+        get FILES long MEMORY_FILE
+    endif
+    getdstring DUMMY 24 MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+next i

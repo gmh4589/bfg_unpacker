@@ -1,0 +1,10 @@
+# Morrowind BSA
+
+get DUMMY long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,10 @@
+# Indiana Jones and the Emperor's Tomb
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "nsh"
+open FDDE "pk2" 1
+for
+    get TMP line
+    string ELEMENTS S TMP NAME SIZE OFFSET
+    log NAME OFFSET SIZE 1
+next

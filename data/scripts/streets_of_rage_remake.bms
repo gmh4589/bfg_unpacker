@@ -1,0 +1,22 @@
+# Streets of Rage Remake (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "dcb\r\n\x1f\0\0"
+get DUMMY long  # 0x710
+get DUMMY long  # 0x155
+get FILES long
+goto 0x50
+do  # they should be 13 resourecs, 9 is for the files
+    get OFFSET long
+    putarray 0 -1 OFFSET
+while OFFSET != 0
+getarray OFFSET 0 9
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ long
+    get DUMMY byte  # ever different and useless
+    get SIZE long
+    get OFFSET long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,45 @@
+# Risen 3 BIN
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GAR5"
+get DUMMY long
+getdstring STB_SIGN 3
+get VER byte
+get FILES long
+get ZERO long
+get STRINGS long
+get DUMMY long
+get NAME_OFF long
+get STR_OFF long
+get INFO_OFF long
+get DATA_OFF long
+
+goto STR_OFF
+for i = 0 < STRINGS
+    get STRSZ long
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    getdstring STR STRSZ
+    goto TMP
+    print "%STR%"
+next i
+
+goto NAME_OFF
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get TSTAMPH long
+    get TSTAMPL long
+    putarray 0 i NAME
+next i
+
+goto INFO_OFF
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i
+

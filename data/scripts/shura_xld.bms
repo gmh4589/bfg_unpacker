@@ -1,0 +1,68 @@
+# Shura Road Online / XLD 《修罗道OL》 (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "pak"
+
+    idstring "XPAK"
+    get DUMMY long  # 0xa
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get DUMMY long  # any value
+        get TYPE long   # 0xa
+        get ZERO long
+        get SIZE long
+
+        get SOME_CRC long   # better to remove this useless 32bit
+        math SIZE - 4
+
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next i
+
+elif EXT == "zp"
+
+    # only the last folder is saved, sorry
+    set PATH string ""
+    get DUMMY long  # idstring "Z\0\0\0"
+    get ZERO long
+    get ENTRIES long
+    get DATA_OFF long
+    for i = 0 < ENTRIES
+        get FLAGS byte
+        getdstring NAME 0x2f
+        get CRC long
+        get ZERO long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get TO_ID long
+        get FROM_ID long
+
+        if FLAGS & 2
+            # folder
+            putarray 0 i NAME
+            putarray 1 i TO_ID
+            putarray 2 i FROM_ID
+            set PATH string NAME
+        elif FLAGS & 1
+            # no file
+        else
+            string NAME p "%s/%s" PATH NAME
+            if FLAGS & 4
+                clog NAME OFFSET ZSIZE SIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next i
+
+else
+
+    print "Error: unsupported file"
+    cleanexit
+
+endif

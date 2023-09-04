@@ -1,0 +1,10 @@
+# Die by the Sword
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 80
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,14 @@
+# Poppit to go!
+
+idstring "PXMDY"
+get FILES1 long # graphics
+get FILES2 long # audio
+get FILES3 long # text
+xmath FILES "FILES1 + FILES2 + FILES3"
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

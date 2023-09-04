@@ -1,0 +1,21 @@
+# Artech Studios DAT
+# Family Feud, Monopoly
+
+idstring "Artech\0\0"
+get DUMMY short # 2
+get DUMMY short # 3
+get DUMMY long  # 1
+get ZERO long
+get FILES long
+get SOME_CRC long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get FLAGS long  # 1, 0xc, 0x10 and so on
+    get ZSIZE long
+    if ZIP == 0     # never tested
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

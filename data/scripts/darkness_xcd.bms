@@ -1,0 +1,72 @@
+# Starbreeze Studios games XCD/XWC (script 0.2.1)
+#   The Darkness
+#   The Chronicles of Riddick Assault on Dark Athena
+# script for QuickBMS http://quickbms.aluigi.org
+
+# do not check the MOS signature because the XCD archives have a MOS as first file
+
+goto -4
+savepos MAX_OFF
+get INFO_OFF long
+if INFO_OFF == 0    # or EXT is XWC
+    goto 0
+    get SIZE asize
+    set NAME string ""
+    callfunction EXTRACT_MOS
+    cleanexit
+endif
+goto INFO_OFF
+get FILES long
+savepos BACKUP_OFF
+for BACKUP_OFF = BACKUP_OFF != MAX_OFF
+    get OFFSET longlong
+    get SIZE longlong
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    padding 4 0 INFO_OFF
+
+    savepos BACKUP_OFF
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "MOS "
+        goto OFFSET
+        callfunction EXTRACT_MOS
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto BACKUP_OFF
+next
+
+startfunction EXTRACT_MOS
+    set PATH string NAME
+    savepos BASE_OFF
+    idstring "MOS DATAFILE2.0\0"
+    get ZERO longlong
+    get INFO_OFF longlong
+    get DATA_OFF long
+    if DATA_OFF != 0
+        # not sure about the following, they don't match all the samples... who cares
+        get SIZE long
+        get XSIZE long
+        get DUMMY long
+        savepos TMP
+        xmath MOS_FILES "DATA_OFF - (TMP - BASE_OFF)"
+    else
+        math INFO_OFF + BASE_OFF
+        goto INFO_OFF
+        xmath MOS_FILES "SIZE - INFO_OFF"
+    endif
+    math MOS_FILES / 0x30
+    for x = 0 < MOS_FILES
+        getdstring NAME 0x10
+        get ZERO longlong
+        get DUMMY longlong
+        get OFFSET long
+        get SIZE long
+        get XSIZE long
+        get DUMMY long
+        math OFFSET + BASE_OFF
+        string FNAME p "%s/%s" PATH NAME
+        log FNAME OFFSET SIZE
+    next x
+endfunction

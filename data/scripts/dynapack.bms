@@ -1,0 +1,11 @@
+# Ever17 VPK
+
+idstring "DYNAPACK"
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    getdstring NAME 255
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+next i

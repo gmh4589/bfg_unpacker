@@ -1,0 +1,30 @@
+get FILES long
+math FILES /= 8
+goto 0
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP_OFF
+    goto OFFSET
+    get NAMESZ byte
+    set NAME string ""
+    if NAMESZ > 0
+        if NAMESZ < 40
+            getdstring TMP NAMESZ
+            savepos OFFSET
+            math SIZE -= 1
+            math SIZE -= NAMESZ
+            if NAMESZ > 5
+                get NAME basename
+                string NAME += /
+                string NAME += i
+                string NAME += _
+                string NAME += TMP
+            endif
+        endif
+    endif
+    goto TMP_OFF
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,41 @@
+# SKATE 3 XSF (script 0.3.1)
+
+comtype dk2
+endian big
+idstring "SFIL"
+padding 0x80
+get XSF_SIZE asize
+do
+    savepos ENTRY_OFF
+    getdstring DUMMY 8
+    get SIZE long
+    get HEAD_SIZE long
+    get XSIZE long
+    xmath OFFSET "ENTRY_OFF + HEAD_SIZE"
+
+    string NAME p "%08x.rx2" OFFSET
+
+    goto OFFSET
+    math OFFSET + 0x50
+    log NAME 0 0
+    append
+    for x = 0 < 5   # or is each field 0x20 bytes?
+        get SIZE long
+        get ZSIZE long
+        get ZIP long
+        get ZERO long
+
+        if ZSIZE != 0
+            if ZIP == 0
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+            math OFFSET + ZSIZE
+        endif
+    next x
+    append
+
+    math ENTRY_OFF + XSIZE
+    goto ENTRY_OFF
+while ENTRY_OFF != XSF_SIZE

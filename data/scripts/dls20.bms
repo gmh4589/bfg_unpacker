@@ -1,0 +1,98 @@
+# Dream League Soccer 2020 (script 0.2)
+
+idstring "\x01KPX"  # KPX/XPK
+get FOLDERS long
+get FILES long
+get NAMES_SIZE long
+
+for i = 0 < FOLDERS
+    get NAME_OFF long
+    get XFILES long
+    get XFOLDERS long
+    get XFILES_POS long
+    get XFOLDERS_POS long
+
+    putarray 5 i NAME_OFF
+    putarray 6 i XFILES
+    putarray 7 i XFOLDERS
+    putarray 8 i XFILES_POS
+    putarray 9 i XFOLDERS_POS
+next i
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    get OFFSET long
+    get ZIP long
+    get CRC long
+    get ZSIZE long
+
+    putarray 0 i NAME_OFF
+    putarray 1 i SIZE
+    putarray 2 i OFFSET
+    putarray 3 i ZIP
+    putarray 4 i ZSIZE
+next i
+
+savepos NAMES_OFF
+for i = 0 < FOLDERS
+    getarray NAME_OFF 5 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 5 i NAME
+next i
+for i = 0 < FILES
+    getarray NAME_OFF 0 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+next i
+
+getarray NAME         5 0
+getarray XFILES       6 0
+getarray XFOLDERS     7 0
+getarray XFILES_POS   8 0
+getarray XFOLDERS_POS 9 0
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math FILES = XFILES
+    math FOLDERS = XFOLDERS
+    math FILES_POS = XFILES_POS
+    math FOLDERS_POS = XFOLDERS_POS
+
+    for i = 0 < FILES
+        math T = FILES_POS
+        math T += i
+        getarray NAME   0 T
+        getarray SIZE   1 T
+        getarray OFFSET 2 T
+        getarray ZIP    3 T
+        getarray ZSIZE  4 T
+        set FNAME string PATH
+        string FNAME += NAME
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+    for i = 0 < FOLDERS
+        math T = FOLDERS_POS
+        math T += i
+        getarray NAME         5 T
+        getarray XFILES       6 T
+        getarray XFOLDERS     7 T
+        getarray XFILES_POS   8 T
+        getarray XFOLDERS_POS 9 T
+        callfunction EXTRACT
+    next i
+endfunction
+

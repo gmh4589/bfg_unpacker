@@ -1,0 +1,94 @@
+# Looney Toons ACME Arsenal (RedTribe developers) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype NRV2b
+
+get SIGN long
+goto 0
+
+endian guess SIGN
+if SIGN u<= 8
+    get DUMMY long  # 8
+    get DUMMY long  # 2
+    get DUMMY long  # some crc?
+    get ZERO long
+    get INFO_SIZE long
+    get DUMMY long  # 2
+    get FILES long
+    savepos TMP
+    xmath NAMES_OFF "TMP + (FILES * 4 * 7)"
+    for i = 0 < FILES
+        get ZERO long
+        get NAMESZ long
+        get NAME_OFF long
+        get OFFSET long
+        get OFFSET2 long
+        get SIZE long
+        get SIZE2 long
+
+        if SIZE != SIZE2
+            print "Error: SIZE != SIZE2, contact me"
+            cleanexit
+        endif
+
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        getdstring NAME NAMESZ
+        goto TMP
+
+        callfunction EXTRACT 1
+    next i
+    cleanexit
+endif
+
+endian little
+idstring "\x0f\xd0\x0f\xd0"
+get VER long
+get INFO_SIZE longlong
+get PAK_SIZE longlong
+get FILES longlong
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET2 long
+    get OFFSET long
+    get NAMES byte
+    set NAME string ""
+    for x = 1 <= NAMES
+        get TMP byte
+        getdstring TMP TMP
+        if x == NAMES
+            string NAME + .
+        else
+            string NAME + /
+        endif
+        string NAME + TMP
+    next x
+
+    callfunction EXTRACT 1
+next i
+
+startfunction EXTRACT
+    math OFFSET * 0x800
+    math OFFSET + OFFSET2
+
+      endian save CURRENT_ENDIAN
+    endian little
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "FFCK"
+        get ZERO long
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+
+      if CURRENT_ENDIAN != 0
+        endian big
+      endif
+endfunction

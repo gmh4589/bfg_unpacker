@@ -1,0 +1,9 @@
+idstring "S2AR"
+get FILES long
+xmath OFFSET "8 + (FILES * (4 + 4))"
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+next i

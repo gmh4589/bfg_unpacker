@@ -1,0 +1,31 @@
+# Touhou Kobuto
+# script for QuickBMS http://quickbms.aluigi.org
+
+encryption "incremental xor" 0x00
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+encryption "" ""
+
+endian big
+idstring MEMORY_FILE "AAFC"
+get DUMMY long MEMORY_FILE
+getdstring DUMMY 8 MEMORY_FILE
+get FILES long MEMORY_FILE
+savepos START MEMORY_FILE
+for EXTRACT = 0 < 2
+    goto START MEMORY_FILE
+    for i = 0 < FILES
+        get NAMESZ long MEMORY_FILE
+        math NAMESZ *= 2
+        getdstring NAME NAMESZ MEMORY_FILE
+        putvarchr NAME NAMESZ 0 short
+        set NAME unicode NAME
+        get DUMMY long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        if EXTRACT != 0
+            log NAME OFFSET SIZE MEMORY_FILE
+            math OFFSET += SIZE
+        endif
+    next i
+    savepos OFFSET MEMORY_FILE
+next EXTRACT

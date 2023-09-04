@@ -1,0 +1,14 @@
+idstring "DBLD"
+getdstring VER 4
+get DUMMY long
+savepos OFFSET
+get BIN_SIZE asize
+for OFFSET = OFFSET < BIN_SIZE
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    if SIZE > 4
+        log "" OFFSET SIZE
+    endif
+    math OFFSET += SIZE
+next

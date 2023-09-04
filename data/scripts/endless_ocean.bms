@@ -1,0 +1,82 @@
+# Endless Ocean: Blue World (script 0.1.1a)
+#   try arika.bms for the encrypted files with magic "*ARK"
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "DAT"
+    getdstring SIGN 3
+    goto 0
+    if SIGN u== "RF2"
+        set PATH string ""
+        set NAME string ""
+        math FILENUM = 0
+        math OFFSET = 0
+        callfunction EXTRACT_RF2 1
+        cleanexit
+    endif
+endif
+
+math AUTO_PARSING_RF2 = 1
+
+get DAT_NAME filename
+string DAT_NAME R "GAME" "INFO" # INFO.DAT
+open FDSE DAT_NAME
+string DAT_NAME R "INFO" "GAME" # GAME.DAT
+open FDSE DAT_NAME 1
+math FILENUM = 1
+
+idstring "\x00ARK"  # ARK_CRV005_DATA
+goto 0x24
+get ALIGN long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    math OFFSET * ALIGN
+    if ZSIZE == SIZE
+        if AUTO_PARSING_RF2 == 0
+            log NAME OFFSET SIZE 1
+        else
+            # automatic handling of "RF2" files and sub_files
+            set PATH string ""
+            callfunction EXTRACT_RF2    # don't use 1
+        endif
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i
+
+startfunction EXTRACT_RF2
+    savepos TMP FILENUM
+    goto OFFSET FILENUM
+    getdstring SIGN 3 FILENUM
+    if SIGN == "RF2"
+        math BASE_OFF = OFFSET
+        getdstring TYPE 3 FILENUM
+        string PATH + NAME
+        string PATH + /
+        get VER short FILENUM
+        get INFO_SIZE threebyte FILENUM
+        get DUMMY byte FILENUM
+        get HEAD_SIZE long FILENUM
+        xmath SUB_FILES "INFO_SIZE / 0x20"
+        for x = 0 < SUB_FILES
+            getdstring NAME 0x14 FILENUM
+            get SIZE long FILENUM
+            get OFFSET long FILENUM
+            get FLAGS long FILENUM
+            math OFFSET + BASE_OFF
+            if SIZE != 0
+                callfunction EXTRACT_RF2
+            endif
+        next x
+    else
+        string FNAME p "%s/%s" PATH NAME
+        log FNAME OFFSET SIZE FILENUM
+    endif
+    goto TMP FILENUM
+endfunction

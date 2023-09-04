@@ -1,0 +1,70 @@
+# WRC5 PAC to ZIP decrypter/encrypter (script 0.1.2)
+#
+#   Info:
+#   - the whole file is xored with the key of 0x20 bytes
+#   - there is a custom header of 0x10 bytes at the beginning
+#   - the odd bytes at the end are xored with a shifted key
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "14F5FsyDFFUC4NVANPpYggyakreWkJfy"
+set HEADER binary "ENCR\0\0\0\0\0\0\0\0\0\0\0\0"
+math HEADERSZ = 0x10
+math ALIGN    = 8
+
+get EXT extension
+if EXT == "ZIP"
+
+    log MEMORY_FILE2 0 0
+    putdstring HEADER HEADERSZ MEMORY_FILE2
+    get SIZE asize
+    append
+    log MEMORY_FILE2 0 SIZE
+    append
+
+    get SIZE asize MEMORY_FILE2
+    xmath ODD_SIZE "SIZE % ALIGN"
+    xmath SIZE     "(SIZE / ALIGN) * ALIGN"
+
+    encryption xor KEY
+    log MEMORY_FILE 0 SIZE MEMORY_FILE2
+    math DUMP_OFF = 0
+    xmath OFFSET "SIZE - HEADERSZ"
+
+else
+
+    encryption xor KEY
+    log MEMORY_FILE 0 4
+    idstring MEMORY_FILE "ENCR"
+
+    get SIZE asize
+    xmath ODD_SIZE "SIZE % ALIGN"
+    xmath SIZE     "(SIZE / ALIGN) * ALIGN"
+
+    encryption xor KEY
+    log MEMORY_FILE 0 SIZE
+    math DUMP_OFF = HEADERSZ
+    math OFFSET = SIZE
+
+endif
+
+if OFFSET % 0x10
+else
+    string KEY << 0x10
+endif
+encryption xor KEY
+append
+log MEMORY_FILE OFFSET ODD_SIZE
+append
+encryption "" ""
+
+get NAME basename
+if EXT == "ZIP"
+    string NAME + ".pac"
+else
+    string NAME + ".zip"
+endif
+math OFFSET = DUMP_OFF
+get SIZE asize MEMORY_FILE
+math SIZE - OFFSET
+log NAME OFFSET SIZE MEMORY_FILE

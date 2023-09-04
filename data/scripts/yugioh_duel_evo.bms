@@ -1,0 +1,21 @@
+# Yu-Gi-Oh! Online: Duel Evolution
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+idstring "KCEJYUGI"
+get FILES long
+for i = 0 < FILES
+    encryption rotate 4
+    filecrypt 1
+    getdstring NAME 0x100
+    filecrypt 0
+    encryption "" ""
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

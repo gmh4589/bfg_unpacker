@@ -1,0 +1,12 @@
+# Onimusha: Warlords
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LINK"
+get FILES long
+for i = 0 < FILES
+    get TYPE long
+    get OFFSET long
+    get SIZE long
+    string NAME p "%d/" TYPE
+    log NAME OFFSET SIZE
+next i

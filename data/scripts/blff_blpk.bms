@@ -1,0 +1,44 @@
+# Kim Kardashian Game / Glu Mobile BLFF BLPK
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+idstring "BLFF"
+idstring "BLPK"
+get DUMMY long  # 4
+get ZERO long
+get DATA_SIZE long
+get ZERO long
+getdstring HASH 20
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    idstring "BLFF"
+    getdstring TYPE 4
+    get DUMMY long  # 5, version?
+    get DUMMY long  # CRC?
+    get ZSIZE long
+    get ZIP long    # my samples were all 1
+    getdstring HASH 20
+    xmath OFFSET "OFFSET + SIZE - ZSIZE"    # get the correct offset
+    if ZIP == 0
+        log "" OFFSET ZSIZE
+    else
+        goto OFFSET
+        get SIZE long
+        math OFFSET + 4
+        math ZSIZE  - 4
+        if SIZE & 0x80000000
+            math SIZE & 0x7fffffff
+            clog "" OFFSET ZSIZE SIZE
+        else
+            # never happened with my samples
+            log "" OFFSET ZSIZE
+        endif
+    endif
+    goto TMP
+next i

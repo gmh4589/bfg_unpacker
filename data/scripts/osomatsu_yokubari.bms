@@ -1,0 +1,15 @@
+# Osomatsu-san Yokubari! NEET Island
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "pkh"
+open FDDE "pk" 1
+
+endian big
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    clog "" OFFSET ZSIZE SIZE 1
+next i

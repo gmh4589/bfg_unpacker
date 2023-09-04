@@ -1,0 +1,11 @@
+# GOB Magnussoft
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GOB\0"
+get FILES long
+for i = 0 < FILES
+	get OFFSET long
+	get SIZE long
+	getdstring NAME 260
+	log NAME OFFSET SIZE
+next i

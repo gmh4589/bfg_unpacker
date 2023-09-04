@@ -1,0 +1,20 @@
+# http://forum.xentax.com/viewtopic.php?f=10&t=2594
+
+get FILES long
+get FULLSIZE long
+get DUMMY long
+get DUMMY long
+
+for i = 0 < FILES
+    getdstring NAME 24
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+
+    if ZSIZE != SIZE
+        # Wp16 compression not supported, file is saved in compressed form
+        log NAME OFFSET ZSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,28 @@
+# Kohan (TGW)
+
+ImpType Standard ;
+Set S Long 60 ;
+GoTo S 0 ;
+Get ST Long 0 ;
+SavePos T 0 ;
+Math T += 12 ;
+GoTo T 0 ;
+Get TS Long 0 ;
+Get FC Long 0 ;
+For B = 1 To FC ;
+GoTo ST 0 ;
+GetDString Na 80 0 ;
+SavePos ST 0 ;
+SavePos T 0 ;
+Math T += 4 ;
+GoTo T 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Math ST += 24 ;
+GoTo TS 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Math TS += 8 ;
+Log Na FO FS #FOO FSO ;
+Next B ;
+

@@ -1,0 +1,61 @@
+# Crimzon Clover WORLD IGNITION
+#   1) folder structure is not supported yet
+#   2) unknown compression not supported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+filexor "0x98 0x96 0xe1 0x09 0x94 0xcd 0x8f 0xd2 0x93 0x1e 0x00 0xad"
+
+get DUMMY long  # 0x35844
+get DUMMY long  # 0x28a80
+get BASE_OFF long
+get NAMES_OFF long
+get NAMES_SIZE long
+get DUMMY long  # 0x27f20
+xmath INFO_OFF "NAMES_OFF + NAMES_SIZE"
+goto INFO_OFF
+set PATH string ""  # use only the last folder... better than nothing
+for i = 0
+    get NAME_OFF long
+    get FLAGS long
+    if FLAGS == 0xffffffff
+        break
+    endif
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NUM1 short
+    get NUM2 short
+    if NUM1 == 0
+        set NAME string ""
+    else
+        get NAME string # uppercase
+        padding 4
+        get NAME string # lowercase
+        padding 4
+    endif
+    goto TMP
+
+    math OFFSET + BASE_OFF
+    if FLAGS & 0x20
+        string NAME p "%s/%s" PATH NAME
+        if ZSIZE == 0xffffffff
+            log NAME OFFSET SIZE
+        else
+            #math OFFSET + 8
+            #math ZSIZE  - 8
+            #clog NAME OFFSET ZSIZE SIZE
+
+            string NAME p "%s/%s" "_compressed" NAME
+            log NAME OFFSET ZSIZE
+        endif
+    elif FLAGS & 0x10
+        set PATH string NAME
+    endif
+next i

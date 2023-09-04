@@ -1,0 +1,24 @@
+# WinKing P@cking
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "idx"
+open FDDE "dat" 1
+comtype lzma86head
+idstring "WinKing_P@cking_FileSystem"
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    savepos ENTRY_OFF
+    get ENTRY_SIZE long
+    get ZERO byte
+    get OFFSET longlong
+    get DUMMY long
+    get SIZE longlong
+    get ZSIZE longlong
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    set NAME string ""
+    clog NAME OFFSET ZSIZE SIZE 1
+    math ENTRY_OFF += ENTRY_SIZE
+    goto ENTRY_OFF
+next i

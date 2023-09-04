@@ -1,0 +1,16 @@
+# extracts the SFS containers from Culpa Innata (PC, 2007)
+# (c) 2013-08-15 by AlphaTwentyThree of XeNTaX
+
+idstring "SFS1"
+get FILES short
+for i = 1 <= FILES
+   get NAMEL short
+   getDstring NAME NAMEL
+   get OFFSET long
+   savepos MYOFF
+   goto OFFSET
+   get SIZE long
+   math OFFSET += 4
+   goto MYOFF
+   log NAME OFFSET SIZE
+next i

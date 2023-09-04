@@ -1,0 +1,41 @@
+# Merlins Magic Break
+#   this script is just a work-around tested with artwork.bmb, tracks.dmd and effects.wmw
+
+idstring "magic  \0"
+get DUMMY long
+get DUMMY long
+get ZERO long
+get TYPE long
+get FILES long
+get FILES2 long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+if TYPE == 4
+    goto 0x54
+    get OFFSET long
+    goto OFFSET
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get SIZE long
+        getdstring DUMMY 0x24
+        log "" OFFSET SIZE
+    next i
+else
+    math FILES + FILES2
+    for i = 0 < FILES
+        get ZERO long
+        if ZERO != 0
+            break
+        endif
+        get OFFSET long
+        get SIZE long
+        if SIZE != 0x10010  # work-around
+            log "" OFFSET SIZE
+        endif
+    next i
+endif

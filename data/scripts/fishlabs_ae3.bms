@@ -1,0 +1,76 @@
+# Fishlabs / Galaxy on Fire / Sports Car Challenge 2 AE3 dumper
+# it only dumps the main sections of the assets, totally useless but hopefully better than nothing
+
+get AE3_SIZE asize
+for ENTRY_OFF = 0 != AE3_SIZE
+    get TYPE byte   # 0x0a, 0x0b, 0x11 and similar
+    savepos ENTRY_OFF
+    math ENTRY_OFF - 1
+    get ENTRY_SIZE longlong
+    get SOME_CRC long
+    get NAME unicode
+    get VALUE byte
+    math ENTRY_OFF + ENTRY_SIZE
+
+    savepos OFFSET
+    xmath SIZE "ENTRY_OFF - OFFSET"
+    log NAME OFFSET SIZE
+    #callfunction EXTRACT
+
+    goto ENTRY_OFF
+next
+
+/* messy...
+startfunction EXTRACT
+    set PATH string NAME
+
+    savepos TMP
+    for TMP = TMP != ENTRY_OFF
+
+        savepos OFFSET
+
+        get TYPE byte
+        get SOME_CRC long
+        get NAME unicode
+        if TYPE == 3
+            get VALUE unicode
+        else
+            get VALUE long
+        endif
+
+        string NAME p "%s/%s" PATH NAME
+        print "DEBUG %OFFSET|X% %TYPE|x% %NAME% %VALUE%"
+
+        if TYPE & 0x10
+        elif TYPE & 0x40
+        elif TYPE == 0x03
+        elif TYPE == 0x05
+            get DUMMY long
+            get DUMMY long
+        elif TYPE == 0x07
+            getdstring DUMMY 0x2c   # various floats
+        elif TYPE == 0x83
+            math ENTRY_OFF + ENTRY_SIZE
+            goto ENTRY_OFF
+        elif TYPE == 0x81
+            get DUMMY byte
+            for i = 0 < VALUE
+                get DUMMY long
+            next i
+        elif TYPE == 0x85
+            for i = 0 < VALUE
+                get DUMMY short
+            next i
+        elif TYPE == 0x88
+            for i = 0 < VALUE
+                get DUMMY float
+            next i
+        else
+            print "Error: TYPE %TYPE% at offset %OFFSET|x% unsupported, contact me"
+            cleanexit
+        endif
+
+        savepos TMP
+    next
+endfunction
+*/

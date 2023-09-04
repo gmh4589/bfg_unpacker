@@ -1,0 +1,23 @@
+<bms games="'Dark Reign 2'" platforms="'PC'" ext="ZWP">
+IDString 0 NORK ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILESTART Long 0 ;
+Get FILESTART Long 0 ;
+Math DUMMYL -= FILESTART ;
+Set FILECNTL Long DUMMYL ;
+Math FILECNTL /= 24 ;
+Do ;
+Math FILESTART += 1 ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+ReverseLong DUMMYL ;
+GetDString FILENAME DUMMYL 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

@@ -1,0 +1,30 @@
+# Demon Hunter Legion (猎魔军团)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get DAT_SIZE asize
+for OFFSET = 0 != DAT_SIZE
+    savepos OFFSET
+    get HEADER_SIZE short
+    get DUMMY longlong
+    get ZERO long
+    if ZERO == 0xcececece
+        break
+    endif
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get ZSIZE long
+    get ZERO long
+    get ZIP long
+
+    math OFFSET + HEADER_SIZE
+    if SIZE == ZSIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+next

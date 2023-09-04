@@ -1,0 +1,143 @@
+# Hellgate London (script 0.1.1)
+#   based on unHell of Benjamin Haisch
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE IDX 0
+
+get crypt_size asize
+log MEMORY_FILE 0 crypt_size
+
+get NAME basename
+if NAME & "patch"
+    open FDDE DAT 0
+    goto 0x34 MEMORY_FILE
+    get NUM long MEMORY_FILE
+    if NUM != 0
+        get DUMMY long MEMORY_FILE  # "HieD"
+    endif
+    for
+        get TYPE long MEMORY_FILE
+        if TYPE == 0
+            break
+        endif
+        callfunction GET_NAME 1
+    next
+    do
+        callfunction GET_NAME 1
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE  # 0 if it's a copy
+        get ZERO short MEMORY_FILE
+        get ucSize long MEMORY_FILE
+        get cSize long MEMORY_FILE
+        get OFFSET longlong MEMORY_FILE
+        get CRC long MEMORY_FILE
+        get IS_LAST long MEMORY_FILE
+        if cSize > 0
+            clog NAME offset cSize ucSize
+        else
+            log NAME offset ucSize
+        endif
+    while IS_LAST == 0
+    cleanexit
+endif
+
+callfunction cryptDecrypt
+
+open FDDE DAT 0
+
+idstring MEMORY_FILE "nigh"
+get DUMMY long MEMORY_FILE
+get fileCount long MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get stringCount long MEMORY_FILE
+get stringTableSize long MEMORY_FILE
+math stringData = 24
+math stringInfo = stringData
+math stringInfo += stringTableSize
+math stringInfo += 4
+
+    for i = 0 < stringCount
+        goto stringInfo MEMORY_FILE
+        get len short MEMORY_FILE
+        math stringInfo += 6
+
+        goto stringData MEMORY_FILE
+        getdstring NAME len MEMORY_FILE
+        putarray 0 i NAME
+
+        math stringData += len
+        math stringData += 1
+    next i
+
+math fileInfo = stringInfo
+math fileInfo += 4
+
+    goto fileInfo MEMORY_FILE
+    for i = 0 < fileCount
+        getdstring DUMMY 12 MEMORY_FILE
+        get offset long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get ucSize long MEMORY_FILE
+        get cSize long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get dirnameIdx long MEMORY_FILE
+        get filenameIdx long MEMORY_FILE
+        getdstring DUMMY 40 MEMORY_FILE
+
+        getarray dirname 0 dirnameIdx
+        getarray filename 0 filenameIdx
+        set NAME string dirname
+        string NAME += /
+        string NAME += filename
+
+        if cSize > 0
+            clog NAME offset cSize ucSize
+        else
+            log NAME offset ucSize
+        endif
+    next i
+
+startfunction GET_NAME
+    get NAMESZ long MEMORY_FILE
+    math NAMESZ * 2
+    getdstring NAME NAMESZ MEMORY_FILE
+    set NAME unicode NAME
+endfunction
+
+startfunction cryptDecrypt
+    math kNumberOfTheBeast = 666
+    set crypt_table string "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    math crypt_key1 = 0x10DCD
+    math crypt_key2 = 0xF4559D5
+    math crypt_blockSize = 32
+    math crypt_blockIndex = 0xFFFFFFFF
+    math crypt_offset = 0
+    get crypt_size asize MEMORY_FILE
+
+    for x = 0 < crypt_size
+        math TMP = crypt_blockSize
+        math TMP *= 4
+        math value = crypt_offset
+        math value /= TMP
+        math value *= TMP
+        if crypt_blockIndex != value
+            math crypt_blockIndex = value
+            math value += kNumberOfTheBeast
+            for y = 0 < crypt_blockSize
+                math value *= crypt_key1
+                math value += crypt_key2
+                math TMP = y
+                math TMP *= 4
+                putvarchr crypt_table TMP value long
+            next y
+        endif
+        math TMP = crypt_offset
+        math TMP -= crypt_blockIndex
+        getvarchr cryptGetCryptByte crypt_table TMP
+
+        getvarchr TMP MEMORY_FILE x
+        math TMP -= cryptGetCryptByte
+        putvarchr MEMORY_FILE x TMP
+        math crypt_offset += 1
+    next x
+endfunction

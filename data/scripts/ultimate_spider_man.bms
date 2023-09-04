@@ -1,0 +1,27 @@
+# Ultimate Spider-Man
+
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+get HEADER_SIZE long
+get DATA_OFF long
+for i = 0 < 2
+    findloc OFFSET binary "\xe3\xe3\xe3\xe3"
+    math OFFSET + 4
+    goto OFFSET
+next i
+for
+    get SOME_HASH long  # ???
+    get TYPE long     # ???
+    if TYPE u>= 0x1000
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    math OFFSET + DATA_OFF
+    string NAME p "%d/" TYPE
+    log NAME OFFSET SIZE
+next

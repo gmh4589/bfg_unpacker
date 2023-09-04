@@ -1,0 +1,50 @@
+# KatGames and Xpiral games
+#   Beetle Crazy Cup / Beetle Buggin' / Käfer Total
+#   Mind Machine
+#   Larry Ragland's 4x4 Challenge
+#   Off-Road Arena
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "VFS2"
+    get FOLDERS long
+    get FILES long
+    get ZERO long
+    get FOLDERS_SIZE long
+    get DUMMY long
+else
+    goto 0
+    get FOLDERS long
+    get FILES long
+endif
+for i = 0 < FOLDERS
+    get FOLDER_ID long
+    getdstring NAME 0x80
+    putarray 0 i NAME
+    putarray 1 i FOLDER_ID
+next i
+for i = 0 < FILES
+    get FOLDER_ID long
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    if SIGN == "VFS2"
+        get ZSIZE long  # not verified, SIZE and ZSIZE may be inverted
+        getdstring ZERO 16
+    else
+        get ZERO long
+        get TSTAMP longlong
+        math ZSIZE = SIZE
+    endif
+    do
+        math FOLDER_ID - 1
+        getarray PATH 0 FOLDER_ID
+        string NAME p "%s/%s" PATH NAME
+        getarray FOLDER_ID 1 FOLDER_ID
+    while FOLDER_ID != 0
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

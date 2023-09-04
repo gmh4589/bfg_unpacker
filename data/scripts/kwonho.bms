@@ -1,0 +1,37 @@
+# KwonHo: The Fist of Heroes
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KHO1"
+getdstring DUMMY 8
+get FILES short
+math INFO_OFF = 0x10
+math BASE_OFF = FILES
+math BASE_OFF *= 0x5c
+math BASE_OFF += INFO_OFF
+for i = 0 < FILES
+    goto INFO_OFF
+    getdstring KEY 0xc
+    log MEMORY_FILE INFO_OFF 0xc
+    math INFO_OFF += 0xc
+    encryption rc4 KEY "" 0 0xc
+    append
+    log MEMORY_FILE INFO_OFF 0x50
+    append
+    encryption "" ""
+    math INFO_OFF += 0x50
+
+    goto 0 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get CRYPT long MEMORY_FILE
+    getdstring NAME 0x50 MEMORY_FILE
+
+    if CRYPT != 0
+        goto 0 MEMORY_FILE
+        getdstring KEY 0x5c MEMORY_FILE
+        encryption rc4 KEY "" 0 0x5c
+    endif
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+    encryption "" ""
+next i

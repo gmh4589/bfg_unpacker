@@ -1,0 +1,15 @@
+# Knack (cdata)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x27
+get CDATA_SIZE asize
+for OFFSET = 0x10 != CDATA_SIZE
+    goto OFFSET
+    getdstring TYPE 4
+    get SIZE long
+    savepos OFFSET
+    math SIZE - 4
+    string NAME p "%s/" TYPE
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next

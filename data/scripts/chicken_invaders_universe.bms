@@ -1,0 +1,40 @@
+# Chicken Invaders Universe hq2x (InterAction Studios) (script 0.2)
+
+getdstring TEST 4
+goto 0
+
+if TEST u== "UVE "
+
+    idstring "UVE "
+    idstring "WAD "
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get NAME_CRC long
+        string NAME p "%08x." NAME_CRC
+        callfunction EXTRACT 1
+    next i
+
+else
+
+    get VER long
+    get FILES long
+    for i = 0 < FILES
+        filexor 0xcc
+        getdstring NAME 0x50
+        filexor ""
+        callfunction EXTRACT 1
+    next i
+
+endif
+
+startfunction EXTRACT
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        log NAME OFFSET ZSIZE SIZE
+    endif
+endfunction

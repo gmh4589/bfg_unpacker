@@ -1,0 +1,44 @@
+# Prototype tbl pak (script 0.1.1)
+#   thanks to RikuKH3
+#   https://github.com/RikuKH3/prot_tblpak/releases
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "tbl"
+    get NAME basename
+    string NAME - 2
+    string NAME + ".tbl"
+    open FDSE NAME
+endif
+get TBL_NAME basename
+
+get DUMMY short # 0x0150
+get INFO_OFF short
+get FILES long
+get BLOCKSIZE short
+goto INFO_OFF
+endian big
+math LAST_PKG = -1
+for i = 0 < FILES
+    getbits ID 0x1c
+    getbits PKG 4
+    getbits OFFSET 0x14
+    getbits SIZE 0x19
+    math OFFSET * BLOCKSIZE
+
+    putarray 0 i PKG
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+sortarray 1 1   # sort by offset
+for i = 0 < FILES
+    getarray PKG    0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    if PKG != LAST_PKG
+        string TMP p "%s%02d.pak" TBL_NAME PKG
+        open FDSE TMP 1
+        math LAST_PKG = PKG
+    endif
+    log "" OFFSET SIZE 1
+next i

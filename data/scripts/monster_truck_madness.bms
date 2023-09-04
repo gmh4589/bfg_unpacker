@@ -1,0 +1,11 @@
+# Monster Truck Madness
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+getdstring DUMMY 0x50
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

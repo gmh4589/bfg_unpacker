@@ -1,0 +1,12 @@
+# SCream engine (Simple Creation Engine for Adventure Makers)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SCream resource file"
+goto 0x100
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x54
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

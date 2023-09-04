@@ -1,0 +1,31 @@
+# Divinity 2 (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get ALIGN byte
+get ZIP byte
+if VER > 0x0000ffff
+    endian big
+    set ZIP long 1
+endif
+get BASE_OFF long
+get NAME_SIZE long
+savepos OFFSET
+log MEMORY_FILE OFFSET NAME_SIZE
+math OFFSET += NAME_SIZE
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    if ZIP != 0
+        get ZSIZE long
+    endif
+    get SIZE long
+    math OFFSET += BASE_OFF
+    get NAME string MEMORY_FILE
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,30 @@
+<bms games="'Gunlock'" platforms="'PC'" ext="DAT">
+IDString 0 FILECHNK ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+Get FILEJMP Long 0 ;
+Set FILEJMP Long FILEJMP ;
+Math FILEJMP *= 48 ;
+SavePos FILESTART 0 ;
+Get FILENAME String 0 ;
+SavePos DUMMYL 0 ;
+Math DUMMYL += 1 ;
+Math DUMMYL += 10 ;
+GoTo DUMMYL 0 ;
+Get FILEOFF Long 0 ;
+Math FILEOFF += FILEJMP ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILENAME String 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 1 ;
+Math FILESTART += 16 ;
+Set DUMMYL Long FILEOFF ;
+Math DUMMYL += 4 ;
+GoTo DUMMYL 0 ;
+Get FILESIZE Long 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

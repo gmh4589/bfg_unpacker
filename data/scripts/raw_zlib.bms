@@ -1,0 +1,7 @@
+get NAME basename
+get EXT extension
+string NAME += "_unpacked."
+string NAME += EXT
+comtype unzip_dynamic
+get SIZE asize
+clog NAME 0 SIZE SIZE

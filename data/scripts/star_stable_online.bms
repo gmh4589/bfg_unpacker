@@ -1,0 +1,119 @@
+# Star Stable Online CSA/CSAHEADER
+#   files are extracted from their container as-is
+#   do not trust the extension, tga files aren't readable
+#   only dds are ok
+#   if you need the original file with container, set DUMP_ORIGINAL to 1
+
+math DUMP_ORIGINAL = 0
+
+get EXT extension
+if EXT == "ccx" || EXT == "update"
+
+    get DUMMY long  # 0x105
+    get FILES long
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get TSTAMP longlong
+        get SOME_CRC longlong
+        get DUMMY long
+        get DUMMY long
+        get ZERO long
+        get DUMMY long
+        get DUMMY long
+        get ZERO long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+    next i
+
+elif EXT == "csa" || EXT == "csaheader"
+
+    open FDDE "csaheader" 1
+    open FDDE "csa"
+
+    get ENTRIES long 1
+    get DUMMY long 1    # 3
+    xmath NAMES_OFF "4 + 4 + (ENTRIES * (4 + 4 + 4))"
+
+    for i = 0 < ENTRIES
+        get ENTRY_NAME long 1
+        get VALUE long 1
+        get ENTRY_TYPE long 1
+
+        if ENTRY_NAME == 0x0b6ef964
+            math OFFSET = VALUE
+
+        elif ENTRY_NAME == 0x0b1a6e08
+            math SIZE = VALUE
+
+        elif ENTRY_NAME == 0x01c65a88
+            math NAME_OFF = VALUE
+
+        elif ENTRY_NAME == 0
+            math OFFSET = 0
+            math SIZE = 0
+            math NAME_OFF = 0
+
+        elif ENTRY_NAME == 0x0e89de15
+            savepos TMP 1
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF 1
+            get NAMESZ long 1
+            getdstring NAME NAMESZ 1
+            goto TMP 1
+
+            if DUMP_ORIGINAL != 0
+                log NAME OFFSET SIZE
+            else
+                goto OFFSET
+                callfunction EXTRACT_CONTAINER 1
+            endif
+        endif
+    next i
+
+else    # pte, pme and so on
+
+    math OFFSET = 0
+    get SIZE asize
+    get NAME filename
+    callfunction EXTRACT_CONTAINER 1
+
+endif
+
+startfunction EXTRACT_CONTAINER
+    set EXT extension NAME
+    if EXT != "pad"
+        getvarchr EXT0 EXT 0
+        if EXT0 == 'p'
+            xmath LIMIT "OFFSET + SIZE"
+            get TYPE1 long  # 0x13 and others
+            get TYPE2 long  # 0xa and others
+            callfunction GET_NAME 1  # short name
+            get DUMMY long
+            callfunction GET_NAME 1
+            get TSTAMP longlong
+            get DUMMY long
+            # long story short, it's a mess
+            findloc TMP binary "DDS " 0 "" LIMIT
+            if TMP != ""
+                math TMP - 4
+                goto TMP
+                get SIZE long
+                savepos OFFSET
+                string NAME + ".dds"
+            else
+                savepos TMP
+                xmath SIZE "SIZE - (TMP - OFFSET)"
+                math OFFSET = TMP
+            endif
+        endif
+    endif
+    log NAME OFFSET SIZE
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ threebyte
+    get NAME_ENC byte
+    filerot NAME_ENC
+    getdstring NAME NAMESZ  # short name
+    filerot ""
+endfunction

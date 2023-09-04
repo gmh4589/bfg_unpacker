@@ -1,0 +1,13 @@
+# Gas Guzzlers (probes)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PELP"
+get DUMMY long
+get FILES long
+get DUMMYSZ long
+for i = 0 < FILES
+	getdstring DUMMY DUMMYSZ
+	get OFFSET long
+	get SIZE long
+	log "" OFFSET SIZE
+next i

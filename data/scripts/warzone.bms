@@ -1,0 +1,25 @@
+# Warzone
+
+idstring "WDG4"
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get DUMMY long
+    get OFFSET long
+    get FILES long
+
+    savepos TMP
+    goto OFFSET
+    xmath BASE_OFF "OFFSET + (FILES * 0x14)"
+    for i = 0 < FILES
+        get DUMMY1 long
+        get DUMMY2 long
+        get OFFSET long
+        get SIZE long
+        get DUMMY5 long
+        math OFFSET + BASE_OFF
+        string NAME p "%d/." FOLDER
+        log NAME OFFSET SIZE
+    next i
+    goto TMP
+
+next FOLDER

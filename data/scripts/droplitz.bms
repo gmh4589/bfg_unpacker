@@ -1,0 +1,92 @@
+# Droplitz
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ENTRIES long
+get INFO_OFF long
+get ARCHIVE_NAME_OFF long
+get DUMMY long
+get FILES long
+get EOF_OFF long
+get DUMMY long
+get NAMES_OFF long
+get DUMMY long
+get DUMMY long
+
+math INFO_OFF *= 0x10
+math NAMES_OFF *= 0x10
+
+goto INFO_OFF
+for i = 0 < ENTRIES
+    get OFFSET long
+    get CRC long
+    get SIZE long
+    get NAME_OFF long
+    get DUMMY long  # 1
+    get DUMMY long  # 0
+    get XSIZE long  # SIZE or 0
+    get DUMMY long
+
+    savepos TMP
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if SIZE != 0
+        math OFFSET *= 0x10
+
+        if NAME & ".wav"
+            # build RIFF header
+            # set the following to 0 to disable it
+            math BUILD_RIFF_HEADER = 1
+
+            if BUILD_RIFF_HEADER != 0
+                log MEMORY_FILE2 OFFSET 0x14
+                math OFFSET += 0x14
+                math SIZE -= 0x14
+
+                getvarchr SAMPLES MEMORY_FILE2 0 long
+                getvarchr SAMPLERATE MEMORY_FILE2 4 long
+                getvarchr BITS MEMORY_FILE2 8 short
+                getvarchr CHANNELS MEMORY_FILE2 10 short
+                getvarchr DUMMY MEMORY_FILE2 12 long    # sometimes 0x10
+                getvarchr ZERO MEMORY_FILE2 16 long
+
+                log MEMORY_FILE 0 0
+                putdstring "RIFF" 4 MEMORY_FILE
+                math TMP = SIZE
+                math TMP += 0x24
+                put TMP long MEMORY_FILE
+                putdstring "WAVE" 4 MEMORY_FILE
+                putdstring "fmt " 4 MEMORY_FILE
+                put 0x10 long MEMORY_FILE
+                put 1 short MEMORY_FILE
+                put CHANNELS short MEMORY_FILE
+                put SAMPLERATE long MEMORY_FILE
+                math BYTERATE = SAMPLERATE
+                math BYTERATE *= CHANNELS
+                math BYTERATE *= BITS
+                math BYTERATE /= 8
+                put BYTERATE long MEMORY_FILE
+                math BLOCKALIGN = CHANNELS
+                math BLOCKALIGN *= BITS
+                math BLOCKALIGN /= 8
+                put BLOCKALIGN short MEMORY_FILE
+                put BITS short MEMORY_FILE
+                putdstring "data" 4 MEMORY_FILE
+                put SIZE long MEMORY_FILE
+                append
+                log MEMORY_FILE OFFSET SIZE
+                append
+                log NAME 0 SIZE MEMORY_FILE
+            else
+                log NAME OFFSET SIZE
+            endif
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i

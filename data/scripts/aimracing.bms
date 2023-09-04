@@ -1,0 +1,55 @@
+# A.I.M. Racing
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring SGMF
+get DUMMY short
+get FILES long
+get CHUNKS long
+get DUMMY long
+get DUMMY long
+
+savepos NAME_OFF
+math INFO_OFF == FILES
+math INFO_OFF *= 0x58
+math INFO_OFF += NAME_OFF
+
+print "wait the unpacking of the pak filesystem in the TEMPORARY_FILE"
+
+log TEMPORARY_FILE 0 0
+append
+for i = 0 < CHUNKS
+    goto INFO_OFF
+    get DUMMY long
+    get TYPE long
+    get OFFSET long
+    savepos INFO_OFF
+
+    goto OFFSET
+    get ZSIZE long
+    savepos OFFSET
+    if TYPE == 0
+        log TEMPORARY_FILE OFFSET ZSIZE
+    elif TYPE == 1
+        comtype lzo1x
+        clog TEMPORARY_FILE OFFSET ZSIZE 0x8000
+    elif TYPE == 4
+        comtype rlew
+        clog TEMPORARY_FILE OFFSET ZSIZE 0x8000
+    else
+        print "unknown chunk type %TYPE%"
+        cleanexit
+    endif
+next i
+append
+
+open "." TEMPORARY_FILE 1
+
+goto NAME_OFF
+for i = 0 < FILES
+    getdstring NAME 0x50
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE 1
+next i
+
+print "remember to remove the file called TEMPORARY_FILE from the output folder!"

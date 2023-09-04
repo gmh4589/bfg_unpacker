@@ -1,0 +1,466 @@
+# War Inc. Battle Zone r3dFS (script 0.1.23)
+#    works also with DeadZ, WarZ / Infestation, StargateZ, I:SS and all the other fan-made servers and contents
+# script for QuickBMS http://quickbms.aluigi.org
+
+set SIGN_AE      binary "\xbc\xb9\xc6"  # ApocalypseEnd
+set SIGN_AE2     binary "\x01\x01\x01"  # ApocalypseEnd
+set SIGN_DZ      binary "\x10\x13\x10"  # DeadZ
+set SIGN_MSF     binary "msfl"
+set SIGN_GAME    binary "game"
+#set SIGN_DUMMY1  binary "\x2a\x21\x09"  # ??? from 0x1a
+#set SIGN_DUMMY2  binary "\x33\x28\x70"  # ??? from 0x18
+set SIGN_DUMMY3  binary "\xaf\xaa\x1d"  # ???
+
+get W0BIN_SIZE asize
+
+math DO_ZIP_SCAN = 0
+getdstring SIGN 3
+savepos TMP
+goto 0
+getdstring SIGN3 3  # just in case ZIP_SCAN is called
+goto 0
+getdstring SIGN4 4
+goto TMP
+
+if SIGN == SIGN_DUMMY3
+    goto 0xc
+    get FILES long
+    get ZERO long
+    getdstring NAME 0x1c
+    get DUMMY long
+    get ZERO long
+    get FILES long
+    get XOR_BYTE long
+    math XOR_BYTE & 0xff
+    for i = 0 < FILES
+        findloc OFFSET binary "\x6a\x14\x00\x00\x00"
+        goto OFFSET
+        get DUMMY byte
+        get DUMMY long
+        get SIZE long
+        get ZERO long
+        get DUMMY long
+        savepos OFFSET
+        filexor XOR_BYTE
+        log "" OFFSET SIZE
+        filexor ""
+        math OFFSET + SIZE
+        goto OFFSET
+    next i
+    cleanexit
+endif
+
+if SIGN != "arf"
+if SIGN != SIGN_AE
+if SIGN != SIGN_AE2
+if SIGN != SIGN_DZ
+    goto 0
+    get VER long
+    getdstring SIGN 4
+    if SIGN != SIGN_MSF
+        if W0BIN_SIZE u> 2097152
+            get NAME basename
+            if NAME & "_00"
+                # just to avoid possible false positives
+            else
+                print "You must open only the first file, WO_00.bin"
+                cleanexit
+            endif
+        endif
+        math DO_ZIP_SCAN = 1
+    endif
+endif
+endif
+endif
+endif
+
+math FILES = -1
+math BIN_TYPE = 'l'
+
+if DO_ZIP_SCAN != 0
+    callfunction ZIP_SCAN 1
+elif SIGN == SIGN_MSF
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    get FILES long
+    math BIN_TYPE = -1
+else
+    get BIN_TYPE byte
+    if BIN_TYPE == 0xbe     # ApocalypseEnd
+        math BIN_TYPE = 'l'
+    endif
+
+    get VER long
+    if BIN_TYPE == 0
+        math BIN_TYPE = 'l'
+    endif
+    if BIN_TYPE == 'l'      # War Inc
+        get BUILD long
+        get FILES long
+        get SIZE long
+        get INFO_CRC long
+    elif BIN_TYPE == 'r'    # DeadZ
+        get SIZE long
+        get INFO_CRC long
+        get BUILD long
+        get FILES long
+    elif BIN_TYPE == 0x01   # new DeadZ
+        get BUILD long
+        get DUMMY long
+        get FILES long
+        get SIZE long
+        get INFO_CRC long
+        math BIN_TYPE = 'l'
+    else
+        print "Error: type %BIN_TYPE% not supported yet, contact me"
+        cleanexit
+    endif
+endif
+
+savepos OFFSET
+comtype unzip_dynamic
+math SIZE = W0BIN_SIZE
+math SIZE -= OFFSET
+for i = 0 < 3
+    clog MEMORY_FILE OFFSET SIZE SIZE
+    get TMP asize MEMORY_FILE
+    if TMP > SIZE
+        break
+    endif
+    math OFFSET + 4
+    math SIZE   - 4
+next i
+comtype zlib
+get MEMORY_SIZE asize MEMORY_FILE
+
+# for my tests
+#log "dump.dat" 0 MEMORY_SIZE MEMORY_FILE
+#cleanexit
+
+get PACK_EXT extension
+get PACK_BASENAME basename
+string PACK_BASENAME >>= "_"
+
+get PACK_FILENAME filename
+
+math WORKAROUND = 0
+get EXT extension
+if EXT == "lifedata"
+    math WORKAROUND = 4
+endif
+if SIGN4 == SIGN_GAME
+    math WORKAROUND = 8
+endif
+
+if WORKAROUND == 0
+    get NAME string MEMORY_FILE
+    strlen i NAME
+    do
+        get TMP byte MEMORY_FILE
+        math i + 1
+    while TMP == 0
+    if i >= 300
+        math WORKAROUND = 10
+    endif
+    goto 0 MEMORY_FILE
+endif
+
+if WORKAROUND == 0
+    get ZERO1 long MEMORY_FILE
+    get ZERO2 long MEMORY_FILE
+    get ZERO3 long MEMORY_FILE
+    if ZERO1 == 0
+    if ZERO2 == 0
+    if ZERO3 == 0
+        math WORKAROUND = 11
+    endif
+    endif
+    endif
+    goto 0 MEMORY_FILE
+endif
+
+math LAST_PACK = -1
+math LAST_WORKAROUND = WORKAROUND
+for i = 0 #< FILES
+    # FILES is ignored in order to grant compatibility with invalid archives
+    savepos RESTORE_OFFSET MEMORY_FILE
+    savepos TMP MEMORY_FILE
+    if TMP >= MEMORY_SIZE
+        break
+    endif
+
+    if PACK_FILENAME == "FZ_00.pak"
+        filexor ""
+        getdstring DUMMY 0x89 MEMORY_FILE
+        getdstring KEY2 0x77 MEMORY_FILE
+        getdstring KEY1 9 MEMORY_FILE
+        callfunction WORKAROUND_12_BUILD_KEY 1
+        getdstring DUMMY 9 MEMORY_FILE
+        getdstring NAME 260 MEMORY_FILE
+        goto RESTORE_OFFSET MEMORY_FILE
+        strlen NAMESZ NAME
+        if NAMESZ > 0x77
+            filexor ""
+            set XOR_KEY binary "Data\\Shaders\\Cache\\DX9"
+            strlen XOR_KEY_SIZE XOR_KEY
+            getdstring DUMMY 9 MEMORY_FILE
+            getdstring XOR_DATA XOR_KEY_SIZE MEMORY_FILE
+            for x = 0 < XOR_KEY_SIZE
+                getvarchr TMP  XOR_DATA x
+                getvarchr TMP2 XOR_KEY x
+                math TMP ^ TMP2
+                putvarchr KEY2 x TMP
+            next x
+            callfunction WORKAROUND_12_BUILD_KEY 1
+        endif
+        math WORKAROUND = 12
+    endif
+
+    math TYPE = 2
+    if WORKAROUND == 10
+        getdstring NAME 300 MEMORY_FILE
+        get CRC     long MEMORY_FILE
+        get OFFSET  long MEMORY_FILE
+        get SIZE    long MEMORY_FILE
+        get TYPE    byte MEMORY_FILE
+        get PACK    byte MEMORY_FILE
+        get ZSIZE   long MEMORY_FILE
+        getdstring DUMMY 0x12 MEMORY_FILE
+    elif WORKAROUND == 11
+        getdstring DUMMY 0x12 MEMORY_FILE
+        get PACK    byte MEMORY_FILE
+        get CRC     long MEMORY_FILE
+        get OFFSET  long MEMORY_FILE
+        getdstring NAME 261 MEMORY_FILE
+        get ZSIZE   long MEMORY_FILE
+        get SIZE    long MEMORY_FILE
+        goto -0x12 MEMORY_FILE SEEK_CUR # lame work-around for the get DUMMY done later
+    elif WORKAROUND == 12
+        get ZSIZE   long MEMORY_FILE
+        get PACK    byte MEMORY_FILE
+        get OFFSET  long MEMORY_FILE
+        getdstring NAME 260 MEMORY_FILE
+        get SIZE    long MEMORY_FILE
+        get CRC     long MEMORY_FILE
+        get TYPE    byte MEMORY_FILE
+    elif BIN_TYPE == 'l'      # War Inc
+        if WORKAROUND == 9
+            get TMP string MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+            getdstring NAME 256 MEMORY_FILE
+        else
+            getdstring NAME 260 MEMORY_FILE
+        endif
+        get TYPE    byte MEMORY_FILE
+        if WORKAROUND == 2
+            get ZSIZE   long MEMORY_FILE
+            get CRC     long MEMORY_FILE
+            get SIZE    long MEMORY_FILE
+            get PACK    byte MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+        elif WORKAROUND == 3
+            get PACK    byte MEMORY_FILE
+            get SIZE    long MEMORY_FILE
+            get CRC     long MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+            get ZSIZE   long MEMORY_FILE
+        elif WORKAROUND == 4    # I:SS lifedata
+            get PACK    byte MEMORY_FILE
+            get DUMMY   long MEMORY_FILE
+            get ZSIZE   long MEMORY_FILE
+            get SIZE    long MEMORY_FILE
+            get CRC     long MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+            get DUMMY   long MEMORY_FILE
+        elif WORKAROUND == 5
+            get ZSIZE   long MEMORY_FILE
+            get CRC     long MEMORY_FILE
+            get PACK    byte MEMORY_FILE
+            get SIZE    long MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+        elif WORKAROUND == 6
+            callfunction GET_INFO_COMMON 1
+        elif WORKAROUND == 7
+            callfunction GET_INFO_COMMON 1
+        elif WORKAROUND == 8
+            callfunction GET_INFO_COMMON 1
+            get CRC     long MEMORY_FILE
+        elif WORKAROUND == 9
+            get ZSIZE   long MEMORY_FILE
+            get DUMMY   long MEMORY_FILE    # 2
+            get SIZE    long MEMORY_FILE
+            get TYPE    byte  MEMORY_FILE
+            get DUMMY   byte  MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+            getdstring DUMMY 5 MEMORY_FILE
+            get PACK    byte MEMORY_FILE
+            getdstring ZERO 2 MEMORY_FILE
+            math TYPE = 2
+        else
+            get PACK    byte MEMORY_FILE
+            get OFFSET  long MEMORY_FILE
+            get SIZE    long MEMORY_FILE
+            get ZSIZE   long MEMORY_FILE
+            get CRC     long MEMORY_FILE
+        endif
+    elif BIN_TYPE == 'r'    # DeadZ
+        get CRC     long MEMORY_FILE
+        get OFFSET  long MEMORY_FILE
+        get SIZE    long MEMORY_FILE
+        getdstring NAME 260 MEMORY_FILE
+        get TYPE    byte MEMORY_FILE
+        get PACK    byte MEMORY_FILE
+        get ZSIZE   long MEMORY_FILE
+    elif SIGN == SIGN_MSF
+        get TYPE    byte MEMORY_FILE
+        get CRC     long MEMORY_FILE
+        get OFFSET  long MEMORY_FILE
+        get PACK    byte MEMORY_FILE
+        get ZSIZE   long MEMORY_FILE
+        get SIZE    long MEMORY_FILE
+        getdstring NAME 260 MEMORY_FILE
+    endif
+    getdstring DUMMY 0x12 MEMORY_FILE
+
+    if SIGN == SIGN_AE2
+        math WORKAROUND = 1
+    endif
+
+    if SIGN == SIGN_DZ
+        getdstring DUMMY 0xc MEMORY_FILE
+    endif
+
+
+    # work-around for some customizations (recent StargateZ)
+    # being WarInc "open source", any server can adopt any customization,
+    # so it's impossible to make a script compatible with all the games
+    if i == 0
+        if SIZE == 0
+            if OFFSET != 0
+                if ZSIZE u>= 0x01000000 # CRC
+                    math WORKAROUND = 7
+                else
+                    math WORKAROUND = 1
+                endif
+            endif
+        endif
+    endif
+    if WORKAROUND == 1
+        math TMP    = SIZE
+        math SIZE   = OFFSET
+        math OFFSET = TMP
+    endif
+
+    math PACK += 1
+
+    # new SG and WarZ
+    if i == 0
+        if PACK u> 10
+            math WORKAROUND = 2
+        endif
+        if WORKAROUND == 0
+            if ZSIZE == 0
+                math WORKAROUND = 3
+            elif OFFSET == CRC
+                math WORKAROUND = 6
+            elif NAME == "E1D6S49"
+                math WORKAROUND = 9
+            endif
+        endif
+        if CRC == 0
+        if PACK_BASENAME == "LSZ"
+            math WORKAROUND = 5
+        endif
+        endif
+    endif
+
+    # easy way to skip the extraction
+    if LAST_WORKAROUND != WORKAROUND
+        math PACK = -1
+    endif
+    math LAST_WORKAROUND = WORKAROUND
+
+    if PACK < 0
+        goto RESTORE_OFFSET MEMORY_FILE
+        math i -= 1
+    else
+        if PACK != LAST_PACK
+            string PACK_NAME p= "%s_%02d.%s" PACK_BASENAME PACK PACK_EXT
+            open FDSE PACK_NAME 1
+            math LAST_PACK = PACK
+        endif
+        filexor ""  # just in case the TOC is encrypted like WORKAROUND 12
+        math OFFSET += 4    # arfd
+
+        if TYPE == 1    # COMPRESS_STORE
+            log NAME OFFSET SIZE 1
+        elif TYPE == 2  # COMPRESS_INFLATE
+            comtype unzip_dynamic   # found one file wrongly stored as zlib, so go with super compatibility
+            clog NAME OFFSET ZSIZE SIZE 1
+        elif TYPE == 4  # COMPRESS_LZO
+            comtype lzo1x
+            clog NAME OFFSET ZSIZE SIZE 1
+        elif TYPE == 5  # COMPRESS_LZ4
+            comtype lz4
+            clog NAME OFFSET ZSIZE SIZE 1
+        elif TYPE == 99
+            comtype unzip_dynamic
+            clog NAME OFFSET ZSIZE SIZE 1
+        else
+            print "Error: unknown TYPE %TYPE%, contact me"
+            if WORKAROUND == 12
+                # skip
+            else
+                cleanexit
+            endif
+        endif
+    endif
+next i
+
+startfunction ZIP_SCAN
+    comtype zlib_noerror
+    math OK = 0
+    savepos OFFSET
+    for OFFSET = OFFSET < 0x30
+        goto OFFSET
+        math SIZE = W0BIN_SIZE
+        math SIZE - OFFSET
+        clog MEMORY_FILE OFFSET SIZE SIZE
+        get XSIZE asize MEMORY_FILE
+        if XSIZE > SIZE
+            math OK = 1
+            break
+        endif
+    next OFFSET
+    if OK == 0
+        print "Error: unknown magic and the scanner failed, contact me"
+        cleanexit
+    endif
+    goto OFFSET
+endfunction
+
+# often used in current games
+startfunction GET_INFO_COMMON
+    get PACK    byte MEMORY_FILE
+    get SIZE    long MEMORY_FILE
+    get OFFSET  long MEMORY_FILE
+    get CRC     long MEMORY_FILE
+    get ZSIZE   long MEMORY_FILE
+endfunction
+
+startfunction WORKAROUND_12_BUILD_KEY
+    set KEY string ""
+    for x = 0 < 9
+        getvarchr TMP KEY1 x
+        string KEY + TMP
+        string KEY + " "
+    next x
+    for x = 0 < 0x77
+        getvarchr TMP KEY2 x
+        string KEY + TMP
+        string KEY + " "
+    next x
+    filexor KEY RESTORE_OFFSET MEMORY_FILE
+    goto RESTORE_OFFSET MEMORY_FILE
+endfunction

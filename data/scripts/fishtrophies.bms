@@ -1,0 +1,33 @@
+# In-Fisherman Freshwater Trophies
+# script for QuickBMS http://quickbms.aluigi.org
+
+get END_OFFSET long
+do
+    getdstring FOLDERNAME 0x40
+    get FILES long
+    get DUMMY long
+    get FILESOFF long
+    get DUMMY long
+    savepos CURRENT_OFFSET
+
+    if FILESOFF >= END_OFFSET   ; seems the only way
+        cleanexit
+    endif
+
+    goto FILESOFF
+    get DUMMY long
+
+    for i = 1 to FILES
+        getdstring FILENAME 0x40
+        get SIZE long
+        get OFFSET long
+
+        set FULLNAME FOLDERNAME
+        string FULLNAME += \
+        string FULLNAME += FILENAME
+
+        log FULLNAME OFFSET SIZE
+    next i
+
+    goto CURRENT_OFFSET
+while CURRENT_OFFSET < END_OFFSET

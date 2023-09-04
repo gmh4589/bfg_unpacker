@@ -1,0 +1,19 @@
+# Astonia
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # \xce\x35\x12\x3c
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # some sequential number
+    get FLAGS long  # 3
+
+    savepos TMP
+    goto OFFSET
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog "" OFFSET ZSIZE SIZE
+    goto TMP
+next i

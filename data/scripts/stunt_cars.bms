@@ -1,0 +1,22 @@
+# Stunt Cars
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "IGEL"
+getdstring NAME 4   # "*epk"
+get DUMMY short
+get DUMMY short
+get OFFSET long
+get FILES long
+get DUMMY long
+get DUMMY long
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    get TSTAMP longlong
+    get SIZE long
+    get NAMESZ short
+    get DUMMY short
+    get OFFSET long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

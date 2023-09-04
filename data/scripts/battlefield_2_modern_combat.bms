@@ -1,0 +1,24 @@
+# Battlefield 2: Modern Combat (PS2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ARK "
+get VER long
+goto -0x800
+get OFFSET long
+get SIZE long
+math OFFSET *= 0x800
+math SIZE *= 0x800
+goto OFFSET
+get FILES long
+padding 0x800
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+    math NAMESZ += 1
+    getdstring NAME NAMESZ
+    padding 4
+    math OFFSET *= 0x800
+    log NAME OFFSET SIZE
+next i

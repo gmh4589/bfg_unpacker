@@ -1,0 +1,30 @@
+# Star Wars Empire at War
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get INFOS long
+
+savepos NAMEOFF
+for j = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+next j
+
+savepos FILEOFF
+for i = 0 < INFOS
+    goto FILEOFF
+    get CRC32 long
+    get FILEIDX long
+    get SIZE long
+    get OFFSET long
+    get NAMENUM long
+    savepos FILEOFF
+
+    goto NAMEOFF
+    for j = 0 <= NAMENUM
+        get NAMESZ short
+        getdstring NAME NAMESZ
+    next j
+
+    log NAME OFFSET SIZE
+next i

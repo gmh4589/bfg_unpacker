@@ -1,0 +1,14 @@
+<bms games="'Aquarnoid 2', 'Barkanoid 2'" platforms="'PC', 'PC'" ext="GOB">
+ImpType Standard ;
+IDString 0 GOB ;
+Get FOOBAR Byte 0 ;
+Get FILENUM Long 0 ;
+For X = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+GetDString FNAME 260 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next X ;
+</bms>

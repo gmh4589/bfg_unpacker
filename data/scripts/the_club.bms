@@ -1,0 +1,52 @@
+# The Club (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "pak"
+
+    idstring "PAK\0"
+    get VER long        # 2.32
+    get OFFSET longlong # 0x800
+    get BLOCKSZ long    # 0x800
+    get ZERO long
+    goto OFFSET
+    get FILES long 
+    set PATH string ""
+    for i = 0 < FILES
+        get NAME string
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get SOME_CRC long
+        getdstring SOME_HASH 20
+
+        if OFFSET == 0xffffffff
+            set PATH string NAME
+        else
+            savepos TMP
+            math OFFSET * BLOCKSZ
+            goto OFFSET
+            get ZSIZE longlong
+            savepos OFFSET
+            string NAME p "%s/%s" PATH NAME
+            clog NAME OFFSET ZSIZE SIZE
+            goto TMP
+        endif
+    next i
+
+else
+
+    idstring "BANK"
+    getdstring DUMMY 8
+    get FILES long
+    getdstring DUMMY 36
+    for i = 0 < FILES
+        getdstring DUMMY 12
+        getdstring NAME 32
+        get OFFSET long
+        get SIZE long
+        getdstring DUMMY 28
+        log NAME OFFSET SIZE
+    next i
+
+endif

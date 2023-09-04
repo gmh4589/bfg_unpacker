@@ -1,0 +1,15 @@
+# Gameloft Asphalt OFF DAT
+
+open FDDE "off"
+open FDDE "dat" 1
+
+get OFF_SIZE asize
+do
+    get SIZE long
+    get OFFSET long
+    get ZERO byte
+    get NAME string
+    padding 4
+    log NAME OFFSET SIZE 1
+    savepos TMP
+while TMP != OFF_SIZE

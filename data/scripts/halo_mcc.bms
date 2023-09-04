@@ -1,0 +1,39 @@
+# Halo: The Master Chief Collection
+
+open FDDE "idx"
+open FDDE "bin" 1
+get DUMMY long
+get INFO_SIZE long
+get INFO_SIZE long
+goto 0x28
+get DUMMY long
+goto 0x40
+get NAMESZ byte
+getdstring NAME NAMESZ
+goto 0x68
+get HEAD_SIZE long  # 0x10
+goto 0x70
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    get ZERO long
+    get OFFSET long
+    get FLAGS long  # 0x200
+
+    goto OFFSET 1
+    get TYPE long 1
+    get ZSIZE long 1    # no compressed samples so this is just guessed
+    get SIZE long 1
+    get ZERO long 1
+    savepos OFFSET 1
+
+    if SIZE != ZSIZE
+        print "Error: SIZE != ZSIZE, contact me"
+        cleanexit
+    endif
+
+    string NAME p "%08x/%08x." TYPE NAME_CRC
+    log NAME OFFSET SIZE 1
+next i

@@ -1,0 +1,61 @@
+# Medievil (script 0.2)
+#   experimental, there is nothing interesting to extract... just to cover the format
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "2GRV"
+    callfunction EXTRACT_2GRV 1
+    cleanexit
+endif
+
+idstring "DAWM"
+get DUMMY long
+get TSTAMP string
+
+for
+    padding 0x800
+    findloc OFFSET binary "2GRV"
+    goto OFFSET
+    savepos BASE_OFF
+
+    callfunction EXTRACT_2GRV 1
+
+    math LAST_OFF + BASE_OFF
+    goto LAST_OFF
+next
+
+startfunction EXTRACT_2GRV
+    idstring "2GRV"
+    get FILES long
+    get DUMMY long
+    get ELEMENTS long
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring DUMMY 8
+        get OFFSET long
+        getdstring DUMMY 12
+        putarray 0 i OFFSET
+    next i
+    for x = 0 < ELEMENTS
+        getdstring DUMMY 8
+        get OFFSET long
+        putarray 0 i OFFSET
+        math i + 1
+    next x
+    math FILES = i
+        #get OFFSET asize    # this is wrong with DAWM but who cares...
+        math OFFSET + 32    # this lame work-around may work with DAWM too
+        putarray 0 i OFFSET
+
+    math LAST_OFF = OFFSET
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    next
+endfunction

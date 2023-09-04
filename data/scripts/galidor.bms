@@ -1,0 +1,37 @@
+# Galidor: Defenders of the Outer Dimension (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "pck"
+    for
+        for x = 0 < 2
+            get DUMMY long  # 0xa0c
+            get SIZE long
+            if SIZE == 0
+                cleanexit
+            endif
+            get DUMMY long  # 0x1400ffff
+            if x == 0
+                getdstring NAME SIZE
+            else
+                string NAME + .
+                savepos OFFSET
+                log NAME OFFSET SIZE
+                goto SIZE 0 SEEK_CUR
+            endif
+        next x
+    next
+    cleanexit
+endif
+
+endian big
+get INFO_SIZE long
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

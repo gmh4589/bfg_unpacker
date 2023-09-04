@@ -1,0 +1,23 @@
+# Burger Shop PAK
+
+idstring "GBPK"
+get BASE_OFF long
+get DUMMY long  # 2
+get DUMMY byte  # 1
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get FLAGS byte
+    if FLAGS & 1    # 3, 0xb
+        get DUMMY short
+        get DUMMY short
+    endif
+    if FLAGS & 8
+        get TSTAMP long
+        get OFFSET long
+        get SIZE long
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,19 @@
+# Shadow War (WayGames)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "EASTFANTASY"
+goto 0x34
+get FILES long
+get DUMMY long
+savepos TMP
+math BASE_OFF = FILES
+math BASE_OFF *= 0x48
+math BASE_OFF += TMP
+for i = 0 < FILES
+    getdstring NAME 0x3c
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    math OFFSET += BASE_OFF
+    clog NAME OFFSET ZSIZE SIZE
+next i

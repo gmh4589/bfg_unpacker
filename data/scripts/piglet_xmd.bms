@@ -1,0 +1,69 @@
+# Piglet's Big Game XMD
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "XMD"
+idstring "XMD\0"
+get VER_maj short   # 1.1
+get VER_min short
+get DUMMY long  # 0x1500
+for TAGS = 0
+    get NAME string
+    if NAME == ""
+        break
+    endif
+    putarray 0 TAGS NAME
+next TAGS
+    putarray 1 TAGS ""  # reserve space
+
+get XMD_SIZE asize
+do
+    get TYPE byte
+    get DUMMY signed_short  # ???
+    get TAG_ID byte
+    math TAG_ID - 1
+    getarray TAG_NAME 0 TAG_ID 
+
+    math VAR = 0
+    if TYPE == 0x03     # another integer
+        get VAR long
+    elif TYPE == 0x06   # integer
+        get VAR long
+    elif TYPE == 0x02   # ??? maybe just a TRUE bool
+        math VAR = 1
+    elif TYPE == 0x08   # string
+        get VAR string
+    else
+        print "Error: unknown type %TYPE|x%"
+        cleanexit
+    endif
+    padding 4
+
+    putarray 1 TAG_ID VAR
+    #print "%TAG_NAME%: %VAR%"
+
+    if TAG_NAME == "FATFUSize"  # only way to find the delimiter
+        for x = 0 < TAGS
+            getarray TMP 0 x
+            getarray VAR 1 x
+            putarray     1 x "" # reset, useful and necessary
+            if TMP == "FATPName"
+                # just in case there are multiple declarations of FATPName
+                if VAR != ""
+                    open FDSE VAR 1
+                endif
+            elif TMP == "FATFile"
+                set NAME string VAR
+            elif TMP == "FATFOffset"
+                math OFFSET = VAR
+            elif TMP == "FATFSize"
+                math ZSIZE = VAR
+            elif TMP == "FATFUSize"
+                math SIZE = VAR
+            endif
+        next x
+
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+
+    savepos TMP
+while TMP != XMD_SIZE

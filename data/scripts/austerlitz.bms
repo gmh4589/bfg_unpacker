@@ -1,0 +1,13 @@
+# Austerlitz
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+xmath BASE_OFF "4 + (FILES * 272)"
+for i = 0 < FILES
+    getdstring NAME 260
+    get ZSIZE long
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i

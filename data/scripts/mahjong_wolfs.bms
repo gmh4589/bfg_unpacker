@@ -1,0 +1,21 @@
+# Mahjong Wolfs Stories
+
+idstring "NBGPACK\n"
+get DUMMY long
+get INFO_SIZE long
+math INFO_SIZE + 0x10
+for
+    savepos TMP
+    if TMP >= INFO_SIZE
+        break
+    endif
+    getdstring NAME 256
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next
+get SIZE long
+savepos OFFSET
+get NAME basename
+string NAME + ".xml"
+log NAME OFFSET SIZE

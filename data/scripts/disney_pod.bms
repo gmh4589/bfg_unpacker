@@ -1,0 +1,34 @@
+# Disney's Animated Storybook Mulan .POD
+
+set NAME string ""
+math OFFSET = 0
+get SIZE asize  # useless
+callfunction EXTRACT_POD 1
+
+startfunction EXTRACT_POD
+    set PATH string NAME
+    savepos BCK_OFF
+    goto OFFSET
+
+    getdstring SIGN 12  # it can be idstring "Pod\0File" (main pod) or "Pod File" (for sub-pods)
+    get FILES long
+
+    savepos TMP
+    xmath OFFSET "TMP + ((12 + 4) * FILES)"
+
+    for i = 0 < FILES
+        getdstring NAME 12
+        get SIZE long
+        string NAME p "%s/%s" PATH NAME
+
+        set EXT extension NAME
+        if EXT == "pod"
+            callfunction EXTRACT_POD
+        else
+            log NAME OFFSET SIZE
+        endif
+
+        math OFFSET + SIZE
+    next i
+    goto BCK_OFF
+endfunction

@@ -1,0 +1,17 @@
+# Tao Feng: Fist of the Lotus
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+get FILES_OFF long
+get DUMMY long
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get NAMESZ long
+    math NAMESZ += 1
+    getdstring NAME NAMESZ
+    padding 4
+    clog NAME OFFSET ZSIZE SIZE
+next i

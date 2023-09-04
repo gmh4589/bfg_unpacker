@@ -1,0 +1,39 @@
+# One Piece Dance Battle
+
+get NAME basename
+if NAME & "list"
+
+    comtype gzip
+    for
+        get INPUT line
+        getvarchr TMP INPUT 0
+        if TMP != '#'
+            string ELEMENTS S INPUT GROUP FILE_MD5 KEY NAME_MD5 DATE TIME NAME
+            string NAME_MD5 + ".fe"
+            open FDSE NAME_MD5 1 EXISTS
+            if EXISTS != 0
+                getdstring SIGN 4 1
+                if SIGN == "fe00"
+                    get SIZE long 1
+                    get XSIZE long 1
+                    get ZIP short 1
+                    get DIFF short 1
+                    getdstring DUMMY 16 1
+                    getdstring IVEC 16 1
+                    savepos OFFSET 1
+                    math XSIZE - OFFSET
+                    encryption aes_128_cbc KEY IVEC 0 16
+                    if ZIP == 0
+                        log NAME OFFSET SIZE 1 XSIZE
+                    else
+                        clog NAME OFFSET SIZE SIZE 1 XSIZE
+                    endif
+                endif
+            endif
+        endif
+    next
+
+else
+    print "Error: you must open the packlist, ios_list.dat or android_list.dat file"
+    cleanexit
+endif

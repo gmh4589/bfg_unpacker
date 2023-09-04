@@ -1,0 +1,27 @@
+# Two Worlds (idx/idx.asncdat)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+set NAME basename NAME  # "music.idx.database"
+string NAME + ".idx"
+open FDSE NAME
+
+idstring "DWXF"
+callfunction GET_NAME 1
+open FDSE NAME 1    # *.idx.asncdat
+get FILES long
+for i = 0 < FILES
+    getdstring TYPE 4
+    callfunction GET_NAME 1
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    log NAME OFFSET SIZE 1
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+endfunction

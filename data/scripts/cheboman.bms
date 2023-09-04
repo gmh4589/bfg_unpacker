@@ -1,0 +1,11 @@
+# CheboMan
+
+idstring "PACK Package file  \0"
+get FILES long
+filexor 0x56
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

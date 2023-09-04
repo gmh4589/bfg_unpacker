@@ -1,0 +1,21 @@
+# Hard Reset Redux
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for EXTRACT = 0 < 2
+    goto 4
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        get ZSIZE long
+        get OFFSET longlong
+        get TSTAMP longlong
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    get DUMMY long
+    savepos BASE_OFF
+next EXTRACT

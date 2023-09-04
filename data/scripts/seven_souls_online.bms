@@ -1,0 +1,17 @@
+# Seven Souls Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "CFS007"
+get DUMMY byte
+get DUMMY byte
+get DUMMY long
+get NAME string
+goto 0xf4
+get ZSIZE longlong
+get SIZE longlong
+math OFFSET = 0x11c
+if SIZE == 0
+    log NAME OFFSET ZSIZE
+else
+    clog NAME OFFSET ZSIZE SIZE
+endif

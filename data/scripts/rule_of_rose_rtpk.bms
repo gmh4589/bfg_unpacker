@@ -1,0 +1,71 @@
+# Rule of Rose PS2 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set PATH string ""
+set NAME string ""
+callfunction RTPK_EXTRACT 1
+
+startfunction RTPK_EXTRACT
+    string PATH + /
+    string PATH + NAME
+    savepos BASE_OFF
+    idstring "RTPK"
+    get RPK_SIZE long
+    get ZERO short
+    get FLAGS short
+    get ALIGN short
+    get FILES short
+    get NAMES_SIZE long
+    getdstring ZERO 0xc
+    if FLAGS & 1
+        for i = 0 < FILES
+            get SIZE[i] long
+        next i
+    endif
+    for i = 0 < FILES
+        get OFFSET[i] long
+    next i
+    if FLAGS & 1
+    else
+        for i = 0 < FILES
+            set TMP2 = OFFSET[i]
+            math i + 1
+            if i == FILES
+                set TMP = RPK_SIZE
+            else
+                set TMP = OFFSET[i]
+            endif
+            math TMP - TMP2
+            math i - 1
+            set SIZE[i] = TMP   # because multidimensional arrays don't work with math, so use Set
+        next i
+    endif
+    if FLAGS & 0x10
+        for i = 0 < FILES
+            get DUMMY short
+        next i
+    endif
+    for i = 0 < FILES
+        if NAMES_SIZE == 0
+            set NAME string ""
+        else
+            get NAME string
+        endif
+        math OFFSET = OFFSET[i]
+        math OFFSET + BASE_OFF
+        math SIZE   = SIZE[i]
+        if SIZE != 0
+            savepos TMP
+            goto OFFSET
+            getdstring SIGN 4
+            if SIGN == "RTPK"
+                goto OFFSET
+                callfunction RTPK_EXTRACT
+            else
+                string NAME p "%s/%s" PATH NAME
+                log NAME OFFSET SIZE
+            endif
+            goto TMP
+        endif
+    next i
+endfunction

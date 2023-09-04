@@ -1,0 +1,16 @@
+# Heroes Chronicles Series (SND)
+
+Get FC Long 0 ;
+ImpType Standard ;
+For A = 1 To FC ;
+SavePos FS 0 ;
+Get FN String 0 ;
+Math FS += 40 ;
+GoTo FS 0 ;
+SavePos Foo 0 ;
+Get Fo Long 0 ;
+SavePos Fso 0 ;
+Get Fsi Long 0 ;
+Log FN Fo Fsi #Foo Fso ;
+Next A ;
+

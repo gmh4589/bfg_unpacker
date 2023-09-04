@@ -1,0 +1,123 @@
+# C4 engine (http://www.terathon.com/c4engine/index.php) (script 0.1.1)
+# - World of Subways
+# - City Bus Simulator
+# - Lego Wolf3D
+# - Quest of Persia: Lotfali Khan Zand
+# - Vortex of Hostility
+# - others
+# note that some rare archives aren't supported (for example PhysX.pak of Vortex of Hostility)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.3.12
+get PAK_SIZE asize
+get VER long
+get DUMMY long
+get SIGN long
+if SIGN == 0x43344334   # C4C4
+    # endian little
+elif SIGN == 0x34433443 # 4C4C
+    endian big
+else
+    cleanexit
+endif
+get INFO_SIZE long
+savepos INFO_OFF
+log MEMORY_FILE INFO_OFF INFO_SIZE
+get MEM_SIZE asize MEMORY_FILE
+math BASE_OFF = INFO_OFF
+math BASE_OFF += INFO_SIZE
+
+set PATH string ""
+set NAME string ""
+get OFFSET1 long MEMORY_FILE
+get OFFSET2 long MEMORY_FILE
+savepos OFFSET MEMORY_FILE
+callfunction extract
+
+startfunction extract
+    if OFFSET != 0
+    if OFFSET < MEM_SIZE
+        goto OFFSET MEMORY_FILE
+        get OFFSET1 long MEMORY_FILE
+        get OFFSET2 long MEMORY_FILE
+        get OFFSET3 long MEMORY_FILE
+        get OFFSET4 long MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        set OLD_PATH string PATH
+        string PATH += NAME
+        string PATH += /
+
+        math OFFSET = OFFSET3
+        callfunction extract2
+
+        math OFFSET = OFFSET4
+        callfunction extract
+
+        set PATH string OLD_PATH
+
+        math OFFSET = OFFSET1
+        callfunction extract
+
+        math OFFSET = OFFSET2
+        callfunction extract
+    endif
+    endif
+endfunction
+
+startfunction extract2
+    if OFFSET != 0
+    if OFFSET < MEM_SIZE
+        goto OFFSET MEMORY_FILE
+        get OFFSET1 long MEMORY_FILE
+        get OFFSET2 long MEMORY_FILE
+        callfunction extract_type 1
+        get OFFSET3 long MEMORY_FILE
+
+        math OFFSET = OFFSET1
+        callfunction extract2
+        math OFFSET = OFFSET2
+        callfunction extract2
+        math OFFSET = OFFSET3
+        callfunction extract3
+    endif
+    endif
+endfunction
+
+startfunction extract3
+    if OFFSET != 0
+    if OFFSET < MEM_SIZE
+        goto OFFSET MEMORY_FILE
+        get OFFSET1 long MEMORY_FILE
+        get OFFSET2 long MEMORY_FILE
+        get FILE_OFFSET long MEMORY_FILE
+        get FILE_SIZE long MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        set FULLNAME string PATH
+        string FULLNAME += NAME
+        string FULLNAME += TYPE
+        math FILE_OFFSET *= 0x10
+        math FILE_OFFSET += BASE_OFF
+        log FULLNAME FILE_OFFSET FILE_SIZE
+
+        math OFFSET = OFFSET1
+        callfunction extract3
+        math OFFSET = OFFSET2
+        callfunction extract3
+    endif
+    endif
+endfunction
+
+startfunction extract_type
+    getdstring TYPE4 1 MEMORY_FILE
+    getdstring TYPE3 1 MEMORY_FILE
+    getdstring TYPE2 1 MEMORY_FILE
+    getdstring TYPE1 1 MEMORY_FILE
+
+    set TYPE string "."
+    string TYPE += TYPE1
+    string TYPE += TYPE2
+    string TYPE += TYPE3
+    string TYPE += TYPE4
+endfunction

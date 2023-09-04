@@ -1,0 +1,157 @@
+# Need for Speed: No Limits (script 0.1.1a)
+#   no filenames and no structure
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FMOBB-02"
+get DUMMY long
+get ZERO long
+get SIZE long
+get OFFSET asize
+math OFFSET - SIZE
+goto OFFSET
+idstring "ZBIN"
+savepos OFFSET
+math SIZE - 4
+comtype gzip
+clog MEMORY_FILE OFFSET SIZE SIZE
+
+math FILES = 0
+math NAMES = 0
+
+comtype lzma
+get MEM_SIZE asize MEMORY_FILE
+idstring MEMORY_FILE "SBIN"
+get DUMMY long MEMORY_FILE  # 4
+math CURRENT_FILE = 0
+for OFFSET = 8 != MEM_SIZE
+    goto OFFSET MEMORY_FILE
+    padding 4 MEMORY_FILE
+    getdstring TYPE 4 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get CRC long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+
+    log MEMORY_FILE2 OFFSET SIZE MEMORY_FILE
+
+    if TYPE == "DATA"
+        callfunction DUMP_DATA  # NO 1!
+
+    elif TYPE == "CHDR"
+        xmath NAMES "SIZE / (4 + 4)"
+        for x = 0 < NAMES
+            get NAME_OFF long MEMORY_FILE2
+            get NAMESZ long MEMORY_FILE2
+            putarray 0 x NAME_OFF
+            putarray 1 x NAMESZ
+        next x
+
+    elif TYPE == "CDAT"
+        for x = 0 < NAMES
+            getarray NAME_OFF 0 x
+            getarray NAMESZ   1 x
+            goto NAME_OFF MEMORY_FILE2
+            getdstring NAME NAMESZ MEMORY_FILE2
+            putarray 2 x NAME
+        next x
+    endif
+next OFFSET + SIZE
+
+startfunction DUMP_DATA
+    for x = 0
+        do
+            do
+                findloc OFFSET binary "\0\0\0\0" MEMORY_FILE2 "0"
+                goto OFFSET MEMORY_FILE2
+                get TMP1 byte MEMORY_FILE2
+            while OFFSET & 3
+            if OFFSET != 0
+                math OFFSET - 4
+                goto OFFSET MEMORY_FILE2
+                get TMP2 longlong MEMORY_FILE2
+            endif
+        while TMP2 & 0xf
+        if OFFSET == 0
+            break
+        endif
+        goto OFFSET MEMORY_FILE2
+        get OFFSET longlong MEMORY_FILE2
+        if OFFSET != 0
+            get SIZE long MEMORY_FILE2
+            get ZSIZE long MEMORY_FILE2
+            if SIZE != 0xffffffff && ZSIZE != 0xffffffff
+                get DUMMY long MEMORY_FILE2
+                get ZIP long MEMORY_FILE2
+                string NAME p "%08x." OFFSET
+                if SIZE != 0    # rare but it happened
+                    callfunction DUMP_SBIN  # NO 1!
+                endif
+                math CURRENT_FILE + 1
+            endif
+        endif
+    next x
+endfunction
+
+startfunction DUMP_SBIN
+    if ZIP & 4
+        comtype brotli
+    elif ZIP & 2
+        math ZIP = 0
+        math SIZE = ZSIZE
+        string NAME p "%s/%s" "unknown_compression" NAME
+    else
+        comtype lzma
+    endif
+    if ZIP == 0
+        log MEMORY_FILE3 OFFSET SIZE
+    else
+        clog MEMORY_FILE3 OFFSET ZSIZE SIZE
+    endif
+
+    get MEM_SIZE asize MEMORY_FILE3
+    getdstring SIGN 4 MEMORY_FILE3
+    getvarchr SIGN0 SIGN 0
+    getvarchr SIGN1 SIGN 1
+
+    if SIGN == "ZBIN"
+        comtype gzip
+        math OFFSET = 4
+        math MEM_SIZE - OFFSET
+        clog MEMORY_FILE3 OFFSET MEM_SIZE MEM_SIZE MEMORY_FILE3
+        get MEM_SIZE asize MEMORY_FILE3
+        goto 0 MEMORY_FILE3
+        getdstring SIGN 4 MEMORY_FILE3
+    endif
+
+    if SIGN == "SBIN"
+        if NAME == ""
+            string NAME p "%d" CURRENT_FILE
+        endif
+        string NAME + /
+
+        math MEM_SIZE - 8   # reserve space for the 2 fields
+        for OFFSET = 8 u<= MEM_SIZE
+            goto OFFSET MEMORY_FILE3
+            padding 4 MEMORY_FILE3
+            getdstring TYPE 4 MEMORY_FILE3
+            get SIZE long MEMORY_FILE3
+            get CRC long MEMORY_FILE3
+            savepos OFFSET MEMORY_FILE3
+
+            set FNAME string NAME
+            string FNAME + TYPE
+            log FNAME OFFSET SIZE MEMORY_FILE3
+        next OFFSET + SIZE
+
+    elif SIGN0 = 0x1f && SIGN1 == 0x8c
+        goto 0 MEMORY_FILE3
+        get SIGN short MEMORY_FILE3
+        get SIZE long MEMORY_FILE3
+        savepos OFFSET MEMORY_FILE3
+        comtype gzip
+        math MEM_SIZE - OFFSET
+        clog NAME OFFSET MEM_SIZE SIZE MEMORY_FILE3
+
+    else
+        log NAME 0 MEM_SIZE MEMORY_FILE3
+    endif
+endfunction

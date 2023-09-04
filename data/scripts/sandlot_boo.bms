@@ -1,0 +1,59 @@
+# Sandlot Games BOO archives
+#   some examples of games that use this format:
+#   SuperGranny 4, Kuros
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype bzip2
+get FULL_FILE_SIZE asize
+get VER long
+get SUB_FILES long
+set FULLPATH string ""
+set NAME string ""
+callfunction extract
+
+startfunction extract
+    string FULLPATH += NAME
+    string FULLPATH += /
+    math FILES = SUB_FILES
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get TYPE byte
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get SUB_FILES long
+        if TYPE == 0
+            set FULLNAME string FULLPATH
+            string FULLNAME += NAME
+            callfunction bzip2_unpack
+        elif TYPE == 1
+            # folders
+        else
+            print "Error: unknown type %TYPE%, contact me"
+            cleanexit
+        endif
+        if SUB_FILES > 0
+            callfunction extract
+        endif
+    next i
+endfunction
+
+startfunction bzip2_unpack
+    savepos TMP_OFF
+    goto OFFSET
+    getdstring BZIP2_HEADER 10
+    if BZIP2_HEADER == "BZh91AY&SY"
+        savepos NEXT_OFF
+        findLoc NEXT_OFF string "BZh91AY&SY" 0 -1
+        if NEXT_OFF < 0
+            math NEXT_OFF = FULL_FILE_SIZE
+        endif
+        math ZSIZE = NEXT_OFF
+        math ZSIZE -= OFFSET
+        clog FULLNAME OFFSET ZSIZE SIZE
+    else
+        log FULLNAME OFFSET SIZE
+    endif
+    goto TMP_OFF
+endfunction

@@ -1,0 +1,29 @@
+# 3DS GMD MT Frameworks decrypter
+#   Dai Gyakuten Saiban 2: Naruhodou Ryuunosuke no Kakugo.
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GMD\0"
+get DUMMY long
+get ZERO long
+get ZERO long
+get ZERO long
+get DUMMY long
+get DUMMY long
+get STRINGS long
+get SIZE long
+get OFFSET asize
+math OFFSET - SIZE
+
+set KEY string "e43bcc7fcab+a6c4ed22fcd433/9d2e6cb053fa462-463f3a446b19"
+set KEY2 string "861f1dca05a0;9ddd5261e5dcc@6b438e6c.8ba7d71c*4fd11f3af1"
+strlen KEYSZ KEY
+for i = 0 < KEYSZ
+    getvarchr A KEY i
+    getvarchr B KEY2 i
+    math A ^ B
+    putvarchr KEY i A
+next i
+
+encryption xor KEY "" 0 KEYSZ
+get NAME basename
+log NAME OFFSET SIZE

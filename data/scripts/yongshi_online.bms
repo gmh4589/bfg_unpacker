@@ -1,0 +1,39 @@
+# Yongshi Online (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    idstring "hry"
+    get sign threebyte
+    if sign == 0x030201     # Local file header
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if method == 0
+            Log name offset uncomp_size
+        else
+            if method == 8
+                ComType deflate
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+        endif
+        math offset += comp_size
+        goto offset
+    else
+        cleanexit
+    endif
+    savepos offset
+next

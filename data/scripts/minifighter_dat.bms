@@ -1,0 +1,10 @@
+# MiniFighter DAT decrypter
+
+encryption tea "\xE4\xCB\xB4\x78\xA9\x46\xD9\x29\xBA\x72\xD5\x41\x15\x75\x2A\x28" "0x9e3779b9 0xc6ef3720 0 32"
+get SIZE asize
+math OFFSET = 0x33
+math SIZE -= OFFSET
+
+get NAME basename
+string NAME += ".txt"
+log NAME OFFSET SIZE

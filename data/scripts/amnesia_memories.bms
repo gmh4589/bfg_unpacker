@@ -1,0 +1,28 @@
+# Amnesia: Memories (old script)
+#   probably you want to use the script http://aluigi.org/bms/norn9.bms
+
+# hard-coded keys, the generator is not implemented here
+get NAME filename
+if NAME == "root.pfs"
+    set KEY binary "\xAC\xB7\x5C\x95\xEE\x53\xD7\x5E\x52\x90\xF2\x1F\xB3\x41\x67\x52\x73\x67\x68\x88"
+elif NAME == "root.pfs.000"
+    set KEY binary "\x28\x4B\xA5\xF9\x78\xF0\x3A\x99\x98\xA3\xCD\xC9\x92\xCF\x8C\xB8\x0D\x76\x3A\xE5"
+else
+    print "Error: unknown key for this file"
+    cleanexit
+endif
+
+idstring "pf8"
+get INFO_SIZE long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+
+    encryption xor KEY 0 20
+    log NAME OFFSET SIZE
+    encryption "" ""
+next i

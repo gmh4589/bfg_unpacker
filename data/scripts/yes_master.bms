@@ -1,0 +1,97 @@
+# Yes, Master! / Perky Little Things / ktulhu
+
+set MEMORY_FILE10 string "
+// slightly modified xtea (v0 zero, v1 counter, big endian key, xor of the final bytes)
+
+unsigned int htonl(unsigned int n) {
+    n = (((n & 0xff000000) >> 24) |
+         ((n & 0x00ff0000) >>  8) |
+         ((n & 0x0000ff00) <<  8) |
+         ((n & 0x000000ff) << 24));
+    return n;
+}
+
+void xxtea(unsigned int *k, unsigned int *v0, unsigned int *v1) {
+    unsigned int    sum = 0;
+    int     i;
+    for( i = 0; i < 32; i++ )
+    {
+        *v0 += (((*v1 << 4) ^ (*v1 >> 5)) + *v1) ^ (sum + htonl(k[sum & 3]));
+        sum -= 0x61c88647;
+        *v1 += (((*v0 << 4) ^ (*v0 >> 5)) + *v0) ^ (sum + htonl(k[(sum>>11) & 3]));
+    }
+    *v0 = htonl(*v0);
+    *v1 = htonl(*v1);
+}
+
+int dlib_crypt(unsigned char *data, int size, unsigned char *key, int keylen) {
+    unsigned int    k[4];
+    if(keylen > 16) return -1;
+    int     i;
+    for(i = 0; i < 16; i++) {
+        ((unsigned char *)k)[i] = (i < keylen) ? key[i] : 0;
+    }
+    int             size32 = size / 8;
+    unsigned int    v0, v1;
+    unsigned int    *data32 = (unsigned int *)data;
+
+    for(i = 0; i < size32; i++) {
+        v0 = 0;
+        v1 = i;
+        xxtea(k, &v0, &v1);
+        data32[(i * 2)]     ^= v0;
+        data32[(i * 2) + 1] ^= v1;
+    }
+
+    v0 = 0;
+    v1 = size32;
+    xxtea(k, &v0, &v1);
+    unsigned char   tmp[8];
+    ((unsigned int *)tmp)[0] = v0;
+    ((unsigned int *)tmp)[1] = v1;
+    int             size8 = size & 7;
+    for(i = 0; i < size8; i++) {
+        data[(size32 * 8) + i] ^= tmp[i];
+    }
+    return 0;
+}
+"
+
+open FDDE "arci"
+open FDDE "arcd" 1
+
+comtype lz4
+endian big
+get DUMMY long
+getdstring ZERO 12
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+getdstring HASH 16
+
+for i = 0 < FILES
+    get NAME_CRC long
+    getdstring HASH 16
+    getdstring ZERO 0x2c
+next i
+
+# some files have txt extension but they are some sort of sequential WEBPVP8 media
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ENCRYPT long
+    if ENCRYPT != 0
+        set KEY string "aQj8CScgNP4VsfXK"
+        strlen KEYSZ KEY
+        encryption calldll "MEMORY_FILE10 dlib_crypt tcc RET #INPUT# #INPUT_SIZE# KEY KEYSZ"
+    endif
+    if ZSIZE == 0xffffffff
+        log "" OFFSET SIZE 1
+    else
+        clog "" OFFSET ZSIZE SIZE 1
+    endif
+    encryption "" ""
+next i

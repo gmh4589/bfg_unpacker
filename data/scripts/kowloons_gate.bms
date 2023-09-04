@@ -1,0 +1,69 @@
+get EXT extension
+get ANAME basename
+
+math EXTRACT_FROM_SECTOR = 0
+
+if EXT == "tbl"
+	open FDDE "tbl" 0
+	open FDDE "pak" 1
+	
+	get SECTOR long 1
+	if SECTOR == 0xffffff00
+		math EXTRACT_FROM_SECTOR = 1
+		
+		goto 0 1
+		get SIZE asize 1
+		putvarchr MEMORY_FILE SIZE 0
+		log MEMORY_FILE 0 0
+		append
+		for OFFSET = 0 u< SIZE
+			idstring "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00" 1
+			get DUMMY long 1
+			get DUMMY2_1 byte 1
+			get DUMMY2_2 byte 1
+			get DUMMY2_3 byte 1
+			get DUMMY2_4 byte 1
+			get DUMMY3_1 byte 1
+			get DUMMY3_2 byte 1
+			get DUMMY3_3 byte 1
+			get DUMMY3_4 byte 1
+			savepos OFFSET 1
+			log MEMORY_FILE OFFSET 0x800 1
+			math OFFSET + 0x800
+			math OFFSET + 0x118
+			goto OFFSET 1
+		next
+		append
+	else
+	endif
+	
+	get TBL_SIZE asize 0
+	get PAK_SIZE asize MEMORY_FILE
+	idstring "\x33\x32" 0
+	get FILES short
+	for i = 0 < FILES
+		savepos NEXT_OFFLOC
+		get TYPE short
+		get SIZE short
+		get OFFSET long
+		math OFFSET * 0x800
+		
+		savepos TMP1
+		math NEXT_OFFLOC + 0xC
+		goto NEXT_OFFLOC
+		if NEXT_OFFLOC u> TBL_SIZE
+			xmath SIZE2 "PAK_SIZE - OFFSET"
+			math SIZE == SIZE2
+		else
+			get NEXT_OFFSET long
+			math NEXT_OFFSET * 0x800
+			xmath SIZE2 "NEXT_OFFSET - OFFSET"
+			math SIZE == SIZE2
+		endif
+		goto TMP1
+
+		log MEMORY_FILE2 OFFSET SIZE MEMORY_FILE
+		string FNAME p= "%s_%08d." ANAME i
+		log FNAME 0 SIZE MEMORY_FILE2
+	next i
+endif

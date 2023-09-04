@@ -1,0 +1,55 @@
+# Musketeers 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzf
+idstring "GDP"
+set PATH string ""
+set NAME string ""
+get xPATH_NEXT asize
+callfunction EXTRACT
+
+startfunction EXTRACT
+    math PATH_NEXT = xPATH_NEXT
+    string PATH += NAME
+    string PATH += /
+    for
+        savepos MYOFF
+        if MYOFF >= PATH_NEXT
+            break
+        endif
+
+        get TYPE byte
+        if TYPE == 4
+            get ENTRY_SIZE long
+            get xPATH_NEXT long
+            get PATH_PREV long
+            get NAME string
+            if xPATH_NEXT == 0
+                string PATH += NAME
+                string PATH += /
+            else
+                callfunction EXTRACT
+            endif
+        else
+            get ENTRY_SIZE long
+            get NEXT long
+            get OFFSET long
+            get SIZE long
+            get DUMMY byte
+            get TSTAMP longlong
+            get XSIZE long
+            get DUMMY long
+            get DUMMY long
+            get NAME string
+            set FNAME string PATH
+            string FNAME += NAME
+            if TYPE & 0x80
+                clog FNAME OFFSET SIZE XSIZE
+            else
+                log FNAME OFFSET SIZE
+            endif
+            math OFFSET += SIZE
+            goto OFFSET
+        endif
+    next
+endfunction

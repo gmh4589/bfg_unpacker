@@ -1,0 +1,27 @@
+idstring "GKPR"
+get ZERO long
+get ZERO long
+getdstring DUMMY 0xc
+get ZERO long
+get FILES long
+get OFFSET long
+get SIZE long
+math OFFSET + 0x28
+log "" OFFSET SIZE
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET longlong
+    putarray 0 i OFFSET
+next i
+#sortarray 0 # useless
+    getarray OFFSET 0 0
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFF asize
+    else
+        getarray NEXT_OFF 0 i
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

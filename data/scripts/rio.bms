@@ -1,0 +1,115 @@
+# Rio
+#   another game developed by Eurocom using a slightly modified file format
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bin" 0
+get MYENDIAN short
+if MYENDIAN == 0
+    endian big
+endif
+goto 0
+
+get VER long
+if VER == 12
+    set KEYX string "rFy5_pnOUOb6GWmsAD9z8^I2?Bv$dsD56AjY%MRWW((VBuTRzkfo9O+*Rr#J?WRS"
+else
+    print "unsupported game %VER%"
+    cleanexit
+endif
+get BINSZ long
+get FILES long
+get DUMMY short
+get PACKS short # + 1
+get NAMES_OFF long
+if NAMES_OFF != 0
+    math NAMES_OFF += 0x10
+endif
+
+set KEY string ""
+for KEYLEN = 0 < 0x100
+    string KEY += KEYX
+    strlen KEYLEN KEY
+next
+
+log MEMORY_FILE 0 0
+encryption rc4 KEY "" 0 0x100
+for i = 0 < FILES
+    set NAME string ""
+    if NAMES_OFF != 0
+        savepos MYOFF
+        math TMP = i
+        math TMP *= 4
+        math TMP += NAMES_OFF
+        goto TMP
+        get OFFSET long
+        math OFFSET += TMP
+        goto OFFSET
+        math j = 0
+        do
+            get CHR byte
+            putvarchr MEMORY_FILE j CHR
+            log MEMORY_FILE2 j 1 MEMORY_FILE
+            get CHR byte MEMORY_FILE2
+            putvarchr MEMORY_FILE j CHR
+            math j += 1
+        while CHR != 0x00
+        goto 0 MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto MYOFF
+    endif
+    putarray 0 i NAME
+next i
+
+encryption rc4 KEY "" 0 0x100
+for i = 0 < FILES
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get EXT long
+
+    get SIZE long
+    if MYENDIAN == 0
+        reverselong SIZE
+    endif
+    goto 0 MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    log MEMORY_FILE 0 4 MEMORY_FILE
+    goto 0 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    reverselong SIZE
+
+    get DUMMY long
+    get CRC long
+
+    get OFFSET long
+    if MYENDIAN == 0
+        reverselong OFFSET
+    endif
+    goto 0 MEMORY_FILE
+    put OFFSET long MEMORY_FILE
+    log MEMORY_FILE 0 4 MEMORY_FILE
+    goto 0 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    reverselong OFFSET
+
+    get DUMMY long
+
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+    putarray 3 i EXT
+next i
+
+encryption "" ""
+set OLD_EXT long -1
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    getarray EXT    3 i
+    if EXT != OLD_EXT
+        string TMP p= "%03d" EXT
+        open FDDE TMP 1
+        set OLD_EXT long EXT
+    endif
+    log NAME OFFSET SIZE 1
+next i

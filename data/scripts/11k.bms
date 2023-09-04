@@ -1,0 +1,26 @@
+<bms games="'Turok: Dinosaur Hunter', 'Turok 2: Seeds Of Evil'" platforms="'PC'" ext="'11K', '22K'">
+ImpType SFileSize ;
+Get FILENUM Long 0 ;
+Get DATASIZE Long 0 ;
+SavePos DIRSTART 0 ;
+Set FDIRSTRT Long FILENUM ;
+Math FDIRSTRT *= 8 ;
+Math FDIRSTRT += 16 ;
+GoTo EOF 0 ;
+SavePos DATASTRT 0 ;
+Math DATASTRT -= DATASIZE ;
+Math DATASTRT += 1 ;
+GoTo DIRSTART 0 ;
+For X = 1 To FILENUM ;
+Get FOFFSET Long 0 ;
+Math FOFFSET += DATASTRT ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+SavePos NEXTFILE 0 ;
+GoTo FDIRSTRT 0 ;
+Get FNAME String 0 ;
+SavePos FDIRSTRT 0 ;
+Log FNAME FOFFSET FSIZE 0 FSIZEX ;
+GoTo NEXTFILE 0 ;
+Next X ;
+</bms>

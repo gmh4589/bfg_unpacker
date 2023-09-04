@@ -1,0 +1,24 @@
+# Cyclones (HD)
+
+ImpType StandardTail ;
+Get FC Int 0 ;
+SavePos TailOffOff 0 ;
+Get TailOff Long 0 ;
+Get TailSize Long 0 ;
+GoTo TailOff 0 ;
+SavePos ST 0 ;
+For T = 1 To FC ;
+GoTo ST 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get FNO Long 0 ;
+SavePos ST 0 ;
+Math TailOff += FNO ;
+GoTo TailOff 0 ;
+Math TailOff -= FNO ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+

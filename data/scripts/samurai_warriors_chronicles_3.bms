@@ -1,0 +1,16 @@
+# Samurai Warriors Chronicles 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x00a1a861
+get FILES long
+get ALIGN long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    get ZERO long
+    get SIZE long
+    getdstring TYPE 4
+    math OFFSET * ALIGN
+    string NAME p "%s/" TYPE
+    log NAME OFFSET SIZE
+next i

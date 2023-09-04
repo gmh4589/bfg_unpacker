@@ -1,0 +1,15 @@
+# RXonline 邪风曲 DAT
+
+getdstring RES_NAME 20  # ICONRES, FILERES and so on
+get DUMMY long
+get FILES long
+get DUMMY long  # 0x34
+get BASE_OFF long
+# zeroes
+goto 0x3c
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

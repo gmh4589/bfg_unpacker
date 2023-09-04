@@ -1,0 +1,56 @@
+# raw Activision BAF extractor
+# this script only extracts the raw data from baf files (header, cue markers, stream data)
+# to be used for later post-processing of the contained audio files (saved as *.wavl)
+# (c) 2012-09-25 by AlphaTwentyThree of XeNTaX
+
+idstring "BANK"
+get SINFO long
+if SINFO != 0x34
+   endian big
+   reverselong SINFO
+endif
+get UNK long
+get FILES long
+goto SINFO
+savepos HOFF
+for i = 1 <= FILES
+   idstring "WAVE"
+   get HSIZE long
+   get UNK0 long
+   getDstring NAME 0x20
+   get SOFF long # stream start
+   math SOFF -= 8
+   get SSIZE long
+   set COFF HOFF
+   math COFF += HSIZE
+   goto COFF
+   getDstring CID 4
+   if CID == "CUE "
+      get CSIZE long
+   else
+      set CSIZE 0
+   endif
+   set SIZE HSIZE
+   math SIZE += CSIZE
+   math SIZE += SSIZE
+   putVarChr MEMORY_FILE SIZE 0
+   log MEMORY_FILE 0 0
+   goto HOFF
+   getDstring HDATA HSIZE
+   putDstring HDATA HSIZE MEMORY_FILE
+   if CSIZE != 0
+      goto COFF
+      getDstring CDATA CSIZE
+      putDstring CDATA CSIZE MEMORY_FILE
+   else
+      set CSIZE 0
+   endif
+   goto SOFF
+   getDstring SDATA SSIZE
+   putDstring SDATA SSIZE MEMORY_FILE
+   string NAME += ".wavel"
+   log NAME 0 SIZE MEMORY_FILE
+   math HSIZE += CSIZE
+   math HOFF += HSIZE
+   goto HOFF
+next i

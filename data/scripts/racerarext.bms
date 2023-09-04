@@ -1,0 +1,44 @@
+# Racer.nl AR files unpacker
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype sfl_block
+idstring "AR01"
+goto -4
+savepos MAX_OFF
+get INFO_OFF long
+for INFO_OFF = INFO_OFF < MAX_OFF
+    goto INFO_OFF
+    get NAME string
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+
+    if SIZE == 0xffffffff
+        # do nothing
+    else
+        do
+            goto OFFSET
+            get TYPE byte
+            savepos OFFSET
+            if TYPE != 0x44
+                get LEN long
+                math OFFSET += LEN
+            endif
+        while TYPE != 0x44
+
+        putvarchr MEMORY_FILE SIZE 0    # pre-allocate
+        log MEMORY_FILE 0 0
+        append
+        for mysize = 0 < SIZE
+            goto OFFSET
+            get ZSIZE short
+            savepos OFFSET
+            clog MEMORY_FILE OFFSET ZSIZE 0xffff
+            math OFFSET += ZSIZE
+            get mysize asize MEMORY_FILE
+        next
+        append
+
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next

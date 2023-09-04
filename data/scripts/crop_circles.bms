@@ -1,0 +1,16 @@
+# Crop Circles
+
+    findloc OFFSET string "zerobl__"
+for
+    math OFFSET + 8
+    goto OFFSET
+    findloc NEXT_OFF string "zerobl__" 0 ""
+    if NEXT_OFF == ""
+        break
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFF
+next

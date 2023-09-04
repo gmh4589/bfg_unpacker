@@ -1,0 +1,44 @@
+# Super Robot Taisen fh/fs
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "~fh"
+    print "Error: you must open the files with fh extension"
+    cleanexit
+endif
+idstring "~fh"
+get DUMMY long
+get DUMMY long
+get TOTAL_SIZE long
+get PAKS long
+
+get NAMESZ byte
+getdstring NAME NAMESZ
+
+putvarchr MEMORY_FILE TOTAL_SIZE 0
+log MEMORY_FILE 0 0
+
+append
+for i = 0 < PAKS
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    open FDSE NAME 1
+    log MEMORY_FILE 0 SIZE 1
+next i
+append
+
+endian big
+
+    get OFFSET long MEMORY_FILE
+do
+    get NEXT_OFF long MEMORY_FILE
+    if NEXT_OFF == 0
+        math SIZE = TOTAL_SIZE
+    else
+        math SIZE = NEXT_OFF
+    endif
+    math SIZE -= OFFSET
+    log "" OFFSET SIZE MEMORY_FILE
+    math OFFSET = NEXT_OFF
+while NEXT_OFF != 0

@@ -1,0 +1,370 @@
+# SCEI/Sony PS2 - .XWB/.XWH/.XWS(RXWS) splitter
+# Changelog:
+# v1 by AnonBaiter (initial release)
+# v2 by bnnm (correctly parses stream sizes, XWS support)
+# v3 by AnonBaiter (extended FTXT_SIZE to a maximum of 0x40 bytes based on NAME_LEN`s length)
+# v4 by AnonBaiter (XWH`s final splitted size is now set through an xmath operation)
+# v5 by AnonBaiter ("MARK" chunk added)
+
+set FILENAME_INFO 1   #config
+
+###############
+
+set IS_XWS 1
+
+get EXT extension
+if EXT != "XWS" && EXT != "xws"
+	set IS_XWS 0
+	open FDDE "XWH" 0
+	open FDDE "XWB" 1
+endif
+
+#RXWS
+findloc RXWS1 string "RXWS" 0 ""
+if RXWS1 != ""
+	math RXWS1 + 4
+	goto RXWS1
+	get RXWS_SIZE long
+	get DUMMY long
+	get DUMMY long
+endif
+
+#FORM
+findloc FORM1 string "FORM" 0 ""
+if FORM1 != ""
+	math FORM1 + 4
+	goto FORM1
+	get FORM_SIZE long
+	get DUMMY long
+	get DUMMY long
+	savepos FORM2
+	log MEMORY_FILE FORM2 FORM_SIZE #save FORM to memfile1 to read later
+	get FORM_STREAMS long MEMORY_FILE
+endif
+
+#FTXT
+findloc FTXT1 string "FTXT" 0 ""
+if FTXT1 != ""
+	math FTXT1 + 4
+	goto FTXT1
+	get FTXT_SIZE long
+	get DUMMY long
+	get DUMMY long
+	savepos FTXT2
+	log MEMORY_FILE2 FTXT2 FTXT_SIZE #save FTXT to memfile2 to read later
+	get FTXT_STREAMS long MEMORY_FILE2
+endif
+
+#MARK
+findloc MARK1 string "MARK" 0 ""
+if MARK1 != ""
+	math MARK1 + 4
+	goto MARK1
+	get MARK_SIZE long
+	get DUMMY long
+	get DUMMY long
+	savepos MARK2
+	log MEMORY_FILE3 MARK2 MARK_SIZE #save MARK to memfile3 to read later
+	get ZERO long MEMORY_FILE3
+	get MARK_STREAMS long MEMORY_FILE3
+endif
+
+if IS_XWS == 1
+	if FORM_STREAMS == 0
+		break
+	elif FORM_STREAMS == 1
+		print "This one is a single .xws file. It doesn't need splitting."
+		cleanexit
+	endif
+else
+	if FORM_STREAMS == 0
+		break
+	elif FORM_STREAMS == 1
+		print "This one is a single .xwh/.xwb pair. It doesn't need splitting."
+		cleanexit
+	endif
+endif
+
+#BODY
+if IS_XWS == 1
+	xmath BODY_OFFSET "FTXT_OFFSET + 0x10 + FTXT_SIZE"
+	goto BODY_OFFSET
+	idstring "BODY"
+	get BODY_SIZE long
+else
+	set BODY_OFFSET 0
+	get BODY_SIZE asize 1
+endif
+
+xmath FORM_STREAMS_LESS1 "FORM_STREAMS - 1"
+
+if FORM1 != ""
+	# split streams
+	for I = 0 < FORM_STREAMS
+
+		#get stream header
+		get FORM01 long MEMORY_FILE  #codec+?+flags
+		get FORM02 long MEMORY_FILE  #vol/pan/etc
+		get FORM03 long MEMORY_FILE  #?+ch+sample rate
+		get FORM04 long MEMORY_FILE  #0
+		get FORM05 long MEMORY_FILE  #stream offset within BODY
+		get FORM06 long MEMORY_FILE  #loop end
+		get FORM07 long MEMORY_FILE  #loop start
+		
+		if FTXT1 != ""
+			#get stream name
+			get FTXT_NAME_OFF long MEMORY_FILE2
+			savepos FTXT_TMP_OFF MEMORY_FILE2
+			goto FTXT_NAME_OFF MEMORY_FILE2
+			get FTXT_NAME string MEMORY_FILE2
+			goto FTXT_TMP_OFF MEMORY_FILE2
+		endif
+		
+		if MARK1 != ""
+			#get stream marker
+			xmath MARK_OFF_LIMIT "MARK_STREAMS * 4 + 4"
+			get MARK_OFF long MEMORY_FILE3
+			savepos MARK_TMP_OFF MEMORY_FILE3
+			math MARK_TMP_OFF2 == MARK_TMP_OFF
+			goto MARK_TMP_OFF2 MEMORY_FILE3
+			get NEXT_MARK_OFF long MEMORY_FILE3
+			#get the needed values through a normal file, otherwise quickBMS throws off an error
+			if MARK_TMP_OFF2 u> MARK_OFF_LIMIT
+				xmath MARK_SIZE2 "MARK_SIZE - MARK_OFF"
+			else
+				xmath MARK_SIZE2 "NEXT_MARK_OFF - MARK_OFF"
+			endif
+			xmath MARK_OFF2 "MARK_OFF + MARK2"
+			goto MARK_OFF2
+			get MARK_CHECK long
+			goto -4 0 SEEK_CUR
+			if MARK_CHECK == 0
+				set MARK_SIZE2 4
+			else
+				if MARK_TMP_OFF2 u> MARK_OFF_LIMIT
+					xmath MARK_SIZE2 "MARK_SIZE - MARK_OFF"
+				else
+					xmath MARK_SIZE2 "NEXT_MARK_OFF - MARK_OFF"
+				endif
+			endif
+			getdstring MARK_DATA MARK_SIZE2
+			#back to memfile3
+			goto MARK_TMP_OFF MEMORY_FILE3
+		endif
+		
+		#expected string max
+		strlen NAME_LEN FTXT_NAME
+		if NAME_LEN > 0x38
+			print "big name found, fix me"
+			cleanexit
+		endif
+		strlen MARK_LEN MARK_DATA
+		if MARK_LEN > 0x44
+			print "big marker found, fix me"
+			cleanexit
+		endif
+		
+		# get stream offset/size
+		if IS_XWS == 1
+			xmath STREAM_OFFSET "BODY_OFFSET + 0x10 + FORM05"
+		else
+			set STREAM_OFFSET FORM05
+		endif
+		
+		if I == FORM_STREAMS_LESS1
+			xmath STREAM_SIZE "BODY_SIZE - STREAM_OFFSET"
+		else
+			savepos OFFSET MEMORY_FILE
+			savepos NEXT_OFFSET MEMORY_FILE
+			math NEXT_OFFSET += 0x10 #next FORM05
+			goto NEXT_OFFSET MEMORY_FILE
+			get NEXT_STREAM_OFFSET long MEMORY_FILE
+			if IS_XWS == 1
+				xmath NEXT_STREAM_OFFSET "BODY_OFFSET + 0x10 + NEXT_STREAM_OFFSET"
+			endif
+			goto OFFSET MEMORY_FILE
+			xmath STREAM_SIZE "NEXT_STREAM_OFFSET - STREAM_OFFSET"
+		endif
+		
+		if IS_XWS == 1
+			callfunction SPLIT_XWS 1
+		else
+			callfunction SPLIT_XWB_XWH 1
+		endif
+	next I
+endif
+
+startfunction SPLIT_XWB_XWH
+	set FORM_SIZE 0x20
+	#TODO: calculate FTXT_SIZE the same way as MARK_SIZE
+	if NAME_LEN <= 0x8
+		set FTXT_SIZE 0x10
+	elif NAME_LEN <= 0x18
+		set FTXT_SIZE 0x20
+	elif NAME_LEN <= 0x28
+		set FTXT_SIZE 0x30
+	elif NAME_LEN <= 0x38
+		set FTXT_SIZE 0x40
+	endif
+	if MARK1 != ""
+		xmath MARK_SIZE "MARK_SIZE2 + 0x20"
+		math MARK_SIZE x= 0x10
+		xmath RXWS_SIZE "FORM_SIZE + FTXT_SIZE + MARK_SIZE + 0x20" #header size in total after the first 0x20 bytes
+	else
+		xmath RXWS_SIZE "FORM_SIZE + FTXT_SIZE + 0x20" #header size in total after the first 0x20 bytes
+	endif
+	
+    #xwb split
+	log MEMORY_FILE4 0 0
+	log MEMORY_FILE4 STREAM_OFFSET STREAM_SIZE 1
+	
+	if FILENAME_INFO == 1
+		get BASE basename
+		string XWBNAME p= "%s_%03i__%s.xwb" BASE I FTXT_NAME
+	else
+		string XWBNAME p= "%s.xwb" FTXT_NAME
+	endif
+	get SIZE asize MEMORY_FILE4
+	log XWBNAME 0 SIZE MEMORY_FILE4
+	
+    #xwh split
+	log MEMORY_FILE5 0 0
+	xmath XWHDATA1 "RXWS_SIZE + 0x10"
+	#pre-write everything into memfile5 so all the data can be written later
+	putdstring "" XWHDATA1 MEMORY_FILE5
+	goto 0 MEMORY_FILE5
+	append #on
+	
+	putdstring "RXWS" 4 MEMORY_FILE5
+	put RXWS_SIZE  long MEMORY_FILE5
+	put 0x200      long MEMORY_FILE5
+	put 0x00800000 long MEMORY_FILE5  #split mark
+	
+	putdstring "FORM" 4 MEMORY_FILE5
+	put FORM_SIZE  long MEMORY_FILE5
+	put 0x100      long MEMORY_FILE5
+	put 0          long MEMORY_FILE5
+	put 1          long MEMORY_FILE5  #streams
+	put FORM01     long MEMORY_FILE5
+	put FORM02     long MEMORY_FILE5
+	put FORM03     long MEMORY_FILE5
+	put FORM04     long MEMORY_FILE5
+	put 0          long MEMORY_FILE5  #new offset
+	put FORM06     long MEMORY_FILE5
+	put FORM07     long MEMORY_FILE5
+	
+	putdstring "FTXT" 4 MEMORY_FILE5
+	put FTXT_SIZE  long MEMORY_FILE5
+	put 0x100      long MEMORY_FILE5
+	put 0          long MEMORY_FILE5
+	put 1          long MEMORY_FILE5  #streams
+	put 8          long MEMORY_FILE5  #name offset
+	if NAME_LEN <= 0x8
+		putdstring FTXT_NAME 0x8 MEMORY_FILE5
+	elif NAME_LEN <= 0x18
+		putdstring FTXT_NAME 0x18 MEMORY_FILE5
+	elif NAME_LEN <= 0x28
+		putdstring FTXT_NAME 0x28 MEMORY_FILE5
+	elif NAME_LEN <= 0x38
+		putdstring FTXT_NAME 0x38 MEMORY_FILE5
+	endif
+	
+	if MARK1 != ""
+		putdstring "MARK" 4 MEMORY_FILE5
+		put MARK_SIZE  long MEMORY_FILE5
+		put 0x100      long MEMORY_FILE5
+		put 0          long MEMORY_FILE5
+		put 0          long MEMORY_FILE5
+		put 1          long MEMORY_FILE5
+		put 8          long MEMORY_FILE5
+		putdstring MARK_DATA MARK_SIZE2 MEMORY_FILE5
+	endif
+	
+	append #off
+	
+	if FILENAME_INFO == 1
+		get BASE basename
+		string XWHNAME p= "%s_%03i__%s.xwh" BASE I FTXT_NAME
+	else
+		string XWHNAME p= "%s.xwh" FTXT_NAME
+	endif
+	if MARK1 != ""
+		xmath SIZE "FORM_SIZE + FTXT_SIZE + MARK_SIZE + 0x20 + 0x10" #final .xwh size(with "MARK" chunk)
+	else
+		xmath SIZE "FORM_SIZE + FTXT_SIZE + 0x20 + 0x10" #final .xwh size
+	endif
+	get SIZE asize MEMORY_FILE5
+	log XWHNAME 0 SIZE MEMORY_FILE5
+endfunction
+
+startfunction SPLIT_XWS
+	set FORM_SIZE 0x20
+	#TODO: calculate FTXT_SIZE the same way as MARK_SIZE
+	if NAME_LEN <= 0x8
+		set FTXT_SIZE 0x10
+	elif NAME_LEN <= 0x18
+		set FTXT_SIZE 0x20
+	elif NAME_LEN <= 0x28
+		set FTXT_SIZE 0x30
+	elif NAME_LEN <= 0x38
+		set FTXT_SIZE 0x40
+	endif
+	xmath RXWS_SIZE "FORM_SIZE + FTXT_SIZE + 0x20 + 0x10 + STREAM_SIZE" #header size in total after the first 0x10 bytes
+	
+    #xws split
+	log MEMORY_FILE3 0 0
+	goto 0 MEMORY_FILE3
+	append #on
+	
+	putdstring "RXWS" 4 MEMORY_FILE3
+	put RXWS_SIZE  long MEMORY_FILE3
+	put 0x200      long MEMORY_FILE3
+	put 0x00800000 long MEMORY_FILE3  #split mark
+	
+	putdstring "FORM" 4 MEMORY_FILE3
+	put FORM_SIZE  long MEMORY_FILE3
+	put 0x100      long MEMORY_FILE3
+	put 0          long MEMORY_FILE3
+	put 1          long MEMORY_FILE3  #streams
+	put FORM01     long MEMORY_FILE3
+	put FORM02     long MEMORY_FILE3
+	put FORM03     long MEMORY_FILE3
+	put FORM04     long MEMORY_FILE3
+	put 0          long MEMORY_FILE3  #new offset
+	put FORM06     long MEMORY_FILE3
+	put FORM07     long MEMORY_FILE3
+	
+	putdstring "FTXT" 4 MEMORY_FILE3
+	put FTXT_SIZE  long MEMORY_FILE3
+	put 0x100      long MEMORY_FILE3
+	put 0          long MEMORY_FILE3
+	put 1          long MEMORY_FILE3  #streams
+	put 8          long MEMORY_FILE3  #name offset
+	if NAME_LEN <= 0x8
+		putdstring FTXT_NAME 0x8 MEMORY_FILE3
+	elif NAME_LEN <= 0x18
+		putdstring FTXT_NAME 0x18 MEMORY_FILE3
+	elif NAME_LEN <= 0x28
+		putdstring FTXT_NAME 0x28 MEMORY_FILE3
+	elif NAME_LEN <= 0x38
+		putdstring FTXT_NAME 0x38 MEMORY_FILE3
+	endif
+	
+	putdstring "BODY" 4 MEMORY_FILE3
+	put STREAM_SIZE long MEMORY_FILE3
+	put 0x100      long MEMORY_FILE3
+	put 0          long MEMORY_FILE3
+	
+	log MEMORY_FILE3 STREAM_OFFSET STREAM_SIZE 0
+	append #off
+	
+	if FILENAME_INFO == 1
+		get BASE basename
+		string XWSNAME p= "%s_%03i__%s.xws" BASE I FTXT_NAME
+	else
+		string XWSNAME p= "%s.xws" FTXT_NAME
+	endif
+	
+	get SIZE asize MEMORY_FILE3
+	log XWSNAME 0 SIZE MEMORY_FILE3
+endfunction

@@ -1,0 +1,23 @@
+# Carnivores 3DF
+# script for QuickBMS http://quickbms.aluigi.org
+
+get i long
+get j long
+get k long
+get m long
+xmath FILES "k + i + j + 1"
+savepos OFFSET
+for i2 = 0 i2 < j
+    log "" OFFSET 64
+    math OFFSET + 64
+next i2
+for i2 = 0 i2 < i
+    log "" OFFSET 16
+    math OFFSET + 16
+next i2
+for i2 = 0 i2 < k
+    log "" OFFSET 48
+    math OFFSET + 48
+next i2
+savepos OFFSET
+log "" OFFSET m

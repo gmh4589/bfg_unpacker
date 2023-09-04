@@ -1,0 +1,8 @@
+idstring "MADSCONCAT 1.0\x1a\0"
+get FILES short
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 14
+    log NAME OFFSET SIZE
+next i

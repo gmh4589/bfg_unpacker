@@ -1,0 +1,16 @@
+endian big
+get DUMMY long
+get DAT_SIZE long
+get ZERO long
+get DUMMY long
+get FILES long
+savepos BASE_OFF
+xmath BASE_OFF "BASE_OFF + FILES * (0x20 + 4 + 4)"
+math BASE_OFF x 0x100
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

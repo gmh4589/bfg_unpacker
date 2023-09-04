@@ -1,0 +1,41 @@
+# extracts sound files from Wwise *.bnk soundbanks
+# (c) 2013-10-28 by AlphaTwentyThree of Xentax
+# script for QuickBMS http://quickbms.aluigi.org
+
+include "func_getTYPE.bms"
+idstring "BKHD"
+get SIZE_HEADER long
+savepos MYOFF
+math MYOFF += SIZE_HEADER
+get FSIZE asize
+if MYOFF == FSIZE
+   print "bnk is empty"
+   cleanexit
+endif
+goto MYOFF
+idstring "DIDX"
+get SIZE_DIDX long
+set FILES SIZE_DIDX
+math FILES /= 0xc
+set BIAS MYOFF # complete header
+math BIAS += SIZE_DIDX
+math BIAS += 16
+get BNAME basename
+for i = 1 <= FILES
+   get DIDX long
+   get OFFSET long
+   math OFFSET += BIAS
+   get SIZE long
+   set NAME DIDX
+   string NAME += " ("
+   string NAME += BNAME
+   string NAME += ")"
+   putVarChr MEMORY_FILE SIZE 0
+   log MEMORY_FILE 0 0
+   append
+   log MEMORY_FILE OFFSET SIZE
+   append
+   callfunction getTYPE 1
+   string NAME += EXT
+   log NAME OFFSET SIZE
+next i

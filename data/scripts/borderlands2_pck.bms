@@ -1,0 +1,25 @@
+# Borderlands 2 PCK (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AKPK"
+get INFO_SIZE long
+endian guess INFO_SIZE
+get DUMMY long
+get XSIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+getdstring DUMMY XSIZE
+do
+    get FILES long
+while FILES == 0
+get DUMMY long
+
+for i = 0 < FILES
+    get DUMMY long  # 1
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    log "" OFFSET SIZE
+next i

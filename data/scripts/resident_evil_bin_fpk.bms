@@ -1,0 +1,68 @@
+# Resident Evil Dead Aim (BIN)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set NAME string ""
+math OFFSET = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos BCK_OFF
+    set PATH string NAME
+    math HAS_LST = 0
+
+    goto OFFSET
+    savepos FPK_OFF
+    idstring "fpk\0"
+    get ZERO long
+    get FILES long
+    get BLOCK_SIZE long
+    get HEAD_SIZE long
+    get INFO_OFF long
+    math INFO_OFF + FPK_OFF
+    get INFO_SIZE long
+    get ZERO long
+    get ZERO long
+    get DUMMY long  # 0 or 1
+    get BASE_OFF long
+    math BASE_OFF + FPK_OFF
+    get BIN_SIZE long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get ZERO long   # it was ever zero
+        get OFFSET long
+        get SIZE long
+        get EXT long
+
+        math OFFSET + BASE_OFF
+
+        string EXT = EXT
+        string EXT r EXT
+        if EXT == "lst"
+            math HAS_LST = 1
+            log MEMORY_FILE OFFSET SIZE
+            for x = 0 < FILES
+                get NAME[x] line MEMORY_FILE
+            next x
+        endif
+
+        if HAS_LST == 0
+            string NAME p "%s/%d.%s" PATH i EXT
+        else
+            math x = i
+            string NAME p "%s/%s" PATH NAME[x]
+        endif
+        string NAME R ".." ""
+
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        goto TMP
+        if SIGN u== "fpk"
+            callfunction EXTRACT
+        else
+            log NAME OFFSET SIZE
+        endif
+    next i
+
+    goto BCK_OFF
+endfunction

@@ -1,0 +1,41 @@
+# extract *.emm/*.dir pairs of Max Payne (Xbox)
+# (c) 2012-05-29 by AlphaTwentyThree of XeNTaX
+
+open FDDE EMM 0
+open FDDE DIR 1
+get BNAME basename
+
+get FILES long 1
+for i = 1 <= FILES
+   get NAME_CRC long 1
+   if BNAME == "SOUND"
+      get FREQ long 1
+   endif
+   get OFFSET long 1
+   get SIZE long 1
+   savepos MYOFF 1
+   callfunction NAME 1
+   goto OFFSET 0
+   get IDENT long 0
+   if IDENT == 0x70474156
+      string NAME += ".vag"
+   elif IDENT == 0x64685353
+      string NAME += ".ss2"
+   endif
+   log NAME OFFSET SIZE 0
+   goto MYOFF 1
+next i
+
+startfunction NAME
+   get NAME basename 1
+   string NAME += "_"
+   if i < 100
+      string NAME += "0"
+   endif
+   if i < 10
+      string NAME += "0"
+   endif
+   string NAME += i
+   string NAME_CRC p= "_0x%08x" NAME_CRC
+   string NAME += NAME_CRC
+endfunction

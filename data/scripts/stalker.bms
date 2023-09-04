@@ -1,0 +1,102 @@
+# STALKER games
+#   S.T.A.L.K.E.R.: Shadow of Chernobyl
+#   S.T.A.L.K.E.R.: Clear Sky
+#   S.T.A.L.K.E.R.: Call of Pripyat
+#   ...others...
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+if VER != 0
+    get SIZE long
+    getdstring CONFIG SIZE
+    get SIZE long   # not verified
+    getdstring CONFIG2 SIZE
+endif
+get DATA_SIZE long
+savepos DATA_OFF
+math OFFSET = DATA_OFF
+math OFFSET += DATA_SIZE
+goto OFFSET
+get DUMMY long
+get SIZE long
+
+comtype stalker_lza
+savepos OFFSET
+log MEMORY_FILE OFFSET SIZE
+get TEST long
+if VER == 0
+    if TEST & 0xff000000    # unfortunately it's not possible to guess it at 100%
+        callfunction stalker_decrypt
+    endif
+endif
+clog MEMORY_FILE2 0 SIZE SIZE MEMORY_FILE  # the stalker_lza block contains the uncompresed size
+
+get INFO_SIZE asize MEMORY_FILE2
+for INFO_OFF = 0 < INFO_SIZE
+    get CHUNKSZ short MEMORY_FILE2
+    get ZSIZE long MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    math CHUNKSZ -= 16
+    getdstring NAME CHUNKSZ MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        print "Error: this archive contains compressed files, contact me"
+        cleanexit
+        #clog NAME OFFSET ZSIZE SIZE
+    endif
+
+    savepos INFO_OFF MEMORY_FILE2
+next
+
+startfunction stalker_decrypt
+    set MYKEY long 0x5bbc4b
+    putvarchr MEMORY_FILE2 0x100 0
+    for i = 0 < 0x100
+        putvarchr MEMORY_FILE2 i i
+    next i
+    for i = 0 < 0x400
+        math TMP1 = MYKEY
+        math TMP1 *= 0x08088405
+        math TMP1 += 1
+        math TMP2 = TMP1
+        math TMP2 *= 0x08088405
+        math TMP2 += 1
+        math MYKEY = TMP2
+        math TMP1 >>= 24
+        math TMP1 &= 0xff
+        math TMP2 >>= 24
+        math TMP2 &= 0xff
+        for TMP1 = TMP1 == TMP2
+            math MYKEY *= 0x08088405
+            math MYKEY += 1
+            math TMP2 = MYKEY
+            math TMP2 >>= 24
+            math TMP2 &= 0xff
+        next
+        getvarchr BYTE1 MEMORY_FILE2 TMP1
+        getvarchr BYTE2 MEMORY_FILE2 TMP2
+        putvarchr MEMORY_FILE2 TMP1 BYTE2
+        putvarchr MEMORY_FILE2 TMP2 BYTE1
+    next i
+    for i = 0 < 0x100
+        getvarchr BYTE MEMORY_FILE2 i
+        putvarchr MEMORY_FILE3 BYTE i
+    next i
+
+    set MYKEY long 0x016eb2eb
+    for i = 0 < SIZE
+        math MYKEY *= 0x08088405
+        math MYKEY += 1
+        math TMP = MYKEY
+        math TMP >>= 24
+        math TMP &= 0xff
+        getvarchr BYTE MEMORY_FILE i
+        math TMP ^= BYTE
+        getvarchr BYTE MEMORY_FILE3 TMP
+        putvarchr MEMORY_FILE i BYTE
+    next i
+endfunction

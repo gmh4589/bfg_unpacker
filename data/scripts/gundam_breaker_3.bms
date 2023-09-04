@@ -1,0 +1,111 @@
+# Gundam Breaker 3 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set NAME string ""
+savepos OFFSET
+callfunction GET_SIGN 1
+if SIGN u== "pac"
+    callfunction EXTRACT_PAC
+    cleanexit
+elif CHECK_BILZ u== "BILZ"
+    callfunction DO_BILZ
+    cleanexit
+endif
+
+idstring "GDAT"
+get FILES long
+endian guess FILES
+for i = 0 < FILES
+    #get DUMMY long
+    #get DUMMY long
+    get OFFSET long
+    get SIZE long
+
+    callfunction GET_SIGN 1
+    if SIGN u== "pac"
+        callfunction EXTRACT_PAC
+    elif CHECK_BILZ u== "BILZ"
+        callfunction DO_BILZ
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+    endian restore CURRENT_ENDIAN
+next i
+
+startfunction EXTRACT_PAC
+    savepos BASE_OFF
+    # do NOT assign PATH because the path is already full in the name
+    # but there are many duplicates
+    idstring "pac\0"
+    get DUMMY long  # 2
+    get DUMMY long  # 3
+    get DUMMY long  # 2
+    getdstring ZERO 0x70
+    get FILES long
+    get DUMMY long
+    savepos TMP
+    for EXTRACT = 0 < 2
+        goto TMP
+        for i = 0 < FILES
+            getdstring NAME 0x100
+            get DUMMY long
+            get SIZE long
+            if EXTRACT != 0
+                # do NOT give extensions! many files are headerless images
+                callfunction GET_SIGN 1
+                if CHECK_BILZ u== "BILZ"
+                    callfunction DO_BILZ
+                else
+                    log NAME OFFSET SIZE
+                endif
+                math OFFSET + SIZE
+                goto TMP
+                endian restore CURRENT_ENDIAN
+            endif
+        next i
+        savepos OFFSET
+    next EXTRACT
+endfunction
+
+startfunction DO_BILZ
+    #idstring "dt2\0"
+    getdstring MAGIC 4  # dt2 or csh and so on
+    get DUMMY long  # 2
+    get DUMMY long  # 4
+    get DUMMY long  # 2
+    getdstring DUMMY 0x70
+    endian SAVE CURRENT_ENDIAN
+    endian big
+    idstring "BILZ"
+    get SIZE long
+    get ZSIZE long
+    get ALGO long  # 7
+    savepos OFFSET
+    if ALGO == 0
+        log NAME OFFSET SIZE
+    elif ALGO == 7
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        print "Error: unknown BILZ compression algorithm, contact me"
+        cleanexit
+    endif
+    if CURRENT_ENDIAN == 0
+        endian little
+    else
+        endian big
+    endif
+endfunction
+
+startfunction GET_SIGN
+    endian save CURRENT_ENDIAN
+    savepos TMP
+    goto OFFSET
+    #getdstring SIGN 4
+    get SIGN long
+    endian guess SIGN   # necessary
+    string SIGN = SIGN
+    getdstring DUMMY 0x7c
+    getdstring CHECK_BILZ 4
+    goto OFFSET
+endfunction

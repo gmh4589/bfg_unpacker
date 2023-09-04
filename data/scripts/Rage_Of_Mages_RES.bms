@@ -1,0 +1,19 @@
+# Rage Of Mages (RES)
+
+SavePos FILESTART 0 ;
+Math FILESTART += 16 ;
+GoTo FILESTART 0 ;
+Get TAILOFF Long 0 ;
+Get FILECNTL Long 0 ;
+Do ;
+GoTo TAILOFF 0 ;
+Get DUMMYL Long 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Get DUMMYL Long 0 ;
+GetDString FILENAME 16 0 ;
+SavePos TAILOFF 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

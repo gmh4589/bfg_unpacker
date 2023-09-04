@@ -1,0 +1,10 @@
+# PC Gamer Digital JMC decrypt/encrypt
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+string NAME += ".txt"
+get SIZE asize
+encryption "xor" "mymyapsk!"
+log MEMORY_FILE 0 SIZE
+encryption "incremental xor" 0x00 0x07
+log NAME 0 SIZE MEMORY_FILE

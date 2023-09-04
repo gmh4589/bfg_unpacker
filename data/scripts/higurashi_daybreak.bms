@@ -1,0 +1,11 @@
+# Higurashi Daybreak Portable Mega Edition
+
+comtype gzip
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    get OFFSET long
+    get CRC long
+    clog "" OFFSET SIZE SIZE
+next i

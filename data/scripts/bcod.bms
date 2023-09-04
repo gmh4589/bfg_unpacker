@@ -1,0 +1,62 @@
+# bCoD firmware
+# WML11b, Denon, Noxon, Pioneer and so on
+# script for QuickBMS http://quickbms.aluigi.org
+
+get BCD_NAME basename
+get TYPE byte   # b o B
+idstring "CoD"  # "bCoD" "BCoD"
+get FLAGS long  # 1 or 3
+endian guess FLAGS
+getdstring VERSION 16
+getdstring DUMMY 0x14
+get CRC long
+for ENTRY = 0
+    get OFFSET long
+    get FLAGS long
+    get SIZE long
+    get CRC long
+
+    get ADDRESS long
+    getdstring DUMMY 0xc
+
+    if ADDRESS == 0
+        break
+    endif
+
+    string NAME p "%s_%d." BCD_NAME ENTRY
+    log NAME OFFSET SIZE
+
+    # try to parse the last data
+    savepos TMP_OFF
+    goto OFFSET
+    get SIGN long
+    if SIGN == 0x80808080
+        string PATH p "%s_%d" BCD_NAME ENTRY
+        get ZERO long
+        get INFO_OFF long
+        string NAME p "%s/%s" PATH "non_parsed_data"
+        log NAME OFFSET INFO_OFF
+        math INFO_OFF + OFFSET
+        math INFO_OFF x 4
+        goto INFO_OFF
+        for x = 0
+            get NAME_OFF long
+            get OFFSET long
+            get SIZE long
+            if OFFSET == 0
+                break
+            endif
+            savepos TMP
+            math NAME_OFF + INFO_OFF
+            math OFFSET   + INFO_OFF
+            goto NAME_OFF
+            get NAME string
+            string NAME p "%s/%s" PATH NAME
+            log NAME OFFSET SIZE
+            goto TMP
+        next x
+    endif
+    goto TMP_OFF
+
+next ENTRY
+get NAME string

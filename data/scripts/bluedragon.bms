@@ -1,0 +1,58 @@
+# Blue Dragon IPK1 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "ipk"
+idstring "IPK1"
+get ALIGN long
+get FILES long
+get IPK_SIZE long
+math HAS_TSTAMP = -1
+
+comtype lzss0
+/*
+if ALIGN == 0x800
+    math HAS_TSTAMP = 0
+    comtype lzss0
+else    # 0x80
+    math HAS_TSTAMP = 1
+    comtype zlib
+endif
+*/
+
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get ZIP long
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+
+    if HAS_TSTAMP < 0
+    if i == 0
+        savepos TMP
+        get TSTAMP long
+        get ZERO1 long
+        get ZERO2 long
+        get ZERO3 long
+        if ZERO1 == 0
+        if ZERO2 == 0
+        if ZERO3 == 0
+            math HAS_TSTAMP = 1
+            comtype zlib
+        endif
+        endif
+        endif
+        goto TMP
+    endif
+    endif
+
+    if HAS_TSTAMP != 0
+        getdstring DUMMY 0x10
+    endif
+
+    if ZIP == 0 # SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+

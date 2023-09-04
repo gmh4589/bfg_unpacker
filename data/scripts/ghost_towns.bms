@@ -1,0 +1,22 @@
+# Ghost Towns - The Cats Of Ulthar
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "rpfe"
+get NUM long
+for i = 0 < NUM
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NUM long
+    getarray EXT 0 NUM
+    get NUM long
+    getarray NAME 0 NUM
+    string NAME += "."
+    string NAME += EXT
+    log NAME OFFSET SIZE
+next i

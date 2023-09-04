@@ -1,0 +1,151 @@
+# Just Cause 2 (version 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# useful for some files ("SARC") that are compressed
+comtype deflate_noerror
+
+open FDDE "tab" 0
+open FDDE "arc" 1
+
+set x360 long 0
+get ARC_SIZE asize 1
+
+get TAB_SIZE asize
+get PAD_SIZE long   # 0x800
+if PAD_SIZE >= 0x80000
+    set x360 long -1
+    endian big
+    goto 0
+    get PAD_SIZE long
+endif
+if PAD_SIZE != 0x800
+    get PAD_SIZE long
+    get DUMMY long
+endif
+
+math WORKAROUND = 0 # Mad Max
+math OFFSET_WORKAROUND = 0
+for i = 0
+    savepos CURR_OFF
+    if CURR_OFF >= TAB_SIZE
+        cleanexit
+    endif
+    get NAME_CRC long
+    get OFFSET long
+
+    if i == 0
+    if x360 == 0
+    if OFFSET != 0
+    if WORKAROUND == 0
+        math WORKAROUND = 1
+        goto CURR_OFF
+        get CHUNKED_FILES long
+        for x = 0 < CHUNKED_FILES
+            get NAME_CRC long
+            get CHUNKS long
+            append
+            for z = 0 < CHUNKS
+                get CHUNK_INC_SIZE long
+                get CHUNK_INC_ZSIZE long
+            next z
+            append
+            #get SIZE asize MEMORY_FILE
+            #string NAME p "%08x." NAME_CRC
+            #log NAME 0 SIZE MEMORY_FILE
+        next x
+        get NAME_CRC long
+        get OFFSET long
+    endif
+    endif
+    endif
+    endif
+
+    get SIZE long
+    if WORKAROUND != 0
+        get XSIZE long
+    endif
+    if x360 == -1
+        if OFFSET != 0
+            if OFFSET == OFFSET_WORKAROUND
+                math x360 = 0
+            else
+                math x360 = 1
+            endif
+        endif
+    endif
+    if x360 != 0
+        math OFFSET *= PAD_SIZE
+    endif
+
+    math TMP = OFFSET
+    math TMP += SIZE
+    if TMP u<= ARC_SIZE # unsigned comparison, work-around for x360
+        callfunction COOL_DUMP 1
+        
+        # quickbms now has its own extensions generator
+        # but COOL_DUMP is more specific for this game
+        #clog "" OFFSET SIZE SIZE 1
+    endif
+    
+    if i == 0
+        math OFFSET_WORKAROUND = OFFSET
+        math OFFSET_WORKAROUND += SIZE
+        math OFFSET_WORKAROUND x= PAD_SIZE
+    endif
+next i
+
+startfunction COOL_DUMP
+    set EXT string ""
+    if SIZE u> 16
+        clog MEMORY_FILE9 OFFSET SIZE SIZE 1
+        #putvarchr MEMORY_FILE9 16 0 # be sure to have at least 4 bytes
+
+        goto 0 MEMORY_FILE9
+        getdstring SIGN 4 MEMORY_FILE9
+        goto 0 MEMORY_FILE9
+        get SIGN1 byte MEMORY_FILE9
+        goto 0 MEMORY_FILE9
+        getdstring SIGN2 2 MEMORY_FILE9
+        goto 0 MEMORY_FILE9
+        get SIGN4 long MEMORY_FILE9
+
+        if SIGN == "DDS "
+            set EXT string "dds"
+        elif SIGN == "WBND"
+            set EXT string "xwb"
+        elif SIGN == "DNBW"
+            set EXT string "xwb"
+        elif SIGN == "RIFF"
+            set EXT string "wav"
+        elif SIGN == "FEV1"
+            set EXT string "fev"
+        elif SIGN == "FSB4"
+            set EXT string "fsb"
+        elif SIGN == "W‡‡W"
+            set EXT string "WaaW"
+        elif SIGN == "VER"
+            set EXT string "ver"
+        elif SIGN4 == 4
+            set EXT string "sarc"
+        elif SIGN4 == 5
+            set EXT string "rbmd"
+        elif SIGN4 == 12
+            set EXT string "12"
+        elif SIGN2 == "BM"
+            set EXT string "bmp"
+        elif SIGN2 == "//"
+            set EXT string "psh"
+        elif SIGN1 == 0x3c
+            set EXT string "xml"
+        elif SIGN1 == 0x78
+            set EXT string "offzip"
+        elif SIGN1 == 0x01
+            set EXT string "obj"
+        else
+            string EXT f= SIGN
+        endif
+    endif
+
+    string NAME p= "%08x.%s" NAME_CRC EXT
+    clog NAME OFFSET SIZE SIZE 1
+endfunction

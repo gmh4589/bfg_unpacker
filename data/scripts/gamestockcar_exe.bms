@@ -1,0 +1,282 @@
+# Game Stock Car GSC.EXE extractor (AXS.GS) (script 0.3.2a)
+#   Game Stock Car 2012 (last parts of various files may be corrupted, sorry)
+#   Game Stock Car 2013 (all perfect, doesn't work with GSCDedicated.exe)
+#   Copa Petrobras de Marcas (all perfect)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.1"
+
+math KEYS = 0
+math KEY_WORKAROUND = -1
+
+get EXE_NAME filename
+findloc OFFSET string "AXS.GS.0"
+math OFFSET += 8
+goto OFFSET
+get AXS_VER long
+get FILES long
+savepos INFO_OFFSET
+
+for EXTRACT = 0 < 2
+    goto INFO_OFFSET
+    math KEY_IDX = 0
+    for FILENUM = 0 < FILES
+        get IS_FILE long
+        if IS_FILE == 0
+            break ## may not work correctly
+        endif
+        get SECSZ long
+        getdstring SEC SECSZ    # ".bin", ".data" and so on
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE longlong
+        savepos OFFSET
+        math NEXT_OFFSET = OFFSET
+        math NEXT_OFFSET += SIZE    
+        
+        if EXTRACT == 0
+            if NAME == ".keyMan"
+                callfunction READ_KEYMAN 1
+            endif
+        else
+            callfunction EXTRACT_FILE 1
+        endif
+        
+        goto NEXT_OFFSET
+    next FILENUM
+next EXTRACT
+
+startfunction EXTRACT_FILE
+    math CHUNK_INIT = 0
+
+    savepos ORIGINAL_OFFSET
+    goto OFFSET
+    get TYPE threebyte
+    if TYPE == 0x000001
+        get DUMMY byte
+        get ENCRYPTED byte
+        get CHUNK_SIZE long
+        
+        # $GS_Core.Ini of GSC2012
+        math DONE = 0
+        if ENCRYPTED != 0
+        if ENCRYPTED != 1
+            log NAME OFFSET SIZE
+            math DONE = 1
+        endif
+        endif
+        
+        if DONE == 0
+            savepos TMP
+            if TMP > NEXT_OFFSET
+                log NAME OFFSET SIZE
+            else
+
+                log MEMORY_FILE3 0 0
+                for OFFSET = OFFSET < NEXT_OFFSET
+                    get COMPRESSED byte
+                    if COMPRESSED == 0
+                        savepos OFFSET
+                        math CHUNK_ZSIZE = CHUNK_SIZE
+                        if CHUNK_ZSIZE > SIZE
+                            math CHUNK_ZSIZE = SIZE
+                        endif
+                    else
+                        get CHUNK_ZSIZE long
+                        savepos OFFSET
+                        if ENCRYPTED != 0
+                            comtype lzma86head
+                        else
+                            comtype snappy
+                        endif
+                    endif
+
+                    callfunction DUMP_CHUNK 1
+                    math SIZE -= CHUNK_ZSIZE
+                next
+                
+                encryption "" ""
+                get SIZE asize MEMORY_FILE3
+                log NAME 0 SIZE MEMORY_FILE3
+            endif
+        endif
+
+    elif TYPE == 0x000100
+
+        get DUMMYSZ long    # whole size of the header till COMPRESSED/ENCRYPTED
+        get ZERO long
+        get COMPRESSED byte # ???
+        get COMPRESSION_TYPE long
+        get DUMMYSZ long
+        getdstring DUMMY DUMMYSZ
+        get COMPRESSED byte
+        get ENCRYPTED byte
+        get CHUNK_SIZE long
+        get CHUNK_ZSIZE long
+        savepos OFFSET
+
+        if COMPRESSION_TYPE == 1
+            comtype lzma86head
+        elif COMPRESSION_TYPE == 6
+            if ENCRYPTED != 0
+                comtype lzma86head
+            else
+                goto OFFSET
+                getdstring SIGN 2
+                if SIGN == "JC"
+                    comtype jcalg
+                else
+                    comtype lz4
+                endif
+            endif
+        else
+            print "Error: Unknown compression %COMPRESSION_TYPE%, contact me"
+            cleanexit
+        endif
+
+        log MEMORY_FILE3 0 0
+        callfunction DUMP_CHUNK 1
+        encryption "" ""
+        get SIZE asize MEMORY_FILE3
+        log NAME 0 SIZE MEMORY_FILE3
+        
+    else
+        log NAME OFFSET SIZE
+
+    endif
+    goto ORIGINAL_OFFSET
+endfunction
+
+startfunction DUMP_CHUNK
+    encryption "" ""
+
+    # Automobilista encryption is NOT supported at the moment
+    if EXE_NAME == "AMS.EXE"
+        if ENCRYPTED != 0
+            math COMPRESSED = 0
+        endif
+    endif
+
+    if ENCRYPTED != 0
+        if CHUNK_INIT == 0
+            if EXE_NAME == "Marcas.exe"
+                set TMP string NAME
+                string TMP << \
+                if TMP == rfm\
+                    if KEY_WORKAROUND < 0
+                        math KEY_WORKAROUND = KEY_IDX
+                    endif
+                    math KEY_IDX = KEY_WORKAROUND
+                endif
+            endif
+
+            math TMP_NUM = KEY_IDX  #FILENUM
+            math KEY_IDX += 1
+            if TMP_NUM >= KEYS
+                xmath TMP_NUM "KEYS - 1"
+            endif
+            getarray KEY 2 TMP_NUM
+            #print "%KEY% %NAME%"
+            math CHUNK_INIT = 1
+        endif
+        callfunction SET_ENCRYPTION 1
+    endif
+
+    # read the chunk
+    log MEMORY_FILE OFFSET CHUNK_ZSIZE
+
+    if ENCRYPTED != 0
+        math ODD_ALIGN = 8
+        xmath ODD "CHUNK_ZSIZE % ODD_ALIGN"
+        if ODD != 0
+            xmath TMP_OFFSET "(OFFSET + (CHUNK_ZSIZE - ODD)) - ODD_ALIGN"
+            encryption bf_ecb QUICKBMS_HASH IVEC 1 20
+            log MEMORY_FILE2 TMP_OFFSET ODD_ALIGN
+            encryption "" ""
+            math TMP_OFFSET += ODD_ALIGN
+            log MEMORY_FILE4 TMP_OFFSET ODD
+            encryption "" ""
+            xmath TMP_OFFSET "CHUNK_ZSIZE - ODD"
+            for j = 0 < ODD
+                getvarchr TMP1 MEMORY_FILE4 j
+                getvarchr TMP2 MEMORY_FILE2 j
+                math TMP1 ^= TMP2
+                putvarchr MEMORY_FILE TMP_OFFSET TMP1
+                math TMP_OFFSET += 1
+            next j
+        endif
+    endif
+    encryption "" ""
+
+    append
+    if COMPRESSED == 0
+        log MEMORY_FILE3 0 CHUNK_ZSIZE MEMORY_FILE
+    else
+        clog MEMORY_FILE3 0 CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE
+    endif
+    append
+    math OFFSET += CHUNK_ZSIZE
+    goto OFFSET
+endfunction
+
+startfunction READ_KEYMAN
+    get KEYS long
+    math KEY_IDX = 0
+    for j = 0 < KEYS
+        get NAMESZ long
+        getdstring NAME1 NAMESZ
+        get NAMESZ long
+        getdstring NAME2 NAMESZ
+        get NUM long
+        #print "KEY %NUM% %NAME1% %NAME2%"
+        if NUM & 2
+            math OK = 1
+            if AXS_VER <= 1
+                if NAME2 & "{"
+                    math OK = 0
+                endif
+            else
+                if NAME1 & "{"
+                    math OK = 0
+                endif
+            endif
+            if EXE_NAME == "Marcas.exe"
+                if NAME2 & "{"
+                    math OK = 0
+                endif
+            endif
+            if OK != 0
+                #print "KEY_OK %NUM% %NAME1% %NAME2%"
+                putarray 0 KEY_IDX NUM
+                putarray 1 KEY_IDX NAME1
+                putarray 2 KEY_IDX NAME2
+                math KEY_IDX += 1
+            endif
+        endif
+    next j
+    math KEYS = KEY_IDX
+endfunction
+
+startfunction SET_ENCRYPTION
+    # unfortunately the encryption uses a custom method
+    # to handle the non-aligned bytes so reimporting
+    # is not possible
+
+    # quickbms was not the best way to calculate hash...
+    #strlen KEYSZ KEY
+    #log MEMORY_FILE 0 0
+    #put KEY string MEMORY_FILE
+    #encryption sha1 ""
+    #log MEMORY_FILE2 0 KEYSZ MEMORY_FILE
+    
+    # ...now it is :)
+    encryption sha1 KEY
+
+    encryption bf_ecb QUICKBMS_HASH "" 1 20
+    set MEMORY_FILE10 binary "\x00\x00\x00\x00\x00\x00\x00\x00"
+    log MEMORY_FILE11 0 8 MEMORY_FILE10
+    getdstring IVEC 8 MEMORY_FILE11
+
+    #print "key/ivec %QUICKBMS_HEXHASH% %IVEC|x%"
+    encryption bf_cbc QUICKBMS_HASH IVEC 0 20
+endfunction

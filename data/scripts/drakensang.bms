@@ -1,0 +1,51 @@
+# Drakensang Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "__ZN"
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - 8
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+goto 0
+
+idstring "_B3NHB3N"
+get FILES long
+get DUMMY long
+get INFO_OFF long
+get BASE_OFF long
+
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+
+goto INFO_OFF   # not needed
+for i = 0 < FILES
+    get DUMMY long
+    getdstring HASH 32
+    get SIZE long
+    get OFFSET long
+    getarray NAME 0 i
+
+    # automatically decompress the NZ files
+    math OFFSET + BASE_OFF
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "__ZN"
+        get XSIZE long
+        savepos OFFSET
+        string NAME > "."   # remove the ".nz" extension
+        math SIZE - 8
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

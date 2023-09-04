@@ -1,0 +1,50 @@
+# Warkanoid
+#   maybe other KraiSoft games too
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x10
+get DUMMY byte  # 3
+idstring "GPR"
+get INFO_SIZE long
+get DUMMY long
+
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get NAMESZ long
+    getdstring PATH NAMESZ
+    get FILE_OFF long
+    get ZERO long
+
+    savepos TMP
+    goto FILE_OFF
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get TYPE long
+        if OFFSET != 0
+            string NAME p "%s/%s." PATH NAME
+            putarray 0 -1 OFFSET
+            putarray 1 -1 NAME
+        endif
+    next i
+    goto TMP
+next FOLDER
+
+get OFFSET asize
+putarray 0 -1 OFFSET
+putarray 1 -1 ""
+sortarray 0 1
+
+for i = 0
+    getarray OFFSET 0 i
+    getarray NAME   1 i
+    if NAME == ""
+        break
+    endif
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

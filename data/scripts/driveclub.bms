@@ -1,0 +1,153 @@
+# DriveClub (dat) (script 0.1.1)
+#   it's just a EVOSLITL search&dump
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+
+if SIGN u== "DATF"
+    comtype lz4
+    idstring "DATF"
+    get DUMMY long  # 0x10cc
+    get TSTAMP longlong
+    get ZERO long
+    get ZERO long
+    get CHUNKS long
+    get CHUNK_SIZE_MAIN long
+    idstring "CHNK"
+    for i = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        putarray 0 i CHUNK_ZSIZE
+    next i
+    idstring "DATA"
+
+    log TEMPORARY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        getarray CHUNK_ZSIZE 0 i
+        if CHUNK_ZSIZE == CHUNK_SIZE_MAIN
+            savepos OFFSET
+            log TEMPORARY_FILE OFFSET CHUNK_ZSIZE
+        else
+            math CHUNK_ZSIZE - 4
+            get CHUNK_SIZE long
+            savepos OFFSET
+            clog TEMPORARY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        goto CHUNK_ZSIZE 0 SEEK_CUR
+    next i
+    append
+
+    open "." TEMPORARY_FILE
+endif
+
+for i = 0
+    findloc OFFSET binary "EVOS" 0 ""
+    if OFFSET == ""
+        break
+    endif
+    goto OFFSET
+    idstring "EVOS"
+    getdstring ENDIANESS 4
+    if ENDIANESS == "LITL"
+        endian little
+    elif ENDIANESS == "BIG "
+        endian big
+    endif
+    if i == 0
+        get NAMESZ long
+        getdstring NAME NAMESZ
+    endif
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next
+
+/*
+idstring "EVOSLITL"
+get NAMESZ long
+getdstring NAME NAMESZ  # "Resource PacK file"
+get INFO_SIZE long
+get INFO_OFF long
+goto INFO_OFF
+idstring "EVOSLITL"
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 short
+get DUMMY4 short
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get DUMMY10 long
+get DUMMY11 long
+get DUMMY12 long
+get DUMMY13 long
+get DUMMY14 long
+savepos OFFSET
+log MEMORY_FILE2 OFFSET DUMMY9
+math OFFSET + DUMMY9
+log MEMORY_FILE3 OFFSET DUMMY10
+math OFFSET + DUMMY10
+goto OFFSET
+for i = 0
+    findloc OFFSET binary "EVOSLITL"
+    goto OFFSET
+    getdstring DUMMY 0x20
+next i
+*/
+
+/*
+open FDDE "chc"
+idstring "DATC"
+get DUMMY long  # 0x10cc
+get TSTAMP longlong
+idstring "\x78\x56\x34\x12"
+for i = 0
+    get SOME_CRC long
+    get DUMMY short
+    get DUMMY short
+next i
+
+open FDDE "ndx"
+idstring "DATN"
+get DUMMY long  # 0x10cc
+get TSTAMP longlong
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+
+# names are compressed in some weird way, probably with some obfuscation too
+# so let's skip them
+
+findloc OFFSET binary "\x78\x56\x34\x12"
+goto OFFSET
+idstring "\x78\x56\x34\x12"
+for i = 0
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    getdstring DUMMY 16
+next i
+*/

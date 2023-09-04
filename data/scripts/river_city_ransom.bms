@@ -1,0 +1,52 @@
+# River City Ransom: Underground
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+idstring "RCRU "
+get ARCHIVE_TYPE string
+get TYPE byte
+if ARCHIVE_TYPE & "Audio"   # type 3
+
+    # totally wrong, the specified offsets are invalid and the
+    # number of files specified is bigger than the real amount (about 12 oggs)
+    get NAME filename
+    print "Error: use a file ripper on %NAME%"
+    cleanexit
+
+    get SIZE long
+    savepos OFFSET
+
+    clog MEMORY_FILE OFFSET SIZE SIZE
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get NAMESZ byte MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        get OFFSET long MEMORY_FILE # of what? it's totally wrong!
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 1 i OFFSET
+
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        set NAME FULLBASENAME NAME
+        string NAME + "."
+        log NAME OFFSET SIZE
+    next
+
+else    # type 1, 2, 4 and so on
+
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+
+    get NAME basename
+    string NAME + ".unpacked"
+    clog NAME OFFSET SIZE SIZE
+
+endif

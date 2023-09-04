@@ -1,0 +1,15 @@
+# Fist of the North Star Ken Rage
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+endian guess DUMMY
+get FILES long
+get ALIGN long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE long
+    get ZERO long
+    math OFFSET *= ALIGN
+    log "" OFFSET SIZE
+next i

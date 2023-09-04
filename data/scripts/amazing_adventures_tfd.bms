@@ -1,0 +1,51 @@
+# Amazing Adventures The Forgotten Dynasty (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+
+# unfortunately the archives have slightly different formats
+# and there is no version field to identify them... guessing!
+        get OFFSET long
+        get XSIZE long
+        get SIZE long
+        get ZSIZE long
+        get DUMMY longlong
+        get NAMESZ long
+
+comtype lzma86head
+math METHOD = 0
+if ZSIZE  u< 0x20
+if NAMESZ u> 0x20
+    comtype zlib
+    math METHOD = 1
+endif
+endif
+
+for EXTRACT = 0 < 2
+    goto 4
+    for i = 0 < FILES
+        get OFFSET long
+        if METHOD == 0
+            get XSIZE long
+        endif
+        get SIZE long
+        get ZSIZE long
+        if METHOD == 0
+            get DUMMY longlong
+        endif
+        get NAMESZ long
+        math NAMESZ * 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        padding 4
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

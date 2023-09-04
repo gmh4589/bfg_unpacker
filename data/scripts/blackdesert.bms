@@ -1,0 +1,168 @@
+# Black Desert (script 0.2.3)
+#   super thanks to Ekey
+#   http://forum.xentax.com/viewtopic.php?f=10&t=10879
+# script for QuickBMS http://quickbms.aluigi.org
+
+# set the following to 1 for extracting the old archives
+math OLD_ENCRYPTION = 0
+
+# set the following to 1 for extracting the mobile archives
+math NO_ENCRYPTION  = 0
+
+quickbmsver "0.7.4"
+comtype blackdesert
+if NO_ENCRYPTION != 0
+    comtype zlib
+endif
+
+get EXT extension
+if EXT == "meta"
+
+    # pre-allocation, improves speed (doesn't matter if the values are bigger)
+    putarray 0 0x4000  ""   # PAZs
+    putarray 1 0x2000  ""   # folders
+    putarray 2 0x80000 ""   # files
+
+    get DUMMY long
+    get pPAZCount long
+    for i = 0 < pPAZCount
+        get PAZ_NUM long
+        get HASH long
+        get PAZ_SIZE long
+        string PAZ_NAME p= "PAD%05d.PAZ" PAZ_NUM
+        putarray 0 PAZ_NUM PAZ_NAME
+    next i
+
+    get FILES long
+
+    savepos OFFSET
+    xmath TMP "OFFSET + (FILES * 0x1c)"
+    goto TMP
+
+    get FOLDERS_SIZE long
+    savepos TMP
+    math TMP_SIZE = FOLDERS_SIZE
+    callfunction SET_ENCRYPTION 1
+    log MEMORY_FILE TMP FOLDERS_SIZE
+    encryption "" ""
+
+    math TMP += FOLDERS_SIZE
+    goto TMP
+
+    get NAMES_SIZE long
+    savepos TMP
+    math TMP_SIZE = NAMES_SIZE
+    callfunction SET_ENCRYPTION 1
+    log MEMORY_FILE2 TMP NAMES_SIZE
+    encryption "" ""
+
+    #print "collect folder names..."
+    math FOLDERS_SIZE -= 8  # lame
+    math i = 0
+    for TMP = 0 < FOLDERS_SIZE
+        get INDEX_NUM long MEMORY_FILE
+        get SUB_FOLDERS long MEMORY_FILE
+        get NAME string MEMORY_FILE
+        if NAME == ""
+            break
+        endif
+        putarray 1 i NAME
+        savepos TMP MEMORY_FILE
+    next i
+
+    #print "collect file names..."
+    math i = 0
+    for TMP = 0 < NAMES_SIZE
+        get NAME string MEMORY_FILE2
+        if NAME == ""
+            break
+        endif
+        putarray 2 i NAME
+        savepos TMP MEMORY_FILE2
+    next i
+
+    goto OFFSET
+    for i = 0 < FILES
+        get HASH long
+        get FOLDER_NUM long # 48c
+        get FILE_NUM long   # 9ea5 e18d
+        get PAZ_NUM long    # 9ec c20
+        get OFFSET long     # 4603c 261cc
+        get ZSIZE long      # 4a70 1970
+        get SIZE long       # 5f13 2000
+
+        getarray PAZ_NAME 0 PAZ_NUM
+        getarray NAME 1 FOLDER_NUM
+        getarray TMP 2 FILE_NUM
+        string NAME += TMP
+
+        open FDSE PAZ_NAME 1
+
+        math TMP_SIZE = ZSIZE
+        callfunction SET_ENCRYPTION 1
+        if SIZE > ZSIZE
+            clog NAME OFFSET ZSIZE SIZE 1
+        else    # yeah SIZE is < ZSIZE
+            log NAME OFFSET SIZE 1
+        endif
+        encryption "" ""
+    next i
+
+else    # PAZ
+
+    get DUMMY long
+    get PAZ_FILES long
+    get NAMES_SIZE long
+
+    savepos OFFSET
+    xmath OFFSET "OFFSET + (PAZ_FILES * 4 * 6)"
+    math TMP_SIZE = NAMES_SIZE
+    callfunction SET_ENCRYPTION 1
+    log MEMORY_FILE OFFSET NAMES_SIZE
+    encryption "" ""
+
+    math i = 0
+    for TMP = 0 < NAMES_SIZE
+        get NAME string MEMORY_FILE
+        if NAME == ""
+            break
+        endif
+        putarray 0 i NAME
+        savepos TMP MEMORY_FILE
+    next i
+
+    for i = 0 < PAZ_FILES
+        get HASH long
+        get FOLDER_NUM long
+        get FILE_NUM long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+
+        getarray NAME 0 FOLDER_NUM
+        getarray TMP 0 FILE_NUM
+        string NAME += TMP
+
+        math TMP_SIZE = ZSIZE
+        callfunction SET_ENCRYPTION 1
+        if SIZE > ZSIZE
+            clog NAME OFFSET ZSIZE SIZE
+        else    # yeah SIZE is < ZSIZE
+            log NAME OFFSET SIZE
+        endif
+        encryption "" ""
+    next i
+
+endif
+
+startfunction SET_ENCRYPTION
+    if NO_ENCRYPTION != 0
+        # nothing to do
+    else
+        if OLD_ENCRYPTION != 0
+            encryption aes_128_cbc "\xF3\xA1\x0D\xF2\x47\xCC\x30\xC5\xEB\x11\x12\xAE\x07\x01\x52\x13"
+        else
+            encryption ice "\x51\xF3\x0F\x11\x04\x24\x6A\x00"
+        endif
+    endif
+endfunction

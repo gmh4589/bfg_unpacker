@@ -1,0 +1,120 @@
+# Army Of Two BKHD - BNK Sound Bank Files (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "AKBK"
+    get ZERO long
+    get ZERO long
+
+elif SIGN == "VWSB"
+
+    getdstring PLATFORM 4
+    get ZERO long
+    get VER_MAJ short
+    get VER_MIN short
+    get DUMMY long
+    get INFO_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get CRC long
+        get OFFSET long
+        get SIZE long
+        get DATA_SIZE long
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+        log "" OFFSET DATA_SIZE
+    next i
+    cleanexit   # exit from VWSB
+
+else
+    goto 0
+endif
+
+savepos BASE_OFF
+idstring "BKHD"
+get TMP long
+endian guess TMP
+
+set WANTED_CHUNK string "DATA"
+callfunction GET_CHUNK 1
+
+if CHUNK_OFF == -1
+    set WANTED_CHUNK string "HIRC"
+    callfunction GET_CHUNK 1
+    if CHUNK_OFF == -1
+        print "Error: the expected chunks DATA and HIRC have not been found"
+        cleanexit
+    endif
+
+    goto CHUNK_OFF
+    get FILES long
+    for i = 0 < FILES
+        get TYPE long
+        get ENTRY_SIZE long
+        getdstring DUMMY ENTRY_SIZE
+    next i
+    cleanexit   # exit from HIRC
+endif
+
+math DATA_OFF = CHUNK_OFF
+
+set WANTED_CHUNK string "DIDX"
+callfunction GET_CHUNK 1
+if CHUNK_OFF == -1
+
+    # HIRC and STID?
+    goto DATA_OFF
+    get FILES long
+    get ZERO long
+    get DUMMY long
+    get DUMMY long
+    get DATA_XSIZE long
+    get ZERO long
+    get DATA_BASE_OFF long
+    get DATA_SIZE long
+    savepos DATA_OFF
+    math DATA_OFF + DATA_BASE_OFF
+    for i = 0 < FILES
+        get DUMMY long
+        get ZERO long
+        get DUMMY long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        if OFFSET != 0xffffffff
+            math OFFSET + DATA_OFF
+            log "" OFFSET SIZE
+        endif
+    next i
+
+else
+
+    math FILES = CHUNK_SIZE
+    math FILES / 12
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+
+        math OFFSET + DATA_OFF
+        log "" OFFSET SIZE
+    next i
+
+endif
+
+startfunction GET_CHUNK
+    get BKHD_SIZE asize
+    for CHUNK_OFF = BASE_OFF != BKHD_SIZE
+        goto CHUNK_OFF
+        getdstring CHUNK_SIGN 4
+        get CHUNK_SIZE long
+        savepos CHUNK_OFF
+        if CHUNK_SIGN == WANTED_CHUNK
+            break
+        endif
+        math CHUNK_OFF + CHUNK_SIZE
+    next
+    if CHUNK_OFF == BKHD_SIZE
+        math CHUNK_OFF = -1
+    endif
+endfunction

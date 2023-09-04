@@ -1,0 +1,14 @@
+# Just Dance Disney Party 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PACK"
+get VER long    # 1
+endian guess VER
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME string
+    log NAME OFFSET SIZE
+next i

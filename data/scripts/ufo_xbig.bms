@@ -1,0 +1,26 @@
+# UFO xbig
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "XBIG"
+get DUMMY short
+get OFFSET long
+get ZSIZE long
+get SIZE long
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+math INFO_SIZE = SIZE
+for INFO_OFF = 0 < INFO_SIZE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get NAMESZ short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    savepos INFO_OFF MEMORY_FILE
+    
+    if OFFSET != 0xffffffff
+        if SIZE == 0
+            log NAME OFFSET ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next

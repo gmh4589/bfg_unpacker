@@ -1,0 +1,41 @@
+# DPS Telecom files decrypter
+#   mpb, temp.bin, files at the end of the MPFS filesystem of the BND files and so on
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\x47\x49\x46\x38\x39\x61\xb4\x05\x2b\x03\x87\x98\x50\xd2\xce\xe2\xca\xc6\xde\xc2\xbe\xd6\xc2\xbe\xda\xc2\xba\xd6\xbe\xba\xd6\xbe\xb6\xd2\xba\xb6\xd2\xba\xb2\xd2\xb6\xb2\xd2\xb6\xb2\xce\xb6\xae\xce\xb2\xae\xce\xda\xd6\xe6\xee\xea\xf2\xea\xe6\xf2\x46\x36\x86\xc6\xc2\xda\xde\xde\xea\x3a\x2a\x82\x3a\x2a\x7e\x3a\x2e\x82\x42\x32\x86\x5a\x4e\x96\x82\x76\xae\xa6\xa2\xc6\xde\xda\xea\xf6\xf6\xfa\x5e\x52\x9a\x4a\x3e\x8a\x86\x7e\xb2\x8a\x82\xb6\xd2\xd2\xe2\xd6\xd2\xe6\xd6\xd6\xe6\xe2\xde\xee\xe2\xde\xea\xe2\xe2\xee\xaa"
+
+# the file is XORed with the KEY from offset 5 except
+# the byte at offset 0x0c which is not encrypted
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+math HEADER_SIZE = 0xc
+
+# KEYPOS changes file by file, in OrderwireConfig it's hardcoded to 5
+# so the following is a simple work-around
+findloc TMP string "\x7d\x49\x2d\x2d"
+math TMP -= 0x6b # position in KEY of that string ^ 0xff
+math TMP %= 0x80
+if TMP < 0
+    math TMP += 0x80
+endif
+math KEYPOS = 0x80
+math KEYPOS -= TMP
+
+for i = 0 < SIZE
+    if i != HEADER_SIZE
+        math KEYPOS += 1
+        if KEYPOS >= 0x80
+            math KEYPOS = 0
+        endif
+        getvarchr KEY_BYTE KEY KEYPOS
+        getvarchr TMP MEMORY_FILE i
+        math TMP ^= KEY_BYTE
+        putvarchr MEMORY_FILE i TMP
+    endif
+next i
+
+get NAME filename
+string NAME += ".decrypt"
+log NAME 0 SIZE MEMORY_FILE

@@ -1,0 +1,21 @@
+# Dr. Luigi (Wii U) / ZALZ scanner
+#   use the script on GAME.DAT because info.dat is obfuscated and its information can't be used
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+endian big
+get DAT_SIZE asize
+    findloc OFFSET binary "ZALZ"
+for OFFSET = OFFSET != DAT_SIZE
+    goto OFFSET
+    idstring "ZALZ"
+    get SIZE long
+    savepos OFFSET
+    findloc NEXT_OFF binary "ZALZ" 0 ""
+    if NEXT_OFF == ""
+        math NEXT_OFF = DAT_SIZE
+    endif
+    xmath ZSIZE "NEXT_OFF - OFFSET"
+    clog "" OFFSET ZSIZE SIZE
+    math OFFSET = NEXT_OFF
+next

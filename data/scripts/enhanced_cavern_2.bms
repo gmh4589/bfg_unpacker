@@ -1,0 +1,12 @@
+# Enhanced Cavern 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "WEP."
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

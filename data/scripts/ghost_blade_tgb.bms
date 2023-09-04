@@ -1,0 +1,32 @@
+# Ghost Blade HD tgb.dat
+
+set NAME string ""
+set PATH string ""
+math OFFSET = 0
+math LEVEL = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    savepos TMP
+    goto OFFSET
+    math LEVEL + 1
+    string PATH + NAME
+    string PATH + /
+    savepos BASE_OFF
+    for
+        getdstring NAME 8
+        if NAME == ""
+            break
+        endif
+        get OFFSET long
+        get SIZE long
+        math OFFSET + BASE_OFF
+        if LEVEL == 2
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        else
+            callfunction EXTRACT
+        endif
+    next
+    goto TMP
+endfunction

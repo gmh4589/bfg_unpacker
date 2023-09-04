@@ -1,0 +1,59 @@
+# Game and Wario (script 0.1.1)
+#   No directory tree, the script uses just the last folder name. Sorry.
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "WARC"
+get DUMMY long
+get ZERO long
+get WARC_SIZE long
+get INFO_SIZE long
+get FOLDERS short
+get FILES short
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+get DUMMY8 long
+get ENTRIES long
+get DUMMY9 long
+
+for i = 0 < FILES
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long
+    get SIZE long
+    get DUMMY7 long
+    get OFFSET long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+
+for i = 0 <= ENTRIES
+    get DUMMY1 long
+    get DUMMY2 short
+    get DUMMY3 short
+    get DUMMY4 long
+    get DUMMY5 long
+next i
+
+# lame solution...
+set PATH string ""
+for i = 0 < FOLDERS
+    get PATH string
+    padding 4
+next i
+
+for i = 0 < FILES
+    get NAME string
+    padding 4
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE
+next i

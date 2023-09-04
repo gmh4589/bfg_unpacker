@@ -1,0 +1,84 @@
+# Little Big Planet 3 and others (script 0.1.3a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+callfunction LOAD_NAMES 1
+
+goto -8
+savepos OFFSET
+get FILES long
+idstring "FAR"
+get TYPE byte
+xmath TMP "OFFSET - (FILES * 0x1c)"
+goto TMP
+for i = 0 < FILES
+    if TYPE == '4'
+        get OFFSET long
+        get SIZE long
+        get FILE_ID long
+        getdstring HASH 0x10
+    elif TYPE == 'C'
+        get FILE_ID long
+        getdstring HASH 0x10
+        get OFFSET long
+        get SIZE long
+    else
+        print "Error: unknown FARC type %TYPE%"
+        cleanexit
+    endif
+
+    callfunction SEARCH_NAME 1
+    log NAME OFFSET SIZE
+next i
+
+startfunction LOAD_NAMES
+    math NAMES = 0
+    open FDSE "blurayguids.map" 1 EXISTS
+    if EXISTS == 0
+        open FDSE "brg_patch.map" 1 EXISTS
+    endif
+    if EXISTS != 0
+        get DUMMY short 1
+        get DUMMY short 1
+        get NAMES long 1
+
+        math MAP_VERSION = 0
+        savepos TMP 1
+        get NAMESZ short 1
+        if NAMESZ == 0
+            math MAP_VERSION = 1
+        endif
+        goto TMP 1
+
+        for x = 0 < NAMES
+            if MAP_VERSION == 0
+                get NAMESZ short 1
+                getdstring NAME NAMESZ 1
+            else
+                get NAMESZ long 1
+                getdstring NAME NAMESZ 1
+                get ZERO long 1
+            endif
+            get DUMMY long 1
+            get SIZE long 1
+            get FILE_ID long 1
+            getdstring HASH 0x10 1
+            get DUMMY long 1
+
+            putarray 0 x FILE_ID
+            putarray 1 x NAME
+        next x
+    endif
+endfunction
+
+startfunction SEARCH_NAME
+    set NAME string ""
+    for x = 0 < NAMES
+        getarray SEARCH_ID 0 x
+        if SEARCH_ID == FILE_ID
+            getarray NAME 1 x
+            math x = NAMES # break
+        endif
+    next x
+endfunction

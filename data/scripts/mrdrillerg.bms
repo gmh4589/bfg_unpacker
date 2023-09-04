@@ -1,0 +1,47 @@
+# Mr. Driller G DRIG.BIN
+
+get VER long    # 2
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get DUMMY long
+    get OFFSET long
+    math OFFSET * 0x800
+    putarray 0 FOLDER OFFSET
+next FOLDER
+    get OFFSET asize
+    putarray 0 FOLDER OFFSET
+
+for FOLDER = 0 < FOLDERS
+    getarray OFFSET 0 FOLDER
+    math FOLDER + 1
+    getarray SIZE   0 FOLDER
+    math SIZE - OFFSET
+
+    math BASE_OFF = OFFSET
+    goto OFFSET
+    get FILES long
+
+    xmath TMP "4 + (FILES * 4)"
+    get TEST long
+    if TMP != TEST
+        string NAME p "%d." FOLDER
+        log NAME OFFSET SIZE
+    else
+        goto -4 0 SEEK_CUR
+        for i = 0 < FILES
+            get OFFSET long
+            putarray 1 i OFFSET
+        next i
+            putarray 1 i SIZE
+
+        for i = 0 < FILES
+            getarray OFFSET 1 i
+            math i + 1
+            getarray SIZE   1 i
+            math SIZE - OFFSET
+            math OFFSET + BASE_OFF
+            string NAME p "%d/%d." FOLDER i
+            log NAME OFFSET SIZE
+        next
+    endif
+next

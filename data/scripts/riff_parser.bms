@@ -1,0 +1,83 @@
+# RIFF/RIFX file parser (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get CHUNK_SIZE asize
+math CHUNK_SIZE - 8
+callfunction RIFF_EXTRACT 1 # works for recursive RIFF too, seen only once...
+
+startfunction RIFF_EXTRACT
+savepos RIFF_SIZE
+math RIFF_SIZE + CHUNK_SIZE
+math RIFF_SIZE + 8
+
+#idstring "RIF"
+#get TYPE byte
+getdstring RIFF_SIGN 4  # RIFF/RIFFX or any other
+
+get SIZE long
+endian guess SIZE
+getdstring WAVE_SIGN 4  #idstring "WAVE"
+savepos NEXT_OFF
+for NEXT_OFF = NEXT_OFF != RIFF_SIZE
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+
+    savepos CHUNK_OFF
+    xmath NEXT_OFF "CHUNK_OFF + CHUNK_SIZE"
+
+    if CHUNK_TYPE u== "RIFF"
+        goto -8 0 SEEK_CUR
+        callfunction RIFF_EXTRACT
+
+    elif CHUNK_TYPE u== "LIST"
+        goto -8 0 SEEK_CUR
+        callfunction RIFF_EXTRACT
+
+    elif CHUNK_TYPE u== "fmt "
+        get wFormatTag short
+        get wChannels short
+        get dwSamplesPerSec long
+        get dwAvgBytesPerSec long
+        get wBlockAlign short
+        get wBitsPerSample short
+
+        savepos TMP
+        for TMP = TMP < NEXT_OFF
+            get DUMMY short
+        next TMP += 2
+
+    elif CHUNK_TYPE u== "akd "
+        getdstring DUMMY 0x10
+
+        savepos TMP
+        for TMP = TMP < NEXT_OFF
+            get DUMMY short
+        next TMP += 2
+
+    elif CHUNK_TYPE u== "data"
+        if wFormatTag == 1
+            savepos TMP
+            for TMP = TMP < NEXT_OFF
+                for c = 0 < wChannels
+                    if wBitsPerSample == 8
+                        get SAMPLE byte
+                    elif wBitsPerSample == 16
+                        get SAMPLE short
+                    elif wBitsPerSample == 32
+                        get SAMPLE long
+                    endif
+                next c
+                savepos TMP
+            next
+        endif
+
+    else
+
+        string NAME p "%s/." CHUNK_TYPE
+        log NAME CHUNK_OFF CHUNK_SIZE
+
+    endif
+
+    goto NEXT_OFF
+next
+endfunction

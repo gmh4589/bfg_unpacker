@@ -1,0 +1,32 @@
+# Simon the Sorcerer 2 / generic sequential offsets format (script 0.2)
+
+get MIN_OFF asize
+get MAX_OFF asize
+for i = 0
+    savepos TMP
+    if TMP >= MIN_OFF
+        break
+    endif
+    get OFFSET long
+    putarray 0 -1 OFFSET
+    if i == 0
+        math MIN_OFF = OFFSET
+    endif
+    if OFFSET == MAX_OFF
+        break
+    endif
+next i
+
+putarray 0 -1 MAX_OFF
+sortarray 0
+
+for i = 0
+    getarray OFFSET 0 i
+    if OFFSET == MAX_OFF
+        break
+    endif
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

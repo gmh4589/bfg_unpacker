@@ -1,0 +1,18 @@
+# Piranha
+
+idstring "\xf0GDL\xf0"
+get DUMMY byte
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+for
+    get NAMESZ byte
+    if NAMESZ == 0
+        break
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+    log NAME OFFSET SIZE
+next

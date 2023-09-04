@@ -1,0 +1,43 @@
+# Castle of Illusion
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+get DUMMY long
+get VER long
+endian guess VER    # x360?
+get FILES long
+get FOLDERS long    # ???
+
+for i = 0 < FOLDERS
+    getdstring NAME 32
+    get OFFSET long
+    get SIZE long
+next i
+
+xmath TMP "FILES - 1"   # ???
+do
+    get DUMMY short
+while DUMMY != TMP
+
+for i = 0 < FILES
+    getdstring NAME 32
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get SIZE2 long
+    get OFFSET2 long
+
+    string NAME + "."       # auto-guess
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+
+    if OFFSET2 != 0
+        string NAME - 1
+        string NAME + "_2." # auto-guess
+        log NAME OFFSET2 SIZE2
+    endif
+next i

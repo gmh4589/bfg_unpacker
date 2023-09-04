@@ -1,0 +1,8 @@
+idstring "vision file-lib."
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

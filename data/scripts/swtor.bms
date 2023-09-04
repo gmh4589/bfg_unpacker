@@ -1,0 +1,42 @@
+# Star Wars - The Old Republic MYP (script 0.2)
+#   thanks to Acewell
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MYP\0"
+get DUMMY long
+get DUMMY long
+get TABLE_OFFSET longlong
+get DUMMY long
+get FILES_PER_TABLE long
+goto TABLE_OFFSET
+do
+   get FILES long
+   if FILES == 0
+      break
+   endif
+   get NEXT_TABLE_OFF longlong
+   for i = 0 < FILES
+      get OFFSET longlong
+      if OFFSET == 0
+         break
+      endif
+      get DUMMY long
+      get ZSIZE long
+      get SIZE long
+      getdstring DUMMY 12
+      get ZIP short
+      savepos TMP
+      goto OFFSET
+      get DUMMY short
+      get HEADSZ short
+      getdstring HEAD HEADSZ
+      savepos OFFSET
+      if ZIP == 0
+         log "" OFFSET SIZE
+      else
+         clog "" OFFSET ZSIZE SIZE
+      endif
+      goto TMP
+   next i
+   goto NEXT_TABLE_OFF
+while NEXT_TABLE_OFF != 0

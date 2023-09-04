@@ -1,0 +1,38 @@
+# Adventures of Robinson Crusoe (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MIS\0"
+get ZERO long
+get MYFLOAT float
+get FILES long
+get TEST byte
+get ROT13 byte
+if TEST != 0
+    math ROT13 *= -1
+endif
+math ROT13 & 0xff
+filerot ROT13
+
+math NAMESZ = 0x1e
+goto 0x20
+get TMP string
+do
+    get TMP byte
+while TMP == 0
+savepos TMP
+math TMP - 1
+math TMP - 0x20
+if TMP > NAMESZ
+    math NAMESZ = 0x3e
+endif
+
+goto 0x20
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get DUMMY short
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+
+    log NAME OFFSET SIZE
+next i

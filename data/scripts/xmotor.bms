@@ -1,0 +1,23 @@
+# X-Motor (*.trc)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring TexturePack
+getdstring EXT 3
+goto 0x18
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY long
+    get DUMMY byte
+    get DUMMY byte
+    get DUMMY byte
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 11
+    string NAME -= 3
+    string NAME += EXT
+    log NAME OFFSET SIZE
+next i

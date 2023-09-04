@@ -1,0 +1,83 @@
+# Dishonored 2 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get EXT extension
+if EXT == "index" || EXT == "resources"
+
+    open FDSE "shared_2_3.sharedrsc" 2 EXISTS
+    if EXISTS == 0
+    open FDSE "shared_2_3_4.sharedrsc" 2 EXISTS
+    if EXISTS == 0
+    open FDSE "shared_1_2_3.sharedrsc" 2 EXISTS
+    if EXISTS == 0
+    open FDSE "shared_1_2_3_4.sharedrsc" 2 EXISTS
+    endif
+    endif
+    endif
+    if EXISTS != 0
+        get SHARED_NAME basename 2
+        get NAME basename
+        string NAME - "game"
+        if SHARED_NAME & NAME
+        else
+            math EXISTS = 0
+        endif
+    endif
+
+    open FDDE "index"
+    open FDDE "resources" 1
+    get DUMMY byte  # 0x05 for index and 0x04 for resources
+    idstring "SER"
+    get SIZE long
+    getdstring ZERO 0x18
+    get FILES long
+    for i = 0 < FILES
+        get IDX long
+        endian little
+        for x = 0 < 3
+            get NAMESZ long
+            getdstring NAME NAMESZ
+        next x
+        endian big
+        get OFFSET longlong
+        get SIZE long
+        get ZSIZE long
+        get ZERO1 long
+        get FLAGS long
+        get FLAGS2 short
+
+        math USE_SHARED = 0
+        if FLAGS & 32
+        if EXISTS != 0
+        if FLAGS2 == 0x8000
+            math USE_SHARED = 1
+        endif
+        endif
+        endif
+
+        if USE_SHARED != 0
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE 2
+            else
+                clog NAME OFFSET ZSIZE SIZE 2
+            endif
+        else
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE 1
+            else
+                clog NAME OFFSET ZSIZE SIZE 1
+            endif
+        endif
+    next i
+
+else
+
+    comtype zlib_noerror
+    get SIZE asize
+    get NAME basename
+    string NAME + "_unpack."
+    string NAME + EXT
+    clog NAME 0 SIZE SIZE
+
+endif

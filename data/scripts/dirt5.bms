@@ -1,0 +1,95 @@
+# Dirt 5 NDX/DAT (script 0.1.1a)
+
+# files structure:
+#   dat/0_DISC_INIT.dat
+#   dat/index/dat.ndx
+
+get EXT extension
+if EXT != "ndx"
+    print "Error: you must select the DAT.NDX file"
+    cleanexit
+endif
+
+get ZERO long
+get ZERO long
+get DUMMY long      # 5
+get ENTRIES long
+get FILES long
+get ALIGN long      # 0x20000
+get TSTAMP long
+get DUMMY8 long     # 0x05ada8
+get ARCHIVES long
+get DUMMY10 long    # 0x230
+get NAMES_SIZE long
+get ZERO long       # 64bit NAMES_SIZE?
+
+putarray 0 FILES "" # necessary for performances and negative FILE_ID
+
+savepos ENTRIES_OFF
+for EXTRACT = 0 < 2 # necessary to find the NAMES offsets
+    goto ENTRIES_OFF
+
+    for i = 0 < ENTRIES
+        get NAME_OFF longlong
+        get SOME_CRC longlong
+        get SHORT_NAME_OFF longlong
+        get DUMMY1 long
+        get FILE_ID long    # (max 0x0009d717)
+        get DUMMY3 long
+        get DUMMY4 long     # some parent id (max 0x000144a6)
+        get DUMMY5 long     # some parent id (max 0x0001450a)
+        get DUMMY6 long     # some parent id (max 0x000144a7)
+        get DUMMY7 long     # flags
+        get DUMMY8 long     # 0x230
+
+        if EXTRACT != 0
+            goto NAME_OFF MEMORY_FILE
+            get NAME string MEMORY_FILE
+            if FILE_ID != 0xffffffff
+                putarray 0 FILE_ID NAME
+            endif
+        endif
+    next i
+
+    savepos FILES_OFF
+    math LAST_ARCHIVE_NUM = -1
+    for i = 0 < FILES
+        get ARCHIVE_NUM long
+        get OFFSET long
+        get SIZE long
+
+        if EXTRACT != 0
+            # we have no way to check if FILE_ID is valid, so check the filename
+            getarray NAME 0 i
+
+            if NAME != ""
+                if LAST_ARCHIVE_NUM != ARCHIVE_NUM
+                    math LAST_ARCHIVE_NUM = ARCHIVE_NUM
+                    getarray TMP 20 ARCHIVE_NUM
+                    string TMP p "../%s.dat" TMP
+                    open FDSE TMP 1 EXISTS
+                endif
+
+                if EXISTS != 0
+                    log NAME OFFSET SIZE 1
+                endif
+            endif
+        endif
+    next i
+
+    if EXTRACT == 0
+        savepos ARCHIVES_OFF
+        xmath NAMES_OFF "ARCHIVES_OFF + (ARCHIVES * 8)"
+        get SIZE asize  # or just use NAMES_SIZE
+        math SIZE - NAMES_OFF
+        log MEMORY_FILE NAMES_OFF SIZE
+
+        for i = 0 < ARCHIVES
+            get NAME_OFF longlong
+            goto NAME_OFF MEMORY_FILE
+            get NAME string MEMORY_FILE
+            putarray 20 i NAME
+        next i
+    endif
+
+next EXTRACT

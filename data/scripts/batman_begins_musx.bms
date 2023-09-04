@@ -1,0 +1,69 @@
+# MUSX sfx and Batman Begins 00* (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MUSX"
+
+get EXT extension
+if EXT == "003"
+
+    getdstring DUMMY 28
+    get INFO_OFF long
+    endian guess INFO_OFF
+    get FILES long
+    math FILES / 4
+    get BASE_OFF long
+    get SIZE long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+
+else # "sfx", "005" and so on
+
+    get DUMMY long      # FLAG?
+    get VER long        # version? 4 or 5
+    get SFX_SIZE long
+    getdstring PLAT 4   # "GC__", "PS2_" and so on
+    get DUMMY long
+    get DUMMY long      # no, it's not the endianess!
+    get ZERO long
+    # the initial header is ever little-endian
+    get TMP long
+    endian guess TMP
+    goto -4 0 SEEK_CUR
+    for i = 0 < 4
+        get OFFSET long
+        get SIZE long
+        if VER == 5
+        if i == 1
+            print "offset %OFFSET|X%"
+            cleanexit
+        endif
+        endif
+        putarray 0 i OFFSET
+    next i
+        getarray INFO_OFF 0 1
+        getarray BASE_OFF 0 3
+    goto INFO_OFF
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY long
+        get OFFSET long
+        math OFFSET + BASE_OFF
+        get SIZE long
+        getdstring DUMMY 20
+        log "" OFFSET SIZE
+    next i
+
+endif

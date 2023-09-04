@@ -1,0 +1,22 @@
+# ASCARON_ARCHIVE / Port Royale 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ASCARON_ARCHIVE "
+get VER string
+get CPR_SIZE asize
+for NEXT_OFF = 0x20 != CPR_SIZE
+    goto NEXT_OFF
+    get INFO_XSIZE long
+    get INFO_SIZE long
+    get FILES long
+    get DATA_SIZE long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get DUMMY long  # 1
+        get NAME string
+        log NAME OFFSET SIZE
+    next i
+    math NEXT_OFF + INFO_XSIZE
+    math NEXT_OFF + DATA_SIZE
+next

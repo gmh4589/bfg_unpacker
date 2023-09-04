@@ -1,0 +1,25 @@
+# Professor Layton and the Unwound Future CANI
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LPC2"
+get FILES long
+get BASE_OFF long
+get CANI_SIZE long
+get INFO_OFF long
+get NAMES_OFF long
+get BASE_OFF long   # again the same
+goto INFO_OFF
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

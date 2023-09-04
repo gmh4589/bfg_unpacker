@@ -1,0 +1,34 @@
+# Paladins AKPK
+
+idstring "AKPK"
+get INFO_SIZE long
+endian guess INFO_SIZE
+get DUMMY long
+get XSIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+getdstring DUMMY XSIZE
+do
+    get FILES long
+while FILES == 0
+get DUMMY long
+
+get MAX_OFF asize
+for i = 0
+    savepos TMP
+    if TMP u>= MAX_OFF
+        break
+    endif
+    findloc OFFSET binary "\x01\x00\x00\x00"
+    goto OFFSET
+    get DUMMY1 long # 1
+    get SIZE long
+    get OFFSET long
+    get DUMMY1 long # 1
+    log "" OFFSET SIZE
+    if i == 0
+        math MAX_OFF = OFFSET
+        math MAX_OFF - 8
+    endif
+next i

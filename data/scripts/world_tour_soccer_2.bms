@@ -1,0 +1,15 @@
+# World Tour Soccer 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ODPF"
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    log "" OFFSET SIZE
+next i

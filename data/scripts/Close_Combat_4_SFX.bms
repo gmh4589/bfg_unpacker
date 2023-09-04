@@ -1,0 +1,15 @@
+# Close Combat 4 (SFX)
+
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 12 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += 20 ;
+Log "" FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

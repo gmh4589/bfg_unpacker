@@ -1,0 +1,21 @@
+# Worms 1 (SFX)
+
+Set DUMMYL Long 1024 ;
+Set FILEJMP Long 2048 ;
+SavePos FILESTART 0 ;
+GoTo EOF 0 ;
+SavePos E 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+GoTo DUMMYL 0 ;
+Get FILESIZE Long 0 ;
+Set D Long FILESIZE ;
+Math D += FILEJMP ;
+SavePos DUMMYL 0 ;
+Math FILESIZE -= FILEOFF ;
+Math FILEOFF += FILEJMP ;
+Log "" FILEOFF FILESIZE 0 0 ;
+While D < E ;
+

@@ -1,0 +1,18 @@
+# Dune 2 (PAK)
+
+ImpType SFileOff ;
+SavePos FF 0 ;
+Get TAILEND Long 0 ;
+GoTo FF 0 ;
+Do ;
+SavePos FSO 0 ;
+Get FILEOFF Long 0 ;
+Get FILENAME String 0 ;
+SavePos TAILOFF 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE #FSO 0 ;
+SavePos THERE 0 ;
+GoTo TAILOFF 0 ;
+While THERE < TAILEND ;
+

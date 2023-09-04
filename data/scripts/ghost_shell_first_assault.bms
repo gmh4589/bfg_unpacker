@@ -1,0 +1,71 @@
+# Ghost in the Shell: Stand Alone Complex - First Assult Online (script 0.2.1)
+#   code from http://aluigi.org/bms/zip2.bms
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+
+goto -0x16
+idstring "\xee\x99\x66\x33"
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+
+for i = 0 < central_entries
+    goto central_offset
+    idstring "\x87\xeb\x2c\x2a"
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+    savepos central_offset
+
+    math bck_comp_size   = comp_size
+    math bck_uncomp_size = uncomp_size
+
+    goto rel_offset
+    idstring "\xdd\x88\x55\x22"
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get zip_crc         long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+    if uncomp_size == 0xffffffff
+        math comp_size   = bck_comp_size
+        math uncomp_size = bck_uncomp_size
+    endif
+
+    if method == 0
+        log name offset uncomp_size
+    else
+        clog name offset comp_size uncomp_size
+    endif
+next i

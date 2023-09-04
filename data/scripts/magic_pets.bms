@@ -1,0 +1,29 @@
+goto -4
+idstring "3DR\0"
+goto -12
+savepos MAX_OFFSET
+
+get INFO_OFFSET long
+math INFO_OFFSET *= -1
+goto INFO_OFFSET
+savepos INFO_OFFSET
+
+set FILES long MAX_OFFSET
+math FILES -= INFO_OFFSET
+math FILES /= 4
+
+get OFFSET long
+for i = 1 <= FILES
+    if i == FILES
+        set NEXT_OFFSET long MAX_OFFSET
+    else
+        get NEXT_OFFSET long
+    endif
+
+    set SIZE long NEXT_OFFSET
+    math SIZE -= OFFSET
+
+    log "" OFFSET SIZE
+
+    set OFFSET long NEXT_OFFSET
+next i

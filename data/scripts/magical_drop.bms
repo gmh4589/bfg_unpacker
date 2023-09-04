@@ -1,0 +1,16 @@
+# Magical Drop 5
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "gfp0"
+get FILES long
+xmath BASE_OFF "8 + (FILES * 0x10)"
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get FOLDER long
+    if FOLDER == 0
+        math OFFSET += BASE_OFF
+        log "" OFFSET SIZE
+    endif
+next i

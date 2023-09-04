@@ -1,0 +1,12 @@
+# Glacier Engine 2 - .[platform]*_binkvid splitter
+
+endian big
+
+idstring "VIDE"
+get ZERO longlong
+get SIZE long
+get BINKVID_SIZE asize
+xmath OFFSET "BINKVID_SIZE - SIZE"
+get NAME basename
+string NAME += "."
+log NAME OFFSET SIZE

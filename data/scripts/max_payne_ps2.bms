@@ -1,0 +1,45 @@
+# Max Payne PS2
+
+get WAD_NAME basename
+get FILES long
+for i = 0 < FILES
+    if WAD_NAME & "FILE"
+        get NAME_CRC long
+    else
+        getdstring NAME 16
+    endif
+	get SIZE long
+    putarray 0 i SIZE
+next i
+
+for i = 0
+    get DUMMY byte
+    math i & 0xff
+    if i != DUMMY
+        break
+    endif
+next i
+savepos TMP
+math TMP y 0x800
+goto TMP
+
+for i = 0 < FILES
+    getarray XSIZE 0 i
+    if WAD_NAME & "FILE"
+        get ZSIZE long
+        get SIZE long
+    else
+        math SIZE  = XSIZE
+        math ZSIZE = XSIZE
+    endif
+    savepos OFFSET
+    if SIZE == ZSIZE
+        log "" OFFSET SIZE
+    else
+        print "Error: unsupported compression, contact me"
+        cleanexit
+    endif
+    math OFFSET + XSIZE
+    goto OFFSET
+    padding 0x800
+next i

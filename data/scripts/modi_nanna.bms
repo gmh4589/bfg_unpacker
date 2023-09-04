@@ -1,0 +1,17 @@
+# Modi & Nanna
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 0x05111968
+get ALIGN long
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ long
+    get SIZE long
+    get OFFSET long
+    get TSTAMP long
+    getdstring NAME 260 # yeah NAMESZ is totally useless
+    putvarchr NAME NAMESZ 0
+    log NAME OFFSET SIZE
+next i

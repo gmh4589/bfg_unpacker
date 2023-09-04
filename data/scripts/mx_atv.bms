@@ -1,0 +1,193 @@
+# MX vs ATV series (script 0.3.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+if EXT == "mif"
+    idstring "12FM"
+    get FILES long
+    get DUMMY long  # 0xe
+    get DUMMY long  # 0x13ca
+    get ALIGNSZ long
+    padding 0x10
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        math OFFSET * ALIGNSZ
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+if EXT == "pak"
+    open FDDE "database" 1 EXISTS
+    if EXISTS == 0
+        get FILES long
+        xmath BASE_OFF "4 + (FILES * (100 + 4 + 4))"
+        for i = 0 < FILES
+            getdstring NAME 100
+            get OFFSET long
+            get SIZE long
+            math OFFSET + BASE_OFF
+            log NAME OFFSET SIZE
+        next i
+        cleanexit
+    endif
+endif
+
+open FDDE "database"
+comtype unzip_dynamic
+idstring "BXML"
+get SOME_MAGIC long # ever 0x000103ea
+get NAMES long
+get INFO_OFF long
+get INFO_SIZE long
+get ELEMENTS1 long
+get ELEMENTS2 long
+get ZERO long
+get ZSIZE long
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE ZSIZE
+
+open FDDE "package"
+
+math MODE = 1
+get TEST0 long  # refer to UNPACK
+get TEST1 long
+get TEST2 long
+if TEST1 u<= 0x10000
+    if TEST2 u<= 0x10000
+        math MODE = 0
+    endif
+endif
+putarray 10 0 0 # ZLIB_CHECK, unfortunately there is no way to recognize the various versions!
+if MODE == 0
+    comtype xmemdecompress
+else
+    comtype deflate
+endif
+
+# names and directory tree are unsupported!
+for i = 0 < NAMES
+    get NAME string MEMORY_FILE
+    putarray 0 i NAME
+next i
+putarray 0 i ""
+
+math INFO_LIMIT = INFO_OFF
+math INFO_LIMIT + INFO_SIZE
+
+/*
+#it's correct but currently useless
+goto INFO_LIMIT MEMORY_FILE
+for i = 0 < ELEMENTS1
+    get DUMMY1 long MEMORY_FILE
+    get DUMMY2 long MEMORY_FILE
+    get FLAGS long MEMORY_FILE
+next i
+for i = 0 < ELEMENTS2
+    get DUMMY1 long MEMORY_FILE # NAME?
+    get DUMMY2 long MEMORY_FILE
+    get DUMMY3 long MEMORY_FILE
+    get DUMMY4 long MEMORY_FILE
+    get DUMMY5 long MEMORY_FILE # reference to ELEMENTS2?
+    get DUMMY6 long MEMORY_FILE
+    get DUMMY7 long MEMORY_FILE # reference to ELEMENTS1?
+    get DUMMY8 long MEMORY_FILE
+next i
+*/
+
+goto INFO_OFF MEMORY_FILE
+math BASE_OFF = 0
+
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    for
+        savepos TMP MEMORY_FILE
+        if TMP >= INFO_LIMIT
+            break
+        endif
+
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE   # size of the stored data, not the final (uncompressed) size!
+        get ZERO long MEMORY_FILE
+        if SIZE == 0
+            math BASE_OFF = OFFSET
+            #callfunction EXTRACT   # currently useless
+        else
+            get ZERO long MEMORY_FILE
+            get ONE long MEMORY_FILE
+            math OFFSET + BASE_OFF
+            set NAME string ""      # unsupported
+            callfunction UNPACK 1
+        endif
+    next
+endfunction
+
+startfunction UNPACK
+    goto OFFSET
+    get ZSIZE long
+
+    if MODE == 1
+        getarray ZLIB_CHECK 10 0
+        if ZLIB_CHECK == 0
+            putarray 10 0 1
+            math TMP  = OFFSET
+            math TMP2 = SIZE
+            math TMP  + 4
+            math TMP2 - 4
+            comtype zlib_noerror
+            clog MEMORY_FILE2 TMP TMP2 ZSIZE
+            get TMP asize MEMORY_FILE2
+            if TMP != TMP2
+                math MODE = 2
+                comtype zlib_noerror    # because there is no uncompressed size
+            else
+                comtype deflate
+            endif
+        endif
+    endif
+
+    if MODE == 2
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE ZSIZE
+    else
+        math NEXT_OFFSET = OFFSET
+        math NEXT_OFFSET + ZSIZE
+        putvarchr MEMORY_FILE2 SIZE 0   # useless since we don't know the uncompressed size
+        log MEMORY_FILE2 0 0
+        append
+        for OFFSET = OFFSET u< NEXT_OFFSET
+            if MODE == 0
+                get CHUNK_SIZE long
+                get CHUNK_ZSIZE long
+            else
+                get CHUNK_SIZE short
+                get CHUNK_ZSIZE short
+                reverseshort CHUNK_SIZE
+                reverseshort CHUNK_ZSIZE
+                math CHUNK_ZSIZE + 1
+                math CHUNK_SIZE  + 1 
+            endif
+            savepos OFFSET
+            if CHUNK_ZSIZE == CHUNK_SIZE
+                log MEMORY_FILE2 OFFSET CHUNK_ZSIZE
+            else
+                clog MEMORY_FILE2 OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            math OFFSET + CHUNK_ZSIZE
+            goto OFFSET
+        next
+        append
+        if MODE == 0
+            get SIZE_CHECK long # uncompressed size
+        endif
+        get SIZE asize MEMORY_FILE2 # necessary
+        log NAME 0 SIZE MEMORY_FILE2
+    endif
+endfunction

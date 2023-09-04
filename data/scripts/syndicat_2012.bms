@@ -1,0 +1,36 @@
+#Syndicate (2012)
+
+idstring "MOS DATAFILE2.0\0"
+get NULL longlong
+get ASSETS long
+math ASSETS += 0x58
+goto ASSETS
+
+get FILES long
+get NULL long
+idstring STRINGS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
+get NCPOS long   # =next chunk position (ABSOLUTE)
+get NULL long
+get STRINGTABLE long
+get STRINGTBLSZ long
+get STRINGTBLSZ_2 long   # same A/A
+get NULL long
+set DIR long STRINGTABLE
+math DIR += STRINGTBLSZ
+goto DIR
+
+log MEMORY_FILE STRINGTABLE STRINGTBLSZ
+
+for i = 0 < FILES
+   get UNKNOWN long
+   get UNKNOWN long
+   get FNPOS long
+   get OFFSET long
+   get SIZE long
+   get NULL long
+   
+   goto FNPOS MEMORY_FILE
+   get NAME string MEMORY_FILE
+   
+   log NAME OFFSET SIZE
+next i

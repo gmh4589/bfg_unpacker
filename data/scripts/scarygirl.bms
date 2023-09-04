@@ -1,0 +1,17 @@
+# converts the str files from Scarygirl (PC) to standard wave files
+# (c) 2012-04-16 by AlphaTwentyThree of XeNTaX
+
+include "func_header_PCM.bms"
+get CODEC short
+get CH short
+get FREQ long
+get AVGBYTES long
+get BLOCKALIGN short
+get BITS short
+get UNK long
+get UNK long
+savepos OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+set NAME ""
+callfunction PCM 1

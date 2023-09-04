@@ -1,0 +1,20 @@
+# Ravenloft: Strahd's Possession (script 0.1.1)
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+sortarray 0
+savepos MIN_OFF
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    if OFFSET >= MIN_OFF
+        log "" OFFSET SIZE
+    endif
+next

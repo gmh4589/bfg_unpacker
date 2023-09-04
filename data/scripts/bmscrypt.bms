@@ -1,0 +1,117 @@
+# QuickBMS bms script crypt (script 0.1.1)
+#   Use this script for generating endless different encrypted scripts to copy&paste everywhere you desire, without them being blocked or rejected.
+#   The input file will be decrypted if it has the txt extension, any other extension will be encrypted.
+#   While this script has been made for the bms scripts, it can also be used for ANY type of file.
+#   The encrypted text can even be pasted in multiple lines and it will be correctly decrypted anyway.
+#   You can add an optional comment in the first line of the generated script like: # use quickbms + bmscrypt.bms to decrypt
+
+get EXT extension
+get SIZE asize
+xmath HEADER_SIZE "4 + 32 + 16"
+
+if EXT != "txt"
+
+    # compress the script
+    comtype zlib_compress
+    clog MEMORY_FILE3 0 SIZE SIZE
+    get SIZE asize MEMORY_FILE3
+
+    # random data
+    putvarchr MEMORY_FILE 0 HEADER_SIZE
+    encryption rng ""
+    log MEMORY_FILE 0 HEADER_SIZE
+
+    # read the fields
+    callfunction GET_HEADER 1
+
+    # set the first bit of FLAGS to zero maybe for the future
+    math FLAGS & 0x7fffffff
+    goto 0 MEMORY_FILE
+    put FLAGS long MEMORY_FILE
+    goto HEADER_SIZE MEMORY_FILE
+
+    # generate the hash
+    encryption "hmac sha1" KEY
+    log MEMORY_FILE2 0 SIZE MEMORY_FILE3
+    encryption "" ""
+    put QUICKBMS_HEXHASH string MEMORY_FILE
+
+    # encrypt the file
+    append
+    encryption aes_256_ctr KEY IVEC
+    log MEMORY_FILE 0 SIZE MEMORY_FILE3
+    encryption "" ""
+    append
+
+    # save the file as base64
+    comtype base64_compress
+    get SIZE asize MEMORY_FILE
+    get NAME filename
+    string NAME p "%s.%s" NAME "txt"
+    clog NAME 0 SIZE SIZE MEMORY_FILE
+
+else
+
+    get TMP byte
+    goto 0
+    if TMP == '#'
+        get COMMENT line
+    endif
+    savepos OFFSET
+    math SIZE - OFFSET
+
+    # unbase64
+    comtype base64
+    clog MEMORY_FILE OFFSET SIZE SIZE
+
+    # read the fields
+    callfunction GET_HEADER 1
+
+    # check the first bit
+    if FLAGS & 0x80000000
+        print "Error: you need a new script for decrypting this file"
+        cleanexit
+    endif
+
+    # read the hash
+    get HASH string MEMORY_FILE
+
+    # calculate the size of the script
+    savepos OFFSET MEMORY_FILE
+    get SIZE asize MEMORY_FILE
+    math SIZE - OFFSET
+
+    # decrypt
+    encryption aes_256_ctr KEY IVEC
+    log MEMORY_FILE2 OFFSET SIZE MEMORY_FILE
+    encryption "" ""
+
+    # calculate the hash
+    encryption "hmac sha1" KEY
+    log MEMORY_FILE 0 SIZE MEMORY_FILE2
+    encryption "" ""
+
+    # check the hash
+    if HASH != QUICKBMS_HEXHASH
+        print "Error: invalid hash:\n  expected: %HASH%\n  this one: %QUICKBMS_HEXHASH%"
+        cleanexit
+    endif
+
+    # save the decompressed file
+    comtype zlib_noerror
+    get SIZE asize MEMORY_FILE
+    get NAME basename
+    set EXT extension NAME
+    if EXT == ""
+        get NAME filename
+        string NAME p "%s.%s" NAME "bms"
+    endif
+    clog NAME 0 SIZE SIZE MEMORY_FILE
+
+endif
+
+startfunction GET_HEADER
+    get FLAGS long MEMORY_FILE      # sort of flags, reserved for the future
+    getdstring KEY  32 MEMORY_FILE  # 256 bits
+    getdstring IVEC 16 MEMORY_FILE  # 128 bits (AES)
+endfunction

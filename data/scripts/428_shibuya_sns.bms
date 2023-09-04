@@ -1,0 +1,45 @@
+# 428 Shibuya Scramble SNS
+
+set KEY binary "CSD-CSCNV:01.82"
+strlen KEYSZ KEY
+math KEYSZ + 1
+set KEY2 string ""
+for x = 0 < KEYSZ
+    getvarchr TMP KEY x
+    math TMP n TMP
+    string KEY2 + TMP
+    string KEY2 + " "
+next x
+filerot KEY2
+
+math NAMESZ = 0x30
+
+getdstring ZERO 16
+get DUMMY long
+get ZERO long
+getdstring DUMMY 0x10
+get OFFSET1 long
+get OFFSET2 long
+getdstring ZERO 0x30
+get OFFSET3 long
+getdstring ZERO 12
+get OFFSET4 long
+getdstring ZERO 12
+getdstring ZERO 0x50
+get DUMMY long
+getdstring ZERO 12
+getdstring NAME 0x20
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto OFFSET
+    getdstring NAME NAMESZ
+    math OFFSET + NAMESZ
+    math SIZE   - NAMESZ
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,26 @@
+# Light of Altair
+# script for QuickBMS http://quickbms.aluigi.org
+
+#get SIGNLEN long
+#getdstring SIGN SIGNLEN
+#if SIGN != "PackFile"
+#   cleanexit
+#endif
+#get TOTAL_SIZE long
+#get NAMELEN long
+#getdstring NAME NAMELEN # DATA
+#get DUMMY long
+
+goto -4
+get OFFSET long
+goto OFFSET
+get FILES long
+
+for i = 0 < FILES
+   get NAMELEN long
+   getdstring NAME NAMELEN
+   get OFFSET long
+   get SIZE long
+
+   log NAME OFFSET SIZE
+next i

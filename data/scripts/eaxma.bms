@@ -1,0 +1,60 @@
+#EA *.mus extractor
+#Extracts the segments from newer Electronic Arts games *.mus containers. Will soon post a pack how to decode contained xma segments from Xbox 360 games
+get BNAME basename
+string BNAME += "_"
+
+get DUMMY long
+get FILES long
+   set INFO 0x1c
+   math INFO *= FILES
+   math INFO += 0x28
+   savepos MYOFF
+   goto INFO
+   set DUMMY 0
+   DO
+      get DUMMY long
+   while DUMMY == 0
+   savepos INFO
+   math INFO -= 0x4
+goto 0x28
+for i = 1 <= FILES
+   get UNKNOWN long
+   get NUMBER short
+   get ZERO short
+   get UNKNOWN long
+   get OFFSET long
+   reverseLong OFFSET
+   math OFFSET *= 0x80
+   math OFFSET += START
+   get UNKNOWN long
+   get SIZE long
+   reverseLong SIZE
+   get ZERO long
+   set NAME BNAME
+   string NAME += i
+      savepos MYOFF
+      goto INFO
+      get UNKNOWN short
+      get FREQ short
+      reverseShort FREQ
+      get ID1 byte # unknown
+      get ID2 byte # segment length
+      get ID3 byte # segment number
+      get ID4 byte # segment type
+      get ZERO long
+      get ZERO long
+      savepos INFO
+      goto MYOFF
+      # string NAME += "_"
+      # string NAME += ID1
+      # string NAME += "_"
+      # string NAME += ID2
+      string NAME += "_"
+      string NAME += ID3
+      string NAME += "_"
+      string NAME += ID4
+      string NAME += "_"
+      string NAME += FREQ
+   string NAME += ".ea"
+   log NAME OFFSET SIZE
+next i

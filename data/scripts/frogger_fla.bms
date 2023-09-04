@@ -1,0 +1,10 @@
+# Frogger 2 FLA
+
+comtype coreonline
+idstring "FLA2"
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

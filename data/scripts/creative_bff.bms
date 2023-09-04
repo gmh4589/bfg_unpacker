@@ -1,0 +1,16 @@
+# Creative X-Fi Console BFF (script 0.1.1)
+
+idstring "BFF"
+# this data is just a string, sometimes like "Big F. File by Ng Heng Lon"
+goto 0x27
+get FILES long
+savepos TMP
+xmath OFFSET "TMP + (FILES * 0x64)"
+for i = 0 < FILES
+    get SIZE long
+    get DUMMY short # 0x90
+    getdstring NAME 90
+    get DUMMY long  # weird, it increments with the size aligned to 16 bytes
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

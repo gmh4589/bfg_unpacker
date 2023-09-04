@@ -1,0 +1,131 @@
+# generic splitter / scanner
+# very powerful for raw ripping
+# (c) 2013-10-30 by AlphaTwentyThree of XeNTaX
+# script for QuickBMS http://quickbms.aluigi.org
+
+set OFFSET 0 # begin scan here
+set SKIP 0x0 # skip bytes at start of search string
+           # (use negative value if search identifier is after file start)
+set NEGBIAS 0x0 # search string at end of file e.g. stop markers (positive value!)
+set EXT ".segs" # add this extention
+set NAMEPOS "" # if all files are the same type and you know the position of the names
+set SIZEBIAS 0xc # offset bias where file size is found
+set REV 1 # 0 = leave, 1 = big endian
+set MINSIZE 0x4 # minimal size of extracted file
+set WRITEOFFSET 0 # toggle between file.ext@offset and file_#
+get FSIZE asize
+
+if SKIP < 0
+   math OFFSET -= SKIP
+else
+   math OFFSET += SKIP
+endif
+set SEARCH OFFSET
+set QUIT 0
+set SINGLE 0
+set i 0
+do
+   goto SEARCH
+   #print "searching from offset %SEARCH%"
+   #FindLoc SIZE string \x7\x0\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77 0 "" # VAG stop marker 1
+   #FindLoc SIZE string \x7\x0\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x7\x0\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77 0 ""
+   #FindLoc SIZE string \x00\x07\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77\x77 0 ""
+   #FindLoc SIZE string \x00\x07\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0 0 ""
+   #FindLoc SIZE string \xC\x3\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0 0 "" # VAG stop marker 2
+   #FindLoc SIZE string \xC\x6\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0 0 "" # VAG stop marker 3
+   #FindLoc SIZE string \xC\x7\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0 0 "" # VAG stop marker 4
+   #FindLoc SIZE string \x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0 0 "" # 0x10 zero block
+   #FindLoc SIZE string \x2\x28\x3\x3\x\x\x\x28 0 "" # ubisoft packet *.ubipack
+   #FindLoc SIZE string "FUNlXMA2" 0 "" # xma2 container (Men in Black: Alien Crisis)
+   #FindLoc SIZE string \x8D\x0C\x53\x4F 0 ""
+   #FindLoc SIZE string \x5D\0\x\x80 0 "" # lzma signature
+   #FindLoc SIZE string "MUSX" 0 ""
+   #FindLoc SIZE string "MSFC" 0 ""
+   #FindLoc SIZE string \xFF\xFF\x0\x0\xFF\xFF\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\xFF\xFF\x0\x0\xFF\xFF\x0\x0 0 "" # Xbox ADPCM silence
+   #FindLoc SIZE string \x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 0 "" # Xbox ADPCM silence
+   #FindLoc SIZE string \x02\x28\x03\x03\x00\x00\x00\x28 0 "" # ubi sound pack
+   #FindLoc SIZE string \x48\x00\x00\x0C\x13 0 "" # eaxma stream start
+   #FindLoc SIZE string \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 0 "" # 32bytes of zeros
+   #FindLoc SIZE string \x00\x00\x01\xBA\x44\x00\x04\x00 0 "" # PSS movie
+   #FindLoc SIZE string \x30\x26\xB2\x75\x8E\x66\xCF\x11 0 "" # wmv
+   #FindLoc SIZE string \x48\x00\x00\x0c 0 "" # EA
+   #FindLoc SIZE string \x48\x00\x00\x0C 0 "" # EAlayer3
+   #FindLoc SIZE string "FSB5" 0 ""
+   #FindLoc SIZE string \x80\x00\x00\x24 0 "" # adx
+   #FindLoc SIZE string \x51\x5A\x49\x50\x00\x44\x43\x5F\x49\x4E\x46\x4F 0 "" # QZIP (Heavy Rain)
+   FindLoc SIZE string "segs" 0 ""
+   #FindLoc SIZE string "Interplay MVE File" 0 ""
+   #FindLoc SIZE string \x48\x00\x00\x0C\x16\x04 0 ""
+   
+   if SIZE == ""
+      set QUIT 1
+      get SIZE asize
+      if i == 0
+         cleanexit
+      endif
+   else
+      #print "split point found at offset %SIZE%"
+   endif
+   math SIZE -= OFFSET
+   if SIZE == 0 # no residual data at start
+      math i += 1
+   elif SIZE > 4
+      if NAMEPOS == ""
+         get NAME basename
+         if WRITEOFFSET == 1
+            string NAME += "@"
+            string NAME += OFFSET
+         else
+            string NAME += "_"
+            string NAME += i
+         endif
+         if i != 0
+            if SINGLE != 1
+               string NAME += EXT
+            endif
+         endif
+      else
+         savepos MYOFF
+         goto NAMEPOS
+         get NAME string
+         savepos NAMEPOS
+      endif
+      math OFFSET += SKIP
+      if QUIT != 1
+         math SIZE -= SKIP
+         math SIZE += NEGBIAS
+      endif
+      if SIZE >= MINSIZE
+         if SIZEBIAS > 0
+            savepos MY
+            set GO OFFSET
+            math GO += SIZEBIAS
+            goto GO
+            get SIZE2 long
+            if REV == 1
+               reverselong SIZE2
+            endif
+            goto MY
+            log NAME OFFSET SIZE2
+         else
+            log NAME OFFSET SIZE
+         endif
+         print "found %SIZE% bytes file @ %OFFSET% (read from %GO%)"
+         math i += 1
+      endif
+   else
+   endif
+   if QUIT != 1
+      math OFFSET += SIZE
+      set SEARCH OFFSET
+      if SKIP > 0
+         math OFFSET += SKIP
+      else
+         math OFFSET -= SKIP
+      endif
+      math SEARCH += 4 # needs to be the length of the search string
+      if SEARCH >= FSIZE
+         set QUIT 1
+      endif
+   endif
+while QUIT != 1

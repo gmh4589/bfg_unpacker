@@ -1,0 +1,60 @@
+# Metal Gear Solid: Peace Walker PSP music-only (*.pdt) (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILESIZE asize
+get XOR byte
+filexor XOR
+goto 0x18
+get FILES short
+
+/*
+get BLOCK_OFFSET short
+math BLOCK_MUL = 0x1000
+if XOR == 0x4d  # demo
+    math BLOCK_MUL = 0x800
+endif
+math BLOCK_OFFSET *= BLOCK_MUL  # need to be tested with other files
+*/
+
+math WORKAROUND = 0x20
+for i = 0
+
+    findloc BLOCK_OFFSET binary "RIFF"
+    math BLOCK_OFFSET - 0x54
+
+    goto BLOCK_OFFSET
+    if BLOCK_OFFSET >= FILESIZE
+        break
+    endif
+
+    callfunction READ_ENTRY 1
+
+    if i == 0
+    if SIZE == 0
+        math WORKAROUND = 0x18
+        goto BLOCK_OFFSET
+        callfunction READ_ENTRY 1
+    endif
+    endif
+
+    string NAME + "_"
+    string NAME + i
+    string NAME + ".wav"
+    log NAME OFFSET SIZE
+
+    if BLOCK_SIZE == 0
+        math BLOCK_SIZE = SIZE
+    endif
+    math BLOCK_OFFSET + BLOCK_SIZE
+    goto BLOCK_OFFSET
+next i
+
+startfunction READ_ENTRY
+    getdstring DUMMY 4
+    get BLOCK_SIZE long
+    getdstring DUMMY 0x18
+    getdstring NAME 0x10
+    getdstring DUMMY WORKAROUND
+    get SIZE long
+    savepos OFFSET
+endfunction

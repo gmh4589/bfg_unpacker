@@ -1,0 +1,61 @@
+# ALZ archives
+#   Note: supports just the basic features
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ALZ\x01"
+get DUMMY long
+for
+    get MAGIC long
+    if MAGIC == 0x015a4c43  # "CLZ\x01"
+        break
+    endif
+    if MAGIC != 0x015a4c42  # "BLZ\x01"
+        print "Error: unknown magic %MAGIC|X%"
+        cleanexit
+    endif
+    get NAMESZ short
+    get ATTRIB byte
+    get TSTAMP long
+    get FLAGS byte
+    get DUMMY byte
+    if ATTRIB & 0x20
+        get METHOD byte
+        get DUMMY byte
+        get CRC32 long
+        if METHOD == 0
+            comtype copy
+        elif METHOD == 1
+            comtype bzip2
+        elif METHOD == 2
+            comtype deflate
+        else
+            print "Error: unsupported compression method %METHOD%"
+            cleanexit
+        endif
+        xmath TMP "FLAGS / 0x10"
+        if TMP == 0
+            math ZSIZE = 0
+            math SIZE = 0
+        elif TMP == 1
+            get ZSIZE byte
+            get SIZE byte
+        elif TMP == 2
+            get ZSIZE short
+            get SIZE short
+        elif TMP == 3
+            get ZSIZE threebyte
+            get SIZE threebyte
+        elif TMP == 4
+            get ZSIZE long
+            get SIZE long
+        elif TMP == 8
+            get ZSIZE longlong
+            get SIZE longlong
+        endif
+        getdstring NAME NAMESZ
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        math OFFSET += ZSIZE
+        goto OFFSET
+    endif
+next

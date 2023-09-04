@@ -1,0 +1,19 @@
+# SpongeBob SquarePants: Employee of the Month .OMT
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "0MF2"
+get OFFSET long
+goto OFFSET
+findloc OFFSET string "Canv"
+goto OFFSET
+getdstring NAME 4
+get FILES long
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,17 @@
+# Pure Hold'em
+
+get FILES longlong
+xmath BASE_OFF "8 + (FILES * (8 + 8 + 8 + 8 + 4))"
+for i = 0 < FILES
+    get DUMMY longlong
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZERO long
+    math OFFSET + BASE_OFF
+    if SIZE == ZSIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

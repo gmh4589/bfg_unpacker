@@ -1,0 +1,28 @@
+# Transistor
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzf
+math CHUNK_SIZE = 0x800000
+math COMPRESSION_FLAG = 0x40000000
+math PACKAGE_VERSION_CODE = 5
+endian big
+get packageHeader long
+get NAME basename
+log NAME 0 0
+append
+get PKG_SIZE asize
+for OFFSET = 4 != PKG_SIZE
+    get ZIP byte
+    if ZIP != 0
+        get CHUNK_ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    else
+        savepos OFFSET
+        log NAME OFFSET CHUNK_SIZE
+        math OFFSET + CHUNK_SIZE
+    endif
+    goto OFFSET
+next
+append

@@ -1,0 +1,26 @@
+idstring "SFILESYSTEM\0\0\0\0\0"
+get FILES long # doesn't seem to be the correct number
+set OFFSET long 0x120
+get TOTAL_SIZE asize
+
+for
+   if OFFSET >= TOTAL_SIZE
+      cleanexit
+   endif
+   goto OFFSET
+   get ZIP long   # not verified
+   getdstring NAME 0x100
+   get ZSIZE long
+   get SIZE long
+   get DUMMY long
+   get DUMMY long
+   savepos OFFSET
+
+   if ZIP == 1
+      clog NAME OFFSET ZSIZE SIZE
+   else
+      log NAME OFFSET ZSIZE
+   endif
+
+   math OFFSET += ZSIZE
+next

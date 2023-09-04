@@ -1,0 +1,44 @@
+# MySpriteLE dcz/dsq decrypter and decompressor plus recompressor (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set SUFFIX string "_unpack"
+get SIZE asize
+
+get NAME filename
+if NAME & SUFFIX
+
+    comtype zlib_compress
+    clog MEMORY_FILE 0 SIZE SIZE
+    get SIZE asize MEMORY_FILE
+
+    callfunction CRYPT 1
+
+    string NAME - SUFFIX
+    log NAME 0 SIZE MEMORY_FILE
+
+else
+
+    log MEMORY_FILE 0 SIZE
+
+    callfunction CRYPT 1
+
+    comtype zlib_noerror
+    string NAME + SUFFIX
+    clog NAME 0 SIZE SIZE MEMORY_FILE
+
+endif
+
+startfunction CRYPT
+    if SIZE > 0x1fe
+        math j = SIZE
+        math j - 1
+        getvarchr BYTES MEMORY_FILE j
+        for i = 0 < BYTES
+            math j - 1
+            getvarchr TMP MEMORY_FILE i
+            getvarchr TMP2 MEMORY_FILE j
+            putvarchr MEMORY_FILE i TMP2
+            putvarchr MEMORY_FILE j TMP
+        next i
+    endif
+endfunction

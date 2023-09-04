@@ -1,0 +1,12 @@
+# Cold Fear PS2
+
+idstring "DWBF"
+get VER long    # 1
+get FILES long
+get ALIGN long
+for i = 0 < FILES
+    get NAME_CRC long
+    get SIZE long
+    get OFFSET long
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,43 @@
+# Yu Gi Oh Duel Terminal (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+
+get EXT extension
+if EXT == "lz"
+    get NAME filename
+    callfunction LZ_UNPACK 1
+    cleanexit
+endif
+
+get BIN_SIZE asize
+for OFFSET = 0 != BIN_SIZE
+    idstring "PACK"
+    get VER long    # 1
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    idstring "PACK"
+    get DUMMY long  # 2
+    get SIZE  long
+    savepos OFFSET
+    xmath NEXT_OFF "OFFSET + SIZE"
+    set EXT extension NAME
+    if EXT == "lz"
+        callfunction LZ_UNPACK 1
+    else
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFF
+    goto OFFSET
+next
+
+startfunction LZ_UNPACK
+    get SIZE long
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    math ZSIZE - 4
+    set NAME fullbasename NAME
+    string NAME + "."
+    clog NAME OFFSET ZSIZE SIZE
+endfunction

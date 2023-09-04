@@ -1,0 +1,15 @@
+<bms games="'MX vs ATV Unleashed', 'Cars'" platforms="'PC'" ext="PAK">
+ImpType SFileSize ;
+Get FILENUM Long 0 ;
+Set DATASTRT Long FILENUM ;
+Math DATASTRT *= 108 ;
+Math DATASTRT += 4 ;
+For F = 1 To FILENUM ;
+GetDString FILENAME 100 0 ;
+Get FOFFSET Long 0 ;
+Math FOFFSET += DATASTRT ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FILENAME FOFFSET FSIZE 0 FSIZEX ;
+Next F ;
+</bms>

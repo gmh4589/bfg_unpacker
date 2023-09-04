@@ -1,0 +1,136 @@
+# New Dragon Eight / Dragon Oath / 《新天龙八部》 (script 0.1.1)
+#   run this script on "AxpMap.db"
+# script for QuickBMS http://quickbms.aluigi.org
+
+math SKIP_NAMESDB = 0
+set ORIGINAL_AXP_NAME string ""
+
+get EXT extension
+if EXT == "so" || EXT == "axp"
+    get ORIGINAL_AXP_NAME filename
+    open FDSE "AxpMap.db" 1 EXISTS
+    if EXISTS != 0
+        open FDSE "AxpMap.db"
+    else
+        math SKIP_NAMESDB = 1
+    endif
+endif
+
+if SKIP_NAMESDB != 0
+    callfunction EXTRACT_AXP
+    cleanexit
+endif
+
+#open FDSE "AxpMap.db"
+get VER1 short
+get VER2 short
+get DUMMY long
+get INFO_OFF long
+
+savepos TMP
+if INFO_OFF u< TMP  # VER1:1, VER2:1, DUMMY:1, INFO_OFF:8
+    goto 0x20
+    get FILES long
+else
+    get FILES long
+    goto INFO_OFF
+endif
+
+math MAX_AXP_NUM = -1
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get AXP_NUM long
+    get ID long
+    putarray AXP_NUM ID NAME
+    if AXP_NUM > MAX_AXP_NUM
+        math MAX_AXP_NUM = AXP_NUM
+    endif
+next i
+
+for AXP_NUM = 0 < MAX_AXP_NUM
+    math EXISTS = 0
+    if ORIGINAL_AXP_NAME != ""
+        set TMP1 string ORIGINAL_AXP_NAME
+        set TMP2 string ORIGINAL_AXP_NAME
+        string TMP1 % "."
+        string TMP2 & "."
+        for x = 0   # string doesn't work well with "0", "1" and so on...
+            getvarchr TMP TMP1 x
+            if TMP == 0
+                break
+            endif
+            if TMP >= '0' && TMP <= '9'
+                break
+            endif
+        next x
+        putvarchr TMP1 x 0
+        string TMP p "%s%d%s" TMP1 AXP_NUM TMP2
+        open FDSE TMP 0 EXISTS
+    endif
+    if EXISTS == 0
+        string TMP p "libNewAxp%d.axp.so" AXP_NUM
+        open FDSE TMP 0 EXISTS
+    endif
+    if EXISTS == 0
+        string TMP p "Data%d.axp.so" AXP_NUM
+        open FDSE TMP 0 EXISTS
+    endif
+    if EXISTS != 0
+        callfunction EXTRACT_AXP 1
+    endif
+next AXP_NUM
+
+startfunction EXTRACT_AXP
+    idstring "AXPK"
+    get VER1 short
+    get VER2 short
+    get DUMMY long
+    get ZERO long
+    if DUMMY != 0   # was 8 in my sample
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    endif
+    get INFO_OFF long
+    get FILES long
+    get DUMMY long
+    get DATA_OFF long
+    get DATA_SIZE long
+    goto INFO_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get FLAGS long  # ever 0x80000000!
+
+        set NAME string ""
+        if SKIP_NAMESDB == 0
+            getarray NAME AXP_NUM i
+        endif
+
+        # there is no way to recognize compressed and non-compressed files!
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 5
+        goto OFFSET
+        get TEST byte
+        goto OFFSET
+        get TEST4 long
+        if SIGN == "Unity"
+            log NAME OFFSET SIZE
+        elif TEST >= 0xf0
+            comtype lz4
+            math SIZE - 4
+            xmath LIMIT "OFFSET + SIZE"
+            goto LIMIT
+            get XSIZE long
+            clog NAME OFFSET SIZE XSIZE
+        elif TEST4 u>= 0x30303030 && TEST4 u<= 0x7a7a7a7a
+            comtype base64
+            clog NAME OFFSET SIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+        goto TMP
+    next i
+endfunction

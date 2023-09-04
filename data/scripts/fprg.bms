@@ -1,0 +1,27 @@
+# FPRG archive
+#   Codename:Outbreak and Boiling Point
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FPRG"
+get VER long
+get FILES long
+get SIZE long
+savepos OFFSET
+get FULLSIZE asize
+math FULLSIZE + 0x735a  # or 47536
+math FULLSIZE % 0xffff
+log MEMORY_FILE OFFSET SIZE
+for i = 0 < SIZE
+    getvarchr TMP MEMORY_FILE i
+    xmath FULLSIZE "(FULLSIZE * 0x343fd) + 0x269ec3"
+    xmath TMP "TMP ^ (((FULLSIZE >> 0x10) & 0x7fff) % 0xff)"
+    putvarchr MEMORY_FILE i TMP
+next i
+for i = 0 < FILES
+    get NAMESZ short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    log NAME OFFSET SIZE
+next i

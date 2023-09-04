@@ -1,0 +1,110 @@
+# Need for Speed: The Run blueprintbundle experimental extractor
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+get DATA_OFF long
+get DUMMY long
+get HASHES long
+get FILES long
+get FILES2 long
+get FILES3 long
+get NAMES_OFF long
+get META_OFF long
+get META_SIZE long
+
+math DATA_OFF  += 4
+math NAMES_OFF += 4
+math META_OFF  += 4
+
+math NAMES_SIZE = DATA_OFF
+math NAMES_SIZE -= NAMES_OFF
+log MEMORY_FILE2 NAMES_OFF NAMES_SIZE
+
+for i = 0 < HASHES
+    getdstring HASH 20
+next i
+
+# FILES and FILES2 have a similar format
+# FILES3 instead are different
+math OFFSET = DATA_OFF
+math i2 = FILES
+math FILES += FILES2
+math i3 = FILES
+math FILES += FILES3
+
+math TMP = FILES3
+math TMP *= 0x1c
+math OFFSET3 = META_OFF
+math OFFSET3 -= TMP
+
+for i = 0 < FILES
+
+    # long story, I don't know how to handle these files
+    # so I use a work-around that "seems" to work
+    math BLAH_FILE = 0
+
+    if i < i3
+        get NAME_OFF long
+        get ZSIZE long
+        get SIZE long
+    else
+        if i == i3
+            goto OFFSET3
+        endif
+        getdstring HASH 16
+        get ZSIZE long
+        if ZSIZE == 0
+            get ZSIZE long
+            math SIZE = 0
+        else
+            math BLAH_FILE = 1
+            get SIZE long
+        endif
+        get DUMMY long
+    endif
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    savepos TMP
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+        math OFFSET += SIZE
+    else
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        math CHUNKS_LIMIT = OFFSET
+        math CHUNKS_LIMIT += ZSIZE
+
+        math BLAH_OLD = -1
+        math BLAHz = 0
+
+        for OFFSET = OFFSET < CHUNKS_LIMIT
+            goto OFFSET
+            get CHUNK_SIZE long
+            get CHUNK_ZSIZE long
+            savepos OFFSET
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET += CHUNK_ZSIZE
+
+            # work-around
+            if BLAH_FILE != 0
+                if CHUNK_SIZE == BLAH_OLD
+                    math BLAHz += 1
+                    if BLAHz >= 2
+                        math CHUNKS_LIMIT = OFFSET
+                    endif
+                endif
+                math BLAH_OLD = CHUNK_SIZE
+            endif
+
+        next
+        append
+        get SIZE asize MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+    goto TMP
+    math OFFSET x= 0x10
+next i

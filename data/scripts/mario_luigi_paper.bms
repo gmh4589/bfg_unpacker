@@ -1,0 +1,32 @@
+# Mario & Luigi: Paper Jam / Paper Mario MIX
+
+comtype DS_BLZ
+idstring "BG4\0"
+get DUMMY short
+get FILES short
+get DATA_OFF long
+get DUMMY long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * (4+4+4+2))"
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get CRC long
+    get NAME_OFF short
+
+    if OFFSET != 0
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        if OFFSET & 0x80000000
+            math OFFSET & 0x7fffffff
+            xmath XSIZE "SIZE * 20"
+            clog NAME OFFSET SIZE XSIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i

@@ -1,0 +1,34 @@
+# raw to RIFF wav example
+# script for QuickBMS http://quickbms.aluigi.org
+
+set FREQUENCY long 44100
+set CHANNELS long 2
+set BITS long 16
+
+get SIZE asize
+get NAME filename
+string NAME += ".wav"
+
+set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+set RIFFSIZE long SIZE
+math RIFFSIZE += 36
+set BLOCKALIGN long BITS
+set AVGBYTES long FREQUENCY
+math BLOCKALIGN /= 8
+math BLOCKALIGN *= CHANNELS
+math AVGBYTES *= BLOCKALIGN
+
+putvarchr MEMORY_FILE 4 RIFFSIZE long
+putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+putvarchr MEMORY_FILE 40 SIZE long
+
+log NAME 0 44 MEMORY_FILE
+append
+log NAME 0 SIZE
+append

@@ -1,0 +1,17 @@
+# 10,000 Bullets / Tsukiyo ni Saraba (PS2) (script 0.1.1)
+
+math FILES = 0x998
+math INFO_OFF = 0x5f45a0
+open FDSE "SLES_534.81" 0 EXISTS
+if EXISTS == 0
+    open FDSE "SLPM_658.26"
+    math INFO_OFF = 0x5DF638
+endif
+open FDSE "file.bin" 1
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get XSIZE long
+    get SIZE long
+    log "" OFFSET SIZE 1
+next i

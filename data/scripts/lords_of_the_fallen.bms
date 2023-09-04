@@ -1,0 +1,65 @@
+# Lords of the fallen (script 0.1.1)
+#   by aluigi & Ekey
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+goto 0x484
+for i = 0
+    get OFFSET longlong
+    if OFFSET == 0
+        break
+    endif
+    get ZSIZE long
+    get SIZE long
+    get CRC long
+    get DUMMY long
+
+    savepos TMP_OFF
+    goto OFFSET
+    get TYPE1 short # 0x0102
+    get TYPE2 short # 0x0122
+    get SIZE long
+    get XSIZE long
+    get ZSIZE long
+    if TYPE2 & 2
+        savepos OFFSET
+        log "" OFFSET SIZE
+    else
+        callfunction UNPACK 1
+    endif
+    goto TMP_OFF
+next i
+
+startfunction UNPACK
+    math CHUNK_SIZE = 0x1000000  # 0x200000 is correct
+
+        get CHUNK_OFF long
+        putarray 0 0 CHUNK_OFF
+    xmath CHUNKS "(CHUNK_OFF - 0x10) / 4"
+    for x = 1 < CHUNKS
+        get CHUNK_OFF long
+        putarray 0 x CHUNK_OFF
+    next x
+
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        getarray CHUNK_OFF 0 x
+        math CHUNK_OFF += OFFSET
+        goto CHUNK_OFF
+        get CHUNK_ZSIZE long
+        savepos CHUNK_OFF
+
+        get TMP asize MEMORY_FILE
+        xmath TMP "SIZE - TMP"
+        if TMP == CHUNK_ZSIZE
+            log MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE
+        else
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+        endif
+        math CHUNK_OFF = NEXT_CHUNK_OFF
+    next x
+    append
+    log "" 0 SIZE MEMORY_FILE
+endfunction

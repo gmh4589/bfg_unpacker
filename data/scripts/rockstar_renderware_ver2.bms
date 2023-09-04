@@ -1,0 +1,25 @@
+getdstring SIGN 4
+get FILES long
+
+math LAST_ARCHIVE_NUM = -1 # - the files themselves(starting with _1.img) are clearly duplicates with the exact same filesize and content but feel free to uncomment it anyway
+for i = 0 < FILES
+	get OFFSET long
+	get SIZE long
+	getdstring NAME 0x18
+	math OFFSET * 0x800
+	math SIZE * 0x800
+
+	# this is for the PS2 version
+#	get TMP basename
+#	if ARCHIVE_NUM == 0
+#	string TMP p "%s.img" TMP
+#	else
+#		string TMP p "%s_%d.img" TMP ARCHIVE_NUM
+#	endif
+#	open FDSE TMP 1
+	
+	putarray 0 i OFFSET
+	putarray 1 i SIZE
+	putarray 2 i NAME
+	log NAME OFFSET SIZE
+next i

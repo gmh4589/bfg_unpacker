@@ -1,0 +1,82 @@
+# Aquazone
+#   does NOT support compressed files!
+#   consider it only a work-in-progress, don't use it
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "OTL"
+    goto 0x30
+    getdstring FOLDER 0x40
+    getdstring DUMMY 0x40
+    get DUMMY long
+    get ALIGN long
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get DUMMY1 long
+        getdstring TYPE 4
+        get ZIP long
+        get SIZE long
+        get ZSIZE long
+        get OFFSET long
+        get ZERO long
+        get ZERO long
+        get NAME string
+        padding 0x10
+
+        string FNAME p= "%s/%s/%s" FOLDER TYPE NAME
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            #callfunction UNPACK 1
+            log FNAME OFFSET ZSIZE
+        endif
+    next i
+
+elif SIGN == "ITEM"
+    get DUMMY long
+    get DUMMY long
+    get FOLDER string
+    get FILES long
+    get HEADER_SIZE long
+    for i = 0 < FILES
+        get DUMMY long
+        get NAME string
+        get ZIP long
+        get SIZE long
+        get OFFSET long
+        
+        string FNAME p= "%s/%s" FOLDER NAME
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            savepos TMP
+            goto OFFSET
+            math ZSIZE = SIZE
+            get SIZE long
+            math ZSIZE -= 4
+            savepos OFFSET
+            goto TMP
+            #callfunction UNPACK 1
+            log FNAME OFFSET ZSIZE
+        endif
+    next i
+    
+else
+    print "Error: sign %SIGN% not supported"
+    cleanexit
+endif
+
+startfunction UNPACK
+    savepos TMP
+    goto OFFSET
+    idstring "huf0"
+    get SIZE long
+    reverselong SIZE
+    math ZSIZE -= 8
+    #getdstring DICT 0x100
+    #math ZSIZE -= 0x100
+    savepos OFFSET
+    comtype ??? DICT    # unknown compression algorithm
+    clog FNAME OFFSET ZSIZE SIZE
+endfunction

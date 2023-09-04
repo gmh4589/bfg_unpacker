@@ -1,0 +1,208 @@
+# SDF RYS Massive: World in Conflict / Ground Control 2 / Ground Control (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math GUESS_ALGO = 1
+idstring "RYS"
+get TYPE byte   # 0x09 or 0x0a is the same, lzma doesn't seem to depend by this number
+
+math TMP = TYPE
+math TMP & 0xc0
+if TMP == 0x0
+    math KEY3 = 0x40
+elif TMP == 0x40
+    math KEY3 = 0x8
+elif TMP == 0x80
+    math KEY3 = 0x80
+elif TMP == 0xc0
+    math KEY3 = 0x88
+else
+    math KEY3 = 0
+endif
+
+math TYPE & 0x3f
+if TYPE == 0x5
+    math KEY1 = 0x81E7C3A1
+    math KEY2 = 0x7E183C5A  # KEY2 is a constant, but it appears to be the result of "(~4)^KEY1"
+elif TYPE == 0x7
+    math KEY1 = 0x6D3AE31B
+    math KEY2 = KEY1        # no, it doesn't use 0x7E183C5A!
+    get ARCHIVE_SIZE long
+endif
+
+if TYPE <= 7
+
+    savepos OFFSET
+    math SIZE = -1
+    set PATH string ""
+    set NAME string ""
+    callfunction EXTRACT1 1
+
+else
+
+    callfunction EXTRACT2 1
+
+endif
+
+startfunction EXTRACT1
+    string PATH + NAME
+    string PATH + /
+    goto OFFSET
+
+    math ENTRIES = SIZE
+    if ENTRIES < 0
+        callfunction SET_KEY1 1
+        get ENTRIES long
+        math ENTRIES ^ KEY
+    endif
+
+    callfunction SET_KEY1 1
+    get SIZE long
+    math SIZE ^ KEY
+    callfunction INC_KEY 1
+
+    getdstring DATA SIZE
+
+    math KEY ~ SIZE
+    math KEY ^ KEY2
+    math x = 0
+    for SIZE2 = SIZE > 3
+        getvarchr TMP DATA x long
+        math TMP ^ KEY
+        putvarchr DATA x TMP long
+        math x + 4
+        callfunction INC_KEY 1
+        math KEY ^ SIZE2
+    next SIZE2 - 4
+
+    for i = 0 < ENTRIES
+        math TMP = i
+        math TMP * 4
+        getvarchr TMP DATA TMP long
+        getvarchr SIZE DATA TMP long
+        math TMP + 4
+        getvarchr OFFSET DATA TMP long
+        math TMP + 4
+        getvarchr IS_FOLDER DATA TMP byte
+        math TMP + 1
+        set NAME string ""
+        math x = 0
+        do
+            getvarchr CHR DATA TMP
+            math TMP + 1
+            putvarchr NAME x CHR
+            math x + 1
+        while CHR != 0
+        if IS_FOLDER == 0
+            string NAME p "%s%s" PATH NAME
+            # apparently KEY3 does the job: https://zenhax.com/viewtopic.php?p=33795#p33795
+            if KEY3 & 0x80
+                savepos TMP
+                goto OFFSET
+                get XSIZE long
+                goto TMP
+                math OFFSET + 4
+                math SIZE   - 4
+                clog NAME OFFSET SIZE XSIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+        else
+            callfunction EXTRACT1
+        endif
+    next i
+endfunction
+
+startfunction EXTRACT2
+    get OFFSET long
+    goto OFFSET
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    math IS_MEM = 1
+    callfunction DUMPFILE2 1
+    math IS_MEM = 0
+
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get DUMMY long MEMORY_FILE
+        get INFO_OFF long MEMORY_FILE
+        putarray 0 i INFO_OFF
+    next i
+
+    /*
+    # useless, full paths are already available
+    get FOLDERS long MEMORY_FILE
+    for i = 0 < FOLDERS
+        get DUMMY long MEMORY_FILE
+        get INFO_OFF long MEMORY_FILE
+        savepos TMP2 MEMORY_FILE
+        goto INFO_OFF MEMORY_FILE
+        get NAMES long MEMORY_FILE
+        for x = 0 < NAMES
+            get NAME_OFF long MEMORY_FILE
+            savepos TMP MEMORY_FILE
+            goto NAME_OFF MEMORY_FILE
+            get NAME string MEMORY_FILE
+            goto TMP MEMORY_FILE
+        next x
+        goto TMP2 MEMORY_FILE
+    next i
+    */
+
+    for i = 0 < FILES
+        getarray INFO_OFF 0 i
+        goto INFO_OFF MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get PATH_OFF long MEMORY_FILE
+        get NAME string MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        goto PATH_OFF MEMORY_FILE
+        get PATH string MEMORY_FILE
+        string NAME p "%s/%s" PATH NAME
+        callfunction DUMPFILE2 1
+    next i
+endfunction
+
+startfunction SET_KEY1
+    math KEY = KEY1
+    if TYPE == 0x7
+        xmath KEY "(~4) ^ KEY1" # 4 is the size of the field
+    endif
+endfunction
+
+startfunction INC_KEY
+    math TMP = KEY
+    math TMP & 0x1f
+    math KEY r TMP
+endfunction
+
+startfunction DUMPFILE2
+    xmath FLAGS "ZSIZE >> 30"
+    math ZSIZE & 0x3fffffff
+    if FLAGS != 0   # & 1
+        if GUESS_ALGO != 0
+            math GUESS_ALGO = 0
+            savepos TMP
+            goto OFFSET
+            get TEST short
+            goto TMP
+            if TEST == 0x005d
+                comtype lzma
+            endif
+        endif
+        if IS_MEM == 0
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    else
+        if IS_MEM == 0
+            log NAME OFFSET SIZE
+        else
+            log MEMORY_FILE OFFSET SIZE
+        endif
+    endif
+endfunction

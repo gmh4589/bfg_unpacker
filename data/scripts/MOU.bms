@@ -1,0 +1,11 @@
+<bms games="'Delaware St John: Volume 1', 'Delaware St John: Volume 2'" platforms="'PC'" ext="MOU">
+ImpType Standard ;
+Get FILENUM Byte 0 ;
+For F = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FOOBAR FOFFSET FSIZE FOFFSETX FSIZEX ;
+Next F ;
+</bms>

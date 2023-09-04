@@ -1,0 +1,43 @@
+# Mortal Kombat MSX->WAV (script 0.2)
+#   dumps all the WAV files contained in the MSX archives
+#   use xbadpdec or the Xbox adpcm plugin/codec to play/convert
+#   the wav files that use such codec
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE2 binary "\x64\x61\x74\x61\x00\x00\x00\x00"
+get BASE_NAME basename
+get DUMMY long
+get FILES long
+get BASE_OFF long
+get HEAD_END long
+get BASE_OFF long
+get REL_OFF long
+
+math FILES -= 1
+goto 0x30
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get HEAD_OFF long
+    get HEAD_SIZE long
+
+    log MEMORY_FILE HEAD_OFF HEAD_SIZE
+    append
+    putvarchr MEMORY_FILE2 4 SIZE long
+    log MEMORY_FILE 0 8 MEMORY_FILE2
+    if OFFSET < REL_OFF # work-around
+        math OFFSET += BASE_OFF
+    endif
+    log MEMORY_FILE OFFSET SIZE
+    append
+
+    get SIZE asize MEMORY_FILE
+
+    set NAME string BASE_NAME
+    string NAME += "_"
+    string NAME += i
+    string NAME += ".wav"
+    log NAME 0 SIZE MEMORY_FILE
+next i

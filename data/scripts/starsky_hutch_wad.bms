@@ -1,0 +1,80 @@
+# Starsky & Hutch WAD/AFHI (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AFHI"
+get FILES long
+get ZERO long
+get FILES long
+get FILES long
+get ZERO long
+get FILES long
+get WAD_SIZE long
+get ZERO long
+get WAD_SIZE long
+get INFO_OFF long
+get INFO_SIZE long
+get ENTRY_SIZE long
+get NAMES_OFF long
+get NAMES_SIZE long
+get DATA_OFF long
+get DATA_SIZE long
+get DUMMY_OFF long
+get DUMMY_SIZE long
+get DUMMY_OFF long
+get DUMMY_SIZE long
+for i = 0 < FILES
+    goto INFO_OFF
+    get DUMMY long
+    getdstring INFO 8   # ???
+    get FREQ_MIN short
+    get FREQ_MAX short
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get SOME_OFF long
+    math INFO_OFF + ENTRY_SIZE
+
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+
+    math OFFSET + DATA_OFF
+
+    #log NAME OFFSET SIZE
+
+    math CODEC = 1
+    math BITS = 16
+    math FREQUENCY = FREQ_MIN
+    math CHANNELS = 2
+    string NAME + ".wav"
+    callfunction TOWAV
+next i
+
+# Requirements: CODEC, BITS, FREQUENCY, CHANNELS, OFFSET, SIZE and NAME
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 CODEC short      # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction

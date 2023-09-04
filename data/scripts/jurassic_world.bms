@@ -1,0 +1,64 @@
+# Ludia games (script 0.1.3)
+#   Jurassic World
+#   Teenage Mutant Ninja Turtles: Legends
+#   https://www.ludia.com/en/games
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dhr"
+open FDDE "dab" 1 EXISTS1
+open FDDE "dsb" 2 EXISTS2
+
+get VER short
+get VER_be short
+idstring "LPKG"
+get DUMMY long  # 0x07e0061b
+idstring "HDR\0"
+getdstring DUMMY 0x10
+for i = 0 < 2   # in reality they are not 2 entries, the first DUMMY has the last 32bit which is 1 (1 field) or 3 (2 fields)
+    getdstring DUMMY 0x10
+    getdstring DUMMY 0x10
+    get DUMMY1 long
+    get SIZE long
+    get DUMMY2 long
+    get ZERO1 long
+    get DUMMY3 long
+    get ZERO2 long
+    get DUMMY4 long
+    get DUMMY5 long
+    if i == 0
+        math INFO_OFF  = DUMMY1
+    else
+        if ZERO2 == 0
+            math BASE_OFF1 = DUMMY3
+            math BASE_OFF2 = DUMMY4
+        else
+            math BASE_OFF1 = DUMMY2
+            math BASE_OFF2 = DUMMY3
+        endif
+    endif
+next i
+
+if BASE_OFF1 == 0
+    math BASE_OFF1 = 0x30
+endif
+if BASE_OFF2 == 0
+    math BASE_OFF2 = 0x30
+endif
+
+goto INFO_OFF
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get SOME_CRC longlong
+    get FLAGS long
+    get TYPE long
+    get OFFSET long
+    get SIZE long
+    if TYPE != 0
+        math OFFSET + BASE_OFF1
+        log "" OFFSET SIZE 1    # dab
+    else
+        math OFFSET + BASE_OFF2
+        log "" OFFSET SIZE 2    # dsb
+    endif
+next i

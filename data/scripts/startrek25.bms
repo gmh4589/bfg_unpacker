@@ -1,0 +1,47 @@
+# Star Trek: 25th Anniversary
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzssx "12 4 2 2 0"
+
+open FDDE "dir"
+set EXT binary "001"
+open FDDE EXT 1
+
+get FILES asize
+math FILES / 14
+for i = 0 < FILES
+    getdstring NAME 8
+    getdstring EXT 3
+    get OFFSET threebyte
+
+    math CHUNKS = 0
+    if OFFSET >= 0x820000
+        xmath CHUNKS "(OFFSET >> 16) - 129"
+        math OFFSET = LAST_OFFSET
+    endif
+
+    if CHUNKS != 0
+        strlen TMP NAME
+        math TMP - 1
+        getvarchr NUMBER NAME TMP
+        string NAME >> 1
+    endif
+
+    for x = 0 <= CHUNKS
+        goto OFFSET 1
+        get SIZE short 1
+        get ZSIZE short 1
+        savepos OFFSET 1
+        if CHUNKS == 0
+            string FNAME p "%s.%s" NAME EXT
+        else
+            string FNAME p "%s%c.%s" NAME NUMBER EXT
+            math NUMBER + 1
+        endif
+        clog FNAME OFFSET ZSIZE SIZE 1
+        math OFFSET + ZSIZE
+        math OFFSET x 2
+    next x
+
+    math LAST_OFFSET = OFFSET
+next i

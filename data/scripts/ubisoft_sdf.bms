@@ -1,0 +1,170 @@
+# Ubisoft sdf.sdftoc sdfdata Snowdrop Engine (script 0.1.4a)
+#   No support for the merging of the DDS headers with the raw data in the archives.
+#
+#   Thanks to m0xf and his rouge_sdf tool:
+#   https://forum.xentax.com/viewtopic.php?p=117435#p117435 (exe)
+#   https://forum.xentax.com/viewtopic.php?p=117746#p117746 (source)
+#   https://github.com/GoldFarmer/rouge_sdf/blob/master/main.cpp (source mirror)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "sdftoc"
+    open FDSE "sdf.sdftoc"
+endif
+
+get BASE_NAME basename  # "sdf"
+
+idstring "WEST"
+get VER long  # 0x16
+get INFO_SIZE long
+if VER >= 0x17
+    get OFFSET long
+    math OFFSET + 0x51  # not important
+endif
+get INFO_ZSIZE long
+get OFFSET asize
+math OFFSET - 0x30
+math OFFSET - INFO_ZSIZE
+
+if VER >= 0x17
+    comtype lz4
+    clog MEMORY_FILE OFFSET INFO_ZSIZE INFO_SIZE
+else
+    # how to know if the data is compressed with zlib or zstd?
+    # Version is the same (0x16) and the other fields may be not useful.
+    # I will check other samples in future, in the meantime let's guess it
+    comtype zlib_noerror
+    clog MEMORY_FILE OFFSET INFO_ZSIZE INFO_SIZE
+    get TMP asize MEMORY_FILE
+    if TMP == INFO_SIZE
+        comtype zlib
+    else
+        comtype zstd
+        clog MEMORY_FILE OFFSET INFO_ZSIZE INFO_SIZE
+    endif
+endif
+
+putarray 10 0 -1    # LAST_packageId
+putarray 11 0 0     # EXISTS
+set name string ""
+callfunction ParseNames
+
+startfunction ParseNames
+    get ch byte MEMORY_FILE
+    if ch == 0
+        print "Error: Unexcepted byte in file tree"
+        cleanexit
+    elif ch >= 1 && ch <= 0x1f
+        getdstring TMP ch MEMORY_FILE
+        string name + TMP
+        callfunction ParseNames
+    elif ch >= 'A' && ch <= 'Z'
+        math ch - 'A'
+        math count1 = ch
+        math count1 & 7
+        #xmath flag1 "(ch >> 3) & 1"
+        if count1 != 0
+            get strangeId long MEMORY_FILE
+            get ch2 byte MEMORY_FILE
+            #xmath byteCount "ch2 & 3"
+            #xmath byteValue "ch2 >> 2"
+            #getdstring ddsType byteCount MEMORY_FILE
+            math ch2 & 3
+            getdstring ddsType ch2 MEMORY_FILE
+            for chunkIndex = 0 < count1
+                get ch3 byte MEMORY_FILE
+                if ch3 == 0
+                    break
+                endif
+                    xmath compressedSizeByteCount "(ch3 & 3) + 1"
+                    xmath packageOffsetByteCount  "(ch3 >> 2) & 7"
+                    xmath hasCompression          "(ch3 >> 5) & 1"
+                    getdstring decompressedSize compressedSizeByteCount MEMORY_FILE
+                    putvarchr decompressedSize 8 0
+                    getvarchr decompressedSize decompressedSize 0 long
+                    math compressedSize = 0
+                    if hasCompression != 0
+                        getdstring compressedSize compressedSizeByteCount MEMORY_FILE
+                        putvarchr compressedSize 8 0
+                        getvarchr compressedSize compressedSize 0 long
+                    endif
+                    getdstring packageOffset packageOffsetByteCount MEMORY_FILE
+                    putvarchr packageOffset 8 0
+                    getvarchr packageOffset packageOffset 0 longlong
+                    get packageId short MEMORY_FILE
+
+                    callfunction DUMP_FILE 1
+
+                    if VER <= 0x16
+                        get fileId long MEMORY_FILE
+                    endif
+            next chunkIndex
+        endif
+        if ch & 8   # flag1
+            get ch3 byte MEMORY_FILE
+            getdstring DUMMY ch3 MEMORY_FILE
+        endif
+    else
+        get offset long MEMORY_FILE
+        callfunction ParseNames
+        goto offset MEMORY_FILE
+        callfunction ParseNames
+    endif
+endfunction
+
+startfunction DUMP_FILE
+    getarray LAST_packageId 10 0
+    if packageId != LAST_packageId
+        math layer = packageId
+        math layer / 1000
+        math layer + 'A'
+        string TMP p "%s-%C-%04i.sdfdata" BASE_NAME layer packageId
+        open FDSE TMP 1 EXISTS
+        putarray 10 0 packageId # LAST_packageId
+        putarray 11 0 EXISTS
+    endif
+    getarray EXISTS 11 0
+
+    if hasCompression != 0
+        math CHUNK_SIZE = 0x10000
+        #xmath pageCount "(decompressedSize + 0xffff) >> 16"
+        math pageCount = decompressedSize
+        math pageCount x CHUNK_SIZE
+        math pageCount / CHUNK_SIZE
+        if pageCount > 1
+            for page = 0 < pageCount
+                get compSize short MEMORY_FILE
+                putarray 0 page compSize
+            next page
+        endif
+    endif
+
+    if EXISTS != 0
+        if hasCompression == 0
+            log name packageOffset decompressedSize 1
+        else
+            if pageCount > 1    # because 1 is no chunks
+                log name 0 0
+                append
+                math MYSIZE = decompressedSize
+                for page = 0 < pageCount
+                    if MYSIZE < CHUNK_SIZE
+                        math CHUNK_SIZE = MYSIZE
+                    endif
+                    getarray compSize 0 page
+                    if compSize == 0 || compSize >= CHUNK_SIZE  # correct
+                        log name packageOffset CHUNK_SIZE 1
+                        math packageOffset + CHUNK_SIZE
+                    else
+                        clog name packageOffset compSize CHUNK_SIZE 1
+                        math packageOffset + compSize
+                    endif
+                    math MYSIZE - CHUNK_SIZE
+                next page
+                append
+            else
+                clog name packageOffset compressedSize decompressedSize 1
+            endif
+        endif
+    endif
+endfunction

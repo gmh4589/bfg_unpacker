@@ -1,0 +1,112 @@
+# jARC (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+#endian big
+getdstring SIGN 4
+if SIGN == "jCMP"
+    get JCMP_SIZE long
+    endian guess JCMP_SIZE
+    get DUMMY short # 5
+    get DUMMY short # 1
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+    open "." TEMPORARY_FILE
+
+/*
+#nothing useful to extract
+elif SIGN == "jMOT"
+
+    get JMOT_SIZE long
+    endian guess JMOT_SIZE
+    get DUMMY long
+    get DUMMY long
+    get DUMMY short
+    get DUMMY short
+    get DUMMY long
+    get OFFSET1 long
+    get OFFSET2 long
+    get OFFSET3 long
+    get OFFSET4 long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    for i = 0 <= FILES
+        get SOME_CRC long
+        get ZERO long
+        get DUMMY long
+    next i
+    cleanexit
+*/
+
+elif SIGN == "jEFC"
+
+    get JEFC_SIZE long
+    endian guess JEFC_SIZE
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    get FILES2 long
+    get FILES3 long
+    get FILES4 long
+    math FILES + FILES2
+    math FILES + FILES3
+    math FILES + FILES4
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+        putarray 0 i JEFC_SIZE
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+    cleanexit
+
+endif
+goto 0
+
+idstring "jARC"
+get ACE_SIZE long
+endian guess ACE_SIZE
+get DUMMY long
+get FILES long
+
+#callfunction SCANNER 1
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    get DUMMY long
+    get ZERO long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i
+
+
+# scanner that tries to dump all the j* fields
+startfunction SCANNER
+    get OFFSET long
+    math i = 0
+    for OFFSET = OFFSET < ACE_SIZE
+        goto OFFSET
+        getdstring SIGN 4
+        get SIZE long
+        string NAME p= "%08x.%s" i SIGN
+        xmath TMP "SIZE - 8"
+        log NAME OFFSET TMP
+        math OFFSET += SIZE
+    next i
+    cleanexit # necessary to quit
+endfunction

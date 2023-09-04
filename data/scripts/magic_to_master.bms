@@ -1,0 +1,36 @@
+# Magic to Master
+# How to use:
+#   download https://www.sqlite.org/2015/sqlite-shell-win32-x86-3081002.zip
+#   md output
+#   sqlite3 12_asset_data.db3 .dump | quickbms script.bms - output
+#
+# (script optimized for stdin)
+
+for
+    getct CMD string ' '
+    if CMD == "INSERT"
+        do
+            get TMP byte
+        while TMP != ','
+        getct SIZE string ','
+        getct DUMMY string ','
+        get TMP byte    # X
+        get TMP byte    # '
+        getct DATA binary '\''
+        strlen SIZE DATA
+        log MEMORY_FILE2 0 0
+        put DATA string MEMORY_FILE2
+        goto 0 MEMORY_FILE2
+        comtype hex
+        clog MEMORY_FILE 0 SIZE SIZE MEMORY_FILE2
+        get SIZE asize MEMORY_FILE
+        getvarchr TMP MEMORY_FILE 0 short
+        if TMP == 0x8b1f
+            comtype gzip
+            clog "" 0 SIZE SIZE MEMORY_FILE
+        else
+            log "" 0 SIZE MEMORY_FILE
+        endif
+    endif
+    get TMP line
+next

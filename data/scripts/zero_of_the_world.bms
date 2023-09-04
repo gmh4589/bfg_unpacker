@@ -1,0 +1,29 @@
+# Zero of the World / 天上人間ONLINE
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "TCPK"
+get OFFSET long
+get FILES long
+get DUMMY long
+getdstring FOLDER 0x40
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY threebyte
+    get TYPE byte
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    savepos TMP
+    goto OFFSET
+    if TYPE & 0x10
+        get DUMMY byte
+        get XSIZE long
+        reverselong XSIZE
+        savepos OFFSET
+        comtype lzo1x
+        clog "" OFFSET SIZE XSIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    goto TMP
+next i

@@ -1,0 +1,17 @@
+# IFF FORM
+
+endian big
+idstring "FORM"
+get SIZE long
+getdstring DUMMY 4
+get IFF_SIZE asize
+savepos OFFSET
+for OFFSET = OFFSET != IFF_SIZE
+    getdstring TYPE 4
+    get SIZE long
+    savepos OFFSET
+    string TYPE + /
+    log TYPE OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

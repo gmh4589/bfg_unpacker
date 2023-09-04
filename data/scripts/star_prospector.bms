@@ -1,0 +1,23 @@
+# Star Prospector
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "CPAK"
+get VERSION long
+get FILES long
+for EXTRACT = 0 < 2
+    goto 0x10
+    for i = 0 < FILES
+        getdstring NAME 0x80
+        getdstring FNAME 0x80
+        get SIZE long
+        get OFFSET long
+        get DUMMY long
+        get DUMMY long
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

@@ -1,0 +1,66 @@
+# RPA archives (ren.py) (no python version) (script 0.2.1)
+#   You NEED the following script too!!!
+#   http://aluigi.org/bms/pickle.bms
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OFFSET = 0
+math KEY = 0
+
+getdstring SIGN 8
+if SIGN == "RPA-3.0 "
+    getdstring TMP 16
+    set OFFSET string "$"   # alternative to 0x, not handled internally
+    string OFFSET += TMP
+
+    get SPACE byte
+    getdstring TMP 8
+    set KEY string "$"
+    string KEY += TMP
+
+elif SIGN == "RPA-2.0 "
+    get TMP line
+    set OFFSET string "$"   # alternative to 0x, not handled internally
+    string OFFSET += TMP
+endif
+
+get SIZE asize
+math SIZE -= OFFSET
+comtype zlib_dynamic
+clog TEMPORARY_FILE OFFSET SIZE SIZE
+
+get NAME filename
+open FDSE NAME 1
+open "." TEMPORARY_FILE
+
+math ELEMENT = -1
+startfunction PICKLE_CALLBACK
+    if ELEMENT >= 0
+        if ELEMENT == 0
+            set NAME string DATA
+        elif ELEMENT == 1
+            if DATA != ""
+                math ELEMENT - 1
+            endif
+        elif ELEMENT == 3
+            math OFFSET = DATA
+            math OFFSET ^= KEY
+        elif ELEMENT == 4
+            math SIZE = DATA
+            math SIZE ^ KEY
+        elif ELEMENT == 8
+            log NAME OFFSET SIZE 1
+        endif
+        math ELEMENT + 1
+        if ELEMENT > 8
+            math ELEMENT = 0
+        endif
+    endif
+    if OPCODE == PICKLE_MARK
+        math ELEMENT = 0
+    elif OPCODE == PICKLE_BINUNICODE    # alternative
+        math ELEMENT = 1
+        set NAME string DATA
+    endif
+endfunction
+
+include "pickle.bms"

@@ -1,0 +1,43 @@
+# Heavy Fire Afghanistan
+# script for QuickBMS http://quickbms.aluigi.org
+
+math BASE_OFF = 0
+math ENTRIES_NUM = 0
+math SUB_ENTRIES = 1    # root
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    math ENTRIES = SUB_ENTRIES
+    for i = 0 < ENTRIES
+        if ENTRIES_NUM != 0
+            get NAME string
+            padding 4
+        endif
+        get ENTRY_SIZE long
+        if ENTRIES_NUM == 0
+            math BASE_OFF = ENTRY_SIZE
+        endif
+        get SIZE long
+        get OFFSET long
+        get ZSIZE long
+        get ZIP long
+        get SUB_ENTRIES long
+        math ENTRIES_NUM += 1
+
+        if SIZE == 0xffffffff
+            callfunction EXTRACT
+        else
+            set FNAME string PATH
+            string FNAME += NAME
+            math OFFSET += BASE_OFF
+            if ZIP == 0
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+endfunction

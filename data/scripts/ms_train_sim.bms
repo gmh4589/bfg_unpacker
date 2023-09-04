@@ -1,0 +1,13 @@
+# Microsoft Train Simulator
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SIMISA@F"
+get SIZE long
+math OFFSET = 16
+get ZSIZE asize
+math ZSIZE - OFFSET
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+clog NAME OFFSET ZSIZE SIZE

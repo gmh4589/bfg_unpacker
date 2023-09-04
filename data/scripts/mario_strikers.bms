@@ -1,0 +1,52 @@
+# Mario Strikers Charged (script 0.2)
+
+endian big
+get EXT extension
+if EXT == "zlb"
+
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME basename
+    clog NAME OFFSET ZSIZE SIZE
+
+else
+
+    get ARCHIVE_SIZE asize
+
+    get OFFSET long
+    if OFFSET u< ARCHIVE_SIZE
+
+        # RES archives
+        get FILES long
+        goto OFFSET
+        for i = 0 < FILES
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+            math OFFSET * 0x20
+            log "" OFFSET SIZE
+        next i
+
+    else
+
+        # TMP archives
+        for OFFSET = 0 != ARCHIVE_SIZE
+            goto OFFSET
+            get DUMMY long
+            if DUMMY u>= 0x80000000
+                get DUMMY long
+                get DUMMY long
+                get SIZE long
+                savepos OFFSET
+            else
+                xmath SIZE "ARCHIVE_SIZE - OFFSET"
+            endif
+            log "" OFFSET SIZE
+            math OFFSET + SIZE
+        next
+
+    endif
+
+endif

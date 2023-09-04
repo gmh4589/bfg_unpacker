@@ -1,0 +1,38 @@
+# DO Online inf/vfs
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "inf"
+open FDDE "vfs" 1 EXISTS
+if EXISTS == 0
+    get NAME basename
+    string NAME p "%s/%s.vfs" NAME NAME
+    open FDSE NAME 1
+endif
+
+math VER64 = 4  # otherwise we can easily guess it
+
+idstring "VFS001\0"
+get VER byte    # ???
+get INF_SIZE long
+get FILES long
+if VER < VER64
+    get VFS_SIZE long
+else    # 4
+    get VFS_SIZE longlong
+endif
+for i = 0 < FILES
+    getdstring NAME 0x60
+    if VER < VER64
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+    else
+        get ZERO longlong
+        get OFFSET longlong
+        get SIZE longlong
+    endif
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    log NAME OFFSET SIZE 1
+next i

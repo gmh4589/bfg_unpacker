@@ -1,0 +1,16 @@
+# HockeyDash
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    filexor 0x10
+    get DUMMY long
+    get SIZE long
+    get ZERO long
+    getdstring NAME 0x3c
+    filexor ""
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next i

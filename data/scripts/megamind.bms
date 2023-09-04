@@ -1,0 +1,31 @@
+# MegaMind
+# simply dump each encrypted UDP packet sent/received from *.quazal.net in a file and pass it to this script
+
+comtype xmemdecompress
+endian big
+idstring "pack"
+get DUMMY long
+get DUMMY long
+get OFFSET long
+get SIZE long
+get NAME_BASE long
+get FILES long
+math NAME_BASE += OFFSET
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET longlong
+    get ZSIZE longlong
+    get SIZE longlong
+    get NAME_OFF long
+    get DUMMY long
+    savepos TMP
+    math NAME_OFF += NAME_BASE
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

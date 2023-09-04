@@ -1,0 +1,239 @@
+# Star Ocean (Tri-ace SLZ/PACK/ADLD) (script 0.2.5)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PACK_NAME basename
+get PACK_EXT extension
+getdstring SIGN4 4
+
+if SIGN4 == "ADLD"
+    goto 0x20
+    filexor "0 0 0 0 0x20 0 0 0"
+    getdstring KEY 8
+    math OFFSET = 0x10
+    get SIZE asize
+    math SIZE - OFFSET
+    encryption xor KEY "" 0 8
+    log TEMPORARY_FILE OFFSET SIZE
+    encryption "" ""
+    open "." TEMPORARY_FILE
+endif
+
+goto 0
+getdstring SIGN 3
+if SIGN == "SLZ"
+    set NAME string PACK_NAME
+    set FILE_OFFSET long 0
+    callfunction slz_unpack
+    cleanexit
+endif
+
+goto 0
+idstring "PACK"
+get DUMMY_ENDIAN long
+endian guess DUMMY_ENDIAN
+get FILES long
+get PACK_SIZE long
+for i = 0 < FILES
+    get DUMMY long
+    get FILE_ID long
+    get FILE_SIZE long
+    get FILE_OFFSET long
+
+    set NAME string PACK_NAME
+    string NAME + /
+    string NAME + i
+
+    endian save CURRENT_ENDIAN
+    callfunction slz_unpack
+    endian set CURRENT_ENDIAN
+next i
+
+startfunction slz_unpack
+    set BASE_NAME string NAME
+    endian little
+    savepos OLD_OFFSET
+    goto FILE_OFFSET
+    getdstring SIGN 3
+    if SIGN == "SLZ"
+        math OFFSET = -1
+        if PACK_EXT == "slz"
+            string NAME + ".unslz"
+        else
+            string NAME + "_unpack."
+            string NAME + PACK_EXT
+        endif
+        #set NAME string ""
+        set OLD_NAME string NAME
+        log MEMORY_FILE 0 0
+        goto FILE_OFFSET
+
+        math COUNTER = 0
+
+        math SLZ_CHUNK = 0
+        math SLZ_NEXT = 0
+        math MULTI = 0
+
+        do
+            savepos TMP_OFF
+            getdstring SIGN 3
+            get TYPE byte
+            savepos TMP
+            get DUMMY long
+            goto TMP
+            if DUMMY == 0x00250100  # Heaven x Inferno, this is totally wrong
+                get SPLIT byte
+                get MULTI byte
+                get DUMMY short
+                get FILE_ZSIZE long
+                get FILE_SIZE long
+                get ZERO long
+                get DUMMY long
+                get DUMMY long
+                get ZERO long
+                append
+                do
+                    get ZSIZE short
+                    savepos OFFSET
+                    math SIZE = 0x10000
+                    callfunction UNPACK 1
+                    math OFFSET + ZSIZE
+                    goto OFFSET
+                    get MEM_SIZE asize MEMORY_FILE
+                while MEM_SIZE != FILE_SIZE
+                append
+            else
+                if DUMMY < 0x00ffffff   # lame endianess check
+                    set X360_MODE long 0
+                    get ZSIZE long
+                    set SPLIT byte 0
+                    set MULTI byte 0
+                else
+                    set X360_MODE long 1
+                    endian big
+                    get SPLIT byte
+                    get MULTI byte
+                    get DUMMY short
+                    get ZSIZE long
+                endif
+                get SIZE long
+                get SLZ_NEXT long
+                if X360_MODE != 0
+                    get SLZ_NEXT long
+                endif
+
+                set CHUNKS_SIZE long 0
+                set SLZ_CHUNK long 0
+                if SLZ_NEXT > 1
+                    set SLZ_CHUNK long 1
+                endif
+                if MULTI == 0
+                    savepos OFFSET
+                else
+                    math OFFSET = SLZ_NEXT
+                    math OFFSET + TMP_OFF
+                    if TYPE != 0
+                        log MEMORY_FILE2 OFFSET 4
+                        get CHUNKS_SIZE long MEMORY_FILE2
+                        math OFFSET + 4
+                        log MEMORY_FILE2 OFFSET CHUNKS_SIZE
+                        math OFFSET - 4
+                        math OFFSET + CHUNKS_SIZE
+                        math SIZE = 0x00010000
+                    endif
+                endif
+
+                if MULTI != 0
+                    #set NAME string "MEMORY_FILE" # no longer works in quickbms!
+                    math SPLIT + 1
+                    if SPLIT < MULTI
+                        set SLZ_CHUNK long 1
+                    endif
+                    math TMP_OFF + 0x20
+                    goto TMP_OFF
+                    append
+                endif
+
+                do
+                    if CHUNKS_SIZE != 0
+                        get ZSIZE short MEMORY_FILE2
+                    endif
+
+                    if ZSIZE != 0  # no samples to test the comment
+                        if NAME != ""
+                            string NAME p "%s_%08x." BASE_NAME COUNTER
+                        endif
+                        callfunction UNPACK 1
+                        math OFFSET + ZSIZE
+                        math COUNTER + 1
+                    endif
+
+                    if CHUNKS_SIZE == 0
+                        math ZSIZE = 0
+                    endif
+                while ZSIZE != 0
+
+                if MULTI != 0
+                    append
+                endif
+                if SLZ_NEXT > 1
+                    math SLZ_NEXT + TMP_OFF
+                    goto SLZ_NEXT
+                endif
+            endif
+            savepos TMP
+            get TMP2 asize
+            if TMP == TMP2
+                math SLZ_CHUNK = 0
+            endif
+        while SLZ_CHUNK != 0
+
+        if MULTI != 0
+            set NAME string OLD_NAME
+            get SIZE asize MEMORY_FILE
+            log NAME 0 SIZE MEMORY_FILE
+        endif
+    else
+        string NAME + "."
+        string NAME + SIGN
+        log NAME FILE_OFFSET FILE_SIZE
+    endif
+    goto OLD_OFFSET
+    endian little
+endfunction
+
+startfunction UNPACK
+    if TYPE == 0
+        comtype copy
+        math SIZE = ZSIZE
+    elif TYPE == 1
+        comtype slz_01
+    elif TYPE == 2
+        comtype slz_02
+    elif TYPE == 3
+        comtype slz_03
+    elif TYPE == 4
+        comtype xmemdecompress
+    elif TYPE == 5
+        comtype unzip_dynamic   # it's both zlib_noerror and deflate_noerror depending by the game!
+    elif TYPE == 7
+        comtype zstd            # needs quickbms 0.9.1
+    else
+        print "Error: unsupported type %TYPE%, contact me"
+        cleanexit
+    endif
+    if MULTI == 0
+        if ZSIZE == 0
+            math ZSIZE = SIZE
+            log NAME OFFSET ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        if ZSIZE == 0
+            math ZSIZE = SIZE
+            log MEMORY_FILE OFFSET ZSIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction

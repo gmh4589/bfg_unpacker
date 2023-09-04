@@ -1,0 +1,53 @@
+# RIFF wav endianess reverser (fast way)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math BITS = 16
+savepos OLD_OFF
+idstring "RIFF"
+get FULLSIZE asize
+putvarchr MEMORY_FILE FULLSIZE 0
+log MEMORY_FILE 0 0
+get SIZE long
+idstring "WAVE"
+
+savepos OFFSET
+for OFFSET = OFFSET  < FULLSIZE
+    getdstring TYPE 4
+    get SIZE long
+    savepos OFFSET
+    if TYPE == "data"
+        callfunction DOIT 1
+    elif TYPE == "fmt "
+        get CODEC short
+        if CODEC != 1
+            print "Error: the file is not PCM (%CODEC%)"
+            cleanexit
+        endif
+        getdstring DUMMY 12
+        get BITS short
+    endif
+    math OFFSET += SIZE
+    goto OFFSET
+next
+
+math SIZE = 0
+callfunction DOIT 1
+
+get NAME basename
+get EXT extension
+string NAME += "_swap16."
+string NAME += EXT
+log NAME 0 FULLSIZE MEMORY_FILE
+
+startfunction DOIT
+    math TMP = OFFSET
+    math TMP -= OLD_OFF
+    append
+    log MEMORY_FILE OLD_OFF TMP
+    encryption swap BITS
+    log MEMORY_FILE OFFSET SIZE
+    append
+    encryption "" ""
+    math OLD_OFF = OFFSET
+    math OLD_OFF += SIZE
+endfunction

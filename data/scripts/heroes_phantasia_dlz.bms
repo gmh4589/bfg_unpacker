@@ -1,0 +1,20 @@
+# Heroes Phantasia PSP (DLZ files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype saint_seya  # lzss "12 4 2 2 0" or puyo_lz00 (LZSS with init 0x00)
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE -= OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+    get OFFSET long MEMORY_FILE
+for i = 0
+    get NEXT_OFFSET long MEMORY_FILE
+    if NEXT_OFFSET == 0
+        break
+    endif
+    xmath SIZE "NEXT_OFFSET - OFFSET"
+    log "" OFFSET SIZE MEMORY_FILE
+    math OFFSET = NEXT_OFFSET
+next i

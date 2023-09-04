@@ -1,0 +1,14 @@
+# Crystal Dynamics Archive Type 3 (BIGFILE.DAT)
+# ---
+# Off-World Interceptor Extreme (PS1)
+
+get FILES long
+for i = 0 < FILES
+	get DUMMY1 long
+	get SIZE long
+	get OFFSET long
+	get DUMMY4 long
+	get DUMMY5 long
+	string FNAME p= "%08x_%08x_%08x." DUMMY1 DUMMY4 DUMMY5
+	log FNAME OFFSET SIZE
+next i

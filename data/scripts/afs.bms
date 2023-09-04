@@ -1,0 +1,48 @@
+# AFS archives (used on some Xbox games) (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AFS"
+get DUMMY byte  # it's usually 0 but in some files (MULTSPQ2.AFS) it may be different
+get FILES long
+savepos INFO_OFF
+
+math NAME_OFF = FILES
+math NAME_OFF *= 8
+math NAME_OFF += INFO_OFF
+goto NAME_OFF
+get NAME_OFF long
+goto INFO_OFF
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    if NAME_OFF == 0
+    if i == 0
+        savepos TMP
+        goto OFFSET
+        goto -8 0 SEEK_CUR
+        get NAME_OFF long
+        get NAME_SIZE long
+        goto TMP
+
+        get TMP asize
+        if NAME_OFF u>= TMP
+            math NAME_OFF = 0
+        endif
+    endif
+    endif
+
+	if NAME_OFF == 0
+		set NAME string ""
+	else
+		savepos INFO_OFF
+		goto NAME_OFF
+		getdstring NAME 32
+		getdstring DUMMY 16
+		savepos NAME_OFF
+		goto INFO_OFF
+	endif
+
+    log NAME OFFSET SIZE
+next i

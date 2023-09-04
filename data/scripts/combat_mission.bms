@@ -1,0 +1,20 @@
+# Combat Mission (Battlefront)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+get OFFSET long
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get FOLDERSZ short
+    getdstring FOLDER FOLDERSZ
+    set FULLNAME string FOLDER
+    string FULLNAME += /
+    string FULLNAME += NAME
+    get NEXT_OFF long
+    math SIZE = NEXT_OFF
+    math SIZE -= OFFSET
+    log FULLNAME OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

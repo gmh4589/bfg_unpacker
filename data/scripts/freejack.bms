@@ -1,0 +1,53 @@
+# FreeJack (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXTENSION extension
+if EXTENSION != "WA"
+    open FDDE WA 0
+endif
+
+open FDDE WH 1
+
+goto 12 1
+get WH_SIZE long 1
+get FOLDERS short 1
+for i = 0 < FOLDERS
+    get FOLDERSZ short 1
+    getdstring FOLDER FOLDERSZ 1
+next i
+savepos SIZE 1
+math SIZE -= 18
+
+log MEMORY_FILE 18 SIZE 0 0 1
+
+comtype lzo1x
+
+get FILES long 1
+for i = 0 < FILES
+    get DUMMY long 1
+    get ZIP byte 1
+    get SIZE long 1
+    get ZSIZE long 1
+    get FOLDER_NUM short 1
+    get OFFSET long 1
+    get NAMESZ short 1
+    if NAMESZ == 0
+        get DUMMY short 1
+        get NAMESZ short 1
+    endif
+    getdstring NAME NAMESZ 1
+
+    goto 0 MEMORY_FILE
+    for j = 0 <= FOLDER_NUM
+        get FOLDERSZ short MEMORY_FILE
+        getdstring FOLDER FOLDERSZ MEMORY_FILE
+    next j
+    set FULLNAME FOLDER
+    string FULLNAME += NAME
+
+    if ZIP == 0
+        log FULLNAME OFFSET SIZE
+    else
+        clog FULLNAME OFFSET ZSIZE SIZE
+    endif
+next i

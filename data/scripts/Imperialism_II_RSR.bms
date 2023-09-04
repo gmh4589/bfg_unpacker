@@ -1,0 +1,16 @@
+# Imperialism II (RSR)
+
+IDString 0 rsrc ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+Do ;
+GetDString FILENAME 8 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+GoTo FILESTART 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

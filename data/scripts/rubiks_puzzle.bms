@@ -1,0 +1,18 @@
+# Rubik's Puzzle Galaxy RUSH
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+idstring "MEMC"
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+clog MEMORY_FILE OFFSET SIZE SIZE
+idstring MEMORY_FILE "AMEM"
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ short MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

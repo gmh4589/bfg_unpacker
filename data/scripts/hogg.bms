@@ -1,0 +1,100 @@
+# HOGG archives (script 0.1.2)
+#   Neverwinter Online, Star Trek Online, Magic: Legends
+# script for QuickBMS http://quickbms.aluigi.org
+
+math PADDING_SIZE = 0x10000
+get EXT extension
+if EXT == "pig" # Pirates of the burning sea
+    math PADDING_SIZE = 8
+endif
+
+comtype unzip_dynamic
+idstring "\x0d\xf0\xad\xde"
+get FLAGS long
+get INFO_SIZE long
+get INFO2_SIZE long
+get DUMMY long
+get DUMMY long
+savepos BASE_OFF
+
+goto 0x400
+getdstring DUMMY BASE_OFF
+get ZERO long
+get NAMES_SIZE long
+get NAMES_SIZE long # same as above
+
+xmath NAMES_LIMIT "TMP + NAMES_SIZE"
+savepos TMP
+/*
+for TEST = 0
+    savepos TMP
+    xmath NAMES_LIMIT "TMP + NAMES_SIZE"
+    if PADDING_SIZE > 0x10 && NAMES_LIMIT u>= PADDING_SIZE
+        math NAMES_LIMIT = PADDING_SIZE
+    endif
+*/
+    math i = 0
+    for TMP = TMP < NAMES_LIMIT
+        get TYPE byte
+        if TYPE == 2
+            get DUMMY long
+        elif TYPE == 1
+            get ID long
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            putarray 0 ID NAME
+        else
+            break
+        endif
+        savepos TMP
+    next i
+/*
+    if TYPE == 0
+        break
+    endif
+    if PADDING_SIZE > 0x10 && TMP u>= PADDING_SIZE
+        break
+    endif
+    if TEST == 0
+        get NAME string # ???
+    endif
+next TEST
+*/
+
+padding PADDING_SIZE
+getdstring DUMMY BASE_OFF
+savepos TMP
+xmath INFO_LIMIT "TMP + INFO_SIZE"
+math i = 0
+for TMP = TMP < INFO_LIMIT
+    get OFFSET longlong
+    get SIZE long
+    get DUMMY1 long
+    get DUMMY2 long
+    get ZERO long
+    get TYPE long
+    get ID long
+    savepos TMP
+
+    if TYPE != 0
+    if TYPE != 0xffffffff
+    if SIZE != 0xffffffff
+    if OFFSET != 0
+        if i == 0
+            clog MEMORY_FILE OFFSET SIZE SIZE
+            get ZERO long MEMORY_FILE
+            get NAMES long MEMORY_FILE
+            for j = 0 < NAMES
+                get NAMESZ long MEMORY_FILE
+                getdstring NAME NAMESZ MEMORY_FILE
+                putarray 0 j NAME
+            next j
+        else
+            getarray NAME 0 ID
+            clog NAME OFFSET SIZE SIZE
+        endif
+    endif
+    endif
+    endif
+    endif
+next i

@@ -1,0 +1,77 @@
+# Star Wars: Bounty Hunter ZAP
+
+comtype swzap   # same as SCUMMVM35
+
+idstring "\xef\xcd\xab\x89\x67\x45\x23\x01"
+get FILES long
+get ZERO long
+
+for i = 0 < FILES
+    callfunction GET_INFO 1
+    getdstring NAME 0x100
+    putarray 0 i NAME
+next i
+
+# the offset in the both the tables is referred to a decompressed file-system!
+for i = 0 < FILES
+    getarray NAME 0 i
+    callfunction GET_INFO 1
+    savepos OFFSET
+
+    if SIZE == 0
+
+        # because ENTRY_SIZE may be corrupt
+        log NAME OFFSET SIZE
+
+    elif SIZE == ENTRY_SIZE
+
+        # ZSIZE is zero, this "if" is good only for reimporting
+        log NAME OFFSET SIZE
+        math OFFSET + ENTRY_SIZE
+
+    else
+
+        math CHUNK_SIZE = 0x10000
+        if CHUNK_SIZE > SIZE
+            math CHUNK_SIZE = SIZE
+        endif
+        xmath CHUNKS "SIZE / CHUNK_SIZE"
+        if SIZE % CHUNK_SIZE
+            math CHUNKS + 1
+        endif
+
+        log MEMORY_FILE 0 0
+        append
+        math CHUNK_OFF = OFFSET
+        math TMP = 0
+        for x = 0 < CHUNKS
+            getvarchr CHUNK_ZSIZE CHUNK_INFO TMP long
+            math TMP + 4
+
+            if CHUNK_ZSIZE == 0
+                log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+                math CHUNK_OFF + CHUNK_SIZE
+            else
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+                math CHUNK_OFF + CHUNK_ZSIZE
+            endif
+        next x
+        append
+        log NAME 0 SIZE MEMORY_FILE # reimport is not possible and there are duplicate names
+
+        math OFFSET + ENTRY_SIZE
+
+    endif
+
+    math OFFSET + ALIGN_SIZE
+    goto OFFSET
+next i
+
+startfunction GET_INFO
+    get OFFSET long
+    get SIZE long
+    get ENTRY_SIZE long # sometimes if ZSIZE is zero it may be 0xdcdcdcdc
+    getdstring CHUNK_INFO 0x84
+    get ALIGN_SIZE long
+    get ZERO long
+endfunction

@@ -1,0 +1,34 @@
+# Method Solutions
+# Yard Sale Hidden Treasures: Sunnyville
+
+comtype zlib_noerror    # the first file doesn't extract when using zlib
+
+idstring "FEZC"
+get FLAGS long
+get FILES long
+get NAME_OFF long
+get INFO_OFF long
+get DATA_OFF long
+getdstring HASH 16
+
+goto NAME_OFF
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+
+goto INFO_OFF
+for i = 0 < FILES
+    getarray NAME 0 i
+    get FLAGS long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    getdstring HASH 16
+    if FLAGS == 0
+        log NAME OFFSET SIZE
+    else        # 0x102
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

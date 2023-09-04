@@ -1,0 +1,13 @@
+get FILES long
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 16)"
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    math OFFSET + BASE_OFF
+    math OFFSET + 8
+    math SIZE   - 8
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,42 @@
+# Xenoblade (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "pkh"
+open FDDE "pkb" 1
+
+endian big
+get DUMMY long
+get DUMMY long
+get INFO_OFF long
+get PKH_SIZE long
+get FILES long
+getdstring AFS_SIGN 4
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY1 long
+    get DUMMY2 long
+next i
+for i = 0 < FILES
+    get SIZE short
+    math SIZE * 0x800
+    putarray 0 i SIZE
+next i
+savepos TMP
+if TMP < PKH_SIZE
+    for i = 0 < FILES
+        get OFFSET long
+        math OFFSET * 0x800
+        getarray SIZE 0 i
+        log "" OFFSET SIZE 1
+    next i
+else
+    get NAME filename 1
+    print "\nUse http://aluigi.org/bms/afs.bms with %NAME%"
+    #math OFFSET = 0
+    #for i = 0 < FILES
+    #    getarray SIZE 0 i
+    #    log "" OFFSET SIZE 1
+    #    math OFFSET + SIZE
+    #    math OFFSET x 0x800
+    #next i
+endif

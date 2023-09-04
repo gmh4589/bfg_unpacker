@@ -1,0 +1,11 @@
+# Ace Attorney: Dual Destinies obb
+
+idstring ".OBB"
+get VER long
+get FILES long
+for i = 0 < FILES
+    get SOME_HASH longlong
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,19 @@
+# Ghostbusters: Sanctum Of Slime
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+getdstring PACK_NAME 0x12
+get FILES long
+get HEAD_SIZE long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get ZIP long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET SIZE SIZE
+    endif
+next i

@@ -1,0 +1,22 @@
+# JumpStart Advanced BAL
+
+get FILES long
+goto 0x12
+idstring "<BALE>"
+math FILES - 1
+for i = 0 < FILES
+    get NAME_OFF[i] long
+    get OFFSET[i] long
+    get SIZE[i] long
+    get ZERO long
+    get SOME_CRC long
+next i
+get NAMES_SIZE long
+savepos NAMES_OFF
+for i = 0 < FILES
+    math NAME_OFF[i] + NAMES_OFF
+    goto NAME_OFF[i]
+    get NAME string
+    log NAME OFFSET[i] SIZE[i]
+next i
+

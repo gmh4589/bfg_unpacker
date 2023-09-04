@@ -1,0 +1,61 @@
+# Lords of Waterdeep
+#   Note that the offsets and sizes are wrong or very strange.
+#   In my tests only the caf files were correctly extracted.
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate_noerror
+idstring "DEK"
+get DUMMY byte  # 0x19
+get FOLDERS long
+get DUMMY long
+get DUMMY long
+for FOLDER = 0 < FOLDERS
+    get INFO_OFF long
+    get ZERO long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get FOLDER_SIZE long
+    get DUMMY long
+    get DUMMY long
+    savepos BACKUP_OFF
+
+    goto INFO_OFF
+    for i = 0 < FILES
+        get NAME_HASH longlong
+        get SIZE long
+        get OFFSET long
+        get XSIZE long
+        get XOFFSET long
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+        putarray 2 i XOFFSET
+        putarray 3 i XSIZE
+    next i
+    for i = 0 < FILES
+        get DUMMY1 long
+        get DUMMY2 long
+    next i
+
+    savepos OFFSET
+    padding 0x1000
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET FOLDER_SIZE FOLDER_SIZE
+
+    string NAME p "%d/" FOLDER
+    for i = 0 < FILES
+        getarray XOFFSET 2 i
+        getarray XSIZE   3 i
+        if XSIZE == 0
+            getarray OFFSET 0 i
+            getarray SIZE   1 i
+            math OFFSET + XOFFSET
+        else
+            math OFFSET = XOFFSET
+            math SIZE   = XSIZE
+        endif
+        log NAME OFFSET SIZE MEMORY_FILE
+    next i
+
+    goto BACKUP_OFF
+next FOLDER

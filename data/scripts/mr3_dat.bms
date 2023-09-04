@@ -1,0 +1,23 @@
+# Moto Racer 3 mr3.dat
+
+idstring "BFV0"
+get FILES long
+get DUMMY short # 0x1b
+get DUMMY short # 0x118
+get OFFSET long
+get SIZE long
+
+comtype zlib_noerror
+clog MEMORY_FILE OFFSET SIZE SIZE
+
+comtype zlib
+for i = 0 < FILES
+    get FLAGS long MEMORY_FILE  # 0x80000000
+    get ZSIZE long MEMORY_FILE
+    get SOME_CRC long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SOME_CRC long MEMORY_FILE
+    getdstring NAME 0x100 MEMORY_FILE
+    clog NAME OFFSET ZSIZE SIZE
+next i

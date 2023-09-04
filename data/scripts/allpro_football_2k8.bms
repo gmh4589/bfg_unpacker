@@ -1,0 +1,54 @@
+# All-Pro Football 2K8 (0A, 0B, 0C, 0D)
+
+get NAME filename
+if NAME != "0A"
+    print "Error: open the first archive"
+    cleanexit
+endif
+
+endian big
+get DUMMY long  # 0xaa00b3bf
+get ALIGN long
+get ABCD long   # 4
+get ZERO long
+get FILES long
+get ZERO long
+for PACK_NUM = 0 < ABCD
+    get PACK_SIZE[PACK_NUM] long
+    get ZERO long
+    getdstring PACK_NAME[PACK_NUM] 8
+    set PACK_NAME[PACK_NUM] unicode PACK_NAME[PACK_NUM]
+    math PACK_SIZE[PACK_NUM] * ALIGN
+next PACK_NUM
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET * ALIGN
+    math SIZE   * ALIGN
+    putarray 0 i NAME_CRC
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+
+sortarray 1 1
+
+math PACK_NUM    = 0
+math PACK_LIMIT  = 0
+math PACK_OFFSET = 0
+for i = 0 < FILES
+    getarray NAME_CRC 0 i
+    getarray OFFSET   1 i
+    getarray SIZE     2 i
+
+    if OFFSET u>= PACK_LIMIT
+        open FDSE PACK_NAME[PACK_NUM]
+        math PACK_OFFSET = PACK_LIMIT
+        math PACK_LIMIT + PACK_SIZE[PACK_NUM]
+        math PACK_NUM + 1
+    endif
+
+    math OFFSET - PACK_OFFSET
+    string NAME p "%08x." NAME_CRC
+    log NAME OFFSET SIZE
+next i

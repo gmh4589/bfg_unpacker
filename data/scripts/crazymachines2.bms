@@ -1,0 +1,74 @@
+# Crazy Machines 2 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+
+idstring "FAST"
+get DUMMY long  # 0x00030000
+get DUMMY long
+get DUMMY long
+
+get CHUNKS_NUM long
+get DUMMY long
+get CHUNKS_OFFSET long
+get DUMMY long
+
+get NAMES_NUM long
+get DUMMY long
+get NAMES_OFFSET long
+get DUMMY long
+
+get FOLDERS_NUM long
+get DUMMY long
+get FOLDERS_OFFSET long
+get DUMMY long
+
+get FOLDERSZ byte
+getdstring FOLDER FOLDERSZ
+
+for i = 0 < CHUNKS_NUM
+    goto CHUNKS_OFFSET
+    get NAMEID long
+    get FOLDERID long
+    get DUMMY long  # 0xffffffff
+    get DUMMY long  # 0xffffffff
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    get ZSIZE long
+    get DUMMY long
+    get DUMMY long
+    savepos CHUNKS_OFFSET
+
+    set FULLNAME string FOLDER
+
+    set NAME ""
+    goto FOLDERS_OFFSET
+    for j = 0 <= FOLDERID
+        get NAMESZ long
+        if NAMESZ u>= 0x01000000
+            reverselong NAMESZ
+        endif
+        get DUMMY long
+        getdstring NAME NAMESZ
+    next j
+    if NAME != ""
+        string FULLNAME += \
+        string FULLNAME += NAME
+    endif
+
+    set NAME ""
+    goto NAMES_OFFSET
+    for j = 0 <= NAMEID
+        get NAMESZ long
+        if NAMESZ u>= 0x01000000
+            reverselong NAMESZ
+        endif
+        get DUMMY long
+        getdstring NAME NAMESZ
+    next j
+    string FULLNAME += \
+    string FULLNAME += NAME
+
+    clog FULLNAME OFFSET ZSIZE ZSIZE
+next i

@@ -1,0 +1,32 @@
+# MPFS filesystem
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MPFS"
+get VERSION byte
+get DUMMY byte
+get FILES short
+
+putarray 0 FILES 0
+for i = 0 < FILES
+    get TYPE short
+    putarray 0 i TYPE
+next i
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get CRC long
+    get DUMMY long
+    get DUMMY short
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    getarray TYPE 0 i
+    if TYPE != 0xffff
+        log NAME OFFSET SIZE
+    endif
+next i

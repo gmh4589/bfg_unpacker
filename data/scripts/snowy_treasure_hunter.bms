@@ -1,0 +1,19 @@
+# Snowy Treasure Hunter (script 0.1a)
+
+endian big
+get FILES long
+get ZSIZE long
+get SIZE long
+get SIZE long   # same as previous
+savepos TMP
+xmath OFFSET "TMP + (FILES * 16)"
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+for i = 0 < FILES
+    get DUMMY short
+    get DUMMY short
+    get TYPE long
+    get OFFSET long
+    get SIZE long
+    string NAME p "%d/" TYPE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

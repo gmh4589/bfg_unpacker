@@ -1,0 +1,47 @@
+# God Hand IDD
+
+get TABLES long
+for TABLE = 0 < TABLES
+    get TABLE_OFF[TABLE] long
+next TABLE
+for TABLE = 0 < TABLES
+    getdstring TABLE_NAME[TABLE] 4
+next TABLE
+for TABLE = 0 < TABLES
+    goto TABLE_OFF[TABLE]
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        math OFFSET + TABLE_OFF[TABLE]
+        putarray 0 i OFFSET
+    next i
+
+    math TABLE + 1
+    if TABLE < TABLES
+        math OFFSET = TABLE_OFF[TABLE]
+    else
+        get OFFSET asize
+    endif
+        putarray 0 i OFFSET
+    math TABLE - 1
+
+    for i = 0 < FILES
+        getdstring EXT 4
+        putarray 1 i EXT
+    next i
+
+    # long story short, some entries have offset zero which means that the file doesn't exist
+    sortarray 0 1
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray EXT    1 i
+        math i + 1
+        getarray SIZE 0 i
+        math SIZE - OFFSET
+        string NAME p "%s_%d/%d.%s" TABLE_NAME[TABLE] TABLE i EXT
+        if SIZE != 0
+            log NAME OFFSET SIZE
+        endif
+    next
+next TABLE

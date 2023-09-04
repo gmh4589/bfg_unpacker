@@ -1,0 +1,31 @@
+# WarBane
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "tbl2"
+    print "Error: You must select the TBL2 file"
+    cleanexit
+endif
+get BASE_NAME basename
+open FDDE tbl2
+get DUMMY long
+get TBL2_SIZE long
+get DUMMY long
+get FILES long
+goto 0x100018
+math OLD_PAK = -1
+for i = 0 < FILES
+    get OFFSET longlong
+    get ZSIZE longlong
+    get SIZE longlong
+    get PAK_NUM longlong
+    get NAME string
+    padding 4
+    math PAK_NUM -= 1
+    if PAK_NUM != OLD_PAK
+        string PAK p= "%s%03d.data2" BASE_NAME PAK_NUM
+        open FDSE PAK 1
+        math OLD_PAK = PAK_NUM
+    endif
+    clog NAME OFFSET ZSIZE SIZE 1
+next i

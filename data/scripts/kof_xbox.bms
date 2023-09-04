@@ -1,0 +1,90 @@
+# King of Fighters Xbox
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.5"
+
+get EXT extension
+if EXT != "pak"
+    print "Error: this script supports only the PAK archives"
+    cleanexit
+endif
+
+getdstring SIGN 4
+if SIGN == "PLYD"
+
+    get DUMMY long
+    get ZERO long
+    get ENTRIES long
+    callfunction COLLET_OFFSETS 1
+    callfunction DUMP_FILES_OFFSET 1
+
+elif SIGN == "MTD0" || SIGN == "MTD1"
+
+    get DUMMY long
+    get DUMMY long
+    get ENTRIES long
+    callfunction COLLET_OFFSETS 1
+    callfunction DUMP_FILES_OFFSET 1
+
+elif SIGN == "U]9H"
+
+    print "Error: this type of file is unsupported"
+    cleanexit
+
+else
+
+    get ZERO long
+    get ZERO long
+    get ENTRIES long
+    callfunction COLLET_OFFSETS 1
+    callfunction DUMP_FILES_OFFSET 1
+
+endif
+
+startfunction COLLET_OFFSETS
+    math FILES = 0
+    # the last entry is the size of the whole archive, but don't trust it!
+    #for i = 0 <= ENTRIES
+    for i = 0 < ENTRIES
+        get OFFSET long
+        if OFFSET != 0
+            putarray 0 FILES OFFSET
+            math FILES + 1
+        endif
+    next i
+    if i > ENTRIES
+        math FILES - 1
+    else
+        get OFFSET asize
+        putarray 0 FILES OFFSET
+    endif
+endfunction
+
+startfunction DUMP_FILES_OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+
+        goto OFFSET
+        getdstring SIGN 2
+        if SIGN == "PK"
+            get ZERO byte
+            get ALGO byte   # 2
+            get XSIZE long
+            get ZERO long
+            get ZERO long
+            /*
+            savepos OFFSET
+            math SIZE - 0x10
+            comtype ???
+            clog "" OFFSET SIZE XSIZE
+            */
+            log "compressed/" OFFSET SIZE
+        else
+            log "" OFFSET SIZE
+        endif
+
+    next
+endfunction

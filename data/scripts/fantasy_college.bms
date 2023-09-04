@@ -1,0 +1,43 @@
+# Fantasy College Online (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RVP"
+get VER long
+if VER >= 2
+    get INFO_OFF longlong
+    get INFO_SIZE long
+    get INFO_ZSIZE long
+else
+    get INFO_OFF long
+    get INFO_SIZE long
+    math INFO_ZSIZE = INFO_SIZE
+endif
+
+if INFO_ZSIZE == INFO_SIZE
+    log MEMORY_FILE INFO_OFF INFO_SIZE
+else
+    clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE
+endif
+
+for INFO_OFF = 0 < INFO_SIZE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZIP byte MEMORY_FILE
+    if VER >= 2
+        get OFFSET longlong MEMORY_FILE
+    else
+        get OFFSET long MEMORY_FILE
+    endif
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    if VER >= 2
+        get TSTAMP long MEMORY_FILE
+    endif
+    savepos INFO_OFF MEMORY_FILE
+
+    if ZIP == 1
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next

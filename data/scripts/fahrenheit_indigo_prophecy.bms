@@ -1,0 +1,97 @@
+# quanticdream (Fahrenheit/Indigo Prophecy/Fahrenheit Indigo Prophecy) - QUANTICDREAMTABINDEX/QUANTICDREAMTABIDMEM
+
+get EXT extension
+
+if EXT == "idx"
+	idstring "QUANTICDREAMTABINDEX"
+	get DUMMY1 long
+	get VER long
+	endian guess VER
+	getdstring DUMMY2 0x48
+
+	get FILES long
+	for i = 0 < FILES
+		get HASH1 long
+		get SUBFILES long
+		for i2 = 0 < SUBFILES
+			get HASH2 long
+			get OFFSET long
+			get SIZE long
+			get DAT_NUM long
+			
+			callfunction PARSE_DAT_NUM 1
+			callfunction GET_CONTAINER 1
+
+			if SUBFILES == 1
+				string NAME p "%04x/%04x.%s" HASH1 HASH2 CONT
+			else
+				string NAME p "%04x/%04x.%s" HASH1 HASH2 CONT
+			endif
+			
+			log NAME OFFSET SIZE 1
+		next i2
+	next i
+elif EXT == "idm"
+	idstring "QUANTICDREAMTABIDMEM"
+	get VER long
+	if VER == 2
+		open FDSE "Fahrenheit.exe" 2
+		print " oops "
+		break
+	endif
+	endian guess VER
+	get ENTRIES long
+	for i = 0 < ENTRIES
+		get HASH1 long
+		get FILES long
+		get INFO_OFF long
+		math INFO_OFF + 0x14
+		
+		savepos TMP1
+		goto INFO_OFF
+		for j = 0 < FILES
+			get HASH2 long
+			get OFFSET long
+			get SIZE long
+			get DAT_NUM byte
+			get DUMMY5 threebyte
+			
+			callfunction PARSE_DAT_NUM 1
+			callfunction GET_CONTAINER 1
+			
+			string NAME p "%04x/%04x.%s" HASH1 HASH2 CONT
+			
+			log NAME OFFSET SIZE 1
+		next j
+		goto TMP1
+	next i
+endif
+
+startfunction PARSE_DAT_NUM
+	if DAT_NUM == 0
+		string EXT p "dat"
+	else
+		string EXT p "d%02d" DAT_NUM
+	endif
+	open FDDE EXT 1
+endfunction
+
+startfunction GET_CONTAINER
+	savepos TMP 1
+	goto OFFSET 1
+	get SIGN long 1
+	if SIGN == 0x5f4d4f43
+		string CONT p= "com_cont"
+	elif SIGN == 0x41544144
+		string CONT p= "databank"
+	elif SIGN == 0x4e414244
+		string CONT p= "dbankidx"
+	elif SIGN == 0x54524150
+		string CONT p= "partitio"
+	elif SIGN == 0x41524244
+		string CONT p= "dbraw"
+	else
+		set CONT string ""
+	endif
+	goto TMP 1
+endfunction

@@ -1,0 +1,24 @@
+get DUMMY long
+get FILES long
+get PAK_SIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+savepos INFO_OFF
+
+for i = 0 < FILES
+    goto INFO_OFF
+    get NAMEOFF long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    savepos INFO_OFF
+
+    goto NAMEOFF
+    get NAME string
+
+    log NAME OFFSET SIZE
+next i

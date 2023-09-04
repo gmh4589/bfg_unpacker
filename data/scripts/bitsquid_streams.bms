@@ -1,0 +1,75 @@
+# Bitsquid files without extension (script 0.2)
+# updated script with more details from https://github.com/Atvaark/VermintideBundleTool/blob/master/VermintideBundleTool/
+
+get FLAGS long  # 0xf0000004/7
+get SIZE long
+get ZERO long
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+math CHUNK_SIZE = 0x10000
+get MAX_OFF asize
+savepos OFFSET
+append
+for OFFSET = OFFSET != MAX_OFF
+    get CHUNK_ZSIZE long
+    savepos OFFSET
+    if CHUNK_ZSIZE == 0 || CHUNK_ZSIZE >= CHUNK_SIZE
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+        math OFFSET + CHUNK_SIZE
+    else
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+    endif
+    goto OFFSET
+next
+append
+
+xmath VER "FLAGS & 0xffff"  # ???
+
+goto 0 MEMORY_FILE
+if VER >= 7
+    get DUMMY long MEMORY_FILE  # 1
+    get FILES long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+else    # unknown version used during my tests
+    # does VER 4 also have a 256 bytes header?
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get DUMMY long MEMORY_FILE
+    next i
+    getdstring ZERO 0x28 MEMORY_FILE
+endif
+
+for i = 0 < FILES
+    callfunction GET_NAME 1
+next i
+
+for i = 0 < FILES
+    callfunction GET_NAME 1
+    get NUM long MEMORY_FILE
+    if VER < 7
+        get ZERO long MEMORY_FILE
+    endif
+
+    for x = 0 < NUM
+        get LANGID long MEMORY_FILE
+        get SIZE[x] long MEMORY_FILE
+        get ZERO long MEMORY_FILE
+    next x
+    for x = 0 < NUM
+        savepos OFFSET MEMORY_FILE
+        log NAME OFFSET SIZE[x] MEMORY_FILE
+        math OFFSET + SIZE[x]
+        goto OFFSET MEMORY_FILE
+    next x
+next i
+
+startfunction GET_NAME
+    # let's use quickbms.exe instead of quickbms_4gb_files.exe
+    get EXT_HASH2  long MEMORY_FILE
+    get EXT_HASH1  long MEMORY_FILE
+    get NAME_HASH2 long MEMORY_FILE
+    get NAME_HASH1 long MEMORY_FILE
+    #string NAME p "%08x%08x.%08x%08x" NAME_HASH1 NAME_HASH2 EXT_HASH1 EXT_HASH2
+    string NAME p "%08x%08x/%08x%08x" EXT_HASH1 EXT_HASH2 NAME_HASH1 NAME_HASH2
+endfunction

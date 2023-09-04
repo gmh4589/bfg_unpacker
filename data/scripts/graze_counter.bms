@@ -1,0 +1,24 @@
+# Graze Counter MLOV
+
+idstring "MLOV"
+get ZERO long
+get FILES long
+get DAT_SIZE long
+for i = 0 < FILES
+    get SOME_CRC long
+    get SIZE long
+    get ZERO long
+    get OFFSET long
+    get DUMMY long  # 1
+    getdstring ZERO 28
+    getdstring NAME 16
+
+    set EXT extension NAME
+    strlen TMP EXT
+    if TMP != 3
+        set NAME fullbasename NAME
+        string NAME + .
+    endif
+
+    log NAME OFFSET SIZE
+next i

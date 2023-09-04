@@ -1,0 +1,27 @@
+<bms games="'Counterstrike'" platforms="'XBox'" ext="SXWAD">
+ImpType Standard ;
+ComType ZLib1 ;
+Get D Long 0 ;
+Get FC Long 0 ;
+Get HS Long 0 ;
+Get D2 Long 0 ;
+For T = 1 To FC ;
+SavePos OSOff 0 ;
+Get OSize Long 0 ;
+SavePos CSizeOff 0 ;
+Get CSize Long 0 ;
+SavePos OffOff 0 ;
+Get Offset Long 0 ;
+Get NSize Long 0 ;
+GetDString FN NSize 0 ;
+SavePos C 0 ;
+Set JP Long NSize ;
+Math NSize += 4 ;
+Math NSize /= 4 ;
+Math NSize *= 4 ;
+Math NSize -= JP ;
+Math C += NSize ;
+GoTo C 0 ;
+CLog FN Offset CSize OSize #OffOff CSizeOff OSize OSOff ;
+Next T ;
+</bms>

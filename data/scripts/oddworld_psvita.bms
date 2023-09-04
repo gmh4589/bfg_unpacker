@@ -1,0 +1,21 @@
+# Oddworld: Munch's Oddysee (PS Vita)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -12
+get OFFSET long
+get FILES long
+get VER long    # 2
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x140
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get ZIP long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

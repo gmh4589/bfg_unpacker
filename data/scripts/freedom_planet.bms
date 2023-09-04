@@ -1,0 +1,45 @@
+# Freedom Planet (script 0.1a)
+
+comtype zlib_noerror
+
+goto 0x83fa #0x841e
+for i = 0
+    get OFFSET long
+    if i == 0
+        math MAX_OFF = OFFSET
+    endif
+    savepos TMP
+    if TMP >= MAX_OFF
+        break
+    endif
+    putarray 0 -1 OFFSET
+next i
+
+get OFFSET asize
+putarray 0 -1 OFFSET
+sortarray 0
+
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+
+    # some files are compressed (probably compressed textures)
+    # I try to dump them automatically using this trick
+
+    if SIZE <= 0x10
+        log "" OFFSET SIZE
+    else
+        xmath XOFFSET "OFFSET + 0x10"
+        xmath XSIZE   "SIZE   - 0x10"
+        clog MEMORY_FILE XOFFSET XSIZE XSIZE
+        get TMP asize MEMORY_FILE
+        if TMP == XSIZE
+            log "" OFFSET SIZE
+        else
+            log "" 0 TMP MEMORY_FILE
+        endif
+    endif
+next

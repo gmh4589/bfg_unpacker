@@ -1,0 +1,36 @@
+# Marvel Disk Wars: The Avengers - Ultimate Heroes
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+idstring "TBAF"
+get TARC_SIZE long
+get FILES long
+get FOLDERS long
+for i = 0 < FOLDERS # ???
+    callfunction GET_ENTRY 1
+next i
+for i = 0 < FILES
+    callfunction GET_ENTRY 1
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction GET_ENTRY
+    get DUMMY1 long
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZIP long
+    get ZERO long
+    get ZERO long
+endfunction

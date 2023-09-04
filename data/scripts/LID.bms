@@ -1,0 +1,17 @@
+<bms games="'Skunny: Back To The Forest', 'Skunny: Desert Raid', 'Skunny Kart', 'Skunny: Lost In Space', 'Skunny: Save Our Pizza', 'Skunny: Wild West'" platforms="'PC'" ext="LID">
+ImpType Standard ;
+Do ;
+SavePos C 0 ;
+Get CH Byte 0 ;
+GoTo C 0 ;
+If CH <> 0 ;
+GetDString FN 10 0 ;
+Get D Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Log FN FO FS #FOO FSO ;
+EndIf ;
+While CH <> 0 ;
+</bms>

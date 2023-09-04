@@ -1,0 +1,18 @@
+# Depth Dwellers
+
+set KEY string ""
+for i = 0 < 16
+    get TMP byte
+    string TMP p "0x%02x " TMP
+    string KEY + TMP
+next i
+filexor KEY
+
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 16
+    log NAME OFFSET SIZE
+next i

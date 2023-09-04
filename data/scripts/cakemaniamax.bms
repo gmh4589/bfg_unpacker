@@ -1,0 +1,84 @@
+# Cake Mania: To the Max!
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x37\x75\x43\x23"
+get VER long
+get SIZE asize
+math SIZE -= 8
+log MEMORY_FILE 8 SIZE
+
+math DECRYPT = 1
+for EXTRACT = 0 < 2
+    goto 0 MEMORY_FILE
+    do
+        math CM_SIZE = 1
+        callfunction cakemania_decrypt
+        get TYPE byte MEMORY_FILE
+
+        set break_extract long 0
+        if TYPE & 0x80
+            set break_extract long 1
+        else
+            math CM_SIZE = 1
+            callfunction cakemania_decrypt
+            get NAMESZ byte MEMORY_FILE
+
+            math CM_SIZE = NAMESZ
+            callfunction cakemania_decrypt
+            getdstring NAME NAMESZ MEMORY_FILE
+
+            math CM_SIZE = 4
+            callfunction cakemania_decrypt
+            get SIZE long MEMORY_FILE
+
+            math CM_SIZE = 8
+            callfunction cakemania_decrypt
+            get TIMESTAMP longlong MEMORY_FILE
+
+            if EXTRACT != 0
+                savepos TMP_OFF MEMORY_FILE
+                goto OFFSET MEMORY_FILE
+                math CM_SIZE = SIZE
+                math DECRYPT = 1
+                callfunction cakemania_decrypt
+                math DECRYPT = 0
+                log NAME OFFSET SIZE MEMORY_FILE
+                math OFFSET += SIZE
+                goto TMP_OFF MEMORY_FILE
+            endif
+        endif
+    while break_extract == 0
+    if EXTRACT == 0
+        savepos OFFSET MEMORY_FILE
+        math DECRYPT = 0
+    endif
+next EXTRACT
+
+startfunction cakemania_decrypt
+    if DECRYPT != 0
+        set EAX0 long 0x3682892f
+        set EAX1 long 0x03120780
+        set EAX2 long 0x28b2fc59
+        set EAX3 long 0x1a4afc04
+        set ECX0 long 0x0000a4e4
+        set ECX1 long 0x00945bc2
+
+        savepos CM_OFFSET MEMORY_FILE
+        math CM_SIZE += CM_OFFSET
+        for x = CM_OFFSET < CM_SIZE
+            math EAX2 += ECX0
+            math EAX3 += ECX1
+            math EAX1 -= EAX3
+            math TMP = EAX0
+            math TMP += EAX2
+            math EAX0 = EAX1
+            math EAX0 ^= TMP
+            math EAX0 *= TMP
+            math EAX0 u>>= 8
+            getvarchr TMP MEMORY_FILE x
+            math TMP ^= EAX0
+            putvarchr MEMORY_FILE x TMP
+        next x
+        goto CM_OFFSET MEMORY_FILE
+    endif
+endfunction

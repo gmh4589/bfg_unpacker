@@ -1,0 +1,185 @@
+# Bethesda games (script 0.1.1)
+#   The Elder Scrolls V: Skyrim
+#   The Elder Scrolls V: Skyrim Special Edition
+#   The Elder Scrolls IV: Oblivion
+#   Morrowind
+#   Fallout 3 (probably not supported)
+#   Fallout 4 (probably not supported)
+#
+# Some constants and bits of code from https://github.com/Ethatron/bsaopt
+# script for QuickBMS http://quickbms.aluigi.org
+
+math BSAARCHIVE_PATHNAMES           = 0x0001 //!< Whether the BSA has names for paths
+math BSAARCHIVE_FILENAMES           = 0x0002 //!< Whether the BSA has names for files
+math BSAARCHIVE_COMPRESSFILES       = 0x0004 //!< Whether the files are compressed
+math BSAARCHIVE_BIGENDIAN           = 0x0040 //!< Whether the archive is in big endian
+math BSAARCHIVE_PREFIXFULLFILENAMES = 0x0100 //!< Whether the name is prefixed to the data?
+math BSAARCHIVE_XMEMCODEC           = 0x0200
+
+comtype zlib_noerror    # necessary due to the invalid file markarchtemp.txt of "Skyrim - Meshes.bsa" that gives error during decompression
+
+get magic long
+if magic == 0x00000100
+
+    get HashEntryOffset long
+    get FileCount long
+    savepos TMP
+    math HashEntryOffset + TMP
+
+    for i = 0 < FileCount
+        get size long
+        get offset long
+        putarray 0 i size
+        putarray 1 i offset
+    next i
+    for i = 0 < FileCount
+        get offset long
+        putarray 2 i offset
+    next i
+    savepos NAMES_OFF
+
+    goto HashEntryOffset
+    for i = 0 < FileCount
+        get hash longlong
+        putarray 3 i hash
+    next i
+    savepos BASE_OFF
+
+    for i = 0 < FileCount
+        getarray SIZE     0 i
+        getarray OFFSET   1 i
+        getarray NAME_OFF 2 i
+        getarray hash     3 i
+
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+
+elif magic == 0x00415342    # idstring "BSA\0"
+
+    get version long
+    if version < 0
+        math version n version
+    endif
+
+    xmath FOLDERS_SIZE "8 + 4 + 4"
+    if version >= 0x69
+        comtype lz4
+        xmath FOLDERS_SIZE "8 + 8 + 8"
+    endif
+	if version <= 0x67
+	    xmath ArchiveFlags "(ArchiveFlags | 0x0700) & (~BSAARCHIVE_PREFIXFULLFILENAMES)"
+	endif
+
+    get FolderRecordOffset long
+    get ArchiveFlags long
+    get FolderCount long
+    get FileCount long
+    get totalFolderNameLength long
+    get totalFileNameLength long
+    get FileFlags long
+
+    if ArchiveFlags & BSAARCHIVE_BIGENDIAN
+        endian big
+    endif
+    if ArchiveFlags & BSAARCHIVE_XMEMCODEC
+        comtype xmemdecompress
+    endif
+
+    xmath FolderFilePos "FolderRecordOffset + FolderCount * FOLDERS_SIZE"
+    xmath FolderFileBlob "FolderCount * 1 + totalFolderNameLength + FileCount * (8 + 4 + 4)"
+    xmath EndOfDirectory "FolderCount * FOLDERS_SIZE + FolderFileBlob + totalFileNameLength"
+    xmath FileNamePos "EndOfDirectory - totalFileNameLength"
+    math FileNamePos + FolderRecordOffset
+
+    goto FolderRecordOffset
+    for i = 0 < FolderCount
+        get hash longlong
+        if version >= 0x69
+            get count longlong
+            get offset longlong
+        else
+            get count long
+            get offset long
+        endif
+        putarray 0 i hash
+        putarray 1 i count
+        putarray 2 i offset
+    next i
+
+    for i = 0 < FolderCount
+        getarray hash   0 i
+        getarray count  1 i
+        getarray offset 2 i # unused???
+        if ArchiveFlags & BSAARCHIVE_PATHNAMES
+            get NAMESZ byte
+            getdstring PATH NAMESZ
+        else
+            set PATH string ""
+        endif
+
+        for x = 0 < count
+            get HASH longlong
+            get SIZE long
+            get OFFSET long
+
+            if ArchiveFlags & BSAARCHIVE_COMPRESSFILES
+                math IS_COMPRESSED = 1
+                if SIZE & 0x80000000
+                    math IS_COMPRESSED = 0
+                endif
+            else
+                math IS_COMPRESSED = 0
+                if SIZE & 0x80000000
+                    math IS_COMPRESSED = 1
+                endif
+            endif
+            math SIZE & 0x7fffffff
+
+            math LIMIT_OFFSET = OFFSET
+            math LIMIT_OFFSET + SIZE
+
+            set NAME string ""
+            savepos BACK_OFF
+            goto OFFSET
+            if ArchiveFlags & BSAARCHIVE_FILENAMES
+                if ArchiveFlags & BSAARCHIVE_PREFIXFULLFILENAMES
+                    get NAMESZ byte
+                    getdstring NAME NAMESZ  # the names already contain the path
+                else
+                    # do I have to use the hash?
+                    savepos TMP
+                    goto FileNamePos
+                    get NAME string
+                    savepos FileNamePos
+                    goto TMP
+                    string NAME p "%s/%s" PATH NAME
+                endif
+            endif
+            if IS_COMPRESSED == 0
+                savepos OFFSET
+                log NAME OFFSET SIZE
+            else
+                get SIZE long
+                if version >= 0x69
+                    getdstring DUMMY 7
+                    get ZSIZE long
+                endif
+                savepos OFFSET
+                xmath ZSIZE "LIMIT_OFFSET - OFFSET" # compatible with both versions 0x68 and 0x69
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+            goto BACK_OFF
+        next x
+    next i
+
+else
+
+    print "Error: unsupported magic %magic|x%"
+    cleanexit
+
+endif

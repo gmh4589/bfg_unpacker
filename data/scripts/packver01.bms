@@ -1,0 +1,65 @@
+# AeriaGames PackVer01
+#
+#   Use this script for:
+#   1) converting GameDataFileList.txt in a list of URLs that you can open from Notepad++
+#   2) decompress the downloaded files (except the INI files)
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+if NAME == "GameDataFileList.txt"
+
+    log MEMORY_FILE 0 0
+
+        get FILES line
+    for i = 0 < FILES
+        get DATA line
+        set TSTAMP string DATA
+
+        string TSTAMP | ":"
+        string TSTAMP % ":"
+
+        string DATA % ":"
+        string DATA R \ /
+        
+        string URL p "http://aurakingdom.patch.aeriagames.com/release/20131002145600bz2/%s?%s" DATA TSTAMP
+        set FNAME string URL
+        string URL > /
+        string FNAME ! /
+        string URL p "%s/_%s" URL FNAME
+
+        put URL line MEMORY_FILE
+    next i
+
+    get NAME basename
+    string NAME p "%s_URL.txt" NAME
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+
+else
+
+    getdstring ZERO 260
+    idstring "PackVer01"
+    goto 0x130
+    get ZSIZE long
+    get DUMMY long
+    get ZERO long
+    get INFO_SIZE long  # ???
+    getdstring DUMMY 0x1c
+    get SIZE long
+    goto 0x160
+    getdstring NAME 260
+    set EXT extension NAME
+    if EXT == "ini"
+        print "Error: ini files are obfuscated and not supported yet, extract them from the pkg files with http://aluigi.org/bms/aeriagames.bms"
+        cleanexit
+    endif
+    getdstring PATH 260
+    padding 0x10
+    get DUMMY long
+    savepos OFFSET
+    math ZSIZE - OFFSET
+    string FNAME p "%s/%s" PATH NAME
+    clog FNAME OFFSET ZSIZE SIZE
+
+endif

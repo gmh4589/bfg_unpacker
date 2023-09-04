@@ -1,0 +1,22 @@
+<bms games="'EA Cricket 2004'" platforms="'PC'" ext="GOB">
+GoTo EOF 0 ;
+SavePos END 0 ;
+Math END -= 2047 ;
+GoTo END 0 ;
+Get DUM Long 0 ;
+Get FNU Long 0 ;
+Get DJ Long 0 ;
+Math END -= DJ ;
+Set DJJ Long 24 ;
+Math DJJ *= FNU ;
+Math END -= DJJ ;
+GoTo END 0 ;
+For T = 1 To FNU ;
+GetDString DUMM 16 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log "" FO FS #FOO FSO ;
+Next T ;
+</bms>

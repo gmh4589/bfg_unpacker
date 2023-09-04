@@ -1,0 +1,31 @@
+# Spider-Man 2 OBB dumper (Gameloft)
+# It's just a quick experiment, may not work with future versions, the last extracted file has corrupted data after it (ZIP directory)
+
+findloc OFFSET binary "\x0d\xf0\xad\x8b"
+do
+    goto OFFSET
+    get DUMMY long
+    findloc NEXT_OFFSET binary "\x0d\xf0\xad\x8b" 0 ""
+    if NEXT_OFFSET == ""
+        get SIZE asize
+    else
+        math SIZE = NEXT_OFFSET
+    endif
+
+    goto OFFSET
+    getdstring DUMMY 0x1a
+    get NAMESZ short
+    get comm_len short
+    math NAMESZ ^ 0xc242
+    math comm_len ^ 0xc242
+    filexor 0xcd
+    getdstring NAME NAMESZ
+    getdstring COMM COMM_LEN
+    filexor ""    
+    savepos OFFSET
+    math SIZE -= OFFSET
+
+    log NAME OFFSET SIZE
+
+    math OFFSET = NEXT_OFFSET
+while NEXT_OFFSET != ""

@@ -1,0 +1,17 @@
+# Take No Prisoners
+
+idstring "Pack File"
+goto 0x23
+idstring "VPK"
+get DUMMY byte
+get DUMMY byte
+get INFO_OFF long
+goto INFO_OFF
+get MAX_OFFSET asize
+for INFO_OFF = INFO_OFF != MAX_OFFSET
+    getdstring NAME 0x38
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,63 @@
+# Demo Discs FF (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+if EXT == "ff"
+
+    math VER = 0
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        get SIZE long
+        get OFFSET long
+        if i == 0
+            savepos TMP
+            get DUMMY long
+            if DUMMY u<= 0x10   # just 0 and 1 but let's stay "open"
+                math VER = 1
+            endif
+            goto TMP
+        endif
+        math ZIP = 0
+        if VER == 0
+            math SIZE * 0x800
+        else
+            get ZIP long
+            get XSIZE long
+        endif
+        math OFFSET * 0x800
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET SIZE XSIZE
+        endif
+    next i
+
+else
+
+    open FDDE "tbl"
+    open FDDE "dat" 1
+
+    set EXT string ""
+    get NAME basename
+    if NAME & "maps"
+        set EXT string "tga"
+    endif
+
+    math OFFSET = 0
+    get FILES asize
+    math FILES / 16
+    for i = 0 < FILES
+        get SOME_CRC long
+        getdstring NAME 4
+        get DUMMY long
+        get SIZE long
+        if SIZE != 0
+            string NAME p "%s_%08x.%s" NAME SOME_CRC EXT
+            log NAME OFFSET SIZE 1
+        endif
+        math OFFSET + SIZE
+    next i
+
+endif

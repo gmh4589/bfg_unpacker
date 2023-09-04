@@ -1,0 +1,17 @@
+# Actua Soccer 2 audio (MAD)
+
+ImpType Standard ;
+SavePos FILESTART 0 ;
+GetDString FILENAME 16 0 ;
+Get DUMMYL Long 0 ;
+GoTo FILESTART 0 ;
+Math DUMMYL /= 24 ;
+For T = 1 To DUMMYL ;
+GetDString FILENAME 16 0 ;
+SavePos FOO 0 ;
+Get FILEOFF Long 0 ;
+SavePos FSO 0 ;
+Get FILESIZE Long 0 ;
+Log FILENAME FILEOFF FILESIZE #FOO FSO ;
+Next T ;
+

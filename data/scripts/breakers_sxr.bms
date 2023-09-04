@@ -1,0 +1,56 @@
+# Breakers: Dawn of Heroes (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "SXR "
+getdstring ALGO 4   # DEFL
+get DUMMY short
+get ZERO long
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    get ID short
+    get FILES short
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    get OFFSET long
+    get ZSIZE long
+    get FLAGS short
+    get SIZE long
+    if FILES != 0
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+    else
+          if FLAGS & 4
+            comtype zlib
+        elif FLAGS & 8
+            comtype lz4
+        else
+            #comtype ???
+        endif
+
+        set EXT extension NAME
+        if EXT == "sk_"
+            set NAME fullbasename NAME
+            string NAME + ".skfx"
+        endif
+
+        string NAME p "%s%s" PATH NAME
+        if FLAGS == 0
+            log NAME OFFSET ZSIZE   # yes ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction

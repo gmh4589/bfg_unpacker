@@ -1,0 +1,43 @@
+# Guitar Hero PAK.XEN CHNK
+
+endian big
+comtype deflate
+log MEMORY_FILE 0 0
+append 1
+for
+    savepos BASE_OFF
+    idstring "CHNK"
+    get OFFSET long
+    get ZSIZE long
+    get NEXT_OFF long
+    get DUMMY long
+    get SIZE long
+    get OUT_OFFSET long
+    math OFFSET + BASE_OFF
+    goto OUT_OFFSET MEMORY_FILE
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    if NEXT_OFF == 0xffffffff
+        break
+    endif
+    math NEXT_OFF + BASE_OFF
+    goto NEXT_OFF
+next
+append
+
+goto 0 MEMORY_FILE
+for
+    savepos BASE_OFF MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    if DUMMY == 0
+        break
+    endif
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE MEMORY_FILE
+next

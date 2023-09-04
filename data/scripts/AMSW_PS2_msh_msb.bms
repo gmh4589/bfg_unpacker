@@ -1,0 +1,42 @@
+# game: Army Men: Sarge's War (PS2)
+# file type: *.msh/*.msb pairs
+# script type: extractor
+# note: ss2 mono headers are automatically added
+#
+# script for QuickBMS http://quickbms.aluigi.org
+# written by AlphaTwentyThree of Zenhax
+
+open FDDE MSH 0
+open FDDE MSB 1
+goto 0x8 0
+get FILES long 0
+get BNAME basename
+for i = 1 <= FILES
+	get SIZE long 0
+	get ZERO long 0
+	get OFFSET long 0
+	get FREQ long 0
+	string NAME p= "%s_%i.ss2" BNAME i
+	set CH 1
+	set INTERLEAVE 0x10
+	callfunction SS2 1
+next i
+
+startfunction SS2
+	endian little
+	set MSIZE SIZE
+	math MSIZE += 0x38
+	putVarChr MEMORY_FILE MSIZE 0
+	log MEMORY_FILE 0 0
+	set MEMORY_FILE binary "\x53\x53\x68\x64\x18\x00\x00\x00\x10\x00\x00\x00\xb0\x36\x00\x00\x02\x00\x00\x00\xc0\x2f\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x53\x53\x62\x64\x00\xe8\x11\x00"
+	append
+	log MEMORY_FILE OFFSET SIZE 1
+	append
+	
+	putVarChr MEMORY_FILE 0xc FREQ long
+	putVarChr MEMORY_FILE 0x10 CH byte
+	putVarChr MEMORY_FILE 0x14 INTERLEAVE long
+	putVarChr MEMORY_FILE 0x24 SIZE long
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction

@@ -1,0 +1,10 @@
+get INFO_SIZE long
+filexor 0xc2
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

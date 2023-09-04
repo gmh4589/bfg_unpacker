@@ -1,0 +1,8 @@
+# FreeLang FLG decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+encryption des_ede3 "\xf0\x77\xa3\xc4\x5e\x28\x99\xad\xb0\x96\x56\x39\xb4\x63\x99\x5d\x13\xcc\x33\x08\xac\x70\xdd\x7d" 
+get SIZE asize
+get NAME basename
+string NAME += ".txt"
+log NAME 0 SIZE

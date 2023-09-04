@@ -1,0 +1,18 @@
+# Okage PME
+
+idstring "KOME_RXUI_DATA  "
+get STRINGS long
+for i = 0 < STRINGS
+    get ID long
+    get SIZE long
+    putarray 0 ID SIZE
+next i
+get NUM long
+for i = 0 < NUM
+    get DUMMY long
+    get DUMMY long
+next i
+for i = 0 < STRINGS
+    getarray SIZE 0 i
+    slog "" -1 SIZE
+next i

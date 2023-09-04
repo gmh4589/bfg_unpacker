@@ -1,0 +1,20 @@
+# Ultimate Spider-Man nFlC (script 0.1.1)
+
+comtype lzo1x
+idstring "nFlC"
+get DUMMY long  # 0x80000001 or 0x8000000c
+get FLAGS long
+get ZERO long
+get DUMMY short
+get ZSIZE short
+get DUMMY long
+get SIZE long
+get DUMMY long
+get FULL_ZSIZE long
+get ZERO long
+get FULL_SIZE long  # no idea, all my samples are 32kb
+get ZERO long
+getdstring ZERO 16
+savepos OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

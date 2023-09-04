@@ -1,0 +1,65 @@
+# Fallout 1
+#   http://falloutmods.wikia.com/wiki/DAT_file_format
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+comtype lzss
+
+get DirectoryCount  int32
+get Unknown1 int32
+get Unknown2 int32
+get Unknown3 int32
+for i = 0 < DirectoryCount
+    get Length byte
+    getdstring DirectoryName Length
+    putarray 0 i DirectoryName
+next i
+
+for i = 0 < DirectoryCount
+    get FileCount int32
+    get Unknown4 int32
+    get Unknown5 int32
+    get Unknown6 int32
+    getarray DirectoryName 0 i
+    for j = 0 < FileCount
+        get Name_length byte
+        getdstring Name Name_length
+        get Attributes int32
+        get Offset int32
+        get Size int32
+        get PackedSize int32
+
+        set FULLNAME string DirectoryName
+        string FULLNAME += /
+        string FULLNAME += Name
+        if Attributes & 0x40
+            callfunction fallout_lzss 1
+            log FULLNAME 0 Size MEMORY_FILE2
+        else
+            log FULLNAME Offset Size
+        endif
+    next j
+next i
+
+startfunction fallout_lzss
+    savepos TMP
+    putvarchr MEMORY_FILE2 Size 0
+    log MEMORY_FILE2 0 0
+    math EOF = Offset
+    math EOF += PackedSize
+    append
+    for Offset = Offset < EOF
+        goto Offset
+        get TMPSZ short
+        savepos Offset
+        if TMPSZ & 0x8000
+            math TMPSZ &= 0x7fff
+            log MEMORY_FILE2 Offset TMPSZ
+        else
+            clog MEMORY_FILE2 Offset TMPSZ 0x10000
+        endif
+        math Offset += TMPSZ
+    next
+    append
+    goto TMP
+endfunction

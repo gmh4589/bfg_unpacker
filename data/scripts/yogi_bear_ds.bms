@@ -1,0 +1,26 @@
+# Yogi Bear DS
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    if SIZE >= 0
+        log "" OFFSET SIZE
+    else
+        math SIZE n= SIZE
+        savepos TMP
+        goto OFFSET
+        get TEST byte
+        if TEST & 0x20
+            comtype nitrosdk
+            xmath XSIZE "SIZE * 10"
+            clog "" OFFSET SIZE XSIZE
+        else
+            comtype LZ77WII
+            clog "" OFFSET SIZE SIZE
+        endif
+        goto TMP
+    endif
+next i

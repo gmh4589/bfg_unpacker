@@ -1,0 +1,38 @@
+# LegoLand
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+get SIZE asize
+math SIZE -= OFFSET
+log MEMORY_FILE OFFSET SIZE
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    for
+        padding 4 MEMORY_FILE
+        get ENTRY1 long MEMORY_FILE
+        get ENTRY2 long MEMORY_FILE
+        get TYPE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get NAME string MEMORY_FILE
+        if TYPE == 0
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        else
+            if ENTRY1 != 0xffffffff
+                goto ENTRY1 MEMORY_FILE
+                callfunction EXTRACT
+            endif
+        endif
+        if ENTRY2 == 0xffffffff
+            break
+        endif
+        goto ENTRY2 MEMORY_FILE
+    next
+endfunction

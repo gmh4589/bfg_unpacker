@@ -1,0 +1,26 @@
+# Corpse Party Blood Covered Repeated Fear PSP (script 0.2)
+
+comtype lzss "12 4 2 0 0"
+idstring "PACK"
+get FILES long
+get SOME_CRC long
+for i = 0 < FILES
+    get SOME_CRC long
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+
+    savepos TMP
+    goto OFFSET
+    getdstring ZIP 4
+    if ZIP u== "LZSS"
+        get XSIZE long
+        math OFFSET + 8
+        math SIZE   - 8
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

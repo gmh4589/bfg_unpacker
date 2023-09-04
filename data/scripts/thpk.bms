@@ -1,0 +1,70 @@
+# THPK archives
+#   http://ztj.ztgame.com
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+idstring "THPK"
+get ZERO short
+get FILES short
+get DUMMY long
+math TABLES = 3
+for i = 0 < TABLES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+for i = 0 < TABLES
+    get SIZE long
+    putarray 1 i SIZE
+next i
+
+for TABLE = TABLES >= 1
+    math TABLE -= 1
+
+    getarray OFFSET 0 TABLE
+    getarray SIZE   1 TABLE
+    clog MEMORY_FILE OFFSET SIZE SIZE
+
+    if TABLE == 0
+
+        for i = 0 < FILES
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            get ZSIZE long MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+            get FLAGS long MEMORY_FILE  # 0x80000001
+            savepos TMP_OFF MEMORY_FILE
+            goto OFFSET
+            get CHUNK_OFFSET long
+            xmath CHUNKS "(CHUNK_OFFSET - 4) / 4"
+            for x = 0 < CHUNKS
+                putarray 2 x CHUNK_OFFSET
+                get NEXT_CHUNK_OFFSET long
+                xmath CHUNK_SIZE "NEXT_CHUNK_OFFSET - CHUNK_OFFSET"
+                putarray 3 x CHUNK_SIZE
+                math CHUNK_OFFSET = NEXT_CHUNK_OFFSET
+            next x
+            putvarchr MEMORY_FILE2 SIZE 0
+            log MEMORY_FILE2 0 0
+            append
+            for x = 0 < CHUNKS
+                getarray CHUNK_OFFSET 2 x
+                getarray CHUNK_SIZE   3 x
+                math CHUNK_OFFSET += OFFSET
+                clog MEMORY_FILE2 CHUNK_OFFSET CHUNK_SIZE CHUNK_SIZE
+            next x
+            append
+            getarray NAME 4 i
+            log NAME 0 SIZE MEMORY_FILE2
+        next i
+
+    elif TABLE == 2
+
+        for i = 0 < FILES
+            getdstring NAME 0x108 MEMORY_FILE
+            putarray 4 i NAME
+        next i
+
+    endif
+
+next

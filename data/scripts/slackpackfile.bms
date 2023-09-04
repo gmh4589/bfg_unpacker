@@ -1,0 +1,38 @@
+# SlackPackFile (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SlackPackFile  \0"
+get DIRECTORY_OFFSET long
+get FILE_ENTRY_LENGTH long
+get DUMMY long
+get DUMMY long
+get FILES long
+get FILENAME_DIRECTORY_LENGTH long
+get DUMMY long
+
+math FILENAME_DIRECTORY_LENGTH = FILES
+math FILENAME_DIRECTORY_LENGTH *= 40
+math FILENAME_DIRECTORY_LENGTH += DIRECTORY_OFFSET
+
+goto DIRECTORY_OFFSET
+for i = 0 < FILES
+    get NAME_OFF long
+    get DUMMY long
+    get DUMMY longlong
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long  # not the zip!
+    get DUMMY long
+    savepos TMP
+    math NAME_OFF += FILENAME_DIRECTORY_LENGTH
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

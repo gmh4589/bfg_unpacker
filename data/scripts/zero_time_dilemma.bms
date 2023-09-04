@@ -1,0 +1,69 @@
+# Zero Time Dilemma (script 0.1.5a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+
+# f8 ec 01 or just 01... ???
+callfunction GET_NUM 1
+math FOLDERS = TMP
+
+for FOLDER = 0 < FOLDERS
+    callfunction GET_NUM 1
+    math PATHSZ = TMP
+    getdstring PATH PATHSZ
+    callfunction GET_NUM 1
+    math FILES = TMP
+    for i = 0 < FILES
+        callfunction GET_NUM 1
+        math NAMESZ = TMP
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+
+        math OFFSET * 0x10
+        string NAME p "%s%s" PATH NAME
+
+        putarray 0 -1 NAME
+        putarray 1 -1 OFFSET
+        putarray 2 -1 SIZE
+    next i
+next FOLDER
+
+savepos BASE_OFF
+math BASE_OFF x 0x10
+
+putarray 0 -1 ""
+for i = 0
+    getarray NAME   0 i
+    if NAME == ""
+        break
+    endif
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    math OFFSET + BASE_OFF
+
+    # not only ORB files are compressed, any can be
+    if SIZE < 6
+        log NAME OFFSET SIZE
+    else
+        goto OFFSET
+        get XSIZE long
+        get GZIP_SIGN short
+        if GZIP_SIGN == 0x8b1f
+            math OFFSET + 4
+            math SIZE   - 4
+            clog NAME OFFSET SIZE XSIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i
+
+startfunction GET_NUM
+    get TMP byte
+    if TMP == 0xf8
+        get TMP short
+    elif TMP == 0xfc
+        get TMP short
+    endif
+endfunction

@@ -1,0 +1,18 @@
+# Port Royale (CPR)
+
+ImpType Standard ;
+IDString 0 ASCARON_ARCHIVE ;
+Set D Long 40 ;
+GoTo D 0 ;
+Get FC Long 0 ;
+Get S Long 0 ;
+For T = 1 To FC ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get S Long 0 ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+

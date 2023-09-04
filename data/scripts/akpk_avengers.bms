@@ -1,0 +1,71 @@
+# The Avengers AKPK (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "AKPK"
+get INFO_SIZE long
+endian guess INFO_SIZE
+get VERSION long
+get NAMES_SIZE long
+get TOC1_SIZE long
+get TOC2_SIZE long
+get TOC3_SIZE long
+savepos BASE_OFF
+
+get NAMES long
+for i = 0 < NAMES
+    get NAME_OFF long
+    get IDX long
+    math NAME_OFF + BASE_OFF
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    strlen NAMESZ NAME
+    if NAMESZ == 1
+        goto NAME_OFF
+        get NAME unicode
+    endif
+    goto TMP
+    putarray 0 IDX NAME
+next i
+
+#TOC1
+math BASE_OFF + NAMES_SIZE
+goto BASE_OFF
+    get FILES long
+    for i = 0 < FILES
+        callfunction EXTRACT 1
+    next i
+
+#TOC2
+math BASE_OFF + TOC1_SIZE
+goto BASE_OFF
+    get FILES long
+    for i = 0 < FILES
+        callfunction EXTRACT 1
+    next i
+
+#TOC3
+math BASE_OFF + TOC2_SIZE
+goto BASE_OFF
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY long
+        callfunction EXTRACT 1
+    next i
+
+print "\nTry the following script for the extracted BKHD files:\nhttp://aluigi.org/papers/bms/others/armyoftwo.bms"
+
+startfunction EXTRACT
+    get DUMMY long # name hash?
+    get ALIGN long
+    get SIZE long
+    get OFFSET long
+    get IDX long
+
+    getarray NAME 0 IDX
+    string NAME + "/."
+
+    math OFFSET * ALIGN
+    log NAME OFFSET SIZE
+endfunction

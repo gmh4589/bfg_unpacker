@@ -1,0 +1,14 @@
+# Inspector Gadget Mad Robots Invasion
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+goto 0x800
+for i = 0 < FILES
+    getdstring NAME 0x30
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,24 @@
+# Crime Patrol (CPSEGA.LIB)
+
+endian big
+for i = 0
+    get OFFSET long
+    getdstring NAME 0xe
+    math OFFSET * 0x800
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+    if NAME == ""
+        break
+    endif
+next i
+get OFFSET asize
+putarray 1 i OFFSET
+math FILES = i
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

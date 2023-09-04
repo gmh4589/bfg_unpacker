@@ -1,0 +1,13 @@
+# FIFA Manager 2016 extracted shortlist files decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get KEYSZ long
+get IVECSZ long
+getdstring KEY KEYSZ
+getdstring IVEC IVECSZ
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+encryption aes_256_ctr KEY IVEC 1 KEYSZ
+get NAME filename
+log NAME OFFSET SIZE

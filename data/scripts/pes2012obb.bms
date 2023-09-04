@@ -1,0 +1,19 @@
+# konami PES2012 obb
+
+get DUMMY long  # 0x0aa89c79
+get INFO_OFF long
+get FILES long  # 2
+for i = 0 < FILES
+    getdstring PATH 0x100
+    getdstring NAME 0x80
+    get SIZE long
+    get OFFSET long
+    get FLAGS long
+    get NUM long
+    for x = 0 < NUM
+        getdstring HASH 20
+    next x
+    string NAME p "%s/%s" PATH NAME
+    log NAME OFFSET SIZE
+next i
+

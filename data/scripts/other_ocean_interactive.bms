@@ -1,0 +1,65 @@
+# Yu-Gi-Oh! Legacy of the Duelist (script 0.1.2)
+#   maybe other games developed by Other Ocean Interactive
+# script for QuickBMS http://quickbms.aluigi.org
+
+math USE_64 = -1
+
+endian big
+open FDDE "toc"
+open FDDE "dat" 1
+
+    get UT_LINE line
+get TOC_SIZE asize
+math OFFSET = 0
+do
+    getct EMPTY string -0x20
+    getct SIZE string 0x20
+    getct EMPTY string -0x20
+    getct NAMESZ string 0x20
+    getct EMPTY string -0x20
+    string SIZE p "0x%s" SIZE
+    get NAME line
+    set EXT extension NAME
+    if EXT == "zib"
+        callfunction ZIB_EXTRACT 1
+    else
+        log NAME OFFSET SIZE 1
+    endif
+    math OFFSET + SIZE
+    math OFFSET x 4
+    savepos TMP
+while TMP < TOC_SIZE
+
+startfunction ZIB_EXTRACT
+    goto OFFSET 1
+    savepos BASE_OFF 1
+    set PATH string NAME
+    do
+        if USE_64 < 0
+            get TMP long 1
+            goto -4 1 SEEK_CUR
+            if TMP == 0
+                math USE_64 = 1
+            else
+                math USE_64 = 0
+            endif
+        endif
+        if USE_64 == 0
+            get ZIB_OFFSET long 1
+            get ZIB_SIZE long 1
+        else
+            get ZIB_OFFSET longlong 1
+            get ZIB_SIZE longlong 1
+        endif
+        if ZIB_OFFSET & 1   # don't know why the first file has ever that 1 bit set
+            math ZIB_OFFSET ^ 1
+        endif
+        if ZIB_OFFSET != 0
+            math ZIB_OFFSET + BASE_OFF
+            getdstring NAME 0x30 1
+            padding 0x10 1
+            string NAME p "%s/%s" PATH NAME
+            log NAME ZIB_OFFSET ZIB_SIZE 1
+        endif
+    while ZIB_OFFSET != 0
+endfunction

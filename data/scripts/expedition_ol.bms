@@ -1,0 +1,35 @@
+# 远征OL / Expedition OL / yz.q1.com
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma_dynamic
+
+idstring "MPK\x1a2000"
+get MPK_SIZE long
+get OFFSET1 long
+get OFFSET2 long
+get SIZE2 long
+get OFFSET3 long
+get SIZE3 long
+get OFFSET4 long
+
+goto OFFSET4
+get SIZE long
+get ZERO long
+get ZERO long
+savepos OFFSET
+clog MEMORY_FILE OFFSET SIZE SIZE   # filenames here, but more than the extracted files
+
+goto OFFSET1
+for
+    findloc OFFSET binary "\0\0\0\0\0\0\0\0\x5d\x00\x00\x00"
+    math OFFSET - 4
+    goto OFFSET
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    savepos OFFSET
+    clog "" OFFSET SIZE SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next
+

@@ -1,0 +1,83 @@
+# The Warriors (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math ARCHIVE_TYPE = 0
+
+open FDDE "IDX" 0 EXISTS
+if EXISTS != 0
+
+    get ARCHIVES long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    for i = 0 < ARCHIVES
+        getdstring NAME 0x24
+        putarray 0 i NAME
+    next i
+
+    math LAST_ARCHIVE_NUM = -1
+    for i = 0 < FILES
+        get OFFSET threebyte
+        get ARCHIVE_NUM byte
+        get SIZE long
+        get ZERO long   # 64bit SIZE or uncompressed SIZE?
+        get NAME_CRC long
+
+        if LAST_ARCHIVE_NUM != ARCHIVE_NUM
+            math LAST_ARCHIVE_NUM = ARCHIVE_NUM
+            getarray ARCHIVE_NAME 0 ARCHIVE_NUM
+            open FDSE ARCHIVE_NAME 1
+        endif
+
+        math OFFSET * 1024
+        log "" OFFSET SIZE 1
+    next i
+
+else
+
+    open FDDE "WAD" 1
+
+    open FDDE "DIR" 0 EXISTS
+    if EXISTS != 0
+
+        get FILES long
+        goto 0x10
+
+        xmath TMP "0x10 + (FILES * (4 + 4 + 4 + 4))"
+        get TMP2 asize
+        if TMP > TMP2
+            math ARCHIVE_TYPE = 1
+        endif
+
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            if ARCHIVE_TYPE == 0
+                get ZSIZE long
+            else
+                math ZSIZE = 0
+            endif
+            get NAME_CRC long
+            if ZSIZE == 0
+                log "" OFFSET SIZE 1
+            else
+                clog "" OFFSET ZSIZE SIZE 1
+            endif
+        next i
+
+    else
+
+        open FDDE "TOC"
+        get MAX_OFF asize
+        for CUR_OFF = 0 != MAX_OFF
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+            savepos CUR_OFF
+            log "" OFFSET SIZE 1
+        next
+
+    endif
+
+endif

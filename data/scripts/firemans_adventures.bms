@@ -1,0 +1,95 @@
+# Fireman's Adventures
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get DUMMY long  # 0x42ee8517
+get FILES long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get SIZE short
+    getdstring DATA SIZE
+    math KEY = INFO_OFF
+    callfunction DECRYPT 1
+    set NAME string DATA
+
+    get SIZE long
+    math EAX = INFO_OFF
+    xmath SIZE "SIZE ^ (EAX & 0xff)"
+    math EAX + 0x732c2e17
+    xmath SIZE "SIZE ^ ((EAX & 0xff) << 8)"
+    math EAX + 0x732c2e17
+
+    get OFFSET long
+
+    math TMP = INFO_OFF
+    xmath TMP "TMP+(TMP*2)"
+    xmath TMP "TMP+(TMP*4)"
+    xmath TMP "TMP+(TMP*4)"
+    xmath TMP "TMP+(TMP*8)"
+    xmath TMP "INFO_OFF+(TMP*8)"
+    xmath TMP "TMP+(TMP*8)"
+    xmath INFO_OFF "INFO_OFF+(TMP*2)"
+
+    math FILESIZE = SIZE
+
+    savepos BACKUP_OFFSET
+    xmath CHUNKS "FILESIZE / 0x8000"
+    if FILESIZE % 0x8000
+        math CHUNKS + 1
+    endif
+    log MEMORY_FILE2 0 0
+    for CHUNK = 0 < CHUNKS
+        goto OFFSET
+        get CHUNK_OFF long
+        get DUMMY long
+        get SIZE long
+
+        math SIZE & 0xffff
+        if SIZE == 0
+            math SIZE = 0x8000
+        endif
+        savepos OFFSET
+        goto CHUNK_OFF
+        getdstring DATA SIZE
+        math KEY = 0
+        callfunction DECRYPT 1
+
+        log MEMORY_FILE 0 0
+        putdstring DATA SIZE MEMORY_FILE
+        append
+        if SIZE >= 0x8000
+            log MEMORY_FILE2 0 0x8000 MEMORY_FILE
+        else
+            clog MEMORY_FILE2 0 SIZE 0x8000 MEMORY_FILE
+        endif
+        append
+    next CHUNK
+    goto BACKUP_OFFSET
+
+    log NAME 0 FILESIZE MEMORY_FILE2
+
+next i
+
+startfunction DECRYPT
+    math EAX = KEY
+    math TMPSZ = SIZE
+    math TMPSZ / 4
+    math x = 0
+    for TMPSZ = TMPSZ >= 4
+        for j = 0 < 4
+            getvarchr TMP DATA x long
+            math TMP ^ EAX
+            putvarchr DATA x TMP long
+            math x + 4
+            math EAX + 0x732c2e17
+        next j
+    next TMPSZ - 4
+    for TMPSZ = TMPSZ != 0
+        getvarchr TMP DATA x
+        math TMP ^ EAX
+        putvarchr DATA x TMP
+        math x + 1
+        math EAX + 0x732c2e17
+    next TMPSZ - 1
+endfunction

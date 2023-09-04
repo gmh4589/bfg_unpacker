@@ -1,0 +1,19 @@
+# Unreal Engine UMOD
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -20
+idstring "\xa3\xc5\xe3\x9f"
+get INFO_OFF long
+get INFO_LIMIT long
+get VER long    # 1
+get CRC long
+goto INFO_OFF
+get FILES VARIABLE2
+for i = 0 < FILES
+    get NAMESZ VARIABLE2
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,42 @@
+# Qiang legend (古羌传奇) (gq.wdmmo.com) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "TPK\x1a"
+get DUMMY long
+get DUMMY long
+savepos CUR_OFF
+get LAST_OFF asize
+for
+    do
+        get DUMMY long
+    while DUMMY == 0
+    savepos CUR_OFF
+    if CUR_OFF u>= LAST_OFF
+        break
+    endif
+    goto -4 0 SEEK_CUR
+    get DUMMY long
+    get DUMMY long
+    get OFFSET longlong
+    get ZSIZE long
+    get SIZE long   # maybe SIZE-ZSIZE inverted?
+    get DUMMY longlong
+    get DUMMY long
+
+    if OFFSET u< LAST_OFF
+        math LAST_OFF = OFFSET
+    endif
+
+    savepos TMP
+    goto OFFSET
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    goto TMP
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next

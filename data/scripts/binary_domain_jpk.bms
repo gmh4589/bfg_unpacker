@@ -1,0 +1,64 @@
+# Binary Domain
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN unicode
+if SIGN != "JPK"
+    cleanexit
+endif
+get DUMMY long
+get DUMMY long
+goto 0x218
+get HEADER_SIZE long
+savepos BASE_OFF
+math BASE_OFF += HEADER_SIZE
+get FILES long
+get DATA_SIZE long
+get DUMMY byte
+get DUMMY byte
+get DUMMY byte
+get DUMMY long
+for i = 0 < FILES
+    callfunction GET_STRING 1
+    set NAME string DATA
+    callfunction GET_STRING 1
+    get CRC long
+    get ZERO long
+    get SIZE long
+    get OFFSET long
+    get DUMMY byte
+    math OFFSET += BASE_OFF
+
+    set EXT extension NAME
+    if EXT == "J"
+        savepos TMP
+        goto OFFSET
+        do  # yeah lame
+            get C byte
+        while C < 0x80
+        get ZIP byte
+        get XSIZE long
+        savepos TMP2
+        math TMP2 -= OFFSET
+        math OFFSET += TMP2
+        math SIZE -= TMP2
+        clog NAME OFFSET SIZE XSIZE
+        goto TMP
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction GET_STRING
+    # only a work-around!
+    get C byte
+    if C >= 0x80
+        math C &= 0x7f
+        math DATASZ = C
+    else
+        math DATASZ = C
+        get C byte
+        math DATASZ |= 0x80
+    endif
+    getdstring DATA DATASZ
+    set DATA unicode DATA
+endfunction

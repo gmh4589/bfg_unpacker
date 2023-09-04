@@ -1,0 +1,47 @@
+# Resident Evil: Deadly Silence (NDS) 
+#   works only with cpac_models.bin
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+get BIN_SIZE asize
+
+get HEADER_SIZE long
+goto HEADER_SIZE
+
+savepos YEK_OFFSET
+for YEK_OFFSET = YEK_OFFSET != BIN_SIZE
+    goto YEK_OFFSET
+
+    get YEK_SIZE long
+    get DUMMY long  # 2
+    idstring "YEK"
+    getdstring YEK_TYPE 1
+    get DUMMY long
+    idstring "TAD"
+    getdstring TAD_TYPE 1
+    get BASE_OFF long
+    xmath FILES "(BASE_OFF - YEK_SIZE) / (4 + 4)"
+    math BASE_OFF + YEK_OFFSET
+
+    xmath TMP "YEK_OFFSET + YEK_SIZE"
+    goto TMP
+
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+
+        math OFFSET + BASE_OFF
+
+        if SIZE & 0x80000000
+            math SIZE & 0x7fffffff
+            clog "" OFFSET SIZE SIZE
+        else
+            log "" OFFSET SIZE
+        endif
+
+        xmath TMP "OFFSET + SIZE"
+        if TMP u> YEK_OFFSET
+            math YEK_OFFSET = TMP
+        endif
+    next i
+next

@@ -1,0 +1,100 @@
+# Brave: The Search for Spirit Dancer (VIS Entertainment) TOC/PAK
+
+open FDDE "toc"
+open FDDE "pak" 1
+
+idstring "FTOC"
+get VER long    # 1
+get TOC_SIZE long
+goto 0x30
+get FILES long
+get FOLDERS long
+get ZERO long
+get ZERO long
+get ZERO long
+for i = 0 < FOLDERS
+    get ID long
+    get SUB_FILES long
+    get SUB_FOLDERS long
+    get FILES_IDX long
+    get FOLDERS_IDX long
+    putarray 10 i ID
+    putarray 11 i SUB_FILES
+    putarray 12 i SUB_FOLDERS
+    putarray 13 i FILES_IDX
+    putarray 14 i FOLDERS_IDX
+next i
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    math OFFSET * 0x800
+    putarray 0 i ID
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+next i
+idstring "STTC"
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get NAMES long
+get DUMMY5 long
+getdstring DUMMY 0x18
+for i = 0 < NAMES
+    get DUMMY long
+next i
+for i = 0 < NAMES
+    get NAME_OFF long
+    putarray 20 i NAME_OFF
+next i
+savepos NAMES_OFF
+for i = 0 < NAMES
+    getarray NAME_OFF 20 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    putarray 20 i NAME
+next i
+
+#assign names
+for i = 0 < FOLDERS
+    getarray ID     10 i
+    getarray NAME   20 ID
+    putarray 10 i NAME
+next i
+for i = 0 < FILES
+    getarray ID     0 i
+    getarray NAME   20 ID
+    putarray 0 i NAME
+next i
+
+set NAME string ""
+set PATH string ""
+math FOLDERS_IDX = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    getarray NAME        10 FOLDERS_IDX
+    string PATH + NAME
+    string PATH + /
+
+    getarray SUB_FILES   11 FOLDERS_IDX
+    getarray SUB_FOLDERS 12 FOLDERS_IDX
+    getarray FILES_IDX   13 FOLDERS_IDX
+    getarray FOLDERS_IDX 14 FOLDERS_IDX
+
+    for i = 0 < SUB_FILES
+        getarray OFFSET 1 FILES_IDX
+        getarray SIZE   2 FILES_IDX
+        getarray NAME   0 FILES_IDX
+        math FILES_IDX + 1
+
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE 1
+    next i
+
+    for i = 0 < SUB_FOLDERS
+        callfunction EXTRACT
+        math FOLDERS_IDX + 1
+    next i
+endfunction

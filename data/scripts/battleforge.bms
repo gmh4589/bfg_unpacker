@@ -1,0 +1,18 @@
+# BattleForge
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK\x01"
+get INFO_OFF long
+get INFO_SIZE long
+get INFO_ZSIZE long
+clog MEMORY_FILE INFO_OFF INFO_ZSIZE INFO_SIZE
+
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    math SIZE -= OFFSET
+    log NAME OFFSET SIZE
+next i

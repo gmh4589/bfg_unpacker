@@ -1,0 +1,15 @@
+# Pokemon Super Meng (Mobile Bootleg) (pak)
+
+get DUMMY long  # ???
+get DUMMY long  # ???
+for
+    get NAMESZ byte
+    if NAMESZ == 0
+        break
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next
+

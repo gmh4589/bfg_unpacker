@@ -1,0 +1,30 @@
+# Battle of Europe .wpk
+
+get FILES long
+get OFFSET long
+getdstring SIGN 0x18    # "Whirlwind 2.1 Package"
+if SIGN & "Whirlwind"
+else
+    print "Error: unsupported format: %SIGN%"
+    cleanexit
+endif
+goto OFFSET
+for i = 0 < FILES
+    get ID long
+    get OFFSET long
+    get SIZE long
+    get TSTAMP longlong
+    putarray 0 ID OFFSET
+    putarray 1 ID SIZE
+next i
+
+getarray NAMES_OFF 0 0
+goto NAMES_OFF
+for i = 1 < FILES
+    get ID long
+    get NAME string
+    padding 4
+    getarray OFFSET 0 ID
+    getarray SIZE   1 ID
+    log NAME OFFSET SIZE
+next i

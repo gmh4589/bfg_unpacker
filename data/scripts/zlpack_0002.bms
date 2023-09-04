@@ -1,0 +1,37 @@
+# Chronicles of Sealing Gods
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "zlPack"
+goto -4
+savepos OFFSET
+get ZSIZE long
+math OFFSET -= ZSIZE
+math OFFSET -= 4
+goto OFFSET
+get SIZE long
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+get FOLDERS long MEMORY_FILE
+get ZERO long MEMORY_FILE
+for i = 0 < FOLDERS
+    get NAME string MEMORY_FILE
+    get FILES_ID long MEMORY_FILE
+    putarray 0 i NAME
+next i
+math FILES = FILES_ID
+
+for i = 0 < FILES
+    get FOLDER_ID long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get NAME string MEMORY_FILE
+    getarray FNAME 0 FOLDER_ID
+    string FNAME += /
+    string FNAME += NAME
+    goto OFFSET
+    get SIZE long
+    math OFFSET += 4
+    math ZSIZE  -= 4
+    clog FNAME OFFSET ZSIZE SIZE
+next i

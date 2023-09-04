@@ -1,0 +1,20 @@
+# Eastward G
+
+comtype zstd
+get DUMMY long  # 0x6a37
+get FILES long
+for i = 0 < FILES
+    get NAME string
+    get OFFSET long
+    get ZIP long    # 2
+    get SIZE long
+    get ZSIZE long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    elif ZIP == 2
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        print "Error: unsupported ZIP %ZIP%, contact me"
+        cleanexit
+    endif
+next i

@@ -1,0 +1,13 @@
+# Omega Force *NS
+# info by BloodRaynare https://zenhax.com/viewtopic.php?p=68888#p68888
+
+get ARCHIVE_ID long
+get FILES long
+get MUL long
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET * MUL
+    get SIZE long
+    log "" OFFSET SIZE
+next i

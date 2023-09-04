@@ -1,0 +1,48 @@
+# My Farm
+
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+savepos BASE_OFF
+
+putarray 0 -1 0
+putarray 1 -1 0
+putarray 2 -1 ""
+for i = 0
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray FNAME  2 i
+    if FNAME == ""
+        break
+    endif
+    math OFFSET + BASE_OFF
+    log FNAME OFFSET SIZE
+next i
+
+startfunction EXTRACT
+    callfunction GET_NAME 1
+    string PATH + NAME
+    string PATH + /
+    get FOLDERS short
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    get FILES short
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get OFFSET long
+        get SIZE long
+        string FNAME p "%s%s" PATH NAME
+        putarray 0 -1 OFFSET
+        putarray 1 -1 SIZE
+        putarray 2 -1 FNAME
+    next i
+endfunction
+
+startfunction GET_NAME
+    get NAMESZ short
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

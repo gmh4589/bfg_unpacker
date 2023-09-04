@@ -1,0 +1,64 @@
+# Orchid games (script 0.1.1)
+#   Royal Trouble
+#   Hearwild Solitaier series
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype bzip2
+
+# guess Heartwild HD
+goto 0
+get TMP1 long
+goto 0x10
+get TMP2 long
+goto 0
+if TMP1 == TMP2
+    get OFFSET long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        get SIZE long
+        get OFFSET long
+        getdstring NAME NAMESZ
+        get ENCRYPTED byte
+        get XSIZE long
+        if ENCRYPTED != 0
+            # XSIZE = SIZE - 2
+            string NAME p "%s/%s" "_unsupported" NAME
+        endif
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+set PATH string ""
+set NAME string ""
+get XFOLDERS long
+get XFILES long
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math FILES = XFILES
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get TYPE byte
+        get OFFSET long
+        get XFOLDERS long
+        get XFILES long
+        get SIZE long
+        get ZSIZE long
+        if TYPE == 0
+            set FNAME string PATH
+            string FNAME += NAME
+            if ZSIZE == 0
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET ZSIZE SIZE
+            endif
+        else
+            callfunction EXTRACT
+        endif
+    next i
+endfunction

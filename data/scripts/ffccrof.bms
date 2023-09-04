@@ -1,0 +1,37 @@
+# Final Fantasy Crystal Chronicles: Ring of Fates
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long    # 3
+get DUMMY long
+get DUMMY long
+get ZERO long
+get ZERO long
+get DUMMY short
+get DUMMY short
+do
+    get SIZE long   # probably compressed? (0x80000000 | 0x40000000)
+    get OFFSET long
+    if OFFSET != 0
+        putarray 0 -1 OFFSET
+    endif
+    savepos TMP
+while TMP != 0x80000
+
+get OFFSET asize
+putarray 0 -1 OFFSET
+print "Sorting offsets, please wait..."
+sortarray 0
+putarray 0 -1 -1
+
+for i = 0
+    getarray OFFSET 0 i
+    math i + 1
+    if OFFSET < 0
+        break
+    endif
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    if SIZE > 0
+        log "" OFFSET SIZE
+    endif
+next

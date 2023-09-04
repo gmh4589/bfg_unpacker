@@ -1,0 +1,65 @@
+# VnEngine ArcAXR
+# code from
+#   https://github.com/morkt/GARbro/blob/master/ArcFormats/VnEngine/ArcAXR.cs
+
+idstring "AXRe"
+goto 0
+
+get header0 long
+get header4 long
+get header8 long
+get headerc long
+
+math key = header8
+math key ^ header0
+callfunction MutateKey 1 key
+callfunction MutateKey 1 key
+math t = key
+math key = header4
+xmath index_size "t ^ key"
+
+math TMP = index_size
+math TMP x 4
+savepos OFFSET
+math TMP_KEY = index_size
+log MEMORY_FILE OFFSET TMP
+callfunction Decrypt 1 TMP_KEY TMP
+goto 0 MEMORY_FILE
+log MEMORY_FILE2 0 index_size MEMORY_FILE
+
+log MEMORY_FILE 0 0
+putvarchr MEMORY_FILE 0x400 0
+callfunction Decrypt 1 key 0x400
+goto 0 MEMORY_FILE
+getdstring key 0x400 MEMORY_FILE
+
+math index_size - 8
+for
+    savepos TMP MEMORY_FILE2
+    if TMP >= index_size
+        break
+    endif
+    get OFFSET long MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+    padding 4 MEMORY_FILE2
+
+    encryption xor key "" 0 0x400
+    log NAME OFFSET SIZE
+next
+
+startfunction Decrypt
+    math Decrypt_ARG2 y 4
+    for x = 0 < Decrypt_ARG2
+        callfunction MutateKey 1 Decrypt_ARG1
+        getvarchr data32 MEMORY_FILE x long
+        math data32 ^ Decrypt_ARG1
+        putvarchr MEMORY_FILE x data32 long
+        math Decrypt_ARG1 + data32
+    next x + 4
+endfunction
+
+startfunction MutateKey
+    xmath MutateKey_ARG1 "MutateKey_ARG1 ^ ((MutateKey_ARG1 & 0xFFF) << 17)"
+    xmath MutateKey_ARG1 "~(MutateKey_ARG1 ^ (MutateKey_ARG1 << 18 | MutateKey_ARG1 >> 15))"
+endfunction

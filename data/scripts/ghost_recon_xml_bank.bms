@@ -1,0 +1,37 @@
+# Ghost Recon - Advanced Warfighter XML BANK
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "XML"
+open FDDE "bank" 1
+
+idstring "<?xml"
+get DUMMY line
+get BANK line
+for
+    get MYLINE line
+    if MYLINE & "wavebank"
+        break
+    endif
+
+    string MYFILE = MYLINE
+    string MYFILE strchrx "file=\""
+
+    string MYSIZE = MYLINE
+    string MYSIZE strchrx "size_before=\""
+
+    string MYZSIZE = MYLINE
+    string MYZSIZE strchrx "size=\""
+
+    string MYBANK = MYLINE
+    string MYBANK strchrx "bank=\""
+
+    string MYOFFSET = MYLINE
+    string MYOFFSET strchrx "offset=\""
+
+    # lame work-around, quickbms doesn't have this feature
+    string TMP = MYFILE
+    string TMP strchr "\""
+    string MYFILE - TMP
+
+    log MYFILE MYOFFSET MYZSIZE
+next

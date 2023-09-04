@@ -1,0 +1,31 @@
+# Romancing SaGa 2
+
+open FDDE "idx"
+open FDDE "bin" 1
+
+for
+    getdstring TYPE 4
+    if TYPE == ""
+        break
+    endif
+    get TYPE_SIZE long
+    savepos TYPE_OFF
+
+    if TYPE u== "THDR"
+        get FILES long
+        get ALIGN long
+    elif TYPE u== "TFIL"
+        for i = 0 < FILES
+            get NAME_CRC long
+            get OFFSET long
+            get SIZE long
+            math OFFSET * ALIGN
+            log "" OFFSET SIZE 1
+        next i
+    else
+        print "Alert: unknown type %TYPE%"
+    endif
+
+    math TYPE_OFF + TYPE_SIZE
+    goto TYPE_OFF
+next

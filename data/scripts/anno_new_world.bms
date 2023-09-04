@@ -1,0 +1,37 @@
+# Anno: Create a New World (WII) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "PAKb"
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i NAME_CRC
+next i
+
+math FILES - 1
+getarray OFFSET 0 FILES
+goto OFFSET
+
+print "answer with 'a' when the script asks to overwrite the files"
+
+savepos NAMES_OFF
+for i = 0 < FILES
+    getarray MYCRC  2 i
+    goto NAMES_OFF
+    do
+        get NAME_CRC long
+        get NAMESZ long
+        if NAMESZ == 0
+            math NAME_CRC = MYCRC # set name to "" and terminates
+        endif
+        getdstring NAME NAMESZ
+    while MYCRC != NAME_CRC
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    log NAME OFFSET SIZE
+next i

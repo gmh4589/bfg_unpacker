@@ -1,0 +1,72 @@
+# pftxs Fox Engine
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PFTX"
+get VER float   # 1.0
+get PFTX_SIZE long
+get FILES long
+get OFFSET long
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    string FNAME p "%s/ftex" NAME
+    log FNAME OFFSET SIZE
+
+    savepos TMP
+    goto OFFSET
+    goto SIZE 0 SEEK_CUR
+    idstring "PSUB"
+    get PSUB_CHUNKS long
+    for x = 0 < PSUB_CHUNKS
+        get PSUB_OFF long
+        get PSUB_SIZE long
+
+        string FNAME p "%s/psub/%d.dat" NAME x
+
+        /*
+        // no, the following is wrong because it's a complex format and not just chunk-based stff
+        // left here just as comment for the future
+        savepos TMP2
+        goto PSUB_OFF
+
+        log MEMORY_FILE 0 0
+        for PSUB_TMP = 0 != PSUB_SIZE
+            get CHUNK_ZSIZE short
+            get CHUNK_SIZE short
+            get CHUNK_OFF long
+            savepos TMP3
+
+            math CHUNK_OFF + PSUB_OFF
+            append
+            if CHUNK_OFF & 0x80000000
+                math CHUNK_OFF & 0x7fffffff
+                log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+            else
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            append
+
+            goto TMP3
+        next PSUB_TMP + CHUNK_ZSIZE
+        get MEM_SIZE asize MEMORY_FILE
+        log FNAME 0 MEM_SIZE MEMORY_FILE
+        goto TMP2
+        */
+
+        log FNAME PSUB_OFF PSUB_SIZE
+
+        math SIZE = PSUB_OFF
+        math SIZE + PSUB_SIZE
+        math SIZE - OFFSET
+    next x
+    goto TMP
+
+    math OFFSET + SIZE
+    math OFFSET x 0x10
+next i

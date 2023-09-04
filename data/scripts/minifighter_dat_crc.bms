@@ -1,0 +1,29 @@
+# MiniFighter DAT CRC calculator and fixer
+
+get SIZE asize
+math OFFSET = 0x33
+math SIZE -= OFFSET
+
+encryption tea "\xE4\xCB\xB4\x78\xA9\x46\xD9\x29\xBA\x72\xD5\x41\x15\x75\x2A\x28" "0x9e3779b9 0xc6ef3720 0 32"
+
+log MEMORY_FILE OFFSET SIZE
+callfunction DO_CRC 1
+
+goto 0x12
+get OLD_CRC byte
+if OLD_CRC == CRC
+    print "the CRC is correct: %CRC|x%"
+else
+    print "wrong CRC: %OLD_CRC|x% -> %CRC|x%\nI will write the correct one"
+    goto 0x12
+    put CRC byte
+endif
+
+startfunction DO_CRC
+    math CRC = 0
+    for i = 0 < SIZE
+        get TMP byte MEMORY_FILE
+        math CRC += TMP
+    next i
+    math CRC &= 0xff
+endfunction

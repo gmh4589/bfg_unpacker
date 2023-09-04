@@ -1,0 +1,11 @@
+comtype lzo1x
+get PKG_SIZE asize
+for OFFSET = 0 < PKG_SIZE
+    goto OFFSET
+    idstring "PKG"
+    getdstring ZSIZE 18
+    savepos OFFSET
+    xmath SIZE "ZSIZE * 20" # enough?
+    clog "" OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+next

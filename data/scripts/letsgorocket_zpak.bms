@@ -1,0 +1,24 @@
+# Let's go Rocket ZPAK/ZPAK.MP3
+
+goto 0x1c
+get FILES long
+get BASE_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    math OFFSET + BASE_OFF
+    if SIZE & 0x80000000
+        math ZSIZE = SIZE
+        math ZSIZE & 0x7fffffff
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+        math ZSIZE - 4
+        goto TMP
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

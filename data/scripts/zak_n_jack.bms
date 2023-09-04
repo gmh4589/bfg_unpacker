@@ -1,0 +1,25 @@
+# extract the resources.pak from Zak & Jack in Showdown at Monstertown (PC, 2006)
+# (c) 2012-08-20 by AlphaTwentyThree of XeNTaX
+
+get DUMMY long
+get FILES long
+get NAMEOFF long
+math NAMEOFF += 0x10
+get ZERO long
+for i = 1 <= FILES
+   get NAMEL long
+   get OFFSET long
+   get SIZE long
+   get ZSIZE long
+   get ZERO long
+   savepos MYOFF
+   goto NAMEOFF
+   getDstring NAME NAMEL
+   savepos NAMEOFF
+   if SIZE == ZSIZE
+      log NAME OFFSET SIZE
+   else
+      clog NAME OFFSET SIZE ZSIZE
+   endif
+   goto MYOFF
+next i

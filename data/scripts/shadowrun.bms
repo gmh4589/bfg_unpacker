@@ -1,0 +1,55 @@
+# Shadowrun (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "pws"
+    getdstring DUMMY 20
+    goto 0x80
+    get INFO_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get DUMMY long
+        get SIZE long
+        get ZERO long
+        if ZERO != 0
+            getdstring DUMMY 8
+            getdstring ZERO 12
+        else
+            get OFFSET longlong
+            getdstring DUMMY 20
+            getdstring ZERO 12
+            log "" OFFSET SIZE
+            math i + 1
+        endif
+    next
+    cleanexit
+endif
+
+open FDDE "toc"
+open FDDE "data" 1
+
+idstring "1rrs"
+get VER long
+get FILES long
+get DUMMY long
+getdstring DUMMY 16
+get HASHES long
+get DUMMY long
+getdstring SIGN 4   # "dssb"
+for i = 0 < HASHES
+    getdstring DUMMY 20
+    getdstring ZERO 12
+next i
+do
+    get TEST long
+while TEST == 0
+goto -4 0 SEEK_CUR
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    getdstring DUMMY 8
+    get NAMESZ short
+    get DUMMY byte
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE 1
+next i

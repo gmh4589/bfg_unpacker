@@ -1,0 +1,46 @@
+# dr12ae fake compressor
+# script for QuickBMS http://quickbms.aluigi.org
+
+math DO_GX3 = 0
+get TEST long
+goto 0
+if TEST == 0x00545847
+    math DO_GX3 = 1
+endif
+
+get NAME basename
+get EXT extension
+string NAME + "_compressed."
+string NAME + EXT
+
+for
+    get SIZE asize
+    log MEMORY_FILE 0 0
+    if DO_GX3 != 0
+    put 0 long MEMORY_FILE
+    endif
+    put 0 long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    for i = 0 < SIZE
+        put 0x01 byte MEMORY_FILE
+        get TMP byte
+        put TMP byte MEMORY_FILE
+    next i
+    get ZSIZE asize MEMORY_FILE
+    goto 0 MEMORY_FILE
+    if DO_GX3 != 0
+    put 0x00335847 long MEMORY_FILE
+    endif
+    put 0xa755aafc long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    put ZSIZE long MEMORY_FILE
+    if DO_GX3 != 0
+        log TEMPORARY_FILE 0 ZSIZE MEMORY_FILE
+        open "." TEMPORARY_FILE
+        math DO_GX3 = 0
+    else
+        log NAME 0 ZSIZE MEMORY_FILE
+        break
+    endif
+next

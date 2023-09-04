@@ -1,0 +1,41 @@
+# Codename: Panzers Phase I and II (Stormregion engine)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Sr\x1a\x1b"       # Stormregion file
+idstring "\x0d\x0a\x87\x0a" # Stormregion file
+idstring PACK               # PACK file
+get INFO_SIZE long
+log MEMORY_FILE 16 INFO_SIZE
+math BASE_OFF = 16
+math BASE_OFF += INFO_SIZE
+
+set SAVED binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+for INFO_OFF = 0 < INFO_SIZE
+    get USE_SAVED byte MEMORY_FILE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ISFILE byte MEMORY_FILE
+    get NEXT long MEMORY_FILE
+    savepos INFO_OFF MEMORY_FILE
+
+    if USE_SAVED == 0
+        set FULLNAME string NAME
+    else
+        set FULLNAME string SAVED
+        set TMP long USE_SAVED
+        math TMP n= TMP
+        string FULLNAME -= TMP
+        string FULLNAME += NAME
+    endif
+
+    if SIZE != 0
+        math OFFSET += BASE_OFF
+        log FULLNAME OFFSET SIZE
+        for j = 0 < NAMESZ
+            getvarchr TMP FULLNAME j
+            putvarchr SAVED j TMP
+        next j
+    endif
+next

@@ -1,0 +1,21 @@
+# Dragon Nest
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror    # I don't have that sample to verify https://zenhax.com/viewtopic.php?t=1328
+idstring "EyedentityGames Packing File 0.1"
+goto 0x100
+get DUMMY long
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 256
+    get XSIZE long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+    getdstring DUMMY 40
+    #if SIZE <= ZSIZE   # this is wrong! all files are compressed except some cases (mods)
+    clog NAME OFFSET ZSIZE SIZE
+next i

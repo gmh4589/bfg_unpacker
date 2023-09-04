@@ -1,0 +1,75 @@
+# Xenko / Stride Engine BUNDLE
+
+comtype lz4
+math blockSize = 1048576
+
+idstring "XKB1"
+get Bundle_Size longlong
+get Crc long
+
+get Dependencies long       # string
+if Dependencies != 0
+    print "Error: Dependencies not supported, contact me"
+    cleanexit
+endif
+
+get IncrementalBundles long # ObjectId
+if IncrementalBundles != 0
+    print "Error: IncrementalBundles not supported, contact me"
+    cleanexit
+endif
+
+get Objects long
+for i = 0 < Objects
+    get Flag byte  # 1 (ObjectId)
+    if Flag != 0
+        getdstring Hash 16
+    endif
+    get StartOffset longlong
+    get EndOffset longlong
+    get SizeNotCompressed longlong
+    get IsCompressed byte
+    get IncrementalBundleIndex long
+    xmath SizeCompressed "EndOffset - StartOffset"
+
+    if IsCompressed == 0
+
+        log "" StartOffset SizeNotCompressed
+
+    else
+
+        # there is probably also a CHNK / KNHC type with 32bit fields
+
+        savepos TMP_OFF
+        goto StartOffset
+        putvarchr MEMORY_FILE SizeNotCompressed 0
+        log MEMORY_FILE 0 0
+        append
+        do
+            get Chunk_IsCompressed byte
+            get CHUNK_SIZE variable4
+            if Chunk_IsCompressed == 0
+                savepos CHUNK_OFFSET
+                log MEMORY_FILE CHUNK_OFFSET CHUNK_SIZE
+                goto CHUNK_SIZE 0 SEEK_CUR
+            else
+                get CHUNK_ZSIZE variable4
+                savepos CHUNK_OFFSET
+                clog MEMORY_FILE CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                goto CHUNK_ZSIZE 0 SEEK_CUR
+            endif
+            savepos TMP
+        while TMP != EndOffset
+        append
+        log "" 0 SizeNotCompressed MEMORY_FILE
+
+        goto TMP_OFF
+
+    endif
+next i
+
+get Assets long             # string
+if Assets != 0
+    print "Error: Assets not supported, contact me"
+    cleanexit
+endif

@@ -1,0 +1,35 @@
+# Re-Volt 2 Z
+
+comtype zlib_noerror    # uncompressed size is not known (can be calculated)
+get NAME basename
+get WIDTH long
+get HEIGHT long
+get DUMMY long  # 0x2908
+get ZSIZE long
+savepos OFFSET
+
+math BITS = 32
+
+set EXT extension NAME
+if EXT == "bmp"
+
+    set MEMORY_FILE2 binary "\x42\x4d\x36\x00\x03\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x01\x00\x18\x00\x00\x00\x00\x00\x00\x00\x03\x00\xc4\x0e\x00\x00\xc4\x0e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    log MEMORY_FILE 0 0x36 MEMORY_FILE2
+    get MEM_SIZE asize MEMORY_FILE
+    xmath DATA_SIZE "WIDTH * HEIGHT * (BITS / 8)"
+    xmath FINAL_SIZE "MEM_SIZE + DATA_SIZE"
+    putvarchr MEMORY_FILE 0x02 FINAL_SIZE long
+    putvarchr MEMORY_FILE 0x12 WIDTH long
+    putvarchr MEMORY_FILE 0x16 HEIGHT long
+    putvarchr MEMORY_FILE 0x1c BITS long
+    putvarchr MEMORY_FILE 0x22 DATA_SIZE long
+    log NAME 0 MEM_SIZE MEMORY_FILE
+    append
+    clog NAME OFFSET ZSIZE DATA_SIZE
+    append
+
+else
+
+    clog NAME OFFSET ZSIZE ZSIZE
+
+endif

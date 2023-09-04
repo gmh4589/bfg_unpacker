@@ -1,0 +1,30 @@
+# Farming Simulator 2013 patch 2.0 Lub->Lua decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+getvarchr MODE MEMORY_FILE 3
+set KEY binary "\x14\x0b\x09\x02\x08\x03\x03\x03"
+for i = 4 < SIZE
+    getvarchr CHR MEMORY_FILE i
+    math TMP = i
+    math TMP &= 7
+    getvarchr TMP KEY TMP
+    math TMP += i
+    if MODE == 'b'
+        math CHR += TMP
+    else
+        math CHR -= TMP
+    endif
+    putvarchr MEMORY_FILE i CHR
+next i
+
+get NAME basename
+if MODE == 'b'
+    putvarchr MEMORY_FILE 3 'a'
+    string NAME += ".lua"
+else
+    putvarchr MEMORY_FILE 3 'b'
+    string NAME += ".luc"
+endif
+log NAME 0 SIZE MEMORY_FILE

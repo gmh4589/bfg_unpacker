@@ -1,0 +1,34 @@
+# Quantum Theory
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get PKMN_SIZE asize
+for OFFSET = 0 != PKMN_SIZE
+    goto OFFSET
+    get CHUNK_SIZE long
+    get CHUNKS long
+    get SIZE long
+    for x = 0 < CHUNKS
+        get CHUNK_ZSIZE long
+        putarray 0 x CHUNK_ZSIZE
+    next x
+    savepos OFFSET
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        savepos TMP MEMORY_FILE
+        getarray CHUNK_ZSIZE 0 x
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+        math TMP + CHUNK_SIZE   # in next quickbms putvarchr will support type zero/none
+        get Z asize MEMORY_FILE
+        goto Z MEMORY_FILE
+        for Z = Z < TMP
+            put 0 byte MEMORY_FILE
+        next Z
+    next x
+    append
+    putvarchr MEMORY_FILE SIZE 0
+    log "" 0 SIZE MEMORY_FILE
+next OFFSET x 16

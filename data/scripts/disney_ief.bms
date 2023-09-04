@@ -1,0 +1,47 @@
+# Disney IEF
+
+math ELEMENT = 0
+endian big
+for
+    #idstring "INDX"
+    getdstring MAGIC 4
+    if MAGIC != "INDX"
+        break
+    endif
+    getdstring TYPE 4
+    get SIZE long
+    savepos ENTRY_OFF
+    math ENTRY_OFF + SIZE
+
+    if TYPE == "meta"
+        # ignored, let's just scan "vari" sequentially
+        get ELEMENTS short
+
+    elif TYPE == "vari"
+        get FILES short
+        get DUMMY short
+        get DUMMY short
+        idstring "DATA"
+        getdstring TYPE 4
+
+        for i = 0 < FILES
+            get ZERO short
+            get SIZE long
+            get OFFSET long
+            get ZERO long
+            if OFFSET != 0
+
+                savepos TMP
+                goto OFFSET
+                get NAME string
+                goto TMP
+                string NAME p "%s/%s" TYPE NAME
+
+                log NAME OFFSET SIZE
+            endif
+        next i
+
+    endif
+
+    goto ENTRY_OFF
+next

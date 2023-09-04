@@ -1,0 +1,7 @@
+# EA FIFA Manager FMF decrypter
+
+get SIZE asize
+encryption math "^ 0xea" 16
+get NAME basename
+string NAME + ".xml"
+log NAME 0 SIZE

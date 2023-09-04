@@ -1,0 +1,54 @@
+# 7 Wonders series .DAT (script 0.1.1)
+
+idstring "\xce\xde\xed\xec"
+get VER long    # 1
+get INFO_OFF long
+get ZERO long
+get ZERO long
+goto INFO_OFF
+get FILES long
+savepos TMP
+
+math METHOD = 0
+    get FOLDER long
+    get OFFSET long
+goto TMP
+if OFFSET == 0
+    math METHOD = 1
+endif
+
+for i = 0 < FILES
+    if METHOD == 0
+        get FOLDER long
+        get OFFSET long
+        get SIZE long
+        get NAME_OFF long
+    else
+        get OFFSET longlong
+        get SIZE longlong
+        get FOLDER long
+        get NAME_OFF long
+    endif
+    putarray 0 i FOLDER
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+    putarray 3 i NAME_OFF
+next i
+
+get NAMES_SIZE long
+savepos NAMES_OFF
+
+for i = 0 < FILES
+    getarray FOLDER   0 i
+    getarray OFFSET   1 i
+    getarray SIZE     2 i
+    getarray NAME_OFF 3 i
+
+    if FOLDER == 0
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,49 @@
+# Racecraft NP->ZIP decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\x15\xB5\x71\xEC\x4A\xFF\xE9\x2A\xD1\x27\x95\x6F\x43"
+strlen KEYSZ KEY 1
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+print "Wait patiently..."
+math ESI = SIZE
+for i = 0 < SIZE
+    getvarchr CL MEMORY_FILE i
+
+    math EDX = ESI
+    math ESI + 1
+    math EDX % KEYSZ
+    getvarchr TMP KEY EDX
+
+    #xmath DL "((CL >> 1) & 0x22) | ((CL & 0x22) << 1) | (CL & 0x99)"
+    math DL = CL
+    math AL = CL
+    math DL >> 1
+    math AL & 0x22
+    math DL & 0x22
+    math CL & 0x99
+    math AL + AL
+    math DL | AL
+    math DL | CL
+
+    #xmath BL "((((DL & 0xc) << 2) | ((DL >> 2) & 0xc) | (DL & 0xc3)) ^ TMP) * 0x7f"
+    math CL = DL
+    math BL = DL
+    math CL & 0xc
+    math BL >> 2
+    math CL << 2
+    math BL & 0xc
+    math BL | CL
+    math DL & 0xc3
+    math BL | DL
+    math BL ^ TMP
+    math BL * 0x7f
+
+    putvarchr MEMORY_FILE i BL
+next i
+
+get NAME basename
+string NAME + ".zip"
+log NAME 0 SIZE MEMORY_FILE

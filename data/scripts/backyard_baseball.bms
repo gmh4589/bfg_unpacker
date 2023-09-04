@@ -1,0 +1,14 @@
+# Backyard Baseball 2005 .MET
+
+get DATA_OFF long
+get MET_SIZE long
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next

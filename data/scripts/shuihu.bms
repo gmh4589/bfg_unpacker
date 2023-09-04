@@ -1,0 +1,19 @@
+# Shuihu 水浒无双
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SHUIHU"
+goto 0x20
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    filexor 0x28
+    getdstring NAME 260
+    getdstring HASH 32
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 8
+    filexor ""
+    log NAME OFFSET SIZE
+next i

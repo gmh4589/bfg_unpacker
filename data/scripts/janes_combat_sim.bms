@@ -1,0 +1,82 @@
+# demultiplex *.cb8 movies from Jane's Combat Simulation games
+# (c) 2015-06-10 by AlphaTwentyThree
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DRBC"
+get CH long
+get UNK short
+get FREQ short
+get UNK long
+get FSIZE asize
+putVarChr MEMORY_FILE FSIZE 0
+log MEMORY_FILE 0 0
+set MEMORY_FILE binary "\x52\x49\x46\x46\x20\xC0\xB1\x00\x57\x41\x56\x45\x66\x6D\x74\x20\x10\x00\x00\x00\x01\x00\x02\x00\x44\xAC\x00\x00\x10\xB1\x02\x00\x04\x00\x10\x00\x64\x61\x74\x61\xFC\xBF\xB1\x00"
+putVarChr MEMORY_FILE2 FSIZE 0
+putVarChr MEMORY_FILE3 FSIZE 0
+log MEMORY_FILE2 0 0
+log MEMORY_FILE3 0 0
+set OFFSET 0x40
+set FIRST 1
+do
+   goto OFFSET
+   getDstring IDENT 4
+   get SIZE long
+   math SIZE -= 0x8
+   savepos OFFSET
+   if IDENT == "MRFA"
+      math OFFSET += 0x10
+      math SIZE -= 0x10
+      if FIRST == 1
+         math OFFSET += 0x10
+         math SIZE -= 0x10
+         set FIRST 0
+      endif
+      append
+      log MEMORY_FILE OFFSET SIZE
+      append
+   elif IDENT == "VooM"
+      append
+      log MEMORY_FILE2 OFFSET SIZE
+      append
+   elif IDENT == "MRFI"
+      append
+      log MEMORY_FILE3 OFFSET SIZE
+      append
+   else
+      print "%IDENT%"
+      cleanexit
+   endif
+   math OFFSET += SIZE
+while OFFSET != FSIZE
+
+get NAME basename
+
+string WNAME p= "%s.wav" NAME
+get SIZE asize MEMORY_FILE
+set RIFFSIZE SIZE
+math RIFFSIZE += 36
+set AVGBYTES FREQ
+if CH == 1
+   set BLOCKALIGN 1
+else
+   set BLOCKALIGN 2
+endif
+set CODEC 1
+set BITS 8
+putvarchr MEMORY_FILE 0x04 RIFFSIZE long
+putvarchr MEMORY_FILE 0x14 CODEC short          # wFormatTag: Microsoft PCM Format (0x0001)
+putvarchr MEMORY_FILE 0x16 CH short   # wChannels
+putvarchr MEMORY_FILE 0x18 FREQ short   # dwSamplesPerSec
+putvarchr MEMORY_FILE 0x1c AVGBYTES long    # dwAvgBytesPerSec
+putvarchr MEMORY_FILE 0x20 BLOCKALIGN short # wBlockAlign
+putvarchr MEMORY_FILE 0x22 BITS short       # wBitsPerSample
+putvarchr MEMORY_FILE 0x28 SIZE long
+log WNAME 0 SIZE MEMORY_FILE
+
+string WNAME p= "%s.VooM" NAME
+get SIZE asize MEMORY_FILE2
+log WNAME 0 SIZE MEMORY_FILE2
+
+string WNAME p= "%s.mrfi" NAME
+get SIZE asize MEMORY_FILE3
+log WNAME 0 SIZE MEMORY_FILE3

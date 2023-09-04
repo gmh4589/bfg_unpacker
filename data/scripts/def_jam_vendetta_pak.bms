@@ -1,0 +1,25 @@
+# Def Jam Vendetta (PAK files)
+
+idstring "PAK "
+get SIZE long
+get FILES long
+get OFFSET long
+for i = 1 <= FILES
+    if i < FILES
+        get NEXT long
+        math SIZE = NEXT
+        math SIZE -= OFFSET
+    else
+        get SIZE asize
+    endif
+    math OFFSET += 0xc
+    math TMP = i
+    math TMP -= 1
+    math TMP *= 4
+    math OFFSET += TMP
+    if i >= FILES
+        math SIZE -= OFFSET
+    endif
+    log "" OFFSET SIZE
+    math OFFSET = NEXT
+next i

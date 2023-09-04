@@ -1,0 +1,21 @@
+# Donald Duck Goin' Quackers .000
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get ARCHIVE_SIZE asize
+for OFFSET = 0 < ARCHIVE_SIZE
+    get SIZE long
+    get ZSIZE long
+    get SIGN long   # 0xdeadbabe
+    get FLAGS byte
+    savepos OFFSET
+
+    if FLAGS & 1
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+
+    math OFFSET += ZSIZE
+    goto OFFSET
+next

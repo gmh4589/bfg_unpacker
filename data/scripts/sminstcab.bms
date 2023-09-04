@@ -1,0 +1,247 @@
+# Smart Install Maker EXE to CAB (script 0.3a)
+#   supports also password-protected archives without knowing the keyword.
+#   compressed installers (default) are converted in CAB archives while
+#   the uncompressed ones are extracted directly
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6.6"
+
+math DUMP_CAB_AS_IS = 0
+
+get PAK_NAME basename
+
+findloc OFFSET string "Smart Install Maker v"
+goto OFFSET
+get VER string
+
+math PAK_SIZE = 0
+set MULTI_PATTERN string ""
+math ONE_VOLUME = 0
+math FILES = 0
+math CAB_SIZE = 0
+
+for i = 0 < 120
+    get TMP string
+      if i == 22
+        set PAK_SIZE long TMP
+    elif i == 20
+        set MULTI_PATTERN string TMP
+    elif i == 33
+        set ONE_VOLUME long TMP
+    elif i == 66
+        set FILES long TMP
+    elif i == 117
+        set CAB_SIZE long TMP
+    endif
+next i
+
+# different versions of SmartInstaller may have different amounts of fields
+math OK = 0
+do
+    savepos TMP_OFF
+    get TMP string
+    if TMP & "@$&%19"
+    elif TMP & "@$&%"
+        savepos TMP_OFF2
+        get TMP string
+        get TMP string
+        if TMP != ""
+            math OK = 1
+        endif
+        goto TMP_OFF2
+    endif
+while OK == 0
+goto TMP_OFF
+
+print "PAK_SIZE      %PAK_SIZE%\nMULTI_PATTERN %MULTI_PATTERN%\nONE_VOLUME    %ONE_VOLUME%\nFILES         %FILES%\nCAB_SIZE      %CAB_SIZE%"
+
+for i = 0 #< FILES
+    get NAME string
+    if NAME & "@$&%"
+    else
+        break
+    endif
+    string NAME R= "@$&%01" "%PROGRAMFILES%"
+    string NAME R= "@$&%02" "%WINDOWSDIR%"
+    string NAME R= "@$&%03" "%SYSTEMDIR%"
+    string NAME R= "@$&%04" "" #"%INSTALLPATH%"
+    string NAME R= "@$&%05" "%TEMPDIR%"
+    string NAME R= "@$&%06" "%DESKTOP%"
+    string NAME R= "@$&%07" "%QUICKLAUNCH%"
+    string NAME R= "@$&%08" "%PROGRAMSDIR%"
+    string NAME R= "@$&%09" "%STARTMENU%"
+    string NAME R= "@$&%10" "%MYDOCUMENTS%"
+    string NAME R= "@$&%11" "%FAVORITES%"
+    string NAME R= "@$&%12" "%SENDTO%"
+    string NAME R= "@$&%13" "%USERPROFILE%"
+    string NAME R= "@$&%14" "%STARTUP%"
+    string NAME R= "@$&%15" "%FONTDIR%"
+    string NAME R= "@$&%16" "%COMMONFILES%"
+    string NAME R= "@$&%17" "%SYSTEMDRIVE%"
+    string NAME R= "@$&%18" "%CURRENTDIR%"
+    getvarchr TMP NAME 0
+    if TMP == 0x2f || TMP == 0x5c
+        string NAME << 1
+    endif
+    putarray 0 i NAME
+    get TMP string
+    get TMP string
+next i
+
+goto -0x24
+get INFO_OFFSET longlong
+get INST_SIZE longlong
+get INST_OFFSET longlong
+get OFFSET longlong
+get TYPE long
+goto OFFSET
+math FILENAME_IDX = 0
+
+if TYPE & 1
+    math DISK_NUM = 1
+    do
+        get DUMMY long
+        get CAB_SIZE long
+        math CAB_SIZE -= 4
+
+        log MEMORY_FILE 0 0
+        putdstring "MSCF" 4 MEMORY_FILE
+
+        append
+        if ONE_VOLUME != 0
+            log MEMORY_FILE OFFSET CAB_SIZE
+            math OFFSET + CAB_SIZE
+            goto OFFSET
+        else
+            math i = 2
+            for XSIZE = 0 < CAB_SIZE
+                set TMP string MULTI_PATTERN
+                string TMP R= "@$&%19" i
+                open FDSE TMP 1
+                get TMP asize 1
+                log MEMORY_FILE 0 TMP 1
+                math XSIZE += TMP
+            next i
+        endif
+        append
+        math CAB_SIZE += 4
+
+        if DUMP_CAB_AS_IS == 0
+            # replace placeholders with real filenames
+
+            goto 0 MEMORY_FILE
+            idstring MEMORY_FILE "MSCF"
+            get reserved1 long MEMORY_FILE
+            get cbCabinet long MEMORY_FILE
+            get reserved2 long MEMORY_FILE
+            get coffFiles long MEMORY_FILE
+            get reserved3 long MEMORY_FILE
+            get versionMinor byte MEMORY_FILE
+            get versionMajor byte MEMORY_FILE
+            get cFolders short MEMORY_FILE
+            get cFiles short MEMORY_FILE
+            get flags short MEMORY_FILE
+            get setID short MEMORY_FILE
+            get iCabinet short MEMORY_FILE
+
+            if flags & 3    # both
+                xmath TMP "DISK_NUM - 1"
+                string CAB_NAME_PREV p "%s_Disk%d.cab" PAK_NAME TMP
+                string CAB_NAME      p "%s_Disk%d.cab" PAK_NAME DISK_NUM
+                xmath TMP "DISK_NUM + 1"
+                string CAB_NAME_NEXT p "%s_Disk%d.cab" PAK_NAME TMP
+            else
+                string CAB_NAME p "%s.cab" PAK_NAME
+            endif
+
+            savepos TMP_OFF MEMORY_FILE
+            log MEMORY_FILE2 0 TMP_OFF MEMORY_FILE
+            goto 0 MEMORY_FILE2 SEEK_END
+
+            if flags & 1    # CAB_FLAG_HASPREV
+                get TMP_PREV string MEMORY_FILE
+                get TMP_DISK string MEMORY_FILE
+                put CAB_NAME_PREV string MEMORY_FILE2
+                put TMP_DISK string MEMORY_FILE2
+            endif
+            if flags & 2    # CAB_FLAG_HASNEXT
+                get TMP_NEXT string MEMORY_FILE
+                get TMP_DISK string MEMORY_FILE
+                put CAB_NAME_NEXT string MEMORY_FILE2
+                put TMP_DISK string MEMORY_FILE2
+            endif
+
+            get DATA_OFF_OFF asize MEMORY_FILE2
+            savepos TMP_OFF MEMORY_FILE
+            get DATA_OFF long MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+            math TMP = 8
+            if flags & 1
+                get DATA_OFF2 long MEMORY_FILE
+                get DUMMY long MEMORY_FILE
+                math TMP += 8
+            endif
+            append
+            log MEMORY_FILE2 TMP_OFF TMP MEMORY_FILE
+
+            get TMP asize MEMORY_FILE2
+            putvarchr MEMORY_FILE2 0x10 TMP
+
+            for i = 0 < cFiles
+                getdstring INFO 0x10 MEMORY_FILE
+                get NAME string MEMORY_FILE
+                getarray NAME 0 FILENAME_IDX
+                math FILENAME_IDX + 1
+                putdstring INFO 0x10 MEMORY_FILE2
+                put NAME string MEMORY_FILE2
+            next i
+
+            savepos TMP_OFF MEMORY_FILE2
+            xmath TMP_DIFF "TMP_OFF - DATA_OFF"
+            putvarchr MEMORY_FILE2 DATA_OFF_OFF TMP_OFF long
+            if flags & 1
+                math DATA_OFF_OFF += 8
+                xmath TMP2 "DATA_OFF2 + TMP_DIFF"
+                putvarchr MEMORY_FILE2 DATA_OFF_OFF TMP2 long
+            endif
+
+            math CAB_SIZE -= DATA_OFF
+            log MEMORY_FILE2 DATA_OFF CAB_SIZE MEMORY_FILE
+            append
+            math CAB_SIZE += TMP_OFF
+            putvarchr MEMORY_FILE2 8 CAB_SIZE long
+
+            # dump CAB file
+            log CAB_NAME 0 CAB_SIZE MEMORY_FILE2
+
+        else
+
+            string CAB_NAME p "%s.cab" PAK_NAME
+            log CAB_NAME 0 CAB_SIZE MEMORY_FILE
+
+        endif
+
+        math DISK_NUM += 1
+    while flags & 2 # CAB_FLAG_HASNEXT
+
+    print "\nSuccess: open the generated file with 7-zip or any other program for CAB files"
+
+else
+
+    for i = 0 < FILES
+        get DUMMY long
+        get SIZE long
+        getdstring DUMMY 0x10
+        savepos OFFSET
+
+        getarray NAME 0 i
+        set FNAME string PAK_NAME
+        string FNAME += /
+        string FNAME += NAME
+
+        log FNAME OFFSET SIZE
+        math OFFSET += SIZE
+        goto OFFSET
+    next i 
+
+endif

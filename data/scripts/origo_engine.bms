@@ -1,0 +1,49 @@
+# Origo Engine
+#   type 1 archives are partially supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "OPAK"
+get TYPE short
+if TYPE == 0
+
+    get FILES short
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        log NAME OFFSET SIZE
+    next i
+
+elif TYPE == 1
+
+    get INFO_SIZE long
+    savepos LIMIT
+    math LIMIT + INFO_SIZE
+
+    # the first 0x1000 bytes of the header are encrypted so let's skip them
+    print "Alert: the first 0x1000 bytes of the header are encrypted and so many files will NOT be extracted!"
+    findloc TMP string "OPackageFileInfo"
+    math TMP - 4
+    goto TMP
+
+    for TMP = TMP < LIMIT
+        get ZERO long
+        getdstring TYPE 0x15    # OPackageFileInfo
+        get NAMESZ long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        math NAMESZ - 0xc
+        getdstring NAME NAMESZ
+        log NAME OFFSET SIZE
+
+        savepos TMP
+    next
+
+else
+
+    print "Error: unsupported archive"
+    cleanexit
+
+endif

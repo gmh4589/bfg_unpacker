@@ -1,0 +1,13 @@
+for
+    get SIZE long
+    get OFFSET long
+    if OFFSET == 0
+        cleanexit
+    endif
+    get DUMMY long
+    get DUMMY long
+    getdstring NAME 32
+
+    math OFFSET *= 0x800
+    log NAME OFFSET SIZE
+next

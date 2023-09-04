@@ -1,0 +1,28 @@
+# Etherlords (RES)
+
+ImpType Standard ;
+Get AS ASize 0 ;
+Get FN Long 0 ;
+Get FN Long 0 ;
+SavePos TailOffOff 0 ;
+Get FIP Long 0 ;
+Get FNS Long 0 ;
+Math AS -= FNS ;
+For TE = 1 To FN ;
+GoTo FIP 0 ;
+Get D Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+Get D Long 0 ;
+Get D Int 0 ;
+Get SU Long 0 ;
+Set AA Long AS ;
+Math AA += SU ;
+SavePos FIP 0 ;
+GoTo AA 0 ;
+GetDString F$ D 0 ;
+Log F$ FO FS #FOO FSO ;
+Next TE ;
+

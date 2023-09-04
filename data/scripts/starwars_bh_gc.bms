@@ -1,0 +1,58 @@
+# Star Wars Bounty Hunter (gcz/gca/gcb)
+
+get EXT extension
+if EXT == "gcz"
+
+    get FILES long
+    get BASE_OFF long
+    math BASE_OFF + 8
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ byte
+        math NAMESZ * 4
+        math NAMESZ - 1
+        getdstring NAME NAMESZ
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+
+elif EXT == "gca"
+
+    endian big
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 100
+        get OFFSET long
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+    callfunction EXTRACT 1
+
+elif EXT == "gcb"
+
+    endian big
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x38
+        get OFFSET long
+        getdstring DUMMY 0x50
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+    callfunction EXTRACT 1
+
+endif
+
+startfunction EXTRACT
+        get OFFSET asize
+        putarray 1 i OFFSET
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+endfunction

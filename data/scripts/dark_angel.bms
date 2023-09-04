@@ -1,0 +1,48 @@
+# Dark Angel (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+if SIGN == "SPEC"
+
+    getdstring SIGN2 4
+    get FILES short
+    for i = 0 < FILES
+        get DUMMY byte
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get ZERO byte
+        get SIZE long
+        get OFFSET long
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    get INFO_OFF long
+    goto INFO_OFF
+    get WFS_SIZE asize
+    for TMP_OFF = INFO_OFF != WFS_SIZE
+        get OFFSET long
+        getdstring NAME 0xd
+        savepos TMP_OFF
+        putarray 0 -1 OFFSET
+        putarray 1 -1 NAME
+    next
+
+    putarray 0 -1 INFO_OFF
+    putarray 1 -1 ""
+    sortarray 0 1
+
+    for i = 0
+        getarray OFFSET 0 i
+        getarray NAME   1 i
+        if NAME == ""
+            break
+        endif
+        math i + 1
+        getarray SIZE 0 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+endif

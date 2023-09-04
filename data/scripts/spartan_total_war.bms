@@ -1,0 +1,70 @@
+# Spartan Total Warrior (PS2) PAK0/PAK1 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK"
+get VER byte
+if VER == '0'
+
+    get DUMMY long  # 0xcbeb
+    get FILES long
+    for i = 0 < FILES
+        get NAME unicode
+        putarray 0 i NAME
+    next i
+    savepos TMP
+    xmath OFFSET "TMP + (FILES * 4)"
+        putarray 1 -1 OFFSET
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 1 -1 OFFSET
+    next i
+    sortarray 1 1
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+elif VER == '1'
+
+    get DUMMY long
+    get FILES long
+    get ALIGN long
+    for i = 0 < FILES
+        get NAME unicode
+        putarray 0 i NAME
+    next i
+
+    padding 0x10
+    do
+        get DUMMY long
+    while DUMMY == 0
+    goto -4 0 SEEK_CUR
+
+    savepos OFFSET
+    xmath OFFSET "OFFSET + (4 * FILES)"
+        putarray 1 0 OFFSET
+    for i = 1 <= FILES
+        get OFFSET long
+        putarray 1 i OFFSET
+    next i
+
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math OFFSET x ALIGN
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+        log NAME OFFSET SIZE
+    next
+
+else
+
+    print "Error: unsupported VER %VER%, contact me"
+    cleanexit
+
+endif

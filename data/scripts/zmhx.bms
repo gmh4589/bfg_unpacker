@@ -1,0 +1,26 @@
+# http://forum.xentax.com/viewtopic.php?f=21&t=3716
+
+get NAME basename
+get EXT extension
+string NAME += "_unpacked."
+string NAME += EXT
+
+idstring ZMH1
+get DUMMY long
+get FILESIZE long
+set OFFSET long 0x24
+set MYFILESIZE long 0
+append
+for
+    if MYFILESIZE >= FILESIZE
+        cleanexit
+    endif
+    goto OFFSET
+    get DUMMY long
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET += ZSIZE
+    math MYFILESIZE += SIZE
+next

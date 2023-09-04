@@ -1,0 +1,15 @@
+# Professor Fizzwizzle DAT
+
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto TMP
+next i

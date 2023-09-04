@@ -1,0 +1,40 @@
+# RTL Ski Jumping 2007 shopsprite_pch.fin
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xef\xbe\xad\xde"
+get DUMMY long
+get CHUNKS long
+get DUMMY long
+for i = 0 < CHUNKS
+    get DUMMY long
+next i
+get FIN_SIZE asize
+    findloc OFFSET string "BMAP"
+do
+    math TMP = OFFSET
+    math TMP += 4
+    goto TMP
+    findloc NEXT_OFFSET string "BMAP" 0 ""
+    if NEXT_OFFSET == ""
+        math NEXT_OFFSET = FIN_SIZE
+    endif
+
+    math TMP = OFFSET
+    math TMP -= 5
+    goto TMP
+    do
+        get TMP byte
+        goto -2 0 SEEK_CUR
+    while TMP == 0
+    set NAME string ""
+    do
+        string NAME p= "%c%s" TMP NAME
+        get TMP byte
+        goto -2 0 SEEK_CUR
+    while TMP != 0
+
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET = NEXT_OFFSET
+while OFFSET < FIN_SIZE

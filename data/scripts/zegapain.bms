@@ -1,0 +1,88 @@
+# Zegapain (script 0.1.1)
+#   Not, Xor and others using the same format
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz2k    # lzh12 lzh13 lz2k scpack
+endian big
+
+math RPC_OFFSET = 0
+getdstring SIGN 4
+if SIGN == "FFIR"
+    findloc RPC_OFFSET string "1RPC"
+endif
+goto RPC_OFFSET
+
+idstring "1RPC"
+get VER long    # 1
+idstring "\x11\x22\x33\x44"
+get DUMMY long  # 0
+get HEADSZ long # 90
+get HEADSZ2 long  # 0
+get DUMMY long  # 80
+get DUMMY long  # 30
+get XSIZE long  # 6000
+get DUMMY long  # 0
+get DUMMY long  # 1
+get DUMMY long  # 81
+get DUMMY long  # 1
+get DUMMY long  # 1881
+get DUMMY long  # 1
+get DUMMY long  # 0
+getdstring NAME 0x20
+
+callfunction HLZ4_UNPACK 1
+log MEMORY_FILE2 0 SIZE MEMORY_FILE
+
+callfunction HLZ4_UNPACK 1
+putvarchr MEMORY_FILE XSIZE 0
+
+math BASE_OFF = HEADSZ
+math BASE_OFF += HEADSZ2
+
+math FILES = BASE_OFF
+math FILES /= 0x30
+for i = 0 < FILES
+    getdstring SIGN 4 MEMORY_FILE2
+    get NAME_OFF long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2  # 1
+    get DUMMY long MEMORY_FILE2  # -1
+    get DUMMY long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    get OFFSET long MEMORY_FILE2
+    get SIZE long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    get DUMMY long MEMORY_FILE2
+    savepos TMP MEMORY_FILE2
+    math NAME_OFF += BASE_OFF
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+    goto TMP MEMORY_FILE2
+    if SIZE != 0
+        math TMP = OFFSET
+        math TMP += SIZE
+        if TMP < XSIZE
+            get FNAME basename
+            string FNAME += /
+            string FNAME += NAME
+            log FNAME OFFSET SIZE MEMORY_FILE
+        endif
+    endif
+next i
+
+startfunction HLZ4_UNPACK
+    idstring "HLZ4"
+    get CHUNKS long
+    math ZSIZE = 0
+    for x = 0 < CHUNKS
+        get TMP long
+        math ZSIZE += TMP
+    next x
+    savepos OFFSET
+    math SIZE = CHUNKS
+    math SIZE *= 0x10000
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math OFFSET += ZSIZE
+    goto OFFSET
+endfunction

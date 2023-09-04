@@ -1,0 +1,124 @@
+# TAR (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# set the following to 1 for dumping anything
+math RAW_DUMP = 0
+
+get TAR_SIZE asize
+math IS_COMPRESSED = 1
+get EXT extension
+# max 3 "if" inline
+if EXT & "gz"
+    comtype gzip
+elif EXT & "bz" || EXT & "b2"
+    comtype bzip2_file
+elif EXT == "taz" || EXT == "tz" || EXT == "z"
+    comtype compress
+elif EXT & "lz" || EXT & "xz"
+    comtype lzma_dynamic
+else
+    get CHECK short
+    goto 0
+    if CHECK == 0x8b1f
+        comtype gzip
+    else
+        math IS_COMPRESSED = 0
+    endif
+endif
+if IS_COMPRESSED == 0
+    math FILE_NUM = 0
+else
+    math FILE_NUM = -1
+    clog MEMORY_FILE 0 TAR_SIZE TAR_SIZE
+endif
+
+get TAR_SIZE asize FILE_NUM
+for OFFSET = 0 != TAR_SIZE
+    callfunction GET_INFO 1
+
+    # long filenames
+    if RAW_DUMP == 0
+        if NAME == "././@LongLink"  # typeflag u== 'L'
+            getdstring NEW_NAME size FILE_NUM
+            padding 512 FILE_NUM
+            callfunction GET_INFO 1
+            set NAME string NEW_NAME
+
+        elif typeflag == "x"
+            getdstring INFO size FILE_NUM
+            padding 512 FILE_NUM
+            callfunction GET_INFO 1
+            string INFO 0| "path="
+            if INFO != ""
+                # don't worry about the line-feed, it's removed automatically by quickbms in *Log
+                set NAME string INFO
+            endif
+        endif
+    endif
+
+    math VAR = SIZE
+    callfunction DO_OCTAL 1
+    math SIZE = NUM
+
+    # the script is meant to extract EVERYTHING, even invalid archives
+    # so don't check name or typeflag 5, but size is a good check
+    #if NAME != ""  # old check
+    if SIZE != 0
+        log NAME OFFSET SIZE FILE_NUM
+    endif
+
+    math OFFSET + SIZE
+    math OFFSET x 512
+    goto OFFSET FILE_NUM
+next
+
+startfunction GET_INFO
+    getdstring name 100 FILE_NUM
+    getdstring mode 8 FILE_NUM
+    getdstring uid 8 FILE_NUM
+    getdstring gid 8 FILE_NUM
+    getdstring size 12 FILE_NUM
+    getdstring mtime 12 FILE_NUM
+    getdstring chksum 8 FILE_NUM
+    getdstring typeflag 1 FILE_NUM
+    getdstring linkname 100 FILE_NUM
+
+    getdstring MAGIC 6 FILE_NUM
+
+    set prefix string ""
+    if MAGIC == "ustar "
+        # gnu / oldgnu
+        getdstring version 2 FILE_NUM
+        getdstring uname 32 FILE_NUM
+        getdstring gname 32 FILE_NUM
+        getdstring devmajor 8 FILE_NUM
+        getdstring devminor 8 FILE_NUM
+        getdstring prefix 131 FILE_NUM
+        getdstring atime 12 FILE_NUM
+        getdstring ctime 12 FILE_NUM
+
+    elif MAGIC == "ustar"
+        # pax / posix
+        getdstring version 2 FILE_NUM
+        getdstring uname 32 FILE_NUM
+        getdstring gname 32 FILE_NUM
+        getdstring devmajor 8 FILE_NUM
+        getdstring devminor 8 FILE_NUM
+        getdstring prefix 155 FILE_NUM
+    endif
+    string NAME p "%s%s" PREFIX NAME
+
+    padding 512 FILE_NUM
+    savepos OFFSET FILE_NUM
+endfunction
+
+startfunction DO_OCTAL
+    math NUM = 0
+    strlen VARSZ VAR
+    for j = 0 < VARSZ
+        getvarchr T VAR j
+        math T -= '0'
+        math NUM *= 8
+        math NUM += T
+    next j
+endfunction

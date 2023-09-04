@@ -1,0 +1,93 @@
+# Keroro Fighter (script 0.1.1)
+#   works also with other games of the same company (Goorm Interactive) like Keroro PangPang
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.5
+
+get EXT extension
+if EXT != "kcp"
+    print "you must select the KCP file!"
+    cleanexit
+endif
+
+# yes I know that this part is lame
+set KCS_NAME string ""
+get PATH file_folder
+do
+    scandir PATH NAME SIZE
+    if NAME == ""
+        break
+    endif
+    set EXT extension NAME
+    if EXT == "kcs"
+        set TMP filename NAME
+        string TMP &= "0.kcs"
+        if TMP == "0.kcs"
+            set TMP basename NAME
+            strlen TMPLEN TMP
+            math TMPLEN -= 2
+            getvarchr TMP TMP TMPLEN
+            if TMP > 0x39   # kpp or packfile_
+                set NAME basename NAME
+                string NAME -= 1
+                set KCS_NAME string NAME
+                string KCS_NAME += "%d.KCS"
+            endif
+        endif
+    endif
+while KCS_NAME == ""
+if KCS_NAME == ""
+    set KCS_NAME string "KFClient_PackFile_%d.KCS"
+endif
+print "KCS_NAME format %KCS_NAME%"
+
+# Fighter uses zlib, PangPang uses lzo
+string NAME p= KCS_NAME 0
+open FDSE NAME 1
+get TMP byte 1
+if TMP != 0x78
+    comtype lzo1x
+endif
+
+get DUMMY long
+get DUMMY long
+get END_STUFF long
+get DUMMY long
+get DUMMY byte
+math END_STUFF *= 0x10
+get FULL_SIZE asize
+math FULL_SIZE -= END_STUFF
+set PATH string ""
+savepos CURR_OFF
+for CURR_OFF = CURR_OFF < FULL_SIZE
+    get DUMMY long
+    get TYPE long
+    get NAMES long
+    get PATHSZ long
+    if PATHSZ u> 0xffff
+        getdstring DUMMY 8
+        get PACK long
+        get NAMESZ short
+        get SIZE long
+        get ZSIZE long
+        get OFFSET long
+        getdstring NAME NAMESZ
+        set FNAME string PATH
+        string FNAME += /
+        string FNAME += NAME
+
+        string NAME p= KCS_NAME PACK
+        open FDSE NAME 1
+        clog FNAME OFFSET ZSIZE SIZE 1
+    else
+        get NAMESZ long
+        math NAMESZ += PATHSZ
+        getdstring NAME NAMESZ
+        set PATH string NAME
+        for j = 0 < NAMES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+        next j
+    endif
+    savepos CURR_OFF
+next

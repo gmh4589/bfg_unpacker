@@ -1,0 +1,14 @@
+# WordJuice
+
+idstring "LMO\x01"
+get FILES long
+get BASE_OFF long
+get BMP_OFFSET long
+get ARCHIVE_SIZE long
+for i = 0 < FILES
+    getdstring NAME 0x100
+    getdstring TYPE 0x20
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

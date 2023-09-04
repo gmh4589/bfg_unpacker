@@ -1,0 +1,12 @@
+# Super Robot
+#   the script supports only the uncompressed paks, so NOT config.pak
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

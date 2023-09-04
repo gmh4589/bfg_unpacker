@@ -1,0 +1,90 @@
+# F3AR / FEAR3 PREBUILD (script 0.1b)
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "DOES NOT SUPPORT COMPRESSED FILES DUE TO THE UNKNOWN ALGORITHM!!!"
+
+comtype zlib    # UNKNOWN ALGORITHM!!!
+idstring "mgf "
+get DUMMY long
+get DUMMY long
+get FILES long
+get FILES_SIZE long
+get FILES_OFF long
+get FOLDERS long
+get FOLDERS_SIZE long
+get FOLDERS_OFF long
+get NAMES_SIZE long
+get NAMES_OFF long
+
+log MEMORY_FILE FILES_OFF FILES_SIZE
+log MEMORY_FILE2 FOLDERS_OFF FOLDERS_SIZE
+log MEMORY_FILE3 NAMES_OFF NAMES_SIZE
+
+set PATH string ""
+set NAME string ""
+math NEXT_FOLDER = 0
+callfunction EXTRACT_FOLDERS
+
+startfunction EXTRACT_FOLDERS
+    get NAME_OFF long MEMORY_FILE2
+    get PREV_FOLDER long MEMORY_FILE2
+    get NEXT_FOLDER long MEMORY_FILE2
+    get OTHER_FOLDER long MEMORY_FILE2
+    get FILE_IDX long MEMORY_FILE2
+    get FILE_END_IDX long MEMORY_FILE2
+    savepos CURR_OFF MEMORY_FILE2
+
+    goto NAME_OFF MEMORY_FILE3
+    get NAME string MEMORY_FILE3
+
+    callfunction EXTRACT_FILES
+
+    if OTHER_FOLDER != 0xffffffff
+        math TMP = OTHER_FOLDER
+        math TMP *= 0x18
+        goto TMP MEMORY_FILE2
+        callfunction EXTRACT_FOLDERS
+    endif
+    goto CURR_OFF MEMORY_FILE2
+
+    string PATH += NAME
+    #string PATH += /
+
+    if NEXT_FOLDER != 0xffffffff
+        math TMP = NEXT_FOLDER
+        math TMP *= 0x18
+        goto TMP MEMORY_FILE2
+        callfunction EXTRACT_FOLDERS
+    endif
+    goto CURR_OFF MEMORY_FILE2
+
+endfunction
+
+startfunction EXTRACT_FILES
+    string PATH += NAME
+    #string PATH += /
+
+    math TMP = FILE_IDX
+    math TMP *= 0x18
+    goto TMP MEMORY_FILE
+    for FILE_IDX = FILE_IDX < FILE_END_IDX
+        get NAME_OFF long MEMORY_FILE
+        get PREVX long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get CRC long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+
+        goto NAME_OFF MEMORY_FILE3
+        get NAME string MEMORY_FILE3
+        set FNAME string PATH
+        string FNAME += NAME
+
+        if ZSIZE == SIZE
+            log FNAME OFFSET SIZE
+        else
+            log FNAME OFFSET ZSIZE
+            #clog FNAME OFFSET ZSIZE SIZE
+        endif
+    next FILE_IDX
+endfunction

@@ -1,0 +1,22 @@
+<bms games="'Heroes Chronicles', 'Heroes Of Might And Magic 3'" platforms="'PC'" ext="LOD">
+IDString 0 LOD ;
+SavePos FILESTART 0 ;
+Math FILESTART += 5 ;
+GoTo FILESTART 0 ;
+Get FILECNTL Long 0 ;
+Set FILESTART Long 92 ;
+GoTo FILESTART 0 ;
+Do ;
+SavePos FILESTART 0 ;
+GetDString FILENAME 16 0 ;
+Get FILEOFF Long 0 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+GoTo FILEOFF 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+GoTo FILESTART 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

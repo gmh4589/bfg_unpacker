@@ -1,0 +1,20 @@
+# Spartacus Legends
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+endian big
+get VER long        # 1
+endian guess VER    # just to be sure...
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    set EXT extension NAME
+    if EXT == "gz"
+        set NAME fullbasename NAME
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,31 @@
+# 寻仙 - Seek Fairy
+#   unknown compression
+# script for QuickBMS http://quickbms.aluigi.org
+
+# comtype ???
+comtype oodle
+idstring "PPkg1.0\0"
+get DUMMY long
+get DUMMY long
+savepos BASE_OFF
+get PKG_SIZE asize
+for
+    savepos OFFSET
+    if OFFSET u>= PKG_SIZE
+        break
+    endif
+    get ZERO long
+    get SIZE long
+    get ZSIZE long
+    get IS_NOT_COMPRESSED long
+    savepos OFFSET
+    if IS_NOT_COMPRESSED != 0
+        log "" OFFSET SIZE
+    else    # maybe encrypted too?
+        log "compressed/" OFFSET ZSIZE
+        #clog "" OFFSET ZSIZE SIZE
+    endif
+    math OFFSET + ZSIZE
+    goto OFFSET
+    padding 0x100 0 BASE_OFF
+next

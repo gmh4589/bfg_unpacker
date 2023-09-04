@@ -1,0 +1,23 @@
+# Chaos Engine
+
+comtype lzah
+get MAX_OFF long
+for
+    savepos TMP
+    if TMP >= MAX_OFF
+        break
+    endif
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZSIZE long
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    math ZSIZE - 4
+    goto TMP
+
+    clog NAME OFFSET ZSIZE SIZE
+next

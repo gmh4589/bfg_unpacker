@@ -1,0 +1,12 @@
+# Suikoden V BTL_BG000_000.ROM
+
+comtype lzss0
+get ROM_SIGN long   # "rom"
+get OFFSET long
+math OFFSET + 4
+get COMP_SIGN long  # "lzs"
+get SIZE long
+get ZSIZE long
+math ZSIZE - OFFSET
+get NAME basename
+clog NAME OFFSET ZSIZE SIZE

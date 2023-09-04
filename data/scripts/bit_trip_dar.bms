@@ -1,0 +1,23 @@
+# Bit.Trip Complete
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+endian big
+idstring "DAR"
+goto -4
+get OFFSET long
+goto OFFSET
+get FILES line
+for i = 0 < FILES
+    get TMP line
+    string ELEMENTS S TMP NAME SIZE OFFSET
+    set EXT extension NAME
+    if EXT == "lz"
+        set NAME fullbasename NAME
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+print "Use the following script with the ARC files:\n\n  http://aluigi.org/bms/sonic2006.bms\n"

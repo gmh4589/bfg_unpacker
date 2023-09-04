@@ -1,0 +1,14 @@
+idstring "BKG\0"
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY threebyte
+for i = 0 < FILES
+    getdstring NAME 3
+    get SIZE long
+    savepos OFFSET
+    string NAME + "/"   # auto-guess
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next i

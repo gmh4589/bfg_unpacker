@@ -1,0 +1,42 @@
+# NecroVision / Painkiller series (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 8
+goto 0
+if SIGN u== "PainPack"
+    print "Please use http://aluigi.org/bms/zip2.bms"
+    cleanexit
+endif
+
+get UNZIP byte
+get OFFSET long
+goto OFFSET
+get FILES long
+
+for i = 0 < FILES
+    get N long
+    getdstring NAME N
+
+    set D long N
+    math D %= 5
+    for j = 0 < N
+        getvarchr CHR NAME j
+        set TMP N
+        math TMP += j
+        math TMP <<= 1
+        math TMP += D
+        math TMP += i
+        math CHR ^= TMP
+        putvarchr NAME j CHR
+    next j
+
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+
+    if UNZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

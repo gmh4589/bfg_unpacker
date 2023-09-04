@@ -1,0 +1,14 @@
+# Another World
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PACK"
+get OFFSET long
+get FILES long
+math FILES /= 0x40
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x38
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

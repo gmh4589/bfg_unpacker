@@ -1,0 +1,63 @@
+# Iron Lore ARC
+#   Grim Dawn
+#
+#   format from atom0s https://github.com/atom0s/grimarc
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+
+idstring "ARC\0"
+get Version long
+get NumberOfFileEntries long
+get NumberOfDataRecords long
+get RecordTableSize long
+get StringTableSize long
+get RecordTableOffset long
+
+goto RecordTableOffset
+for i = 0 < NumberOfDataRecords
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i ZSIZE
+    putarray 2 i SIZE
+next i
+
+savepos OFFSET
+log MEMORY_FILE2 OFFSET StringTableSize
+
+math OFFSET += StringTableSize
+goto OFFSET
+for i = 0 < NumberOfFileEntries
+    get EntryType long
+    get FileOffset long
+    get CompressedSize long
+    get DecompressedSize long
+    get Unknown0001 long
+    get FileTime longlong
+    get FileParts long
+    get FirstPartIndex long
+    get StringEntryLength long
+    get StringEntryOffset long
+
+    putvarchr MEMORY_FILE DecompressedSize 0
+    log MEMORY_FILE 0 0
+    xmath LastPartIndex "FirstPartIndex + FileParts"
+    append
+    for x = FirstPartIndex < LastPartIndex
+        getarray OFFSET 0 x
+        getarray ZSIZE  1 x
+        getarray SIZE   2 x
+        if SIZE == ZSIZE    # ???
+            log MEMORY_FILE OFFSET SIZE
+        else
+            clog MEMORY_FILE OFFSET ZSIZE SIZE
+        endif
+    next x
+    append
+
+    goto StringEntryOffset MEMORY_FILE2
+    getdstring NAME StringEntryLength MEMORY_FILE2
+    log NAME 0 DecompressedSize MEMORY_FILE
+next i

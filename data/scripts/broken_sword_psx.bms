@@ -1,0 +1,26 @@
+# extracts the TUNES.DAT/.TAB and SPEECH.DAT/.TAB from
+# Broken Sword: Shadow of the Templars (PSX)
+# (c) 2012-04-10 by AlphaTwentyThree of XeNTaX
+
+include "func_header_SS2.bms"
+open FDDE DAT 0
+open FDDE TAB 1
+get FILES asize 1
+math FILES /= 0x8
+for i = 1 <= FILES
+   get OFFSET long 1
+   math OFFSET *= 0x800
+   get SIZE long 1
+   if SIZE == 0xffffffff
+   elif SIZE == 0
+   else
+      set FREQ 11025
+      set CH 1
+      set INTERLEAVE 0x10
+      get NAME basename 1
+      string NAME += "_"
+      string NAME += i
+      string NAME += ".ss2"
+      callfunction SS2 1
+   endif
+next i

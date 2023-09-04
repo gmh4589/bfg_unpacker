@@ -1,0 +1,21 @@
+# Eve Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get NAMESZ long
+    math NAMESZ += 1
+    getdstring NAME NAMESZ
+next i
+savepos OFFSET
+goto 4
+for i = 0 < FILES
+    get SIZE long
+    get NAMESZ long
+    math NAMESZ += 1
+    getdstring NAME NAMESZ
+
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

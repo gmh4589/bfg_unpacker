@@ -1,0 +1,31 @@
+# Gear Grinder
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PK\x01\x09"
+get INFO_OFF long
+goto INFO_OFF
+
+get PAKSIZE asize
+for
+    if INFO_OFF >= PAKSIZE
+        cleanexit
+    endif
+    get DUMMY long
+    get DUMMY long
+    get ZIP byte
+    get DUMMY long
+    get NAMESZ short
+    getdstring UNAME NAMESZ
+    set NAME unicode UNAME
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    savepos INFO_OFF
+
+    math OFFSET += 22
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next

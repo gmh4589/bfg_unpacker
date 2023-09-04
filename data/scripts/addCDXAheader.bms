@@ -1,0 +1,18 @@
+# add a PSX ADPCM header to a headerless file
+# note: the format always has 37,800Hz and 2 channels
+
+set MEMORY_FILE binary "\x52\x49\x46\x46\xe4\x4\xbe\x2\x43\x44\x58\x41\x66\x6d\x74\x20\x10\x0\x0\x0\x0\x0\x0\x0\x1\x55\x58\x41\x1\x0\x0\x00\x0\x0\x0\x0\x64\x61\x74\x61\xc0\x4\xbe\x2"
+
+get SIZE asize
+get NAME basename
+string NAME += ".xa"
+set RIFFSIZE SIZE
+math RIFFSIZE += 0x24
+putVarChr MEMORY_FILE 0x04 RIFFSIZE long
+putVarChr MEMORY_FILE 0x28 SIZE long
+
+append
+log MEMORY_FILE 0 SIZE
+append
+math SIZE += 0x2c
+log NAME 0 SIZE MEMORY_FILE

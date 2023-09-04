@@ -1,0 +1,55 @@
+# Angry Birds decrypter (script 0.1.6)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# https://forum.xentax.com/viewtopic.php?f=21&t=9840
+putarray 0 -1 "USCaPQpA4TSNVxMI1v9SK9UC0yZuAnb2"
+putarray 0 -1 "zePhest5faQuX2S2Apre@4reChAtEvUt"
+putarray 0 -1 "RmgdZ0JenLFgWwkYvCL2lSahFbEhFec4"
+putarray 0 -1 "An8t3mn8U6spiQ0zHHr3a1loDrRa3mtE"
+putarray 0 -1 "B0pm3TAlzkN9ghzoe2NizEllPdN0hQni"
+putarray 0 -1 "4FzZOae60yAmxTClzdgfcr4BAbPIgj7X"
+putarray 0 -1 ""
+
+get NAME basename
+get EXT extension
+string NAME + "_decrypt."
+string NAME + EXT
+
+set 7z_MAGIC binary "\x37\x7a\xBC\xAF\x27\x1C"
+
+get SIZE asize
+for i = 0
+    getarray KEY 0 i
+    if KEY == ""
+        cleanexit
+    endif
+    encryption "CipherFinal aes-256-cbc" KEY "" 0 32
+    log MEMORY_FILE 0 SIZE
+    getdstring TEST 6 MEMORY_FILE
+    if TEST u== 7z_MAGIC
+        encryption "CipherFinal aes-256-cbc" KEY "" 0 32
+        string NAME + ".7z"
+        log NAME 0 SIZE
+        cleanexit
+    endif
+    encryption "" ""
+    math OFFSET = 0
+    goto OFFSET MEMORY_FILE
+    get DUMMY byte MEMORY_FILE  # 0x89 or 0x1b
+    getdstring TEST 8 MEMORY_FILE
+    if TEST & "LZMA"
+        savepos OFFSET MEMORY_FILE
+        encryption "CipherFinal aes-256-cbc" KEY "" 0 32
+        log MEMORY_FILE 0 SIZE
+        get SIZE asize MEMORY_FILE
+        encryption "" ""
+        comtype lzma_dynamic
+        math SIZE - OFFSET
+        clog NAME OFFSET SIZE SIZE MEMORY_FILE
+        cleanexit
+    elif TEST & "LuaQ"
+        get SIZE asize MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+        cleanexit
+    endif
+next i

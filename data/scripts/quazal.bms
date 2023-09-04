@@ -1,0 +1,23 @@
+# Quazal packet decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+# simply dump each encrypted UDP packet sent/received from *.quazal.net in a file and pass it to this script
+
+get NAME filename
+string NAME += ".decrypted"
+
+encryption rc4 "CD&ML"
+get SIZE asize
+math SIZE -= 11
+log MEMORY_FILE 11 SIZE
+encryption "" ""
+
+get ZIP byte MEMORY_FILE
+get SIZE asize MEMORY_FILE
+math SIZE -= 1
+if ZIP == 0
+    log NAME 1 SIZE MEMORY_FILE
+else
+    set XSIZE long SIZE MEMORY_FILE
+    math XSIZE *= ZIP   # ???
+    clog NAME 1 SIZE XSIZE MEMORY_FILE
+endif

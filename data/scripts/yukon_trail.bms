@@ -1,0 +1,23 @@
+# Yukon Trail disk
+
+endian big
+get DUMMY long
+getdstring MECC_SIGN 4
+get ZERO short
+idstring "Yukon"
+goto 0x54
+get FILES1 short
+get FILES2 short
+for i = 0 < FILES1
+    getdstring NAME 4
+    get DUMMY short
+    get DUMMY short
+next i
+for i = 0 < FILES2
+    getdstring NAME 4
+    get DUMMY short
+    get SIZE long
+    get OFFSET long
+    string NAME + "/."
+    log NAME OFFSET SIZE
+next i

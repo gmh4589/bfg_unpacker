@@ -1,0 +1,16 @@
+# UFC Undisputed 2010 ppk
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long  # 1
+get DUMMY long  # 0x14
+get FILES long
+get DUMMY long  # 1
+get DUMMY long  # 2
+goto 0x800
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_CRC long
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next i

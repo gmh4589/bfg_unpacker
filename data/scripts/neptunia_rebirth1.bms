@@ -1,0 +1,43 @@
+# Hyperdimension Neptunia Re;Birth1 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype neptunia
+idstring "DW_PACK\0"
+get ZERO long
+get FILES long
+get ZERO long
+savepos INFO_OFF
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    for i = 0 < FILES
+        get ZERO long
+        get ID long
+        getdstring NAME 260
+        get ZERO long
+        get ZSIZE long
+        get SIZE long
+        get ZIP long
+        get OFFSET long
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            if ZIP == 0
+                log NAME OFFSET SIZE
+            else
+
+                # it will be automatic in quickbms 0.11
+                savepos TMP
+                goto OFFSET
+                get CHECK long
+                goto TMP
+                if CHECK == 0x1234
+                    comtype neptunia
+                else
+                    comtype neptunia0
+                endif
+
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

@@ -1,0 +1,40 @@
+# Critical Damage
+#   heuristic solution, not the real format
+
+get CGR_SIZE asize
+for
+    savepos TMP
+    if TMP == CGR_SIZE
+        break
+    endif
+
+    math READ_IT = 1
+    getdstring TYPE 4
+    if TYPE == "PROD"
+        get DUMMY string
+    elif TYPE & "_"
+        goto -4 0 SEEK_CUR
+        get DUMMY string
+        if DUMMY == "__METADATA__"
+            goto 0 0 SEEK_END
+        endif
+    else
+        get SIZE long
+        if SIZE u>= 0x41414141  # AAAA
+        if SIZE u<= 0x5a5a5a5a  # ZZZZ
+            math READ_IT = 0
+            goto -4 0 SEEK_CUR
+        endif
+        endif
+        if READ_IT != 0
+            if SIZE > 64
+                savepos OFFSET
+                log "" OFFSET SIZE
+                math OFFSET + SIZE
+                goto OFFSET
+            else
+                getdstring DATA SIZE
+            endif
+        endif
+    endif
+next

@@ -1,0 +1,33 @@
+# Voyage Century Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+open FDDE "CNT"
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+open FDDE "IDX"
+set PATH string ""
+set NAME string ""
+math SUB_ENTRIES = 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math ENTRIES = SUB_ENTRIES
+    for i = 0 < ENTRIES
+        get TYPE long
+        get NAME string
+        if TYPE == 0
+            get SUB_ENTRIES long
+            callfunction EXTRACT
+        else
+            get OFFSET long
+            get SIZE long
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+endfunction

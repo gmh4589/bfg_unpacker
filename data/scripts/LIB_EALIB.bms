@@ -1,0 +1,21 @@
+<bms games="'US Navy Fighters', 'US Marine Fighters'" platforms="'PC'" ext="LIB">
+IDString 0 EALIB ;
+Get FILECNTL Int 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 12 0 ;
+Get DUMMYL Int 0 ;
+Get FILEOFF Long 0 ;
+Math FILEOFF += 5 ;
+SavePos FILESTART 0 ;
+SavePos DUMMYL 0 ;
+Math DUMMYL += 12 ;
+GoTo DUMMYL 0 ;
+Get DUMMYL Int 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

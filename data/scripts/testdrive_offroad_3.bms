@@ -1,0 +1,12 @@
+# Test Drive Off-Road 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 32
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE # ???
+next i

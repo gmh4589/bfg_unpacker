@@ -1,0 +1,40 @@
+# The Great Merchant gcs/gts (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+codepage 932
+idstring "\x17\xbc\x58\x64"
+goto 0x14   # 01 00 00 10 zeroes
+get ALGO long
+if ALGO == 1
+    comtype lzo1x
+elif ALGO == 2
+    comtype zlib
+else
+    print "Error: unknown algorithm %ALGO%"
+    cleanexit
+endif
+get DUMMY long
+get ZERO long
+get TSTAMP longlong
+get FILES long
+get SOME_CRC long
+for i = 0 < FILES
+    get TYPE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if TYPE & 0x20
+        get ZSIZE long
+        get SIZE long
+        get ZERO long
+        getdstring DUMMY 12
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+        goto ZSIZE 0 SEEK_CUR
+    elif TYPE & 0x10
+        # empty
+    else
+        break
+        print "Error: unknown type %TYPE|x%"
+        cleanexit
+    endif
+next i

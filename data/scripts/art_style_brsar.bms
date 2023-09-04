@@ -1,0 +1,76 @@
+# Art Style
+# script for QuickBMS http://quickbms.aluigi.org
+
+set PREV_SIGN string ""
+endian big
+idstring "RSAR"
+get DUMMY short
+get DUMMY short
+get BRSAR_SIZE long
+get DUMMY short
+get ELEMENTS short
+for ELEMENT = 0 < ELEMENTS
+    get OFFSET long
+    get SIZE long
+
+    savepos BCK_OFF
+    goto OFFSET
+    getdstring SIGN 4
+    get SIZE long
+    savepos BASE_OFF
+    if SIGN == "FILE"
+
+        getdstring ZERO 0x18
+        for i = 0
+            savepos OFFSET
+            if OFFSET u>= BRSAR_SIZE
+                break
+            endif
+            getdstring SIGN 4
+            get SIZE long
+            if SIZE < 0
+                get DUMMY long
+                get DUMMY long
+                get SIZE long
+            endif
+            if PREV_SIGN == "TABL"
+                math SIZE = 0x20
+            endif
+
+            math OFFSET + 8
+            math SIZE   - 8
+
+            if SIGN == "DATA"
+                # the number of names doesn't match the number of DATAs
+                string NAME p "%s/" PREV_SIGN
+                math i + 1
+                log NAME OFFSET SIZE
+            endif
+            math OFFSET + SIZE
+            goto OFFSET
+
+            set PREV_SIGN string SIGN
+        next
+
+    /*
+    # it's useless to collect names
+    elif SIGN == "SYMB"
+
+        for x = 0 < 5
+            get DUMMY long
+        next x
+        get FILES long
+        for i = 0 < FILES
+            get NAME_OFF long
+            math NAME_OFF + BASE_OFF
+            savepos TMP
+            goto NAME_OFF
+            get NAME string
+            putarray 0 i NAME
+            goto TMP
+        next i
+    */
+
+    endif
+    goto BCK_OFF
+next ELEMENT

@@ -1,0 +1,76 @@
+# MLB Power Pros 2009
+#   experimental!
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY1 long
+get ALIGN long
+get DUMMY3 long
+get FILES long
+get DUMMY5 long
+get OFFSET1 long
+get DUMMY7 long
+get DUMMY8 long
+get DUMMY9 long
+get DUMMY10 long
+get OFFSET2 long
+get NAMES_OFF long
+get DUMMY13 long
+get DATA_OFF long
+
+goto ALIGN
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+# the following method is probably wrong? mah
+goto OFFSET2
+get ZERO long
+get ZERO long
+get XFILES long
+get ZERO long
+for i = 0 < XFILES
+    get DUMMY long
+    get OFFSET long
+    math OFFSET * ALIGN
+    math OFFSET + DATA_OFF
+    putarray 10 i OFFSET
+next i
+
+math MYID = 0
+for i = 0 < FILES
+    getarray OFFSET 0 i
+
+    math OFFSET + OFFSET1
+    goto OFFSET
+
+    get ZERO long
+    get NAME_OFF long
+    get DUMMY1 long
+    get DUMMY2 long  # align or flags
+    get ZERO long
+    get ZERO long
+    get DUMMY3 long
+
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+
+    if DUMMY2 != 0
+        getarray OFFSET 10 MYID
+        putarray 11 MYID NAME
+        math MYID + 1
+    endif
+next i
+
+math XFILES - 1
+for i = 0 < XFILES
+    getarray OFFSET 10 i
+    getarray NAME   11 i
+    math i + 1
+    getarray SIZE   10 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,116 @@
+# Epic Seven idx/pack
+#   Experimental. It works with the tested sample but there are many duplicates.
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+open FDDE "idxz" 0 EXISTS
+if EXISTS != 0
+    get SIZE asize
+    clog MEMORY_FILE 0 SIZE SIZE
+else
+    open FDDE "idx" 0 EXISTS
+    if EXISTS != 0
+        get SIZE asize
+        log MEMORY_FILE 0 SIZE
+    endif
+endif
+
+# Currently idxz is useless since its offsets are wrong
+if EXISTS != 0
+    idstring MEMORY_FILE "spdi"
+    getdstring HASH 16 MEMORY_FILE
+    get DUMMY long MEMORY_FILE  # 0x7a
+    get NUM long MEMORY_FILE
+    get FILES long MEMORY_FILE
+    getdstring ZERO 16 MEMORY_FILE
+    for i = 0 < NUM
+        get SOME_ID long MEMORY_FILE
+        get OFFSET longlong MEMORY_FILE
+    next i
+    for i = 0 < FILES
+        savepos ENTRY_OFF MEMORY_FILE
+        get ENTRY_SIZE long MEMORY_FILE
+        get SOME_ID long MEMORY_FILE
+        get OFFSET longlong MEMORY_FILE
+        get SIZE longlong MEMORY_FILE
+        getdstring HASH 16 MEMORY_FILE
+        savepos TMP MEMORY_FILE
+        xmath NAMESZ "ENTRY_SIZE - (TMP - ENTRY_OFF)"
+        getdstring NAME NAMESZ MEMORY_FILE  # already includes the folder name
+
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+        putarray 2 i NAME
+    next i
+endif
+
+open FDDE "pack"
+filexor "\x21\x0c\xed\x10\xd8\x81\xd7\xa3\xfa\x9b\xc9\x7a\xd3\xae\xeb\x6d\x98\x89\x31\x34\x2d\x39\x1e\x1f\xe1\xc4\x7c\xdd\x2d\xef\x26\x37\x7a\xfa\xbf\xd2\xd9\x60\x79\xf1\xca\x99\xd0\x32\xf7\xd8\x4d\x4e\xf6\xce\x45\xda\x0c\x67\x99\x09\xe6\x89\x75\x69\x5f\xd9\x12\xa2\x3e\x77\x74\x3c\xf5\xbe\x2e\x57\x64\x05\x1a\x71\x96\x62\x23\x25\x80\x63\xfc\xe7\xc6\xd4\xe7\xca\x76\x7d\x70\x3c\xcb\xe2\x31\xc5\xed\x03\x8d\xcc\xad\x1a\x75\x53\x4a\x61\x27\xb8\x30\xca\xeb\x73\xb4\xc6\xd6\xdb\xda\x00\x88\xe2\x11\x21\xef\xd5\xf3\x8a\x02\x1f\x06"
+
+get ARCHIVE_SIZE asize
+math ARCHIVE_SIZE - 4   # SOME_ID
+
+idstring "PLPcK"
+get VER byte    # 0x01
+get INFO_OFF longlong
+get ZERO long
+get DUMMY long  # some flag, 0 or 0x40
+get DUMMY long  # 8 or 0x80
+math ENTRIES = 0x800
+goto INFO_OFF
+for INFO_NUM = 0
+    getdstring DUMMY 5
+    math NEXT_OFF = 0
+    for i = 0 < ENTRIES
+        callfunction GET_OFFSET40 1
+        savepos BCK_OFF
+        for OFFSET = OFFSET != 0
+            goto OFFSET
+            callfunction DUMP_FILE 1
+            math OFFSET = 0 # disable this useless feature
+        next
+        goto BCK_OFF
+    next i
+
+    if NEXT_OFF u>= ARCHIVE_SIZE
+        break
+    endif
+
+    for
+        goto NEXT_OFF
+        get SOME_ID long
+        callfunction DUMP_FILE 1
+    next
+
+    goto NEXT_OFF
+    get SOME_ID long
+    math ENTRIES << 1
+next INFO_NUM
+
+startfunction DUMP_FILE
+    get XSIZE long
+    get FLAGS byte  # 0x02
+    if FLAGS != 0x02    # one offset points to invalid data, no idea how to skip it
+        print "offset %OFFSET|X% is invalid"
+        break
+    endif
+    get NAMESZ byte
+    get SIZE long
+    callfunction GET_OFFSET40 1
+    getdstring NAME NAMESZ
+    savepos TMP # do NOT use OFFSET
+    log NAME TMP SIZE
+
+    math TMP + SIZE
+    if TMP u> NEXT_OFF
+        math NEXT_OFF = TMP
+    endif
+endfunction
+
+startfunction GET_OFFSET40
+    get OFFSET40 byte
+    get OFFSET long
+    if OFFSET40 != 0    # needs quickbms_4gb_files
+        xmath OFFSET "(OFFSET40 << 32) | OFFSET"
+    endif
+endfunction

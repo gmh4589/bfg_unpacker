@@ -1,0 +1,12 @@
+# World of Final Fantasy
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BARC"
+get FILES long
+for i = 0 < FILES
+    get SOME_CRC long
+    get SOME_CRC long   # NAME_CRC?
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

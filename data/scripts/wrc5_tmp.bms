@@ -1,0 +1,24 @@
+# WRC5 TMP extractor
+#   The TMP archives are located inside the ZIP and PAC files.
+#   The PAC files must be decrypted to ZIP using this script:
+#   http://aluigi.org/bms/wrc5_paczip.bms
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x26\x59\x41\x31"
+get VER long
+get DUMMY long
+get ENTRIES long
+for ENTRY = 0 < ENTRIES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next i
+next ENTRY

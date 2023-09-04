@@ -1,0 +1,11 @@
+# Legend Of Dragoon
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MRG\x1a"
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET *= 0x800
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,20 @@
+<bms games="'Jurassic Park: Trespasser', 'Total Annihilation'" platforms="'PC'" ext="'SMK', 'ZRB'">
+IDString 0 SMK2 ;
+Get DUMMYL Long 0 ;
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+Set FILESTART Long 104 ;
+Set FILEJMP Long FILECNTL ;
+Math FILEJMP *= 4 ;
+Math FILEJMP += FILECNTL ;
+Math FILEJMP += 104 ;
+Do ;
+Set FILEOFF Long FILEJMP ;
+GoTo FILESTART 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math FILEJMP += FILESIZE ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

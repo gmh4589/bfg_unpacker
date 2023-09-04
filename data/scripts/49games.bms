@@ -1,0 +1,33 @@
+# 49games
+#   RTL Skispringen
+#   Ski Alpin series
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype un49g
+idstring PACK
+get VER long
+get FILES long
+get PACK_SIZE long
+
+for i = 0 < FILES
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get NAMEOFF long
+    get CRC long
+    get METHOD long
+
+    savepos MYOFF
+    goto NAMEOFF
+    get NAME string
+    goto MYOFF
+
+    if METHOD == 0x6b
+        clog NAME OFFSET ZSIZE SIZE
+    elif METHOD == 0x30
+        log NAME OFFSET SIZE
+    else
+        print "unknown storing method %METHOD%"
+        cleanexit
+    endif
+next i

@@ -1,0 +1,11 @@
+# Rage Racer
+
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get SIZE long
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next

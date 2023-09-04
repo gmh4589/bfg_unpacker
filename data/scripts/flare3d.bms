@@ -1,0 +1,41 @@
+# Flare3D
+#   Experimental, the format has some fields missing sometimes and I don't know how to guess them.
+#   Press 'r' when asked to rename the files
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "F3D2"
+get ZERO byte
+get F3D_SIZE long
+get ZERO long
+savepos ENTRY_OFFSET
+for ENTRY_OFFSET = ENTRY_OFFSET != F3D_SIZE
+    get ZIP byte
+    get ENTRY_SIZE long
+    savepos ENTRY_OFFSET
+
+    if ZIP == 0
+        log MEMORY_FILE ENTRY_OFFSET ENTRY_SIZE
+    elif ZIP == 2
+        comtype lzma_dynamic
+        clog MEMORY_FILE ENTRY_OFFSET ENTRY_SIZE ENTRY_SIZE
+    else
+        print "Error: unknown TYPE %TYPE%"
+        cleanexit
+    endif
+
+    get MEM_SIZE asize MEMORY_FILE
+    for OFFSET = 0 != MEM_SIZE
+        get NAMESZ short MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        string NAME + "/." # auto-guess
+        get SIZE long MEMORY_FILE
+
+        savepos OFFSET MEMORY_FILE
+        log NAME OFFSET SIZE MEMORY_FILE
+        math OFFSET + SIZE
+        goto OFFSET MEMORY_FILE
+    next
+
+    math ENTRY_OFFSET + ENTRY_SIZE
+    goto ENTRY_OFFSET
+next

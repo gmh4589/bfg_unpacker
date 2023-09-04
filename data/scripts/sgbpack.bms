@@ -1,0 +1,91 @@
+# Smile Game Builder archives (sgbpack / SGBDAT) (script 0.2)
+#   code provided by lisomn https://zenhax.com/viewtopic.php?p=57736#p57736
+
+endian big
+idstring "SGBDAT"
+get VER short
+if VER == 0
+    print "Error: version %VER% is not supported, contact me"
+    cleanexit
+endif
+
+endian little
+savepos SGB_OFFSET
+filerot "-72 -9 -20 -154 -48 -169 -84 -225 -0 -8 -14 -9 -20 -60 -66 -70" SGB_OFFSET
+
+goto -0x16
+idstring "PK\x05\x06"
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+
+for i = 0 < central_entries
+filerot "-72 -9 -20 -154 -48 -169 -84 -225 -0 -8 -14 -9 -20 -60 -66 -70" SGB_OFFSET
+
+    goto central_offset
+    idstring "PK\x01\x02"
+        get ver_made        short
+        get ver_need        short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        get comm_len        short
+        get disknum         short
+        get int_attr        short
+        get ext_attr        long
+        get rel_offset      long
+        getdstring name     name_len
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+    savepos central_offset
+
+    if rel_offset == 0
+        goto 8
+        math ver = 0x20
+        math flag = 0
+    else
+    goto rel_offset
+    idstring "PK\x03\x04"
+        get ver             short
+        get flag            short
+    endif
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if method == 0
+            Log MEMORY_FILE offset uncomp_size
+        else
+            if method == 8
+                ComType deflate
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog MEMORY_FILE offset comp_size uncomp_size
+        endif
+
+    filerot ""
+    encryption rot "\x00\x0e\x08\x1e\x18\x37\x12\x00\x48\x87\x46\x0b\x9c\x68\xa8\x4b" "" 1
+    log NAME 0 uncomp_size MEMORY_FILE
+    encryption "" ""
+next i

@@ -1,0 +1,12 @@
+# Mecanoid 97
+
+get OFFSET short
+for
+    get SIZE long
+    if SIZE == 0
+        break
+    endif
+    get NAME string
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next

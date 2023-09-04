@@ -1,0 +1,56 @@
+# PSP La Pucelle: Ragnaraok (DAT) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype nislzs
+
+get EXT extension
+if EXT == "lzs"
+    get NAME basename
+    callfunction GET_LZS_INFO 1
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+
+getdstring CHECK 8
+goto 0
+if CHECK != "NISPACK"
+    filexor 0xf0
+    encryption rotate 4 8
+    filecrypt 1
+endif
+
+idstring "NISPACK\0"
+get DUMMY long  # 0
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    get CRC long
+
+    math ZSIZE = 0
+    set EXT extension NAME
+    if EXT == "lzs"
+        savepos TMP
+        goto OFFSET
+        callfunction GET_LZS_INFO 1
+        goto TMP
+    endif
+
+    filecrypt ""    # quickbms feature or bug?
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    filecrypt 1
+next i
+
+startfunction GET_LZS_INFO
+    getdstring TYPE 4   # "dat\0"
+    get SIZE long
+    get ZSIZE long
+    math ZSIZE - 8
+    savepos OFFSET
+    set NAME fullbasename NAME
+endfunction

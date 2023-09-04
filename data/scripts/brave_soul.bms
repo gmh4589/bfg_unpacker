@@ -1,0 +1,64 @@
+# Brave Soul (script 0.2)
+
+codepage 932
+
+idstring "PKWV"
+get TYPES short
+get FILES short
+for i = 0 < TYPES
+    get DUMMY short
+    get CHANNELS short
+    get FREQUENCY long
+    get FREQUENCY2 long
+    get BITS short
+    get DUMMY short
+    get ZERO long
+    putarray 0 i FREQUENCY
+    putarray 1 i BITS
+    putarray 2 i CHANNELS
+next i
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 0x18)"
+for i = 0 < FILES
+    get TYPE short
+    getdstring NAME 10
+    get SIZE long
+    get OFFSET long
+    get ZERO long
+    math OFFSET + BASE_OFF
+
+    getarray FREQUENCY 0 TYPE
+    getarray BITS      1 TYPE
+    getarray CHANNELS  2 TYPE
+
+    string NAME + ".wav"
+    callfunction TOWAV 1
+next i
+
+startfunction TOWAV
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+    get RIFF_SIZE asize MEMORY_FILE2
+    log NAME 0 RIFF_SIZE MEMORY_FILE2
+endfunction

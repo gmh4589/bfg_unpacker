@@ -1,0 +1,22 @@
+endian big
+idstring "add\0"
+goto 16
+get FILES long
+get PACSIZE long
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get NAMEOFF long
+    get DUMMY long
+
+    savepos TMP
+    goto NAMEOFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

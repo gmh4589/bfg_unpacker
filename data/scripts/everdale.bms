@@ -1,0 +1,21 @@
+# Everdale OSM
+
+comtype lzma_dynamic    # because there is no decompressed size
+idstring "SCP!"
+get VER long    # 1
+get DUMMY long  # 0x10
+get FILES long
+get INFO_OFF longlong
+goto INFO_OFF
+for i = 0 < FILES
+    get FLAGS short # 0x10
+    get NAMESZ short
+    get SIZE longlong
+    get OFFSET longlong
+    get SIZE longlong   # the SIZE fields are the same even if it's compressed!
+    getdstring HASH 16
+    getdstring HASH 16
+    getdstring NAME NAMESZ
+
+    clog NAME OFFSET SIZE SIZE
+next i

@@ -1,0 +1,266 @@
+# Codemasters NeFS/NFS archives (script 0.2.7a)
+#   Tested with F1 2010/2013/2014 (PC, PS3 and X360), Toybox Turbos, Grid 2 and Grid Autosport.
+#
+#   Notes about encrypted files:
+#     It works also with encrypted files but the method is a sort of work-around.
+#     The encrypted nefs files are extracted perfectly.
+#     dr.nic and game.dat are not nefs archives, they are a sequence of concatenated
+#     files without information, so they are just decrypted and saved "as-is"
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+math DIRT3 = 0
+math DIRT4 = 0
+get NAME basename
+get EXT extension
+
+for TRY = 0
+    getdstring SIGN 4
+    if SIGN u== "SFeN"   # PS3
+        endian big
+        set SIGN string "NeFS"
+    endif
+    if SIGN u== "NeFS"
+        savepos TMP
+        getdstring DUMMY 0x20
+        getdstring KEY 0x40
+        strlen KEYSZ KEY
+        if KEYSZ == 0x40
+            get HEAD_SIZE long
+            get DUMMY long  # like 0x10600
+            get FILES long
+            get DUMMY long  # usually zero
+            getdstring DUMMY 0xc
+        else
+            goto TMP
+            get HEAD_SIZE long
+            get DUMMY long  # like 0x10501
+            get DUMMY long  # 0 or 1
+            get FILES long
+            get SOME_CRC long
+            get ZERO long
+            get INFO_OFF long
+            savepos TMP # just a work-around for reusing the same script
+            get DUMMY8 long
+            get NAMES_OFF long
+            get DUMMY10_OFF long
+            get DATA_OFF long
+            get ZERO long
+            get SOME_CRC long
+            get SOME_CRC long
+            getdstring KEY 0x40
+            get SOME_CRC long
+
+            math DIRT3 = 1
+            math VER1 = 0
+            math VER1_FLAG = 0
+            math VER2 = 0
+            math VER3 = 0
+            goto TMP
+            break
+        endif
+        string KEY h KEY
+    else
+        goto 0x80
+        math FILES = -1
+    endif
+
+    get VER1 short
+    get VER1_FLAG short
+    get VER2 short
+    get VER3 short
+
+    # lame guessing of encrypted files
+    if VER1 > 0 && VER1 < 10
+        break
+    endif
+
+    findloc OFFSET binary "NeFS"
+    goto OFFSET
+    idstring "NeFS"
+    getdstring DUMMY 0x20
+    getdstring KEY 0x40
+    string KEY h KEY
+    encryption aes KEY "" 0 32
+    log TEMPORARY_FILE 0 OFFSET
+    encryption "" ""
+    get SIZE asize
+    math SIZE - OFFSET
+    append
+    log TEMPORARY_FILE OFFSET SIZE
+    append
+    open "." TEMPORARY_FILE
+
+    # dr.nic and game.dat
+    if EXT != "nfs" && EXT != "nefs"
+        string NAME + "_decrypt."
+        string NAME + EXT
+        get SIZE asize
+        log NAME 0 SIZE
+        cleanexit
+    endif
+next TRY
+
+    comtype deflate_noerror # deflate, but I want to have room for errors
+    math CHUNK_SIZE = 0x00020000    # version 1.4
+if VER1 == 1
+if VER2 == 2
+    #comtype lzma0
+    math CHUNK_SIZE = 0x10000       # version 1.2
+endif
+endif
+
+if DIRT3 != 0
+    # ok
+    xmath ENTRIES_OFF "INFO_OFF + (FILES * 0x18)"
+else
+    get INFO_OFF long
+    if INFO_OFF != 0x100    # Dirt 4
+        goto -8 0 SEEK_CUR
+        get INFO_OFF long
+        math DIRT4 = 1
+    endif
+    get EOF_INFO long
+    get ENTRIES_OFF long
+endif
+get DUMMY2_OFF long
+get NAMES_OFF long
+get ZSIZES_OFF long
+get EOF_INFO2 long
+math EOF_INFO2 + 4
+get ZERO long
+#if FILES < 0
+#    xmath FILES "(ENTRIES_OFF - INFO_OFF) / (8+4+4+4)"
+#endif
+
+goto ENTRIES_OFF
+for i = 0
+    savepos TMP
+    if TMP u>= NAMES_OFF
+        break
+    endif
+    if DIRT3 != 0
+        get FOLDER_ID long
+    endif
+    get PREV_ID long
+    get NEXT_ID long
+    get NAME_OFF long
+    get SIZE long
+    get MYID long
+    if DIRT3 != 0
+        get MYID long
+        math PREV_ID = FOLDER_ID
+    endif
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    putarray 0 i PREV_ID
+    putarray 1 i NEXT_ID
+    putarray 2 i NAME
+    putarray 3 i SIZE
+    putarray 4 i MYID
+next i
+math ENTRIES = i
+
+goto ZSIZES_OFF
+for i = 0
+    savepos TMP
+    if TMP u>= EOF_INFO2
+        break
+    endif
+    get ZSIZE long
+    if DIRT4 != 0
+        math DUMMY1 = 0
+        math DUMMY2 = 0
+    else
+        get DUMMY1 short # ZIP? 0x7
+        get DUMMY2 short
+    endif
+    putarray 5 i ZSIZE
+    putarray 6 i DUMMY1
+    putarray 7 i DUMMY2
+next i
+math ZSIZES = i
+
+goto INFO_OFF
+for i = 0 != FILES  # works with FILES < 0 too
+    savepos TMP
+    #if FILES < 0
+        if TMP u>= ENTRIES_OFF
+            break
+        endif
+    #endif
+    get OFFSET longlong
+    if DIRT3 != 0
+        get DUMMY long
+    endif
+    get ENTRY long
+    get ZSIZE_ENTRY long
+    get FILE_NUM long
+
+    if OFFSET == 0
+        # folders
+    else
+        getarray PREV_ID 0 ENTRY
+        getarray NEXT_ID 1 ENTRY
+        getarray NAME 2 ENTRY
+        getarray SIZE 3 ENTRY
+        getarray MYID 4 ENTRY
+        set FNAME string NAME
+        do
+            for j = 0 < ENTRIES
+                getarray MYID 4 j
+                if j == ENTRY
+                    # skip
+                else if MYID == PREV_ID
+                    break
+                endif
+            next j
+            if j >= ENTRIES
+                break
+            endif
+            getarray PREV_ID 0 j
+            getarray NAME 2 j
+            string FNAME p "%s/%s" NAME FNAME
+        while PREV_ID != MYID
+
+        # I have removed the code for small files reimporting
+
+        if ZSIZE_ENTRY == 0xffffffff
+            log FNAME OFFSET SIZE
+        else
+            math OLD_ZSIZE = 0
+            putvarchr MEMORY_FILE SIZE 0
+            log MEMORY_FILE 0 0
+            append
+            for MYSIZE = 0 < SIZE
+                getarray ZSIZE  5 ZSIZE_ENTRY
+                getarray DUMMY1 6 ZSIZE_ENTRY
+                getarray DUMMY2 7 ZSIZE_ENTRY
+                comtype deflate_noerror # DUMMY 0/4
+                if DUMMY1 == 6
+                    comtype lzma0
+                elif DUMMY1 == 1
+                    comtype lzss
+                endif
+                math ZSIZE_ENTRY + 1
+                xmath TMP "ZSIZE - OLD_ZSIZE"
+                xmath TMP_OFF "OFFSET + OLD_ZSIZE"
+                if TMP == CHUNK_SIZE
+                    log MEMORY_FILE TMP_OFF CHUNK_SIZE
+                else
+                    clog MEMORY_FILE TMP_OFF TMP CHUNK_SIZE
+                endif
+                get MYSIZE asize MEMORY_FILE
+                math OLD_ZSIZE = ZSIZE
+            next
+            append
+            log FNAME 0 SIZE MEMORY_FILE
+        endif
+
+    endif
+next i

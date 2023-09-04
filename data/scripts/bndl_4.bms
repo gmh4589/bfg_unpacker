@@ -1,0 +1,27 @@
+# BNDL version 4
+#   Guardians of Middle-Earth
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BNDL"
+get VER long
+get OFFSET1 long
+get OFFSET2 long
+get DUMMY long
+get FOLDERS long    # ???
+get FILES long
+
+savepos NAMES_OFF
+goto OFFSET2 0 SEEK_CUR
+get DUMMY long
+
+for i = 0 < FILES
+    get NAME_OFF long
+    get SIZE long
+    savepos OFFSET
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next i

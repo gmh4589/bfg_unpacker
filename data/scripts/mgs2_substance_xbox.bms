@@ -1,0 +1,109 @@
+# Metal Gear Solid 2: Substance (Xbox)
+
+get archive_name basename
+get archive_size asize
+string disc_name = archive_name
+string disc_name > "_"
+string disc_name < "disc"
+string disc_number = archive_name
+string disc_number - disc_name
+string disc_number > "_"
+string disc_partition = archive_name
+string disc_partition ! disc_name
+string disc_partition ! disc_number
+string disc_partition ! "_"
+
+if disc_name == "disc"
+	if disc_number == "1" | disc_number == "2"
+		if disc_partition != "0"
+			print "oh come on..."
+			cleanexit
+		else
+			math archive_offset_per_partition = 0
+			math partition_number = 0
+			for partition_check = 0 <= partition_number
+				string archive_name_02 p "disc%s_%d.dat" disc_number disc_partition
+				putarray 1 partition_check archive_name_02
+				open FDSE archive_name_02 1 EXISTS
+				if EXISTS == 1
+					get archive_size_02 asize 1
+					math archive_size_02 >> 11
+					putarray 2 partition_check archive_offset_per_partition
+					math archive_offset_per_partition + archive_size_02
+					math archive_size_limit_per_partition == archive_offset_per_partition
+					putarray 3 partition_check archive_size_limit_per_partition
+					putarray 4 partition_check archive_size_02
+					math disc_partition + 1
+				else
+					break
+				endif
+				math partition_number + 1
+			next partition_check
+			
+			get files long
+			for i = 0 < files
+				getdstring file_name 0x10
+				get file_offset long
+				get file_size long
+				math archive_chunks_per_file = 0
+				math last_archive_chunk_per_file = 0
+				math pass = 0
+				math file_size_exp_02 = 0
+				math file_size_exp_03 = file_size
+				
+				append
+				for j = 0 <= partition_number
+					getarray archive_name_per_partition 1 j
+					getarray archive_offset_per_partition 2 j
+					getarray archive_size_limit_per_partition 3 j
+					getarray archive_size_per_partition 4 j
+					
+					if file_offset >= archive_offset_per_partition && file_offset <= archive_size_limit_per_partition
+						xmath file_offset_per_archive_chunk "file_offset - archive_offset_per_partition"
+						math pass = 1
+					endif
+					
+					if pass = 1
+						if archive_chunks_per_file = 0
+							math file_size_exp_01 = archive_size_per_partition
+							math file_size_exp_01 - file_offset_per_archive_chunk
+						else
+							math file_offset_per_archive_chunk = 0
+							math file_size_exp_01 = archive_size_per_partition
+						endif
+						
+						math file_size_exp_02 + file_size_exp_01
+						
+						if file_size_exp_02 >= file_size
+							math last_archive_chunk_per_file = 1
+						endif
+						
+						if last_archive_chunk_per_file = 0
+							math file_size_per_archive_chunk = file_size_exp_01
+						elif last_archive_chunk_per_file = 1
+							if archive_chunks_per_file = 0
+								math file_size_per_archive_chunk = file_size
+							else
+								math file_size_per_archive_chunk = file_size_exp_03
+							endif
+						endif
+						
+						xmath file_offset_per_archive_chunk_02 "file_offset_per_archive_chunk << 11"
+						xmath file_size_per_archive_chunk_02 "file_size_per_archive_chunk << 11"
+						
+						open FDSE archive_name_per_partition 1
+						log file_name file_offset_per_archive_chunk_02 file_size_per_archive_chunk_02 1
+						
+						if last_archive_chunk_per_file = 1
+							break
+						else
+							math archive_chunks_per_file + 1
+						endif
+						math file_size_exp_03 - file_size_exp_01
+					endif
+				next j
+				append
+			next i
+		endif
+	endif
+endif

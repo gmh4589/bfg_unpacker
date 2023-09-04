@@ -1,0 +1,45 @@
+# Attack of the Movies 3-D
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+# "dir" is totally useless because the names are LESS than the files!
+open FDDE "dir" 0 EXISTS
+if EXISTS != 0
+    get DIR_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get NAME_OFF long
+        get DUMMY long
+        putarray 1 i NAME_OFF
+    next i
+    savepos NAMES_OFF
+    for i = 0 < FILES
+        getarray NAME_OFF 0 i
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        putarray 1 i NAME
+    next i
+endif
+
+open FDDE "idx"
+open FDDE "dfs" 1
+
+get FILES asize
+math FILES / 4
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+get OFFSET asize 1
+putarray 0 i OFFSET
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

@@ -1,0 +1,15 @@
+# Micro Machines V4
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PIZ\0"
+get VER long    # 3
+get FILES long
+padding 0x800
+for i = 0 < FILES
+    getdstring NAME 0x70
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

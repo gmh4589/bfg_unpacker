@@ -1,0 +1,20 @@
+# QuickCompression QCMP PMCQ
+
+quickbmsver "0.8.5"
+
+get NAME basename
+get EXT extension
+string NAME + "_unpack."
+string NAME + EXT
+
+endian big
+idstring "QCMP"
+get type short      # 1
+get version short   # 1
+get dataOffset long
+get extraSize long
+get compressedSize longlong
+get uncompressedSize longlong
+get uncompressedHash longlong
+math compressedSize - dataOffset
+clog NAME dataOffset compressedSize uncompressedSize

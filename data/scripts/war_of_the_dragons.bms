@@ -1,0 +1,48 @@
+# War of the Dragons
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "file.tbl2"
+goto 0x100018
+math LAST_PART = -1
+get TBL2_SIZE asize
+math TBL2_SIZE -= 0x20
+for
+	# lame check to get invalid entries like char\pc\keb\part\pc_kem-ir03.xac
+	savepos TMP
+	if TMP >= TBL2_SIZE
+		cleanexit
+	endif
+	getdstring DUMMY 0x20
+	get NAME string
+	strlen NAMESZ NAME
+	if NAMESZ < 0x10
+		math TMP += 4
+		goto TMP
+	else
+		goto TMP
+
+		get DUMMY long
+		get OFFSET long
+		get ZSIZE long
+		get DUMMY long
+		get SIZE long
+		get PART long
+		if ZSIZE == 0
+		if SIZE == 0
+		if OFFSET == 0
+		cleanexit
+		endif
+		endif
+		endif
+		get DUMMY long
+		get DUMMY long
+		get NAME string
+		padding 4
+		if PART != LAST_PART
+			string PATH p= "file%03d.data2" PART
+			open FDSE PATH 1
+			math LAST_PART = PART
+		endif
+		log NAME OFFSET SIZE 1
+	endif
+next

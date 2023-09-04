@@ -1,0 +1,13 @@
+# Party of Sin
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+for OFFSET = 0 < FULLSIZE
+    goto OFFSET
+    get SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next

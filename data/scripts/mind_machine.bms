@@ -1,0 +1,38 @@
+# Mind Machine
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VFS2"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get FOLDERS_SIZE long
+get FILES_SIZE long
+math FOLDERS = FOLDERS_SIZE
+math FOLDERS /= 0x84
+math FILES = FILES_SIZE
+math FILES /= 0xa0
+set PATH string ""
+putarray 0 0 ""
+for i = 1 <= FOLDERS
+    get TYPE long
+    getdstring NAME 0x80
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get PATH_NUM long
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long  # not verified, SIZE and ZSIZE may be inverted
+    getdstring DUMMY 16
+
+    getarray FNAME 0 PATH_NUM
+    string FNAME += /
+    string FNAME += NAME
+
+    if SIZE == ZSIZE
+        log FNAME OFFSET SIZE
+    else
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+next i

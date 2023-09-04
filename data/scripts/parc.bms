@@ -1,0 +1,103 @@
+# PARC archives (script 0.1.2)
+#   games developed by the SEGA CS1 Team:
+#   Yakuza 3, Binary Domain
+#
+# this script is a conversion of the code posted by MrAdults here:
+#   http://forum.xentax.com/viewtopic.php?p=42921#p42921
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype yakuza
+
+getdstring SIGN 4
+goto 0
+if SIGN == "SLLZ"
+    idstring "SLLZ"
+    get ENDIAN_TYPE byte
+    if ENDIAN_TYPE != 0
+        endian big
+    endif
+    get DUMMY byte
+    get FLAGS short
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    get TMP asize
+    math TMP - OFFSET
+    if ZSIZE > TMP
+        math ZSIZE = TMP
+    endif
+    get NAME basename
+    get EXT extension
+    string NAME + "_unpack."
+    string NAME + EXT
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+
+endian big
+idstring "PARC"
+get hdr_unknownA long
+get hdr_unknownB long
+get hdr_unknownC long
+get hdr_numFolders long
+get hdr_foldersOfs long
+get hdr_numFiles long
+get hdr_filesOfs long
+
+math foldNames = 32
+math fileNames = hdr_numFolders
+math fileNames *= 64
+math fileNames += foldNames
+math foldInfos = hdr_foldersOfs
+math fileInfos = hdr_filesOfs
+
+for i = 0 < hdr_numFolders
+    goto foldInfos
+    get foi_unknownA long
+    get foi_unknownB long
+    get foi_numFiles long
+    get foi_fileOfs long
+    get foi_unknownE long
+    get foi_unknownF long
+    get foi_unknownG long
+    get foi_unknownH long
+    savepos foldInfos
+
+    goto foldNames
+    getdstring foiName 64
+    savepos foldNames
+
+    for j = 0 < foi_numFiles
+        math TMP = foi_fileOfs
+        math TMP += j
+        math TMP *= 32
+        math TMP += fileInfos
+        goto TMP
+        get fi_comprFlags long
+        get fi_fileSize long
+        get fi_fileSizeComp long
+        get fi_fileOfs long
+        get fi_unknownE long
+        get fi_unknownF long
+        get fi_unknownG long
+        get fi_chkSum long
+
+        math TMP = foi_fileOfs
+        math TMP += j
+        math TMP *= 64
+        math TMP += fileNames
+        goto TMP
+        getdstring fiName 64
+
+        set fn string foiName
+        string fn += /
+        string fn += fiName
+        if fi_comprFlags & 0x80000000
+            math fi_fileOfs += 0x10
+            math fi_fileSizeComp -= 0x10
+            clog fn fi_fileOfs fi_fileSizeComp fi_fileSize
+        else
+            log fn fi_fileOfs fi_fileSize
+        endif       
+    next j
+next i

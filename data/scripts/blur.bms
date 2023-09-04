@@ -1,0 +1,168 @@
+# Blur (script 0.3.3)
+#   note that I have tried to support multiple versions of the Blur
+#   archives with the result of being possibly not 100% compatible
+#   with some of them.
+#   would be required a full rewrite for each version but finding
+#   all the old files is a pain at the moment
+#   in case of problems set WORK_AROUND to 1
+# script for QuickBMS http://quickbms.aluigi.org
+
+# set WORK_AROUND to 1 if you get an error
+math WORK_AROUND = 0
+
+getdstring SIGN 4
+if SIGN == "2KAP"
+elif SIGN == "PAK2"
+    comtype xmemdecompress
+    endian big
+else
+    cleanexit
+endif
+if WORK_AROUND != 0
+    string SIGN r SIGN
+endif
+
+get PAK_SIZE asize
+
+get VERSION long
+get MYALIGN long
+goto 0x38
+get NAMES_SIZE long
+if NAMES_SIZE == 0
+    goto MYALIGN
+    get NAMES_SIZE long
+endif
+
+savepos OFFSET
+encryption xor "VXo40j3@$%\\%`x"
+log MEMORY_FILE OFFSET NAMES_SIZE
+encryption "" ""
+math OFFSET += NAMES_SIZE
+math OFFSET x= MYALIGN
+goto OFFSET
+
+get FILES long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get NAME_OFF long
+    get DUMMY long
+    get SIZE long
+    get TIMESTAMP longlong
+    get OFFSET longlong
+    if SIGN == "2KAP"
+        if VERSION >= 2
+            get CHUNK_SIZE long
+            get CHUNK_ZSIZE long
+        endif
+    endif
+    get ZERO long
+    if ZERO == 0
+        getdstring DUMMY 0x18
+    endif
+
+    if OFFSET != -1
+        math OFFSET *= MYALIGN
+        savepos TMP
+        goto OFFSET
+
+        math CHUNK_SIZE  = 0x10000
+        math CHUNK_ZSIZE = 0
+
+        if SIGN == "PAK2"
+            get CHUNK_ZSIZE long
+            #math CHUNK_ZSIZE -= 4    # ???
+            savepos OFFSET
+            get CHUNK_SIZE long
+            if CHUNK_SIZE != SIZE
+                get CHUNK_ZSIZE long
+            else
+                goto OFFSET
+            endif
+        else
+            get CHUNK_SIZE long
+            if CHUNK_SIZE != SIZE
+                comtype unzip_dynamic   #deflate
+                get CHUNK_ZSIZE long
+            else
+                comtype unzip_dynamic   #zlib
+                goto OFFSET
+                if VERSION <= 1
+                    get CHUNK_ZSIZE long
+                endif
+            endif
+        endif
+
+        savepos OFFSET
+
+        # lame work-around for another gamedata.pak file
+        if CHUNK_SIZE u> PAK_SIZE
+            math OFFSET -= 8
+            math CHUNK_SIZE = SIZE
+            math CHUNK_ZSIZE = SIZE
+        elif CHUNK_ZSIZE u> CHUNK_SIZE
+            math OFFSET -= 4
+            math CHUNK_ZSIZE = CHUNK_SIZE
+        endif
+
+        goto TMP
+
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+
+        math TMP = CHUNK_ZSIZE
+        math TMP x= MYALIGN
+
+        math TMP2 = PAK_SIZE
+        math TMP2 -= OFFSET
+
+        savepos TMP_OFF
+        if SIZE == TMP
+            if SIZE > TMP2
+                math SIZE = TMP2
+            endif
+            log NAME OFFSET SIZE
+        elif SIZE == CHUNK_ZSIZE
+            if SIZE > TMP2
+                math SIZE = TMP2
+            endif
+            if SIGN == "PAK2"
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET SIZE SIZE
+            endif
+        else
+            if i == 0
+                # just a compression check
+                if SIGN == "PAK2"
+                    comtype zlib_noerror
+                    clog MEMORY_FILE3 OFFSET CHUNK_ZSIZE SIZE
+                    get XSIZE asize MEMORY_FILE3
+                    if XSIZE < SIZE
+                        comtype xmemdecompress
+                    else
+                        comtype unzip_dynamic   #zlib
+                    endif
+                endif
+            endif
+
+            putvarchr MEMORY_FILE2 SIZE 0
+            log MEMORY_FILE2 0 0
+            append
+            for
+                clog MEMORY_FILE2 OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                get MYSIZE asize MEMORY_FILE2
+                if MYSIZE >= SIZE
+                    break
+                endif
+                math OFFSET += CHUNK_ZSIZE
+                goto OFFSET
+                get CHUNK_ZSIZE long
+                savepos OFFSET
+            next
+            append
+            log NAME 0 SIZE MEMORY_FILE2
+        endif
+        goto TMP_OFF
+    endif
+next i

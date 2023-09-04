@@ -1,0 +1,25 @@
+# Darkstone
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype darkstone
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+
+    savepos INFO_OFF
+    goto OFFSET
+    get SIGN long
+    math SIGN &= 0x00ffffff
+    if SIGN == 0xadbeaf
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto INFO_OFF
+next i

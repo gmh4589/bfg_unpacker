@@ -1,0 +1,18 @@
+# Dancing Craze
+
+idstring "ZCA\0"
+get OFFSET long
+get FILES long
+get ZERO long
+
+savepos TMP
+filexor "sdbnasf4q9432875(@^@8778rt25tfyujf56563ncfvwe5t865248u6jmdjd" TMP
+
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

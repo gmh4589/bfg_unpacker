@@ -1,0 +1,21 @@
+startfunction testvariables
+   if CH == ""
+      print "ERROR: channels (CH) not given"
+      cleanexit
+   elif FREQ == ""
+      print "ERROR: frequency (FREQ) not given"
+      cleanexit
+   elif INTERL == ""
+      print "ERROR: interleave (INTERL) not given"
+      cleanexit
+   elif BITS == ""
+      print "ERROR: bits (BITS) not given"
+      cleanexit
+   elif SIZE == ""
+      print "ERROR: size (SIZE) not given"
+      cleanexit
+   elif OFFSET == ""
+      print "ERROR: offset (OFFSET) not given"
+      cleanexit
+   endif
+endfunction

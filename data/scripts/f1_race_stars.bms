@@ -1,0 +1,126 @@
+# F1 Race Stars (script 0.2)
+#   the NFS code uses many work-arounds so it may not work correctly, additionally it
+#   seems that the data from offset 0x40000 is encrypted in a different way and so
+#   it's not possible to extract everything... the alternative is the following:
+#       offzip -a -c 0x10000 -z -15 -Q ps3_000_new.nfs output_folder 0x70000
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "bundle"
+
+    string TMP p "_toc.%s" EXT
+    open FDSE TMP
+    idstring "_toc"
+    get FILES long
+    set LAST_BUNDLE_NAME string ""
+    for i = 0 < FILES
+        getdstring BUNDLE_NAME 4
+        get CRC longlong
+        get TYPE long
+        get OFFSET long
+        get SIZE long
+        getdstring NAME 4
+        get NUM long
+        for x = 0 < NUM
+            get DUMMY longlong
+        next x
+        get SIZE2 long
+        get OFFSET2 long
+
+        if BUNDLE_NAME != LAST_BUNDLE_NAME
+            string TMP p "%s.%s" BUNDLE_NAME EXT
+            open FDSE TMP 1
+            set LAST_BUNDLE_NAME string BUNDLE_NAME
+        endif
+        string NAME + "/"
+        if SIZE != 0
+            log NAME OFFSET SIZE 1
+        endif
+    next i
+
+else
+
+    comtype deflate
+    endian big
+    getdstring DUMMY 0x82
+    get ZERO long
+    if ZERO != 0
+        print "You must decrypt the archive first:\n\n  http://aluigi.org/bms/toyboxturbos.bms\n\nAdditionally this script will work only with a small part of the files\nRead the header of the script for more information.\nI suggest you to use offzip:\n\n  offzip -a -c 0x10000 -z -15 -Q ps3_000_new.nfs output_folder 0x70000"
+        cleanexit
+    endif
+    goto -4 0 SEEK_CUR
+
+    math FILES = 0
+    for i = 0
+        get WORKAROUND long
+        if WORKAROUND > 2   # usually it's 0x11
+            break
+        endif
+        get OFFSET long
+        get TYPE long       # 0x10=has_chunks, 1=zip_or_file, 2=folder
+        get SOME_ID long    # sequential ID
+        if i == 0
+            endian guess SOME_ID    # just in case the same format is used on non-big-endian too
+        endif
+        get IDX long
+        get ID long         # sequential ID
+
+        if OFFSET != 0
+            putarray 0 FILES OFFSET
+            putarray 1 FILES IDX
+            putarray 2 FILES TYPE
+            math FILES + 1
+        endif
+    next i
+    math ELEMENTS = i
+    goto -4 0 SEEK_CUR
+
+    for i = 0 < ELEMENTS
+        get DUMMY1 long
+        get DUMMY2 long
+        get DUMMY3 long
+        get DUMMY4 long
+        get DUMMY5 long
+        get DUMMY6 long
+        get DUMMY7 long
+    next i
+
+    do
+        get NAME string
+    while NAME != ""
+    goto -1 0 SEEK_CUR
+
+    # unfortunately I don't know the exact number of chunks, probably the last file will fail
+    for i = 0
+        get CHUNK_ZSIZE long
+        if CHUNK_ZSIZE u> 0x1fffffff    # a compressed file bigger than half Gb? naaa...
+            break
+        endif
+        get DUMMY long
+        putarray 10 i CHUNK_ZSIZE
+    next i
+    putarray 1 FILES i
+
+    for i = 0 < FILES
+        getarray OFFSET   0 i
+        getarray IDX      1 i
+        math i + 1
+        getarray NEXT_IDX 1 i
+
+        log MEMORY_FILE 0 0
+        math LAST_CHUNK_ZSIZE = 0
+        append
+        for x = IDX < NEXT_IDX
+            getarray CHUNK_ZSIZE 10 x
+            math TMP = CHUNK_ZSIZE
+            math CHUNK_ZSIZE - LAST_CHUNK_ZSIZE
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE 0x10000
+            math LAST_CHUNK_ZSIZE = TMP
+            math OFFSET + CHUNK_ZSIZE
+        next x
+        append
+        get SIZE asize MEMORY_FILE
+        log "" 0 SIZE MEMORY_FILE
+    next
+
+endif

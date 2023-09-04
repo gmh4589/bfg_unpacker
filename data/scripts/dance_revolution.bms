@@ -1,0 +1,31 @@
+# Dance Revolution 2010
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GWB1"
+get GWB_SIZE long
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    getdstring EXT 4
+    getdstring NAME 0x20
+    string NAME + .
+    string NAME + EXT
+    putarray 0 i OFFSET
+    putarray 1 i NAME
+next i
+for i = 0 <= FILES
+    if i < FILES
+        getarray NEXT_OFF 0 i
+        getarray NEXT_NAME 1 i
+    else
+        get NEXT_OFF asize
+    endif
+    if i != 0
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET = NEXT_OFF
+    set NAME string NEXT_NAME
+next i

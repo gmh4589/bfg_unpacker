@@ -1,0 +1,19 @@
+# Ballad of Solar
+#   key provided by Jan Vorel
+
+idstring "ZCA\0"
+get OFFSET long
+get FILES long
+get ZERO long
+
+savepos TMP
+filexor "skTj234YiutysBjghHsd62U785hjkryX782F3hgafUa7sgtW23u4Ogewf3f" TMP
+
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

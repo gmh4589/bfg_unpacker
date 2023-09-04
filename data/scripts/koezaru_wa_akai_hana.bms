@@ -1,0 +1,83 @@
+# Koezaru wa Akai Hana (map/rom) (script 0.2)
+#   directory tree not supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "map"
+open FDDE "rom" 1
+
+idstring "DCFS"
+get MAP_SIZE long
+get VER long    # 1
+get DUMMY long
+get DUMMY long
+get ROM_SIZE long
+get NUM long    # 7
+for
+    savepos CHUNK_OFF
+    if CHUNK_OFF u>= MAP_SIZE
+        break
+    endif
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+
+    if CHUNK_TYPE u== "NAME"
+        get SIZE long
+        savepos TMP
+        log MEMORY_FILE TMP SIZE
+
+    elif CHUNK_TYPE u== "DIR "
+        get FOLDERS long
+        for i = 0 < FOLDERS
+            get NAME_OFF long
+            get FOLDER_ID short
+            get NEXT_ID short
+            get DUMMY long
+            get FILES_IDX short
+            get FILES short
+
+            goto NAME_OFF MEMORY_FILE
+            get FNAME string MEMORY_FILE
+
+            putarray 0 i FNAME
+            putarray 1 i FILES_IDX
+            xmath TMP "FILES_IDX + FILES"
+            putarray 2 i TMP
+        next i
+
+    elif CHUNK_TYPE u== "FILE"
+        get FILES long
+        for i = 0 < FILES
+            get NAME_CRC long   # maybe some sequential name crc
+            get OFFSET long
+            get FLAGS long      # & 0x40000000
+            math OFFSET * 0x400
+
+            for x = 0
+                getarray TMP  1 x
+                getarray TMP2 2 x
+                if i >= TMP && i < TMP2
+                    getarray FNAME 0 x
+                    break
+                endif
+            next x
+
+            string FNAME p "%s/%08x." FNAME NAME_CRC
+
+            goto OFFSET 1
+            get DUMMY long 1    # 0x119a6
+            get SIZE long 1
+            if FLAGS & 0x40000000
+                get XSIZE long 1
+                savepos OFFSET 1
+                clog FNAME OFFSET SIZE XSIZE 1
+            else
+                #no! savepos OFFSET 1
+                log FNAME OFFSET SIZE 1
+            endif
+        next i
+
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+    goto CHUNK_OFF
+next

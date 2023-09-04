@@ -1,0 +1,32 @@
+# Icarus Online BIN language (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+string NAME + ".txt"
+
+get STRINGS short
+for i = 0 < STRINGS
+    get TYPE byte
+    get STRSZ byte
+    slog NAME -1 STRSZ
+next i
+get DUMMY short # useless, it's not the number of strings
+
+get BIN_SIZE asize
+for i = 0
+    savepos BASE_OFF
+    get OFFSET long
+    if OFFSET u> BIN_SIZE
+        break
+    endif
+    putarray 0 i OFFSET
+next i
+math STRINGS = i
+
+for i = 0 < STRINGS
+    getarray OFFSET 0 i
+    math OFFSET + BASE_OFF
+    if OFFSET < BIN_SIZE
+        slog NAME OFFSET -1
+    endif
+next i

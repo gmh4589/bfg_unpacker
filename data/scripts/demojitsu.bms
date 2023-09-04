@@ -1,0 +1,55 @@
+# Demojitsu
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "fPK "
+get ARCHIVE_SIZE long
+savepos CHUNK_OFF
+for CHUNK_OFF = CHUNK_OFF != ARCHIVE_SIZE
+    savepos CHUNK_OFF
+    getdstring CHUNK_NAME 4
+    get CHUNK_SIZE long
+    get CHUNK_DUMMY long
+
+    if CHUNK_NAME == "cLST"
+
+        get DUMMY long
+        get FILES long
+        get ZERO long
+        for i = 0 < FILES
+            get NAME_OFF long
+            get OFFSET long
+            get SIZE long
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i NAME_OFF
+        next i
+
+    elif CHUNK_NAME == "cNAM"
+
+        get ZERO long
+        get ZERO long
+        savepos NAMES_OFF
+        for i = 0 < FILES
+            getarray NAME_OFF 2 i
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get NAME string
+            putarray 2 i NAME
+        next i
+
+    elif CHUNK_NAME == "cDAT"
+
+        savepos BASE_OFF
+        for i = 0 < FILES
+            getarray OFFSET 0 i
+            getarray SIZE 1 i
+            getarray NAME 2 i
+            math OFFSET + BASE_OFF
+            log NAME OFFSET SIZE
+        next i
+
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+    goto CHUNK_OFF
+next

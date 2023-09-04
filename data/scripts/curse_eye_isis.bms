@@ -1,0 +1,16 @@
+# Curse The Eye Of Isis
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY long
+get FILES long
+goto 2048
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 2
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    padding 4
+    log NAME OFFSET SIZE
+next i

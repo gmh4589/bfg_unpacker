@@ -1,0 +1,15 @@
+<bms games="'Motocross Madness 2'" platforms="'PC'" ext="'RES', 'TEX', 'DAT'">
+ImpType Standard ;
+IDString 0 RS2 ;
+Get FOOBAR Byte 0 ;
+Get FILENUM Long 0 ;
+For X = 1 To FILENUM ;
+Get FNSIZE Long 0 ;
+GetDString FNAME FNSIZE 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next X ;
+</bms>

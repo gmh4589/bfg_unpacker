@@ -1,0 +1,15 @@
+# Jigsaw Puzzle
+
+idstring "PCK2"
+get OFFSET long
+get DUMMY long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get NAMESZ long
+    get OFFSET long
+    get SIZE long
+    math NAMESZ - 12
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE
+next i

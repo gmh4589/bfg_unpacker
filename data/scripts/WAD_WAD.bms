@@ -1,0 +1,27 @@
+<bms games="'WWE WMXXI (Wrestle Mania 21)'" platforms="'PC'" ext="WAD">
+ComType ZLib1 ;
+IDString 0 WAD ;
+Get DUM Long 0 ;
+Get DUM Long 0 ;
+Get FNUM Long 0 ;
+For T = 1 To FNUM ;
+Get DUM Long 0 ;
+Get FEO Long 0 ;
+Get DUM Long 0 ;
+SavePos EO 0 ;
+GoTo FEO 0 ;
+Get JP Int 0 ;
+SavePos SS 0 ;
+Math SS += JP ;
+Get UCS Long 0 ;
+Get DUM Long 0 ;
+Get B Byte 0 ;
+SavePos S 0 ;
+Math SS -= S ;
+GetDString FN SS 0 ;
+SavePos FO 0 ;
+Set FSI Long UCS ;
+CLog FN FO FSI 0 0 UCS 0 ;
+GoTo EO 0 ;
+Next T ;
+</bms>

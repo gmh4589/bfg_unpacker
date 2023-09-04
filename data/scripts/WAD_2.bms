@@ -1,0 +1,13 @@
+<bms games="'Tomb Raider 3'" platforms="'PC'" ext="WAD">
+Set FILECNTL Long 0 ;
+Set FILESTART Long 0 ;
+Do ;
+Math FILESTART += 250 ;
+Math FILESTART += 10 ;
+GoTo FILESTART 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+While NotEOF <> 0 ;
+</bms>

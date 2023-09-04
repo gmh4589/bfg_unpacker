@@ -1,0 +1,44 @@
+# Made Man
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get DUMMY long
+get DATA_OFF long
+idstring "MFS4"
+get ALIGN long
+getdstring NAME 0x20
+get EXT_OFF long
+get EXT_SIZE long
+get ZERO long
+savepos INFO_OFF
+
+goto EXT_OFF
+idstring "EXT "
+get SIZE long
+get ARCHIVE_NAME_OFF long
+savepos NAMES_OFF
+
+goto INFO_OFF
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get ZSIZE long  # never tested!
+    get SIZE long
+    get DUMMY long
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAME_OFF long
+    get NAME_CRC long
+    savepos NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET * ALIGN
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

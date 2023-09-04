@@ -1,0 +1,28 @@
+# Drake & Josh Talent Showdown
+# incomplete, wrong compression algorithm
+
+comtype lzss0   # this is probably wrong
+
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get DUMMY long
+    get XSIZE long
+    putarray 0 -1 OFFSET
+    putarray 1 -1 XSIZE
+next i
+
+get OFFSET asize
+putarray 0 -1 OFFSET
+putarray 1 -1 0
+sortarray 0 1
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    math i + 1
+    getarray ZSIZE  0 i
+    math ZSIZE - OFFSET
+    clog "" OFFSET ZSIZE SIZE
+next

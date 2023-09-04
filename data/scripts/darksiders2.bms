@@ -1,0 +1,131 @@
+# Darksiders 2
+#   Use darksiders.bms to extract the obtained OBPK archives.
+#
+#   manifest information from DS2extract.
+#   Newer versions of Darksiders 2 can be extracted with this modified DS2extract:
+#     http://zenhax.com/viewtopic.php?t=1738&p=13332#p13332
+#
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+if NAME & "anim_streams"
+    print "Use offzip -a on %NAME%"
+    cleanexit
+endif
+
+open FDSE "pc.mnfst" 0 EXISTS
+if EXISTS == 0
+    open FDSE "manifest.bin"
+endif
+
+math LAST_uc1 = -1
+
+get Version long
+for i = 0 < 10
+    get Offsets long
+next i
+
+//Paths
+get c long
+get u long
+for i = 0 < c
+    get hash longlong
+    get l long
+    getdstring buf l
+    putarray 10 i buf
+next i
+
+//upak references
+get c long
+for i = 0 < c
+    get s8 byte
+    get l2 short
+    getdstring buf l2
+    putarray 11 i buf
+next i
+
+get c long
+for i = 0 < c
+    get l3 byte
+    getdstring buf l3
+    putarray 12 i buf
+    get hash longlong
+    get us0 short
+    get us1 short
+    get al byte
+    for x = 0 < al
+        get DUMMY short
+    next x
+    get uc0 byte
+    get uc1 byte
+    get b1 byte
+    get b2 byte
+    if Version >= 0xd
+        get v longlong  //Offset
+    else
+        get v long      //Offset
+    endif
+
+    if uc1 != 0xFF
+        getarray PAK_NAME 11 uc1
+        getarray TMP 10 us1
+        set NAME string PAK_NAME
+        string NAME + /
+        string NAME + TMP
+        string NAME + /
+        string NAME + buf
+        string NAME + "."
+
+        string PAK_NAME + ".upak"
+        if uc1 != LAST_uc1
+            math LAST_uc1 = uc1
+            open FDSE PAK_NAME 1
+        endif
+
+        putarray 0 -1 PAK_NAME
+        putarray 1 -1 NAME
+        putarray 2 -1 v
+    endif
+next i
+
+putarray 0 -1 ""
+
+set LAST_PAK_NAME string ""
+for i = 0
+    callfunction LAME_DUMP 1
+
+    set PAK_NAME string VAR0
+    if PAK_NAME == ""
+        break
+    endif
+    if PAK_NAME != LAST_PAK_NAME
+        set LAST_PAK_NAME string PAK_NAME
+        open FDSE PAK_NAME 1
+    endif
+
+    set NAME string VAR1
+    math OFFSET = VAR2
+
+    math i + 1
+
+    callfunction LAME_DUMP 1
+    if VAR0 != PAK_NAME
+        get VAR2 asize 1
+    endif
+    xmath SIZE "VAR2 - OFFSET"
+
+    log NAME OFFSET SIZE 1
+next
+
+print "Now use the following script on the extracted OBPK archives:\n  http://aluigi.org/bms/darksiders.bms"
+
+startfunction LAME_DUMP
+    getarray VAR0 0 i
+    if VAR0 == ""
+        set VAR1 string ""
+        get VAR2 asize 1
+    else
+        getarray VAR1 1 i
+        getarray VAR2 2 i
+    endif
+endfunction

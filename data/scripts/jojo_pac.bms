@@ -1,0 +1,14 @@
+# JoJo's Bizarre Adventures
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get DUMMY long
+savepos TMP
+xmath OFFSET "TMP + (FILES * (4 + 4))"
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    math OFFSET x 0x800
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+next i

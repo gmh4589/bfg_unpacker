@@ -1,0 +1,59 @@
+# Forza Horizon 3 minizip (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PGZP"
+get DUMMY long  # 0x64
+get INFO_OFF long  # 0x20
+get FILES long
+get FOLDERS long
+get BLAH_IDX_LIMIT long
+get VER long    # 2
+get DUMMY long  # 1
+goto INFO_OFF
+for i = 0 <= FOLDERS
+    get IDX long
+    putarray 10 i IDX
+next i
+if VER >= 2
+padding 8   # was 0x10... hope it didn't break any compatibility
+endif
+
+math BLAH_IDX = 0
+for i = 0 <= FILES
+    if BLAH_IDX % BLAH_IDX_LIMIT
+    else
+        get BASE_OFF longlong
+    endif
+    math BLAH_IDX + 1
+
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+
+    math OFFSET + BASE_OFF
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i FLAGS
+next i
+
+for FOLDER = 0 < FOLDERS
+    getarray IDX   10 FOLDER
+    math FOLDER + 1
+    getarray LIMIT 10 FOLDER
+
+    for i = IDX < LIMIT
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        math i + 1
+        getarray ZSIZE  0 i
+        math ZSIZE - OFFSET
+        string NAME p "%d/." FOLDER  # folder starts from 1 instead of 0, better
+
+        # if FLAGS & 8 # I don't have the samples to check
+        if SIZE != ZSIZE
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next
+next

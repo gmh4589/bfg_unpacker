@@ -1,0 +1,60 @@
+# Lithtech engine REZ archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring HEADER 127
+get VERSION long
+get OFFSET long
+get SIZE long
+
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    savepos OLD_OFF
+    goto OFFSET
+    math LIMIT = OFFSET
+    math LIMIT += SIZE
+
+    for POS = OFFSET < LIMIT
+        get TYPE long
+        if TYPE == 0    # file
+            get OFFSET long
+            get SIZE long
+            get TSTAMP long
+            get FILEID long
+
+            getdstring DUMMY1 1 # in quickbms 0.4.6 it's enough string EXT r= EXT
+            getdstring DUMMY2 1
+            getdstring DUMMY3 1
+            getdstring DUMMY4 1
+            set EXT string DUMMY4
+            string EXT += DUMMY3
+            string EXT += DUMMY2
+            string EXT += DUMMY1
+
+            get ZERO long
+            get NAME string
+            get DUMMY string    # ???
+
+            set FULLNAME string PATH
+            string FULLNAME += NAME
+            string FULLNAME += .
+            string FULLNAME += EXT
+            log FULLNAME OFFSET SIZE
+        else            # folder
+            get OFFSET long
+            get SIZE long
+            get TSTAMP long
+            get NAME string
+
+            callfunction EXTRACT
+        endif
+        savepos POS
+    next
+
+    goto OLD_OFF
+endfunction

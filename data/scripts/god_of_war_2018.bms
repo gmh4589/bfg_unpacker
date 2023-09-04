@@ -1,0 +1,20 @@
+# God of War 2018
+#   info from AnonBaiter https://zenhax.com/viewtopic.php?p=35635#p35635
+# script for QuickBMS http://quickbms.aluigi.org
+
+get WAD_SIZE asize
+for OFFSET = 0 != WAD_SIZE
+    goto OFFSET
+    get TYPE short
+    get DUMMY short
+    get SIZE long
+    getdstring DUMMY 16
+    getdstring NAME 0x48
+    savepos OFFSET
+    if SIZE != 0
+        string NAME p "%d/%s." TYPE NAME
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET + SIZE
+    math OFFSET x 0x10
+next

@@ -1,0 +1,91 @@
+# Add ATRAC3 header to data.
+# Needed variables: OFFSET, SIZE, BITRATE, FREQUENCY, CHANNELS, LOOPSTART, LOOPEND
+
+startfunction AT3
+	endian little
+	set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x20\x00\x00\x00\x70\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x66\x61\x63\x74\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+	if CHANNELS == 1
+		putvarchr MEMORY_FILE 0x29 0x8 byte
+		if BITRATE == 52
+			putvarchr MEMORY_FILE 0x1c 0x1992 long
+			putvarchr MEMORY_FILE 0x20 0x98 long
+		elif BITRATE == 66
+			putvarchr MEMORY_FILE 0x1c 0x204d long
+			putvarchr MEMORY_FILE 0x20 0xc0 long
+		endif
+	elif CHANNELS == 2
+		putvarchr MEMORY_FILE 0x29 0x10 byte
+		if BITRATE == 66
+			putvarchr MEMORY_FILE 0x1c 0x204d long
+			putvarchr MEMORY_FILE 0x20 0xc0 long
+			putvarchr MEMORY_FILE 0x2c 0x1 byte
+			putvarchr MEMORY_FILE 0x2e 0x1 byte
+		elif BITRATE == 105
+			putvarchr MEMORY_FILE 0x1c 0x3324 long
+			putvarchr MEMORY_FILE 0x20 0x130 long
+		elif BITRATE == 132
+			putvarchr MEMORY_FILE 0x1c 0x409a long
+			putvarchr MEMORY_FILE 0x20 0x180 long
+		endif
+	endif
+	set RIFFSIZE long SIZE
+	math RIFFSIZE += 0x44
+	xmath RSIZE "RIFFSIZE - 0x44"
+	putvarchr MEMORY_FILE 0x04 RIFFSIZE long
+	putvarchr MEMORY_FILE 0x16 CHANNELS byte
+	putvarchr MEMORY_FILE 0x18 FREQUENCY long
+	putvarchr MEMORY_FILE 0x48 RSIZE long
+	append
+	log MEMORY_FILE OFFSET SIZE
+	append
+	get NAME basename
+	string NAME += ".at3"
+	
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction
+
+startfunction AT3_LOOP
+	set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x20\x00\x00\x00\x70\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x66\x61\x63\x74\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x73\x6d\x70\x6c\x3c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x94\x58\x00\x00\x3c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x18\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+	if CHANNELS == 1
+		putvarchr MEMORY_FILE 0x29 0x8 byte
+		if BITRATE == 52
+			putvarchr MEMORY_FILE 0x1c 0x1992 long
+			putvarchr MEMORY_FILE 0x20 0x98 long
+		elif BITRATE == 66
+			putvarchr MEMORY_FILE 0x1c 0x204d long
+			putvarchr MEMORY_FILE 0x20 0xc0 long
+		endif
+	elif CHANNELS == 2
+		putvarchr MEMORY_FILE 0x29 0x10 byte
+		if BITRATE == 66
+			putvarchr MEMORY_FILE 0x1c 0x204d long
+			putvarchr MEMORY_FILE 0x20 0xc0 long
+			putvarchr MEMORY_FILE 0x2c 0x1 byte
+			putvarchr MEMORY_FILE 0x2e 0x1 byte
+		elif BITRATE == 105
+			putvarchr MEMORY_FILE 0x1c 0x3324 long
+			putvarchr MEMORY_FILE 0x20 0x130 long
+		elif BITRATE == 132
+			putvarchr MEMORY_FILE 0x1c 0x409a long
+			putvarchr MEMORY_FILE 0x20 0x180 long
+		endif
+	endif
+	set RIFFSIZE long SIZE
+	math RIFFSIZE += 0x44
+	xmath RSIZE "RIFFSIZE - 0x44"
+	putvarchr MEMORY_FILE 0x04 RIFFSIZE long
+	putvarchr MEMORY_FILE 0x16 CHANNELS byte
+	putvarchr MEMORY_FILE 0x18 FREQUENCY long
+	putvarchr MEMORY_FILE 0x78 LOOPSTART long
+	putvarchr MEMORY_FILE 0x7c LOOPEND long
+	putvarchr MEMORY_FILE 0x8c RSIZE long
+	append
+	log MEMORY_FILE OFFSET SIZE
+	append
+	get NAME basename
+	string NAME += ".at3"
+	
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction

@@ -1,0 +1,13 @@
+<bms games="'Sudden Strike', 'Sudden Strike 2'" platforms="'PC'" ext="RUS">
+Get FILECNTL Long 0 ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+SavePos FILESTART 0 ;
+Get FILESIZE Long 0 ;
+Math FILESIZE -= FILEOFF ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

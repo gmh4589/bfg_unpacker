@@ -1,0 +1,49 @@
+# Child of Light
+# script for QuickBMS http://quickbms.aluigi.org
+
+math COMPRESSED_ARCHIVE = 0
+endian big
+goto 0xc
+get BASE_OFF long
+goto 0x2c
+get SIZE long
+get ZSIZE long
+if SIZE != 0
+    clog MEMORY_FILE BASE_OFF ZSIZE SIZE
+    math COMPRESSED_ARCHIVE = 1
+endif
+goto 0x34   # 0x2c for Rayman Legends
+get FILES long
+for i = 0 < FILES
+    get DUMMY1 long
+    get SIZE long
+    get ZSIZE long
+    get TSTAMP longlong
+    get OFFSET longlong
+    if DUMMY1 == 2
+        get DUMMY4 long
+        get DUMMY5 long
+    endif
+    get FOLDERSZ long
+    getdstring FOLDER FOLDERSZ
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    string FOLDER + NAME
+    string NAME = FOLDER
+    if COMPRESSED_ARCHIVE == 0
+        math OFFSET += BASE_OFF
+        if ZSIZE == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        if ZSIZE == 0
+            log NAME OFFSET SIZE MEMORY_FILE
+        else
+            clog NAME OFFSET ZSIZE SIZE MEMORY_FILE
+        endif
+    endif
+    get DUMMY6 long
+    get DUMMY7 long
+next i

@@ -1,0 +1,18 @@
+# Doom2D Forever
+
+comtype zlib_noerror
+idstring "DFWAD"
+get VERSION byte
+get FILES short
+set PATH string ""
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get OFFSET long
+    get SIZE long
+    if OFFSET == 0
+        set PATH string NAME
+    else
+        string FNAME p "%s/%s." PATH NAME
+        clog FNAME OFFSET SIZE SIZE
+    endif
+next i

@@ -1,0 +1,309 @@
+# Yuke games: EPAC/EPK8 archives, PACH/HSPC/SHDC files and BPE chunks (script 0.2.4)
+#   note that this script is really big and chaotic and the function
+#   which guesses the extension simply "guesses" it so don't consider it much
+# script for QuickBMS http://quickbms.aluigi.org
+
+math NEW_FORMAT = 0
+comtype yuke_bpe
+putarray 0 0 0
+
+# the following is only for being able to handle all the 3 files
+get NAME filename
+string NAME += ".unpacked"
+getdstring SIGN 4
+if SIGN == "PACH"
+
+    print "%SIGN% file"
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    callfunction pach_unpack 1
+    cleanexit
+
+elif SIGN == "HSPC"
+
+    print "%SIGN% file"
+    callfunction hspc_unpack 1
+    cleanexit
+
+elif SIGN == "SHDC"
+
+    print "%SIGN% file"
+    callfunction hspc_unpack 1
+    cleanexit
+
+elif SIGN == "BPE "
+
+    print "%SIGN% chunk"
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+
+endif
+
+get INFO_SIZE long
+set NAMESZ long 4
+if SIGN == "EPAC"
+    set NAMESZ long 4
+elif SIGN == "EPK8"
+    set NAMESZ long -8  # apparently it can be both 4 and 8, needs to be guessed, so use negative for guessing
+else
+    cleanexit
+endif
+
+#idstring "EPAC"
+print "EPAC archive"
+padding 0x800
+
+savepos OFFSET
+getdstring DUMMY 4
+get DUMMY short
+get CHECK1 short
+get CHECK2 long
+if CHECK1 == 1
+if CHECK2 == 0
+    math NEW_FORMAT = 1
+endif
+endif
+goto OFFSET
+
+# WWE2K15
+if NEW_FORMAT != 0
+
+    savepos OFFSET
+    getdstring SIGN 4
+    get DUMMY long
+    get DUMMY long
+    math LIMIT = OFFSET
+    math LIMIT += INFO_SIZE
+    savepos TMP_OFF
+    for TMP_OFF = TMP_OFF < LIMIT
+        callfunction EXTRACT 1
+        savepos TMP_OFF
+    next
+
+else
+
+    for
+        savepos OFFSET
+        getdstring SIGN 4
+        if SIGN == ""
+            cleanexit
+        endif
+        string SIGN -= 3
+        if SIGN == "E"  # EMD, EVP, EVT, ED1 and so on
+            get DUMMY long
+            get DUMMY long
+        else
+            goto OFFSET
+            callfunction EXTRACT 1
+        endif
+    next
+
+endif
+
+startfunction EXTRACT
+    if NAMESZ < 0
+        savepos TMP_BCK
+        math NAMESZ n NAMESZ
+        getdstring NAME NAMESZ
+        get OFFSET long
+        get SIZE long
+        if SIZE u>= 0x41414141  # "LIST"
+            math NAMESZ = 4
+        endif
+        goto TMP_BCK
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    math OFFSET += 8    # 0x4000
+    math OFFSET *= 0x800
+    math SIZE   *= 0x100
+    get TMP asize
+    if OFFSET u> TMP    # includes also < 0
+        # unsupported!
+    else
+        log MEMORY_FILE OFFSET SIZE
+        callfunction pach_unpack
+    endif
+endfunction
+
+startfunction pach_unpack
+    string NAME -= " "
+    set FOLDER string NAME
+    getarray GLOBAL_COUNTER 0 0
+    if SIZE == 0    # will be fixed in the next quickbms
+        # they are empty folders, so skip them
+        #log NAME 0 SIZE
+    elif SIZE < 8
+        log MEMORY_FILE2 0 SIZE MEMORY_FILE
+        string NAME += /
+        string NAME += GLOBAL_COUNTER
+        callfunction gimme_a_name
+        math GLOBAL_COUNTER += 1
+        putarray 0 0 GLOBAL_COUNTER
+    else
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN == "PACH"
+            get CHUNKS long MEMORY_FILE
+            savepos INFO_OFF MEMORY_FILE
+            math BASE_OFF = CHUNKS
+            math BASE_OFF *= 12
+            math BASE_OFF += 8
+            for j = 0 < CHUNKS
+                set NAME string FOLDER
+                string NAME += /
+                string NAME += GLOBAL_COUNTER
+                goto INFO_OFF MEMORY_FILE
+                get DUMMY long MEMORY_FILE
+                get CHUNK_OFF long MEMORY_FILE
+                get CHUNK_SIZE long MEMORY_FILE
+                savepos INFO_OFF MEMORY_FILE
+                math CHUNK_OFF += BASE_OFF
+                goto CHUNK_OFF MEMORY_FILE
+                getdstring SIGN 4 MEMORY_FILE
+                if SIGN == "BPE "
+                    get DUMMY long MEMORY_FILE
+                    get ZSIZE long MEMORY_FILE
+                    get SIZE long MEMORY_FILE
+                    savepos OFFSET MEMORY_FILE
+                    clog MEMORY_FILE2 OFFSET ZSIZE SIZE MEMORY_FILE
+                else
+                    log MEMORY_FILE2 CHUNK_OFF CHUNK_SIZE MEMORY_FILE
+                    math SIZE = CHUNK_SIZE
+                endif
+                callfunction gimme_a_name
+
+                math GLOBAL_COUNTER += 1
+                putarray 0 0 GLOBAL_COUNTER
+            next j
+        else
+            string NAME += /
+            string NAME += GLOBAL_COUNTER
+            log MEMORY_FILE2 0 SIZE MEMORY_FILE
+            callfunction gimme_a_name
+            math GLOBAL_COUNTER += 1
+            putarray 0 0 GLOBAL_COUNTER
+        endif
+    endif
+endfunction
+
+startfunction gimme_a_name
+    get SIGN long MEMORY_FILE2
+    get SIGN2 long MEMORY_FILE2
+    if SIGN == 0x594f424a
+        string NAME += ".YOBJ"
+        log NAME 0 SIZE MEMORY_FILE2
+    elif SIGN == 0x20455042
+        string NAME += ".DAT"
+        #get DUMMY long MEMORY_FILE2
+        get ZSIZE long MEMORY_FILE2
+        get SIZE long MEMORY_FILE2
+        savepos OFFSET MEMORY_FILE2
+        clog NAME OFFSET ZSIZE SIZE MEMORY_FILE2
+    elif SIGN == 0x34425346
+        string NAME += ".fsb"
+        log NAME 0 SIZE MEMORY_FILE2
+    elif SIGN == 0x48434150 # memory_files are not recursive
+        string NAME += ".PACH"
+        log NAME 0 SIZE MEMORY_FILE2
+    elif SIGN == 0x20534444
+        string NAME += ".dds"
+        log NAME 0 SIZE MEMORY_FILE2
+    elif SIGN & 0xffff0000  # guessed, should be good for the 99,9% of files
+        string NAME += ".POF0"
+        log NAME 0 SIZE MEMORY_FILE2
+    elif SIGN2 == 0x00000100
+        goto 0 MEMORY_FILE2
+        get TEXTURES long MEMORY_FILE2
+        goto 16 MEMORY_FILE2
+        for z = 0 < TEXTURES
+            getdstring TEX_NAME 16 MEMORY_FILE2
+            if TEX_NAME == ""
+                string NAME += ".TEX"
+                log NAME 0 SIZE MEMORY_FILE2
+                math z = TEXTURES
+            else
+                getdstring TEX_EXT 4 MEMORY_FILE2
+                set TMP_NAME string FOLDER
+                string TMP_NAME += /
+                string TMP_NAME += TEX_NAME
+                string TMP_NAME += "."
+                string TMP_NAME += TEX_EXT
+                get TEX_SIZE long MEMORY_FILE2
+                get TEX_OFFSET long MEMORY_FILE2
+                get DUMMY long MEMORY_FILE2
+                log TMP_NAME TEX_OFFSET TEX_SIZE MEMORY_FILE2
+            endif
+        next z
+    else
+        string NAME += ".DAT"
+        log NAME 0 SIZE MEMORY_FILE2
+    endif
+endfunction
+
+startfunction hspc_unpack
+    get DUMMY long      # 0x7da
+    get HEADER_SIZE long
+    get ALIGN long
+    get DUMMY long      # some CRC
+    get INFO1_OFF long
+    get INFO1_SIZE long
+    get INFO2_OFF long
+    get INFO2_SIZE long
+    get DUMMY_OFF long
+    get DUMMY long      # 0x70
+    get NAMES_OFF long  # no names if it's zero (often)
+    get ZERO long
+    get ZERO long
+    get FILES long
+    get DATA_SIZE long
+
+    math INFO1_OFF * ALIGN
+    math INFO2_OFF * ALIGN
+    math DUMMY_OFF * ALIGN
+    math NAMES_OFF * ALIGN
+
+    log MEMORY_FILE  INFO1_OFF INFO1_SIZE
+    log MEMORY_FILE2 INFO2_OFF INFO2_SIZE
+
+    math ENTRY2_SIZE = INFO2_SIZE
+    math ENTRY2_SIZE / FILES
+
+    for i = 0 < FILES
+        /* who cares...
+        get DUMMY longlong MEMORY_FILE
+        get ZERO long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        */
+
+        savepos TMP MEMORY_FILE2
+        xmath TMP "(TMP + ENTRY2_SIZE) - (4 + 4 + 4)"
+        goto TMP MEMORY_FILE2
+        get OFFSET long MEMORY_FILE2
+        get SIZE long MEMORY_FILE2
+        get FLAGS long MEMORY_FILE2
+
+        math OFFSET * ALIGN
+        if ALIGN > 1
+            math SIZE   * 0x100
+        endif
+
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "ZLIB"
+            comtype zlib
+            get DUMMY long
+            get ZSIZE long
+            get SIZE long
+            savepos OFFSET
+            clog "" OFFSET ZSIZE SIZE
+        else
+            log "" OFFSET SIZE
+        endif
+    next i
+endfunction

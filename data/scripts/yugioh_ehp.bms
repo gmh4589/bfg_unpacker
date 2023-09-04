@@ -1,0 +1,33 @@
+# Yu-Gi-Oh! GX Tag Force (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+idstring "EHP"
+get VER byte
+get EHP_SIZE long
+getdstring DUMMY 4
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    putarray 0 i NAME_OFF
+    putarray 1 i OFFSET
+next i
+    get OFFSET asize
+    putarray 1 i OFFSET
+for i = 0 < FILES
+    getarray NAME_OFF 0 i
+    getarray OFFSET   1 i
+    math i + 1
+    getarray SIZE     1 i
+    math SIZE - OFFSET
+    goto NAME_OFF
+    get NAME string
+    set EXT extension NAME
+    if EXT == "gz"
+        set NAME fullbasename NAME
+        clog NAME OFFSET SIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next

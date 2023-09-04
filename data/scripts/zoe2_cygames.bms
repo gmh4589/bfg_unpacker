@@ -1,0 +1,29 @@
+# Zone of the Enders: The 2nd Runner M∀RS / Cygames
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+idstring "ZPAC"
+get VER long    # 1
+get OFFSET long
+get SIZE long
+math OFFSET + SIZE
+goto OFFSET
+xmath FILES "(SIZE - 0x20) / 0x10"
+xmath BASE_OFF "OFFSET + (FILES * 0x100)"
+for i = 0 < FILES
+    savepos TMP
+    get ZSIZE long
+    get FLAGS long
+    get SIZE long
+    get OFFSET long
+    get ZIP long
+    getdstring DUMMY 0xe0   # encrypted filename
+    math OFFSET + BASE_OFF
+    if ZIP == 0 # untested
+        log "" OFFSET ZSIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+    math TMP + 0x100
+    goto TMP
+next i

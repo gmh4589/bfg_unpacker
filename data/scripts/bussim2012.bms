@@ -1,0 +1,108 @@
+# City Bus Simulator 2012 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "br&!!U2aM87ej22ewaj2v68Emecha!u7rust*7u$!u!e$rafras5fEja5aP7g2qaph_br-yat9a68ad2en8Fumuxu9R2t7acR?sPep9ye5pecazeSpEcav5zetrecHusPr5s82$a7EXU*HuSWe!adrE+e7ud2*7up7_AG@spEQ&5+PuYuceyUn$9=4#5$7#ts-TR92!ava5aTh#W$8pahav_$U_uh9n$ru8ujAqa9#c8+tuva=a2a!rE48pH&r#=\0"
+putarray 0 -1 KEY
+
+set KEY binary "br&!!U2aM87ej22ewaj2v68gTecha!u7rust*7u$!u!e$rakTas5fEja5aP7g2qaph_br-yat9a68ad2en8Fu9uxu9R2t7acR?sPep9yezpecaBeSpEcav5zAtrecHusPrIs82$a7EXU*HuSWe!adrE+e7ud2*7up7_AG@spsQ&5+PuYuceyUn$9=4#5$7#ts-TR92!ava5aTh#W$8pahav_$U_uh9n$ru8ujAqa9#c8+tuva=a2a!rE48pH&r#=\0"
+putarray 0 -1 KEY
+
+set KEY binary "br&!!U2aM87ej22ewaj2v68ETecha!u7rust*7u$!u!e$rafras5fEja5aP7g2qaph_br-yat9a68ad2en8FuXuxu9R2t7acR?sPep9ye5pecazeSpEcav5zAtrecHusPr5s82$a7EXU*HuSWe!adrE+e7ud2*7up7_AG@spsQ&5+PuYuceyUn$9=4#5$7#ts-TR92!ava5aTh#W$8pahav_$U_uh9n$ru8ujAqa9#c8+tuva=a2a!rE48pH&r#=\0"
+putarray 0 -1 KEY
+
+putarray 0 -1 ""
+
+math THIS_IS_A_TEST = 1
+for KEYS = 0
+    math OK = -1
+    getarray KEY 0 KEYS
+    if KEY == ""
+        break
+    endif
+    callfunction SET_KEY_FOR_FILEXOR
+    callfunction UNZIP 1
+    if OK > 0
+        break
+    endif
+next KEYS
+
+if OK <= 0
+    print "Error: unknown key, contact me"
+    cleanexit
+endif
+
+math THIS_IS_A_TEST = 0
+callfunction UNZIP 1
+
+
+# necessary due to the last 0x00
+startfunction SET_KEY_FOR_FILEXOR
+    set MYKEY string ""
+    for i = 0 < 257
+        getvarchr TMP KEY i
+        string TMP p "0x%02x " TMP
+        string MYKEY + TMP
+    next i
+    filexor MYKEY
+endfunction
+
+
+# just a quick zip extractor
+startfunction UNZIP
+    math OK = 0
+    if THIS_IS_A_TEST != 0
+        ComType deflate_noerror
+    else
+        ComType deflate
+    endif
+    get zip_filesize asize
+    for offset = 0 u< zip_filesize
+        goto offset
+        get PK_sign short
+        get sign short
+        if sign != 0x0403
+            math OK = -1
+            break
+            #cleanexit
+        endif
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get comp_size       long
+        get uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        getdstring name     name_len
+        getdstring extra    extra_len
+        savepos offset
+
+        if method == 0
+            if THIS_IS_A_TEST == 0
+                Log name offset uncomp_size
+            endif
+        elif method == 8
+            if THIS_IS_A_TEST == 0
+                CLog name offset comp_size uncomp_size
+            else
+                CLog MEMORY_FILE offset comp_size uncomp_size
+                get TMP asize MEMORY_FILE
+                if TMP == uncomp_size
+                    math OK = 1
+                else
+                    math OK = -1
+                endif
+            endif
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+
+        math offset += comp_size
+        if OK != 0
+            break
+        endif
+    next
+endfunction

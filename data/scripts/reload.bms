@@ -1,0 +1,166 @@
+# Reload (script 0.2)
+#   the compression is just the normal lzss but with the input bytes of "flags & 1" xored with 0xdd
+# script for QuickBMS http://quickbms.aluigi.org
+
+math XOR_BYTE = 0xdd
+comtype lzss
+
+get SIGN byte
+if SIGN != 0x00
+    # 13.rld (Xbox adpcm)
+    get NAME filename
+    string NAME += "."
+    get SIZE asize
+    log NAME 0 SIZE
+    cleanexit
+endif
+
+goto -4
+savepos TMP
+get OFFSET long
+math TMP - OFFSET
+filexor XOR_BYTE
+log MEMORY_FILE4 OFFSET TMP
+filexor ""
+
+get INFO_SIZE long MEMORY_FILE4
+get DUMMY long MEMORY_FILE4
+get DUMMY long MEMORY_FILE4
+get FOLDERS long MEMORY_FILE4
+get NAMES_SIZE long MEMORY_FILE4
+get FILES long MEMORY_FILE4
+
+for i = 0 < FOLDERS
+    get NAME string MEMORY_FILE4
+    putarray 0 i NAME
+next i
+
+for i = 0 < FILES
+    get NAME string MEMORY_FILE4
+    putarray 1 i NAME
+next i
+
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE4
+    get ZSIZE long MEMORY_FILE4
+    get SIZE long MEMORY_FILE4
+    get FOLDER short MEMORY_FILE4
+    get FLAGS short MEMORY_FILE4
+
+    getarray NAME 0 FOLDER
+    getarray TMP 1 i
+    string NAME += /
+    string NAME += TMP
+    if FLAGS & 2
+        callfunction UNPACK_CHUNKS 1
+    else
+        log NAME OFFSET ZSIZE
+    endif
+next i
+
+
+startfunction UNPACK_CHUNKS
+    putvarchr MEMORY_FILE5 SIZE 0
+    log MEMORY_FILE5 0 0
+    goto OFFSET
+    get CHUNKS long
+    math CHUNKS / 8
+    goto OFFSET
+    for CHUNK = 0 < CHUNKS
+        get CHUNK_OFF long
+        get CHUNK_DUMMY short
+        get CHUNK_ZSIZE short
+        math CHUNK_OFF += OFFSET
+        math ZSIZE = CHUNK_ZSIZE
+        math SIZE  = 0x4000
+        if ZSIZE == 0
+            log MEMORY_FILE2 CHUNK_OFF SIZE
+        else
+            log MEMORY_FILE CHUNK_OFF ZSIZE
+            callfunction LZSS_BMS_DUMP 1
+        endif
+        append
+        log MEMORY_FILE5 0 SIZE MEMORY_FILE2
+        append
+    next CHUNK
+    get SIZE asize MEMORY_FILE5
+    log NAME 0 SIZE MEMORY_FILE5
+endfunction
+
+
+# you must set: MEMORY_FILE (input), ZSIZE (input size), MEMORY_FILE2 (output), SIZE (max size)
+startfunction LZSS_BMS_DUMP
+    set LZSS_EI long 12
+    set LZSS_EJ long 4
+    set LZSS_P long 2
+    set LZSS_rless long LZSS_P
+    set LZSS_init_chr long 0x00
+
+    set LZSS_N long 1
+    math LZSS_N <<= LZSS_EI
+    set LZSS_F long 1
+    math LZSS_F <<= LZSS_EJ
+
+    # pre-allocate memory for faster performances
+    putvarchr MEMORY_FILE3 LZSS_N 0
+    for LZSS_i = 0 < LZSS_N
+        putvarchr MEMORY_FILE3 LZSS_i LZSS_init_chr
+    next LZSS_i
+    putvarchr MEMORY_FILE2 SIZE 0
+
+    math LZSS_r = LZSS_N
+    math LZSS_r -= LZSS_F
+    math LZSS_r -= LZSS_rless
+    math LZSS_N -= 1
+    math LZSS_F -= 1
+
+    math LZSS_src = 0
+    math LZSS_dst = 0
+    math LZSS_srcend = ZSIZE
+    math LZSS_dstend = SIZE
+
+    math LZSS_flags = 0
+    for LZSS_src = 0 < LZSS_srcend
+        if LZSS_flags & 0x100
+        else
+            getvarchr LZSS_flags MEMORY_FILE LZSS_src
+            math LZSS_src += 1
+            math LZSS_flags |= 0xff00
+        endif
+        if LZSS_flags & 1
+            getvarchr LZSS_c MEMORY_FILE LZSS_src
+            math LZSS_c ^= XOR_BYTE     # Reload customization
+            math LZSS_src += 1
+            putvarchr MEMORY_FILE2 LZSS_dst LZSS_c
+            math LZSS_dst += 1
+            putvarchr MEMORY_FILE3 LZSS_r LZSS_c
+            math LZSS_r += 1
+            math LZSS_r &= LZSS_N
+        else
+            getvarchr LZSS_i MEMORY_FILE LZSS_src
+            math LZSS_src += 1
+            getvarchr LZSS_j MEMORY_FILE LZSS_src
+            math LZSS_src += 1
+            math LZSS_TMP = LZSS_j
+            math LZSS_TMP >>= LZSS_EJ
+            math LZSS_TMP <<= 8
+            math LZSS_i |= LZSS_TMP
+            math LZSS_j &= LZSS_F
+            math LZSS_j += LZSS_P
+            for LZSS_k = 0 <= LZSS_j
+                math LZSS_TMP = LZSS_i
+                math LZSS_TMP += LZSS_k
+                math LZSS_TMP &= LZSS_N
+                getvarchr LZSS_c  MEMORY_FILE3 LZSS_TMP
+                putvarchr MEMORY_FILE2 LZSS_dst LZSS_c
+                math LZSS_dst += 1
+                putvarchr MEMORY_FILE3 LZSS_r LZSS_c
+                math LZSS_r += 1
+                math LZSS_r &= LZSS_N
+            next LZSS_k
+        endif
+        math LZSS_flags >>= 1
+    next
+    math SIZE = LZSS_dst
+    #log NAME 0 SIZE MEMORY_FILE2
+endfunction

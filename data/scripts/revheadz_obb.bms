@@ -1,0 +1,12 @@
+get VER long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    get SIZE longlong
+    get IS_FOLDER byte
+    if IS_FOLDER == 0
+        log NAME OFFSET SIZE
+    endif
+next i

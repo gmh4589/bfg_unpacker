@@ -1,0 +1,35 @@
+# CryoBF / Versailles 2 (*.bf)
+
+idstring "CryoBF - "
+getdstring VER 7
+get ZERO long
+get ZERO long
+get INFO_OFF long
+get BASE_OFF long
+goto INFO_OFF
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get ENTRIES long
+    for i = 0 < ENTRIES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get TYPE long
+        if TYPE == 1
+            callfunction EXTRACT
+        else
+            get SIZE long
+            get ZERO long   # ZSIZE?
+            get OFFSET long
+            math OFFSET + BASE_OFF
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+    next i
+endfunction

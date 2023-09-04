@@ -1,0 +1,22 @@
+# Blair Witch Project series (POD)
+
+IDString 0 POD2 ;
+Set FILESTART Long 88 ;
+GoTo FILESTART 0 ;
+Get FILECNTL Long 0 ;
+Set DUMMYL Long FILECNTL ;
+Math DUMMYL *= 20 ;
+Set FILESTART Long 100 ;
+Math DUMMYL += 100 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+Math FILESTART += 20 ;
+GoTo DUMMYL 0 ;
+Get FILENAME String 0 ;
+SavePos DUMMYL 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

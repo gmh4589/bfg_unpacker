@@ -1,0 +1,59 @@
+# Big Fish Games BFG archives
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "bfg\x81"
+get FULLSIZE asize
+for
+    padding 0x10
+    savepos OFFSET
+    if OFFSET >= FULLSIZE
+        cleanexit
+    endif
+    log MEMORY_FILE OFFSET 0x80
+    math OFFSET += 0x80
+    callfunction DECRYPT 1
+    getdstring NAME 100 MEMORY_FILE
+    get VAR string MEMORY_FILE
+    if NAME == ""
+    if VAR == ""
+        cleanexit # EOF
+    endif
+    endif
+    callfunction DO_OCTAL 1
+    math SIZE = NUM
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next
+
+startfunction DECRYPT
+    math KEY = 0xbc
+    for j = 0 < 0x80
+        getvarchr TMP MEMORY_FILE j
+        math TMP ^= KEY
+        putvarchr MEMORY_FILE j TMP
+        math KEY *= 9
+        math KEY += j
+        math KEY += 5
+    next j
+endfunction
+
+startfunction DO_OCTAL
+    math NUM = 0
+    strlen VARSZ VAR
+    for j = 0 < VARSZ
+        getvarchr T VAR j
+        if T >= 0x30
+            break
+        endif
+    next j
+    for j = j < VARSZ
+        getvarchr T VAR j
+        if T < 0x30
+            break
+        endif
+        math T -= 0x30
+        math NUM *= 8
+        math NUM += T
+    next j
+endfunction

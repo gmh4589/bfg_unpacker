@@ -1,0 +1,19 @@
+# Elements of War
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SMA"
+get DUMMY byte
+get DUMMY byte
+get FILES long
+get HEAD_SIZE long
+for i = 0 < FILES
+    get NAME string
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

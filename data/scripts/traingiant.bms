@@ -1,0 +1,164 @@
+# The Train Giant (A Train 9)
+#   maybe also other games on http://www.uieg.de are compatible
+#   note that all the bin files you see in the following 5 lines
+#   will be automatically extracted if you select one of them or i.dat
+#   the other archives like sdp.bin and mt0.bin must be selected
+#   individually
+# script for QuickBMS http://quickbms.aluigi.org
+
+putarray 0 0 "mcp.bin"
+putarray 0 1 "cp.bin"
+putarray 0 2 "ep.bin"
+putarray 0 3 "vp.bin"
+putarray 0 4 "tp.bin"
+putarray 0 5 ""
+math MYBIN = 0
+
+endian big
+comtype lzss "12 4 2 2 0"   # normal LZSS with 0x00
+
+get MYNAME filename
+math IDX = 0
+if MYNAME == "i.dat"
+    math IDX += 1
+endif
+for i = 0
+    getarray NAME 0 i
+    if NAME == ""
+        break
+    endif
+    if NAME == MYNAME
+        math IDX += 1
+    endif
+next i
+if IDX != 0
+    open FDSE "i.dat"
+endif
+
+callfunction DECRYPT 1
+
+get FULLSIZE asize MEMORY_FILE
+if IDX == 0
+    get PCHECK basename
+    strlen NAMESZ PCHECK
+    math NAMESZ -= 1
+    string PCHECK <= NAMESZ
+
+    get PATH basename
+    string PATH += /
+    endian little
+    get FILES long MEMORY_FILE
+    for OFFSET = 0 < FULLSIZE
+        getdstring NAME 0x200 MEMORY_FILE
+        set NAME unicode NAME
+
+        ## old guess method ##
+        #savepos OFFSET MEMORY_FILE
+        #findloc NEXT_OFF string "\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd\xfd" MEMORY_FILE ""
+        #if NEXT_OFF == ""
+        #    get NEXT_OFF asize MEMORY_FILE
+        #else
+        #    goto NEXT_OFF MEMORY_FILE
+        #    for j = 0 < 0x200
+        #        get TMP byte MEMORY_FILE
+        #        if TMP != 0xfd
+        #            break
+        #        endif
+        #    next j
+        #    savepos NEXT_OFF MEMORY_FILE
+        #    math NEXT_OFF -= 0x200
+        #    math NEXT_OFF -= 1
+        #endif
+        #math SIZE = NEXT_OFF
+        #math SIZE -= OFFSET
+
+        if PCHECK != "p"
+            get DUMMY long MEMORY_FILE
+            get DUMMY long MEMORY_FILE
+        endif
+        get SIZE long MEMORY_FILE
+        savepos OFFSET MEMORY_FILE
+
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE MEMORY_FILE
+
+        #math OFFSET = NEXT_OFF
+        math OFFSET += SIZE
+
+        goto OFFSET MEMORY_FILE
+    next
+else
+    # create backup
+    log MEMORY_FILE2 0 FULLSIZE MEMORY_FILE
+
+    getdstring NAME 0x18 MEMORY_FILE2
+    set NAME unicode NAME
+    get FILES long MEMORY_FILE2
+    reverselong FILES
+    for i = 0 < FILES
+        get ENTRYSZ byte MEMORY_FILE2
+
+        get NAMESZ short MEMORY_FILE2
+        math NAMESZ *= 2
+        getdstring NAME NAMESZ MEMORY_FILE2
+        set NAME unicode NAME
+
+        get PATHSZ short MEMORY_FILE2
+        math PATHSZ *= 2
+        getdstring PATH PATHSZ MEMORY_FILE2
+        set PATH unicode PATH
+
+        get DUMMY1 byte MEMORY_FILE2
+        get SIZE long MEMORY_FILE2
+        reverselong SIZE
+        get DUMMY2 byte MEMORY_FILE2
+        get OFFSET long MEMORY_FILE2
+        reverselong OFFSET
+
+        set FNAME string PATH
+        string FNAME += /
+        string FNAME += NAME
+
+        if OFFSET == 0
+            getarray NAME 0 MYBIN
+            math MYBIN += 1
+            open FDSE NAME
+            callfunction DECRYPT 1
+        endif
+
+        if PATH == "museum"    # unsupported
+            print "skip %FNAME%"
+        else
+            log FNAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+endif
+
+startfunction DECRYPT
+    math XOFFSET = 0x10
+    get XSIZE asize
+    math XSIZE -= XOFFSET
+    getdstring KEY XOFFSET
+    filerot "\x3b\x16\x6f\xd8\xac\xb2\x09\xfc\xb0\x9d\xa9\x3a\xdc\xa1\x3f\xd2\x45\x17\x11\x03\xfb\x59\x5e\x21\xd3\x7a\x41\xe8\x6a\x34\xd9\x10\x66\x21\xa7\x21\xff\x2e\x37\x89\xbf\x4e\x03\xec\x85\x6b\x94\xbb\xd0\xa2\xea\x08\x3a\xaf\x1e\x99\x43\xa6\x46\x3b\x50\xe5\x99\x58\xf4\x46\xd4\xcc\x6d\x99\xdc\xf5\x72\x51\xa4\x09\x2c\x7d\x51\xad\x82\xfa\x9c\xc3\x99\xe7\x78\x83\x9b\x5a\xf5\xcd\xb8\x51\x65\xbd\x6b\xec\xbd\x81\xff\xd9\x3e\x67\x51\x0f\x54\x3a\xd7\xbf\xbe\xcf\xe1\x87\xef\xdb\x1f\xea\xb4\x07\x64\xfd\x18\x47\xa9\x62\x85\x67\x55\x7a\x2b\xe7\xbc\xd7\xa5\x08\xe5\xf0\xda\x27\x90\x19\x22\x4a\x77\xb2\xab\xf9\xd5\x9e\x1a\x4f\x25\xf7\x75\x50\x2c\xff\x40\x7d\x39\x5a\xe6\xa6\xac\x7b\x5b\x00\xb5\x5d\x00\x77\x5e\x73\xc7\x45\xcc\xe1\x97\xc4\xc1\xec\xf2\x80\x66\xaf\xd5\x91\x48\x10\xdf\x28\xa0\xf3\xb6\x67\xd7\xae\xa7\x76\x49\xbc\x8c\xd3\x4a\xb5\xf3\xe9\x66\x7d\x7c\xe5\xed\xbc\x83\xc5\xb0\x8f\xff\xb1\x05\x7e\xaa\x8f\x11\xad\x63\xd2\x46\x56\xd0\x92\x2a\x76\x47\xe2\x5a\xc7\xef\x5e\xcf\xef\x22\x03\x61\xf7\x16\x44\x89\xfe\xbd\x59\x6b\x2f\xe9\xdb"
+    encryption xor KEY "" 0 XOFFSET
+    log MEMORY_FILE XOFFSET XSIZE
+    encryption "" ""
+    filerot ""
+
+    get XZSIZE asize MEMORY_FILE
+    get TMP long MEMORY_FILE
+    reverselong TMP
+    math XOFFSET = 0
+    math XSIZE = XZSIZE
+    math XSIZE *= 8
+    if TMP < XSIZE
+    if TMP > XZSIZE
+        math XSIZE = TMP
+        savepos XOFFSET MEMORY_FILE
+        math XZSIZE -= XOFFSET
+    endif
+    endif
+    clog MEMORY_FILE XOFFSET XZSIZE XSIZE MEMORY_FILE
+    goto 0 MEMORY_FILE
+endfunction

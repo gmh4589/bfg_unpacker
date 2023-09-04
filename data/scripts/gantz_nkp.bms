@@ -1,0 +1,30 @@
+# Gantz the Game
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "NKP\x1a"
+get NKP_SIZE long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    putarray 0 i OFFSET
+    putarray 1 i NAME
+next i
+    putarray 0 i NKP_SIZE
+
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray NAME   1 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log NAME OFFSET SIZE
+next

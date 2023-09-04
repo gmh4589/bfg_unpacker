@@ -1,0 +1,25 @@
+# Star Wars: Rebels. Recon missions (.obb)
+
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET longlong
+    putarray 0 i OFFSET
+next i
+savepos BASE_OFF
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math OFFSET + BASE_OFF
+    goto OFFSET
+    get SIZE longlong
+    savepos OFFSET
+    log "" OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    get NAMESZ short
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

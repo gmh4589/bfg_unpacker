@@ -1,0 +1,19 @@
+# Feng Yun
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get FILESIZE long
+get BASE_OFF long
+get FILES long
+for i = 0 < FILES
+    filexor 0xff
+    getdstring NAME 0x100
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get XSIZE long
+    get CRC long
+    get FLAG long
+    filexor ""
+    clog NAME OFFSET ZSIZE SIZE
+next i

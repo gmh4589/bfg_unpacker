@@ -1,0 +1,13 @@
+# Cobi Treasure Deluxe
+# script for QuickBMS http://quickbms.aluigi.org
+
+filexor "0x23 0x7d 0x81 0x1e 0x9f 0x44 0x8c 0x38 0x45 0x5a 0xf5 0xac 0x94 0x2b 0x3b 0x77"
+get FILES long
+get BASE_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

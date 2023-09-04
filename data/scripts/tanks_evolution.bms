@@ -1,0 +1,34 @@
+# Tanks Evolution (experimental filenames)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 100
+    get SIZE long
+    get OFFSET long
+
+    strlen NAMELEN NAME
+    for j = 0 < NAMELEN
+        getvarchr BYTE NAME j
+        math BYTE -= 0x23
+        if BYTE == 0x0e
+            set BYTE byte 0x2e
+        endif
+        if BYTE == 0x0f
+            set BYTE byte 0x5c
+        endif
+        if BYTE == 0x3f
+            putvarchr NAME j 0x5f
+        else
+            if BYTE >= 0x10
+                if BYTE <= 0x1f
+                    math BYTE -= 0x10
+                    math BYTE += 0x30
+                endif
+            endif
+            putvarchr NAME j BYTE
+        endif
+   next j
+
+   log NAME OFFSET SIZE
+next i

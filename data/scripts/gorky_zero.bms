@@ -1,0 +1,42 @@
+# Gorky Zero
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+get ARCHIVE_NAME basename
+get VER long
+get FILES long
+savepos BASE_OFF
+goto -4
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+
+    getarray XOR_OFFSET 0 0
+    math XOR_OFFSET + BASE_OFF
+    math OFFSET ^ XOR_OFFSET
+    math SIZE   ^ XOR_OFFSET
+    # there is ever a 0x1a after the file, same value for both compressed and non-compressed files
+
+    savepos TMP
+    goto OFFSET
+    set EXT extension NAME
+    if ARCHIVE_NAME == "textures"
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

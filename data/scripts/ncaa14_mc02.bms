@@ -1,0 +1,15 @@
+# NCAA 14 MC02
+
+endian big
+idstring "MC02"
+get ARCHIVE_SIZE long
+get HEADER_SIZE long
+get DATA_SIZE long
+goto 0x2c
+get FILES long
+xmath OFFSET "ARCHIVE_SIZE - DATA_SIZE"
+for i = 0 < FILES
+    get SIZE long
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+next i

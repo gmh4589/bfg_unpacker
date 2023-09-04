@@ -1,0 +1,7 @@
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE -= OFFSET
+get NAME basename
+string NAME += ".dds"
+clog NAME OFFSET ZSIZE SIZE

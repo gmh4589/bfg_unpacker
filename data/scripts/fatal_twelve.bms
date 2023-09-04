@@ -1,0 +1,22 @@
+# Fatal Twelve PAK
+
+get DATA_OFF long
+get FILES long
+get DUMMY long  # 0xbb9
+get ALIGN long
+getdstring ZERO 16
+get FLAGS long  # 0x02010601
+get INFO_SIZE long
+get NAMES_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET * ALIGN
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,158 @@
+# Gran Turismo 3/Gran Turismo Concept/Gran Turismo 4 Prologue(PS2)
+# TODO:
+# 1. Gran Turismo HD Concept/Install Disc uses a similar structure, yet it is encrypted beyond the 0x820 offset
+#    the encryption algorithm used for that archive is unknown
+# 2. Test Gran Turismo 4 and Tourist Trophy so they can be supported by this script.
+
+get POLYPHONY_ARCHIVENAME basename
+get POLYPHONY_ARCHIVEXTENSION extension
+
+if POLYPHONY_ARCHIVEXTENSION == "vol"
+	math GT4 = 0
+	
+	open FDDE "vol" 0
+	
+	get VOL_SIZE asize
+
+	get SIGN long
+	get DUMMY2-1 short
+	get DUMMY2-2 short
+	get INFO_SIZE long
+	get INFO_OFF long
+	get NAME_SIZE long
+
+	set PATH string ""
+	set NAME string ""
+	callfunction EXTRACT
+
+	startfunction EXTRACT
+		string PATH + NAME
+		string PATH + /
+		do
+			get NAMEOFF threebyte
+			get FLAGS byte
+			savepos TMP2
+			goto NAMEOFF
+			if SIGN == 0xacb990ad
+				callfunction DECRYPT_NAME 1
+			else
+				get NAME string
+			endif
+			goto TMP2
+			if NAMEOFF >= INFO_OFF && NAMEOFF <= INFO_SIZE
+				if FLAGS == 1
+					get ENTRIES1 long
+					get PREV_ENTRY long
+					math ENTRIES1 - 1
+					for ENTRY = 0 < ENTRIES1
+						get EOFF1 long
+						
+						savepos TMP1
+						goto EOFF1
+						get NAMEOFF threebyte
+						get FLAGS2 byte
+						savepos TMP3
+						goto NAMEOFF
+						if SIGN == 0xacb990ad
+							callfunction DECRYPT_NAME 1
+						else
+							get NAME string
+						endif
+						goto TMP3
+						if NAMEOFF >= INFO_OFF && NAMEOFF <= INFO_SIZE
+							if FLAGS2 == 1
+								goto -4 0 SEEK_CUR
+								math FLAGS2 == FLAGS
+								callfunction EXTRACT
+							elif FLAGS2 == 2
+								get F2_OFFSET long
+								get F2_ZSIZE long
+								get F2_SIZE long
+								math F2_OFFSET * 0x800
+								set COMPRESSED 0
+								log MEMORY_FILE F2_OFFSET F2_SIZE
+								callfunction CHECK_COMPRESSION 1
+								savepos TMP4
+								goto NAMEOFF
+								if SIGN == 0xacb990ad
+									callfunction DECRYPT_NAME 1
+								else
+									get NAME string
+								endif
+								goto TMP4
+								string FNAME p "%s%s" PATH NAME
+								if COMPRESSED = 1
+									clog FNAME F2_OFFSET F2_SIZE F2_ZSIZE
+								elif COMPRESSED = 2
+									string FNAME += "[compressed]"
+									log FNAME F2_OFFSET F2_SIZE
+								endif
+							elif FLAGS2 == 0
+								get F0_OFFSET long
+								get F0_SIZE long
+								math F0_OFFSET * 0x800
+								savepos TMP5
+								goto NAMEOFF
+								if SIGN == 0xacb990ad
+									callfunction DECRYPT_NAME 1
+								else
+									get NAME string
+								endif
+								goto TMP5
+								string FNAME p "%s%s" PATH NAME
+								log FNAME F0_OFFSET F0_SIZE
+							endif
+						endif
+						goto TMP1
+					next ENTRY
+				endif
+			else
+			endif
+		while FLAGS != 1
+	endfunction
+
+	startfunction CHECK_COMPRESSION
+		get COMP1 byte MEMORY_FILE
+		get COMP2 byte MEMORY_FILE
+		if COMP1 == 0x1f && COMP2 == 0x8b
+			set COMPRESSED 1
+			comtype gzip
+		elif COMP1 == 0xc5 && COMP2 == 0xee
+			set COMPRESSED 1
+			math F2_OFFSET + 8
+			comtype deflate_noerror
+		else
+			set COMPRESSED 2
+			print "Compression algorithm currently not supported."
+		endif
+	endfunction
+
+	startfunction DECRYPT_NAME
+		math x = 0
+		do
+			get ENCBYTE byte
+			math ENCBYTE ^ 0xff
+			putvarchr NAME x ENCBYTE
+			math x + 1
+		while ENCBYTE != 0
+	endfunction
+else
+	if POLYPHONY_ARCHIVENAME & "core"
+		comtype unzip_dynamic
+		
+		get V1 byte
+		get V2 byte
+		get ZSIZE long
+		savepos OFFSET
+		get SIZE asize
+		math SIZE - OFFSET
+		if POLYPHONY_ARCHIVENAME === "core"
+			string FNAME p= "%s_decompressed.%s" POLYPHONY_ARCHIVENAME POLYPHONY_ARCHIVEXTENSION
+		elif POLYPHONY_ARCHIVENAME === "CORE"
+			string FNAME p= "%s_DECOMPRESSED.%s" POLYPHONY_ARCHIVENAME POLYPHONY_ARCHIVEXTENSION
+		endif
+		clog FNAME OFFSET SIZE ZSIZE
+	else
+		break
+	endif
+endif

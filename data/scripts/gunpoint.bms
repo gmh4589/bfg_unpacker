@@ -1,0 +1,13 @@
+# Gunpoint
+# script for QuickBMS http://quickbms.aluigi.org
+
+get BASE_OFF long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get SIZE long
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,14 @@
+# A Snakes Life
+
+get DUMMY long
+get DUMMY short
+get DUMMY short
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    getdstring NAME 260
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next i

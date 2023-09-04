@@ -1,0 +1,25 @@
+# TBV archives (3D Ultra Publisher)
+#  3D Ultra Pool
+#  3D Ultra Pinball
+#  The Return of The Incredible Machine Contraptions
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "TBVolume\0"
+get DUMMY short
+get FILES long
+get DUMMY short
+getdstring NAME 24
+savepos INFO_OFF
+for i = 0 < FILES
+    goto INFO_OFF
+    get DUMMY long
+    get OFFSET long
+    savepos INFO_OFF
+
+    goto OFFSET
+    getdstring NAME 24
+    get SIZE long
+    savepos OFFSET
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,36 @@
+# game: XI Coliseum (PSP)
+# file type: *.arc (WpX identifier)
+# script type: extractor
+#
+# script for QuickBMS http://quickbms.aluigi.org
+# written by AlphaTwentyThree of Zenhax
+
+
+idstring WpX
+goto 8
+get SIZE long
+get ZSIZE long
+set OFFSET 0x800
+if SIZE == ZSIZE
+	log MEMORY_FILE OFFSET SIZE
+else
+	comtype zlib
+	clog MEMORY_FILE OFFSET SIZE ZSIZE
+endif
+
+
+idstring MEMORY_FILE "WILL"
+get ZERO long MEMORY_FILE
+get UNK long MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 1 <= FILES
+	get NAMEOFF long MEMORY_FILE
+	get OFFSET long MEMORY_FILE
+	get SIZE long MEMORY_FILE
+	get ZERO long MEMORY_FILE
+	savepos MYOFF MEMORY_FILE
+	goto NAMEOFF MEMORY_FILE
+	get NAME string MEMORY_FILE
+	goto MYOFF MEMORY_FILE
+	log NAME OFFSET SIZE MEMORY_FILE
+next i

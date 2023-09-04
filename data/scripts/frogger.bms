@@ -1,0 +1,53 @@
+# Frogger (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype PP20
+
+open FDSE "frogger.exe" 0 EXISTS
+if EXISTS == 0
+    open FDSE "SLUS_005.06" # PSX
+endif
+get EXE_EXT extension
+open FDSE "frogpsx.mwd" 1
+
+findloc INFO_OFF binary "\x09\x00A\0C\0O\0S\0T\0A\0B\0L\0E\0" 0 "" # PC
+if INFO_OFF == ""
+    findloc INFO_OFF binary "\xff\xff\xff\xff\x01\x00\x00\x00" # PSX
+else
+    math INFO_OFF += 0x18
+endif
+goto INFO_OFF
+
+for
+    set NAME string ""
+    get NAME_OFF long
+    if NAME_OFF != 0xffffffff
+        if NAME_OFF == 0x10
+            cleanexit
+        endif
+        if NAME_OFF u> 0x00ffffff
+            cleanexit
+        endif
+
+        math NAME_OFF += INFO_OFF
+        savepos TMP
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+    endif
+    get DUMMY2 long
+    get DUMMY3 long
+    get OFFSET long
+    get ZERO long
+    get ZERO long
+    get ZSIZE long
+    get SIZE long
+    if OFFSET != 0
+        math OFFSET *= 0x800
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+    endif
+next

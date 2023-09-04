@@ -1,0 +1,36 @@
+# 明珠玲珑 gamedata.bin
+
+idstring "LC5P1001"
+get DATA_OFF long
+get FILES long
+get OFFSET1 longlong
+get OFFSET2 longlong
+get ZSIZE1 long
+get ZSIZE2 long
+get SIZE2 long
+get DUMMY long  # 0x40000
+
+comtype zlib_noerror    # there is no SIZE1 because it's guessed by the number of files
+clog MEMORY_FILE OFFSET1 ZSIZE1 ZSIZE1
+comtype zlib
+clog MEMORY_FILE2 OFFSET2 ZSIZE2 SIZE2
+
+for i = 0 < FILES
+    get OFFSET longlong MEMORY_FILE
+    get SOME_CRC longlong MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get FLAGS long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get ZSIZE2 long MEMORY_FILE # same as ZSIZE
+    get ZERO long MEMORY_FILE
+    #getdstring NAME NAMESZ MEMORY_FILE2
+    get NAME line MEMORY_FILE2
+    if FLAGS == 0
+        log NAME OFFSET SIZE
+    else    # 2
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

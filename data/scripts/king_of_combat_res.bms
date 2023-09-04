@@ -1,0 +1,34 @@
+# Xuan Dou Zhi Wang / King of Combat RES (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction GET_NAME 1
+set PATH string NAME
+callfunction GET_NAME 1
+get SIZE long
+savepos OFFSET
+string NAME p "%s/%s" PATH NAME
+
+set EXT extension NAME
+if EXT == "picc"
+    string NAME + /
+    goto OFFSET
+    getdstring DUMMY 8
+    get FILES short
+    for i = 0 < FILES
+        get DUMMY long
+        get DUMMY long
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        goto SIZE 0 SEEK_CUR
+    next i
+else
+    log NAME OFFSET SIZE
+endif
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

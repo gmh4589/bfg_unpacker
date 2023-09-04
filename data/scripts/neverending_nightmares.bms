@@ -1,0 +1,51 @@
+# Neverending Nightmares (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK\x1a"
+get VER long    # 0 or 2
+if VER != 0
+    get ITAP_SIZE long
+endif
+get ZERO long
+get INFO_SIZE long
+get TABLES long
+get DUMMY long
+if VER != 0
+    get ZERO long
+endif
+savepos OFFSET
+
+xmath SIZE "TABLES * (4+4+4+2+2+2+2)"
+log MEMORY_FILE2 OFFSET SIZE
+math OFFSET += SIZE
+goto OFFSET
+
+for TABLE = 0 < TABLES
+    get TABLE_OFFSET long MEMORY_FILE2
+    get TABLE_SIZE long MEMORY_FILE2
+    get TABLE_ZSIZE long MEMORY_FILE2
+    get PREV_ENTRIES short MEMORY_FILE2
+    get FILES short MEMORY_FILE2
+    get DUMMY short MEMORY_FILE2
+    get DUMMY short MEMORY_FILE2
+
+    if TABLE_ZSIZE == 0
+        log MEMORY_FILE TABLE_OFFSET TABLE_SIZE
+    else
+        clog MEMORY_FILE TABLE_OFFSET TABLE_ZSIZE TABLE_SIZE
+    endif
+
+    for i = 0 < FILES
+        get FILE_ID long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        if SIZE == 0
+            log "" OFFSET ZSIZE MEMORY_FILE
+        elif SIZE < ZSIZE   # SIZE 1 or 2 like in sound.xmf
+            log "" OFFSET ZSIZE MEMORY_FILE
+        else
+            clog "" OFFSET ZSIZE SIZE MEMORY_FILE
+        endif
+    next i
+next TABLE

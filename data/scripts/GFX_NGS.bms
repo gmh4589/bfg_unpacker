@@ -1,0 +1,27 @@
+<bms games="'Airline 69', 'Ur-Lympiade'" platforms="'PC', 'PC'" ext="GFX">
+ImpType Standard ;
+IDString 0 NGS ;
+Set TEMP Long 6 ;
+GoTo TEMP 0 ;
+Get FILENUM Int 0 ;
+SavePos FRSTFILE 0 ;
+GoTo EOF 0 ;
+SavePos TAILOFF 0 ;
+Set TEMP Long FILENUM ;
+Math TEMP *= 4 ;
+Math TAILOFF -= TEMP ;
+Math TAILOFF += 1 ;
+GoTo TAILOFF 0 ;
+For X = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos NEXTFILE 0 ;
+Set TEMP Long FOFFSET ;
+Math TEMP -= 6 ;
+GoTo TEMP 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log "" FOFFSET FSIZE FOFFSETX FSIZEX ;
+GoTo NEXTFILE 0 ;
+Next X ;
+</bms>

@@ -1,0 +1,41 @@
+# Obscure HVP
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get DUMMY long
+get ZERO long
+get ENTRIES long
+get TSTAMP long
+math FOLDERS = 0
+for i = 0 < ENTRIES
+    get NAME_CRC long
+    get FLAGS long
+    if FLAGS == 4
+        get ZERO long
+        get ZERO long
+        get FILES long
+        get START_IDX long
+        xmath END_IDX "START_IDX + FILES"
+        putarray 0 FOLDERS START_IDX
+        putarray 1 FOLDERS END_IDX
+        math FOLDERS + 1
+    else
+        get SOME_CRC long
+        get SIZE long
+        get OFFSET long
+        get ZSIZE long
+        for x = 0 < FOLDERS # only last folder
+            getarray START_IDX 0 x
+            getarray END_IDX   1 x
+            if i >= START_IDX && i < END_IDX
+                break
+            endif
+        next x
+        string NAME p "%d/%d.raw" x i
+        if FLAGS == 0
+            log NAME OFFSET SIZE
+        elif FLAGS == 1
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

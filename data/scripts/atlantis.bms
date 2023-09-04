@@ -1,0 +1,45 @@
+# extract the contents of the main archive of the game 'Atlantis: Pearls of the Deep (PC, 2012)'
+# (c) 2012-12-23 by AlphaTwentyThree of XeNTaX
+
+open FDDE vpi 0
+open FDDE vpb 1
+for
+   FindLoc NXT string "File " 0 ""
+   if NXT == ""
+      cleanexit
+   endif
+   math NXT += 6
+   goto NXT
+   getCT NAME binary 0x22
+   get DUMMY byte
+   getCT OFFSET binary 0x20
+   getCT SIZE binary 0x0d
+   
+   set NUM OFFSET
+   callfunction str2num 1
+   set OFFSET NUM
+   
+   set NUM SIZE
+   callfunction str2num 1
+   set SIZE NUM
+   
+   log NAME OFFSET SIZE 1
+next
+
+startfunction str2num
+   endian little
+    set TONUM 0
+    strlen l NUM
+    for i = 0 < l
+        set EXP l
+        math EXP -= i
+        math EXP -= 1
+        set B 0xA
+        math B p EXP
+        getVarChr T NUM i
+        math T -= 0x30
+        math T *= B
+        math TONUM += T
+    next i
+    set NUM TONUM
+endfunction

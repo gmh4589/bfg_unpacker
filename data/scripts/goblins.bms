@@ -1,0 +1,21 @@
+# Goblins
+
+comtype lzss0
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 13
+    get SIZE long
+    get OFFSET long
+    get ZIP byte
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        savepos OFFSET
+        math SIZE - 4
+        goto TMP
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

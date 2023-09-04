@@ -1,0 +1,29 @@
+<bms author="Mr.Mouse" version="1.0" games="'Aeon Flux', 'Bloodrayne', 'Bloodrayne 2'" platforms="'PS2', 'PC', 'PC'" ext="POD" verbose="no">
+ImpType StandardTail ;
+IDString 0 POD3 ;
+Set D Long 88 ;
+GoTo D 0 ;
+Get FNU Long 0 ;
+Set D Long 264 ;
+GoTo D 0 ;
+SavePos TailOffOff 0 ;
+Get TP Long 0 ;
+Set DE Long FNU ;
+Math DE *= 20 ;
+Math DE += TP ;
+For T = 1 To FNU ;
+GoTo TP 0 ;
+Get CO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos TP 0 ;
+Math TP += 8 ;
+Set DZ Long DE ;
+Math DZ += CO ;
+GoTo DZ 0 ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+</bms>

@@ -1,0 +1,14 @@
+# Gorky 17
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+goto 32
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 8
+    getdstring NAME 0x70
+    if NAME != ""
+        log NAME OFFSET SIZE
+    endif
+next i

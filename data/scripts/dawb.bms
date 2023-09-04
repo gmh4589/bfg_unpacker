@@ -1,0 +1,42 @@
+# DAWB wad*.dat files
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DAWB"
+get DUMMY long  # 2
+get DUMMY long  # 3
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    getdstring NAME 260
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get NUM long
+    putarray 1 i NUM
+next i
+for i = 0 < FILES
+    get OFFSET long
+    putarray 2 i OFFSET
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 3 i SIZE
+next i
+
+get BASE_NAME basename
+get BASE_EXT extension
+
+math LAST_NUM = -1
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray NUM    1 i
+    getarray OFFSET 2 i
+    getarray SIZE   3 i
+
+    if NUM != LAST_NUM
+        math LAST_NUM = NUM
+        string TMP p= "%s%d.%s" BASE_NAME NUM BASE_EXT
+        open FDSE TMP 1
+    endif
+    log NAME OFFSET SIZE 1
+next i

@@ -1,0 +1,63 @@
+# NUS3 NUB2 - The iDOLM@STER (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "NUS3"
+get NUB_SIZE long
+idstring "BANK"
+idstring "TOC "
+get SIZE long
+get CHUNKS long
+for CHUNK = 0 < CHUNKS
+    getdstring CHUNK_NAME 4
+    get CHUNK_SIZE long
+next CHUNK
+for CHUNK = 0 < CHUNKS
+    getdstring CHUNK_NAME 4
+    get CHUNK_SIZE long
+    savepos CHUNK_OFF
+
+    if CHUNK_NAME == "TONE"
+        get FILES long
+        savepos BASE_OFF
+        for i = 0 < FILES
+            get INFO_OFF long
+            get INFO_SIZE long
+
+            savepos TMP
+            math INFO_OFF + BASE_OFF
+            goto INFO_OFF
+            get DUMMY1 signed_short
+            get DUMMY2 signed_short
+            if DUMMY1 >= 0x1000 # ??? not unsigned
+                get DUMMY long
+            endif
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+            padding 4
+            get ZERO long
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+            putarray 0 i NAME
+            putarray 1 i OFFSET
+            putarray 2 i SIZE
+            goto TMP
+
+        next i
+    endif
+
+    if CHUNK_NAME == "PACK"
+        savepos BASE_OFF
+        for i = 0 < FILES
+            getarray NAME 0 i
+            getarray OFFSET 1 i
+            getarray SIZE 2 i
+            math OFFSET + BASE_OFF
+            string NAME + ".ivag"
+            log NAME OFFSET SIZE
+        next i
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+    goto CHUNK_OFF
+next CHUNK

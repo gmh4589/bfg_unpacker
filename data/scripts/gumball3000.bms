@@ -1,0 +1,39 @@
+# Gumball 3000
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE bah
+open FDDE bad 1
+idstring "Woof"
+get VER string
+get DUMMY short
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAMESZ long
+    get FILES long
+    get FOLDERS long
+    get DUMMY long
+    getdstring NAME NAMESZ
+    string PATH += NAME
+    string PATH += /
+    for i = 0 < FILES
+        get NAMESZ long
+        get OFFSET long
+        get ZSIZE long  # ???
+        get SIZE long
+        get DUMMY long
+        getdstring NAME NAMESZ
+        set FNAME string PATH
+        string FNAME += NAME
+        if ZSIZE == SIZE
+            log FNAME OFFSET SIZE 1
+        else
+            clog FNAME OFFSET ZSIZE SIZE 1
+        endif
+    next i
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction

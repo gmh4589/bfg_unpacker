@@ -1,0 +1,59 @@
+# Amy
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+endian big
+idstring "BIG "
+get DUMMY long
+get NAMES long
+get NAMES_IDX long
+get DUMMY long
+get NAMES_OFF long
+get FOLDERS long
+get FOLDERS_OFF long
+get FILES long
+get INFO_OFF long
+get FILES_OFF long
+
+for i = 0 < NAMES
+    goto NAMES_IDX
+    get CRC long
+    get NAME_OFF long
+    savepos NAMES_IDX
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+next i
+
+goto FOLDERS_OFF
+for i = 0 < FOLDERS
+    get PREV long
+    get NAME long
+    getarray NAME 0 NAME
+    putarray 2 i NAME
+    set PATH string ""
+    if PREV >= 0
+        getarray PATH 1 PREV
+    endif
+    string PATH += NAME
+    string PATH += /
+    putarray 1 i PATH
+next i
+
+goto INFO_OFF
+for i = 0 < FILES
+    get PATH long
+    get NAME long
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+    getarray PATH 1 PATH
+    getarray NAME 0 NAME
+    set FNAME string PATH
+    string FNAME += NAME
+    if ZSIZE == SIZE
+        log FNAME OFFSET SIZE
+    else
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+next i

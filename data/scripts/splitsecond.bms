@@ -1,0 +1,44 @@
+# Black Rock Studios (script 0.1.4)
+#   Pure
+#   Split Second / Velocity
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss "12 4 2 2 0"   # normal LZSS with 0x00
+get VER long
+get INFO_SIZE long  # ignored
+get FILES long
+
+# correct endianess guessing and handling
+endian guess FILES
+endian save CURRENT_ENDIAN
+if CURRENT_ENDIAN != 0
+    reverselong VER
+    reverselong INFO_SIZE
+endif
+math VER u>> 16
+
+get INFO_OFF long
+goto INFO_OFF
+
+get DUMMY long
+get OFFSET long
+for i = 0 < FILES
+    get ZIP long
+    get OFFSET long
+    get ZSIZE long
+    if VER != 0
+        get SIZE long
+    endif
+    get CRC long
+    if ZIP == 0
+        log "" OFFSET ZSIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        goto TMP
+        math OFFSET += 4
+        math ZSIZE  -= 4
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

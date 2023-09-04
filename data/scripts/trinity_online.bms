@@ -1,0 +1,64 @@
+# Game: Trinity Online (PC)
+# Official WebSite: http://trinity.goorm.com/
+# by Fatduck     Aug2011
+# updated by aluigi for Keroro Pang Pang
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "KCP"
+get EXT extension
+if EXT != KCP
+   open FDSE PackFile.KCP 0
+endif
+
+set KCSNAME_ROOT string Trinity_PackFile_
+get TMP basename
+if TMP == "kpp"
+    set KCSNAME_ROOT string "kpp"
+    comtype lzo1x
+endif
+
+get UKN longlong
+get NUMKCS long
+get NUMDIR long
+get NULL byte
+
+math REFPACK = -1
+
+for DIR = 0 < NUMDIR
+   get DUKN long
+   get NUMRES long
+   get NUMSUBDIR long
+   get BASELEN long
+   get EXTLEN long
+   math BASELEN += EXTLEN
+   getdstring DIRNAME BASELEN
+   string DIRNAME += /
+   
+   #Just Skip to the resource Table
+   for SUB = 0 < NUMSUBDIR
+      get LEN long
+      getdstring SUBNAME LEN
+   next SUB
+   
+   for i = 0 < NUMRES
+      getdstring UKNSKIP 24
+      get KCSIDX long
+      get LEN word
+      get USIZE long
+      get CSIZE long
+      get OFS long
+      getdstring RESNAME LEN
+      set OUTNAME string DIRNAME
+      string OUTNAME += RESNAME
+     
+      if KCSIDX != REFPACK
+         set KCSNAME string KCSNAME_ROOT
+         string KCSNAME += KCSIDX
+         string KCSNAME += .KCS
+         open FDSE KCSNAME 1
+         math REFPACK = KCSIDX
+      endif
+      clog OUTNAME OFS CSIZE USIZE 1     
+   next i
+
+next DIR

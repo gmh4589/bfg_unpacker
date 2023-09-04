@@ -1,0 +1,13 @@
+# Fastlane Pinball
+
+comtype zlib_noerror
+get DAT_SIZE asize
+for OFFSET = 0 != DAT_SIZE
+    get SIZE long
+    savepos OFFSET
+    filexor 0xc3
+    clog "" OFFSET SIZE SIZE
+    filexor ""
+    math OFFSET + SIZE
+    goto OFFSET
+next

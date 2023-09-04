@@ -1,0 +1,87 @@
+# Hard Truck 2: King of the Road (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+
+# b3d is not an archive
+# ovl is just an useless text file
+
+if EXT == "res"
+
+    get RES_SIZE asize
+    do
+        getct RES_NAME string 0x20
+        get FILES string
+        for i = 0 < FILES
+            get NAME string
+            if RES_NAME == "COLORS"
+            elif RES_NAME == "MATERIALS"
+            elif RES_NAME == "SOUNDS"
+            else
+                get SIZE long
+                savepos OFFSET
+                string NAME % " "   # remove " noload"
+                string NAME p "%s/%s" RES_NAME NAME
+                log NAME OFFSET SIZE
+                goto SIZE 0 SEEK_CUR
+            endif
+        next i
+        savepos OFFSET
+    while OFFSET != RES_SIZE
+
+elif EXT == "sch" || EXT == "txt"
+
+    if EXT == "sch"
+        idstring "SDTE"
+    endif
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    log MEMORY_FILE OFFSET SIZE
+
+    # pre-calculated key
+    set KEY binary "\x8d\x88\xdb\x8c\x5e\x38\x8b\x3f\xd2\x4c\xb0\x36\x5a\xa2\x19\xe1\xc8\xaa\x17\xa1\x59\x72\xb3\x6f\xb7\x06\x5a\xaa\xf2\x87\xca\xc6\xd7\x96\x5c\x28\xaf\x69\x05\xe3\xb5\x8e\x02\x60\x48\x65\x17\x13\xa4\xd7\x27\xe5\xb0\x34\xca\x03\x93\x01\xf5\x56\xd4\x72\xa3\x05\xc5\xa0\xee\xfc\xe3\x78\x1b\x01\xc1\xcd\x96\xfe\x2a\xa6\xb0\x49\x85\x6e\xf4\x78\x0b\xc5\xa2\x03\x91\x7c\x0c\x0b\xdc\x13\xe3\x18\xa2\x2e\xb4\x97\x07\xa4\x2c\x7a\x2f\xe9\x00\x48\xa9\x97\x31\xc7\x4c\x73\x5e\xf4\xb4\xc3\xe0\xfe\x2f\x03\xf2\xd8\xca\x7c\x4f\xb3\x0e\x3d\x1e\xb3\x90\x70\x95\x18\xda\xae\x64\x27\xe6\x41\x7d\xfc\x8d\x1a\x37\x65\xd3\x45\x89\x19\xb7\x3e\xb5\x00\x9a\xe2\x65\x5e\xfb\x11\xb1\xb9\x2a\x87\x77\xa0\xc5\x17\x8d\x18\xbb\xbb\xe7\xc5\x9b\x9c\xca\xbe\x13\xba\x38\x2c\x99\x3c\xc8\x23\x6f\xdc\x90\xbf\xd3\xb6\x85\x49\x6c\xaa\x5b\x02\x55\xd8\xcb\x0f\xd4\xaf\xc0\xd1\x0a\x77\x67\xab\x84\x9b\x60\x48\x17\x0b\x3b\x6c"
+    math ESI_120 = 0
+    math ESI_124 = 0x1f
+    for i = 0 < SIZE
+        math ESI_120 + 1
+        math ECX = ESI_120
+        math ECX % 0x37
+
+        math ESI_124 + 1
+        math EDX = ESI_124
+        math EDX % 0x37
+
+        math EDX * 4
+        math ECX * 4
+
+        getvarchr EBP KEY ECX long
+        getvarchr EDX KEY EDX long
+        math EBP - EDX
+        putvarchr KEY ECX EBP long
+
+        getvarchr DL MEMORY_FILE i
+        getvarchr CL KEY ECX
+        math DL ^ CL
+        putvarchr MEMORY_FILE i DL
+    next i
+    if EXT == "sch"
+        get NAME filename
+        string NAME + ".txt"
+        log NAME 0 SIZE MEMORY_FILE
+    else
+        get NAME basename
+        set MEMORY_FILE2 binary "SDTE"
+        log NAME 0 4 MEMORY_FILE2
+        append
+        log NAME 0 SIZE MEMORY_FILE
+        append
+    endif
+
+else
+
+    print "Error: unsupported extension %EXT%"
+    cleanexit
+
+endif
+

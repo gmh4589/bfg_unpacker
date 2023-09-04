@@ -1,0 +1,16 @@
+get MYOFF long
+get FILES long
+goto MYOFF
+for i = 0 < FILES
+    get TYPE byte
+    get ZSIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    if TYPE == 1
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

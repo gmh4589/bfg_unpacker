@@ -1,0 +1,68 @@
+# Epic (DOS game)
+#   work-in-progress, compression (JR/RA) not supported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_OFF long
+savepos BASE_OFF
+goto INFO_OFF
+get FILES short
+get FOLDERS short
+get EXTENSIONS short
+get ENTRIES short
+for i = 0 < FOLDERS
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+for i = 0 < EXTENSIONS
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    putarray 1 i NAME
+next i
+math OFFSET = BASE_OFF
+for i = 0 < FILES
+    get SIZE long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    getvarchr FOLDER_IDX NAME 0
+    math NAMESZ - 1
+    getvarchr EXT_IDX NAME NAMESZ
+    math FOLDER_IDX - '0'
+    math EXT_IDX - 'A'
+    if FOLDER_IDX < 0 || FOLDER_IDX >= FOLDERS
+        set FOLDER string ""
+    else
+        getarray FOLDER 0 FOLDER_IDX
+        string NAME << 1
+    endif
+    if EXT_IDX < 0 || EXT_IDX >= EXTENSIONS
+        set EXT string ""
+    else
+        getarray EXT    1 EXT_IDX
+        string NAME - 1
+    endif
+    string NAME p "%s%s%s" FOLDER NAME EXT
+
+
+
+    # JR compression unsupported at the moment!
+    log NAME OFFSET SIZE
+
+    /*
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 2
+    if SIGN == "JR"
+        get DUMMY short
+        get XSIZE long
+        savepos OFFSET
+        math SIZE - 8
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+    */
+
+    math OFFSET + SIZE
+next i

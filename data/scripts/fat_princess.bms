@@ -1,0 +1,27 @@
+# Fat Princess
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "QRK\0"
+get VER long
+get FILES long
+get DATA_OFF long
+get DUMMY long  # 1
+get NAMES_SIZE long
+savepos TMP
+log MEMORY_FILE TMP NAMES_SIZE
+goto NAMES_SIZE 0 SEEK_CUR
+for i = 0 < FILES
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+    get SOME_CRC long
+    get NAME_OFF long
+    get ZIP byte
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

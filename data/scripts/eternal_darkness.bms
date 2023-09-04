@@ -1,0 +1,14 @@
+endian big
+get DUMMY long
+get OFFSET long
+get DUMMY long  #0xd06337e9
+get ZERO long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get ZERO long
+    log "" OFFSET SIZE
+next i

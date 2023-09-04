@@ -1,0 +1,55 @@
+# Commandos 1, 2 and 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+math NAMESZ = 0x24
+get EXT extension
+if EXT == "dir"
+    math NAMESZ = 0x20
+endif
+
+math NEXT_OFFSET = 0
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    goto NEXT_OFFSET
+    for
+        getdstring NAME NAMESZ
+        get TYPE long
+        get VALUE1 long
+        get VALUE2 long
+        
+        math TYPE &= 0xff
+        if TYPE == 0xff
+            break
+
+        elif TYPE != 0
+            math NEXT_NEXT_OFFSET = VALUE1
+            math NEXT_OFFSET = VALUE2
+            savepos CURRENT_OFFSET
+            callfunction EXTRACT
+            if NEXT_NEXT_OFFSET == 0xffffffff
+                break
+            endif
+            if NEXT_NEXT_OFFSET == 0
+                math NEXT_NEXT_OFFSET = CURRENT_OFFSET
+            endif
+            goto NEXT_NEXT_OFFSET
+
+        else
+            if NAME == ""
+                cleanexit
+            endif        
+        
+            math SIZE = VALUE1
+            math OFFSET = VALUE2
+            
+            set FNAME string PATH
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        endif
+    next
+endfunction

@@ -1,0 +1,18 @@
+# Conqueror's Blade pkg
+comtype lz4
+for
+    savepos BASE_OFF
+    get ZERO long
+    if ZERO != 0
+        break
+    endif
+    get DUMMY long
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    math OFFSET + BASE_OFF
+    clog "" OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+    goto OFFSET
+next
+

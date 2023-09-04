@@ -1,0 +1,17 @@
+<bms games="'Hostile Waters'" platforms="'PC'" ext="MNG">
+ImpType Standard ;
+ComType ZLib1 ;
+IDString 0 ZGWH ;
+Get FILECNTL Long 0 ;
+For T = 1 To FILECNTL ;
+Get FILENAME String 0 ;
+SavePos CSO 0 ;
+Get CS Long 0 ;
+SavePos UCSO 0 ;
+Get UCS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FILESTART 0 ;
+CLog FILENAME FO CS FOO CSO UCS UCSO ;
+Next T ;
+</bms>

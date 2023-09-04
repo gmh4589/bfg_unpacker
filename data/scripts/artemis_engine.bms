@@ -1,0 +1,75 @@
+# Generic Artemis Engine (root.pfs.*) (new version of Norn9 / Amnesia)
+#   script by velvety https://www.zenhax.com/viewtopic.php?p=43315#p43315 plus some fixes
+# Based on initial work by aluigi for Amnesia: Memories and Norn9
+# v3 handles 'pf2' as cleartext, quits if magic is not handled
+# v2 handles 'pf6' as cleartext
+# script for QuickBMS http://quickbms.aluigi.org
+
+# Credits to @GARbro for figuring out the XOR key calculation
+# https://github.com/morkt/GARbro/blob/12bbd3a3/ArcFormats/Artemis/ArcPFS.cs#L101
+
+# SHA1 hash length (160 bits)
+math KEYSZ = 20
+
+get NAME filename
+# Example for Noraneko Heart HD (NSW)
+#if NAME == "root.pfs"
+#    set KEY binary "\xB7\x36\x16\xDD\x3F\xE1\x0A\xF1\x22\x06\xAD\x3C\xB6\x67\x80\x72\x46\x25\x7A\x61"
+#elif NAME == "root.pfs.000"
+#    set KEY binary "\x83\x3D\xCB\x3D\xD8\x7D\x70\xD4\x9C\xCE\x2E\x25\xCC\xAB\x89\x43\xFB\xD0\xE3\x36"
+#elif NAME == "root.pfs.001"
+#    set KEY binary "\xDB\x1E\x30\x29\x7B\x8C\xC7\x58\xE1\xD7\x33\xD0\xC4\x66\x36\x87\x62\xC6\xE6\xDF"
+#elif NAME == "root.pfs.002"
+#    set KEY binary "\x8D\x98\xA0\x17\x31\x14\xD1\x04\xE7\x72\xFF\xC1\xA3\x60\x6E\xEC\x59\x64\x37\xC7"
+#elif NAME == "root.pfs.003"
+#    set KEY binary "\xD7\x98\x0D\x0E\x54\x83\x44\x90\x2C\x4C\x0D\xC9\x11\x0E\x76\x25\x94\x31\xEB\x29"
+#endif
+
+idstring "pf"
+getdstring VER 1    # '6', '8' and so on
+codepage 932
+# If you see weird filenames, you may also want to try UTF-8 (e.g. for console or phone games):
+# codepage 65001
+
+get INFO_SIZE long
+SavePos INFO_OFFSET
+if VER == "8"
+    Log MEMORY_FILE INFO_OFFSET INFO_SIZE
+    Encryption sha1 MEMORY_FILE
+    String KEY h QUICKBMS_HEXHASH
+elif VER == "6"
+    set KEY binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+elif VER == "2"
+    Math INFO_OFFSET + 4
+    set KEY binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+else
+    print "ERROR This version is not supported: %VER%"
+   cleanexit
+endif
+
+# cannot get this dump to work:
+#print "KEY %KEY|dump20%"
+
+GoTo INFO_OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    if VER == "2"
+        get SIZEOFCRAP long
+        Math SIZEOFCRAP - 8
+        GoTo SIZEOFCRAP 0 SEEK_CUR
+    else
+        get ZERO long
+    endif
+    get OFFSET long
+    get SIZE long
+
+    set EXT extension NAME
+    if EXT == "mp4"
+    else
+        encryption xor KEY 0 KEYSZ
+    endif
+    log NAME OFFSET SIZE
+    encryption "" ""
+next i

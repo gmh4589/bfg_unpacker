@@ -1,0 +1,15 @@
+# Laser Light (RES)
+
+ImpType Standard ;
+Get FN Int 0 ;
+For T = 1 To FN ;
+Get D Byte 0 ;
+GetDString NAME 12 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get D Byte 0 ;
+Log NAME FO FS #FOO FSO ;
+Next T ;
+

@@ -1,0 +1,14 @@
+# Crazy Kickers
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Torque"
+goto 0x20
+get FILES long
+goto 0x40
+for i = 0 < FILES
+    getdstring NAME 0x68
+    get OFFSET long
+    get SIZE long
+    getdstring DUMMY 0x10
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,119 @@
+# 3ds Max mse scripts decrypter (script 0.1.1)
+#   support versions 0 and 1
+# script for QuickBMS http://quickbms.aluigi.org
+
+math MODE   = 1
+math KEY    = 0xECD6D157
+math KEY2   = 0xECD6D157
+
+get EXT extension
+if EXT != "mse"
+    print "Error: you must open an encrypted 3ds Max script with mse extension"
+    cleanexit
+endif
+
+# load whole file in memory
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+# check version
+get TMP byte MEMORY_FILE
+if TMP == 0x43
+
+    # encryption 1
+    math MODE = 2
+    math KEY  = 0
+
+    get MODE long MEMORY_FILE
+    get KEY  long MEMORY_FILE
+    get TMP  long MEMORY_FILE
+    math KEY += TMP
+    math KEY ^= TMP
+
+    callfunction RAND 1
+    math SKIP = RET
+    math SKIP &= 0x7f
+
+    for i = 0 < SKIP
+        get TMP byte MEMORY_FILE
+        callfunction RAND 1
+    next i
+
+else
+
+    # encryption 0
+    goto 0 MEMORY_FILE
+
+endif
+
+savepos OFFSET MEMORY_FILE
+if MODE == 3
+
+    for i = OFFSET < SIZE
+        callfunction RAND 1
+        getvarchr TMP MEMORY_FILE i
+        if KEY & 1
+            math TMP z= 4
+        endif
+        math TMP ^= RET
+        math TMP &= 0xff
+        if TMP == 0xff
+            break
+        endif
+        putvarchr MEMORY_FILE i TMP
+        if TMP & 0x80
+            math TMP |= -0x100
+        endif
+        math KEY += TMP
+    next i
+
+elif MODE == 0
+    # do nothing
+
+elif MODE == 2
+    # do nothing
+
+else
+    # modes 1 and 4
+
+    for i = OFFSET < SIZE
+        callfunction RAND 1
+        getvarchr TMP MEMORY_FILE i
+        math TMP ^= RET
+        math TMP &= 0xff
+        if TMP == 0xff
+            break
+        endif
+        putvarchr MEMORY_FILE i TMP
+    next i
+
+endif
+
+# dump
+math SIZE = i
+math SIZE -= OFFSET
+get NAME basename
+string NAME += ".ms"
+log NAME OFFSET SIZE MEMORY_FILE
+
+
+startfunction RAND
+    if MODE == 0
+        math RET = 0
+    elif MODE == 3
+        math KEY *= 0x4fac51fb
+        math KEY n= KEY
+        math KEY += 0x269ec3
+        math RET = KEY
+    elif MODE == 4
+        math KEY2 *= 0x343fd
+        math KEY2 += 0x269ec3
+        math RET = KEY2
+    else
+        math KEY *= 0x343fd
+        math KEY += 0x269ec3
+        math RET = KEY
+    endif
+    math RET >>= 0x10
+    math RET &= 0x7fff
+endfunction

@@ -1,0 +1,62 @@
+# Inazuma Eleven 3 (script 0.1.1)
+#   file names and directory structure unsupported
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN == "ARCV"
+    callfunction EXTRACT_ARCV 1
+    cleanexit
+endif
+
+comtype lzss0
+idstring "B123"
+get OFFSET1 long
+get OFFSET2 long
+get INFO_OFF long
+get NAMES_OFF long
+get DATA_OFF long
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+getdstring DUMMY 0x10
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+
+goto INFO_OFF
+for i = 0 < FILES
+    get SOME_CRC long
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    math OFFSET + DATA_OFF
+
+    savepos BCK_OFF
+    goto OFFSET
+    getdstring TMP 4
+    if TMP == "SSZL"
+        get ZERO long
+        get ZSIZE long
+        get SIZE long
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    goto BCK_OFF
+next i
+
+startfunction EXTRACT_ARCV
+    idstring "ARCV"
+    get FILES long
+    get ARCV_SIZE long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get CRC long
+        log "" OFFSET SIZE
+    next i
+endfunction

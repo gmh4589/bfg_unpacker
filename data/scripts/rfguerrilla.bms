@@ -1,0 +1,88 @@
+# Red Faction: Guerrilla (script 0.1.4)
+#   if the script doesn't work with some archives try http://svn.gib.me/builds/volition/
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xce\x0a\x89\x51"
+get VER long
+goto 0x154
+get FILES long
+if FILES == 0
+    goto 8
+    get FILES long
+    get VPP_SIZE long
+    get ALIGN long
+    padding ALIGN
+    savepos TMP
+    xmath OFFSET "TMP + (FILES * 0x20)"
+    for i = 0 < FILES
+        math OFFSET x ALIGN
+        getdstring NAME 0x18
+        get SIZE long   # both these fields are the same!
+        get SIZE long
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+    cleanexit
+endif
+get VPP_SIZE long
+get INFO_SIZE long
+get NAME_SIZE long
+if VER < 6
+    get DATA_XSIZE long # size of the decompressed files
+    get DATA_SIZE long  # size of the compressed files
+    if DATA_SIZE == 0xffffffff
+        math DATA_SIZE = DATA_XSIZE
+    endif
+else
+    get DATA_SIZE long
+    math DATA_XSIZE = DATA_SIZE
+endif
+
+padding 0x800
+savepos OFFSET
+log MEMORY_FILE OFFSET INFO_SIZE
+math OFFSET += INFO_SIZE
+goto OFFSET
+padding 0x800
+savepos OFFSET
+log MEMORY_FILE2 OFFSET NAME_SIZE
+
+comtype zlib_noerror
+math OFFSET = VPP_SIZE
+math OFFSET - DATA_SIZE
+
+math FILENUM = 0
+if DATA_SIZE != DATA_XSIZE
+    clog MEMORY_FILE3 OFFSET DATA_SIZE DATA_XSIZE
+    math FILENUM = -3
+    math OFFSET = 0
+endif
+
+for i = 0 < FILES
+    get NAME_OFF long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    if VER < 6
+        get CRC long MEMORY_FILE
+    endif
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+
+    goto NAME_OFF MEMORY_FILE2
+    get NAME string MEMORY_FILE2
+
+    if FILENUM != 0
+        math ZSIZE = 0xffffffff
+        # the TOC still reports the compressed and decompressed size even if the whole data block is compressed
+    endif
+
+    if ZSIZE == 0xffffffff
+        log NAME OFFSET SIZE FILENUM
+        math OFFSET += SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE FILENUM
+        math OFFSET += ZSIZE
+    endif
+    math OFFSET x= 0x800
+next i

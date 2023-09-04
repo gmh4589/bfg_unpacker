@@ -1,0 +1,91 @@
+# Nancy Drew Ciftree.Dat (script 0.1.1)
+#   The compression algorithm is unknown
+
+idstring "CIF "
+getdstring SIGN 4
+goto 0x18
+get VER1 short # 2
+get VER2 short # 1
+
+if SIGN u== "TREE" # WayneSikes
+
+    # eh no, the result is wrong even if it's the same of https://gitlab.com/ShimmerFairy/oldhertools/-/blob/master/lib/lzss.cpp
+    #comtype lzss
+
+    get FILES short
+    if VER2 == 0
+        math NAMESZ = 0xb
+        xmath SKIP "0x13 - NAMESZ"
+    elif VER2 == 1
+        math NAMESZ = 0x13
+        xmath SKIP "0x33 - NAMESZ"
+        get DUMMY short
+    else
+        math NAMESZ = 0x2b
+        xmath SKIP "0x4b - NAMESZ"
+        get DUMMY short
+    endif
+    goto 0x800 0 SEEK_CUR
+
+    for i = 0 < FILES
+
+        # for more info: https://gitlab.com/ShimmerFairy/oldhertools/-/blob/master/lib/ciftree/fileidx.cpp
+        getdstring NAME NAMESZ
+        getdstring DUMMY SKIP
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get ZSIZE long
+        get TYPE byte
+        get DUMMY short
+
+        #clog NAME OFFSET ZSIZE SIZE
+        string NAME p "%s/%s" "compressed" NAME
+        log NAME OFFSET ZSIZE
+    next i
+
+elif SIGN u== "FILE"
+
+    goto -4
+    savepos INFO_OFF
+    get SIZE long
+    math INFO_OFF - SIZE
+    goto INFO_OFF
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x21
+        get OFFSET long
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+    next i
+        putarray 1 i INFO_OFF
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        math i + 1
+        getarray SIZE   1 i
+        math SIZE - OFFSET
+
+        string NAME + "."
+
+        goto OFFSET
+        getdstring SIGN 8
+        if SIGN u== "CIF FILE"
+            get STR string
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next
+
+else
+    print "Error: unknown CIF %SIGN%"
+    cleanexit
+endif

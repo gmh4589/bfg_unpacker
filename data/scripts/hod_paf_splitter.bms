@@ -1,0 +1,61 @@
+# Packed Animation File PAF splitter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring MAGIC 0x80
+goto 0
+if MAGIC & "Packed Animation File"
+    cleanexit
+    get SIZE asize
+    callfunction EXTRACT_PAF
+else
+    get NUM long
+    math NUM / 4
+    goto 0
+    math FILES = 0
+    for i = 0 < NUM
+        get OFFSET long
+        if OFFSET != 0
+            putarray 0 FILES OFFSET
+            math FILES + 1
+        endif
+    next i
+        get OFFSET asize
+        putarray 0 FILES OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        goto OFFSET
+
+        get NAME basename
+        get EXT extension
+        string NAME p "%s_%d.%s" NAME i EXT
+        callfunction EXTRACT_PAF
+    next
+endif
+
+print "\nNow use http://cyxdown.free.fr/pafdec/\n\nExe: https://zenhax.com/viewtopic.php?p=31172#p31172"
+
+startfunction EXTRACT_PAF
+    getdstring MAGIC 0x80
+    if MAGIC & "Packed Animation File"
+    else
+        print "Error: unsupported magic: %MAGIC%"
+        cleanexit
+    endif
+    get DUMMY long
+	get framesCount long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+	get readBufferSize long
+	get preloadFrameBlocksCount long
+	get frameBlocksCount long
+	get startOffset long
+	get maxVideoFrameBlocksCount long
+	get maxAudioFrameBlocksCount long
+
+    log NAME OFFSET SIZE
+endfunction

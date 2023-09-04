@@ -1,0 +1,106 @@
+# Mortal Kombat Shaolin Monks EWDF (script 0.1.6)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "ewdf"
+
+    comtype deflate
+    idstring "EWDF"
+    get SIZE long
+    get OFFSET long
+    get TSTAMP long
+    get NAME string
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+
+elif EXT == "wad"
+
+    comtype deflate
+    idstring "PWF "
+    get DUMMY byte  # 0 or 0x80
+    get SOME_SIZE threebyte
+    get VER long    # 1 or 2
+    get FILES long
+    goto 0x20
+
+    get TEST long
+    if TEST == 0
+        goto 0x800
+    else
+        goto -4 0 SEEK_CUR
+    endif
+
+    # just guessing, apparently VER isn't involved
+    math MODE = 1
+    get TEST1 long
+    get TEST2 long
+    goto -8 0 SEEK_CUR
+    math TEST1 u>> 24
+    math TEST2 u>> 24
+    if TEST1 == 0 && TEST2 == 0
+        math MODE = 2
+    endif
+
+    for i = 0 < FILES
+        if MODE == 1    # was VER <= 1
+            getbits OFFSET  22
+            getbits DUMMY   2
+            getbits SIZE    20
+            getbits DUMMY   12
+            getbits FLAGS   8
+
+            math OFFSET * 0x800
+            math SIZE   * 4
+
+            if FLAGS & 0x80
+                savepos TMP
+                goto OFFSET
+                # same EWDF code as above but now we know the size (not correct but it's ok)
+                idstring "EWDF"
+                get XSIZE long
+                get HEADER_SIZE long
+                get SOME_CRC long   # this isn't a crc, it looks like an obfuscated value
+                get NAME string
+                string NAME p "%08x_%s" SOME_CRC NAME
+                math OFFSET + HEADER_SIZE
+                math SIZE   - HEADER_SIZE
+                clog NAME OFFSET SIZE XSIZE
+                goto TMP
+            endif
+        else
+            get OFFSET long
+            get SIZE long
+            log "" OFFSET SIZE
+        endif
+    next i
+
+else
+
+    comtype deflate_compress
+    get SIZE asize
+    get NAME filename
+    log MEMORY_FILE 0 0
+    putdstring "EWDF" 4 MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    put 0 long MEMORY_FILE  # placeholder
+    put 0x47ee3b5d long MEMORY_FILE # just an hardcoded timestamp
+    put NAME string MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    append
+    encryption crc 0xEDB88320 "32 -1 -1 0 0 1"
+    clog MEMORY_FILE 0 SIZE SIZE
+    encryption "" ""
+    append
+    put QUICKBMS_CRC long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    padding 0x10 MEMORY_FILE
+    goto 8 MEMORY_FILE
+    put OFFSET long MEMORY_FILE
+
+    get NAME basename
+    string NAME + ".EWDF"
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+
+endif

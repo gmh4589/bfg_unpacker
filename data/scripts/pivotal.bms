@@ -1,0 +1,13 @@
+# Pivotal Games (Conflict series) DAT
+# Conflict: Desert Storm, The Great Escape, Conflict: Desert Storm II, Conflict: Vietnam, Conflict: Global Terror, Conflict: Denied Ops
+
+for
+    get NAME_CRC long
+    if NAME_CRC == 0
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    string NAME p "%08x." NAME_CRC
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,31 @@
+# Castlevania: The Dracula X Chronicles (.res PSP)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RESC"
+get FILES long
+getdstring VER 4    # "1.20"
+for i = 0 < FILES
+    math VARSZ = 12
+    callfunction GET_STRING 1
+    set NAME string VAR
+    math VARSZ = 4
+    callfunction GET_STRING 1
+    set EXT string VAR
+    get SIZE long
+    get OFFSET long
+    getdstring ZERO 8
+    string NAME + "."
+    string NAME + EXT
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_STRING
+    set VAR string ""
+    math z = VARSZ
+    for x = 0 < VARSZ
+        get TMP byte
+        math z - 1
+        putvarchr VAR z TMP
+    next x
+endfunction
+

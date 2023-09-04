@@ -1,0 +1,31 @@
+# Calling
+
+endian big
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+
+get ARCHIVE_SIZE asize
+putarray 0 i ARCHIVE_SIZE
+sortarray 0 1
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    goto OFFSET
+    get SIZE long
+    get FLAGS long
+    if FLAGS & 6
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+    else
+        savepos OFFSET
+        getarray ZSIZE 0 i
+        math ZSIZE - OFFSET
+        log "" OFFSET ZSIZE
+    endif
+next

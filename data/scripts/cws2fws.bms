@@ -1,0 +1,29 @@
+# CWS2FWS (SWC to SWF) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror    # necessary
+idstring "CWS"
+get VER byte
+get SIZE long
+get ZSIZE asize
+savepos OFFSET
+math ZSIZE -= OFFSET
+
+log MEMORY_FILE 0 8
+putvarchr MEMORY_FILE 0 0x46
+append
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+append
+
+math SIZE += 8
+putvarchr MEMORY_FILE SIZE 0
+
+get EXT extension
+get NAME filename
+if EXT == "swf"
+    string NAME += "_unpacked."
+    string NAME += EXT
+else
+    string NAME += ".swf"
+endif
+log NAME 0 SIZE MEMORY_FILE

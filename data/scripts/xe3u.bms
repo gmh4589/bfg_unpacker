@@ -1,0 +1,11 @@
+idstring "XE3U"
+get DUMMY long
+get FILES long
+get XE3U_SIZE asize
+for i = 0 < FILES
+    do
+        get OFFSET long
+    while OFFSET == 0 || OFFSET > XE3U_SIZE
+    get SIZE long
+    log "" OFFSET SIZE
+next i

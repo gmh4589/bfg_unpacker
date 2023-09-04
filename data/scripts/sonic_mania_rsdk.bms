@@ -1,0 +1,16 @@
+# Sonic Mania RSDK
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RSDKv5"
+get FILES short
+for i = 0 < FILES
+    getdstring HASH 16
+    get OFFSET long
+    get SIZE long
+    if SIZE & 0x80000000
+        math SIZE & 0x7fffffff
+        log "unknown/" OFFSET SIZE  # probably encrypted
+    else
+        log "" OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,13 @@
+# Realms of Ancient War
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get INFO_SIZE long
+get FILES long
+for i = 0 < FILES
+    get DUMMY longlong
+    get NAME string
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

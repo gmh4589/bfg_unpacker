@@ -1,0 +1,22 @@
+# Star Wars: The Clone Wars - data.zwp file (XBOX)
+
+idstring "NORK"
+get DUMMY long
+get DUMMY long
+get FULL_SIZE long
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get ZERO long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

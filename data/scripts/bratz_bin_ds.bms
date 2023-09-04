@@ -1,0 +1,26 @@
+# extracts the BigFile.bin from the following games:
+# - Bratz Kidz: Party (DS)
+# - Bratz Kidz: Slumber Party (DS)
+# - Bratz Ponyz (DS)
+#
+# (c) 2012-03-20 by AlphaTwentyThree of XeNTaX
+
+comtype PUYO_LZ01
+get FILES long
+for i = 1 <= FILES
+   get OFFSET threebyte
+   get COMP byte
+   get ZSIZE long
+   get SIZE long
+   savepos MYOFF
+   math MYOFF += 0x20
+   get NAME string
+   goto MYOFF
+   get ZERO long
+   get UNK long
+   if COMP == 1
+      clog NAME OFFSET SIZE ZSIZE
+   else
+      log NAME OFFSET SIZE
+   endif
+next i

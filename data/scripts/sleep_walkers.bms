@@ -1,0 +1,25 @@
+# Sleep Walkers
+
+math FILES = 0x7fffffff
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+    if i == 0
+        xmath FILES "OFFSET / 4"
+    endif
+next i
+
+get OFFSET asize
+putarray 0 i OFFSET
+sortarray 0
+
+math FILES = i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE 0 i
+    math SIZE - OFFSET
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+next

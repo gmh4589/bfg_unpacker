@@ -1,0 +1,24 @@
+# Corum Online / Mo Siang (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PATH basename
+string PATH += /
+get VER long
+get FILES long
+goto 0x5c
+for i = 0 < FILES
+    savepos ENTRY_OFF
+    get ENTRY_SIZE long
+    get SIZE long
+    get NAMESZ long
+    get ENTRY_OFF2 long # same as ENTRY_OFF
+    getdstring ZERO 16
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    set FNAME string PATH
+    string FNAME += NAME
+    log FNAME OFFSET SIZE
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+next i

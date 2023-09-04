@@ -1,0 +1,7 @@
+# Azure Striker Gunvolt ISD to OGG decrypter
+
+filexor "\xe0\x00\xe0\x00\xa0\x00\x00\x00\xe0\x00\xe0\x80\x40\x40\x40\x00"
+get SIZE asize
+get NAME basename
+string NAME + ".ogg"
+log NAME 0 SIZE

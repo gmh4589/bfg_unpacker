@@ -1,0 +1,75 @@
+# Ghost Recon Advanced Warfighter PS2 IMG files
+
+quickbmsver 0.3.12
+get FULLSIZE long
+get OFFSET1 long
+get INFO_OFF long
+get OFFSET3 long
+get NAMES_OFF long
+get BASE_OFF long
+get OFFSET6 long
+get OFFSET7 long
+get OFFSET8 long
+
+goto INFO_OFF
+math FILES = OFFSET3
+math FILES -= INFO_OFF
+math FILES /= 0x30
+for i = 0 < FILES
+    set PATH string ""
+    callfunction extract 1
+    if OFFSET != 0
+        getarray FULLNAME 0 0
+        if ZSIZE == SIZE
+            log FULLNAME OFFSET SIZE
+        else
+            clog FULLNAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i
+
+startfunction extract
+    get NAME_OFF long
+    get CURR_ID long
+    get PREV_ID long
+    get NEXT_ID long
+    get DUMMY4 long
+    get TYPE long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY6 long
+    get DUMMY7 long
+    get DUMMY8 long
+
+    math NAME_OFF += NAMES_OFF
+    savepos TMP2
+    goto NAME_OFF
+    get NAME string
+    goto TMP2
+
+    if PREV_ID != 0
+        set PATH2 string PATH
+        set PATH string NAME
+        string PATH += /
+        string PATH += PATH2
+
+        savepos MYOFF
+        callfunction seek 1
+        goto PREV_OFF
+        callfunction extract
+        goto MYOFF
+    else
+        set FULLNAME string NAME
+        string FULLNAME += /
+        string FULLNAME += PATH
+        string FULLNAME -= 1
+        putarray 0 0 FULLNAME
+    endif
+endfunction
+
+startfunction seek
+    math PREV_OFF = PREV_ID
+    math PREV_OFF *= 0x30
+    math PREV_OFF += INFO_OFF
+endfunction

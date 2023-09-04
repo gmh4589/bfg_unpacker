@@ -1,0 +1,107 @@
+# Darkness 2 - Evolution Engine (script 0.2.3)
+#   derived from GMMan's Evolution Engine Extractor
+#   thanks to: Stanislav
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.0"
+
+open FDDE "toc"
+open FDDE "cache" 1
+
+idstring "\x4e\xc6\x67\x18"
+get VER long
+get FILES asize
+math FILES -= 8
+math FILES /= 0x60
+
+math nextDirIndex = 0
+putarray 6 nextDirIndex ""
+math nextDirIndex += 1
+math ENTRIES = 0
+
+# pre-allocate arrays
+for i = 0 <= 6
+    putarray i FILES ""
+next i
+
+for i = 0 < FILES
+    get OFFSET longlong
+    get TSTAMP longlong
+    get ZSIZE long
+    get SIZE long
+    get PADDEDBYTES long
+    get ID long
+    getdstring NAME 0x40
+
+    if OFFSET == 0xffffffffffffffff
+        getarray PATH 6 ID
+        string PATH += /
+        string PATH += NAME
+        putarray 6 nextDirIndex PATH
+        math nextDirIndex += 1
+    elif TSTAMP != 0    # avoid duplicates/deleted
+        putarray 1 ENTRIES NAME
+        putarray 2 ENTRIES OFFSET
+        putarray 3 ENTRIES ZSIZE
+        putarray 4 ENTRIES SIZE
+        putarray 5 ENTRIES ID
+        math ENTRIES += 1
+    endif
+next i
+
+endian big  # the chunked files are big endian
+
+for i = 0 < ENTRIES
+    getarray NAME   1 i
+    getarray OFFSET 2 i
+    getarray ZSIZE  3 i
+    getarray SIZE   4 i
+    getarray ID     5 i
+
+    getarray FNAME 6 ID
+    string FNAME += /
+    string FNAME += NAME
+
+    if SIZE == ZSIZE
+        log FNAME OFFSET SIZE 1
+    else
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        math LIMIT = OFFSET
+        math LIMIT += ZSIZE
+        for OFFSET = OFFSET < LIMIT
+            goto OFFSET 1
+            get TMP_TYPE byte 1
+            goto OFFSET 1
+
+            if TMP_TYPE <= 0x7f
+                get CHUNK_ZSIZE short 1
+                get CHUNK_SIZE short 1
+                savepos OFFSET 1
+                comtype evolution
+            else
+                get CHUNK_ZSIZE long 1
+                get CHUNK_SIZE long 1
+                savepos OFFSET 1
+                math CHUNK_ZSIZE >> 2
+                math CHUNK_ZSIZE & 0x1FFFFFFF
+                math CHUNK_SIZE >> 5
+                comtype oodle
+            endif
+            if CHUNK_ZSIZE == CHUNK_SIZE
+                log MEMORY_FILE OFFSET CHUNK_SIZE 1
+            else
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+            endif
+            math OFFSET += CHUNK_ZSIZE
+        next
+        append
+        get TMP asize MEMORY_FILE
+        if TMP != SIZE
+            print "Error: the decompressed file doesn't match the expected size: %TMP% %SIZE%"
+            cleanexit
+        endif
+        log FNAME 0 SIZE MEMORY_FILE
+    endif
+next i

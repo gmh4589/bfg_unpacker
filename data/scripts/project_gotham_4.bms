@@ -1,0 +1,94 @@
+# Project Gotham Racing 4 PAK / PAK_HRD (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+get EXT extension
+if EXT == "PAK_HRD"
+
+    for OFFSET = 0 != ARCHIVE_SIZE
+        getdstring NAME 4
+        get DUMMY long
+        get SIZE long
+        savepos OFFSET
+        string NAME + /
+        if SIZE != 0
+            log NAME OFFSET SIZE
+        endif
+        math OFFSET + SIZE
+        goto OFFSET
+    next
+
+elif EXT == "PAK"
+
+    getdstring SIGN 4
+    goto 0
+
+    if SIGN == "ENSW"
+        comtype zlib_noerror
+        idstring "ENSW"
+        get ZERO long
+        get ZERO long
+        do
+            getdstring TYPE 4
+            get ZERO long
+            get SIZE long
+            savepos OFFSET
+            string NAME p "%s/" TYPE
+            if SIZE & 0x80000000
+                math SIZE & 0x7fffffff
+                clog NAME OFFSET SIZE SIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+            math OFFSET + SIZE
+            goto OFFSET
+        while OFFSET != ARCHIVE_SIZE
+        cleanexit
+    endif
+
+    idstring "PAK\0"
+    get VER short   # 2
+    get FLAGS short
+    get DUMMY long
+    get ALIGN long  # or switched with OFFSET, they are same in my sample
+    get ALIGN long
+    get DUMMY long
+    get NAME string
+    goto 0x80
+    get ENTRIES long
+
+    # folders are handled only partially (last folder)
+    set PATH string ""
+    for i = 0 < ENTRIES
+        get NAME string
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        get SOME_CRC long
+        if FLAGS & 0x20
+            getdstring HASH 20
+        endif
+        if OFFSET == 0xffffffff
+            set PATH string NAME
+        else
+            string NAME p "%s/%s" PATH NAME
+            math OFFSET * ALIGN
+            savepos TMP
+            goto OFFSET
+            get ZERO long
+            get ZSIZE long
+            savepos OFFSET
+            goto TMP
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+elif EXT == "STREAM2"
+
+    print "Use offzip -a on this file do dump the raw data:\nhttp://aluigi.altervista.org/mytoolz.htm#offzip"
+    cleanexit
+
+else
+    print "Error: unsupported extension %EXT%"
+    cleanexit
+endif

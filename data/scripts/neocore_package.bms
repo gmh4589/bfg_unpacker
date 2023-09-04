@@ -1,0 +1,30 @@
+# Neocore Package
+#   DeathTrap
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction GET_NAME 1
+if NAME != "Neocore Package"
+    print "Error: unknown magic %NAME%"
+    cleanexit
+endif
+get OFFSET longlong
+savepos BASE_OFF
+math OFFSET + BASE_OFF
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    callfunction GET_NAME 1
+    get OFFSET longlong
+    get SIZE longlong
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    math NAMESZ + 1
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

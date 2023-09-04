@@ -1,0 +1,19 @@
+<bms games="'Mission Kelloggs'" platforms="'PC'" ext="FF">
+ImpType SFileOffset ;
+Get FILENUM Long 0 ;
+Math FILENUM -= 1 ;
+For X = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+Get FNAMEOFF Long 0 ;
+SavePos TEMP 0 ;
+GoTo FNAMEOFF 0 ;
+Get FNAME String 0 ;
+GoTo TEMP 0 ;
+Get NFOFFSET Long 0 ;
+Set FSIZE Long NFOFFSET ;
+Math FSIZE -= FOFFSET ;
+Log FNAME FOFFSET FSIZE FOFFSETX 0 ;
+GoTo TEMP 0 ;
+Next X ;
+</bms>

@@ -1,0 +1,12 @@
+get CP11 long
+get DUMMY long
+get FILES long
+get DATA_SIZE long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    getdstring NAME 0x30
+    log NAME OFFSET SIZE
+next i

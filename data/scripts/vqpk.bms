@@ -1,0 +1,19 @@
+# VQPK - Viqua Games
+#   First Class Flurry
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VQPK"
+get DUMMY long
+get OFFSET long
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get IS_FOLDER long
+    get OFFSET long
+    get SIZE long
+    if IS_FOLDER == 0
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,19 @@
+idstring "\xa6\x31\x48\x47"     # check if the signature is correct
+get SIZE asize                  # get the size of the file
+math SIZE -= 4                  # skip 4 bytes
+log MEMORY_FILE 4 SIZE          # load in memory from offset 4
+set KEY binary "\x01\x02\x03\x04\x0A\x0B\x0C\x0D\x1A\x2B\x3C\x4D\xDB\xCA\x43\x21"   # the key
+for i = 0 < SIZE                # start the cycle for each byte
+    getvarchr B MEMORY_FILE i   # get the current byte (B)
+    math T = i                  # these...
+    math T %= 16                # 3 operations...
+    getvarchr T KEY T           # are only needed for T = KEY[i % 16]
+    math B -= T                 #
+    math B -= SIZE              # B = B - T - SIZE
+    putvarchr MEMORY_FILE i B   # replace the current byte
+next i
+get NAME basename               # the following is needed only
+get EXT extension               # to add _decrypted before
+string NAME += "_decrypted."    # the file extension
+string NAME += EXT
+log NAME 0 SIZE MEMORY_FILE     # copy everything in the file

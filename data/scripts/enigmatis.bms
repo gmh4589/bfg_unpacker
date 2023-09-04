@@ -1,0 +1,58 @@
+# Artifex Mundi *.cub (script 0.3.1)
+#   Enigmatis
+#   The Secret Order
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 3
+goto 0
+if SIGN != "cub"
+    getvarchr TMP SIGN 0
+    math TMP ^ 'c'
+    filexor TMP
+endif
+idstring "cub\0"
+get VER string
+get FILES long
+getdstring DUMMY 0x100
+if FILES == 0
+    get CUB_SIZE asize
+    savepos OFFSET
+    for OFFSET = OFFSET < CUB_SIZE
+        callfunction DUMP 1
+        math OFFSET += SIZE
+        goto OFFSET
+    next
+else
+    for i = 0 < FILES
+        callfunction DUMP 1
+    next i
+endif
+
+startfunction DUMP
+    getdstring NAME 0x100
+    if VER == "1.0"
+        get OFFSET long
+        get SIZE long
+    else
+        get OFFSET longlong
+        get SIZE longlong
+    endif
+
+    savepos TMP
+    goto OFFSET
+    get SIGN long
+    if SIGN == 0x12345678
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY short
+        get NUM long
+        math OLD_OFFSET = OFFSET
+        savepos OFFSET
+        xmath OFFSET "OFFSET + (NUM * 16)"
+        xmath SIZE "SIZE - (OFFSET - OLD_OFFSET)"
+    endif
+    goto TMP
+
+    log NAME OFFSET SIZE
+endfunction

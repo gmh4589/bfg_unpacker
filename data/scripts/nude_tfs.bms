@@ -1,0 +1,29 @@
+# N.U.D.E.@ Natural Ultimate Digital Experiment - *.tfs
+
+idstring "tnFS"
+get DUMMY1 long
+get BASE_OFF long
+get DUMMY3 long
+for i = 0 < DUMMY1
+	get OFFSET long
+	get SIZE long
+	get ZSIZE long
+	get NAME_OFF long
+	get DUMMY05 long
+	get DUMMY06 long
+	get DUMMY07 long
+	get DUMMY08 long
+	
+	savepos TMP
+	math NAME_OFF + BASE_OFF
+	goto NAME_OFF
+	get NAME string
+	goto TMP
+	
+	if ZSIZE == SIZE
+		log NAME OFFSET SIZE
+	else
+		string TMPNAME p= "compressed/%s" NAME
+		log TMPNAME OFFSET SIZE
+	endif
+next i

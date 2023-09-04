@@ -1,0 +1,32 @@
+# Falling Skies: The Game (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "HNK"
+set NAME string ""
+get HNK_SIZE asize
+for OFFSET = 0 < HNK_SIZE
+    goto OFFSET
+    get ENTRY_SIZE long
+    get DUMMY long
+    savepos OFFSET
+
+    if OFFSET >= HNK_SIZE
+        cleanexit
+    endif
+
+    if ENTRY_SIZE == 0
+        getdstring DUMMY 0xe
+        get FOLDERSZ short
+        get NAMESZ short
+        getdstring FOLDER FOLDERSZ
+        getdstring NAME NAMESZ
+        savepos OFFSET
+        string NAME p= "%s/%s" FOLDER NAME
+    else
+        #if NAME != ""
+            log NAME OFFSET ENTRY_SIZE
+        #endif
+        math OFFSET += ENTRY_SIZE
+        set NAME string ""
+    endif
+next

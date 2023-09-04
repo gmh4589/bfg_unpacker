@@ -1,0 +1,14 @@
+# Rollercoaster Tycoon Css (DAT)
+
+Get S ASize 0 ;
+For T = 1 To S ;
+FindLoc B String RIFF 0 ;
+GoTo B 0 ;
+Get D Long 0 ;
+Get FSI Long 0 ;
+Math FSI += 8 ;
+Set T Long B ;
+Math T += FSI ;
+Log "" B FSI 0 0 ;
+Next T ;
+

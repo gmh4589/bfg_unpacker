@@ -1,0 +1,68 @@
+# SEGA Genesis & Mega Drive Classics (0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+
+idstring "PSCD"
+idstring "\x71\x89\x53\x12"
+get PSCD_SIZE long
+get PSCD_ZSIZE long
+get KEY1 long
+math KEY1 ^= 0x75a3bd72
+math KEY2 = 0
+
+math OFFSET = 0x2c
+
+math SIZE = 0x30
+log MEMORY_FILE OFFSET SIZE
+math OFFSET += SIZE
+callfunction DECRYPT 1
+getdstring NAME SIZE MEMORY_FILE
+print "%NAME%"
+
+math OFFSET += 4
+
+get SIZE asize
+math SIZE -= OFFSET
+log MEMORY_FILE OFFSET SIZE
+callfunction DECRYPT 1
+
+clog MEMORY_FILE 0 PSCD_ZSIZE PSCD_SIZE MEMORY_FILE
+
+string NAME += ".bin"
+encryption swap 16
+log NAME 0 PSCD_SIZE MEMORY_FILE
+
+startfunction DECRYPT
+    set KEY binary "\x6B\xC3\xC7\x6B\x83\xBB\x83\xC7\xC5\xBB\xD1\xAB\x2B"
+    math ECX = KEY1
+    math ARG2 = KEY2
+    for i = 0 < SIZE
+        math ARG2 %= 0xd
+        getvarchr EAX KEY ARG2
+        math ARG2 += 3
+        math ECX l= 3
+        math EAX += 0x17
+        math EAX >>= 1
+
+        math EDX = ECX
+        math EDX &= 0x7
+        math EDX += EAX
+
+        math EBX = ECX
+        math EBX &= 1
+        math EBX -= EAX
+
+        math EDX ^= EBX
+
+        math EBX = ECX
+        math EBX &= 7
+        math EDX &= 0xf
+        math EBX += EAX
+
+        math EDX ^= EBX
+        getvarchr TMP MEMORY_FILE i
+        math TMP ^= EDX
+        putvarchr MEMORY_FILE i TMP
+    next i
+endfunction

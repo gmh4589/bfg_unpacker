@@ -1,0 +1,26 @@
+set NAME string ""
+set OFFSET long 0
+set SIZE long 0
+get TOTAL_SIZE asize
+get NEW_OFFSET asize
+for
+    getdstring NEW_NAME 12
+    get NEW_OFFSET long
+
+    if NEW_NAME == ""
+        set NEW_OFFSET long TOTAL_SIZE
+    endif
+
+    if NAME != ""
+        set SIZE long NEW_OFFSET
+        math SIZE -= OFFSET
+        log NAME OFFSET SIZE
+    endif
+
+    set NAME string NEW_NAME
+    set OFFSET long NEW_OFFSET
+
+    if NAME == ""
+        cleanexit
+    endif
+next

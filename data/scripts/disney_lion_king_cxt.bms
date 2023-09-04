@@ -1,0 +1,15 @@
+# Disney's Animated Storybook The Lion King .CXT
+
+get DUMMY long  # 0x4949
+get DUMMY long  # 0xeeee
+get FILES long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get ID short
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    string NAME p "%d." ID
+    log NAME OFFSET SIZE
+next i

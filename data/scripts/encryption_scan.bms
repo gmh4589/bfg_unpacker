@@ -1,0 +1,64 @@
+# QuickBMS encryption scanner 0.2
+# you NEED http://aluigi.org/papers/bms/encryption_scan.bat
+# - associate the dmp extension with your hex editor for a
+#   faster viewing of the results
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.0"
+set MEMORY_FILE binary quickbms_arg2
+get KEYSZ asize MEMORY_FILE
+getdstring KEY KEYSZ MEMORY_FILE
+
+# print "%KEY|dump%" terminates at the first zero
+set KEY_VIS string ""
+for i = 0 < KEYSZ
+    getvarchr TMP KEY i
+    string TMP p= "%02x " TMP
+    string KEY_VIS += TMP
+next i
+print "\nAlgorithm:  %quickbms_arg1%\nkey length: %KEYSZ|x% bytes\nkey (hexadecimal):\n%KEY_VIS%"
+
+
+for ENCRYPT = 0 < 2
+
+    set IVEC binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+    if quickbms_arg3 == ""
+            encryption quickbms_arg1 KEY ""   ENCRYPT KEYSZ
+    else
+        set IVEC binary quickbms_arg3
+        if IVEC & "quickbms_arg"
+            set IVEC string ""
+        endif
+        if IVEC != ""
+            print "IVEC:\n%IVEC|dump%"
+            encryption quickbms_arg1 KEY IVEC ENCRYPT KEYSZ
+        else
+            encryption quickbms_arg1 KEY ""   ENCRYPT KEYSZ
+        endif
+    endif
+    if IVEC == ""   # added in 0.1.1
+        for i = 0 < 256
+            putvarchr IVEC i 0
+        next i
+            encryption quickbms_arg1 KEY IVEC ENCRYPT KEYSZ
+
+        set EXT string "_ivec0.dmp"
+        callfunction DUMP 1
+
+            encryption quickbms_arg1 KEY ""   ENCRYPT KEYSZ
+    endif
+    set EXT string ".dmp"
+    callfunction DUMP 1
+
+next ENCRYPT
+
+
+startfunction DUMP
+    set NAME string quickbms_arg1
+    if ENCRYPT != 0
+        string NAME += "_enc"
+    endif
+    string NAME += EXT
+    get SIZE asize
+    log NAME 0 SIZE
+endfunction

@@ -1,0 +1,44 @@
+# Baldur's Gate 3 PAK format (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction QUICKBMS_4GB_CHECK 1
+
+comtype lz4
+idstring "LSPK"
+get VERSION long #15
+get TABLE_OFF longlong
+
+goto TABLE_OFF
+get FILES long
+get TABLE_ZSIZE long
+savepos TABLE_OFFSET
+
+math TABLE_SIZE = FILES
+math TABLE_SIZE *= 296
+
+clog MEMORY_FILE TABLE_OFFSET TABLE_ZSIZE TABLE_SIZE
+
+for i = 0 < FILES
+    getdstring NAME 256 MEMORY_FILE
+    get OFFSET longlong MEMORY_FILE
+    get ZSIZE longlong MEMORY_FILE
+    get SIZE longlong MEMORY_FILE
+    get DUMMY longlong MEMORY_FILE
+    get CRC long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+   
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+startfunction QUICKBMS_4GB_CHECK
+    math TMP64 = 0x10000000
+    math TMP64 * 16
+    if TMP64 == 0
+        print ">>>> You must use quickbms_4gb_files.exe with this archive <<<<"
+        cleanexit
+    endif
+endfunction

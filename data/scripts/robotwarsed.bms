@@ -1,0 +1,65 @@
+# Robot Wars Extreme Destruction (script 0.1a)
+#   works with all the dat files: lumpy.dat/idx, PCmusic.dat and PCsfx.dat
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype RNCb    # was "rnc" but it's bugged in quickbms 0.8
+get NAME basename
+if NAME == "lumpy"
+    # lumpy.dat/idx
+    open FDDE "idx"
+    open FDDE "dat" 1
+    set PATH string ""
+    set NAME string ""
+
+    get FULLSIZE long
+    callfunction EXTRACT
+else
+    # PCmusic.dat and PCsfx.dat
+    get FILES long
+    math FILES /= 4
+        get OFFSET long
+    for i = 1 <= FILES
+        if i < FILES
+            get NEXT_OFF long
+        else
+            get NEXT_OFF asize
+        endif
+        math SIZE = NEXT_OFF
+        math SIZE -= OFFSET
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    next i
+endif
+
+startfunction EXTRACT
+    get ENTRY long
+    get FOLDERS long
+    get FILES long
+    get NAME string
+    padding 4
+
+    string PATH += NAME
+    string PATH += /
+
+    for i = 0 < FILES
+        get ENTRY long
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get NAME string
+        padding 4
+
+        set FNAME string PATH
+        string FNAME += NAME
+        if ZSIZE & 0x80000000
+            math ZSIZE &= 0x7fffffff
+            clog FNAME OFFSET ZSIZE SIZE 1
+        else
+            log FNAME OFFSET SIZE 1
+        endif
+    next i
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction

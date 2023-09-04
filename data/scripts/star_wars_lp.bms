@@ -1,0 +1,82 @@
+# Star Wars The Force Unleashed II APak .LP files (script 0.1.4)
+#   extracts ONLY the APak archives, so only a small part of
+#   the WAD files!
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+
+getdstring SIGN 4
+if SIGN == "LWAD"
+    get DUMMY long
+    get FILES long
+    get ZERO long
+    for i = 0 < FILES
+        get DUMMY long
+        get SIZE long
+        get OFFSET longlong
+        get ZERO long
+        getdstring SIGN 4
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+if SIGN != "APak"   # big endian
+if SIGN != "kaPA"   # little endian
+    set SIGN string "APak"
+endif
+endif
+
+goto 0
+findloc BASE_OFF string SIGN
+goto BASE_OFF
+idstring "APak"
+get VER long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get MORE long
+get NAMES_SIZE long
+get OFFSET1 long
+get OFFSET2 long
+
+math NAME_BASE = 0x50
+math OFFSET3 = NAME_BASE
+math OFFSET3 += NAMES_SIZE
+
+math OFFSET1   += BASE_OFF
+#math OFFSET1   += MORE
+math OFFSET2   += BASE_OFF
+math OFFSET3   += BASE_OFF
+math OFFSET3   += MORE
+math NAME_BASE += BASE_OFF
+math NAME_BASE += MORE
+
+for i = 0 < FILES
+    goto OFFSET1
+    get NUM long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET1
+
+    math TMP = NUM
+    math TMP *= 0x40
+    math TMP += OFFSET3
+    goto TMP
+    getdstring DUMMY 0x14
+    get NAME_OFF long
+    getdstring DUMMY 0x14
+    get SIZE long
+    getdstring DUMMY 0x10
+
+    math NAME_OFF += NAME_BASE
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET += OFFSET2
+    #math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

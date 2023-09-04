@@ -1,0 +1,21 @@
+<bms games="'The Lost Vikings'" platforms="'PC'" ext="DAT">
+SavePos ST 0 ;
+Get FNum Long 0 ;
+Math FNum /= 4 ;
+Math FNum -= 1 ;
+For T = 1 To FNum ;
+GoTo ST 0 ;
+Get FO Long 0 ;
+SavePos ST 0 ;
+Get FS Long 0 ;
+Math FS -= FO ;
+Log "" FO FS 0 0 ;
+Next T ;
+GoTo ST 0 ;
+Get FO Long 0 ;
+GoTo EOF 0 ;
+SavePos FS 0 ;
+Math FS -= FO ;
+Math FS += 1 ;
+Log "" FO FS 0 0 ;
+</bms>

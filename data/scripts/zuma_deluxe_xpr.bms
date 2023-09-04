@@ -1,0 +1,24 @@
+# Zuma Deluxe PSP .XPR
+
+endian big
+idstring "XPR2"
+get XPR_SIZE long
+get ZERO long
+get ZERO long
+savepos BASE_OFF
+get FILES long
+for i = 0 < FILES
+    getdstring TYPE 4   # "USER"
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+
+    savepos TMP
+    math NAME_OFF + BASE_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

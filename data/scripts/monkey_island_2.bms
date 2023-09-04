@@ -1,0 +1,41 @@
+# Monkey Island 2 LeChucks Revenge Special Edition (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KAPL"
+get VERSION long
+get TABLE_OFF long
+get INFO_OFF long
+get NAME_OFF long
+get FILE_OFF long
+get TABLE_SIZE long
+get INFO_SIZE long
+get NAME_SIZE long
+get FILE_SIZE long
+get PAK_SIZE long
+get DUMMY long
+
+log MEMORY_FILE NAME_OFF NAME_SIZE
+comtype deflate
+set FILES long INFO_SIZE
+math FILES /= 20
+goto INFO_OFF
+
+math XNAMEOFF = 0
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET += FILE_OFF
+    get NAMEOFF long
+    get ZSIZE long
+    get SIZE long
+    get TYPE long
+
+    goto XNAMEOFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    savepos XNAMEOFF MEMORY_FILE
+
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

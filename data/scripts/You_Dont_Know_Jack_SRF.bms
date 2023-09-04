@@ -1,0 +1,22 @@
+# You Don't Know Jack (SRF)
+
+IDString 0 srf1 ;
+FindLoc DUMMYL String snd 0 ;
+Math DUMMYL += 4 ;
+GoTo DUMMYL 0 ;
+Get FILECNTL Long 0 ;
+ReverseLong FILECNTL ;
+SavePos FILESTART 0 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILENAME Long 0 ;
+ReverseLong FILENAME ;
+Get FILEOFF Long 0 ;
+ReverseLong FILEOFF ;
+Get FILESIZE Long 0 ;
+ReverseLong FILESIZE ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

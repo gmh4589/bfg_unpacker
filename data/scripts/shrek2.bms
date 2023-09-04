@@ -1,0 +1,55 @@
+# Shrek 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "LEV"
+# ???
+    getdstring NAME 8
+    get NEXT_OFFSET1 long
+    get NEXT_OFFSET2 long
+    goto NEXT_OFFSET1
+
+    set PATH string ""
+    callfunction LEV_EXTRACT
+    cleanexit
+endif
+
+    getdstring FOLDER 0xc
+    get INFO_SIZE long
+    get FILES long
+for i = 0 < FILES
+    getdstring NAME 0xc
+    get OFFSET long
+    get SIZE long
+    math OFFSET * 0x800
+    string FNAME p "%s/%s" FOLDER NAME
+    log FNAME OFFSET SIZE
+next i
+
+
+
+startfunction LEV_EXTRACT
+    getdstring NAME 8
+    string PATH + NAME
+    string PATH + /
+    get NEXT_OFFSET1 long
+    get NEXT_OFFSET2 long
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 12
+        get OFFSET long
+        math OFFSET * 16
+        get SIZE long
+        string FNAME p "%s%s" PATH NAME
+        log FNAME OFFSET SIZE
+    next i
+    if NEXT_OFFSET1 != 0
+        goto NEXT_OFFSET1
+        callfunction LEV_EXTRACT
+    endif
+    if NEXT_OFFSET2 != 0
+        goto NEXT_OFFSET2
+        callfunction LEV_EXTRACT
+    endif
+endfunction
+

@@ -1,0 +1,152 @@
+# Rockstar Games Presents Table Tennis (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "rpf"
+
+    comtype deflate
+    idstring "RPF0"
+    get INFO_SIZE long
+    get ENTRIES long
+    padding 0x800
+    savepos NAMES_OFF
+    xmath NAMES_OFF "NAMES_OFF + (ENTRIES * (4 + 4 + 4 + 4))"
+    for i = 0 < ENTRIES
+        get NAME_OFF long
+        get VAR1 long
+        get VAR2 long
+        get VAR3 long
+
+        math IS_FOLDER = NAME_OFF
+        math IS_FOLDER & 0x80000000
+        math NAME_OFF & 0x7fffffff
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        putarray 0 i IS_FOLDER
+        putarray 1 i NAME
+        putarray 2 i VAR1
+        putarray 3 i VAR2
+        putarray 4 i VAR3
+    next i
+
+    set NAME string ""
+    set PATH string ""
+    math INDEX = 0
+    math ENTRIES = 1
+    callfunction EXTRACT
+
+else
+    # spt, spd or cue
+
+    open FDDE "spt"
+    open FDDE "spd" 1
+
+    get FILES long
+    endian guess FILES  # endian big
+    for i = 0 < FILES
+        get ZERO long
+        get FREQUENCY long
+        get ZERO long
+        get ZERO long
+        get DUMMY5 long
+        get DUMMY6 long
+        get ZERO long
+
+        xmath OFFSET "(DUMMY6 / 2) - 1"
+        xmath SIZE   "(DUMMY5 / 2)"
+        math  SIZE - OFFSET
+
+        putarray 0 i FREQUENCY
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+    next i
+    for i = 0 < FILES
+        getdstring COEFF 0x2e
+
+        getarray FREQUENCY 0 i
+        getarray OFFSET    1 i
+        getarray SIZE      2 i
+
+        math CHANNELS = 1
+        string NAME p "%08x_%d_%d.genh" i FREQUENCY CHANNELS
+        callfunction DUMP_GENH
+    next i
+
+endif
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math IDX_LIMIT = INDEX
+    math IDX_LIMIT + ENTRIES
+    for IDX = INDEX < IDX_LIMIT
+        getarray IS_FOLDER 0 IDX
+        getarray NAME      1 IDX
+        if IS_FOLDER == 0
+            getarray OFFSET 2 IDX
+            getarray ZSIZE  3 IDX
+            getarray SIZE   4 IDX
+            set FNAME string PATH
+            string FNAME + NAME
+            if ZSIZE == SIZE
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET ZSIZE SIZE
+            endif
+        else
+            getarray INDEX    2 IDX
+            getarray ENTRIES  3 IDX
+            getarray ENTRIES  4 IDX
+            callfunction EXTRACT
+        endif
+    next IDX
+endfunction
+
+# requirements: NAME, OFFSET, SIZE, CHANNELS, FREQUENCY, COEFF
+startfunction DUMP_GENH
+    endian save CURRENT_ENDIAN
+    endian little
+    math genhsz = 0x80
+    log MEMORY_FILE 0 0
+    putdstring "GENH" 4 MEMORY_FILE     // 0    magic
+    put CHANNELS long MEMORY_FILE       // 4    channel_count
+    put 2 long MEMORY_FILE              // 8    interleave
+    put FREQUENCY long MEMORY_FILE      // c    sample_rate
+    put 0xffffffff long MEMORY_FILE     // 10   loop_start
+    xmath loop_end "((SIZE * 14)/8)/CHANNELS"
+    put loop_end long MEMORY_FILE       // 14   loop_end
+    put 12 long MEMORY_FILE             // 18   codec
+    xmath start_off "genhsz + (CHANNELS * 32)"
+    put start_off long MEMORY_FILE      // 1c   start_offset
+    xmath header_size "genhsz + (CHANNELS * 32)"
+    put header_size long MEMORY_FILE    // 20   header_size
+    put genhsz long MEMORY_FILE         // 24   coef[0]
+    xmath TMP "genhsz + 32"
+    put TMP long MEMORY_FILE            // 28   coef[1]
+    put 1 long MEMORY_FILE              // 2c   dsp_interleave_type
+    put 0 long MEMORY_FILE              // 30   coef_type
+    put genhsz long MEMORY_FILE         // 34   coef_splitted[0]
+    put TMP long MEMORY_FILE            // 38   coef_splitted[1]
+    get i asize MEMORY_FILE
+    for i = i < genhsz
+        put 0 byte MEMORY_FILE
+    next i
+    math COEFF_PTR = 0
+    for i = 0 < CHANNELS
+        for x = 0 < 16
+            getvarchr TMP COEFF COEFF_PTR short
+            math COEFF_PTR + 2
+            put TMP short MEMORY_FILE
+        next x
+        math COEFF_PTR + 0xe    # 0x20 + 0xe = 0x2e
+    next i
+    append
+    log MEMORY_FILE OFFSET SIZE 1
+    append
+    log NAME 0 SIZE MEMORY_FILE
+    endian CURRENT_ENDIAN
+endfunction

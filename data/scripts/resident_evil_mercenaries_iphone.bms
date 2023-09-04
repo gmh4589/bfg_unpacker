@@ -1,0 +1,30 @@
+# Resident Evil Mercenaries for iPhone
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get NAME_BASE long
+get BASE_OFF long
+
+savepos OFF1
+math OFF2 = FILES
+math OFF2 *= 8
+math OFF2 += 0xc
+
+for i = 0 < FILES
+    goto OFF1
+    get NAME_OFF long
+    get NAMESZ long
+    savepos OFF1
+
+    math NAME_OFF += NAME_BASE
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+
+    goto OFF2
+    get OFFSET long
+    get SIZE long
+    savepos OFF2
+
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

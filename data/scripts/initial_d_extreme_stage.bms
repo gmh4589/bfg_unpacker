@@ -1,0 +1,17 @@
+# Initial D Extreme Stage
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OFFSET_LIMIT = -1
+for i = 0
+    savepos TMP
+    if TMP == OFFSET_LIMIT
+        break
+    endif
+    get OFFSET long
+    if i == 0
+        math OFFSET_LIMIT = OFFSET
+    endif
+    get SIZE long
+    get NAME string
+    log NAME OFFSET SIZE
+next i

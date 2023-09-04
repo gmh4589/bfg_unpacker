@@ -1,0 +1,19 @@
+# Azurik XBR
+
+idstring "xobx"
+get VER long    # 4
+get ZERO long
+get FILES long
+get BASE_OFF long
+get ELEMENTS long
+get ELEMENTS_OFFSET long
+goto 0x3c
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring TYPE 4
+    get DUMMY long
+    math OFFSET + BASE_OFF
+    string NAME p "%s/" TYPE
+    log NAME OFFSET SIZE
+next i

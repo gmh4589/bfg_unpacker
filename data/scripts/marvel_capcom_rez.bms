@@ -1,0 +1,21 @@
+# Marvel vs. Capcom: Infinite REZ
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO long
+get FILES long
+get NAMES_SIZE long
+get ZERO long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * (4 * 4))"
+xmath BASE_OFF  "NAMES_OFF + NAMES_SIZE"
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < FILES
+    get OFFSET long
+    get NAME_OFF long
+    get ZSIZE long
+    get SIZE long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    math OFFSET + BASE_OFF
+    clog NAME OFFSET ZSIZE SIZE
+next i

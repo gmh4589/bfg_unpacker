@@ -1,0 +1,39 @@
+# Galgun PS3 vdm
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get ZERO long
+get FILES long
+get ENTRIES long
+get ZERO long
+get DATA_SIZE long
+get DUMMY long  # 0x32
+get DATA_OFF long
+get VDM_SIZE long
+getdstring ZERO 18
+
+for i = 0 < ENTRIES
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get XSIZE long  # often zero
+    get NAME_OFF long
+    get FLAGS long
+    if OFFSET != 0
+        putarray 0 -1 OFFSET
+        putarray 1 -1 SIZE
+        putarray 2 -1 NAME_OFF
+    endif
+next i
+
+endian little   # unicode
+savepos NAMES_OFF
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray SIZE     1 i
+    getarray NAME_OFF 2 i
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME unicode
+    log NAME OFFSET SIZE
+next i

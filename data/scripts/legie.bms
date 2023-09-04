@@ -1,0 +1,14 @@
+# Legie
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring PACK
+get OFFSET long
+get FILES long
+goto OFFSET
+math FILES /= 128
+for i = 0 < FILES
+    getdstring NAME 120
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

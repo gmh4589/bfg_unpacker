@@ -1,0 +1,40 @@
+# Jagged Alliance: Back in Action
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "crypt"
+    get VERSION short
+    get SIZE long
+    get PADDED_SIZE long
+    savepos OFFSET
+    encryption "aes" "xWurz3lPETER253z"
+    log TEMPORARY_FILE OFFSET PADDED_SIZE
+    encryption "" ""
+    open "." TEMPORARY_FILE
+endif
+
+idstring "PKLE"
+get VER long
+get HEAD_SIZE longlong
+get DUMMY longlong
+for
+    savepos OFFSET
+    if OFFSET >= HEAD_SIZE
+        cleanexit
+    endif
+    get LEVEL long
+    get NAMESZ long
+    get FILES longlong
+    getdstring NAME NAMESZ
+    set PATH string NAME
+    for j = 0 < FILES
+        get NAMESZ long
+        get SIZE longlong
+        get OFFSET longlong
+        get CRC longlong
+        getdstring NAME NAMESZ
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    next j
+next

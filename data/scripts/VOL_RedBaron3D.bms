@@ -1,0 +1,27 @@
+<bms games="'Red Baron 3D'" platforms="'PC'" ext="VOL">
+IDString 0 VOL ;
+Set FILESTART Long 16 ;
+Math FILESTART += 12 ;
+FindLoc FILEJMP String voli 0 ;
+Math FILEJMP += 12 ;
+Set TAILOFF Long 0 ;
+Do ;
+GoTo FILEJMP 0 ;
+Get FILEOFF Long 0 ;
+Math FILEOFF += 8 ;
+Get FILESIZE Long 0 ;
+If FILESIZE = 0 ;
+CleanExit ;
+EndIf ;
+Get DUMMYL Int 0 ;
+Get DUMMYL Int 0 ;
+Math DUMMYL -= TAILOFF ;
+Math TAILOFF += DUMMYL ;
+SavePos FILEJMP 0 ;
+Math FILEJMP += 2 ;
+GoTo FILESTART 0 ;
+GetDString FILENAME DUMMYL 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+While FILESIZE <> 0 ;
+</bms>

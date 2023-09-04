@@ -1,0 +1,32 @@
+# NOBUNAGA'S AMBITION: Sphere of Influence
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction EXTRACT_LINK 1
+
+startfunction EXTRACT_LINK
+    savepos BASE_OFF
+    idstring "LINK"
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    if DUMMY != 0
+        getdstring DUMMY 16
+    endif
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+
+        math OFFSET + BASE_OFF
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN == "LINK"
+            # valid only for res_en.bin
+            goto OFFSET
+            callfunction EXTRACT_LINK
+        else
+            log "" OFFSET SIZE
+        endif
+        goto TMP
+    next i
+endfunction

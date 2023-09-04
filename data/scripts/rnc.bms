@@ -1,0 +1,31 @@
+# RNC (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "RNC"
+get VER byte
+if VER == 1
+    comtype rnc
+elif VER == 2
+    comtype rnc2
+else
+    print "Error: unsupported rnc version %VER%"
+    cleanexit
+endif
+get SIZE long
+get ZSIZE long
+
+/*
+get CRC short
+get CRC short
+get DUMMY short
+savepos OFFSET
+*/
+math OFFSET = 0
+get ZSIZE asize
+comtype rnc
+
+get NAME basename
+get EXT extension
+string NAME p= "%s_dec.%s" NAME EXT
+clog NAME OFFSET ZSIZE SIZE

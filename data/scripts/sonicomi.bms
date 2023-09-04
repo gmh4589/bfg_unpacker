@@ -1,0 +1,64 @@
+# Sonicomi NPK2
+#   encryption by Ekey http://zenhax.com/viewtopic.php?f=9&t=2720
+#   working code by Ekey https://zenhax.com/viewtopic.php?p=58129#p58129
+# script for QuickBMS http://quickbms.aluigi.org
+
+putarray 0 -1 "65ABB4A8CDE0C810BB4A26723754C3A7E43DE9EA7F5BB843501D05ABCF08D9C1"    # Sonicomi
+putarray 0 -1 "BE2802AD5E91DD8E26EAD6B161FEDB8A17E2362F53336D1B17D80AE955C05AED"    # Demonbane
+putarray 0 -1 "962C5F3A789C8437B71212A115D6CA9F9AE3FD210FF6AF70A8A8F8BBFE5E8AF5"    # Tokyo-Necro
+putarray 0 -1 ""
+
+comtype unzip_dynamic   # because it was zlib in some games, while others may use deflate
+
+idstring "NPK2"
+get VERSION long #2
+getdstring IV 16
+get FILES long
+get TABLE_SIZE long
+savepos TABLE_OFFSET
+
+for i = 0
+    getarray KEY 0 i
+    if KEY == ""
+        print "Error: no key available, please post on https://zenhax.com"
+        cleanexit
+    endif
+    string KEY h KEY
+
+    encryption "cipherfinal aes_256_cbc" KEY IV 0 32
+    log MEMORY_FILE TABLE_OFFSET TABLE_SIZE
+    encryption "" ""
+
+    getvarchr ZERO MEMORY_FILE 0
+    if ZERO == 0
+        break
+    endif
+next i
+goto 0 MEMORY_FILE
+
+for i = 0 < FILES
+    get ZERO byte MEMORY_FILE
+    get NSIZE short MEMORY_FILE
+    getdstring NAME NSIZE MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    getdstring SHA2 32 MEMORY_FILE
+    get CHUNKS long MEMORY_FILE
+
+    log NAME 0 0
+    append
+        for j = 0 < CHUNKS
+        get CHUNK_OFFSET longlong MEMORY_FILE
+        get CHUNK_ESIZE long MEMORY_FILE
+        get CHUNK_ZSIZE long MEMORY_FILE
+        get CHUNK_SIZE long MEMORY_FILE
+    
+        encryption "cipherfinal aes_256_cbc" KEY IV 0 32
+        if CHUNK_ZSIZE == CHUNK_SIZE
+            log NAME CHUNK_OFFSET CHUNK_SIZE 0 CHUNK_ESIZE
+        else
+            clog NAME CHUNK_OFFSET CHUNK_ESIZE CHUNK_SIZE 0 CHUNK_ESIZE
+        endif
+        encryption "" ""
+    next j
+    append
+next i

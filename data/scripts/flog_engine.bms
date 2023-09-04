@@ -1,0 +1,39 @@
+# extracts contents of FPG archives
+#
+# supported games:
+# - Super Puzzle Fighter II Turbo - HD Remix (XBLA)
+# - Super Street Fighter II Turbo - HD Remix (XBLA)
+#
+# (c) 2012-04-04 by AlphaTwentyThree of XeNTaX
+
+include "func_getTYPE.bms"
+idstring "30GF"
+get FILES long
+goto 0x800
+for i = 1 <= FILES
+   get NAME_CRC long
+   string NAME_CRC p= "%08x" NAME_CRC
+   get OFFSET long
+   get SIZE long
+   get ZSIZE long
+   if SIZE == ZSIZE
+      putVarChr MEMORY_FILE SIZE 0
+      log MEMORY_FILE 0 0
+      log MEMORY_FILE OFFSET SIZE
+   else
+      putVarChr MEMORY_FILE ZSIZE 0
+      log MEMORY_FILE 0 0
+      clog MEMORY_FILE OFFSET SIZE ZSIZE
+      set SIZE ZSIZE
+   endif
+   callfunction getTYPE 1
+   if ZNAME != ""
+      set NAME ZNAME
+   else
+      get NAME basename
+      string NAME += "_0x"
+      string NAME += NAME_CRC
+   endif
+   string NAME += EXT
+   log NAME 0 SIZE MEMORY_FILE
+next i

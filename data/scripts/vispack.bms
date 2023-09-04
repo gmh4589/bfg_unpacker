@@ -1,0 +1,70 @@
+# VISPACK (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "VISPACK"
+goto 0xd
+get FILES long
+get INFO_OFF long
+get DUMMY3 long
+get DUMMY4 long
+get ENTRIES long
+getdstring DUMMY_TABLE 0x100
+for i = 0 < 2
+    get NAME string
+    get VALUE1 long
+    get VALUE2 long
+next i
+get FILES long
+get DUMMY long
+math VALUE2 / 5
+getdstring DUMMY VALUE2
+for x = 0 < 0x100
+    getvarchr DUMMY DUMMY_TABLE x
+    if DUMMY == 0xff
+        break
+    endif
+    get DUMMY byte
+next x
+
+    savepos WORKAROUND
+do
+    goto WORKAROUND
+    get SIZE long
+    get ZSIZE long
+    math WORKAROUND + 1
+    get TMP asize
+    math TMP - WORKAROUND
+while ZSIZE u> TMP
+
+savepos OFFSET
+if SIZE == ZSIZE
+    log MEMORY_FILE OFFSET SIZE
+else
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+endif
+math OFFSET + ZSIZE
+math BASE_OFF = OFFSET
+
+comtype zlib_noerror    # some files (vpfx) have SIZE > ZSIZE but not compressed
+for i = 0 < ENTRIES
+    goto INFO_OFF MEMORY_FILE
+    get NAME_OFF long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    savepos INFO_OFF MEMORY_FILE
+
+    if NAME_OFF != 0xffffffff
+        goto NAME_OFF MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+
+        math OFFSET + BASE_OFF
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

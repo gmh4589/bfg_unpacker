@@ -1,0 +1,36 @@
+# Melbourne House Pack File PCK
+# info from https://github.com/christorrella/mhpf-tools/blob/main/mhpf-tools.py
+
+idstring "MHPF"     # get magic long
+get version long    # 1
+get total_size long
+get num_res long
+get pack_index long # 0x1f?
+get res_addr_table_loc long
+get res_addr_table_size long
+get res_content_table_loc long
+get res_content_table_size long
+get res_dest_str_lens_table_loc long
+get res_dest_str_lens_table_size long
+get res_dest_str_table_loc long
+get res_dest_str_table_size long
+
+goto res_dest_str_lens_table_loc
+for i = 0 < num_res
+    get NAME_OFF long
+    math NAME_OFF + res_dest_str_table_loc
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    putarray 0 i NAME
+    goto TMP
+next i
+
+goto res_addr_table_loc
+for i = 0 < num_res
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    getarray NAME 0 i
+    log NAME OFFSET SIZE
+next i

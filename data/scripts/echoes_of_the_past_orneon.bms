@@ -1,0 +1,20 @@
+# Echoes of the Past (Orneon)
+
+idstring "\xcf\x01"
+get ZSIZE short
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE 0x10000
+
+get DUMMY byte MEMORY_FILE  # zip?
+get FILES short MEMORY_FILE
+for i = 0 < FILES
+    math OFFSET += ZSIZE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    encryption xor "e53843"
+    clog NAME OFFSET ZSIZE SIZE
+    encryption "" ""
+next i

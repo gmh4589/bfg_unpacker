@@ -1,0 +1,37 @@
+# Hyperdevotion Noire Goddess Black Heart (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+for CHUNK = 0 < 2
+    getdstring CHUNK_TYPE 8
+    get CHUNK_SIZE long
+    savepos CHUNK_OFF
+    if CHUNK_TYPE == "Filename"
+        get FILES long
+        math FILES / 4
+        goto CHUNK_OFF
+        for i = 0 < FILES
+            get NAME_OFF long
+            math NAME_OFF + CHUNK_OFF
+            savepos TMP
+            goto NAME_OFF
+            get NAME string
+            goto TMP
+            putarray 0 i NAME
+        next i
+    elif CHUNK_TYPE == "Pack    "
+        get FILES long
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            getarray NAME 0 i
+            log NAME OFFSET SIZE
+        next i
+    endif
+    math CHUNK_OFF - 12
+    math CHUNK_OFF + CHUNK_SIZE
+    goto CHUNK_OFF
+    do
+        get TMP byte
+    while TMP == 0
+    goto -1 0 SEEK_CUR
+next CHUNK

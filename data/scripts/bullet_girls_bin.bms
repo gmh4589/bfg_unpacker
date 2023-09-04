@@ -1,0 +1,16 @@
+# Bullet Girls 2 BIN
+
+get FILES long
+get OFFSET_ALIGN long
+get SIZE_ALIGN long
+get OFFSET_SIZE_BITS long
+get DUMMY long  # 0x*fff
+get DUMMY longlong
+get ZERO long
+get ZERO long
+for i = 0 < FILES
+    get VAR long
+    xmath OFFSET "((VAR >> OFFSET_SIZE_BITS) * OFFSET_ALIGN) + BASE_OFF"
+    xmath SIZE   "(VAR & ((1 << OFFSET_SIZE_BITS) - 1)) * SIZE_ALIGN"
+    log "" OFFSET SIZE
+next i

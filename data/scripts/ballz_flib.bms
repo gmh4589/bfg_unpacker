@@ -1,0 +1,20 @@
+# Ballz The Director's Cut FLIB
+
+endian big
+idstring "FLIB"
+get FLIB_SIZE long
+get FILES long
+get DUMMY long  # 1
+get ZERO long
+getdstring PATH 0x20    # $BallzArt/
+for i = 0 < FILES
+    get INFO_OFF[i] long
+next i
+for i = 0 < FILES
+    goto INFO_OFF[i]
+    get SIZE long
+    get OFFSET long
+    get ZERO long
+    getdstring NAME 12
+    log NAME OFFSET SIZE
+next i

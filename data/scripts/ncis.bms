@@ -1,0 +1,42 @@
+# NCIS
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BIG\0"
+get DUMMY long
+get FILES long
+math INFO_OFF = 0x44
+math NAMES_OFF = 0x99444
+
+        goto INFO_OFF
+        get OFFSET long
+        get DUMMY long
+        savepos INFO_OFF
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFFSET asize
+    else
+        goto INFO_OFF
+        get NEXT_OFFSET long
+        get DUMMY long
+        savepos INFO_OFF
+    endif
+
+    goto NAMES_OFF
+    get DUMMY long
+    get XNEXT long
+    get XPREV long
+    get DUMMY long
+    get TSTAMP long
+    getdstring NAME 0x40
+    get DUMMY long
+    getdstring HASH 0x20
+    get DUMMY long
+    get DUMMY long
+    savepos NAMES_OFF
+
+    math SIZE = NEXT_OFFSET
+    math SIZE -= OFFSET
+    string NAME R= "_" "/"
+    log NAME OFFSET SIZE
+    math OFFSET = NEXT_OFFSET
+next i

@@ -1,0 +1,92 @@
+# rgss* (script 0.2.1)
+#   support for:
+#   - rgssad (version 1)
+#   - rgss3a (version 3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RGSSAD\0"
+get VER byte
+if VER == 1
+    math KEY = 0xdeadcafe
+elif VER == 3
+    get KEY long
+    math KEY *= 9
+    math KEY += 3
+else
+    print "unsupported version %VER%, contact me"
+    cleanexit
+endif
+
+get FULLSIZE asize
+savepos OFFSET
+
+for OFFSET = OFFSET < FULLSIZE
+    if VER == 1
+        goto OFFSET
+        get TMP long
+        callfunction DECRYPT 1
+        math NAMESZ = TMP
+
+        getdstring NAME NAMESZ
+        for i = 0 < NAMESZ
+            getvarchr TMP NAME i
+            callfunction DECRYPT 1
+            putvarchr NAME i TMP
+        next i
+
+        get TMP long
+        callfunction DECRYPT 1
+        math SIZE = TMP
+
+        savepos OFFSET
+        math OLD_KEY = KEY
+    elif VER == 3
+        get OFFSET long
+        math OFFSET ^= KEY
+
+        get SIZE long
+        math SIZE ^= KEY
+
+        get FILE_KEY long
+        math FILE_KEY ^= KEY
+
+        get NAMESZ long
+        math NAMESZ ^= KEY
+
+        math TMP = KEY
+        getdstring NAME NAMESZ
+        for i = 0 < NAMESZ
+            getvarchr B NAME i
+            math B ^= TMP
+            putvarchr NAME i B
+            math TMP r= 8
+        next i
+
+        math OLD_KEY = KEY
+        math KEY = FILE_KEY
+    endif
+
+    if OFFSET == 0
+        break
+    endif
+
+    log MEMORY_FILE OFFSET SIZE
+    putvarchr MEMORY_FILE SIZE 0 long
+    for i = 0 < SIZE
+        getvarchr TMP MEMORY_FILE i long
+        callfunction DECRYPT 1
+        putvarchr MEMORY_FILE i TMP long
+    next i + 4
+    log NAME 0 SIZE MEMORY_FILE
+    math KEY = OLD_KEY
+
+    if VER == 1
+        math OFFSET += SIZE
+    endif
+next
+
+startfunction DECRYPT
+    math TMP ^= KEY
+    math KEY *= 7
+    math KEY += 3
+endfunction

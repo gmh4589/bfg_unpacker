@@ -1,0 +1,14 @@
+# 50 Cent Bulletproof ARK
+
+idstring "ARK\0"
+get FILES long
+get ZERO long
+get ZERO long
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

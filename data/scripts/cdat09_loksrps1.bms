@@ -1,0 +1,55 @@
+# Crystal Dynamics Archive Type 9 (BIGFILE.DAT)
+# ---
+# Legacy of Kain Soul Reaver (PS1)
+
+get ENTRIES long
+for i = 0 < ENTRIES
+	get DUMMY1 long
+	get OFFSET long
+	
+	savepos TMP1
+	goto OFFSET
+	get FILES1 short
+	get XOR1 short
+	if XOR1 == 0
+		goto -4 0 SEEK_CUR
+		get FILES2 long
+		for i2 = 0 < FILES2
+			get DUMMY3 long
+			get SIZE long
+			get OFFSET long
+			get DUMMY6 long
+			string FNAME p= "%08x/%08x_%08x." DUMMY1 DUMMY3 DUMMY6
+			log FNAME OFFSET SIZE
+		next i2
+	elif XOR1 == 0xb722
+		goto -4 0 SEEK_CUR
+		log MEMORY_FILE OFFSET 0x800		# maximum size for the header
+		callfunction DECRYPT_HEADER 1
+		goto 0 MEMORY_FILE
+		get FILES2 long MEMORY_FILE
+		for i2 = 0 < FILES2
+			get DUMMY3 long MEMORY_FILE
+			get SIZE long MEMORY_FILE
+			get OFFSET long MEMORY_FILE
+			get DUMMY6 long MEMORY_FILE
+			string FNAME p= "%08x/%08x_%08x." DUMMY1 DUMMY3 DUMMY6
+			log FNAME OFFSET SIZE
+		next i2
+	endif
+	goto TMP1
+next i
+
+startfunction DECRYPT_HEADER
+	math x = 0
+	for x = 0 < 0x800
+		get ENCBYTE1 byte MEMORY_FILE
+		get ENCBYTE2 byte MEMORY_FILE
+		math ENCBYTE1 ^ 0x22
+		math ENCBYTE2 ^ 0xb7
+		putvarchr MEMORY_FILE x ENCBYTE1
+		math x + 1
+		putvarchr MEMORY_FILE x ENCBYTE2
+		math x + 1
+	next
+endfunction

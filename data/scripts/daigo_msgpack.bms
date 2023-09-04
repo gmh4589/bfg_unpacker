@@ -1,0 +1,51 @@
+# Clock Of Atonement (Daigo Studio) msgpack
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+callfunction GET_VALUE 1
+math FILES = VAR
+for i = 0 < FILES
+    callfunction GET_VALUE 1
+    getdstring NAME VAR
+    callfunction GET_VALUE 1
+    math SIZE = VAR
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+next i
+
+# just guessed but it works
+startfunction GET_VALUE
+    getbits VAR1 1
+    if VAR1 == 0
+        getdstring VAR 7
+    else
+        getbits VAR2 1
+        getbits VAR3 1
+        if VAR2 != 0
+            getbits VAR4 1
+            if VAR4 != 0
+                getbits VAR5 1
+                getbits VAR 3
+                if VAR < 6  # 1 in the sample
+                    get VAR byte
+                else        # 6 in the sample
+                    get VAR short
+                endif
+            else
+                getbits VAR 4
+                if VAR == 3
+                    math VAR = 0
+                elif VAR == 4
+                    get VAR byte
+                elif VAR == 5
+                    get VAR short
+                else
+                    get VAR long
+                endif
+            endif
+        else
+            getbits VAR 5
+        endif
+    endif
+endfunction

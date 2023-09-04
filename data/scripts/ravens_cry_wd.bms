@@ -1,0 +1,29 @@
+comtype unzip_dynamic
+idstring "WD"
+get DUMMY byte
+get DUMMY byte
+getdstring DUMMY 16
+get TSTAMP longlong
+get ZERO long
+get DUMMY long
+get NAMESZ long
+getdstring NAME NAMESZ
+get ZERO long
+get ZSIZE long
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE ZSIZE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZIP byte MEMORY_FILE
+    get OFFSET longlong MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

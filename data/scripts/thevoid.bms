@@ -1,0 +1,33 @@
+# The Void (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring LP2C
+set FULLPATH string ""
+set NAME string ""
+callfunction extractor
+
+startfunction extractor
+    string FULLPATH += NAME
+    string FULLPATH += \
+
+    get FOLDERS long
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get SIZE long
+        get DUMMY long
+        get OFFSET long
+        get ZERO long
+        getdstring TIMESTAMP 8
+
+        set FULLNAME string FULLPATH
+        string FULLNAME += NAME
+        log FULLNAME OFFSET SIZE
+    next i
+    for i = 0 < FOLDERS
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        callfunction extractor
+    next i
+endfunction

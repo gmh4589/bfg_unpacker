@@ -1,0 +1,27 @@
+# iRacing alpha
+#   tested with default installation of http://alpha.iracing.com/zip/
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+get DUMMY short
+get INFO_SIZE long
+get DUMMY long
+savepos INFO_OFF
+math INFO_SIZE += 10
+for INFO_OFF = INFO_OFF < INFO_SIZE
+    get DUMMY short
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get DUMMY byte  # filename null del?
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        math ZSIZE -= 8
+        math OFFSET += 8
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    savepos INFO_OFF
+next

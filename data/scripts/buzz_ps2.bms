@@ -1,0 +1,20 @@
+# extracts the *.PAK files from "Buzz! The Sports Quiz" (PS2, 2006)
+# (c) 2013-06-26 by AlphaTwentyThree of XeNTaX
+
+idstring BPAK
+get OFF_DATA long
+goto 0x10
+get FILES long
+get TOC long
+goto TOC
+for i = 0 < FILES
+   get CRC long
+   get OFF_NAME long
+   get OFFSET long
+   get SIZE long
+   savepos MYOFF
+   goto OFF_NAME
+   get NAME string
+   goto MYOFF
+   log NAME OFFSET SIZE
+next i

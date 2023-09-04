@@ -1,0 +1,28 @@
+# DDS endian reverser 0.1
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DDS "
+get HEADSZ long
+if HEADSZ & 0xff000000
+    reverselong HEADSZ
+endif
+math HEADSZ += 4
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+for i = 4 < HEADSZ
+    getvarchr NUM MEMORY_FILE i long
+    reverselong NUM
+    putvarchr MEMORY_FILE i NUM long
+    math i += 4
+next
+for i = i < SIZE
+    getvarchr NUM MEMORY_FILE i short
+    reverseshort NUM
+    putvarchr MEMORY_FILE i NUM short
+    math i += 2
+next
+
+get NAME basename
+string NAME += "_pc.dds"
+log NAME 0 SIZE MEMORY_FILE

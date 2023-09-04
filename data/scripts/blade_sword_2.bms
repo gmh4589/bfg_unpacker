@@ -1,0 +1,110 @@
+# Blade and Sword II 《刀剑2》
+#   Note: directory tree not handled, only last folder
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\x54\xCC\x95\xB9\x4B\xA1\x9C\x25\x89\x08\x47\x64\x43\x15\x0A\x57"
+
+idstring "spkm1.0\0"
+get DUMMY long
+get ALIGN long
+getdstring HASH 16
+get INFO_OFF long
+get DUMMY_OFF long
+
+# useless data
+#math DUMMY_OFF * ALIGN
+#goto DUMMY_OFF
+#callfunction DUMP 1
+
+math INFO_OFF * ALIGN
+goto INFO_OFF
+callfunction DUMP 1
+
+log MEMORY_FILE3 0 SIZE MEMORY_FILE
+get NAMES_SIZE long MEMORY_FILE3
+savepos TMP MEMORY_FILE3
+log MEMORY_FILE4 TMP NAMES_SIZE MEMORY_FILE3
+goto NAMES_SIZE MEMORY_FILE3 SEEK_CUR
+
+set PATH string ""
+get INFO_SIZE asize MEMORY_FILE3
+math INFO_SIZE - 4
+for
+    savepos CUR_OFF MEMORY_FILE3
+    if CUR_OFF > INFO_SIZE
+        break
+    endif
+    get NAME_OFF long MEMORY_FILE3
+    math FLAGS = NAME_OFF
+    math NAME_OFF >> 2
+    math FLAGS & 3
+
+    if FLAGS == 0
+        goto -3 MEMORY_FILE3 SEEK_CUR
+    else
+        goto NAME_OFF MEMORY_FILE4
+        get NAME string MEMORY_FILE4
+
+        if FLAGS & 2
+            set PATH string NAME
+        elif FLAGS & 1
+            get OFFSET long MEMORY_FILE3
+            math OFFSET * ALIGN
+
+            goto OFFSET
+            callfunction DUMP 1
+            string NAME p "%s/%s" PATH NAME
+            log NAME 0 SIZE MEMORY_FILE
+        endif
+    endif
+next
+
+startfunction DUMP
+    savepos ENTRY_OFF
+    idstring "spkmrd\0"
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    padding 16
+    get SIZE long
+    get ZSIZE long
+    get ENTRY_SIZE long
+    get NEW_OFFSET long
+    getdstring HASH 16
+    savepos OFFSET
+    math ENTRY_SIZE * ALIGN
+    math NEW_OFFSET * ALIGN
+
+    # AES on the aligned size and XOR on the rest
+    math TMP_ZSIZE = ZSIZE
+    log MEMORY_FILE2 0 0
+    append
+    if NEW_OFFSET != 0
+        math TMP = ENTRY_SIZE
+        math TMP - OFFSET
+        math TMP + ENTRY_OFF
+        encryption aes KEY "" 0 16
+        log MEMORY_FILE2 OFFSET TMP
+        math OFFSET = NEW_OFFSET
+        math TMP_ZSIZE - TMP
+    endif
+    math TMP = TMP_ZSIZE
+    math TMP y 16
+    encryption aes KEY "" 0 16
+    log MEMORY_FILE2 OFFSET TMP
+    math OFFSET + TMP
+    xmath TMP "TMP_ZSIZE - TMP"
+    encryption xor KEY "" 0 16
+    log MEMORY_FILE2 OFFSET TMP
+    encryption "" ""
+    append
+
+    if SIZE == ZSIZE
+        log MEMORY_FILE 0 ZSIZE MEMORY_FILE2
+    else
+        clog MEMORY_FILE 0 ZSIZE SIZE MEMORY_FILE2
+    endif
+
+    math ENTRY_OFF + ENTRY_SIZE
+endfunction

@@ -1,0 +1,41 @@
+get EXT extension
+
+if EXT == "bin"
+
+    get BIN_SIZE asize
+        get OFFSET long
+    do
+        get NEXT_OFF long
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    while OFFSET != BIN_SIZE
+
+elif EXT == "bfm_multi"
+
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get DUMMY5 long
+    get DUMMY6 long
+    savepos TMP
+    xmath FILES "(DUMMY6 - TMP) / 4"
+        get OFFSET long
+    for i = 1 <= FILES
+        if i == FILES
+            get NEXT_OFF asize
+        else
+            get NEXT_OFF long
+        endif
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    next i
+
+else
+
+    print "Unknown extension %EXT%"
+    cleanexit
+
+endif

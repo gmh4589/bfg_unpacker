@@ -1,0 +1,77 @@
+# Rebel Raiders: Operation Nighthawk (BAG)
+#   Note that the directory structure is probably wrong but there are no alternatives
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get ENTRIES long
+get OFFSET long
+goto OFFSET
+for i = 0 < ENTRIES
+    getdstring NAME 0x20
+    get FIELD1 long
+    get FIELD2 long
+    get FIELD3 long
+    get FIELD4 long
+    putarray 0 i NAME
+    putarray 1 i FIELD1
+    putarray 2 i FIELD2
+    putarray 3 i FIELD3
+    putarray 4 i FIELD4
+next i
+
+putarray 10 0 0
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    do
+        getarray i 10 0
+        getarray NAME       0 i
+        getarray FOLDER_ID  1 i
+        getarray FIELD2     2 i
+        getarray FOLDERS_ID 3 i
+        getarray FILES_ID   4 i
+        math i + 1
+
+        math WRONG = i
+
+        getarray LAST_i 10 0
+        if LAST_i < i
+            putarray 10 0 i
+        endif
+
+        string PATH + NAME
+        string PATH + /
+
+        if FILES_ID != 0xffffffff
+            math i = FILES_ID
+            do
+                getarray NAME       0 i
+                getarray FILE_ID    1 i
+                getarray FIELD2     2 i
+                getarray OFFSET     3 i
+                getarray SIZE       4 i
+                math i + 1
+                string FNAME p "%s%s" PATH NAME
+                log FNAME OFFSET SIZE
+            while FILE_ID != 0xffffffff
+
+            getarray LAST_i 10 0
+            if LAST_i < i
+                putarray 10 0 i
+            endif
+        endif
+
+        if FOLDERS_ID != 0xffffffff
+            math i = FOLDERS_ID
+            callfunction EXTRACT
+        endif
+
+        getarray TMP 10 0
+        if WRONG != TMP
+            string PATH - 1
+            string PATH << "/"
+        endif
+
+    while FOLDER_ID != 0xffffffff
+endfunction

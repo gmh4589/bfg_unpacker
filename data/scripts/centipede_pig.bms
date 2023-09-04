@@ -1,0 +1,24 @@
+# Centipede Dreamcast .PIG
+
+#open FDDE "PIG"
+#open FDDE "FST" 1  # does NOT contain all the filenames, only a part of them!
+
+get FILES long
+get NAMES_SIZE long
+savepos NAME_OFF
+goto NAMES_SIZE 0 SEEK_CUR
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    goto NAME_OFF
+    get NAME string
+    savepos NAME_OFF
+    goto TMP
+
+    string NAME + . # auto guess extension
+    log NAME OFFSET SIZE
+next i

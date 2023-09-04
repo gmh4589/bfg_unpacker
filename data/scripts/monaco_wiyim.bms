@@ -1,0 +1,25 @@
+# Monaco: What's Yours Is Mine
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "mtc"
+open FDDE "mdf" 1
+
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+next i
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+next i
+for i = 0 < FILES
+    get DUMMY long  # 1
+    get ZERO long
+    get OFFSET long
+    get XSIZE long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    clog "" OFFSET ZSIZE SIZE 1
+next i

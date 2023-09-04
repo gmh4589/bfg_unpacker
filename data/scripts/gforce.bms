@@ -1,0 +1,131 @@
+# old Eurocom games (script 0.2.3)
+#   http://en.wikipedia.org/wiki/Eurocom
+#   Spyro, Sphinx, G-Force, Ice Age: Dawn of the Dinosaurs, Pirates of the Caribbean and so on
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "bin" 0
+
+get CHR short
+math MYENDIAN = 0
+if CHR == 0
+    math MYENDIAN = 1
+    endian big
+endif
+goto 0
+
+get VER long
+get BINSZ long
+get FILES long
+get DUMMY short
+get PACKS short # + 1
+get NAMES_OFF long
+if NAMES_OFF != 0
+    math NAMES_OFF += 0x10
+endif
+
+math CRYPT = -1
+
+log MEMORY_FILE 0 0
+for i = 0 < FILES
+    set NAME string ""
+    if NAMES_OFF != 0
+        savepos MYOFF
+        math TMP = i
+        math TMP *= 4
+        math TMP += NAMES_OFF
+        goto TMP
+        get OFFSET long
+        math OFFSET += TMP
+        goto OFFSET
+        if CRYPT < 0
+            math CRYPT = 0
+            get CHR byte
+            if CHR != 'x'
+            if CHR != 0x00
+                math CRYPT = 1
+            endif
+            endif
+            goto OFFSET
+        endif
+        math j = 0
+        do
+            get CHR byte
+            if CRYPT > 0
+                math CL = 0x16
+                math CL -= i
+                math CL -= j
+                math CHR += CL
+                math CHR &= 0xff
+            endif
+            putvarchr MEMORY_FILE j CHR
+            math j += 1
+        while CHR != 0x00
+        goto 0 MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto MYOFF
+    endif
+    putarray 0 i NAME
+next i
+
+math MODE = 0
+for i = 0 < FILES
+    get SIZE long
+    get FLAGS1 long
+    get FLAGS2 long
+    get FLAGS3 long
+    get FLAGS4 long
+
+    # Pirates X360 work-around
+    if i == 0
+    if MYENDIAN != 0    # limited only to the X360 version
+    if FLAGS3 == 0
+        if MODE == 0
+            math MODE = 1
+        endif
+    endif
+    endif
+    endif
+    if MODE == 1
+        get DUMMY long
+        get DUMMY long
+    endif
+
+    get OFFSET long
+    if i == 0
+        if OFFSET != 0
+            if MODE == 1
+                # disable mode 1, doesn't exist continue or goto in bms
+                math MODE = 2
+                goto -12 0 SEEK_CUR
+                get OFFSET long
+            endif
+        endif
+    endif
+    get EXT long
+    if MODE == 1
+        math SIZE = FLAGS4
+        math FLAGS4 = 0
+    endif
+    for j = 1 < FLAGS4
+        get DUMMY long
+        get DUMMY long
+    next j
+
+    putarray 1 i OFFSET
+    putarray 2 i SIZE
+    putarray 3 i EXT
+next i
+
+set OLD_EXT long -1
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray SIZE   2 i
+    getarray EXT    3 i
+    if EXT != OLD_EXT
+        string TMP p= "%03d" EXT
+        open FDDE TMP 1
+        set OLD_EXT long EXT
+    endif
+    log NAME OFFSET SIZE 1
+next i

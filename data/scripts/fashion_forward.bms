@@ -1,0 +1,85 @@
+# Fashion Forward
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x37\x75\x43\x23"
+idstring "\x01\x00\x00\x00"
+get SIZE asize
+math SIZE -= 8
+log MEMORY_FILE 8 SIZE
+
+for extract = 0 < 2
+    goto 0 MEMORY_FILE
+    do
+        set CM_SIZE long 1
+        callfunction cakemania_decrypt
+        get TYPE byte MEMORY_FILE2
+
+        set break_extract long 0
+        if TYPE & 0x80
+            set break_extract long 1
+        else
+            set CM_SIZE long 1
+            callfunction cakemania_decrypt
+            get NAMESZ byte MEMORY_FILE2
+
+            set CM_SIZE long NAMESZ
+            callfunction cakemania_decrypt
+            getdstring NAME NAMESZ MEMORY_FILE2
+
+            set CM_SIZE long 4
+            callfunction cakemania_decrypt
+            get SIZE long MEMORY_FILE2
+
+            set CM_SIZE long 8
+            callfunction cakemania_decrypt
+            get TIMESTAMP longlong MEMORY_FILE2
+
+            if extract != 0
+                savepos TMP_OFF MEMORY_FILE
+                goto OFFSET MEMORY_FILE
+                set CM_SIZE long SIZE
+                callfunction cakemania_decrypt
+                log NAME 0 SIZE MEMORY_FILE2
+                math OFFSET += SIZE
+                goto TMP_OFF MEMORY_FILE
+            endif
+        endif
+    while break_extract == 0
+    if extract == 0
+        savepos OFFSET MEMORY_FILE
+    endif
+next extract
+
+startfunction cakemania_decrypt
+    savepos CM_OFFSET MEMORY_FILE
+    math CM_SIZE += CM_OFFSET
+    putvarchr MEMORY_FILE2 CM_SIZE 0    # pre-allocate
+
+    set EAX0 long 0x0CC96103
+    set EAX1 long 0x0312348A
+    set EAX2 long 0x2604CC49
+    set EAX3 long 0x18AEFF1C
+    set ECX0 long 0x2eec
+    set ECX1 long 0x8fcbca
+
+    math y = 0
+    for x = CM_OFFSET < CM_SIZE
+        math EAX2 += ECX0       # eax[2] += ecx[0];
+        math EAX3 += ECX1       # eax[3] += ecx[1];
+        math EAX1 -= EAX3       # eax[1] -= eax[3];
+        math TMP = EAX0         # t = (eax[0] + eax[2]);
+        math TMP += EAX2
+        math EAX0 = EAX1        # eax[0] = ((eax[1] ^ t) * t) >> 8;
+        math EAX0 ^= TMP
+        math EAX0 *= TMP
+        math EAX0 >>= 8
+        math EAX0 &= 0x00ffffff # sign stuff
+        getvarchr BYTE MEMORY_FILE x    # data[i] ^= eax[0];
+        math BYTE ^= EAX0
+        putvarchr MEMORY_FILE2 y BYTE
+        math y += 1
+    next x
+
+    goto x MEMORY_FILE
+    goto 0 MEMORY_FILE2
+endfunction

@@ -1,0 +1,30 @@
+# Pokemon Let's Go! .GFPAK\GFLXPACK (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+idstring "GFLXPACK"
+get DUMMY longlong      # 0x10
+get FILES long
+get DUMMY long          # 2
+get INFO_OFF longlong
+get OFFSET1 longlong    # hash of names
+get OFFSET2 longlong
+get OFFSET3 longlong
+goto INFO_OFF
+for i = 0 < FILES
+    get DUMMY short     # 9
+    get ZIP short
+    get SIZE long
+    get ZSIZE long
+    get DUMMY long      # 0xcc
+    get OFFSET longlong
+    if ZIP == 2
+        comtype lz4
+    elif ZIP == 3
+        comtype oodle
+    else
+        print "Error: unknown compression %ZIP%, contact me"
+        cleanexit
+    endif
+    clog "" OFFSET ZSIZE SIZE
+next i

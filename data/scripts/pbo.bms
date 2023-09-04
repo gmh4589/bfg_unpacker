@@ -1,0 +1,234 @@
+# PBO/XBO files (Packed Bohemia Object) (script 0.1.5a)
+#   http://community.bistudio.com/wiki/PBO_File_Format
+#   ArmA: Armed Assault / ArmA: Combat Operations
+#   ArmA: Queen's Gambit
+#   ARMA 2
+#   VBS2 (Virtual Battlespace 2)
+#   ...possibly others...
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.3.14b
+set vbs_diff_key long 0
+set pbo_folder string "."
+set pbo_encryption long 0
+set MYIVEC binary "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+get PBO_SIZE asize
+
+for extract = 0 < 2
+    goto 0
+    do
+        savepos ANTI_ANTI   # work-around for anti-extractors?
+
+        set break_extract long 0
+
+        if pbo_encryption <= 0
+            get filename string
+            get PackingMethod long
+            get OriginalSize long
+            get Reserved long
+            get TimeStamp long
+            get DataSize long
+        else
+            get filename string MEMORY_FILE
+            get PackingMethod long MEMORY_FILE
+            get OriginalSize long MEMORY_FILE
+            get Reserved long MEMORY_FILE
+            get TimeStamp long MEMORY_FILE
+            get DataSize long MEMORY_FILE
+        endif
+
+        if PackingMethod == 0x56657273
+            do
+                if pbo_encryption <= 0
+                    get filename string
+                else
+                    get filename string MEMORY_FILE
+                endif
+                if pbo_encryption < 0
+                    if filename == "vbs1"
+                        print "Error: vbs1 encryption is not implemented yet"
+                        cleanexit
+                    elif filename == "xor"      # exists?
+                        print "Error: xor encryption is not implemented yet"
+                        cleanexit
+                    elif filename == "xor1024"  # exists?
+                        print "Error: xor1024 encryption is not implemented yet"
+                        cleanexit
+                    elif filename == "vbs2"
+                        set break_extract long 1    # the offset is known
+                        if vbs_diff_key == 0    # vbs2_lite
+                            set MYKEY binary "\x2D\xE5\x7A\x9F\xA0\xE0\x3B\x4D\xC8\xEB\xBB\x3C\x17\x2B\x04\x7E"
+                            set MYXOR binary "\x76\x3F\x7D\x6E\x53\x27\x46\x4E\x32\x3D\x63\x22\x6C\x69\x4F\x2D"
+                            #set MYKEY binary "\x5B\xDA\x07\xF1\xF3\xC7\x7D\x03\xFA\xD6\xD8\x1E\x7B\x42\x4B\x53" (result of the xor)
+                        elif vbs_diff_key == 1  # vbs2_lite_us
+                            set MYKEY binary "\x45\x86\xc6\x4e\x2c\x7b\x8a\xff\xcb\xa8\x36\x91\xab\xde\x7f\xaa"
+                            set MYXOR binary "\xab\x86\x5d\x2b\x6f\xbc\xd4\xf1\xcc\x8d\x2b\x13\x9e\x6a\x27\x3c"
+                            #set MYKEY binary "\xee\x00\x9b\x65\x43\xc7\x5e\x0e\x07\x25\x1d\x82\x35\xb4\x58\x96" (result of the xor)
+                        else
+                            print "Error: unsupported vbs2 encryption keys, contact me"
+                            cleanexit
+                        endif
+                        callfunction xor_MYKEY 1
+                    elif filename == "vbs2m"
+                        set break_extract long 1    # the offset is known
+                        if vbs_diff_key == 0    # vbs2_lite
+                            set MYKEY binary "\x2D\xE5\x7A\x9F\xA0\xE0\x3B\x4D\xC8\xEB\xBB\x3C\x17\x2B\x04\x7E"
+                            set MYXOR binary "\xb6\x94\x9e\xc7\x66\x8f\x32\xe8\x08\x47\x5d\x57\x92\x27\xac\xcc"
+                            #set MYKEY binary "\x9b\x71\xe4\x58\xc6\x6f\x09\xa5\xc0\xac\xe6\x6b\x85\x0c\xa8\xb2" (result of the xor)
+                        elif vbs_diff_key == 1  # vbs2_lite_us
+                            set MYKEY binary "\x45\x86\xc6\x4e\x2c\x7b\x8a\xff\xcb\xa8\x36\x91\xab\xde\x7f\xaa"
+                            set MYXOR binary "\x78\x2f\x1b\x6b\xcf\xaa\xf3\x70\x53\xab\x43\x79\x92\x46\xcc\x21"
+                            #set MYKEY binary "\x3d\xa9\xdd\x25\xe3\xd1\x79\x8f\x98\x03\x75\xe8\x39\x98\xb3\x8b" (result of the xor)
+                        else
+                            print "Error: unsupported vbs2m encryption keys, contact me"
+                            cleanexit
+                        endif
+                        callfunction xor_MYKEY 1
+                    endif
+                endif
+                if pbo_folder == ""
+                    set pbo_folder string filename
+                endif
+                if filename == "encryption"
+                    set pbo_encryption long -1
+                endif
+                if filename == "prefix"
+                    set pbo_folder string ""
+                endif
+            while filename != ""
+            if pbo_encryption < 0
+                if break_extract == 0
+                    print "Error: unsupported PBO encryption, contact me"
+                    cleanexit
+                endif
+                set pbo_encryption long 1
+            endif
+        endif
+
+        if filename == "" # work-around for anti-extractors?
+            if ANTI_ANTI > 0
+                set break_extract long 1
+            endif
+        endif
+
+        if extract != 0
+            if filename != ""
+                set fullname string pbo_folder
+                string fullname += /
+                string fullname += filename
+                if PackingMethod == 0x456e6372
+                    putvarchr MYIVEC 0  OriginalSize long
+                    putvarchr MYIVEC 4  OriginalSize long
+                    putvarchr MYIVEC 8  OriginalSize long
+                    putvarchr MYIVEC 12 OriginalSize long
+                    callfunction aes_workaround 1   # keep the 1 or the key will be modified!!!
+                endif
+                if PackingMethod == 0x43707273
+                    comtype lzss
+                    math OriginalSize -= 4  # checksum?
+                    clog fullname OFFSET DataSize OriginalSize
+                else
+                    if PackingMethod == 0x456e6372
+                        comtype copy
+                        clog fullname OFFSET DataSize OriginalSize
+                    else
+                        log fullname OFFSET DataSize
+                    endif
+                endif
+                math OFFSET += DataSize
+                if PackingMethod == 0x456e6372
+                    encryption "" ""
+                endif
+            endif
+        endif
+    while break_extract == 0
+
+    if extract == 0
+        if pbo_encryption == 0
+            savepos OFFSET
+        else
+            get OriginalSize long
+            get DataSize long
+            savepos OFFSET
+            math TMP = OFFSET
+            math TMP += DataSize
+            goto TMP
+            getdstring MYIVEC 16
+            #encryption aes MYKEY MYIVEC # ivec are the 16 bytes after the encrypted block ("\x4B\x64\x6B\x41\x4C\x40\x61\x4F\x6F\x79\x30\x3A\x7B\x65\x20\x6C" does nothing)
+            callfunction aes_workaround 1
+            log MEMORY_FILE OFFSET DataSize
+            encryption "" ""
+            math OFFSET = TMP
+            goto OriginalSize MEMORY_FILE
+            put "" string MEMORY_FILE
+            put 0 long MEMORY_FILE
+            put 0 long MEMORY_FILE
+            put 0 long MEMORY_FILE
+            put 0 long MEMORY_FILE
+            put 0 long MEMORY_FILE
+            goto 0 MEMORY_FILE
+            callfunction lame_vbs_diff_key_check 1
+        endif
+    endif
+next extract
+
+startfunction xor_MYKEY
+    for x = 0 < 16
+        getvarchr TMP1 MYKEY x
+        getvarchr TMP2 MYXOR x
+        math TMP1 ^= TMP2
+        putvarchr MYKEY x TMP1
+    next x
+endfunction
+
+# explanation:
+# there is NOTHING that can be used to calculate a difference between the xbo
+# files of vbs2_lite and vbs2_lite_us so the only way is using a lame or
+# heuristic check over the data... that's the only "solution"
+startfunction lame_vbs_diff_key_check
+    set TMP2 long OriginalSize
+    goto 0 MEMORY_FILE
+            get filename string MEMORY_FILE
+            get PackingMethod long MEMORY_FILE
+            get OriginalSize long MEMORY_FILE
+            get Reserved long MEMORY_FILE
+            get TimeStamp long MEMORY_FILE
+            get DataSize long MEMORY_FILE
+    savepos TMP MEMORY_FILE
+    set TMP_OK long 0
+    if TMP <= TMP2              # ok
+    if OriginalSize <= PBO_SIZE # ok
+    if DataSize <= PBO_SIZE     # ok
+        set TMP_OK long 1
+    endif
+    endif
+    endif
+    strlen TMP filename # lame check on the filename
+    for x = 0 < TMP
+        getvarchr TMP2 filename x
+        if TMP2 < 0x20
+            set TMP_OK long 0
+        endif
+    next x
+    if TMP_OK == 0
+        math extract -= 1
+        set pbo_encryption long 0   # reset!
+        math vbs_diff_key += 1
+    endif
+    print "vbs_diff_key %vbs_diff_key%"
+    goto 0 MEMORY_FILE
+endfunction
+
+startfunction aes_workaround
+    strlen MYKEYLEN MYKEY
+    if MYKEYLEN < 16
+        # explanation:
+        # QuickBMS doesn't have problems to use keys with zeroes in them, but in this case this is
+        # different because the key comes from a variable and so it can be only NULL delimited,
+        # for the moment I have opted for this "lame" work-around and maybe I will find another
+        # solution in future depending if there will be other particular situations like this one
+        encryption aes "\xee\x00\x9b\x65\x43\xc7\x5e\x0e\x07\x25\x1d\x82\x35\xb4\x58\x96" MYIVEC
+    else
+        encryption aes MYKEY MYIVEC
+    endif
+endfunction

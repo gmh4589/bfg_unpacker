@@ -1,0 +1,22 @@
+# 霸神*.idx
+
+open FDDE "idx"
+idstring "Package"
+goto 0x20
+getdstring NAME 0x40
+open FDSE NAME 1 EXISTS
+if EXISTS == 0
+    string NAME + "0"
+    open FDSE NAME 1
+endif
+get DUMMY long
+get FILES long
+get ZERO long
+for i = 0 < FILES
+    get ZERO long
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 256
+    log NAME OFFSET SIZE 1
+next i

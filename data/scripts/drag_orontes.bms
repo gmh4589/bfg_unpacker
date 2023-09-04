@@ -1,0 +1,59 @@
+# DRAG Orontes Engine
+
+quickbmsver "0.11 -64"
+
+comtype zstd
+
+open FDDE "dat"
+idstring "opd"
+get VER byte    # 1
+get PACKS byte
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+clog MEMORY_FILE OFFSET SIZE SIZE   # automatic output size
+
+math LAST_PACK_NUM = -1
+get FILES variable4 MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ variable4 MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET variable4 MEMORY_FILE    # quickbms_4gb_files required
+    math PACK_NUM = OFFSET
+    math PACK_NUM & 7
+    math OFFSET >> 8
+
+    if PACK_NUM != LAST_PACK_NUM
+        math LAST_PACK_NUM = PACK_NUM
+        string TMP p "%02i" PACK_NUM
+        open FDDE TMP
+    endif
+
+    goto OFFSET
+    get ZIP byte
+    get ZSIZE longlong
+    get SIZE longlong
+    savepos OFFSET
+
+    if ZIP == 0
+        #log NAME OFFSET SIZE
+
+        getdstring TYPE 4
+        if TYPE u== "zpng"
+            get BYTES variable4 # 1, all the tested images were 8bit
+            get WIDTH variable4
+            get HEIGHT variable4
+            get DUMMY variable4 # 2, 3 or 4, no idea
+            get SIZE variable4
+            savepos OFFSET
+            string TMP p ".%dx%d.raw" WIDTH HEIGHT  # planar mode
+            string NAME + TMP
+            clog NAME OFFSET SIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    else    # 1
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+

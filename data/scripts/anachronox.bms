@@ -1,0 +1,21 @@
+# Anachronox (DAT)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ADAT"
+get INFO_OFF long
+get INFO_SIZE long
+xmath FILES "INFO_SIZE / 144"
+get DUMMY long  # 9
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get SOME_CRC long
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,24 @@
+# Dungeon Hack
+
+idstring "AESOP"
+goto 0x10
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+getdstring ZERO 0x80
+for i = 0 < 0x80
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    savepos OFFSET
+    goto TMP
+
+    log "" OFFSET SIZE
+next i

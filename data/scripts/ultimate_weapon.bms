@@ -1,0 +1,43 @@
+# Ultimate Weapon - 《最终兵器》
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY short         # 0x41
+get DUMMY short         # 0x52
+get HEADER_SIZE long    # 0x28
+get PAK_SIZE longlong
+get DUMMY long
+get ENTRY_SIZE long
+get DUMMY long
+get DUMMY long
+goto HEADER_SIZE
+math MAX_OFF = PAK_SIZE
+for
+    savepos TMP
+    if TMP u>= MAX_OFF
+        break
+    endif
+    do
+        get DUMMY long
+    while DUMMY == 0xffffffff
+    goto -4 0 SEEK_CUR
+    get DUMMY long      # 1
+    get DUMMY longlong  # name hash?
+    get DUMMY long      # -1
+    get OFFSET longlong
+    if OFFSET == 0
+        break
+    endif
+    get DUMMY6 long
+    get ZSIZE long
+    get SIZE long
+
+    if ZSIZE == SIZE
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET ZSIZE SIZE
+    endif
+
+    if OFFSET u< MAX_OFF
+        math MAX_OFF = OFFSET
+    endif
+next

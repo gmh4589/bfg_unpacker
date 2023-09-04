@@ -1,0 +1,36 @@
+# Full Auto 2 (PS3) bt3 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.4"
+math FDNUM = 0
+get NAME filename
+if NAME & "index"
+    open FDSE NAME 1 EXISTS
+    if EXISTS != 0
+        open FDSE NAME
+        math FDNUM = 1
+        string NAME R "streamindex" "streams"
+        open FDSE NAME FDNUM
+    endif
+endif
+
+get BT3_SIZE asize
+get DUMMY long  # 2 or "\x65\xdc\x82\x45", let's stay open minded
+do
+    get NAMESZ long # ever 0x100
+    getdstring NAME NAMESZ
+    get DUMMY1 long # 3
+    get DUMMY2 long # 2 or 1
+    get DUMMY3 long # 0xbb80
+    get SIZE long   # it's 0 if we have the index file
+    get OFFSET long
+    get END_OFFSET long
+    if FDNUM == 0
+        savepos OFFSET
+        goto SIZE 0 SEEK_CUR
+    else
+        xmath SIZE "END_OFFSET - OFFSET"
+    endif
+    log NAME OFFSET SIZE FDNUM
+    savepos TMP
+while TMP != BT3_SIZE

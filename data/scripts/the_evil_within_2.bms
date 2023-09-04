@@ -1,0 +1,52 @@
+# The Evil Winhin 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+set EXT string "ptr"
+get NAME basename
+string NAME p "%s/%s.%s" EXT NAME EXT
+open FDSE NAME 1 EXISTS
+if EXISTS == 0
+    open FDDE EXT 1
+endif
+
+get DUMMY long 1    # 0xfad230c7
+get VER long 1      # 1
+get DUMMY long 1    # 0x518fe682
+get DUMMY long 1    # 0xbe299005
+
+comtype deflate_noerror # necessary because we don't know the decompressed size
+savepos OFFSET 1
+get SIZE asize 1
+math SIZE - OFFSET
+clog MEMORY_FILE OFFSET SIZE SIZE 1
+
+comtype deflate_noerror # necessary because it's not a "perfect" compression... mah
+get FILES long MEMORY_FILE
+get NUM2 long MEMORY_FILE
+get NUM3 long MEMORY_FILE
+get NUM4 long MEMORY_FILE
+get NUM5 long MEMORY_FILE
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+next i
+for i = 0 < NUM5
+    get DUMMY long MEMORY_FILE
+next i
+get NAMES_SIZE long MEMORY_FILE
+get NAMES long MEMORY_FILE
+for i = 0 < NAMES
+    get NAME string MEMORY_FILE
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get NAME_IDX long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    getarray NAME 0 NAME_IDX
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

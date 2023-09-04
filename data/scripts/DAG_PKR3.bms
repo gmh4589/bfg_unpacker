@@ -1,0 +1,26 @@
+<bms games="'World Championship Poker 2'" platforms="'PC'" ext="DAG">
+IDString 0 PKR3 ;
+ImpType StandardTail ;
+SavePos TailOffOff 0 ;
+Get TAILOFF Long 0 ;
+Math TAILOFF += 8 ;
+GoTo TAILOFF 0 ;
+Get FILENUM Long 0 ;
+SavePos TEMP 0 ;
+Math TEMP += 136 ;
+GoTo TEMP 0 ;
+SavePos TEMP 0 ;
+For X = 1 To FILENUM ;
+GoTo TEMP 0 ;
+GetDString FNAME 128 0 ;
+Get FOOBAR Long 0 ;
+Get FOOBAR Long 0 ;
+SavePos FOFFSETO 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEO 0 ;
+Get FSIZE Long 0 ;
+Get FOOBAR Long 0 ;
+SavePos TEMP 0 ;
+Log FNAME FOFFSET FSIZE FOFFSETO FSIZEO ;
+Next X ;
+</bms>

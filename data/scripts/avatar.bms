@@ -1,0 +1,122 @@
+# Avatar: The Game (0.1a not 100% supported)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MAX_CHUNKSZ long 0x10000
+
+idstring "PAK!"
+get DUMMY long
+get OFFSET long
+get ZSIZE asize
+math ZSIZE -= OFFSET
+log MEMORY_FILE OFFSET ZSIZE
+
+math TMP = ZSIZE
+math TMP += MAX_CHUNKSZ
+putvarchr MEMORY_FILE TMP 0
+
+get OFFSET long MEMORY_FILE
+goto OFFSET MEMORY_FILE
+get CHUNKS long MEMORY_FILE
+math CHUNKS -= 1
+append
+for i = 0 < CHUNKS
+    get OFFSET1 long MEMORY_FILE
+    get OFFSET2 long MEMORY_FILE
+    if OFFSET2 & 0x80000000
+        set ZIP long 1
+    else
+        set ZIP long 0
+    endif
+    math OFFSET1 &= 0x7fffffff
+    math OFFSET2 &= 0x7fffffff
+
+    math ZSIZE = MAX_CHUNKSZ
+
+    goto OFFSET1 MEMORY_FILE2
+    #goto OFFSET2 MEMORY_FILE
+    if ZIP == 0
+        log MEMORY_FILE2 OFFSET2 MAX_CHUNKSZ MEMORY_FILE
+    else
+        clog MEMORY_FILE2 OFFSET2 ZSIZE MAX_CHUNKSZ MEMORY_FILE
+    endif
+next i
+append
+goto 0 MEMORY_FILE2
+
+comtype lzo1x
+get DUMMY byte MEMORY_FILE2
+get FILES long MEMORY_FILE2
+savepos INFO_OFF MEMORY_FILE2
+for extract = 0 < 2
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE2
+        get SIZE long MEMORY_FILE2  # full filesize
+        get DUMMY long MEMORY_FILE2
+        math CHUNKS = SIZE
+        math CHUNKS /= MAX_CHUNKSZ
+        math TMP = SIZE
+        math TMP %= MAX_CHUNKSZ
+        if TMP != 0
+            math CHUNKS += 1
+        endif
+
+        if extract == 0
+            for j = 0 < CHUNKS
+                get ZCHUNKSZ short MEMORY_FILE2
+                get CHUNKSZ short MEMORY_FILE2
+            next j
+        else
+            savepos TMP MEMORY_FILE2
+            goto NAME_OFF MEMORY_FILE2
+            get DUMMY longlong MEMORY_FILE2
+            get NAMESZ byte MEMORY_FILE2
+            getdstring NAME NAMESZ MEMORY_FILE2
+            savepos NAME_OFF MEMORY_FILE2
+            goto TMP MEMORY_FILE2
+
+            callfunction unpack
+        endif
+    next i
+    if extract == 0
+        savepos NAME_OFF MEMORY_FILE2
+    endif
+    goto INFO_OFF MEMORY_FILE2
+next extract
+
+startfunction unpack
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    append
+    for j = 0 < CHUNKS
+        get ZCHUNKSZ short MEMORY_FILE2
+        get CHUNKSZ short MEMORY_FILE2
+        if CHUNKSZ == 0
+            set CHUNKSZ long MAX_CHUNKSZ
+        endif
+        #if ZCHUNKSZ == 0
+        #    log MEMORY_FILE OFFSET CHUNKSZ
+        #    math OFFSET += CHUNKSZ
+        #else
+        if ZCHUNKSZ == 0
+            if CHUNKSZ == 0xffff
+                log MEMORY_FILE OFFSET MAX_CHUNKSZ
+                math OFFSET += MAX_CHUNKSZ
+            else
+                log MEMORY_FILE OFFSET CHUNKSZ
+                math OFFSET += CHUNKSZ
+            endif
+        else
+            if CHUNKSZ == 0xffff
+                get TMP asize MEMORY_FILE
+                log MEMORY_FILE OFFSET ZCHUNKSZ
+                math TMP += CHUNKSZ
+                putvarchr MEMORY_FILE TMP 0
+            else
+                clog MEMORY_FILE OFFSET ZCHUNKSZ CHUNKSZ # problem here
+            endif
+            math OFFSET += ZCHUNKSZ
+        endif
+    next j
+    append
+    log NAME 0 SIZE MEMORY_FILE
+endfunction

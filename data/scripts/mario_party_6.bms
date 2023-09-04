@@ -1,0 +1,22 @@
+# Mario Party 6
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    get FLAGS long
+    if FLAGS & 6    # samples here have 7, so it's 2 or 4
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+    else
+        savepos OFFSET
+        log "" OFFSET SIZE
+    endif
+    goto TMP
+next i

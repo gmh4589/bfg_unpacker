@@ -1,0 +1,57 @@
+# Star Fox 64 3D
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "resourcestreamgdb"
+open FDDE "resourcestreambin" 1
+
+idstring "GDB1"
+get ZERO long
+get STRINGS_OFF long
+get DUMMY long
+get ZERO long
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY4 long
+get DUMMY5 long
+get DUMMY6 long
+get DUMMY7 long
+
+/*
+get DUMMY8 byte
+get FILES threebyte
+get DUMMY9 long
+get DUMMY10 long
+for i = 0 < FILES
+    get DUMMY long
+next i
+for
+    savepos TMP
+    if TMP >= DUMMY7
+        break
+    endif
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+next
+*/
+
+goto DUMMY7
+get DUMMY8 byte
+get FILES threebyte
+get DUMMY9 long
+get DUMMY10 long
+for i = 0 < FILES
+    get OFFSET long
+
+    savepos TMP
+    goto OFFSET
+    getdstring DUMMY 0x48
+    get OFFSET long
+    getdstring DUMMY 0xc
+    get SIZE long
+    goto TMP
+
+    log "" OFFSET SIZE 1
+next i

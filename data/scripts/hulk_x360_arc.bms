@@ -1,0 +1,26 @@
+# The Incredible Hulk (Xbox 360) *.ARC
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+goto OFFSET
+endian big
+get FILES long
+for i = 0 < FILES
+    get SOME_CRC long
+    get INFO_OFF long
+    get SIZE long
+    get NAME string     # resource name
+    get SOME_CRC long
+    get DUMMY long
+    get SOME_CRC long
+
+    savepos TMP
+    goto INFO_OFF
+    get NAME string
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+    xmath SIZE "SIZE - (OFFSET - INFO_OFF)"
+    log NAME OFFSET SIZE
+    goto TMP
+next i

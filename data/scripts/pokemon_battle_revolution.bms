@@ -1,0 +1,12 @@
+endian big
+comtype lzss "12 4 2 2 0"
+idstring LZSS
+get SIZE long
+get ZSIZE long
+get DUMMY long
+savepos OFFSET
+math ZSIZE -= OFFSET
+
+get NAME filename
+string NAME += ".unpacked"
+clog NAME OFFSET ZSIZE SIZE

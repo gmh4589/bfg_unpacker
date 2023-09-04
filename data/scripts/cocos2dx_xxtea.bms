@@ -1,0 +1,12 @@
+# Generic cocos2dx XXTEA setXXTEAKeyAndSign decrypter 2dxLua
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY string "2dxLua"
+encryption xxtea KEY "0x9e3779b9 0" 0 16    # cocos2d
+
+idstring "XXTEA"
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+get NAME filename
+log NAME OFFSET SIZE

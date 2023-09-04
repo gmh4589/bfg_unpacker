@@ -1,0 +1,9 @@
+encryption aes "TIMOTEI_ZION\0\0\0\0"
+get ALIGN byte
+savepos OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+math SIZE -= ALIGN
+get NAME basename
+string NAME += ".str"
+log NAME OFFSET SIZE

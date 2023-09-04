@@ -1,0 +1,48 @@
+# Piglet's Big Game SDD
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DSBH"
+get CHUNK_SIZE long
+getdstring ZERO 0x18
+xmath BASE_OFF "0x20 + CHUNK_SIZE"  # "DSBD"
+for
+    savepos TMP
+    if TMP u>= CHUNK_SIZE
+        break
+    endif
+    get NAME string
+    get DUMMY byte  # 3, probably the codec (VAG)
+    get BITS byte
+    get CHANNELS byte
+    get FREQUENCY long
+    get OFFSET long
+    get SIZE long
+    padding 0x10
+    math OFFSET + BASE_OFF
+
+    math INTERLEAVE = 0x20000   # ??? my sample was mono
+    string NAME + ".ss2"
+    callfunction DUMP_VAG 1
+    #log NAME OFFSET SIZE
+next
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+endfunction

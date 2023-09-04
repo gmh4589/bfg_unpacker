@@ -1,0 +1,27 @@
+# CFC.DIG
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_LIMIT asize
+for i = 0
+    savepos TMP
+    if TMP u>= INFO_LIMIT
+        break
+    endif
+
+    get OFFSET long
+    get SIZE long
+    get CHANS short
+    get TYPE short
+    get FREQ long
+    math OFFSET * 0x800
+
+    if SIZE != 0
+        if i == 0
+            math INFO_LIMIT = OFFSET
+        endif
+
+        string NAME p "%d/%08x_%d_%d.raw" TYPE i FREQ CHANS
+        log NAME OFFSET SIZE
+        math i + 1
+    endif
+next

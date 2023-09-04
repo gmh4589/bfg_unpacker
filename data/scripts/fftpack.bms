@@ -1,0 +1,16 @@
+# Final Fantasy Tactics The War of the Lions
+
+get FILES long
+get OFFSETS_OFF long
+get SIZES_OFF long
+goto OFFSETS_OFF
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+goto SIZES_OFF
+for i = 0 < FILES
+    get SIZE long
+    getarray OFFSET 0 i
+    log "" OFFSET SIZE
+next i

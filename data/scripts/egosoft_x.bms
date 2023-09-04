@@ -1,0 +1,31 @@
+# basic Egosoft X example (tested with X2 demo)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXTENSION extension
+if EXTENSION != CAT
+    open FDDE CAT 0
+endif
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+for i = 0 < SIZE
+    getvarchr C MEMORY_FILE i
+    set i2 i
+    math i2 -= 0x25
+    math C ^= i2
+    putvarchr MEMORY_FILE i C
+next i
+
+getct NAME string 0x0a MEMORY_FILE  # name of the dat filename
+open FDSE NAME 0
+
+set OFFSET 0
+for
+    getct NAME string 0x20 MEMORY_FILE
+    getct SIZE string 0x0a MEMORY_FILE
+    filexor 0x33
+    log NAME OFFSET SIZE
+    filexor ""
+    math OFFSET += SIZE
+next

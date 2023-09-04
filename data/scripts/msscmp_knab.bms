@@ -1,0 +1,72 @@
+# Minecraft msscmp BANK KNAB (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "KNAB" # "BANK"
+get VER long
+get INFO_SIZE long
+get ZERO long
+get ZERO long
+get INFO_OFF long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+if VER >= 8
+    get DUMMY long
+endif
+get FILES1 long
+get FILES2 long
+get FILES3 long
+get FILES4 long
+goto INFO_OFF
+savepos BCK_OFF
+
+for i = 0 < FILES1
+    callfunction GET_FIELDS 1
+    slog NAME OFFSET -1
+next i
+
+for i = 0 < FILES2
+    callfunction GET_FIELDS 1
+    goto OFFSET
+    getdstring TYPE 4
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i
+
+for i = 0 < FILES3
+    callfunction GET_FIELDS 1
+    goto OFFSET
+    getdstring TYPE 4
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i
+
+for i = 0 < FILES4
+    callfunction GET_FIELDS 1
+    goto OFFSET
+    get NAME_OFF long
+    get DUMMY long
+    endian save CURRENT_ENDIAN
+    endian little  # senseless but this is true and it's valid only for this field
+    get OFFSET long
+    endian set CURRENT_ENDIAN
+    get CHANS long
+    get DUMMY long  # -1
+    get FREQ long
+    get SIZE long
+    string NAME + "."
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_FIELDS
+    goto BCK_OFF
+    get NAME_OFF long
+    get OFFSET long
+    savepos BCK_OFF
+    goto NAME_OFF
+    get NAME string
+endfunction

@@ -1,0 +1,83 @@
+# Ghost Trick PAC/BIN (script 0.1.1)
+
+comtype lz77wii
+get EXT extension
+if EXT == "pac"
+
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+
+        goto OFFSET
+        get CHUNKS long
+        savepos BASE_OFF
+        for x = 0 < CHUNKS
+            get CHUNK_OFF long
+            putarray 1 x CHUNK_OFF
+        next x
+            math CHUNK_OFF = OFFSET
+            math CHUNK_OFF + SIZE
+            putarray 1 x CHUNK_OFF
+        string NAME p "%d.dat" i
+        append
+        for x = 0 < CHUNKS
+            getarray CHUNK_OFF  1 x
+            math x + 1
+            getarray CHUNK_SIZE 1 x
+            math CHUNK_SIZE - CHUNK_OFF
+            math CHUNK_OFF + BASE_OFF
+            clog NAME CHUNK_OFF CHUNK_SIZE CHUNK_SIZE
+        next
+        append
+    next
+
+elif EXT == "bin"
+
+    for i = 0 < 6
+        get INFO_OFF long
+        get INFO_SIZE long
+
+        savepos BCK_OFF
+        goto INFO_OFF
+        get HEADER_SIZE long
+        get HEADERS long
+        math HEADER_OFFSET = 0
+        for x = 0 < HEADERS
+            getdstring HEADER_NAME 4
+            get HEADER_OFFSET long
+        next x
+        math DATA_OFF = INFO_OFF
+        math DATA_OFF + HEADER_OFFSET
+        if HEADER_NAME u== "TADB"
+            for
+                savepos TMP
+                if TMP u>= DATA_OFF
+                    break
+                endif
+                get OFFSET long
+                get SIZE long
+                math OFFSET & 0x7fffffff    # ???
+                math OFFSET + DATA_OFF
+                if SIZE != 0
+                    if SIZE & 0x80000000
+                        math SIZE & 0x7fffffff
+                        clog "" OFFSET SIZE SIZE
+                    else
+                        log "" OFFSET SIZE
+                    endif
+                endif
+            next
+        endif
+        goto BCK_OFF
+    next i
+
+endif

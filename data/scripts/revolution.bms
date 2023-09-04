@@ -1,0 +1,28 @@
+# Revolution
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -2036
+get SIZE long
+get ZSIZE long
+get FILES long
+get OFFSET asize
+math OFFSET - 2048
+math OFFSET - ZSIZE
+math OFFSET y 2048
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+for i = 0 < FILES
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    math OFFSET * 2048
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get ZIP long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    if ZIP == 0xffffffff
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

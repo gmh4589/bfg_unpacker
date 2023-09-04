@@ -1,0 +1,46 @@
+# Nat Geo Challenge! Wild Life (National Geographic) wad (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GWAD"
+get DUMMY long
+get VER long    # 0 or 0x100 or ???
+if VER == 0x100
+    comtype LEGO_IXS
+endif
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get FOLDERS long
+    get FILES long
+    for i = 0 < FOLDERS
+        get NAME[i] string
+    next i
+    for i = 0 < FILES
+        if VER == 0x100
+        get SIZE long
+        get ZSIZE long
+        get OFFSET long
+        else
+        get ZSIZE long
+        get SIZE long
+        get OFFSET longlong
+        endif
+        get ZIP long
+        get NAME string
+        string NAME p "%s%s" PATH NAME
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    for i = 0 < FOLDERS
+        set NAME string NAME[i]
+        callfunction EXTRACT
+    next i
+endfunction

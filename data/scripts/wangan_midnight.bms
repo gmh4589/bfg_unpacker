@@ -1,0 +1,89 @@
+# Wangan Midnight
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "TOC"
+
+idstring "BLDh"
+get ZERO long
+savepos NEXT_OFFSET
+get TOC_SIZE asize
+for NEXT_OFFSET = NEXT_OFFSET < TOC_SIZE
+    goto NEXT_OFFSET
+    getdstring TYPE 4
+    get SIZE long
+    savepos OFFSET
+    xmath NEXT_OFFSET "OFFSET + SIZE"
+
+    if TYPE == "def "
+        get DUMMY long
+        get FILES long
+        get DUMMY longlong
+        get ALIGN long
+
+    elif TYPE == "inf "
+        for i = 0 < FILES
+            get OFFSET long
+            get ZSIZE long
+            get SIZE long
+            get DUMMY long
+            get ZERO long
+            get ZERO long
+            getdstring DUMMY7 0xc
+            get ZERO long
+
+            math OFFSET * ALIGN
+            putarray 0 i OFFSET
+            putarray 1 i ZSIZE
+            putarray 2 i SIZE
+        next i
+
+    elif TYPE == "tbl "
+        for i = 0 < FILES
+            get NAME string
+            putarray 3 i NAME
+        next i
+    endif
+next
+
+open FDDE "DAT"
+math CHUNK_SIZE = 0x40000
+
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray ZSIZE  1 i
+    getarray SIZE   2 i
+    getarray NAME   3 i
+
+    if SIZE == 0
+        log NAME OFFSET ZSIZE
+    else
+        goto OFFSET
+        idstring "GARC"
+        get DUMMY long
+        idstring "zlib"
+        get SIZE long
+        idstring "inf "
+        get TYPE_SIZE long
+        getdstring DUMMY TYPE_SIZE
+        idstring "dat "
+        get ZSIZE long
+        savepos OFFSET
+
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 < SIZE
+            goto OFFSET
+            padding 4
+            get CHUNK_ZSIZE long
+            get ZERO long
+            savepos OFFSET
+            clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET + CHUNK_ZSIZE
+            get MEM_SIZE asize MEMORY_FILE
+        next
+        append
+
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next i

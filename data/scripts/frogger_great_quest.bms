@@ -1,0 +1,34 @@
+# Frogger: The Great Quest
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get FILES2 long
+get NAMES_OFF long
+savepos TMP
+goto NAMES_OFF
+get NAMES long  # eh no, the names are just a few, not matching FILES
+for i = 0 < NAMES
+    getdstring NAME 0x108
+next i
+goto TMP
+for i = 0 < FILES
+    set NAME string ""
+    get SOME_CRC long
+    callfunction EXTRACT 1
+next i
+for i = 0 < FILES2
+    getdstring NAME 0x108
+    callfunction EXTRACT 1
+next i
+
+startfunction EXTRACT
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get ZERO long   # may be OFFSET64 but why NAMES_OFF is 32bit?
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+endfunction

@@ -1,0 +1,105 @@
+# UFC Undisputed 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get EXT extension
+
+if EXT == "mpc"
+
+    get INFO_SIZE long
+    get MPC_SIZE long
+    get INFO_OFF long
+    get MPC_BASE_OFF long
+    goto INFO_OFF
+    xmath FILES "INFO_SIZE / (4 + 0x20 + 4)"
+
+    for i = 0 < FILES
+        get ENTRIES long
+        getdstring NAME 0x20
+        get ENTRY_OFF long
+        putarray 0 i ENTRIES
+        putarray 1 i NAME
+        putarray 2 i ENTRY_OFF
+    next i
+
+    set PATH string ""
+    math i = 0
+    callfunction MPC_EXTRACT
+
+else
+
+    getdstring SIGN 4
+    goto 0
+    if SIGN == "YZLI"
+        idstring "YZLI"
+        get SIZE asize
+            xmath ZSIZE "SIZE - 0x10"
+            get SIZE long
+            reverselong SIZE
+            getdstring TEMP_NAME 8
+            savepos OFFSET
+            clog TEMP_NAME OFFSET ZSIZE SIZE
+        cleanexit
+    endif
+
+    # pac, text and maybe others
+
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring NAME 0x10
+        getdstring EXT 4
+        get SIZE long
+        get OFFSET long
+        get ZERO long
+        string FNAME p "%s.%s" NAME EXT
+        callfunction DUMP_FILE
+    next i
+
+endif
+
+startfunction DUMP_FILE
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "YZLI"
+        xmath ZSIZE "SIZE - 0x10"
+        get SIZE long
+        reverselong SIZE
+        getdstring TEMP_NAME 8
+        savepos OFFSET
+        clog FNAME OFFSET ZSIZE SIZE
+
+    elif SIGN == "MCT2"
+        math OFFSET + 0x1c
+        math SIZE   - 0x1c
+        log FNAME OFFSET SIZE
+
+    else
+        log FNAME OFFSET SIZE
+    endif
+    goto TMP
+endfunction
+
+startfunction MPC_EXTRACT
+    getarray ENTRIES   0 i
+    getarray NAME      1 i
+    getarray ENTRY_OFF 2 i
+
+    string PATH + NAME
+    string PATH + /
+
+    if ENTRIES & 0xff000000
+        string FNAME p "%s%s" PATH NAME
+        xmath SIZE "(ENTRIES & 0x00ffffff) * 0x20"
+        xmath OFFSET "ENTRY_OFF + MPC_BASE_OFF"
+        callfunction DUMP_FILE
+    else
+        xmath LIMIT "ENTRY_OFF + ENTRIES"
+        for i = ENTRY_OFF < LIMIT
+            callfunction MPC_EXTRACT
+        next i
+    endif
+endfunction

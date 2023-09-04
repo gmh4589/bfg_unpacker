@@ -1,0 +1,9 @@
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x50
+    get OFFSET long
+    get SIZE long
+    get TYPE long
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,14 @@
+# Soldier Front / Special Force Online MRG
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+xmath BASE_OFF "4 + (FILES * (0x80 + 4 + 4))"
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    math OFFSET + BASE_OFF
+    filexor 0x94
+    log NAME OFFSET SIZE
+    filexor ""
+next i

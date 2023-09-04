@@ -1,0 +1,44 @@
+# Heroes of Might and Magic: Quest for the Dragon Bone Staff PS2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "met"
+    callfunction EXTRACT_MET 1
+    cleanexit
+endif
+
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x44
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i
+
+startfunction EXTRACT_MET
+    idstring "PMET"
+    get FILES long
+    for i = 0 < FILES
+        get ID long
+        get ZERO long
+        get OFFSET long
+        getdstring NAME 100
+        putarray 0 i OFFSET
+        putarray 1 i NAME
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    sortarray 0 1
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray NAME   1 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        if NAME == "*UNKNOWN*"
+            string NAME + /
+        endif
+        log NAME OFFSET SIZE
+    next
+endfunction

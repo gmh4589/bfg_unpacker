@@ -1,0 +1,43 @@
+# Final Fantasy Lightning Return
+# It only dumps the data as-is
+
+for KB2 = 0
+    findloc OFFSET string "KB2j"
+    goto OFFSET
+    string NAME p "%d/" KB2
+
+    savepos BASE_OFF
+    idstring "KB2j"
+    get LAST_OFFSET long    # wrong!
+    get FILES long
+    getdstring DUMMY 0x1c
+    get ELEMENTS long
+    get DUMMY long
+    for i = 0 < ELEMENTS
+        get DUMMY long
+        get DUMMY long
+    next i
+    for i = 0 < ELEMENTS
+        get DUMMY long
+    next i
+    savepos TMP
+    math TMP - BASE_OFF
+    math LAST_OFFSET + TMP
+    math LAST_OFFSET - 8
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+    putarray 0 i LAST_OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE 0 i
+        math SIZE - OFFSET
+        math OFFSET + BASE_OFF
+        log NAME OFFSET SIZE
+    next
+
+    math LAST_OFFSET + BASE_OFF
+    goto LAST_OFFSET
+next KB2

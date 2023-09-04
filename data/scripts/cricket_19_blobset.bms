@@ -1,0 +1,42 @@
+# Cricket 19 Blobset (script 0.1.1)
+
+comtype lzma0
+idstring "BLOB"
+get FILES long
+for i = 0 < FILES
+    get ZSIZE long
+    get SIZE long
+    get VRAM_ZSIZE long
+    get VRAM_SIZE long
+    get NAME threebyte
+    get FOLDER byte
+    string NAME p "%02x/%06x" FOLDER NAME
+    get DUMMY long  # just 0xeeeeeeee padding
+
+    open FDSE NAME 1 EXISTS
+
+    string NAME + "."
+
+    if EXISTS != 0
+        if SIZE == ZSIZE
+            log NAME 0 SIZE 1
+        else
+            log NAME 0 0
+            append
+            for OFFSET = 0 != ZSIZE
+                get CHUNK_ZSIZE long 1
+                math CHUNK_ZSIZE ^ 0x62676e74   # tngb
+                math CHUNK_ZSIZE - 4
+                savepos OFFSET 1
+                math CHUNK_SIZE = 0x8000
+                if CHUNK_SIZE > SIZE
+                    math CHUNK_SIZE = SIZE
+                endif
+                clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE 1
+                math OFFSET + CHUNK_ZSIZE
+                goto OFFSET 1
+            next SIZE - CHUNK_SIZE
+            append
+        endif
+    endif
+next i

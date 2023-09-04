@@ -1,0 +1,16 @@
+# Growlanser VI: Precarious World
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "FLK\0"
+get DUMMY long
+get ZERO long
+get ZERO long
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

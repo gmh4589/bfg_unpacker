@@ -1,0 +1,21 @@
+idstring "MATF"
+get SIZE long
+get FILES long
+get DUMMY long
+set PATH string ""
+get MII_SIZE asize
+for OFFSET = 0 < MII_SIZE
+    getdstring TYPE 4
+    get SIZE long
+    if TYPE == "MAT "
+        string PATH p= "%s_%d" TYPE i
+        math i += 1
+    else
+        savepos OFFSET
+        string NAME p= "%s/%s/" PATH TYPE
+        string NAME R= " " ""
+        log NAME OFFSET SIZE
+    endif
+    math OFFSET += SIZE
+    goto OFFSET
+next

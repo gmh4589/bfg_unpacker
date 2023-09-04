@@ -1,0 +1,21 @@
+idstring "0TSR"
+goto 20
+get INFO_OFFSET long
+get FILES long
+
+goto INFO_OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get TYPE long
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+
+    math OFFSET += INFO_OFFSET
+    log NAME OFFSET SIZE
+next i

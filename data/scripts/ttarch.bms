@@ -1,0 +1,285 @@
+this script is no longer maintained.
+check my stand-alone extractor:
+
+  http://aluigi.org/papers.htm#ttarchext
+
+
+# Telltale's TTARCH extractor
+# script for QuickBMS http://quickbms.aluigi.org
+#
+# version 0.2.1
+# you MUST edit the blowfish key (search for "encryption blowfish ?") to adapt it to each game,
+# because each game uses a different key: no key, no party
+# contact me in case of problems or unsupported games or versions
+#
+# IMPORTANT NOTE:
+# this script has been created ONLY for improving the features
+# of my QuickBMS tool and NOT for real interest in this format
+# on which I spent only a "limited" amount of time
+
+set INFO_MODE long 0
+set FILES_MODE long 1
+set TYPE3 long 0
+
+#set OLD_MODE long 1     # for CSI3 only
+set OLD_MODE long 0     # for any other game
+
+if OLD_MODE == 1
+    set VERSION long 1
+else
+    get VERSION long
+    get INFO_MODE long
+    get TYPE3 long      # 2 or 0 it's the same
+    if VERSION >= 3
+        get FILES_MODE long  # 2 if the filesystem is encrypted+compressed
+    endif
+endif
+
+if VERSION < 1
+    print "unsupported older version (%VERSION%)"
+    cleanexit
+endif
+if VERSION > 4
+    print "unsupported newer version (%VERSION%)"
+    cleanexit
+endif
+if INFO_MODE < 0
+    print "unsupported format info_mode (%INFO_MODE%)"
+    cleanexit
+endif
+if INFO_MODE > 1
+    print "unsupported format info_mode (%INFO_MODE%)"
+    cleanexit
+endif
+if FILES_MODE < 1
+    print "unsupported format files_mode (%FILES_MODE%)"
+    cleanexit
+endif
+if FILES_MODE > 2
+    print "unsupported format files_mode (%FILES_MODE%)"
+    cleanexit
+endif
+
+if VERSION >= 3
+    get CHUNKS long
+else
+    set CHUNKS long 0
+endif
+savepos CHUNKS_OFFSET
+
+set INFO_OFFSET long CHUNKS
+math INFO_OFFSET *= 4
+math INFO_OFFSET += CHUNKS_OFFSET
+
+goto INFO_OFFSET
+if VERSION >= 3
+    get DUMMY long
+    if VERSION >= 4
+        get DUMMY long
+        get DUMMY long
+    endif
+endif
+if OLD_MODE == 1
+    # horrible way... after all is only a test and for CSI3
+
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        get NAMESZ long
+        getdstring NAME NAMESZ
+    next i
+
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+    next i
+    get INFO_SIZE long
+    goto INFO_OFFSET
+else
+    get INFO_SIZE long
+endif
+savepos INFO_OFFSET
+
+if INFO_MODE >= 1
+    # the following are some blowfish keys I have collected during my tests (just a matter of some seconds so if you have difficulties, I'm here)
+    #encryption blowfish "\x96\xCA\x99\xA0\x85\xCF\x98\x8A\xE4\xDB\xE2\xCD\xA6\xA9\xB8\xC4\xD8\x81\x8E\xE3\xA9\xD6\x99\xD4\xAC\x93\xDE\xC2\xA2\xE0\xA5\x99\xCC\xB4\x89\xB0\xCD\xCF\x9A\xCF\xDA\xBB\xEA\xDB\xA4\x9B\xC6\xB3\xAA\xD0\x95\x8A\xD1\xDE\xAB"  # Wallace & Gromit: Grand Adventure
+    #encryption blowfish "\x96\xCA\x99\xA0\x85\xCF\x98\x8A\xE4\xDB\xE2\xCD\xA6\x96\x83\x89\xC0\x8B\x99\xE3\x9E\xD8\x9B\xB6\xD7\x90\xDC\xBE\xAD\x9D\x91\x66\xB6\xA6\x9E\xBB\xC2\xC6\x9E\xB3\xE7\xE3\xE5\xD5\xAB\x63\x82\xA1\x9C\xC4\x92\x9F\xD1\xD5\xA4"  # Wallace & Gromit: The Last Resort
+    #encryption blowfish "\x8f\xd8\x98\x99\x96\xbc\xa2\xae\xd7\xde\xc5\xd3\x9d\xca\xc5\xa7\xd8\x95\x92\xe9\x8d\xe4\xa1\xd4\xd7\x71\xde\xc0\x9e\xde\xb1\xa3\xca\xaa\xa4\x9f\xd0\xce\x9e\xde\xc5\xe3\xe3\xd1\xa9\x82\xc1\xda\xaa\xd5\x76\xa2\xdb\xd7\xb1"  # Telltale Texas Hold'em
+    #encryption blowfish "\x81\xd8\x9b\x99\x55\xe2\x65\x73\xb4\xdb\xe3\xc9\x63\xdb\x85\x87\xab\x99\x9b\xdc\x6e\xeb\x68\x9f\xa7\x90\xdd\xba\x6a\xe2\x93\x64\xa1\xb4\xa0\xb4\x92\xd9\x6b\x9c\xb7\xe3\xe6\xd1\x68\xa8\x84\x9f\x87\xd2\x94\x98\xa1\xe8\x71"  # Bone: Out From Boneville
+    #encryption blowfish "\x81\xD8\x9B\x99\x56\xE2\x65\x73\xB4\xDB\xE3\xC9\x64\xDB\x85\x87\xAB\x99\x9B\xDC\x6F\xEB\x68\x9F\xA7\x90\xDD\xBA\x6B\xE2\x93\x64\xA1\xB4\xA0\xB4\x93\xD9\x6B\x9C\xB7\xE3\xE6\xD1\x69\xA8\x84\x9F\x87\xD2\x94\x98\xA2\xE8\x71"  # Bone: The Great Cow Race
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x64\x73\xA3\xBF\xD6\xD1\x7F\xC6\xCB\x88\x99\x5B\x80\xD8\xAA\xC2\x97\xE7\x96\x51\xA0\xA8\x9A\xD9\xAE\x95\xD7\x76\x62\x80\xB4\xC4\xA6\xB9\xD6\xEC\xA9\x9C\x68\x85\xB3\xDC\x92\xC4\x9E\x64\xA0\xA3\x92"  # Sam & Max: Episode 101 - Culture Shock
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x64\x73\xA4\xBF\xD6\xD1\x7F\xC6\xCB\x88\x99\x01\x80\xD8\xAA\xC2\x97\xE7\x96\x51\xA1\xA8\x9A\xD9\xAE\x95\xD7\x76\x62\x81\xB4\xC4\xA6\xB9\xD6\xEC\xA9\x9C\x69\x85\xB3\xDC\x92\xC4\x9E\x64\xA0\xA4\x92"  # Sam & Max: Episode 102 - Situation: Comedy
+    #encryption blowfish "\x92\xca\x9a\x81\x85\xe4\x64\x73\xa5\xbf\xd6\xd1\x7f\xc6\xcb\x88\x99\x5d\x80\xd8\xaa\xc2\x97\xe7\x96\x51\xa2\xa8\x9a\xd9\xae\x95\xd7\x76\x62\x82\xb4\xc4\xa6\xb9\xd6\xec\xa9\x9c\x6a\x85\xb3\xdc\x92\xc4\x9e\x64\xa0\xa5\x92"  # Sam & Max: Episode 103 - The Mole, The Mob, and the Meatball
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x64\x73\xA6\xBF\xD6\xD1\x7F\xC6\xCB\x88\x99\x5E\x80\xD8\xAA\xC2\x97\xE7\x96\x51\xA3\xA8\x9A\xD9\xAE\x95\xD7\x76\x62\x83\xB4\xC4\xA6\xB9\xD6\xEC\xA9\x9C\x6B\x85\xB3\xDC\x92\xC4\x9E\x64\xA0\xA6\x92"  # Sam & Max: Episode 104 - Abe Lincoln Must Die!
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x64\x73\xA7\xBF\xD6\xD1\x7F\xC6\xCB\x88\x99\x5F\x80\xD8\xAA\xC2\x97\xE7\x96\x51\xA4\xA8\x9A\xD9\xAE\x95\xD7\x76\x62\x84\xB4\xC4\xA6\xB9\xD6\xEC\xA9\x9C\x6C\x85\xB3\xDC\x92\xC4\x9E\x64\xA0\xA7\x92"  # Sam & Max: Episode 105 - Reality 2.0
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x64\x73\xA8\xBF\xD6\xD1\x7F\xC6\xCB\x88\x99\x60\x80\xD8\xAA\xC2\x97\xE7\x96\x51\xA5\xA8\x9A\xD9\xAE\x95\xD7\x76\x62\x85\xB4\xC4\xA6\xB9\xD6\xEC\xA9\x9C\x6D\x85\xB3\xDC\x92\xC4\x9E\x64\xA0\xA8\x92"  # Sam & Max: Episode 106 - Bright Side of the Moon
+    #encryption blowfish "\x92\xca\x9a\x81\x85\xe4\x65\x73\xa3\xbf\xd6\xd1\x7f\xc6\xcb\x89\x99\x5b\x80\xd8\xaa\xc2\x97\xe7\x97\x51\xa0\xa8\x9a\xd9\xae\x95\xd7\x77\x62\x80\xb4\xc4\xa6\xb9\xd6\xec\xaa\x9c\x68\x85\xb3\xdc\x92\xc4\x9e\x65\xa0\xa3\x92"  # Sam & Max: Episode 201 - Ice Station Santa
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x65\x73\xA4\xBF\xD6\xD1\x7F\xC6\xCB\x89\x99\x01\x80\xD8\xAA\xC2\x97\xE7\x97\x51\xA1\xA8\x9A\xD9\xAE\x95\xD7\x77\x62\x81\xB4\xC4\xA6\xB9\xD6\xEC\xAA\x9C\x69\x85\xB3\xDC\x92\xC4\x9E\x65\xA0\xA4\x92"  # Sam & Max: Episode 202 - Moai Better Blues
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x65\x73\xA5\xBF\xD6\xD1\x7F\xC6\xCB\x89\x99\x5D\x80\xD8\xAA\xC2\x97\xE7\x97\x51\xA2\xA8\x9A\xD9\xAE\x95\xD7\x77\x62\x82\xB4\xC4\xA6\xB9\xD6\xEC\xAA\x9C\x6A\x85\xB3\xDC\x92\xC4\x9E\x65\xA0\xA5\x92"  # Sam & Max: Episode 203 - Night of the Raving Dead
+    #encryption blowfish "\x92\xCA\x9A\x81\x85\xE4\x65\x73\xA6\xBF\xD6\xD1\x7F\xC6\xCB\x89\x99\x5E\x80\xD8\xAA\xC2\x97\xE7\x97\x51\xA3\xA8\x9A\xD9\xAE\x95\xD7\x77\x62\x83\xB4\xC4\xA6\xB9\xD6\xEC\xAA\x9C\x6B\x85\xB3\xDC\x92\xC4\x9E\x65\xA0\xA6\x92"  # Sam & Max: Episode 204 - Chariots of the Dogs
+    #encryption blowfish "\x92\xca\x9a\x81\x85\xe4\x65\x73\xa7\xbf\xd6\xd1\x7f\xc6\xcb\x89\x99\x5f\x80\xd8\xaa\xc2\x97\xe7\x97\x51\xa4\xa8\x9a\xd9\xae\x95\xd7\x77\x62\x84\xb4\xc4\xa6\xb9\xd6\xec\xaa\x9c\x6c\x85\xb3\xdc\x92\xc4\x9e\x65\xa0\xa7\x92"  # Sam & Max: Episode 205 - What's New, Beelzebub
+    #encryption blowfish "\x87\xD8\x9A\x99\x97\xE0\x94\xB5\xA3\x9C\xA8\xAC\xA1\xD2\xB8\xCA\xDD\x8B\x9F\xA8\x6D\xA8\x7E\xDE\xD2\x86\xE2\xC9\x9A\xDE\x92\x64\x92\x8D\xA1\xBC\xC6\xD6\xAD\xCD\xE7\xA5\xA8\x9F\x7F\xA1\xBF\xD4\xB8\xD7\x87\xA5\xA1\xA2\x72"  # Strong Bad: Episode 1 - Homestar Ruiner
+    #encryption blowfish "\x87\xd8\x9a\x99\x97\xe0\x94\xb5\xa3\x9c\xa7\xac\xa1\xd2\xb8\xca\xdd\x8b\x9f\xa8\x6d\xa7\x7e\xde\xd2\x86\xe2\xc9\x9a\xde\x92\x64\x91\x8d\xa1\xbc\xc6\xd6\xad\xcd\xe7\xa5\xa8\x9e\x7f\xa1\xbf\xd4\xb8\xd7\x87\xa5\xa1\xa2\x71"  # Strong Bad: Episode 2 - Strong Badia the Free
+    #encryption blowfish "\x87\xD8\x9A\x99\x97\xE0\x94\xB5\xA3\x9C\xA8\xAC\xA1\xD2\xB8\xCA\xDD\x8B\x9F\xA8\x6D\xA8\x7E\xDE\xD2\x86\xE2\xC9\x9A\xDE\x92\x64\x92\x8D\xA1\xBC\xC6\xD6\xAD\xCD\xE7\xA5\xA8\x9F\x7F\xA1\xBF\xD4\xB8\xD7\x87\xA5\xA1\xA2\x72"  # Strong Bad: Episode 3 - Baddest of the Bands
+    #encryption blowfish "\x87\xd8\x9a\x99\x97\xe0\x94\xb5\xa3\x9c\xa9\xac\xa1\xd2\xb8\xca\xdd\x8b\x9f\xa8\x6d\xa9\x7e\xde\xd2\x86\xe2\xc9\x9a\xde\x92\x64\x93\x8d\xa1\xbc\xc6\xd6\xad\xcd\xe7\xa5\xa8\xa0\x7f\xa1\xbf\xd4\xb8\xd7\x87\xa5\xa1\xa2\x73"  # Strong Bad: Episode 4 - Daneresque 3
+    #encryption blowfish "\x87\xd8\x9a\x99\x97\xe0\x94\xb5\xa3\x9c\xaa\xac\xa1\xd2\xb8\xca\xdd\x8b\x9f\xa8\x6d\xaa\x7e\xde\xd2\x86\xe2\xc9\x9a\xde\x92\x64\x94\x8d\xa1\xbc\xc6\xd6\xad\xcd\xe7\xa5\xa8\xa1\x7f\xa1\xbf\xd4\xb8\xd7\x87\xa5\xa1\xa2\x74"  # Strong Bad: Episode 5 - 8-Bit Is Enough
+    #encryption blowfish "\x82\xBC\x76\x68\x83\xB0\x78\x90\xC1\xAF\xC8\xAD\x66\xC4\x97\x9C\xB6\x79\x70\xCA\x86\xA9\x95\xB3\xAA\x6E\xBE\x98\x8C\xB5\x95\x93\xA3\x8A\x7F\x9E\xA4\xB6\x82\xA0\xD4\xB8\xBD\xB9\x86\x75\xA5\xB8\x79\xC2\x6A\x78\xBD\xC1\x82"  # CSI-Hard Evidence
+    #encryption blowfish ""  # CSI3 Dimensions of Murder
+    encryption blowfish ?
+endif
+log MEMORY_FILE INFO_OFFSET INFO_SIZE
+
+set BASE_OFFSET long INFO_OFFSET
+math BASE_OFFSET += INFO_SIZE
+
+if FILES_MODE == 2
+    #print "wait patiently the full decryption and decompression of the archive in memory"
+    print "type A or all when will be asked to overwrite the file TEMPORARY_FILE and wait patiently its full decryption and decompression"
+
+    set DATA_OFFSET long BASE_OFFSET
+    append
+    goto CHUNKS_OFFSET
+    for i = 0 < CHUNKS
+        get ZSIZE long
+
+        if ZSIZE == 0x10000
+            log TEMPORARY_FILE DATA_OFFSET ZSIZE
+        else
+            clog TEMPORARY_FILE DATA_OFFSET ZSIZE 0x10000
+        endif
+        math DATA_OFFSET += ZSIZE
+    next i
+    append
+    set BASE_OFFSET long 0
+
+    open "." TEMPORARY_FILE 0   # this solution is faster than MEMORY_FILE2 with big files
+endif
+
+encryption "" ""
+
+get FOLDERS long MEMORY_FILE
+for i = 0 < FOLDERS
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+next i
+
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZERO long MEMORY_FILE   # not verified
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    if ZERO != 0
+        print "the ZERO variable is not zero (%ZERO%), contact me"
+        cleanexit
+    endif
+
+    math OFFSET += BASE_OFFSET
+
+        if SIZE >= 4
+            log MEMORY_FILE3 OFFSET 4       # needed for the resetting the append
+            get FILE_TYPE long MEMORY_FILE3
+        else
+            set FILE_TYPE long 0
+        endif
+
+        set BLOCKS_SIZE  long 0x80      # used as default, 0x80, 0x20, 0x50
+        set BLOCKS_CRYPT long 0x20
+        set BLOCKS_CLEAN long 0x50
+        set META_STREAM_FILE long 1
+        if FILE_TYPE == 0x4D424553
+            set BLOCKS_SIZE  long 0x40
+            set BLOCKS_CRYPT long 0x40
+            set BLOCKS_CLEAN long 0x64
+        else
+            if FILE_TYPE == 0x4D42494E
+                set META_STREAM_FILE long 0
+            else
+                if FILE_TYPE == 0xFB4A1764
+                    # default
+                else
+                    if FILE_TYPE == 0xEB794091
+                        # default
+                    else
+                        if FILE_TYPE == 0x64AFDEFB
+                            # default
+                        else
+                            if FILE_TYPE == 0x64AFDEAA
+                                set BLOCKS_SIZE  long 0x100
+                                set BLOCKS_CRYPT long 0x8
+                                set BLOCKS_CLEAN long 0x18
+                            else
+                                if FILE_TYPE == 0x4D545245
+                                    set META_STREAM_FILE long 0
+                                else
+                                    if FILE_TYPE == 0x4D42494e # as 0x4D545245
+                                        set META_STREAM_FILE long 0
+                                    else
+                                        set META_STREAM_FILE long 0
+                                    endif
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+
+    if META_STREAM_FILE == 1
+        math OFFSET += 4
+        math SIZE -= 4
+
+        set BLOCKS long SIZE
+        math BLOCKS /= BLOCKS_SIZE
+        set REM_BLOCKS long SIZE
+        math REM_BLOCKS %= BLOCKS_SIZE
+
+        append
+        for j = 0 < BLOCKS
+            set SKIP_THIS_BLOCK long 0
+            if j % BLOCKS_CLEAN
+            else
+                if j > 0
+                    set SKIP_THIS_BLOCK long 1
+                endif
+            endif
+
+            if SKIP_THIS_BLOCK == 1
+                log MEMORY_FILE3 OFFSET BLOCKS_SIZE
+            else
+                if j % BLOCKS_CRYPT
+                    filexor 0xff
+                    log MEMORY_FILE3 OFFSET BLOCKS_SIZE
+                    filexor ""
+                else
+                    # paste here the key used before!
+                    #encryption blowfish "\x96\xCA\x99\xA0\x85\xCF\x98\x8A\xE4\xDB\xE2\xCD\xA6\xA9\xB8\xC4\xD8\x81\x8E\xE3\xA9\xD6\x99\xD4\xAC\x93\xDE\xC2\xA2\xE0\xA5\x99\xCC\xB4\x89\xB0\xCD\xCF\x9A\xCF\xDA\xBB\xEA\xDB\xA4\x9B\xC6\xB3\xAA\xD0\x95\x8A\xD1\xDE\xAB"  # Wallace & Gromit: Grand Adventure
+                    #...
+                    #encryption blowfish "\x82\xBC\x76\x68\x83\xB0\x78\x90\xC1\xAF\xC8\xAD\x66\xC4\x97\x9C\xB6\x79\x70\xCA\x86\xA9\x95\xB3\xAA\x6E\xBE\x98\x8C\xB5\x95\x93\xA3\x8A\x7F\x9E\xA4\xB6\x82\xA0\xD4\xB8\xBD\xB9\x86\x75\xA5\xB8\x79\xC2\x6A\x78\xBD\xC1\x82"  # CSI-Hard Evidence
+                    #encryption blowfish ""  # CSI3 Dimensions of Murder
+                    encryption blowfish ?
+
+                    log MEMORY_FILE3 OFFSET BLOCKS_SIZE
+                    encryption "" ""
+                endif
+            endif
+
+            math OFFSET += BLOCKS_SIZE
+        next j
+        if REM_BLOCKS != 0
+            log MEMORY_FILE3 OFFSET REM_BLOCKS
+        endif
+        append
+
+        math OFFSET -= 4
+        math SIZE += 4
+        log NAME 0 SIZE MEMORY_FILE3
+    else
+        log NAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,49 @@
+# Fighting Spirit (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+get PKG_SIZE asize
+for OFFSET = 0 != PKG_SIZE
+    savepos OFFSET
+    log MEMORY_FILE 0 0
+    append
+    for CHUNK = 0
+        get CHUNK_ID long
+        if CHUNK != CHUNK_ID
+            if CHUNK == 0
+                cleanexit
+            endif
+            break
+        endif
+        get ZIP long
+        get CHUNK_OFF longlong
+        get CHUNK_SIZE longlong
+        get CHUNK_ZSIZE longlong
+        math CHUNK_OFF + OFFSET
+        if ZIP == 0
+            log MEMORY_FILE CHUNK_OFF CHUNK_SIZE
+            math CHUNK_OFF + CHUNK_SIZE
+        else
+            clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            math CHUNK_OFF + CHUNK_ZSIZE
+        endif
+    next CHUNK
+    append
+
+    math SIGN = 0
+    get SIZE asize MEMORY_FILE
+    if SIZE >= 0x14
+        goto 0 MEMORY_FILE
+        get SIGN long MEMORY_FILE
+    endif
+    if SIGN == 0xc
+        math SIZE - 0x14
+        log "" 0x14 SIZE MEMORY_FILE
+    else
+        log "" 0 SIZE MEMORY_FILE
+    endif
+
+
+    math OFFSET = CHUNK_OFF
+    goto OFFSET
+next

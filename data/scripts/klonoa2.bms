@@ -1,0 +1,82 @@
+# Klonoa 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+putarray 1 -1 "kldata.bin"
+putarray 1 -1 "bgmpack.bin"
+putarray 1 -1 "pptpack.bin"
+
+open FDSE "headpack.bin"
+get PACKS long
+for PACK = 0 < PACKS
+    get OFFSET long
+    putarray 0 PACK OFFSET
+next PACK
+for PACK = 0 < PACKS
+    getarray PACK_NAME 1 PACK
+    open FDSE PACK_NAME 1
+    getarray OFFSET 0 PACK
+    goto OFFSET
+    get FILES long
+    get NAME basename 1
+    string NAME + /
+    for i = 0 < FILES
+        if PACK_NAME & "bgm"
+            get OFFSET long
+            get SAMPLES long
+            get CHANNELS long
+            math SIZE = SAMPLES
+            math SIZE * CHANNELS
+            math OFFSET * 0x800
+            math FREQUENCY = 44100
+            callfunction DUMP_VAG 1
+        else
+            get OFFSET long
+            get SIZE long
+            math SIZE   * 0x800
+            math OFFSET * 0x800
+            if PACK_NAME & "ppt"
+                math FREQUENCY = 22050
+                math CHANNELS = 1
+                callfunction DUMP_VAG 1
+            else
+                #log NAME OFFSET SIZE 1
+                goto OFFSET 1
+                get CHUNKS long 1
+                for x = 0 < CHUNKS
+                    get CHUNK_OFF long 1
+                    putarray 2 x CHUNK_OFF
+                next x
+                putarray 2 x SIZE
+                for x = 0 < CHUNKS
+                    getarray CHUNK_OFF  2 x
+                    math x + 1
+                    getarray CHUNK_SIZE 2 x
+                    math CHUNK_SIZE - CHUNK_OFF
+                    string FNAME p "%s%08x/" NAME i
+                    log FNAME CHUNK_OFF CHUNK_SIZE 1
+                next
+            endif
+        endif
+    next i
+next PACK
+
+# you must provide the following values: OFFSET SIZE FREQUENCY and CHANNELS
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put 0x800 long MEMORY_FILE  # bytes in each channel
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    append
+    log MEMORY_FILE OFFSET SIZE 1
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+endfunction

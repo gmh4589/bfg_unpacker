@@ -1,0 +1,38 @@
+# Twisted Metal 4 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY short # 0x67
+padding 4
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get NAMESZ byte
+    get FOLDERS byte
+    get FILES short
+    getdstring NAME NAMESZ
+    string PATH + NAME
+    string PATH + /
+    for i = 0 < FILES
+        get NAMESZ byte
+        get DUMMY byte  # 3, 0xc, 0x10?
+        get DUMMY short # 0xffff
+        get ZSIZE long
+        get SIZE long
+        getdstring NAME NAMESZ
+        savepos OFFSET
+        string NAME p "%s%s" PATH NAME
+        if SIZE == 0
+            log NAME OFFSET ZSIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+        math OFFSET + ZSIZE
+        goto OFFSET
+        padding 4
+    next i
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction

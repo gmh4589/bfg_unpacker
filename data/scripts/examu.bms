@@ -1,0 +1,15 @@
+# PS3 Examu FPK
+#   Aquapazza: Aquaplus Dream Match
+#   Nitroplus Blasterz: Heroines Infinite Duel
+
+endian big
+get FILES long
+get NAMES_OFF long
+get NAMES_SIZE long
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x10 MEMORY_FILE
+    log NAME OFFSET SIZE
+next i

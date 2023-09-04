@@ -1,0 +1,46 @@
+# Luigi's Mansion 2: Dark Moon .data/.dict
+
+open FDDE "dict"
+
+get DUMMY long  # 0xa9f32458
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ZERO long
+get DUMMY long
+
+savepos BCK_OFF
+math LAST_ARCHIVE_NUM = -1
+for EXTRACT = 0 < 2
+    goto BCK_OFF
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get FLAGS short
+        get ARCHIVE_NUM byte
+        get DUMMY byte  # 0 or 1
+
+        if EXTRACT != 0
+            if LAST_ARCHIVE_NUM != ARCHIVE_NUM
+                math LAST_ARCHIVE_NUM = ARCHIVE_NUM
+                savepos TMP
+                goto ARCHIVE_NAMES_OFF
+                for x = 0 <= ARCHIVE_NUM
+                    get EXT string
+                next x
+                goto TMP
+                get TMP basename
+                string TMP + EXT
+                open FDSE TMP 1
+            endif
+
+            clog "" OFFSET ZSIZE SIZE 1
+        endif
+    next i
+
+    savepos ARCHIVE_NAMES_OFF
+next EXTRACT

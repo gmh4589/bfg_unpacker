@@ -1,0 +1,31 @@
+# James Bond 007 Everything or Nothing
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype ea
+get DUMMY long
+if DUMMY > 0xffff
+    endian big
+endif
+get DUMMY long
+get DUMMY long
+get FILES long
+get OFFSET long
+get XFILES long
+math TMP = XFILES
+math TMP *= 0x18
+math OFFSET += TMP
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get XSIZE long
+    get SIZE long
+    get ZERO long
+    get FLAGS long
+    math OFFSET x= 0x800
+    if FLAGS & 0x04000000
+        clog "" OFFSET SIZE XSIZE
+    else
+        log "" OFFSET SIZE
+    endif
+    math OFFSET += SIZE
+next i

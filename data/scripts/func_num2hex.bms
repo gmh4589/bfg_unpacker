@@ -1,0 +1,20 @@
+startfunction num2hex
+   strlen LENGTH TOHEX
+   if LENGTH == 8
+      string TOHEX p= "0x%08x" TOHEX
+   elif LENGTH == 7
+      string TOHEX p= "0x%07x" TOHEX
+   elif LENGTH == 6
+      string TOHEX p= "0x%06x" TOHEX
+   elif LENGTH == 5
+      string TOHEX p= "0x%05x" TOHEX
+   elif LENGTH == 4
+      string TOHEX p= "0x%04x" TOHEX
+   elif LENGTH == 3
+      string TOHEX p= "0x%03x" TOHEX
+   elif LENGTH == 2
+      string TOHEX p= "0x%02x" TOHEX
+   elif LENGTH == 1
+      string TOHEX p= "0x%01x" TOHEX
+   endif
+endfunction

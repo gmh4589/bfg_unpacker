@@ -1,0 +1,43 @@
+# Smash Online (NPK files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype LZO1X
+
+get DUMMY long
+get DUMMY long
+get FILES_OFFSET long
+get NAMESZ short
+getdstring NAME NAMESZ  # version of the file
+get FOLDERS short
+
+savepos OFFSET
+for i = 0 < FOLDERS
+    get NAMESZ short
+    getdstring NAME NAMESZ
+next i
+savepos SIZE
+math SIZE -= OFFSET
+log MEMORY_FILE OFFSET SIZE
+
+get FILES long
+
+for i = 0 < FILES
+    get CRC32 long
+    get TYPE byte
+    get SIZE long
+    get ZSIZE long
+    get FOLDER_NUM long
+    get OFFSET long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+
+    set FULLNAME ""
+    goto 0 MEMORY_FILE
+    for j = 0 <= FOLDER_NUM
+        get FOLDERSZ short MEMORY_FILE
+        getdstring FULLNAME FOLDERSZ MEMORY_FILE
+    next j
+    string FULLNAME += NAME
+
+    clog FULLNAME OFFSET ZSIZE SIZE
+next i

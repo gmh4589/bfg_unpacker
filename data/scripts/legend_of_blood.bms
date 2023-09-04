@@ -1,0 +1,24 @@
+# Legend of Blood
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "EXC"
+for EXTRACT = 0 < 2
+    goto 3
+    get NAMESZ long
+    getdstring PATH NAMESZ
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        get OFFSET long
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            set FNAME string PATH
+            string FNAME += /
+            string FNAME += NAME
+            log FNAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

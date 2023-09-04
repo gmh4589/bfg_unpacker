@@ -1,0 +1,19 @@
+# Mad Monkey Studio / Deal or No Deal: The Banker Is Back / Fort Boyard
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "toc"
+open FDDE "dat" 1
+
+get FILES long
+for i = 0 < FILES
+    get ID long
+    get NAME_CRC long
+    get SIZE long
+    get OFFSET long
+    get OFFSET long
+    get OFFSET long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    log "" OFFSET SIZE 1
+next i

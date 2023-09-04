@@ -1,0 +1,13 @@
+# Hyrule Warriors Legends
+
+open FDDE "idx"
+open FDDE "bin" 1
+get FILES asize
+math FILES / 8
+for i = 0 < FILES
+    get SIZE Long
+    get OFFSET long
+    if SIZE != 0
+        log "" OFFSET SIZE 1
+    endif
+next i

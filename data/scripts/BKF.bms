@@ -1,0 +1,12 @@
+<bms games="'Motoracer', 'Motoracer GP'" platforms="'PC'" ext="BKF">
+ImpType Standard ;
+Get FILENUM Long 0 ;
+For X = 1 To FILENUM ;
+GetDString FNAME 36 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next X ;
+</bms>

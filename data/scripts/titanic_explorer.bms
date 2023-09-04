@@ -1,0 +1,76 @@
+# Titanic Explorer cxt (Shockwave with filenames and padding)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math FILES = 0
+math FILES2 = 0
+
+getdstring RIFF_SIGN 4  # RIFF/RIFFX or any other
+
+get SIZE long
+endian guess SIZE
+getdstring WAVE_SIGN 4  #idstring "WAVE"
+get RIFF_SIZE asize
+savepos NEXT_OFF
+for NEXT_OFF = NEXT_OFF < RIFF_SIZE
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+
+    savepos CHUNK_OFF
+    xmath NEXT_OFF "CHUNK_OFF + CHUNK_SIZE"
+
+    if CHUNK_TYPE u== "CASt"
+
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get ZERO long
+        get ZERO long
+        get NUM long
+        get DUMMY long
+        getdstring DUMMY 10
+        get NUM long
+        for x = 0 < NUM
+            get DUMMY long
+        next x
+        get TYPE long
+        get NAMESZ byte
+        if NAMESZ != 0
+            getdstring NAME NAMESZ
+        if NAME & "-->"
+        else
+            putarray 0 FILES NAME
+            math FILES + 1
+        endif
+        endif
+
+    elif CHUNK_TYPE & "map"
+    elif CHUNK_TYPE & "ctx"
+    elif CHUNK_TYPE u== "KEY*"
+    elif CHUNK_TYPE u== "DRCF"
+    elif CHUNK_TYPE u== "CAS*"
+    elif CHUNK_TYPE u== "CAS*"
+    elif CHUNK_TYPE u== "sndH"
+    elif CHUNK_TYPE u== "Lscr"
+    elif CHUNK_TYPE u== "Lnam"
+    elif CHUNK_TYPE u== "Cinf"
+
+    else
+
+        if CHUNK_SIZE != 0  # skip ediM, snd, cupt and so on
+            if FILES2 < FILES
+                string NAME p "%s/." CHUNK_TYPE
+                getarray NAME 0 FILES2
+                math FILES2 + 1
+            else
+                string NAME p "%s/." CHUNK_TYPE
+            endif
+
+            log NAME CHUNK_OFF CHUNK_SIZE
+        endif
+
+    endif
+
+    goto NEXT_OFF
+    padding 2
+next

@@ -1,0 +1,205 @@
+# Dark Souls and other FromSoftware games (script 0.2.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+endian big
+set FOLDER string ""
+math OFFSET = 0
+
+get EXT extension
+open FDDE "chrtpfbhd" 1 EXISTS
+if EXISTS == 0
+    open FDDE "bhd" 1 EXISTS
+endif
+if EXISTS == 0
+    if EXT & "bnd"
+        open FDDE EXT 1 EXISTS
+    else
+        open FDDE "bnd" 1 EXISTS
+    endif
+endif
+if EXISTS != 0
+    # endian little
+    callfunction DUMP_BHF_BDF 1
+    cleanexit
+endif
+
+open FDDE "bhd5"
+open FDDE "bdt" 1
+
+idstring "BHD5"
+get ZERO long
+get ONE long
+endian guess ONE
+get BHD5_SIZE long
+get BHD5_FOLDERS long
+get DUMMY long
+
+savepos TMP
+    get BHD5_FILES long
+    get OFFSET long
+math METHOD = 0
+if OFFSET == 0
+    math METHOD = 1
+else
+    goto TMP
+endif
+
+for FOLDER = 0 < BHD5_FOLDERS
+    get BHD5_FILES long
+    if METHOD == 0
+        get OFFSET long
+    else
+        get ONE long
+        get OFFSET longlong
+    endif
+
+    savepos TMP
+    goto OFFSET
+    for FILE = 0 < BHD5_FILES
+        get NAME_CRC long
+        get SIZE long
+        get OFFSET longlong
+        string NAME p= "%d/" FOLDER
+
+        goto OFFSET 1
+        getdstring SIGN 3 1
+        if SIGN == "BHF"
+            callfunction DUMP_BHF_BDF 1
+        elif SIGN == "BDF"
+            # do nothing because it's already handled and extracted by DUMP_BHF_BDF
+        else
+            log NAME OFFSET SIZE 1
+        endif
+    next FILE
+    goto TMP
+next FOLDER
+
+# BHF and BDF
+startfunction DUMP_BHF_BDF
+    get EXT extension 1
+    get MYASIZE asize
+    goto OFFSET 1
+    math IS_BND = 0
+    if EXT & "bnd"  # bnd, texbnd and so on
+        math IS_BND = 1
+        idstring 1 "BND"
+    else
+        idstring 1 "BHF"
+    endif
+    get VER byte 1
+    if VER <= '4'
+        get DUMMY long 1
+        get DUMMY long 1
+    else    # '5'
+        padding 0x10 1
+    endif
+    get FILES long 1
+    endian guess FILES
+    if VER <= '4'
+        goto 0x40 1
+        for i = 0 < FILES
+            get FLAGS long 1
+            get DUMMY long 1
+            get SIZE longlong 1
+            get XSIZE longlong 1
+            get OFFSET longlong 1
+            if IS_BND == 0
+                get NAME_IDX long 1
+            endif
+            get NAME_OFF long 1
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i XSIZE
+            savepos TMP 1
+            goto NAME_OFF 1
+            get NAME string 1
+            putarray 3 i NAME
+            goto TMP 1
+        next i
+    else
+        padding 0x10 1
+        for i = 0 < FILES
+            get FLAGS long 1
+            get SIZE long 1
+            get OFFSET long 1
+            get NAME_IDX long 1
+            get DUMMY long 1    # NAME_OFF
+            get XSIZE long 1
+            putarray 0 i OFFSET
+            putarray 1 i SIZE
+            putarray 2 i XSIZE
+        next i
+        for i = 0 < FILES
+            get NAME string 1
+            putarray 3 i NAME
+        next i
+    endif
+
+    if EXT == "chrtpfbhd"
+        open FDDE "chrtpfbdt" 1
+    elif EXT == "bhd"
+        open FDDE "bdt" 1
+    endif
+
+    math BASE_OFF = 0
+    if EXT != "bhd"
+    if IS_BND == 0
+        padding 0x10 1
+        savepos BASE_OFF 1
+        idstring 1 "BDF"
+    endif
+    endif
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        getarray XSIZE  2 i
+        getarray NAME   3 i
+        if XSIZE != 0
+            math TMP = OFFSET
+            math TMP + SIZE
+            if TMP u<= MYASIZE
+                math OFFSET += BASE_OFF
+                if FOLDER != ""
+                    string NAME p= "%d/%s" FOLDER NAME
+                endif
+                if SIZE == XSIZE
+                    log NAME OFFSET SIZE 1
+                else
+                    goto OFFSET 1
+                    getdstring SIGN 4 1
+                    if SIGN u== "DCX"
+                        get CHUNK_SIZE long 1
+                        get DUMMY long 1
+                        get DUMMY long 1
+                        get DUMMY long 1
+                        get CHUNKS_BASE_OFF long 1
+                        getdstring DUMMY 0x58 1
+                        xmath CHUNKS "(CHUNKS_BASE_OFF - 0x50) / (8 + 4 + 4)"
+                        math CHUNKS_BASE_OFF + 0x20
+                    else
+                        get CHUNKS_BASE_OFF long 1
+                        get CHUNKS long 1
+                        get CHUNK_SIZE long 1
+                        math CHUNKS_BASE_OFF - 0x18
+                    endif
+                    math CHUNKS_BASE_OFF + OFFSET
+                    log NAME 0 0 1  # in case of duplicates
+                    append
+                    for x = 0 < CHUNKS
+                        get CHUNK_OFF longlong 1
+                        get CHUNK_ZSIZE long 1
+                        get CHUNK_ZIP long 1
+                        math CHUNK_OFF + CHUNKS_BASE_OFF
+                        if CHUNK_ZIP == 0
+                            log NAME CHUNK_OFF CHUNK_ZSIZE 1
+                        else
+                            clog NAME CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE 1
+                        endif
+                    next x
+                    append
+                endif
+            endif
+        endif
+    next i
+endfunction

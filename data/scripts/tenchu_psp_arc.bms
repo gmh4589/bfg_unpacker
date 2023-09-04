@@ -1,0 +1,18 @@
+# Tenchu Shadow Assassins (PSP ARC)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Archive\0"
+get ZERO long
+get DUMMY long
+get FILES long
+get BASE_OFF long
+padding 0x10
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    padding 0x10
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,42 @@
+# Amiibo (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get NAME basename
+getdstring SIGN 4
+if SIGN u== "ZCMP"
+    #idstring "\x12\x34"
+    #get DUMMY short
+    get DUMMY long
+    get VER long
+    endian guess VER
+    get ZERO long
+    get SIZE long
+    get ZSIZE asize
+    math OFFSET = 0x80
+    math ZSIZE - OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+    set EXT extension NAME
+    if EXT != "cbarc"
+        cleanexit
+    endif
+    open "." NAME
+    set NAME basename NAME
+endif
+
+string NAME + /
+goto 0
+idstring "CA01"
+get FILES long
+endian guess FILES
+get BASE_OFF long
+for i = 0 < FILES
+    get OFFSET[i] long
+next i
+for i = 0 < FILES
+    get SIZE long
+    math OFFSET[i] + BASE_OFF
+    log NAME OFFSET[i] SIZE
+next i
+
+print "Uuse http://aluigi.org/bms/splatoon_sarc.bms with the extracted SAR files"

@@ -1,0 +1,20 @@
+# TerraGlyph TGR / Hansel and Gretel & The Enchanted Castle
+
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    getdstring DUMMY 7
+    get OFFSET long
+    get ZERO long
+
+    savepos TMP
+    goto OFFSET
+    get FILES long
+    for i = 0 < FILES
+        getdstring DUMMY 7
+        get OFFSET long
+        get SIZE long
+        string NAME p "%d/" FOLDER
+        log NAME OFFSET SIZE
+    next i
+    goto TMP
+next FOLDER

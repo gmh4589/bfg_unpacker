@@ -1,0 +1,24 @@
+# Red Faction
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIGN long
+get VER long
+get FILES long
+get VPP_SIZE long
+
+math OFFSET = FILES
+math OFFSET *= 0x40
+math OFFSET += 0x800
+goto 0x800
+
+for i = 0 < FILES
+    getdstring NAME 0x3c
+    get SIZE long
+
+    if OFFSET % 0x800
+        math OFFSET += 0x7ff
+        math OFFSET &= 0xfffff800
+    endif
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

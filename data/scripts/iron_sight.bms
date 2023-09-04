@@ -1,0 +1,66 @@
+# Iron Sight (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction SET_KEY 1
+print "KEY  %KEY|x%"
+print "IVEC %IVEC|x%"
+
+idstring "RPKG"
+get VER long
+getdstring NAME 0x80
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+
+    savepos TMP
+    goto OFFSET
+    get XSIZE long
+    math SIZE   - 4
+    math OFFSET + 4
+    goto TMP
+
+    math FILENUM = 0    # compatibility with encryption
+    if FLAGS & 2
+        encryption seed_cbc KEY IVEC 0 16
+        log MEMORY_FILE OFFSET XSIZE 0 SIZE # padding stuff
+        encryption "" ""
+        math OFFSET = 0
+        math FILENUM = -1
+        get SIZE asize FILENUM  # same as old XSIZE
+        get XSIZE long FILENUM
+        math SIZE   - 4
+        math OFFSET + 4
+    endif
+
+    if FLAGS & 1
+        clog NAME OFFSET SIZE XSIZE FILENUM
+    else
+        log  NAME OFFSET      XSIZE FILENUM
+    endif
+next i
+
+startfunction SET_KEY
+    # code and keys by d3v1l401
+    # https://github.com/d3v1l401/IronSightExtractor/blob/0.0.1/ISExtractor/Crypto/Crypto.h
+    # https://github.com/d3v1l401/IronSightExtractor/blob/0.0.1/ISExtractor/Crypto/Crypto.cpp
+
+    set _defKey  string "0x8F4FE388, 0xF1791708, 0x3794F3E9, 0x8905D40A"
+    set _defKey2 string "0xA7668D26, 0x811AA835, 0xFAD9BA6F, 0x1251636"
+
+    string ELEMENTS S _defKey  TMP1 TMP2 TMP3 TMP4
+    set KEY string ""
+    putvarchr KEY  0  TMP1 long
+    putvarchr KEY  4  TMP2 long
+    putvarchr KEY  8  TMP3 long
+    putvarchr KEY  12 TMP4 long
+
+    string ELEMENTS S _defKey2 TMP1 TMP2 TMP3 TMP4
+    set IVEC string ""
+    putvarchr IVEC 0  TMP1 long
+    putvarchr IVEC 4  TMP2 long
+    putvarchr IVEC 8  TMP3 long
+    putvarchr IVEC 12 TMP4 long
+endfunction

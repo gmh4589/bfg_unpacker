@@ -1,0 +1,13 @@
+# 新笑傲江湖 http://xxa.wanmei.com xxa_laohu
+
+get DUMMY long  # 0x48
+get FILES long
+getdstring ZERO 0x40
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long  # 0x101
+    clog NAME OFFSET ZSIZE SIZE
+next i

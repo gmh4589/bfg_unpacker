@@ -1,0 +1,37 @@
+# The Warlords (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE tpi 0
+open FDDE tpd 1
+
+idstring "NetDragonDatPkg"
+goto 0x24
+get FILES long
+get INFO_SIZE long
+savepos INFO_OFF
+math INFO_SIZE += INFO_OFF
+get DUMMY long
+for
+    if INFO_OFF >= INFO_SIZE
+        cleanexit
+    endif
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get CHUNKS short
+    get SIZE long
+    get ZSIZE long
+    if CHUNKS > 1
+        log NAME 0 0
+        append
+    endif
+    for x = 0 < CHUNKS
+        get ZSIZE long
+        get SIZE long
+        get OFFSET long
+        clog NAME OFFSET ZSIZE SIZE 1
+    next x
+    if CHUNKS > 1
+        append
+    endif
+    savepos INFO_OFF
+next

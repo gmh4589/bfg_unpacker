@@ -1,0 +1,56 @@
+# Milestone old MIX format rebuilder (experimental)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# Usage Example:
+#   > cd c:\input_folder
+#   > quickbms -w c:\thisfile.bms output.mix .
+
+math NAMELEN = 0x10
+
+get PAK_NAME filename
+get TMP current_folder
+get INPUT_FOLDER input_folder
+if INPUT_FOLDER != TMP
+    print "Error: you must create the archive from the current folder"
+    cleanexit
+endif
+print "- start the rebuilding of the archive %PAK_NAME% in the current folder"
+
+log PAK_NAME 0 0
+log MEMORY_FILE 0 0
+append
+math OFFSET = 0
+do
+    scanDir "." NAME SIZE  # get the file from the current folder
+    # yeah last file must be null
+    if NAME != ""
+        string NAME << 2
+    endif
+    if NAME != PAK_NAME         # avoid to add the same archive to itself
+        if NAME == ""
+            math SIZE = 0
+        else
+            open "." NAME
+            log PAK_NAME 0 SIZE
+        endif
+
+        set NEW_NAME string NAME    # a bug in quickbms?
+        filexor 0x3a
+        putdstring NEW_NAME NAMELEN MEMORY_FILE
+        filexor ""
+        put OFFSET long MEMORY_FILE
+        put SIZE long MEMORY_FILE
+        put SIZE long MEMORY_FILE
+        put 0 long MEMORY_FILE
+
+        math OFFSET + SIZE
+    endif
+while NAME != ""
+get SIZE asize MEMORY_FILE
+put SIZE long MEMORY_FILE
+if NAMELEN >= 0x80
+    put 0 long MEMORY_FILE
+endif
+get SIZE asize MEMORY_FILE
+log PAK_NAME 0 SIZE MEMORY_FILE
+append

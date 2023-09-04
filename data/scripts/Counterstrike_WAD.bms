@@ -1,0 +1,17 @@
+# Counterstrike (WAD)
+
+ImpType Standard ;
+IDString 0 WAD3 ;
+Get FC Long 0 ;
+SavePos TailOffOff 0 ;
+Get TO Long 0 ;
+GoTo TO 0 ;
+For TE = 1 To FC ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+GetDString FN 8 0 ;
+Log FN FO FS #FOO FSO ;
+Next TE ;
+

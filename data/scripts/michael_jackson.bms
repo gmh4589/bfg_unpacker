@@ -1,0 +1,51 @@
+# PS3 Michael Jackson - The Experience (.bf archive)
+
+comtype lzo1x
+idstring "ABE\0"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get OFFSET long
+get DUMMY long
+get SIZE long
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+
+goto OFFSET
+get DUMMY long
+get DUMMY long
+get DUMMY long
+
+for i = 0 < FILES
+    getdstring NAME 0x50
+    get DUMMY long
+    get DUMMY long
+    get ZSIZE long
+    get DUMMY longlong
+    get DUMMY long
+    get DUMMY long
+    get OFFSET longlong
+    get SIZE long
+    getdstring DUMMY 0x50
+
+    math ZIP = 0
+    if ZSIZE < SIZE
+        math ZIP = 1
+    endif
+
+    savepos TMP
+    goto OFFSET
+    get ZSIZE long
+    get SIZE long
+    goto TMP
+    math OFFSET += 0x20
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

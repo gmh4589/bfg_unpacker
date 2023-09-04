@@ -1,0 +1,40 @@
+# Boukyaku Princess SWF
+#   derived from the work of finale00 and Ekey
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME filename
+callfunction BPHashKey 1
+
+goto 8
+get OFFSET long
+math OFFSET += 0xc
+get SIZE asize
+math SIZE -= OFFSET
+callfunction BPDecrypt 1
+
+get NAME basename
+get EXT extension
+string NAME p= "%s_dec.%s" NAME EXT
+log NAME 0 SIZE MEMORY_FILE
+
+startfunction BPHashKey
+    math pHashKey = 1234567
+    strlen NAMESZ NAME
+    for i = 0 < NAMESZ
+        getvarchr TMP NAME i
+        math pHashKey += TMP
+        math pHashKey *= 251
+    next i
+endfunction
+
+startfunction BPDecrypt
+    log MEMORY_FILE OFFSET SIZE
+    for i = 0 < SIZE
+        getvarchr TMP MEMORY_FILE i
+        math TMP ^= pHashKey
+        putvarchr MEMORY_FILE i TMP
+        math pHashKey *= 977
+        math pHashKey += 1
+    next i
+endfunction
+

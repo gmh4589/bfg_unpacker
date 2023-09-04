@@ -1,0 +1,129 @@
+# demultiplexes Electronic Arts TGQ videos
+# if audio is PCM, a valid header will automatically be added
+# (c) 2012-05-17 by AlphaTwentyThree of XeNTaX
+
+endian big
+idstring "1SNh"
+get SIZE_HEADER long
+getDstring CODEC 4
+if CODEC != "EACS"
+   print "non-recognizable codec"
+   cleanexit
+endif
+   # audio specs
+   get FREQ long
+   reverseLong FREQ
+   get CH byte
+   get BLOCKALIGN byte
+   get CODEC byte
+   if CODEC == 1 # some ADPCM
+      reverselong FREQ
+   endif
+   set BITS 0x10
+   
+log MEMORY_FILE 0 0 # reserved for audio header
+log MEMORY_FILE2 0 0 # 1SNd - audio
+log MEMORY_FILE3 0 0 # pQGT (little endian)/TGVk (big endian) - video
+set SIZE_VIDEO 0
+set SIZE_AUDIO 0
+get FSIZE asize
+
+
+for i = 0 < 2
+   set OFFSET SIZE_HEADER
+   append
+   do
+      goto OFFSET
+      getDstring TYPE 3
+      get DUMMY byte
+      get SIZE long
+      if TYPE == "pQG"
+         reverselong SIZE
+      endif
+      math OFFSET += 8
+      math SIZE -= 8
+      if TYPE == "TGV"
+         if i == 0
+            math SIZE_VIDEO += SIZE
+         else
+            log MEMORY_FILE3 OFFSET SIZE
+         endif
+      elif TYPE == "pQG"
+         if i == 0
+            math SIZE_VIDEO += SIZE
+         else
+            log MEMORY_FILE3 OFFSET SIZE
+         endif
+      elif TYPE == "1SN"
+         if i == 0
+            math SIZE_AUDIO += SIZE
+         else
+            log MEMORY_FILE2 OFFSET SIZE
+         endif
+      else
+         print "ERROR: block not recognizable - check file for consistency."
+         cleanexit
+      endif
+      math OFFSET += SIZE
+      math j += 1
+   while OFFSET != FSIZE
+   append
+   if i == 0 # prealloc memory
+      putVarChr MEMORY_FILE2 SIZE_AUDIO 0
+      putVarChr MEMORY_FILE3 SIZE_VIDEO 0
+      log MEMORY_FILE2 0 0
+      log MEMORY_FILE3 0 0
+      set SSIZE SIZE_AUDIO
+      math SSIZE += SIZE_VIDEO
+   else
+      get NAME basename
+      set SIZE SIZE_AUDIO
+      set OFFSET 0
+      if CODEC == 0
+         string NAME += ".wav"
+         callfunction PCM 1
+      elif CODEC == 1
+         string NAME += "_"
+         string NAME += FREQ
+         string NAME += "Hz_"
+         string NAME += CH
+         string NAME += "ch.aud"
+         log NAME 0 SIZE MEMORY_FILE2
+      endif
+   
+      get VNAME basename
+      string VNAME += ".vid"
+      log VNAME 0 SIZE_VIDEO MEMORY_FILE3
+   endif
+next i
+
+startfunction PCM
+   endian little
+   set PRE SIZE
+   math PRE += 0x2c
+   putVarChr MEMORY_FILE PRE 0
+   log MEMORY_FILE 0 0
+   set MEMORY_FILE binary "\x52\x49\x46\x46\x20\xC0\xB1\x00\x57\x41\x56\x45\x66\x6D\x74\x20\x10\x00\x00\x00\x01\x00\x02\x00\x44\xAC\x00\x00\x10\xB1\x02\x00\x04\x00\x10\x00\x64\x61\x74\x61\xFC\xBF\xB1\x00"
+   append
+   log MEMORY_FILE OFFSET SIZE MEMORY_FILE2
+   append
+   set RIFFSIZE SIZE
+   math RIFFSIZE += 36
+   set AVGBYTES FREQ
+   math AVGBYTES *= BLOCKALIGN
+   
+   putvarchr MEMORY_FILE 0x04 RIFFSIZE long
+   putvarchr MEMORY_FILE 0x14 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+   putvarchr MEMORY_FILE 0x16 CH short   # wChannels
+   putvarchr MEMORY_FILE 0x18 FREQ short   # dwSamplesPerSec
+   putvarchr MEMORY_FILE 0x1c AVGBYTES long    # dwAvgBytesPerSec
+   putvarchr MEMORY_FILE 0x20 BLOCKALIGN short # wBlockAlign
+   putvarchr MEMORY_FILE 0x22 BITS short       # wBitsPerSample
+   putvarchr MEMORY_FILE 0x28 SIZE long
+   if NAME == ""
+      get NAME basename
+      string NAME += ".wav"
+   endif
+   get SIZE asize MEMORY_FILE
+   log NAME 0 SIZE MEMORY_FILE
+endfunction

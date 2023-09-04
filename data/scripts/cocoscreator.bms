@@ -1,0 +1,174 @@
+# CocosCreator / cocos2d-x / app.asar (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+
+# do not use OFFSET and SIZE because they are used in JSON!
+
+get EXT extension
+get VER long    # 4
+
+if EXT == "asar"
+
+    get FILE_SIZE8 long
+    get TMP long
+    goto -4 0 SEEK_CUR
+    math TMP + 4
+    if TMP != FILE_SIZE8
+        callfunction SET_ENCRYPTION 1
+    endif
+    savepos FILE_OFFSET
+    log MEMORY_FILE FILE_OFFSET 8
+    math FILE_OFFSET + 8
+    get FILE_SIZE4 long MEMORY_FILE  # FILE_SIZE+4
+    get FILE_SIZE long MEMORY_FILE
+    log MEMORY_FILE FILE_OFFSET FILE_SIZE
+    math FILE_OFFSET + FILE_SIZE
+    encryption "" ""
+
+    math BASE_OFF = 8
+    math BASE_OFF + FILE_SIZE8
+    math MEM_SIZE = FILE_SIZE
+
+    callfunction JSON_EXTRACT 1
+
+    /*
+    # sorry, no way to handle json in quickbms
+    # and this solution is also very slow due to 'r'
+    for
+        findLoc TMP string "{\"size\"" MEMORY_FILE
+        goto TMP MEMORY_FILE
+            get TMP byte MEMORY_FILE
+        for
+            goto -2 MEMORY_FILE SEEK_CUR
+            get TMP byte MEMORY_FILE
+            if TMP == '{' || TMP == ','
+                break
+            endif
+        next
+        getct TMP string '}' MEMORY_FILE
+        string TMP R "\"" ""
+        string TMP R "{" ""
+        string TMP R ":" ","
+        string TMP S TMP NAME SIZE_STR FILE_SIZE FILE_OFFSET_STR FILE_OFFSET
+        math FILE_OFFSET + BASE_OFF
+        log NAME FILE_OFFSET FILE_SIZE
+    next
+    */
+
+else
+
+    get FILES long
+    math FOLDER_NUM = -1    # try to guess a possible folder
+    math LAST_ID = -1
+    get DUMMY byte
+    for i = 0 < FILES
+        get ID short
+        get FILE_OFFSET long
+        putarray 0 i FILE_OFFSET
+        if ID != LAST_ID
+            math FOLDER_NUM + 1
+        endif
+        putarray 1 i FOLDER_NUM
+        math LAST_ID = ID
+        math LAST_ID + 1
+    next i
+
+    get FILE_OFFSET asize
+    putarray 0 i FILE_OFFSET
+    sortarray 0 1
+
+    for i = 0 < FILES
+        getarray FOLDER_NUM 1 i
+        getarray FILE_OFFSET 0 i
+        math i + 1
+        getarray FILE_SIZE   0 i
+        math FILE_SIZE - FILE_OFFSET
+        string NAME p "%d/" FOLDER_NUM
+        log NAME FILE_OFFSET FILE_SIZE
+    next
+
+endif
+
+startfunction SET_ENCRYPTION
+    encryption md5 "filr-ball-electron-2015"    # puts the MD5 of that key in QUICKBMS_HASH
+    encryption rc4 QUICKBMS_HASH "" 0 16
+endfunction
+
+# just a work-around for being able to handle the directory tree
+startfunction JSON_EXTRACT
+    set PATH string ""
+    math LEVEL = 0
+    math PAR_VAL = 0
+        set NAME string ""
+        set LAST_VAR string ""
+    for
+        savepos TMP MEMORY_FILE
+        if TMP >= MEM_SIZE
+            break
+        endif
+
+        set VAR string ""
+        get TMP byte MEMORY_FILE
+        if TMP == 0x22
+            getct VAR string 0x22 MEMORY_FILE
+        elif TMP == ':'
+            math PAR_VAL = 1
+        elif TMP == ' '
+        elif TMP == ','
+        elif TMP == '{'
+            math LEVEL + 1
+        elif TMP == '}'
+            math LEVEL - 1
+            if LEVEL & 1
+            else
+                if NAME != ""
+                    math TMP = LEVEL
+                    math TMP / 2
+                    set FNAME string ""
+                    for x = 0 < TMP
+                        getarray STR 0 x
+                        string FNAME + STR
+                        string FNAME + /
+                    next x
+                    string FNAME + NAME
+                    math FILE_OFFSET + BASE_OFF
+                    log FNAME FILE_OFFSET FILE_SIZE
+                    set NAME string ""
+                endif
+            endif
+        else
+            math VAR = 0
+            goto -1 MEMORY_FILE SEEK_CUR
+            do  # very lame solution but quickbms doesn't work well with strings
+                get TMP byte MEMORY_FILE
+                math TMP - '0'
+                if TMP >= 0 && TMP <= 9
+                    math VAR * 10
+                    math VAR + TMP
+                else
+                    math TMP = -1
+                endif
+            while TMP >= 0
+            goto -1 MEMORY_FILE SEEK_CUR
+        endif
+        if TMP != ':'
+            math PAR_VAL = 0
+        endif
+        if VAR != ""
+            if LEVEL & 1
+                if VAR == "files"
+                    math TMP = LEVEL
+                    math TMP / 2
+                    putarray 0 TMP LAST_VAR
+                elif LAST_VAR == "offset"
+                    math FILE_OFFSET = VAR
+                elif LAST_VAR == "size"
+                    math FILE_SIZE = VAR
+                endif
+            else
+                set NAME string VAR
+            endif
+            set LAST_VAR string VAR
+        endif
+    next
+endfunction

@@ -1,0 +1,80 @@
+# Resident Evil 4 lfs fen (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+if EXT == "lfs"
+
+    idstring "RDLX"
+    get DUMMY long  # 0xfeeebaaa
+    get SIZE long
+    get ZSIZE long
+    get ZIP long
+    get DUMMY long
+    get DUMMY long
+    get ZERO long
+    get ZERO long
+    savepos OFFSET
+    comtype xmemdecompress
+    clog NAME OFFSET ZSIZE SIZE
+
+elif EXT == "fen"
+
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    clog NAME OFFSET ZSIZE SIZE
+
+elif EXT == "dat"   # ss_file.dat
+
+    get FILES long
+    goto 0x10
+    for i = 0 < FILES
+        get OFFSET long
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    for i = 0 < FILES
+        getdstring NAME 4
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        string NAME + /
+        log NAME OFFSET SIZE
+    next
+
+elif EXT == "crc"
+
+    idstring "ZLDR"
+    get SIZE long   # seems wrong
+    savepos OFFSET
+    get SIZE asize
+    math SIZE - OFFSET
+    string NAME + ".segs"
+    log NAME OFFSET SIZE
+
+elif EXT == "pack"
+
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET longlong
+        savepos TMP
+        goto OFFSET
+        get SIZE long
+        get XSIZE long  # -1, it may be a decompressed size (no samples)
+        get DUMMY long  # same as the first 32bit in pack
+        get ZERO long
+        savepos OFFSET
+        if XSIZE == 0xffffffff
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET SIZE XSIZE
+        endif
+        goto TMP
+    next i
+
+endif

@@ -1,0 +1,34 @@
+# Basaltic Online (doesn't decrypt the files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK\0"
+goto 0x19
+get OFFSET long
+get SIZE long
+get ZSIZE long
+get BASE_OFF long
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get FILES long MEMORY_FILE
+    get FOLDERS long MEMORY_FILE
+    get NAME string MEMORY_FILE
+    string PATH += NAME
+    string PATH += /
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAME string MEMORY_FILE
+        math OFFSET += BASE_OFF
+        set FNAME string PATH
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    next i
+endfunction

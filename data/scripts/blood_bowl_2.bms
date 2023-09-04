@@ -1,0 +1,35 @@
+# Blood Bowl 2 (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+
+get VER long
+get FILES long
+    getdstring NAME 0x200
+
+xmath INFO_SIZE "FILES * (4 + 4 + 0x200)"
+if VER == 0x1439855
+    savepos OFFSET
+    log MEMORY_FILE OFFSET INFO_SIZE
+elif VER == 0x1439856
+    get ZSIZE long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE INFO_SIZE
+else
+    print "Error: unknown version %VER|x%, contact me"
+    cleanexit
+endif
+
+for i = 0 < FILES
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    getdstring NAME 0x200 MEMORY_FILE
+    if VER == 0x1439855
+        log NAME OFFSET SIZE
+    else
+        goto OFFSET
+        get XSIZE long
+        savepos OFFSET
+        clog NAME OFFSET SIZE XSIZE
+    endif
+next i

@@ -1,0 +1,19 @@
+# Football Manager 21 db.dat
+
+comtype zstd
+get DUMMY byte  # 3
+get DUMMY byte  # 1
+idstring "tad."
+get DUMMY short # 0x0b91, not the number of files
+get DAT_SIZE asize
+for i = 0
+    savepos TMP
+    if TMP == DAT_SIZE
+        break
+    endif
+    get SIZE long
+    savepos OFFSET
+    string NAME p "%d" i
+    clog NAME OFFSET SIZE SIZE
+    goto SIZE 0 SEEK_CUR
+next i

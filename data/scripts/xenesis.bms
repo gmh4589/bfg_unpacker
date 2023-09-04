@@ -1,0 +1,123 @@
+# Xenesis File System
+#   Wolf Team and maybe other AeriaGames titles
+#
+#   The archives are incrementally updated after every
+#   patch and the new file table is appended at the end,
+#   that's the reason why the total amount of extracted
+#   files is minor than the original (big) archive size.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+# XFS2 uses a 32bit offset instead of 48 bit one so let's use a work-around to guess it
+get TMP asize
+if TMP u> 0xffffffff
+    get OFFSET48 short 
+    xmath OFFSET "OFFSET | (OFFSET48 << 32)"
+endif
+goto OFFSET
+get ZSIZE byte
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE 0x40
+
+idstring MEMORY_FILE "XFS"
+get XFS_VERSION byte MEMORY_FILE
+get DUMMY long MEMORY_FILE
+get ENTRIES long MEMORY_FILE
+get ZERO long MEMORY_FILE
+get XFS_OFFSET long MEMORY_FILE
+
+math OFFSET + ZSIZE
+goto OFFSET
+if XFS_VERSION == ' '
+    get INFO_SIZE threebyte
+    get INFO_ZSIZE threebyte
+else
+    get INFO_ZSIZE threebyte
+    xmath INFO_SIZE "ENTRIES * 0x80"
+endif
+savepos OFFSET
+clog MEMORY_FILE OFFSET INFO_ZSIZE INFO_SIZE
+
+if XFS_VERSION == ' '
+    set PATH string ""
+    set NAME string ""
+    callfunction EXTRACT
+
+elif XFS_VERSION == '2'
+    for INFO_OFF = 0 < INFO_SIZE
+        getdstring NAME 0x70 MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get DUMMY long MEMORY_FILE  # 1
+        get SIZE long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        savepos INFO_OFF MEMORY_FILE
+        callfunction EXTRACT_FILE 1
+    next
+
+else
+    print "Error: unknown XFS version %XFS_VERSION%"
+    cleanexit
+endif
+
+
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    get ENTRIES long MEMORY_FILE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get OFFSET48 short MEMORY_FILE
+    xmath OFFSET "OFFSET | (OFFSET48 << 32)"
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get IS_FILE byte MEMORY_FILE
+
+    if IS_FILE != 0
+        string NAME p "%s%s" PATH NAME
+        callfunction EXTRACT_FILE 1
+    endif
+
+    for i = 0 < ENTRIES
+        callfunction EXTRACT
+    next i
+endfunction
+
+
+
+startfunction EXTRACT_FILE
+    xmath END_OFFSET "OFFSET + ZSIZE"
+    putvarchr MEMORY_FILE2 SIZE 0
+    log MEMORY_FILE2 0 0
+    append
+    for OFFSET = OFFSET != END_OFFSET
+        goto OFFSET
+        get CHUNK_SIZE threebyte
+        xmath FLAGS "CHUNK_SIZE >> 22"
+        math CHUNK_SIZE & 0x3fffff
+
+        if FLAGS & 2
+            if FLAGS & 1
+            else
+                get CHUNK_ZSIZE threebyte
+            endif
+        endif
+        if FLAGS == 0
+            math CHUNK_ZSIZE = CHUNK_SIZE
+            math CHUNK_SIZE = 0x10000
+        endif
+        get DUMMY short
+        savepos OFFSET
+
+        if FLAGS & 1
+            log MEMORY_FILE2 OFFSET CHUNK_SIZE
+            math OFFSET + CHUNK_SIZE
+        else
+            clog MEMORY_FILE2 OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            math OFFSET + CHUNK_ZSIZE
+        endif
+    next
+    append
+    log NAME 0 SIZE MEMORY_FILE2
+endfunction

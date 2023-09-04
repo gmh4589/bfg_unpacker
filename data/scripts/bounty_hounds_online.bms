@@ -1,0 +1,25 @@
+# Bounty Hounds Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZERO longlong
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x30
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    
+    savepos TMP
+    goto OFFSET
+    get TYPE byte
+    if TYPE == 0x01
+        math ZSIZE -= 1
+        comtype lzma
+        savepos OFFSET
+    else
+        comtype zlib    # old format
+    endif
+    clog NAME OFFSET ZSIZE SIZE
+    goto TMP
+next i

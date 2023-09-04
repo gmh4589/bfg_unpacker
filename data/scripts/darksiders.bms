@@ -1,0 +1,95 @@
+# Darksiders (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "OBPK\0"
+get DUMMY1 long
+endian guess DUMMY1
+get DUMMY2 long
+get DUMMY3 long
+get DUMMY byte
+get DUMMY4 long
+get DUMMY5 long
+get NUM long
+for i = 0 < NUM
+    callfunction GET_NAME 1
+next i
+get NAMES long
+for i = 0 < NAMES
+    callfunction GET_NAME 1
+    putarray 0 i NAME_HASH
+    putarray 1 i NAME
+next i
+
+get DIR_TREE_SIZE long
+getdstring DIR_TREE DIR_TREE_SIZE
+
+get FOLDERS long
+for i = 0 < FOLDERS
+    get NAME_HASH longlong
+    get FILES long
+    callfunction HASH2NAME 1
+    putarray 10 i FILES
+    putarray 11 i NAME
+next i
+
+math OFFSET = 0
+for FOLDER = 0 < FOLDERS
+    getarray FILES 10 FOLDER
+    getarray PATH  11 FOLDER
+
+    for i = 0 < FILES
+        get NAME_HASH longlong
+        get SIZE long
+        get FLAGS byte
+        get DUMMY long
+        get ZERO long
+        #if ZERO != 0    # or FLAGS & 1|2 (I don't know the exact bit)
+        if FLAGS & 2
+            getdstring ZERO 3
+        endif
+        if FLAGS & 8
+            getdstring DUMMY 8
+        endif
+
+        callfunction HASH2NAME 1
+        string FNAME p "%s/%s." PATH NAME
+        putarray 2 -1 OFFSET
+        putarray 3 -1 SIZE
+        putarray 4 -1 FNAME
+        math OFFSET + SIZE
+    next i
+next FOLDER
+
+padding 0x1000
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+putarray 2 -1 -1
+for i = 0
+    getarray OFFSET 2 i
+    if OFFSET < 0
+        break
+    endif
+    getarray SIZE   3 i
+    getarray NAME   4 i
+    log NAME OFFSET SIZE MEMORY_FILE
+next i
+
+startfunction HASH2NAME
+    set NAME string ""
+    for x = 0 < NAMES
+        getarray TMP 0 x
+        if TMP == NAME_HASH
+            getarray NAME 1 x
+        endif
+    next x
+endfunction
+
+startfunction GET_NAME
+    get NAME_HASH longlong
+    get NAMESZ long
+    getdstring NAME NAMESZ
+endfunction

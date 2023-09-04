@@ -1,0 +1,57 @@
+# Hot Wheels World Race (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "BAH"
+open FDDE "BAD" 1
+
+comtype lzss "12 4 2 2 0"   # lzss with init_chr 0x00
+idstring "Bark"
+get REST_OF_SIGN string
+
+# guess endianess
+padding 4
+get DUMMY long
+endian guess DUMMY
+goto -4 0 SEEK_CUR
+
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    padding 4
+    get DUMMY long
+    get FILES long
+    get FOLDERS long
+    get DUMMY long
+    get NAME string
+    string PATH += NAME
+    string PATH += /
+
+    for j = 0 < FILES
+        padding 4
+        get DUMMY long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+        get CRC long
+        get NAME string
+
+        set FNAME string PATH
+        string FNAME += NAME
+
+        goto OFFSET 1
+        get ZIP long 1
+        get SIZE long 1
+        savepos OFFSET 1
+        math ZSIZE -= 8
+        if ZIP == 0
+            log FNAME OFFSET SIZE 1
+        else
+            clog FNAME OFFSET ZSIZE SIZE 1
+        endif
+    next j
+
+    for j = 0 < FOLDERS
+        callfunction EXTRACT
+    next j
+endfunction

@@ -1,0 +1,40 @@
+# Octogeddon (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AYGP"
+get ZERO long
+get DUMMY long  # 4
+goto 0x20
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get DUMMY long
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    string PATH + NAME
+    string PATH + /
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+    get FILES long
+    for i = 0 < FILES
+        get SIZE long
+        savepos TMP
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        savepos OFFSET
+        xmath SIZE "SIZE - (OFFSET - TMP)"
+        string NAME p "%s%s" PATH NAME
+
+        # https://github.com/ash47/OctogeddonHacks/blob/master/Unpacker/encryption.js
+        math KEY = 0x01020304
+        math KEY + SIZE
+        encryption "incremental xor 32" KEY 1   # current quickbms doesn't support 32bit forced mode
+
+        log NAME OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next i
+endfunction

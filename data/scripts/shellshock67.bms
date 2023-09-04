@@ -1,0 +1,86 @@
+# ShellShock Nam67
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "ASSETS.DAT"
+get total_size long
+get files long
+get assets long
+get dunno1 long
+get dunno2 long
+get dunno3 long
+
+math assets -= 1
+if assets >= 1
+    open FDSE ASSETS01.dat 1
+endif
+if assets >= 2
+    open FDSE ASSETS02.dat 2
+endif
+if assets >= 3
+    open FDSE ASSETS03.dat 3
+endif
+if assets >= 4
+    open FDSE ASSETS04.dat 4
+endif
+if assets >= 5
+    open FDSE ASSETS05.dat 5
+endif
+if assets >= 6
+    open FDSE ASSETS06.dat 6
+endif
+if assets >= 7
+    open FDSE ASSETS07.dat 7
+endif
+if assets >= 8
+    open FDSE ASSETS08.dat 8
+endif
+if assets >= 9
+    open FDSE ASSETS09.dat 9
+endif
+if assets >= 10
+    open FDSE ASSETS10.dat 10
+endif
+
+for i = 0 < FILES
+    get size long
+    get offset long
+    get name_offset long
+    get asset long
+
+    if offset != 0
+    if size != 0
+        savepos INFO_OFF
+        math name_offset += 24
+        goto name_offset
+        get NAME string
+        goto INFO_OFF
+
+        if asset == 0
+            log NAME offset size 0
+        elif asset == 1
+            log NAME offset size 1
+        elif asset == 2
+            log NAME offset size 2
+        elif asset == 3
+            log NAME offset size 3
+        elif asset == 4
+            log NAME offset size 4
+        elif asset == 5
+            log NAME offset size 5
+        elif asset == 6
+            log NAME offset size 6
+        elif asset == 7
+            log NAME offset size 7
+        elif asset == 8
+            log NAME offset size 8
+        elif asset == 9
+            log NAME offset size 9
+        elif asset == 10
+            log NAME offset size 10
+        else
+            print "unsupported asset %asset%"
+            cleanexit
+        endif
+    endif
+    endif
+next i

@@ -1,0 +1,124 @@
+# Just Cause ONLY FOR MUSIC.SAB/SOB!!! (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE SAB 0
+open FDDE SOB 1
+
+get CTF2 long 1
+get DUMMY long 1
+get FILES long 1
+get DUMMY long 1
+
+# scanner
+for i = 0 < FILES
+    getdstring DUMMY 0x48 1 # minimum size?
+next i
+for OK = 0 == 0
+    get ZERO long 1
+    if ZERO == 0
+        savepos TMP_OFF 1
+        get NAMESZ long 1
+        if NAMESZ >= 3
+        if NAMESZ <= 0x40
+            getdstring TMP NAMESZ 1
+            strlen TMPSZ TMP
+            if TMPSZ == NAMESZ
+                math OK = 1
+            endif
+        endif
+        endif
+        goto TMP_OFF 1
+    endif
+next
+math TMP_OFF -= 4
+goto TMP_OFF 1
+
+for i = 0 < FILES
+    get NUM long 1
+    get NAMESZ long 1
+    getdstring NAME NAMESZ 1
+    putarray 0 NUM NAME
+next i
+
+get CSW2 long
+get DUMMY long
+get FILES long
+get DUMMY20 long
+get DUMMYOFF long
+get DUMMY23 long
+savepos GO_BACK
+
+set FILENAME_WORKAROUND binary "FILENAME"
+putarray 0 FILES ""
+for EXTRACT = 0 < 2
+    goto GO_BACK
+    for i = 0 < FILES
+        get FILE_HERE long
+        get CHANNELS long
+        get FREQUENCY long
+        get SIZE long
+        get DUMMY long
+        get DUMMY long
+        get OFFSET long
+        if FILE_HERE != 0
+            if EXTRACT != 0
+                set BITS long 16
+                getarray FILENAME 0 i
+                if FILENAME == FILENAME_WORKAROUND || FILENAME == ""
+                    string FILENAME p= "%08x" i
+                endif
+                get NAME basename
+                string NAME += /
+                string NAME += FILENAME
+                string NAME += ".wav"
+                math OFFSET += BASE_OFF
+                callfunction raw2wav 1
+            endif
+        endif
+    next i
+
+    padding 16
+    get NAMES long
+    if NAMES == 0
+        padding 16
+        get NAMES long
+    endif
+    get ZERO long
+    for i = 0 < NAMES
+        get DUMMY long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+    next i
+    padding 16
+
+    savepos BASE_OFF
+next EXTRACT
+
+startfunction raw2wav
+    set MEMORY_FILE binary "\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x64\x61\x74\x61\x00\x00\x00\x00"
+
+    set RIFFSIZE long SIZE
+    math RIFFSIZE += 36
+    set BLOCKALIGN long BITS
+    set AVGBYTES long FREQUENCY
+    math BLOCKALIGN /= 8
+    math BLOCKALIGN *= CHANNELS
+    math AVGBYTES *= BLOCKALIGN
+
+    putvarchr MEMORY_FILE 4 RIFFSIZE long
+    putvarchr MEMORY_FILE 20 1 short          # wFormatTag: Microsoft PCM Format (0x0001)
+    putvarchr MEMORY_FILE 22 CHANNELS short   # wChannels
+    putvarchr MEMORY_FILE 24 FREQUENCY long   # dwSamplesPerSec
+    putvarchr MEMORY_FILE 28 AVGBYTES long    # dwAvgBytesPerSec
+    putvarchr MEMORY_FILE 32 BLOCKALIGN short # wBlockAlign
+    putvarchr MEMORY_FILE 34 BITS short       # wBitsPerSample
+    putvarchr MEMORY_FILE 40 SIZE long
+
+    log MEMORY_FILE2 0 44 MEMORY_FILE
+    append
+    log MEMORY_FILE2 OFFSET SIZE
+    append
+
+    math SIZE += 44
+    log NAME 0 SIZE MEMORY_FILE2
+endfunction

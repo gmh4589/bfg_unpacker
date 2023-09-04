@@ -1,0 +1,17 @@
+# Call of Duty World At War PS3
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK0" # "0KAP" or 0KAPJW
+get DUMMY short
+get DUMMY short # 0xf8
+get FILES long
+get ALIGN long
+get BASE_OFF long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET * ALIGN
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

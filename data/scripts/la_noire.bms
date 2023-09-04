@@ -1,0 +1,63 @@
+# L.A. Noire (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 3
+goto 0
+if SIGN == "WAD"
+
+    for EXTRACT = 0 < 2
+        math NAMES_OFF = 0
+        goto 0
+        idstring "WAD\x01"
+        get FILES long
+        for i = 0 < FILES
+            get NAME_CRC long
+            get OFFSET long
+            get SIZE long
+            if EXTRACT == 0
+                math TMP = OFFSET
+                math TMP + SIZE
+                if TMP u> NAMES_OFF
+                    math NAMES_OFF = TMP
+                endif
+            else
+                getarray NAME 0 i
+                log NAME OFFSET SIZE
+            endif
+        next i
+
+        if EXTRACT == 0
+            goto NAMES_OFF
+            for i = 0 < FILES
+                get NAMESZ short
+                getdstring NAME NAMESZ
+                putarray 0 i NAME
+            next i
+        endif
+    next EXTRACT
+
+else
+
+    goto -4
+    savepos OFFSET
+    get SIZE long
+    math OFFSET - SIZE
+    goto OFFSET
+    get ZERO long
+    get DUMMY long  # 3
+    get FILES long
+    endian big
+    for i = 0 < FILES
+        get NAME_CRC long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get XSIZE long
+        if XSIZE != 0
+            math SIZE = XSIZE
+        endif
+        math OFFSET * 0x10
+        log "" OFFSET SIZE
+    next i
+
+endif

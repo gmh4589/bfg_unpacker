@@ -1,0 +1,63 @@
+# TMNT 2007 PS2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "fat" 1 EXISTS
+if EXISTS == 0
+
+    idstring "BIG\0"
+    get DUMMY long
+    get FILES long
+    math INFO_OFF = 0x44
+    math NAMES_OFF = 0x182670
+
+            goto INFO_OFF
+            get OFFSET long
+            get DUMMY long
+            savepos INFO_OFF
+    for i = 1 <= FILES
+        if i == FILES
+            get NEXT_OFFSET asize
+        else
+            goto INFO_OFF
+            get NEXT_OFFSET long
+            get DUMMY long
+            savepos INFO_OFF
+        endif
+
+        goto NAMES_OFF
+        get DUMMY long
+        getdstring HASH 32
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        getdstring NAME 0x40
+        savepos NAMES_OFF
+
+        math SIZE = NEXT_OFFSET
+        math SIZE -= OFFSET
+        string NAME R= "_" "/"
+        log NAME OFFSET SIZE
+        math OFFSET = NEXT_OFFSET
+    next i
+
+else
+
+    get FAT_SIZE asize 1
+    for
+        savepos TMP 1
+        if TMP >= FAT_SIZE
+            break
+        endif
+        get ID long 1
+        get OFFSET long 1
+        get SIZE long 1
+        get ZERO long 1
+        get NAMESZ long 1
+        getdstring NAME NAMESZ 1
+        log NAME OFFSET SIZE
+    next
+
+endif

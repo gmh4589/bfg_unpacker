@@ -1,0 +1,40 @@
+# Powerpuff Girls: Relish Rampage (script 0.2.1)
+#   no directory tree, not really necessary
+#   remember to select 'r' when prompted about files with same name
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "cat"
+open FDDE "blk" 1
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    getdstring NAME 0x10
+    get SUB_FOLDERS long
+    get SUB_FOLDERS_IDX long
+    get SUB_FILES long
+    get SUB_FILES_IDX long
+next i
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get OFFSET long
+    get SIZE long
+
+    set EXT extension NAME
+    if EXT == "OBJ" || EXT == "CHR"
+        goto OFFSET 1
+        math LIMIT_OFFSET = OFFSET
+        math LIMIT_OFFSET + SIZE
+        for OFFSET = OFFSET != LIMIT_OFFSET
+            getdstring NAME 0x78 1
+            get SIZE long 1
+            get ZSIZE long 1
+            savepos OFFSET 1
+            clog NAME OFFSET ZSIZE SIZE 1
+            math OFFSET + ZSIZE
+            math OFFSET x 0x800
+            goto OFFSET 1
+        next
+    else
+        log NAME OFFSET SIZE 1
+    endif
+next i

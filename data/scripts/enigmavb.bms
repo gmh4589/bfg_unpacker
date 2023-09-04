@@ -1,0 +1,65 @@
+# Enigma Virtual Box (.enigma1)
+#   tested only with Elisa: The Innkeeper
+
+findloc OFFSET binary "EVB\0"
+goto OFFSET
+idstring "EVB\0"
+get DUMMY long  # 0x40
+get TSTAMP longlong
+get DUMMY long  # 1
+get DUMMY long  # 1
+get DUMMY long  # 0x40
+get DUMMY long  # 0
+get SIZE longlong
+get ZERO longlong
+get SIZE longlong   # previous SIZE + 0x40, probably offset to a compressed exe
+get ZERO longlong
+get DUMMY long  # 0xf
+get DUMMY long  # 0
+get DUMMY long  # 1
+get DUMMY long  # 1
+getdstring SKIP 3
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get DUMMY long
+    get ID long
+    get LEVEL long
+    get ELEMENTS long
+    get NAME unicode
+    get TYPE short
+
+    if TYPE == 3
+        # folder
+        get TSTAMP longlong
+        get TSTAMP longlong
+        get TSTAMP longlong
+        get ZERO long
+        for i = 0 < ELEMENTS
+            callfunction EXTRACT
+        next i
+    elif TYPE == 2
+        get ZERO byte
+        get SIZE longlong
+        get TSTAMP longlong
+        get TSTAMP longlong
+        get TSTAMP longlong
+        getdstring DUMMY 7
+        get SIZE longlong
+
+        savepos OFFSET
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+        goto SIZE 0 SEEK_CUR
+    else
+        savepos TMP
+        print "Error: unknown type %TYPE% at offset %TMP|x%, contact me"
+        cleanexit
+    endif
+endfunction

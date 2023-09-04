@@ -1,0 +1,92 @@
+# NES Remix Pack (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+
+if SIGN == "SARC"
+    endian big
+    idstring "SARC"
+    get DUMMY short # 0x14
+    if DUMMY >= 0x100
+        endian little
+    endif
+    get DUMMY short # 0xfeff
+    get ARC_SIZE long
+    get BASE_OFF long
+    get FLAGS long  # 0x01000000
+    idstring "SFAT"
+    get DUMMY short # 0xc
+    get FILES short
+    get DUMMY long  # 0x65
+
+    savepos OFFSET
+    xmath OFFSET "OFFSET + (FILES * (4 + 4 + 4 + 4))"
+    xmath SIZE "BASE_OFF - OFFSET"
+    # error-proof!
+    for i = 0 < FILES
+        putarray 0 i ""
+    next i
+    if SIZE >= 8
+        log MEMORY_FILE OFFSET SIZE
+        getdstring SIGN 4 MEMORY_FILE   # idstring "SFNT" (file name table)
+        if SIGN == "SFNT"
+            get ALIGN long MEMORY_FILE  # 0x800
+            for i = 0 < FILES
+                savepos TMP MEMORY_FILE
+                if TMP < SIZE
+                    get NAME string MEMORY_FILE
+                    putarray 0 i NAME
+                endif
+            next i
+        endif
+    endif
+
+    for i = 0 < FILES
+        get SOME_CRC long
+        get FLAGS long
+        get OFFSET long
+        get SIZE long
+
+        if FLAGS & 0x01000000
+            math SIZE - OFFSET
+        endif
+
+        math OFFSET + BASE_OFF
+        getarray NAME 0 i
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+comtype unzip_dynamic
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+endian big
+math BASE_OFF = 0
+for EXTRACT = 0 < 2
+    goto 0 MEMORY_FILE
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE
+
+        savepos TMP MEMORY_FILE
+        goto OFFSET MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAMESZ long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        savepos LAST_OFF MEMORY_FILE
+        goto TMP MEMORY_FILE
+
+        if EXTRACT == 0
+            if LAST_OFF > BASE_OFF
+                math BASE_OFF = LAST_OFF
+            endif
+        else
+            math OFFSET + BASE_OFF
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+next EXTRACT

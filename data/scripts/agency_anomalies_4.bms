@@ -1,0 +1,18 @@
+idstring "\xcf\x01"
+get ZSIZE short
+savepos OFFSET
+clog MEMORY_FILE OFFSET ZSIZE 0x10000
+
+get DUMMY byte MEMORY_FILE  # zip?
+get FILES short MEMORY_FILE
+for i = 0 < FILES
+    math OFFSET += ZSIZE
+    get NAMESZ byte MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+
+    filexor  "0x61 0x33 0x35 0x33 0x34 0x32" OFFSET   # The Agency of Anomalies 4 - Mind Invasion
+    clog NAME OFFSET ZSIZE SIZE
+    filexor ""
+next i

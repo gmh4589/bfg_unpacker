@@ -1,0 +1,41 @@
+# Rich and Famous cocos2 setXXTEAKeyAndSign/cutecode lua decrypt
+# thanks atom0s:
+#   https://zenhax.com/viewtopic.php?p=56003#p56003
+
+set cuteStr  binary "\xD1\x8B\x8A\x98\xD3\xB6\xD3\xA9\xCD\xD9\xDB\xA2\x95\xDC\xCE\xDE"  # 0xA9D3B6D3988A8BD1LL + 0xDECEDC95A2DBD9CDLL
+set cuteSign binary "\xAD\xAC\xB0\xA5\xAA\xB0"
+
+callfunction setXXTEAKeyAndSign 1 cuteStr
+print "KEY  %cuteStr%"
+
+callfunction setXXTEAKeyAndSign 1 cuteSign
+print "SIGN %cuteSign%"
+
+encryption xxtea cuteStr "0x9e3779b9 0" 0 16 
+
+strlen SIGNSZ cuteSign
+getdstring SIGN SIGNSZ
+if SIGN u!= cuteSign
+    print "Error: invalid magic %SIGN%"
+    cleanexit
+endif
+
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+
+get NAME filename
+log NAME OFFSET SIZE
+
+startfunction setXXTEAKeyAndSign
+    set cuteKey binary "\x00\x06\x00\x08\x00"
+    strlen KEYSZ setXXTEAKeyAndSign_ARG1
+    for x = 0 < KEYSZ
+        xmath TMP "x % 5"
+        getvarchr k cuteKey TMP
+        getvarchr c setXXTEAKeyAndSign_ARG1 x
+        math c ^ k
+        math c ~ c
+        putvarchr setXXTEAKeyAndSign_ARG1 x c
+    next x
+endfunction

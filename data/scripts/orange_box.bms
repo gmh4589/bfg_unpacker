@@ -1,0 +1,16 @@
+endian big
+idstring "FGP\0"
+get DUMMY long
+get FILES long
+get DUMMY long
+math BASE_OFF long FILES
+math BASE_OFF *= 16
+math BASE_OFF += 0x10
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    math OFFSET += BASE_OFF
+    clog "" OFFSET ZSIZE SIZE
+next i

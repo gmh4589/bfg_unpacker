@@ -1,0 +1,18 @@
+# File to compressed variable
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.33"
+
+comtype zlib_compress
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+comtype base64_compress
+get SIZE asize MEMORY_FILE
+clog MEMORY_FILE2 0 SIZE SIZE MEMORY_FILE
+
+get NAME filename
+string NAME += ".compressed.txt"
+
+get SIZE asize MEMORY_FILE2
+log NAME 0 SIZE MEMORY_FILE2

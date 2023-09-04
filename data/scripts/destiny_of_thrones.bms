@@ -1,0 +1,18 @@
+# Destiny of Thrones
+# script for QuickBMS http://quickbms.aluigi.org
+
+get BASE_OFF longlong
+get FILES long
+get XOR_KEY byte
+for i = 0 < FILES
+    get NAMESZ long
+    filexor XOR_KEY
+    getdstring NAME NAMESZ
+    filexor ""
+    get OFFSET longlong
+    get SIZE longlong
+    math SIZE -= OFFSET
+    filexor XOR_KEY
+    log NAME OFFSET SIZE
+    filexor ""
+next i

@@ -1,0 +1,12 @@
+# Gunship! (CAT)
+
+Get FN Long 0 ;
+For T = 1 To FN ;
+Get FID Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log "" FO FS #FOO FSO ;
+Next T ;
+

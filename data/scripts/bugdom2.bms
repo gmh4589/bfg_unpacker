@@ -1,0 +1,39 @@
+# Bugdom 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "RSRC"
+get DUMMY long
+get DATA_OFF long
+get DATA_SIZE long
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+getdstring DUMMY DATA_OFF
+get DUMMY1 long
+get DUMMY2 long
+get DUMMY3 long
+get HEAD_SIZE long
+get NAMES_OFF long
+math NAMES_OFF + INFO_OFF
+get DUMMY long
+getdstring NAME 4
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY1 long
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    get DUMMY5 long
+    get DUMMY6 long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    goto TMP
+
+    math OFFSET + DATA_OFF
+    log NAME OFFSET SIZE
+next i

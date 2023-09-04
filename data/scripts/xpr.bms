@@ -1,0 +1,189 @@
+# Xbox XPR (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.6"
+
+idstring "XPR"
+get VER byte
+get XPR_SIZE long
+get FULL_XPR_SIZE asize
+xmath TMP2 "FULL_XPR_SIZE - 0x800"    # XPR2 compatible
+if XPR_SIZE u> TMP2 && XPR_SIZE u<= FULL_XPR_SIZE
+    endian little
+else
+    reverselong XPR_SIZE
+    endian big
+endif
+get DATA_OFF long
+savepos BASE_OFF
+
+# XPR0
+if VER == '0'
+
+    for i = 0
+        get DUMMY long
+        if DUMMY == 0xffffffff
+            break
+        endif
+        get OFFSET long
+        get ZERO long
+        get FLAGS long
+        get ZERO long
+        math OFFSET += DATA_OFF
+        putarray 0 i OFFSET
+        putarray 1 i ""
+    next i
+    math FILES = i
+
+    callfunction SIZELESS_DUMP 1
+
+# XPR1
+elif VER == '1'
+
+    get FILES long
+    for i = 0 < FILES
+        get NAME_OFF long
+        get OFFSET long
+
+        savepos TMP
+        math NAME_OFF += BASE_OFF
+        goto NAME_OFF
+        get NAME string
+        math OFFSET += BASE_OFF
+        goto OFFSET
+        get DUMMY long
+        get OFFSET long
+        get ZERO long
+        get FLAGS long
+        get ZERO long
+        goto TMP
+
+        math OFFSET += DATA_OFF
+        putarray 0 i OFFSET
+        putarray 1 i NAME
+    next i
+
+    callfunction SIZELESS_DUMP 1
+
+# XPR2
+elif VER == '2'
+
+    math WORKAROUND = -1
+
+    get INFO_SIZE long
+    savepos TMP
+    get DUMMY_OFF long
+
+    if DUMMY_OFF u> FULL_XPR_SIZE
+        math FILES = INFO_SIZE
+        goto TMP
+        for i = 0 < FILES
+            getdstring TYPE 4
+            get OFFSET long
+            get ENTRY_SIZE long
+            get NAME_OFF long
+            savepos TMP
+
+            math OFFSET += BASE_OFF
+
+            # just a way to avoid to write another script, it's not 100% working, just guessing the first file (for example a png)
+            if WORKAROUND <= 0
+                math OLD_OFFSET = OFFSET
+                goto OFFSET
+                get DUMMY1 long
+                get DUMMY2 long
+                get DUMMY3 long
+                get DUMMY4 long
+                get DUMMY5 long
+                get DUMMY6 long
+                get DUMMY7 long
+                get DUMMY8 long
+                get OFFSET long
+                get DUMMY10 long
+                get DUMMY11 long
+                get DUMMY12 long
+                get DUMMY13 long
+                xmath OFFSET "((OFFSET / 0x800) * 0x800) + XPR_SIZE"
+                if WORKAROUND < 0
+                    if OFFSET u> FULL_XPR_SIZE
+                        math WORKAROUND = 1
+                        math OFFSET = OLD_OFFSET
+                    else
+                        math WORKAROUND = 0
+                    endif
+                endif
+            endif
+
+            math NAME_OFF += BASE_OFF
+            goto NAME_OFF
+            get NAME string
+
+            string FNAME p= "%s/%s" TYPE NAME
+            #log FNAME OFFSET SIZE
+            putarray 0 i OFFSET
+            putarray 1 i FNAME
+
+            goto TMP
+        next i
+
+        callfunction SIZELESS_DUMP 1
+
+        cleanexit
+    endif
+
+    padding 0x800
+    savepos BASE_OFF
+    xmath MODE2_OFF "BASE_OFF + INFO_SIZE"
+    math DATA_OFF = INFO_SIZE
+    get FILES long
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get OFFSET long
+        get SIZE long
+        get OFFSET2 long
+        get SIZE2 long
+        get DUMMY3 long
+        get NAME_OFF long
+
+        savepos TMP
+        math NAME_OFF += BASE_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        math SIZE   += SIZE2
+        # doesn't work
+        #math OFFSET += OFFSET2
+        #math OFFSET += DATA_OFF
+
+        math OFFSET = MODE2_OFF
+        math MODE2_OFF += SIZE
+
+        string FNAME p= "%s/%s" TYPE NAME
+        log FNAME OFFSET SIZE
+    next i
+
+else
+
+    print "Error: version %VER% is not supported yet"
+    cleanexit
+
+endif
+
+startfunction SIZELESS_DUMP
+            getarray OFFSET 0 0
+            getarray NAME   1 0
+    for i = 1 <= FILES
+        if i == FILES
+            #math NEXT_OFFSET = XPR_SIZE
+            get NEXT_OFFSET asize
+        else
+            getarray NEXT_OFFSET 0 i
+            getarray NEXT_NAME   1 i
+        endif
+        xmath SIZE "NEXT_OFFSET - OFFSET"
+        log NAME OFFSET SIZE
+        math OFFSET = NEXT_OFFSET
+        set NAME string NEXT_NAME
+    next i
+endfunction

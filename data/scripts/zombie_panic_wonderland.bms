@@ -1,0 +1,27 @@
+# Zombie Panic in Wonderland DX
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+get ZERO long
+get FILES long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+
+    if FLAGS & 2
+        log "" OFFSET SIZE
+    else
+        savepos TMP
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        goto TMP
+
+        clog "" OFFSET SIZE XSIZE
+    endif
+next i

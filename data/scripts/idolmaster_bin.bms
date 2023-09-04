@@ -1,0 +1,48 @@
+# The Idolmaster Dearly Stars .bin
+
+comtype lz77wii
+
+open FDDE "idx"
+open FDDE "bin" 1
+
+idstring   "EZT\0"
+idstring 1 "EZP\0"
+
+get DUMMY long
+get DUMMY short # 0x23
+get DUMMY short # 0x16
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE threebyte
+    get FLAGS byte
+    get NAME_OFF long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i FLAGS
+    putarray 3 i NAME_OFF
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+
+get NAMES_OFF long
+
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray SIZE     1 i
+    getarray FLAGS    2 i
+    getarray NAME_OFF 3 i
+    math i + 1
+    getarray ZSIZE    0 i
+    math ZSIZE - OFFSET
+
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF 1
+    get NAME string 1
+
+    if FLAGS == 0
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next

@@ -1,0 +1,36 @@
+# atiumd6a.cap 8.14.10.363 decrypter
+#   other versions use different ESI and EBX
+#   the values are located in atiumdva.dll
+# script for QuickBMS http://quickbms.aluigi.org
+
+math OFFSET = 32
+log MEMORY_FILE 0 OFFSET
+get SIZE asize
+math SIZE -= OFFSET
+
+math NUM = 1
+callfunction ATI_XOR_KEY 1
+append
+log MEMORY_FILE OFFSET SIZE
+append
+encryption "" ""
+
+get NAME basename
+get EXT extension
+string NAME p= "%s_decrypted.%s" NAME EXT
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE
+
+startfunction ATI_XOR_KEY
+    if NUM == 1
+        encryption "incremental xor" 0x86ACD572 0x5742AF69
+    elif NUM == 2
+        encryption "incremental xor" 0xE967F1B0 0x860ED5CB
+    elif NUM == 0x10002
+        encryption "incremental xor" 0xA915268B 0x2A46BFE0
+    elif NUM == 0x10001
+        encryption "incremental xor" 0xD759FE42 0xDE625B30
+    else
+        encryption "incremental xor" 0 0
+    endif
+endfunction

@@ -1,0 +1,276 @@
+# Arika games INFO.DAT / GAME.DAT (script 0.3)
+#   3D Classics Kirby's Adventure
+#   Tekken 3D (3DS)
+#   Endless Ocean: Blue World
+#   Dr. Mario Online Rx
+#   Dr. Luigi (Wii U)
+#   Dr. Mario Express
+#   Endless Ocean (encrypted)
+# experimental script that works only with some formats
+# script for QuickBMS http://quickbms.aluigi.org
+
+math DECRYPT_INFO_ONLY = 0
+math DO_SCANNER = 0
+math WORKAROUND = 0
+
+math FILENUM = 0    # compatibility with endless_ocean.bms
+
+get EXT extension
+if EXT != "DAT"
+    getdstring SIGN 3
+    goto 0
+    if SIGN u== "RF2"
+        set PATH string ""
+        set NAME string ""
+        savepos OFFSET
+        callfunction EXTRACT_RF2 1
+        cleanexit
+    endif
+endif
+
+get DAT_NAME filename
+string DAT_NAME R "GAME" "INFO" # INFO.DAT
+open FDSE DAT_NAME
+
+get ENCRYPTED byte
+goto 0
+
+# in quickbms filexor is the first operation so I have to rotate also the key
+getdstring KEY 16
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+if ENCRYPTED == 0
+    log MEMORY_FILE OFFSET SIZE
+else
+    encryption rotate 4
+    filexor 0xff
+    log MEMORY_FILE OFFSET SIZE
+    filexor ""
+    encryption rot KEY "" 1 16  # is it possible that it was xor instead of rot in the past???
+    log MEMORY_FILE 0 SIZE MEMORY_FILE
+    encryption "" ""
+endif
+get INFO_DAT_SIZE asize MEMORY_FILE
+
+if DECRYPT_INFO_ONLY != 0
+    string DAT_NAME + ".decrypted"
+    log DAT_NAME 0 INFO_DAT_SIZE MEMORY_FILE
+    cleanexit
+endif
+
+do
+    get DUMMY long MEMORY_FILE
+while DUMMY == 0
+goto -4 MEMORY_FILE SEEK_CUR
+savepos TMP_OFF MEMORY_FILE
+math TMP_OFF % 16
+
+if TMP_OFF == 0
+    get ALIGN long MEMORY_FILE
+elif TMP_OFF == 4
+    get ALIGN long MEMORY_FILE
+elif TMP_OFF == 8
+    get ALIGN long MEMORY_FILE
+else
+    goto -4 MEMORY_FILE SEE_CUR
+    get ALIGN long MEMORY_FILE
+endif
+
+endian guess ALIGN
+if ALIGN == 0
+    math ALIGN = 0x800
+endif
+print "ALIGN %ALIGN|x%"
+
+padding 16 MEMORY_FILE
+goto -8 MEMORY_FILE SEEK_CUR
+get FOLDERS long MEMORY_FILE
+get FILES long MEMORY_FILE
+
+# guess the size of filenames
+savepos TMP MEMORY_FILE
+get NAME string MEMORY_FILE
+do
+    get DUMMY byte MEMORY_FILE
+while DUMMY == 0
+savepos NAMESZ MEMORY_FILE
+math NAMESZ - TMP
+math NAMESZ y 16
+print "NAMESZ %NAMESZ|x%"
+goto TMP MEMORY_FILE
+
+# guess if there are folders
+savepos TMP MEMORY_FILE
+math HAS_FOLDERS = 0
+    getdstring NAME NAMESZ MEMORY_FILE
+string NAME ! "/"
+if NAME == ""
+    # ok has folders
+    print "FOLDERS %FOLDERS%"
+else
+    math FOLDERS = 0
+    print "No folders stored"
+endif
+goto TMP MEMORY_FILE
+
+# filenames already include paths so skip this stage
+for i = 0 < FOLDERS
+    getdstring NAME NAMESZ MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+next i
+
+savepos TMP MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get DUMMY1 long MEMORY_FILE
+    get DUMMY2 long MEMORY_FILE
+    get DUMMY3 long MEMORY_FILE
+    get DUMMY4 long MEMORY_FILE
+goto TMP MEMORY_FILE
+
+for i = 0 < FILES
+    getdstring NAME NAMESZ MEMORY_FILE
+
+    if DUMMY1 == 0
+        get OFFSET long MEMORY_FILE
+        get BLOCKS long MEMORY_FILE
+        get ZSIZE long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+    elif DUMMY2 == 0
+        get ZSIZE long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get BLOCKS long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+    else
+        print "Error: OFFSET_IDX, contact me"
+        cleanexit
+    endif
+
+    callfunction ADD_TO_ARRAY 1
+next i
+
+string DAT_NAME R "INFO" "GAME" # GAME.DAT
+open FDSE DAT_NAME
+
+if DO_SCANNER != 0
+    callfunction ZALZ_SCANNER 1
+    cleanexit
+endif
+
+get OFFSET asize
+putarray 1 FILES OFFSET
+print "sorting arrays... please wait"
+sortarray 1 1
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    getarray ZSIZE  2 i
+    getarray SIZE   3 i
+    math i + 1
+
+    if WORKAROUND != 0
+        #set NAME string ""
+        getarray ZSIZE  1 i
+        math ZSIZE - OFFSET
+    endif
+
+    if SIZE != 0
+        goto OFFSET
+        if SIZE == ZSIZE    # keep >= for the work-around!
+            getdstring SIGN3 3
+            if SIGN3 u== "RF2"
+                set PATH string ""
+                callfunction EXTRACT_RF2
+            else
+                log NAME OFFSET SIZE
+            endif
+        else
+            getdstring SIGN 4
+            if SIGN u== "ZALZ"
+                comtype lzss0
+                #get XSIZE long # who cares...
+                math OFFSET + 8
+                math ZSIZE  - 8
+            elif SIGN u== "ALZ1"
+                comtype lzss0
+                math OFFSET + 4
+                math ZSIZE  - 4
+            else
+                if SIZE <= ZSIZE
+                    comtype copy
+                    math ZSIZE = SIZE
+                else
+                    print "Error: unknown magic %SIGN% at offset %OFFSET|x%, contact me!"
+                    cleanexit
+                endif
+            endif
+            if ZSIZE > 0    # just to avoid conflict with EXTRACT_RF2
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    endif
+next
+
+startfunction ADD_TO_ARRAY
+    # NAME is unreliable, often there is a modification every 0x10 bytes like 0xa1->0x61 or 0xbc->0x6c
+    math OFFSET * ALIGN
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+    putarray 2 i ZSIZE
+    putarray 3 i SIZE
+endfunction
+
+startfunction ZALZ_SCANNER
+    comtype lzss0
+    endian big
+    get DAT_SIZE asize
+        findloc OFFSET binary "ZALZ"
+    for OFFSET = OFFSET != DAT_SIZE
+        goto OFFSET
+        idstring "ZALZ"
+        get SIZE long
+        savepos OFFSET
+        findloc NEXT_OFF binary "ZALZ" 0 ""
+        if NEXT_OFF == ""
+            math NEXT_OFF = DAT_SIZE
+        endif
+        xmath ZSIZE "NEXT_OFF - OFFSET"
+        clog "" OFFSET ZSIZE SIZE
+        math OFFSET = NEXT_OFF
+    next
+endfunction
+
+startfunction EXTRACT_RF2
+    savepos TMP FILENUM
+    goto OFFSET FILENUM
+    getdstring SIGN 3 FILENUM
+    if SIGN u== "RF2"
+        math BASE_OFF = OFFSET
+        getdstring TYPE 3 FILENUM
+        string PATH + NAME
+        string PATH + /
+        get VER short FILENUM
+        get INFO_SIZE threebyte FILENUM
+        get DUMMY byte FILENUM
+        get HEAD_SIZE long FILENUM
+        xmath SUB_FILES "INFO_SIZE / 0x20"
+        for x = 0 < SUB_FILES
+            getdstring NAME 0x14 FILENUM
+            get SIZE long FILENUM
+            get OFFSET long FILENUM
+            get FLAGS long FILENUM
+            math OFFSET + BASE_OFF
+            if SIZE != 0
+                callfunction EXTRACT_RF2
+            endif
+        next x
+    else
+        string FNAME p "%s/%s" PATH NAME
+        log FNAME OFFSET SIZE FILENUM
+    endif
+    goto TMP FILENUM
+endfunction

@@ -1,0 +1,53 @@
+# Artogon games (script 0.1.1)
+#   Shiver series
+#   Wanderland
+#   Note: for older games like Treasure Seekers you must use the ZIP passwords available here http://aluigi.org/papers.htm#info
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xcd\xab"
+get VER short
+get DUMMY long
+get OFFSET longlong
+goto OFFSET
+
+set PATH string ""
+set NAME string ""
+math SUB_FILES = 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math FILES = SUB_FILES
+    for i = 0 < FILES
+        get SUB_FILES long
+        get NAMESZ long
+        get OFFSET longlong
+        get SIZE longlong
+
+        filexor 0x2f
+        getdstring NAME NAMESZ
+        filexor ""
+
+        if SUB_FILES == 0
+            set FNAME string PATH
+            string FNAME += NAME
+
+            # filexor 0x74
+            set EXT extension NAME
+            if EXT == "qml" # only the qml files are encrypted?
+                savepos TMP
+                goto OFFSET
+                get XOR_VALUE byte
+                goto TMP
+                math XOR_VALUE ^ 'i'    # import
+                filexor XOR_VALUE
+            endif
+
+            log FNAME OFFSET SIZE
+            filexor ""
+        else
+            callfunction EXTRACT
+        endif
+    next i
+endfunction

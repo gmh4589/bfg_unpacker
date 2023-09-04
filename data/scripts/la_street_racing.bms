@@ -1,0 +1,51 @@
+# LA Street Racing / Overspeed
+#   The script extracts only the last folder name and not the full tree name. I can finish it if I have more samples... and time.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get IPK_NAME basename
+
+idstring "RPAK"
+get DUMMY long
+get PACKS long
+get ZERO long
+for i = 0 < PACKS
+    get DUMMY long
+    getdstring NAME 0x3c
+next i
+
+get INFO_SIZE long
+get ENTRIES long
+for i = 0 < ENTRIES
+    get IS_FILE long
+    if IS_FILE == 0
+        get SUB_ENTRIES long    # ???
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get DUMMY short
+        get DUMMY float
+        get OFFSET long
+        get DUMMY long
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        set PATH string NAME
+    else
+        get DUMMY1 long
+        get DUMMY2 short
+        get DUMMY3 float
+        get OFFSET long
+        get SIZE long
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+
+        set EXT extension NAME
+        if EXT == "dds"
+            math OFFSET + 8
+            math SIZE   - 8
+        endif
+
+        string FNAME p "%s/%s/%s" IPK_NAME PATH NAME
+        log FNAME OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,60 @@
+# Dodonpachi Maximum
+
+set KEY string "OADtaxgDqV2iBMZMxvSVP9vWrMcZjTZ"
+strlen KEYSZ KEY
+if KEYSZ > 32
+    math KEYSZ = 32
+endif
+set XOR_KEY string ""
+for i = 0 < KEYSZ
+    getvarchr TMP KEY i
+    string XOR_KEY + TMP
+    string XOR_KEY + " "
+next i
+for i = i < 32
+    string XOR_KEY + "0 "
+next i
+
+open FDDE "bin"
+get SIZE asize
+filexor XOR_KEY
+log MEMORY_FILE 0 SIZE
+filexor ""
+
+open FDDE "dat"
+
+idstring MEMORY_FILE "ROMH"
+getdstring VER 4 MEMORY_FILE    # 1000
+get DUMMY short MEMORY_FILE     # 0xfffe
+get FILES short MEMORY_FILE
+get NUM long MEMORY_FILE
+get BLOCK_SIZE long MEMORY_FILE
+getdstring ZERO 12 MEMORY_FILE
+for i = 0 < FILES
+    idstring MEMORY_FILE "ROMR"
+    get SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    math OFFSET * BLOCK_SIZE
+    get ZERO long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+for i = 0 < NUM
+    idstring MEMORY_FILE "ROMS"
+    get ID long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+next i
+for i = 0 < FILES
+    get NAME string MEMORY_FILE
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    filexor XOR_KEY
+    log NAME OFFSET SIZE
+    filexor ""
+next i
+

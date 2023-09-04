@@ -1,0 +1,51 @@
+# MoeNovel / LoveKami
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get BASE_OFF long
+math BASE_OFF + 8
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get NAME unicode
+    math OFFSET + BASE_OFF
+
+    set EXT extension NAME
+    if EXT == "pna"
+
+        savepos TMP
+        goto OFFSET
+        idstring "PNAP"
+        # https://github.com/Inori/FuckGalEngine/blob/master/AdvHD/ahdprc/src/pnapack.cpp
+        long unknown1;
+        long width;
+        long height;
+        long entry_count;
+        for x = 0 < entry_count
+            long unknown1;
+            long index;
+            long offset_x;
+            long offset_y;
+            long width;
+            long height;
+            long unknown2;
+            long unknown3;
+            long unknown4;
+            long length;
+            putarray 0 x length
+        next x
+        savepos OFFSET
+        string NAME + /
+        for x = 0 < entry_count
+            getarray SIZE 0 x
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+        next x
+        goto TMP
+
+    else
+
+        log NAME OFFSET SIZE
+
+    endif
+next i

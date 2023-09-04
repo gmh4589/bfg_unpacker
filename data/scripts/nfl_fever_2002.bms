@@ -1,0 +1,17 @@
+# NFL Fever 2002/Microsoft Game Studios(Xbox)
+
+get EXT extension
+if EXT == "dmf" || EXT == "ff"
+	get FILES long
+	for i = 0 < FILES
+		get OFFSET long
+		get SIZE long		# size
+		get NAME_CRC long
+		if OFFSET & 0x80000000
+			math OFFSET - 0x80000000
+		endif
+		string NAME p= "%08x." NAME_CRC
+		log NAME OFFSET SIZE
+	next i
+else
+endif

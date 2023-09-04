@@ -1,0 +1,88 @@
+# Need for Speed games PS2 .TPK
+
+get CHUNK_TYPE long # 0xb3300000
+get TPK_SIZE long
+get ZERO long
+get HEADER_SIZE long
+getdstring ZERO HEADER_SIZE
+
+get CHUNK_TYPE long # 0xb3310000
+get CHUNK_SIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+getdstring NAME 0x1c
+getdstring NAME 0x40
+get DUMMY long
+getdstring ZERO 0x18
+
+get DUMMY long
+get SIZE long
+xmath FILES "SIZE / 8"
+for i = 0 < FILES
+    get DUMMY long
+    get ZERO long
+next i
+
+get DUMMY long
+get SIZE long
+xmath FILES "SIZE / 0x18"
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get FLAGS long
+    get ZERO long
+
+    string NAME p "%08x." NAME_CRC
+    savepos TMP_OFF
+    goto OFFSET
+    callfunction DECOMPRESS 1
+    goto TMP_OFF
+
+next i
+
+
+# from nfsu_bun.bms
+
+startfunction CHECK_DECOMPRESS
+    math DO_DECOMPRESS = 1
+    savepos DUMP_OFFSET
+    getdstring ZIP_SIGN 4
+    math SKIP_BYTES = 0 # some algorithms consider the header in their size
+    if ZIP_SIGN == "RFPK"
+        comtype dk2
+    elif ZIP_SIGN == "RAWW"
+        comtype copy
+    elif ZIP_SIGN == "JDLZ"
+        comtype ea_jdlz
+        math SKIP_BYTES = 0x10
+    elif ZIP_SIGN == "HUFF"
+        comtype ea_huff
+    elif ZIP_SIGN == "COMP"
+        comtype ea_comp
+        math SKIP_BYTES = 0x10
+    else
+        math DO_DECOMPRESS = 0
+    endif
+endfunction
+
+startfunction DECOMPRESS
+    if SIZE != 0
+        callfunction CHECK_DECOMPRESS 1
+        if DO_DECOMPRESS == 0
+            log NAME DUMP_OFFSET SIZE
+        else
+            get ZIP_FLAG byte
+            get DUMMY byte
+            get DUMMY short
+            get SIZE long
+            get ZSIZE long
+            math ZSIZE - SKIP_BYTES
+            savepos DUMP_OFFSET
+            clog NAME DUMP_OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction
+

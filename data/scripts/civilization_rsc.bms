@@ -1,0 +1,66 @@
+# Civilization RSC (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+#
+#   interesting info in the source code here http://forums.civfanatics.com/showthread.php?t=265004
+
+endian big
+math INFO_OFF = 0
+for i = 0 < 2
+    goto INFO_OFF
+    get HEAD_SIZE long
+    get INFO_OFF long
+    get OFFSET long
+    get INFO_SIZE long
+next i
+getdstring DUMMY 6
+get DUMMY long
+get NAMES_OFF short
+if NAMES_OFF == 0xffff
+    math NAMES_OFF = -1
+else
+    math NAMES_OFF + INFO_OFF
+endif
+savepos SECTIONS_BASE_OFF
+get SECTIONS short
+savepos SECTIONS_OFF
+for SECTION = 0 <= SECTIONS
+    goto SECTIONS_OFF
+    getdstring SECTION_NAME 4
+    get FILES short
+    get SECTION_OFF short
+    savepos SECTIONS_OFF
+
+    math SECTION_OFF + SECTIONS_BASE_OFF
+    goto SECTION_OFF
+
+    for i = 0 <= FILES
+        get ID short
+        get NAME_OFF short
+        get OFFSET long
+        get DUMMY long
+
+        savepos TMP
+
+        if NAME_OFF == 0xffff
+            set NAME string ""
+        elif NAMES_OFF < 0  # ???
+            set NAME string ""
+        else
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+        endif
+
+        math OFFSET & 0x0fffffff    # some files may be compressed?
+        math OFFSET + HEAD_SIZE
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+
+        goto TMP
+
+        string FNAME p "%s/%s" SECTION_NAME NAME
+        log FNAME OFFSET SIZE
+    next i
+next SECTION

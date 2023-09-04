@@ -1,0 +1,17 @@
+# Forza Motorsport SXWad
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER long
+get FILES long
+get BASE_OFF long
+get ZERO long
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get NAMESZ long
+    math NAMESZ + 1
+    getdstring NAME NAMESZ
+    padding 4
+    clog NAME OFFSET ZSIZE SIZE
+next i

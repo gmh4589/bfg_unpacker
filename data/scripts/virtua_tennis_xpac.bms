@@ -1,0 +1,13 @@
+# Virtua Tennis 3 xpac
+
+idstring "CAPX"
+get FILES long
+get DUMMY long  # 0x10
+get ALIGN long
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get ID long
+    log "" OFFSET SIZE
+next i

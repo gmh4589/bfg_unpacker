@@ -1,0 +1,158 @@
+# Quake Champions (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.0"
+set MEMORY_FILE10 string "
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long long ulong;
+
+    // Numerical Recipes 3rd edition
+    static ulong u, v, w;
+
+    ulong NextUInt64()
+    {
+      u = u * 2862933555777941757ULL + 7046029254386353087ULL;
+      v ^= v >> 17; v ^= v << 31; v ^= v >> 8;
+      w = 4294957665U * (w & 0xffffffff) + (w >> 32);
+      ulong x = u ^ (u << 21); x ^= x >> 35; x ^= x << 4;
+      return (x + v) ^ w;
+    }
+
+    void NrRandom(ulong seed)
+    {
+      v = 4101842887655102017ULL;
+      w = 1;
+
+      u = v ^ seed; NextUInt64();
+      v = u;        NextUInt64();
+      w = v;        NextUInt64();
+    }
+
+// Quake Champions
+static ulong    qc_seed = 0;
+static uchar    qc_ivec[32] = {0};
+static ushort   qc_seed_idx = 0;
+static ushort   qc_ivec_idx = 0;
+
+void quake_decrypt_init(uchar *key, uint seed2) {
+    int     i;
+    for(i = 0; i < sizeof(qc_ivec); i++) {
+        qc_ivec[i] = key[i];
+    }
+    qc_seed = *(ulong *)key;
+    qc_seed_idx = 0;
+    qc_ivec_idx = 0;
+    NrRandom(qc_seed ^ (ulong)seed2);
+}
+
+int quake_decrypt(unsigned char *data, int size) {
+    int     i;
+    for(i = 0; i < size; i++) {
+        uchar c = data[i];
+        uchar old = qc_ivec[qc_ivec_idx];
+        qc_ivec[qc_ivec_idx] = c;
+        data[i] = (qc_seed_idx ? 0 : qc_seed) ^ c ^ old;
+        qc_ivec_idx = (qc_ivec_idx + 1) & 0x1f;
+        if(++qc_seed_idx == 8) {
+            qc_seed = NextUInt64();
+            qc_seed_idx = 0;
+        }
+    }
+    return size;
+}
+"
+
+goto -40
+getdstring KEY 40
+math SEED2 = 0
+
+get LIMIT asize
+math LIMIT - 0x4000 # avoid wasting time
+if LIMIT < 0
+    math LIMIT = 0
+endif
+findloc OFFSET binary "PK\x05\x06" 0 "" LIMIT
+if OFFSET != ""
+    math OFFSET + 4
+    goto OFFSET
+        get disk_num        short
+        get disk_start      short
+        get central_entries short
+        get central_entries short
+        get central_size    long
+        get central_offset  long
+        get comm_len        short
+        getdstring comment  comm_len
+else
+    findloc OFFSET binary "PK\x06\x06" 0 "" LIMIT
+    math OFFSET + 4
+    goto OFFSET
+    get ZERO byte
+    get central_entries longlong
+    get central_size longlong
+    get central_offset longlong
+    get DUMMY_offset longlong
+    print "insert the constant number for NrRandom initialization, it depends by the version of the game like 0x412e2206 and 0x631A2028"
+    set SEED2 unknown "???"
+endif
+
+calldll MEMORY_FILE10 "quake_decrypt_init" "tcc" RET KEY SEED2
+
+goto central_offset
+for i = 0 < central_entries
+
+    savepos TMP
+    log MEMORY_FILE TMP 0x2e
+    calldll MEMORY_FILE10 "quake_decrypt" "tcc" RET MEMORY_FILE 0x2e
+    goto 0x2e 0 SEEK_CUR
+
+    goto 0 MEMORY_FILE
+    idstring MEMORY_FILE "PK\x01\x02"
+        get ver_made        short MEMORY_FILE
+        get ver_need        short MEMORY_FILE
+        get flag            short MEMORY_FILE
+        get method          short MEMORY_FILE
+        get modtime         short MEMORY_FILE
+        get moddate         short MEMORY_FILE
+        get zip_crc         long MEMORY_FILE
+        get comp_size       long MEMORY_FILE
+        get uncomp_size     long MEMORY_FILE
+        get name_len        short MEMORY_FILE
+        get extra_len       short MEMORY_FILE
+        get comm_len        short MEMORY_FILE
+        get disknum         short MEMORY_FILE
+        get int_attr        short MEMORY_FILE
+        get ext_attr        long MEMORY_FILE
+        get rel_offset      long MEMORY_FILE
+
+    savepos TMP
+    log MEMORY_FILE TMP name_len
+    calldll MEMORY_FILE10 "quake_decrypt" "tcc" RET MEMORY_FILE name_len
+    goto name_len 0 SEEK_CUR
+
+    goto 0 MEMORY_FILE
+        getdstring name     name_len MEMORY_FILE
+
+        # not encrypted
+        getdstring extra    extra_len
+        getdstring comment  comm_len
+
+    math offset = 0x1e
+    math offset + rel_offset
+
+        if method == 0
+            Log name offset uncomp_size # same as comp_size
+            #Log name offset comp_size   # was uncomp_size before AES
+        else
+            if method == 8
+                ComType deflate
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size
+        endif
+next i
+

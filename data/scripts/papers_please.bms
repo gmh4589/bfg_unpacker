@@ -1,0 +1,62 @@
+# Papers, Please (script 0.2)
+#   thanks to Ekey
+# script for QuickBMS http://quickbms.aluigi.org
+
+# decryption
+set MEMORY_FILE5 binary "\x55\xb9\x20\x37\xef\xc6\x89\xe5\x57\x56\x8b\x75\x08\x53\x8b\x16\x8b\x46\x04\x83\x7d\x0c\x01\x75\x3c\x89\xd3\x89\xd7\xc1\xe3\x04\xc1\xff\x05\x81\xc3\x6d\x41\x6d\x2b\x81\xc7\x6c\x2b\x38\x61\x31\xfb\x8d\x3c\x0a\x31\xfb\x29\xd8\x89\xc3\x89\xc7\xc1\xe3\x04\xc1\xff\x05\x81\xc3\x70\x51\x38\x59\x81\xc7\x7e\x39\x64\x30\x31\xfb\x8d\x3c\x08\xeb\x40\x83\x7d\x0c\x02\x75\x3e\x89\xd3\x89\xd7\xc1\xe3\x04\xc1\xef\x05\x81\xc3\x6d\x41\x6d\x2b\x81\xc7\x6c\x2b\x38\x61\x31\xfb\x8d\x3c\x0a\x31\xfb\x29\xd8\x89\xc3\xc1\xeb\x05\x8d\x3c\x08\x81\xc3\x7e\x39\x64\x30\x31\xfb\x89\xc7\xc1\xe7\x04\x81\xc7\x70\x51\x38\x59\x31\xfb\x29\xda\x81\xc1\x47\x86\xc8\x61\x0f\x85\x6e\xff\xff\xff\x89\x16\x89\x46\x04\x5b\x5e\x5f\x5d\xc3"
+math pVersion = 2
+get DAT_SIZE asize
+log MEMORY_FILE 0 DAT_SIZE
+for x = 0 < DAT_SIZE
+    goto x MEMORY_FILE
+    calldll MEMORY_FILE5 0 cdecl RET MEMORY_FILE pVersion
+next x += 8
+goto 0 MEMORY_FILE
+# end of decryption
+
+get DUMMY byte MEMORY_FILE
+math FILES = 0
+for x = 0
+    get TYPE byte MEMORY_FILE
+    set STR string ""
+    if TYPE == 'y'
+        getct LEN string ':' MEMORY_FILE
+        getdstring STR LEN MEMORY_FILE
+    elif TYPE == 'i'
+        getct STR string 'g' MEMORY_FILE
+    elif TYPE == 'o'
+    elif TYPE == 'R'
+        getdstring STR 1 MEMORY_FILE
+        getarray STR 0 STR
+    elif TYPE == 'z'
+        getct STR string 'g' MEMORY_FILE
+        set STR string "0"
+    elif TYPE == 'Y'
+    elif TYPE == 'a'
+    elif TYPE == 'h'
+        break
+    endif
+    if STR != ""
+        putarray 0 x STR
+        math x += 1
+        if x & 1
+            set PAR string STR
+        else
+            if PAR == "name"
+                putarray 1 FILES STR
+            elif PAR == "size"
+                putarray 2 FILES STR
+                math FILES += 1
+            endif
+        endif
+    endif
+next
+savepos OFFSET MEMORY_FILE
+
+for i = 0 < FILES
+    getarray NAME 1 i
+    getarray SIZE 2 i
+    string NAME R "%2f" "/"
+    log NAME OFFSET SIZE MEMORY_FILE
+    math OFFSET += SIZE
+next i

@@ -1,0 +1,23 @@
+# Star Wars: Super Bombad Racing
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+goto OFFSET
+get ALIGN long
+get SIZE long
+get TYPES long
+for x = 0 < TYPES
+    getdstring TYPE 4
+    string TYPE r TYPE
+    get TYPE_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        padding 4
+        string NAME p "%s/%s" TYPE NAME
+        log NAME OFFSET SIZE
+    next i
+next x

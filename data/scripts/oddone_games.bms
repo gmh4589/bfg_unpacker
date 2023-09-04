@@ -1,0 +1,83 @@
+# OddOne Games - Tree of Life: Beginning of a Journey
+#   THIS SCRIPT IS EXPERIMENTAL AND GENERATES INCOMPLETE/CORRUPTED OUTPUT FILES!
+# script for QuickBMS http://quickbms.aluigi.org
+
+# zlib gives an error and there is some other operation to perform on the decompressed data
+comtype unzip_dynamic
+
+# only the last folder, sorry
+set FOLDER string ""
+set FNAME string ""
+
+idstring "OFS"  # OFS10130
+get MAX_CHUNK_OFF asize
+for CHUNK_OFF = 0x80 != MAX_CHUNK_OFF
+    goto CHUNK_OFF
+    getdstring DUMMY 8
+    get CHUNK_TYPE long
+    xmath CHUNK_FLAGS "CHUNK_TYPE >> 24"
+    math CHUNK_TYPE & 0x00ffffff
+    get CHUNK_SIZE long
+    savepos CHUNK_OFF
+
+    if CHUNK_TYPE != 0
+        get ID long
+        get PREV_ID long
+        get DUMMY3 long
+        get TYPE long
+    endif
+
+    if CHUNK_TYPE == 1
+        getdstring DUMMY 0x18
+        getdstring NAME 0x118
+
+        if TYPE == 1
+            set FOLDER string NAME
+        elif TYPE == 2
+            get SIZE long
+            get FLAG1 byte
+            get FLAG2 byte
+            get ZSIZE long
+            get NOT_COMPRESSED byte
+
+            string FNAME p "%s/%s" FOLDER NAME
+
+            putvarchr MEMORY_FILE ZSIZE 0
+            log MEMORY_FILE 0 0
+        endif
+    endif
+
+    savepos OFFSET
+    math CHUNK_OFF + CHUNK_SIZE
+    xmath TMP "CHUNK_OFF - OFFSET"
+    if TMP != 0
+        append
+        log MEMORY_FILE OFFSET TMP
+        append
+    endif
+
+    if CHUNK_TYPE == 2
+        if CHUNK_FLAGS == 0
+            if SIZE != 0
+                if NOT_COMPRESSED == 0
+                    get XSIZE asize MEMORY_FILE
+                    if XSIZE < ZSIZE
+                        math ZSIZE = XSIZE
+                    endif
+                    math ZSIZE - 2
+                    clog FNAME 2 ZSIZE SIZE MEMORY_FILE
+                else
+                    get XSIZE asize MEMORY_FILE
+                    if XSIZE < SIZE
+                        math SIZE = XSIZE
+                    endif
+                    log FNAME 0 SIZE MEMORY_FILE
+                endif
+
+                math SIZE  = 0
+                math ZSIZE = 0
+            endif
+        endif
+    endif
+
+next

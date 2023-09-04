@@ -1,0 +1,16 @@
+# extracts the MEDIA.RES from "The Animals!" for Sega CD
+# (c) 2012-10-18 by AlphaTwentyThree of XeNTaX
+
+goto 0x14
+get BIAS long
+math BIAS *= 0x800
+goto 0x20
+for i = 1 <= 0xa50
+   getDstring NAME 0x10
+   get OFFSET1 long
+   get SIZE1 long
+   get SIZE long
+   get OFFSET long
+   math OFFSET += BIAS
+   log NAME OFFSET SIZE
+next 

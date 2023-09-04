@@ -1,0 +1,33 @@
+# Defense Grid 2
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "data0000.hpz"
+get HPZ_INDEX_SIZE asize
+math HPZ_INDEX_SIZE -= 20
+
+goto 0x13
+for PACK = 1
+    string NAME p "data%04d.hpz" PACK
+    open FDSE NAME 1
+
+    savepos TMP
+    if TMP >= HPZ_INDEX_SIZE
+        break
+    endif
+    get FILES long
+    getdstring DUMMY 7
+    math OFFSET = 0
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get ZSIZE long
+        get SIZE long
+        get TSTAMP longlong
+        if ZSIZE == SIZE
+            log NAME OFFSET SIZE 1
+        else
+            clog NAME OFFSET ZSIZE SIZE 1
+        endif
+        math OFFSET += ZSIZE
+    next i
+next PACK

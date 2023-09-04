@@ -1,0 +1,15 @@
+# hyasb Android
+#   Will of Shinobi
+
+get DUMMY long  # 0xb28e87c2
+get DUMMY long  # 0x88d8bca5
+for
+    get NAMESZ byte
+    if NAMESZ == 0
+        break
+    endif
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next

@@ -1,0 +1,60 @@
+# Shadow Warrior 2 (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+math CHUNK_SIZE = 0x10000
+idstring "HOGP"
+get VER long    # 3
+get INFO_OFF longlong
+savepos TMP
+math INFO_OFF + TMP
+goto INFO_OFF
+get INFO_SIZE long
+get FILES long
+savepos BCK_OFF
+for EXTRACT = 0 < 2
+    goto BCK_OFF
+    for i = 0 < FILES
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get SIZE long
+        get ZSIZE long
+        get CHUNKS_IDX long
+        get OFFSET longlong
+
+        if EXTRACT != 0
+            if OFFSET != 0xffffffffffffffff
+                if ZSIZE == SIZE
+                    log NAME OFFSET SIZE
+                else
+                    math CHUNKS = SIZE
+                    math CHUNKS / CHUNK_SIZE
+                    if SIZE % CHUNK_SIZE
+                        math CHUNKS + 1
+                    endif
+                    log NAME 0 0
+                    append
+                    for x = 0 < CHUNKS
+                        getarray CHUNK_ZSIZE 0 CHUNKS_IDX
+                        math CHUNKS_IDX + 1
+                        if CHUNK_ZSIZE == 0
+                            log NAME OFFSET CHUNK_SIZE
+                            math OFFSET + CHUNK_SIZE
+                        else
+                            clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+                            math OFFSET + CHUNK_ZSIZE
+                        endif
+                    next x
+                    append
+                endif
+            endif
+        endif
+    next i
+    if EXTRACT == 0
+        get CHUNKS long
+        for x = 0 < CHUNKS
+            get TMP short
+            putarray 0 x TMP
+        next x
+    endif
+next EXTRACT

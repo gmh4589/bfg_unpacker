@@ -1,0 +1,46 @@
+# Wallpaper Engine (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "SHDV"
+    # it's more complicated than this...
+    idstring "SHDV"
+    get VER string
+    for i = 0 < 11
+        get SIZE long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        goto SIZE 0 SEEK_CUR
+    next i
+    cleanexit
+endif
+
+callfunction GET_NAME 1
+if NAME & "PKGV"
+    # PKGV0001, PKGV0006 and so on are all the same format!
+else
+    print "Error: version %NAME% is not supported yet, contact me"
+    cleanexit
+endif
+
+get FILES long
+savepos BCK_OFF
+for EXTRACT = 0 < 2
+    goto BCK_OFF
+    for i = 0 < FILES
+        callfunction GET_NAME 1
+        get OFFSET long
+        get SIZE long
+        if EXTRACT != 0
+            math OFFSET + BASE_OFF
+            log NAME OFFSET SIZE
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT
+
+startfunction GET_NAME
+    get NAMESZ long
+    getdstring NAME NAMESZ
+endfunction

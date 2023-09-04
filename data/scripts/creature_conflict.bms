@@ -1,0 +1,30 @@
+# Creature Conflict (script 0.1.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "index.p00"
+open FDSE "data.p00" 1
+goto 0x2b7c
+get INDEX_SIZE asize
+do
+    get OFFSET long
+    get SIZE long
+    get FOLDER long
+    get TSTAMP long
+    get FLAGS long
+    getdstring NAME 0x40
+
+    set EXT extension NAME
+    if EXT == "png"
+        math SKIP = 12
+    else
+        math SKIP = 4
+    endif
+    if SIZE u> SKIP
+        math OFFSET + SKIP
+        math SIZE   - SKIP
+    endif
+    string NAME p "%d/%s" FOLDER NAME
+    log NAME OFFSET SIZE 1
+
+    savepos TMP
+while TMP != INDEX_SIZE

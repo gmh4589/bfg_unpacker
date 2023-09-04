@@ -1,0 +1,40 @@
+# Shin Seiki DPK
+
+comtype wp16    # Wp16 / Wpbb
+get INFO_SIZE long
+get FOLDERS long
+get FILES long
+
+putarray 0 FILES ""
+putarray 1 FILES 0
+
+for FOLDER = 0 < FOLDERS
+    get OFFSET long
+    get SIZE long
+    get PREV_IDX long
+    get ELEMENTS1 long
+    get ELEMENTS2 long
+    get NAME string
+    for i = 0 < ELEMENTS1
+        get DUMMY long
+    next i
+    for i = 0 < ELEMENTS2
+        get ID long
+        putarray 0 ID NAME
+        putarray 1 ID OFFSET
+    next i
+next FOLDER
+
+for i = 0 < FILES
+    getarray PATH     0 i
+    getarray BASE_OFF 1 i
+
+    get OFFSET long
+    get SIZE long
+    get NAME string
+
+    string NAME p "%s/%s" PATH NAME
+    math OFFSET + BASE_OFF
+    clog NAME OFFSET SIZE SIZE
+next i
+

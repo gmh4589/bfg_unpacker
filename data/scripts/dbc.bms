@@ -1,0 +1,13 @@
+# nba live 2003 ps2 XDB.VIV
+
+endian big
+idstring BIGF
+get FULL_SIZE long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME string
+    log NAME OFFSET SIZE
+next i

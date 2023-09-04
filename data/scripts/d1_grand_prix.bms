@@ -1,0 +1,21 @@
+# D1 Grand Prix
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get NAMES_OFF long
+get NAMES_SIZE long
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+
+math FILES -= 1
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    get NAME_OFF long MEMORY_FILE
+    savepos TMP MEMORY_FILE
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+
+    log NAME OFFSET SIZE
+next i

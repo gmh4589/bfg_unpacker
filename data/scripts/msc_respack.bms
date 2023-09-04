@@ -1,0 +1,12 @@
+# Microsoft Solitaire Collection RESPACK
+
+comtype deflate_noerror
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+get MEM_SIZE asize MEMORY_FILE
+for OFFSET = 0 != MEM_SIZE
+    goto OFFSET MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    log "" OFFSET SIZE MEMORY_FILE
+next OFFSET + SIZE

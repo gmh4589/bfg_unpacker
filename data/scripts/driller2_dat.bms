@@ -1,0 +1,31 @@
+# Mr. Driller 2
+
+idstring "HARC"
+get DUMMY long  # 0x90
+get OFFSET long
+get ELEMENTS long
+goto OFFSET
+for i = 0 < ELEMENTS
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FOLDER_ID long
+    getdstring FLAGS 8
+    getdstring NAME 0x18
+
+    if OFFSET == 0
+        putarray 0 i NAME
+        putarray 1 i FOLDER_ID
+    else
+        for FOLDER_ID = FOLDER_ID != 0xffffffff
+            getarray TMP       0 FOLDER_ID
+            getarray FOLDER_ID 1 FOLDER_ID
+            string NAME p "%s/%s" TMP NAME
+        next
+        if SIZE == ZSIZE    # FLAGS is useless
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

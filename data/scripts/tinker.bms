@@ -1,0 +1,43 @@
+# Tinker
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SERF"
+get VER long
+get DUMMY long
+get FILES long
+get DUMMY long
+
+for i = 0 < FILES
+    savepos OFFSET
+    set SIZE long 256
+    getdstring DUMMY SIZE
+    callfunction boring_crypt
+    get SIZE asize MEMORY_FILE
+    getdstring NAME SIZE MEMORY_FILE
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+
+    if ZSIZE == SIZE
+        if NAME extension "tkr"
+            callfunction boring_crypt
+            get SIZE asize MEMORY_FILE
+            log NAME 0 SIZE MEMORY_FILE
+        else
+            log NAME OFFSET SIZE
+        endif
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i
+
+# all the compression and encryption functions in QuickBMS are implemented to work with extraction (log/clog)
+startfunction boring_crypt
+    comtype base64
+    clog MEMORY_FILE2 OFFSET SIZE SIZE
+    comtype zlib
+    encryption CryptDecrypt "0x4f3_56b1!44:fa" "0x8003 0x6601"
+    get SIZE asize MEMORY_FILE2
+    log MEMORY_FILE 0 SIZE MEMORY_FILE2
+    encryption "" ""
+endfunction

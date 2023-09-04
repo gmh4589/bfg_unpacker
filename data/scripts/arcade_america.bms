@@ -1,0 +1,32 @@
+# Arcade America
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+goto 0xf0
+for i = 0 < 8
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+
+getarray OFFSET 0 0
+getarray SIZE   1 0
+goto OFFSET
+xmath FILES "SIZE / (2 + 4 + 4)"
+
+getarray NAMES_OFF 0 7
+
+for i = 0 < FILES
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAMES_OFF
+    get NAME string
+    savepos NAMES_OFF
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

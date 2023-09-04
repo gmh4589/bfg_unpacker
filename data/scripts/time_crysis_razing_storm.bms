@@ -1,0 +1,126 @@
+# Time Crisis: Razing Storm (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "hsl"
+    print "open directly the pkg files, no need of hsl"
+    cleanexit
+endif
+
+comtype lzss
+idstring "nxpk"
+get DUMMY long
+get DUMMY long
+get HEADER_SIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+
+set PATH string ""
+set NAME string ""
+for
+    callfunction EXTRACT
+next
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    do
+        savepos TMP
+        if TMP >= HEADER_SIZE
+            cleanexit
+        endif
+        getdstring TYPE 4
+        if TYPE == "fldr"
+            get DUMMY long
+            get DUMMY long
+            get PREV_OFF long
+            get DUMMY long
+            get NEXT_OFF long
+            getdstring DUMMY 0x28
+            get NAME string
+            padding 0x10
+
+            if NEXT_OFF != 0
+                goto NEXT_OFF
+                callfunction EXTRACT
+            endif
+            if PREV_OFF != 0
+                goto PREV_OFF
+            else
+                math NEXT_OFF = 0
+            endif
+
+        elif TYPE == "file"
+            get PREV_OFF long
+            get DUMMY long
+            get NEXT_OFF long
+            get DUMMY long
+            get OFFSET long
+            get SIZE long
+            getdstring DUMMY 0x24
+            get NAME string
+            padding 0x10
+
+            set FNAME string PATH
+            string FNAME += NAME
+
+            savepos TMP
+            goto OFFSET
+            getdstring SIGN 4
+            if SIGN == "PACK"
+                callfunction PACK_LZSS
+            else
+                log FNAME OFFSET SIZE
+            endif
+            goto TMP
+
+            if NEXT_OFF != 0
+                goto NEXT_OFF
+            endif
+
+        elif TYPE == "nxpk"
+            cleanexit
+
+        else
+            print "unsupported type %TYPE%, contact me"
+            cleanexit
+        endif
+    while NEXT_OFF != 0
+endfunction
+
+startfunction PACK_LZSS
+    endian big
+    get PACK_FILES long
+    get PACK_HEADER_SIZE long
+    get PACK_SIZE long
+    getdstring DUMMY 0x10
+    for j = 0 < PACK_FILES
+        getdstring DUMMY 0x10
+        get XOFFSET long
+        get XSIZE long
+        get DUMMY long
+        get DUMMY long
+        getdstring XNAME 0x20
+        set NAME string FNAME
+        string NAME += /
+        string NAME += XNAME
+        savepos TMP2
+        math XOFFSET += OFFSET
+        goto XOFFSET
+        getdstring SIGN 4
+        if SIGN == "LZSS"
+            get XSIZE long
+            get XZSIZE long
+            get DUMMY long
+            savepos XOFFSET
+            clog NAME XOFFSET XZSIZE XSIZE
+        else
+            log NAME XOFFSET XSIZE
+        endif
+        goto TMP2
+    next j
+    endian little
+endfunction

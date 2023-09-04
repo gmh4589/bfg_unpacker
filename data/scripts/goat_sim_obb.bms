@@ -1,0 +1,11 @@
+# Goat Simulator OBB
+
+idstring "UE3AndroidOBB"
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

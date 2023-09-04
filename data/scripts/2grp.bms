@@ -1,0 +1,48 @@
+getdstring SIGN 4
+goto 0
+
+if SIGN == "2GRP"
+
+    idstring "2GRP"
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        get DUMMY1 long
+        get DUMMY2 long
+        get OFFSET long
+        get DUMMY4 long
+        get DUMMY5 long
+        get DUMMY6 long
+        putarray 0 i OFFSET
+    next i
+
+    sortarray 0
+        getarray OFFSET 0 0
+    for i = 1 <= FILES
+        if i == FILES
+            get NEXT_OFF asize
+        else
+            getarray NEXT_OFF 0 i
+        endif
+        xmath SIZE "NEXT_OFF - OFFSET"
+        log "" OFFSET SIZE
+        math OFFSET = NEXT_OFF
+    next i
+
+else
+
+    for
+        get DUMMY long
+        if DUMMY == 0xffffffff
+            break
+        endif
+        get DUMMY long
+        get SIZE long
+        get ZERO long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+        goto OFFSET
+    next
+
+endif

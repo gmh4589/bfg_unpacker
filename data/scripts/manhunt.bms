@@ -1,0 +1,15 @@
+# Manhunt
+
+idstring "MHPK"
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 260
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    filexor 0x7f
+    log NAME OFFSET SIZE
+    filexor ""
+next i

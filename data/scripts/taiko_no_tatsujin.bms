@@ -1,0 +1,60 @@
+# Taiko no Tatsujin - Chibi Dragon to Fushigi na Orb (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+
+# check if we have the list or _info formats
+get NAME basename
+string NAME - "list"
+string NAME - "_info"
+string NAME + "list"
+open FDSE NAME 1 EXISTS
+if EXISTS != 0
+
+    get NAME basename
+    string NAME - "list"
+    open FDSE NAME 1
+    string NAME + "list"
+    open FDSE NAME
+    getdstring NAME 0xd0
+    get FILES long
+    get ZERO long
+    get PACKED_SIZE long
+    get ZERO long
+    get PACKED_SIZE long
+    for i = 0 < FILES
+        getdstring NAME 0x50
+        get FILES_IN_THIS_FOLDER long
+        get OFFSET long
+        get SIZE long
+        get OFFSET long
+        get SIZE long
+        if FILES_IN_THIS_FOLDER == 0
+            log NAME OFFSET SIZE 1
+        endif
+    next i
+
+else
+
+    get NAME basename
+    get EXT extension
+    string NAME - "_info"
+    string TMP p "%s.%s" NAME EXT
+    open FDSE TMP 1
+    string TMP p "%s_info.%s" NAME EXT
+    open FDSE TMP
+
+    get FILES long
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring NAME 0x40
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        math OFFSET * 0x800
+        math SIZE   * 0x800
+        math ZSIZE  * 0x800
+        clog NAME OFFSET ZSIZE SIZE 1
+    next i
+
+endif

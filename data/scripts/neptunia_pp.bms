@@ -1,0 +1,74 @@
+# Hyperdimension Neptunia: Producing Perfection (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER   long  # 3
+
+if VER >= 0x10  # just some big number to understand
+    goto 0
+    for
+        get OFFSET long
+        if OFFSET == 0xffffffff || OFFSET == 0
+            break
+        endif
+        get SIZE long
+        get NAME_OFF long
+        callfunction GET_NAME 1
+        log NAME OFFSET SIZE
+    next
+    cleanexit
+endif
+
+get DUMMY long  # 1
+get ZERO  long  # 0
+get INFO_OFF long
+get DATA_SIZE long
+get DUMMY long  # 5
+get FILES long
+
+goto INFO_OFF
+get DUMMY long  # 1
+get FILES long
+get DUMMY long  # 5
+get DUMMY long  # 0x10
+get DUMMY long  # 0
+
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + INFO_OFF
+    putarray 0 i OFFSET
+next i
+
+for i = 0 < FILES
+    get SIZE long
+    putarray 1 i SIZE
+next i
+
+if VER < 3
+    math DATA_SIZE + INFO_OFF
+    goto DATA_SIZE
+    for i = 0 < FILES
+        getdstring NAME 0x20
+        putarray 2 i NAME
+    next i
+else
+    for i = 0 < FILES
+        get NAME_OFF long
+        math NAME_OFF + INFO_OFF
+        callfunction GET_NAME 1
+        putarray 2 i NAME
+    next i
+endif
+
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray SIZE     1 i
+    getarray NAME     2 i
+    log NAME OFFSET SIZE
+next i
+
+startfunction GET_NAME
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

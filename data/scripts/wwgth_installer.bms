@@ -1,0 +1,192 @@
+# wwgT)H installer - Clickteam? - (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+#set FIND_STRING string "XPADDINGPADDINGX"
+#findloc OFFSET string FIND_STRING
+#goto OFFSET
+#do
+#    getdstring TMP 16
+#while TMP == FIND_STRING
+#goto -16 0 SEEK_CUR
+
+open FDDE "D01" 2 EXISTS
+if EXISTS != 0
+    print "reassembling splitted archive, please wait..."
+        get SIZE asize
+        log TEMPORARY_FILE 0 SIZE
+    append
+    for i = 1
+        string EXT p "d%02d" i
+        open FDDE EXT 0 EXISTS
+        if EXISTS == 0
+            break
+        endif
+        get SIZE long
+        savepos OFFSET
+        log TEMPORARY_FILE OFFSET SIZE
+    next i
+    append
+    print "%i% parts assembled"
+    open "." TEMPORARY_FILE
+endif
+
+findloc OFFSET string "wwgT)H"
+goto OFFSET
+getdstring DUMMY 6  # wwgT)H
+
+math MODE = 0
+for i = 0 # < 7
+    get TYPE long
+    get ENTRY_SIZE long
+    savepos NEXT_OFFSET
+    get SIZE long
+    if SIZE == 0
+        math MODE = 1
+        math ENTRY_SIZE + 4
+        get SIZE long
+    endif
+    if TYPE == 0x7f7f
+        break
+    endif
+    math ZSIZE = ENTRY_SIZE
+    string NAME p "installer_%d.dat" i  # need to use a fixed extension
+    callfunction UNZIP 1
+    math NEXT_OFFSET + ENTRY_SIZE
+    goto NEXT_OFFSET
+next i
+
+savepos BASE_OFF
+if MODE != 0
+    math BASE_OFF + 4
+endif
+
+math WORKAROUND = 0
+math ZERO_BEFORE_NAME = -1
+
+open "." NAME 1
+get FILES long 1
+for i = 0 < FILES
+    math HAS_TSTAMP = 0
+    savepos ENTRY_OFF 1
+    if WORKAROUND == 1
+        get ENTRY_SIZE long 1
+    else
+        get ENTRY_SIZE short 1
+    endif
+    get TYPE long 1
+    if TYPE >= 0x10000  # if ENTRY_SIZE is long
+        goto -2 1 SEEK_CUR
+        get TYPE long 1
+        math WORKAROUND = 1
+    endif
+    if WORKAROUND == 1
+        get FLAGS long 1
+        get ZERO long 1
+        get ZERO long 1
+        get FILE_CRC long 1
+        get SIZE long 1
+        get OFFSET long 1
+        get ZSIZE long 1
+        get ZERO long 1
+        if TYPE != 2    # or FLAGS & 8 ?
+            math HAS_TSTAMP = 1
+        endif
+    else
+        if MODE == 0
+            get OFFSET long 1
+            get ZSIZE long 1
+        else
+            get OFFSET longlong 1
+            get ZSIZE longlong 1
+        endif
+        get DUMMY long 1
+        if MODE == 0
+            get SIZE long 1
+        else
+            get SIZE longlong 1
+        endif
+        get FILE_CRC long 1
+        get FLAGS long 1
+        get ZERO1 long 1
+        get ZERO2 long 1
+        if WORKAROUND == 2
+            get ZERO3 long 1
+        else
+            get ZERO3 short 1
+        endif
+        get HAS_TSTAMP long 1
+        if ZERO2 != 0
+            for x = 0 < ZERO2
+                get DUMMY short 1
+                get DUMMY short 1
+                get DUMMY long 1
+            endif
+            get LANG_ID long 1
+        endif
+    endif
+    if HAS_TSTAMP != 0 # or FILE_CRC?
+        get TSTAMP longlong 1
+        get TSTAMP longlong 1
+        get TSTAMP longlong 1
+    endif
+    if MODE != 0
+        if ZERO_BEFORE_NAME < 0
+            get ZERO short 1
+            goto -2 1 SEEK_CUR
+            if ZERO == 0
+                math ZERO_BEFORE_NAME = 1
+            else
+                math ZERO_BEFORE_NAME = 0
+            endif
+        endif
+        get ZERO short 1
+    endif
+    callfunction GET_NAME 1
+    if NAME == ""
+        if i == 0
+            math WORKAROUND = 2
+            goto NAME_OFF 1
+            get DUMMY short 1
+            callfunction GET_NAME 1
+        endif
+    endif
+
+    math OFFSET + BASE_OFF
+    goto OFFSET
+    if SIZE != 0
+        if TYPE & 1
+            # encrypted?
+            string NAME p "%s/%s" "unknown" NAME
+            log NAME OFFSET ZSIZE
+        else
+            callfunction UNZIP 1
+        endif
+    endif
+next i
+
+startfunction GET_NAME
+    savepos NAME_OFF 1
+    xmath NAMESZ "(ENTRY_OFF + ENTRY_SIZE) - NAME_OFF"
+    getdstring NAME NAMESZ 1
+    if MODE != 0
+        set NAME unicode NAME
+    endif
+endfunction
+
+startfunction UNZIP
+    get ZIP byte
+    savepos OFFSET
+    math ZSIZE - 1
+    if ZIP == 0 # ???
+        log NAME OFFSET ZSIZE
+    elif ZIP == 1
+        comtype zlib
+        clog NAME OFFSET ZSIZE SIZE
+    elif ZIP == 2
+        comtype bzip2
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        print "Error: unknown ZIP type %ZIP%, contact me"
+        cleanexit
+    endif
+endfunction

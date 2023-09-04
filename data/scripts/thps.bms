@@ -1,0 +1,20 @@
+# Tony Hawk Pro Skater (PRE files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss
+get mSize long
+get mVersion long
+get mNumFiles long
+for i = 0 < mNumFiles
+    get mDataSize long
+    get mCompressedSize long
+    get mNameSize short
+    get mUsage short
+    get mChecksum long
+    getdstring mpName mNameSize
+    savepos OFFSET
+    clog mpName OFFSET mCompressedSize mDataSize
+    math OFFSET += mCompressedSize
+    goto OFFSET
+    padding 4
+next i

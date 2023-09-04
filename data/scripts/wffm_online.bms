@@ -1,0 +1,21 @@
+open FDDE TBL 1
+open FDDE DATA 0
+
+idstring 1 "DIR\x1a"
+get TOTAL_SIZE long 1
+get OFFSET long 1   # not sure
+get FILES long 1
+
+math OFFSET += 0x4000
+goto OFFSET 1
+get DUMMY long 1
+
+for i = 0 < FILES
+    get DUMMY long 1    # don't know, the file doesn't seem compressed
+    get OFFSET long 1
+    get SIZE long 1
+    get NAME string 1
+    padding 4 1
+
+    log NAME OFFSET SIZE
+next i

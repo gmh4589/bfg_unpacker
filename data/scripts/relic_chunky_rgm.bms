@@ -1,0 +1,32 @@
+# Relic Chunky RGM
+
+idstring "Relic Chunky\r\n\x1a\0"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get RGM_SIZE asize
+do
+    getdstring CHUNK_NAME1 4
+    getdstring CHUNK_NAME2 4
+    set CHUNK_NAME3 string ""
+    get DUMMY long
+    if CHUNK_NAME1 u== "DATA"
+        get SIZE long
+        getdstring DUMMY 12
+    else
+        get DUMMY long
+        get SIZE long
+        getdstring DUMMY 8
+    endif
+    if CHUNK_NAME2 u== "MTR2"
+        get CHUNK_NAME3 string
+    endif
+
+    savepos OFFSET
+    string NAME p "%s/%s/" CHUNK_NAME1 CHUNK_NAME2
+    log NAME OFFSET SIZE
+    goto SIZE 0 SEEK_CUR
+    savepos TMP
+while TMP != RGM_SIZE

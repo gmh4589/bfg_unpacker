@@ -1,0 +1,33 @@
+getdstring SIGN 5
+if SIGN == "KIWAD"
+    comtype zlib_noerror
+    get DUMMY long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get ZIP byte
+        get CRC long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+else
+    endian big
+    get FILES long
+    math BASE_OFF = FILES
+    math BASE_OFF *= 0x48
+    math BASE_OFF += 8
+    for i = 0 < FILES
+        getdstring NAME 0x40
+        get OFFSET long
+        get SIZE long
+        math OFFSET += BASE_OFF
+        log NAME OFFSET SIZE
+    next i
+endif

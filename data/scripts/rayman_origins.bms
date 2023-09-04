@@ -1,0 +1,149 @@
+# Rayman Origins IPK (script 0.2.9)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\xba\x12\xec\x50" # "\x50\xec\x12\xba"
+get VER long
+get DUMMY long
+if VER >= 8
+    get DUMMY long
+    comtype lzma
+endif
+get BASE_OFF long
+get FILES long
+goto 0x28
+math IS_MEM = 0
+if VER > 5
+get IS_MEM long  # it's ever zero except for VER 7
+if IS_MEM != 0
+    if VER >= 8
+        get ZERO long
+    endif
+    get SIZE long
+    get ZSIZE long
+    if SIZE == 0
+        math IS_MEM = 0
+    else
+        clog MEMORY_FILE BASE_OFF ZSIZE SIZE
+        math BASE_OFF = 0
+    endif
+endif
+endif
+savepos TMP_OFF
+for x = 20 >= 0
+    get TMP long
+    if TMP == FILES
+        break
+    endif
+prev x
+if x < 0
+    goto TMP_OFF
+    get DUMMY long
+    get FILES long
+endif
+set NAME string ""
+
+if VER <= 2 # ???
+
+    for i = 0 < FILES
+        callfunction GET_FIELDS 1
+        callfunction DUMP 1
+    next i
+
+elif VER == 4 # 3ds
+
+    for i = 0 < FILES
+        callfunction GET_FIELDS 1
+        putarray 0 i SIZE
+        putarray 1 i ZSIZE
+        putarray 2 i OFFSET
+    next i
+    for i = 0 < FILES
+        get ID long
+        get CRC long
+        putarray 10 i ID
+    next i
+    for i = 0 < FILES
+        get NAMESZ long
+        math NAMESZ * 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        putarray 3 i NAME
+    next i
+
+    for i = 0 < FILES
+        getarray ID 10 i
+        getarray SIZE   0 ID
+        getarray ZSIZE  1 ID
+        getarray OFFSET 2 ID
+        getarray NAME   3 i
+        callfunction DUMP 1
+    next i
+
+elif VER <= 8 && VER >= 5
+
+    for i = 0 < FILES
+        get TYPE long
+        callfunction GET_FIELDS 1
+        callfunction DO_TYPE 1
+        get NAMESZ long
+        getdstring PATH NAMESZ
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        string NAME p "%s%s" PATH NAME
+        get DUMMY long
+        get DUMMY long
+        callfunction DUMP 1
+    next i
+
+else
+
+    # for example version 3 and possible others
+
+    for i = 0 < FILES
+        get TYPE long
+        callfunction GET_FIELDS 1
+        callfunction DO_TYPE 1
+        get NAMESZ long
+        math NAMESZ * 2
+        getdstring NAME NAMESZ
+        set NAME unicode NAME
+        callfunction DUMP 1
+    next i
+
+endif
+
+startfunction GET_FIELDS
+    get SIZE long
+    get ZSIZE long
+    get TSTAMP longlong
+    get OFFSET longlong
+endfunction
+
+startfunction DO_TYPE
+    if TYPE == 1
+        # nothing to do
+    elif TYPE == 2
+        get ZERO long
+        get DUMMY long
+    else
+        print "Error: unknown TYPE %TYPE%, contact me"
+        cleanexit
+    endif
+endfunction
+
+startfunction DUMP
+    math OFFSET + BASE_OFF
+    if IS_MEM != 0
+        if ZSIZE == 0
+            log NAME OFFSET SIZE MEMORY_FILE
+        else
+            clog NAME OFFSET ZSIZE SIZE MEMORY_FILE
+        endif
+    else
+        if ZSIZE == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction

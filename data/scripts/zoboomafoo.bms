@@ -1,0 +1,17 @@
+# Zoboomafoo: Leapin' Lemurs
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x01\x02\x04\x08"
+get DUMMY short
+get DUMMY short
+get HEADER_SIZE long
+get ALIGN long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    if SIZE != 0
+        log "" OFFSET SIZE
+    endif
+next i

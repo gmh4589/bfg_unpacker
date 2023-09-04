@@ -1,0 +1,23 @@
+# Genji Dawn of the Samurai
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BPAK"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DATA_SIZE long
+get BASE_OFF long
+get ZERO long
+savepos TMP
+xmath FILES "(BASE_OFF - TMP) / (4 * 4)"
+for i = 0 < FILES
+    get ZERO long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    if SIZE != 0xffffffff
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    endif
+next i

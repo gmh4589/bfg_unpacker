@@ -1,0 +1,23 @@
+# Echoes Of Sorrow
+
+get NAMESZ byte
+getdstring NAME NAMESZ  # "$PAK$"
+get BASE_OFF long
+get NAMESZ byte
+getdstring NAME NAMESZ  # "Package Builder v1.0 Coded by Rui Barbosa."
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    get NAMESZ byte
+    getdstring PATH NAMESZ
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        get SIZE long
+        get OFFSET long
+        get ZERO long
+        get ZERO long
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

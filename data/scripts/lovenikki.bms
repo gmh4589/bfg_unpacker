@@ -1,0 +1,20 @@
+# Love Nikki (script 0.1.1)
+#   https://www.vg-resource.com/thread-35680-post-654299.html#pid654299
+#   https://github.com/Lucina/playground/blob/master/CodePlayground/hate3/src/main/java/dev/frag/hate3/Hate3.java
+
+goto -8
+savepos SIZE
+getdstring DUMMY 4  # "droi"
+get NUM byte
+getdstring EXT 3
+
+if EXT == "lua"
+	encryption bf_cbc "fd1c1b2f34a0d1d246be3ba9bc5af022e83375f315a0216085d3013a"
+	xmath XSIZE "SIZE - NUM"
+else
+	encryption bf_ecb "fd1c1b2f34a0d1d246be3ba9bc5af022e83375f315a0216085d3013a"
+	set XSIZE long SIZE
+endif
+
+get NAME filename
+log NAME 0 XSIZE 0 SIZE

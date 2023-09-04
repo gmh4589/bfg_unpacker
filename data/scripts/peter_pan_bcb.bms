@@ -1,0 +1,23 @@
+# Peter Pan The Legend of Neverland PS2 (BCB)
+# script for QuickBMS http://quickbms.aluigi.org
+
+for EXTRACT = 0 < 2
+    goto 0
+    get FILES long
+    for i = 0 < FILES
+        get SIZE long
+        putarray 0 i SIZE
+    next i
+    for i = 0 < FILES
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        if EXTRACT != 0
+            getarray SIZE 0 i
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+            math OFFSET x 0x800
+        endif
+    next i
+    savepos OFFSET
+    math OFFSET x 0x800
+next EXTRACT

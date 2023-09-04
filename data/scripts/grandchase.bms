@@ -1,0 +1,19 @@
+# GrandChase ZIP.SD
+
+get SIZE long
+getdstring DATA SIZE
+if DATA & "KMB"
+else
+    print "Error: unknown file type"
+    cleanexit
+endif
+
+get SIZE long
+getdstring DATA SIZE
+savepos BASE_OFF
+
+string RET X DATA
+for i = 0 < fileName[]
+    math start[i] + BASE_OFF
+    log fileName[i] start[i] size[i]
+next i

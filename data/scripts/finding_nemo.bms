@@ -1,0 +1,63 @@
+# Finding Nemo
+#   the directory tree is incomplete, only the last folder is saved
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+
+get DUMMY long  # -1
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    get ZIP long    # maybe ZIP? my sample had equal SIZE and ZSIZE
+    putarray 0 i OFFSET
+    putarray 1 i ZSIZE
+    putarray 2 i SIZE
+    putarray 3 i ZIP
+next i
+
+get NAMES long
+get FILES long
+
+savepos TMP
+xmath TMP "TMP + (NAMES * (4 + 2 + 2))"
+xmath TMP_SIZE "(INFO_OFF + INFO_SIZE) - TMP"
+log MEMORY_FILE TMP TMP_SIZE
+
+for i = 0 < NAMES
+    get NAME_OFF long
+    get PREV_ID signed_short
+    get FILE_ID signed_short
+
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    putarray 10 i NAME
+    putarray 11 i FILE_ID
+    putarray 12 i PREV_ID
+next i
+
+math FILE_NUM = 0
+for i = 0 < NAMES
+    getarray NAME 10 i
+    getarray FILE_ID 11 i
+    getarray PREV_ID 12 i
+    if FILE_ID == 0
+        set LAST_FOLDER string NAME
+    else
+        string FNAME p "%s/%s" LAST_FOLDER NAME
+        getarray OFFSET 0 FILE_NUM
+        getarray ZSIZE  1 FILE_NUM
+        getarray SIZE   2 FILE_NUM
+        getarray ZIP    3 FILE_NUM
+        math FILE_NUM + 1
+
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next i

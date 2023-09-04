@@ -1,0 +1,51 @@
+# game: Army Men: Sarge's War (GameCube)
+# file type: *.sti/*.stm pairs
+# script type: extractor
+# note 1: genh headers are automatically added
+# note 2: format is big endian PCM
+#
+# script for QuickBMS http://quickbms.aluigi.org
+# written by AlphaTwentyThree of Zenhax
+
+open FDDE sti 0
+open FDDE stm 1
+endian big
+goto 8 0
+get FILES long 0
+get UNK long 0
+get BNAME basename
+for i = 1 <= FILES
+	get CRC long 0
+	getDstring DUMMY 0xc 0
+	get OFFSET long 0
+	get SIZE long 0
+	get DUMMY longlong 0
+	get FREQ long 0
+	getDstring DUMMY 0x30 0
+	set CH 1
+	xmath SAMPLES "SIZE / 4"
+	string NAME p= "%s_%i_0x%08x.genh" BNAME i CRC
+	callfunction GENH 1
+	endian big
+next i
+
+startfunction GENH
+	endian little
+	log MEMORY_FILE 0 0
+	putVarChr MEMORY_FILE 0 0x484e4547 long
+	putVarChr MEMORY_FILE 4 CH long
+	putVarChr MEMORY_FILE 0xc FREQ long
+	putVarChr MEMORY_FILE 0x10 0xffffffff long
+	putVarChr MEMORY_FILE 0x14 0xffffffff long
+	putVarChr MEMORY_FILE 0x18 3 long
+	putVarChr MEMORY_FILE 0x1c 0x60 long
+	putVarChr MEMORY_FILE 0x20 0x60 long
+	putVarChr MEMORY_FILE 0x40 SAMPLES long
+	putVarChr MEMORY_FILE 0x50 SIZE long
+	putVarChr MEMORY_FILE 0x5f 0 byte
+	append
+	log MEMORY_FILE OFFSET SIZE 1
+	append
+	get SIZE asize MEMORY_FILE
+	log NAME 0 SIZE MEMORY_FILE
+endfunction

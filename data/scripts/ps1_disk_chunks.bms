@@ -1,0 +1,26 @@
+# PS1 disk chunks merger (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+append
+for OFFSET = 0 u< SIZE
+    idstring "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    savepos OFFSET
+    log MEMORY_FILE OFFSET 0x800
+    math OFFSET + 0x800
+    math OFFSET + 0x118
+    goto OFFSET
+next
+append
+
+get SIZE asize MEMORY_FILE
+get NAME basename
+get EXT extension
+string NAME + "_unchunked."
+string NAME + EXT
+log NAME 0 SIZE MEMORY_FILE

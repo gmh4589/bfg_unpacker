@@ -1,0 +1,49 @@
+endian big
+get FILES long
+for i = 0 < FILES
+   get OFFSET long
+   get SIZE long
+   get DUMMY long
+   get DUMMY long
+   putarray 0 i OFFSET
+   putarray 1 i SIZE
+next i
+
+print "please wait, sorting in progress..."
+for i = 0 < FILES
+   getarray OFFSET1 0 i
+   getarray SIZE1   1 i
+   for j = i < FILES
+      getarray OFFSET2 0 j
+      if OFFSET2 < OFFSET1
+         getarray SIZE2 1 j
+         putarray 0 i OFFSET2
+         putarray 1 i SIZE2
+         putarray 0 j OFFSET1
+         putarray 1 j SIZE1
+         getarray OFFSET1 0 i
+         getarray SIZE1   1 i
+      endif
+   next j
+next i
+
+findloc TEMPFILES string "C:\\VexxData" 0
+for i = 0 < FILES
+   getarray OFFSET 0 i
+   if OFFSET == TEMPFILES
+      getarray SIZE 1 i
+      break
+   endif
+next i
+if i >= FILES
+   getarray OFFSET 0 1
+   getarray SIZE 1 1
+endif
+log MEMORY_FILE OFFSET SIZE
+
+for i = 0 < FILES
+   get NAME line MEMORY_FILE
+   getarray OFFSET 0 i
+   getarray SIZE   1 i
+   log NAME OFFSET SIZE
+next i

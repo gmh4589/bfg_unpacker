@@ -1,0 +1,12 @@
+comtype unzip_dynamic
+goto -4
+get OFFSET long
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get ZSIZE long
+    clog NAME OFFSET ZSIZE ZSIZE
+next i

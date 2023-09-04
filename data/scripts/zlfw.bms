@@ -1,0 +1,37 @@
+comtype wflz
+getdstring SIGN 4
+goto 0
+if SIGN != "ZLFW"
+    get DUMMY short
+    get DUMMY short
+    get DUMMY long
+    get ZERO long
+    get ZERO long
+endif
+savepos BASE_OFF
+idstring "ZLFW"
+get ZSIZE long
+get SIZE long
+get CHUNKS long
+
+get NAME filename
+string NAME + ".unpack"
+log NAME 0 0
+append
+
+for i = 0 < CHUNKS
+    get OFFSET long
+    savepos TMP
+    math OFFSET + BASE_OFF
+    goto OFFSET
+
+    idstring "WFLZ"
+    get CHUNK_ZSIZE long
+    math CHUNK_ZSIZE + 16   # header
+    get CHUNK_SIZE long
+    math CHUNK_SIZE + 1     # bug in quickbms!
+    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+
+    goto TMP
+next i
+append

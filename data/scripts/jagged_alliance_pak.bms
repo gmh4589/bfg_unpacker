@@ -1,0 +1,30 @@
+# extracts pak files from Jagged Alliance: Back in Action and Crossfire (PC)
+# (c) 2012-06-16 by AlphaTwentyThree of XeNTaX
+
+idstring "PKLE"
+get UNK long
+get DATASTART long # attention: last file name ends directly here!
+get ZERO long
+get UNK long
+get ZERO long
+do
+   get FIDENT long # folder ident, always 1 at start
+   get NAMEL long
+   get FILES long # files in folder
+   get ZERO long
+   getDstring FOLDER NAMEL
+   for i = 1 <= FILES
+      get NAMEL long
+      get SIZE long
+      get ZERO long
+      get OFFSET long
+      get ZERO long
+      get HASH long
+      get ZERO long
+      getDstring FNAME NAMEL
+      set NAME FOLDER
+      string NAME += FNAME
+      log NAME OFFSET SIZE
+   next i
+   savepos MYOFF
+while MYOFF < DATASTART

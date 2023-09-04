@@ -1,0 +1,23 @@
+# PaRappa the Rapper and UmJammer Lammy (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+for
+    savepos OFFSET
+    get IDX long
+    if IDX == 0xffffffff
+        break
+    endif
+    get FILES long
+    get BLOCKS long
+    get ZERO long
+    math OFFSET += 0x2000
+    xmath NEXT_OFF "OFFSET + (BLOCKS * 0x800)"
+    for i = 0 < FILES
+        get SIZE long
+        getdstring NAME 0x10
+        string FNAME p= "%d/%s" IDX NAME
+        log FNAME OFFSET SIZE
+        math OFFSET += SIZE
+    next i
+    goto NEXT_OFF
+next

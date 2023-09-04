@@ -1,0 +1,25 @@
+# Evil Islands (RES)
+
+Get DUMMYL Long 0 ;
+Get FILECNTL Long 0 ;
+Get FILESTART Long 0 ;
+Set FILEJMP Long FILECNTL ;
+Math FILEJMP *= 22 ;
+Math FILEJMP += FILESTART ;
+Do ;
+GoTo FILESTART 0 ;
+Get DUMMYL Long 0 ;
+Get FILESIZE Long 0 ;
+Get FILEOFF Long 0 ;
+Get DUMMYL Long 0 ;
+Get TAILOFF Int 0 ;
+Get TAILSIZEB Long 0 ;
+SavePos FILESTART 0 ;
+Set DUMMYL Long FILEJMP ;
+Math DUMMYL += TAILSIZEB ;
+GoTo DUMMYL 0 ;
+GetDString FILENAME TAILOFF 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

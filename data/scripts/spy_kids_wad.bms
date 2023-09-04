@@ -1,0 +1,13 @@
+# Spy Kids Mega Mission Zone .wad
+
+get LIMIT asize
+for NEXT_OFF = 0 != LIMIT
+    savepos TMP
+    get NEXT_OFF long
+    math NEXT_OFF + TMP
+    getdstring NAME 0x28
+    savepos OFFSET
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log NAME OFFSET SIZE
+    goto NEXT_OFF
+next

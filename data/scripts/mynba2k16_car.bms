@@ -1,0 +1,38 @@
+# MyNBA2K16 Android .CAR (script 0.1.1)
+
+idstring "CDGe"
+get ALIGN long
+getdstring PLATFORM 4   # Andr
+get BASE_OFF long
+get FILES long
+get DUMMY long
+get DUMMY long
+math BASE_OFF * ALIGN
+for i = 0 < FILES
+    get TYPE long
+    get TSTAMP longlong
+    get SIZE long
+    get ID long
+    get OFFSET long
+    get DUMMY long
+    math OFFSET * ALIGN
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i ID
+    putarray 4 i TYPE
+next i
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    putarray 3 i NAME
+next i
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    getarray ID     2 i
+    getarray NAME   3 ID
+    getarray TYPE   4 i
+    if TYPE & 0x20  # fix for folders
+        log NAME OFFSET SIZE
+    endif
+next i

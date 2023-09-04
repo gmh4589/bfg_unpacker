@@ -1,0 +1,29 @@
+<bms games="'Chicken Little', 'Tak 3: The Great Juju Challenge'" platforms="'PC', 'XBox'" ext="HOG">
+ImpType Standard ;
+Get FOOBAR Long 0 ;
+Get FILENUM Long 0 ;
+Get DIRSIZE Long 0 ;
+Get PADSIZE Long 0 ;
+Set TEMP Long PADSIZE ;
+GoTo TEMP 0 ;
+SavePos ENTOFF 0 ;
+For Z = 1 To FILENUM ;
+GoTo TEMP 0 ;
+Math TEMP += 12 ;
+Next Z ;
+GoTo TEMP 0 ;
+SavePos FNAMEOFF 0 ;
+For X = 1 To FILENUM ;
+GoTo ENTOFF 0 ;
+Get FOOBAR Long 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+SavePos ENTOFF 0 ;
+GoTo FNAMEOFF 0 ;
+Get FNAME String 0 ;
+SavePos FNAMEOFF 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next X ;
+</bms>

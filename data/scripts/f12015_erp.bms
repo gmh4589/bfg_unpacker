@@ -1,0 +1,48 @@
+# F1 2015 ERP
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ERPK"
+get VER long
+get ZERO longlong
+get INFO_OFF longlong
+get INFO_SIZE longlong
+get FILES_OFFSET longlong
+goto INFO_OFF
+get FILES long
+get DUMMY long
+
+for FILE = 0 < FILES
+    get REMAINING_SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    string NAME - "eaid://"
+    getdstring TYPE 0x10
+    get DUMMY long
+    get RESOURCES byte
+    if RESOURCES > 1
+        string NAME + "/."  # create multiple files to allow reimporting
+    endif
+    for i = 0 < RESOURCES
+        getdstring TEMP_NAME 4
+        get OFFSET longlong
+        get SIZE longlong
+        get FLAGS long  # 0x10
+        if VER <= 2
+            math ZSIZE = SIZE
+        else
+            get FLAGS2 byte # 0x01=zlib, 0x81=no, 0x00=no
+            get ZSIZE longlong
+        endif
+
+        math OFFSET + FILES_OFFSET
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+    if VER <= 2
+    else
+        getdstring HASH 16
+    endif
+next FILE

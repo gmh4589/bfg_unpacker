@@ -1,0 +1,15 @@
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    savepos OFFSET
+
+    goto OFFSET
+    savepos TMP
+    get NAME string
+
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+    goto OFFSET
+next i

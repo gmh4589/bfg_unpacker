@@ -1,0 +1,30 @@
+# Sky Odyssey
+
+getdstring SIGN 4
+if SIGN == "ZP00"
+    get SIZE long
+    savepos OFFSET
+    get ZSIZE asize
+    math ZSIZE - OFFSET
+    get NAME filename
+    clog NAME OFFSET ZSIZE SIZE
+    cleanexit
+endif
+
+goto 0
+get EXT extension
+if EXT != "mpd"
+    print "Error: unsupported file"
+    cleanexit
+endif
+
+for
+    get OFFSET long
+    if OFFSET == 0
+        break
+    endif
+    get SIZE long
+    log "" OFFSET SIZE
+next
+
+

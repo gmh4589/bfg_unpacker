@@ -1,0 +1,24 @@
+# Popeye: The Rescue BHF
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype pkware_dcl  # same algo of explode
+open FDDE "map"
+open FDDE "bhf" 1
+get MAP_SIZE asize
+do
+    get NAME string
+    get DUMMY byte  # 0x81
+    get FLAGS short
+    math ZSIZE = 0
+    if FLAGS & 0x80
+        get ZSIZE long
+    endif
+    get SIZE long
+    get OFFSET long
+    if ZSIZE == 0
+        log NAME OFFSET SIZE 1
+    else
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+    savepos TMP
+while TMP != MAP_SIZE

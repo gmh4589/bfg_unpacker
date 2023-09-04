@@ -1,0 +1,53 @@
+# Simple Wii Series (script 0.1.2a)
+
+comtype wp16
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "Wpbb"
+    callfunction EXTRACT 1
+    cleanexit
+endif
+
+idstring "JH\0\0"
+get DUMMY long
+get DUMMY long
+get BASE_OFF long
+goto BASE_OFF
+for
+    callfunction EXTRACT 1
+    math OFFSET + SIZE
+    goto OFFSET
+    padding 0x800
+    findloc OFFSET binary "Wpbb"
+    goto OFFSET
+next
+
+startfunction EXTRACT
+    savepos BASE_OFF
+    idstring "Wpbb"
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        math OFFSET + BASE_OFF
+
+        clog "" OFFSET SIZE SIZE
+
+        /*
+        # comtype wp16 is automatic, no need of all this mess :D
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 4
+        if SIGN u== "Wp16"
+            #idstring "Wp16"
+            get XSIZE long
+            savepos OFFSET
+            clog "" OFFSET SIZE XSIZE
+        else
+            log "" OFFSET SIZE
+        endif
+        goto TMP
+        */
+    next i
+endfunction

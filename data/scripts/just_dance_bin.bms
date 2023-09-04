@@ -1,0 +1,17 @@
+# Just Dance bin decompressor
+
+comtype lzo1x
+get NAME basename
+log NAME 0 0
+append
+for
+    get CHUNK_SIZE long
+    if CHUNK_SIZE == 0
+        break
+    endif
+    get CHUNK_ZSIZE long
+    savepos OFFSET
+    clog NAME OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    goto CHUNK_ZSIZE 0 SEEK_CUR
+next
+append

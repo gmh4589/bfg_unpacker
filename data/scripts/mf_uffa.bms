@@ -1,0 +1,22 @@
+# MF UFFA
+#   https://github.com/RikuKH3/mf_pack/releases
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+idstring "MF\0\0"
+get FILES long
+get OFFSET long
+get DUMMY long
+for i = 0 < FILES
+    get ZSIZE long
+    get OFFSET long
+    get ZIP long
+    get SIZE long
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        math OFFSET + 0x10
+        math ZSIZE  - 0x10
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

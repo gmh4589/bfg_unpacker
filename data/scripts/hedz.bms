@@ -1,0 +1,13 @@
+get ZERO byte
+get FILES long
+    get OFFSET long
+for i = 1 <= FILES
+    if i == FILES
+        get NEXT_OFF asize
+    else
+        get NEXT_OFF long
+    endif
+    xmath SIZE "NEXT_OFF - OFFSET"
+    log "" OFFSET SIZE
+    math OFFSET = NEXT_OFF
+next i

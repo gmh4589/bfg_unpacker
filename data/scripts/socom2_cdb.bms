@@ -1,0 +1,30 @@
+# SOCOM 2 / SOCOM: COMBINED ASSAULT CDB
+
+get DUMMY long  # 0x110
+get DUMMY long  # 2
+get TSTAMP long
+get DUMMY long  # 2
+get ZERO long
+getdstring DUMMY 7
+getdstring NAME 0x10    # LAST BASTION
+goto 0x94
+get DUMMY long
+get FILES long
+get ENTRY_SIZE long
+for i = 0 < FILES
+    savepos ENTRY_OFF
+    get ENTRY_SIZE long
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get ZERO long
+    get ZIP long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    math ENTRY_OFF + ENTRY_SIZE
+    goto ENTRY_OFF
+next i

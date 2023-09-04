@@ -1,0 +1,33 @@
+# Jeanne d'Arc SPF (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SFP\0"
+get ZERO long
+get FILES long
+get ALIGN long
+get BASE_OFF long
+
+get LIMIT_OFF asize
+for
+    padding ALIGN
+    savepos TMP
+    if TMP >= LIMIT_OFF
+        break
+    endif
+    get NAME_OFF long
+    get SIZE long
+    get OFFSET long
+
+    if NAME_OFF < LIMIT_OFF
+        math LIMIT_OFF = NAME_OFF
+    endif
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    math OFFSET *= ALIGN
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next

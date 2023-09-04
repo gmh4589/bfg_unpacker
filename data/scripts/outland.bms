@@ -1,0 +1,60 @@
+# Outland
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+for OFFSET = 0 < ARCHIVE_SIZE
+    goto OFFSET
+
+    get ID long
+    get ZSIZE long
+    get SIZE long
+    get DATA_SIZE long
+    get ID long
+    get TYPE long
+    reverselong TYPE
+    string TYPE = TYPE
+
+    math DATA_SIZE *= 0x40
+    xmath NEXT_OFFSET "OFFSET + DATA_SIZE"
+
+
+    math DUMP_IT = 1
+    if TYPE == "GEOM"
+        math DUMP_IT = 0
+    endif
+
+
+    if DUMP_IT != 0
+        # boring heuristic universal method
+        #xmath OFFSET "NEXT_OFFSET - ZSIZE"
+        for TMP = NEXT_OFFSET >= OFFSET
+            math TMP -= 4
+            goto TMP
+            get DUMMY long
+            if DUMMY != 0
+                break
+            endif
+        next
+        xmath OFFSET "((TMP + 4) - ZSIZE) & (~3)"
+        goto OFFSET
+        for
+            get DUMMY byte
+            if DUMMY == 0x78
+                break
+            endif
+        next
+        savepos OFFSET
+        math OFFSET -= 1
+        #
+
+
+        string NAME p= "%s/*" TYPE
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+
+    math OFFSET = NEXT_OFFSET
+next

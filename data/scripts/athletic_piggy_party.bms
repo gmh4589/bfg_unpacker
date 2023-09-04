@@ -1,0 +1,62 @@
+# Athletic Piggy Party (script 0.1.1)
+#   directory tree is not supported
+#   some files are referenced in a wrong way and will be invalid after extraction
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "WADH"
+get DATA_OFF long
+get ENTRIES long
+get DUMMY long
+savepos INFO_OFF
+
+# let's guess the size of each entry
+math ENTRY_ELEMENTS = 8
+xmath NAMES_OFF "INFO_OFF + (ENTRIES * (ENTRY_ELEMENTS * 4))"
+xmath TMP "NAMES_OFF + (ENTRIES * 2)"   # 2 is the minimum name length
+if TMP > DATA_OFF
+    math ENTRY_ELEMENTS = 6
+endif
+xmath NAMES_OFF "INFO_OFF + (ENTRIES * (ENTRY_ELEMENTS * 4))"
+
+set LAST_NAME string ""
+set PATH string ""
+for i = 0 < ENTRIES
+    savepos ENTRY_OFF
+    get NAME_OFF long
+    if ENTRY_ELEMENTS >= 8
+        get CRC long
+        get OFFSET long
+        get ZSIZE long
+        get SIZE long
+    else
+        get OFFSET long
+        math ZSIZE = SIZE
+        get SIZE long
+    endif
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    xmath ENTRY_OFF "ENTRY_OFF + (ENTRY_ELEMENTS * 4)"
+    goto ENTRY_OFF
+
+    savepos TMP
+    if NAME_OFF == 0xffffffff
+        set NAME string ""
+    else
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+    endif
+    goto TMP
+
+    if OFFSET != 0 # no!!! && SIZE != 0 && SIZE != 0xffffffff
+        set LAST_NAME string NAME
+        math OFFSET + DATA_OFF
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    else
+        if NAME != LAST_NAME
+            set PATH string NAME
+        endif
+    endif
+next i

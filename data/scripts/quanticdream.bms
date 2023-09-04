@@ -1,0 +1,173 @@
+# QuanticDream (script 0.2.5)
+#   Heavy Rain
+#   Fahrenheit
+#   Indigo Prophecy
+# script for QuickBMS http://quickbms.aluigi.org
+
+math LAST_DAT_NUM = -1
+
+open FDDE "idm" 1 EXISTS
+
+if EXISTS == 0
+    open FDDE "idx" 1
+    idstring 1 "QUANTICDREAMTABINDEX"
+    get DUMMY long 1    # 0x12
+    endian guess DUMMY
+    get DUMMY long 1    # 0xb0385f
+    get ZEP_STRING string 1 # ZEPZEPZEP...ZEP
+    get FILES long 1
+    for i = 0 < FILES
+        get DUMMY1 long 1
+        get DUMMY2 long 1   # 1
+        get DUMMY3 long 1
+        get OFFSET long 1
+        get SIZE long 1
+        get ZSIZE long 1
+        get DAT_NUM long 1
+
+        callfunction BUILD_DAT_NAME 1
+
+        set NAME string ""
+
+        callfunction DUMP_FILE 1
+    next i
+    cleanexit
+endif
+
+idstring 1 "QUANTICDREAMTABIDMEM"
+savepos BASE_OFF 1
+get DUMMY long 1    # 1, 0xf and so on
+endian guess DUMMY
+get ENTRIES long 1
+
+math VERSION = 1
+get CHECK long 1    # 0 for Heavy Rain, others for other games
+goto -4 1 SEEK_CUR
+
+    if CHECK == 0
+        get DUMMY long 1
+    endif
+
+for ENTRY = 0 < ENTRIES # folders?
+    get DUMMY long 1    # last entry is 0xffb
+    get FILES long 1
+    get OFFSET long 1
+
+    savepos TMP 1
+    math OFFSET + BASE_OFF
+    goto OFFSET 1
+
+    if CHECK == 0
+        for i = 0 < 0x100
+            get DUMMY long 1
+        next i
+    endif
+
+    for i = 0 < FILES
+        get DUMMY long 1
+        get OFFSET long 1
+        get SIZE long 1
+        if CHECK == 0
+            get ZSIZE long 1
+        endif
+        get DAT_NUM byte 1
+        padding 4 1 # same solution used in the original script
+
+        callfunction BUILD_DAT_NAME 1
+
+        if ENTRIES > 1
+            string NAME p "%d/%d." ENTRY i
+        else
+            string NAME p "%d." i
+        endif
+
+        callfunction DUMP_FILE 1
+    next i
+
+    goto TMP 1
+next ENTRY
+
+startfunction DUMP_FILE
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        #clog NAME OFFSET ZSIZE SIZE
+        goto OFFSET # necessary
+        callfunction SEGS_UNPACK2
+    endif
+endfunction
+
+startfunction BUILD_DAT_NAME
+    if DAT_NUM != LAST_DAT_NUM
+        math LAST_DAT_NUM = DAT_NUM
+        if DAT_NUM == 0
+            string EXT p "dat"
+        else
+            string EXT p "d%02d" DAT_NUM
+        endif
+        open FDDE EXT
+    endif
+endfunction
+
+# http://aluigi.org/bms/segs.bms (new version with endian guess, zlib, padding and others)
+startfunction SEGS_UNPACK2
+    savepos BASE_OFF
+    getdstring SIGN 4
+    if SIGN u== "segs"
+        endian save CURRENT_ENDIAN
+        get FLAGS short
+        endian guess16 FLAGS
+        /*
+        endian save MYENDIAN
+        comtype zlib
+        if MYENDIAN > 0
+            comtype deflate # PS4 (little) uses zlib while WIN (big) uses deflate, FLAGS is 1 for both
+        endif
+        */
+        comtype unzip_dynamic
+        if FLAGS & 0x100
+            comtype lzma86head  # some don't work for unknown reasons, even with lzma_dynamic
+        endif
+        get CHUNKS short
+        get FULL_SIZE long
+        get FULL_ZSIZE long
+        savepos BASE2_OFF
+        xmath BASE2_OFF "BASE2_OFF + (CHUNKS * (2 + 2 + 4))"
+        math BASE2_OFF x 0x10   # apparently not true for all
+        math WORKAROUND = 0
+        log NAME 0 0
+        append
+        for i = 0 < CHUNKS
+            get ZSIZE short
+            get SIZE short
+            get OFFSET long
+            math OFFSET -= 1
+            if i == 0
+            if OFFSET == 0
+                math WORKAROUND = 1
+            endif
+            endif
+            if WORKAROUND != 0
+                math OFFSET + BASE2_OFF
+            else
+                math OFFSET + BASE_OFF
+            endif
+            if SIZE == 0
+                math SIZE = 0x00010000
+            endif
+            if SIZE == ZSIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        next i
+        append
+        endian restore CURRENT_ENDIAN
+    elif SIGN u== "QZIP"
+        # "QZIP" files aren't compressed, they are stored as SIZE, ZSIZE is useless
+        log NAME OFFSET SIZE
+    else
+        comtype zlib    # ??? just guessing
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+endfunction

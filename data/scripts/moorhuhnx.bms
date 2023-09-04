@@ -1,0 +1,16 @@
+# Moorhuhn X - XXL
+
+idstring "MHX XXL V1.0"
+goto 0x40
+for
+    getdstring NAME 0x30
+    if NAME & "****"
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    savepos MYOFF
+    log NAME OFFSET SIZE
+next

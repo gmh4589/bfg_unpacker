@@ -1,0 +1,23 @@
+# Anakin's Speedway DAT
+
+get OFFSET long
+goto OFFSET
+get ZERO short
+savepos ALIGN
+get INFO_SIZE long
+get FOLDERS long
+for FOLDER = 0 < FOLDERS
+    getdstring PATH 4
+    string PATH r PATH
+    get FOLDER_SIZE long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        padding 2 0 ALIGN
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

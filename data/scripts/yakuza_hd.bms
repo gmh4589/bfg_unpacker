@@ -1,0 +1,62 @@
+# Yakuza HD Collection
+#   reuse this script on the bin/dat files you extracted from the arc archive.
+#   few of these files may not work with the script, that's normal so ignore them.
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ELEMENTS long
+get ZERO long
+get ZERO long
+get ZERO long
+for ELEMENT = 0 < ELEMENTS
+    get OFFSET long
+    get SIZE long
+    get ID long
+    getdstring TYPE 4
+    savepos BCK_OFF
+    math BASE_OFF  = OFFSET
+    math BASE_SIZE = SIZE
+
+    if TYPE == "TLFD"
+        goto OFFSET
+        get FILES long
+        getdstring TYPE2 4
+        get ZERO long
+        get ZERO long
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            math OFFSET + BASE_OFF
+
+            get NAME_OFF long
+            get ZERO long
+            if NAME_OFF == 0
+                set NAME string ""
+            else
+                math NAME_OFF + BASE_OFF
+                savepos TMP
+                goto NAME_OFF
+                get NAME string
+                goto TMP
+            endif
+
+            #string NAME p "%s/%s/%s" TYPE TYPE2 NAME
+            string NAME p "%s/%s" TYPE NAME
+            callfunction DUMP 1
+        next i
+    else
+        string NAME p "%s/" TYPE
+        callfunction DUMP 1
+    endif
+
+    goto BCK_OFF
+next ELEMENT
+
+startfunction DUMP
+    if SIZE != 0
+        xmath TMP  "BASE_OFF + BASE_SIZE"
+        xmath TMP2 "OFFSET   + SIZE"
+        if TMP2 u<= TMP
+            log NAME OFFSET SIZE
+        endif
+    endif
+endfunction

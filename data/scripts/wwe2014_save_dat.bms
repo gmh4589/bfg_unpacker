@@ -1,0 +1,29 @@
+# WWE 2014 (save.dat)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic
+get DAT_SIZE asize
+log MEMORY_FILE 0 0
+append
+for OFFSET = 0 < DAT_SIZE
+    idstring "ZLIB"
+    get DUMMY long
+    get ZSIZE long
+    get SIZE long   # wrong?
+    get DUMMY long
+    get DUMMY short
+    savepos OFFSET
+    math ZSIZE -= 6
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    math OFFSET += ZSIZE
+    math OFFSET += 4    # CRC
+    goto OFFSET
+next
+append
+
+get NAME basename
+get EXT extension
+string NAME += "_unpacked."
+string NAME += EXT
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE

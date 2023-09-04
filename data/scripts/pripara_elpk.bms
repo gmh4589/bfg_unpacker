@@ -1,0 +1,13 @@
+# PriPara ELPK
+
+idstring "ELPK"
+get ELPK_SIZE long
+get DUMMY long
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

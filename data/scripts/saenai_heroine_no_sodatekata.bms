@@ -1,0 +1,94 @@
+# Saenai Heroine no Sodatekata -Blessing Flowers- (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype gzip
+set PATH string ""
+get NAME basename
+math OFFSET = 0
+callfunction EXTRACT_GPDA
+
+startfunction EXTRACT_GPDA
+    string PATH + NAME
+    string PATH + /
+
+    savepos BCK_OFF
+    goto OFFSET
+    math BASE_OFF = OFFSET
+    idstring "GPDA"
+    get ARCHIVE_SIZE long
+    get ZERO long
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get ZIP long
+        get SIZE long
+        get NAME_OFF long
+
+        math OFFSET   + BASE_OFF
+        math NAME_OFF + BASE_OFF
+
+        savepos TMP
+        goto NAME_OFF
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        goto TMP
+
+        goto OFFSET
+        getdstring SIGN 4
+        goto TMP
+
+        if SIGN == "GPDA"
+            set NAME fullbasename NAME
+            callfunction EXTRACT_GPDA
+        else
+            set EXT extension NAME
+            if EXT == "gz" || EXT == "gz "  # yeah a space at the end!
+                set NAME fullbasename NAME
+                math ZIP = 1
+            endif
+            if ZIP == 0
+                string NAME p "%s%s" PATH NAME
+                log NAME OFFSET SIZE
+            else
+                clog MEMORY_FILE OFFSET SIZE SIZE
+                goto 0 MEMORY_FILE
+                getdstring SIGN 4 MEMORY_FILE
+                if SIGN == "GPDA"
+                    set NAME fullbasename NAME
+                    callfunction EXTRACT_GPDA_MEM   # lame but I have no alternatives
+                else
+                    string NAME p "%s%s" PATH NAME
+                    clog NAME OFFSET SIZE SIZE  # all the files are compressed with gzip
+                endif
+            endif
+        endif
+    next i
+    goto BCK_OFF
+endfunction
+
+startfunction EXTRACT_GPDA_MEM
+    string PATH + NAME
+    string PATH + /
+    get ARCHIVE_SIZE long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE
+        get ZIP long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAME_OFF long MEMORY_FILE
+
+        savepos TMP MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+        get NAMESZ long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        goto TMP MEMORY_FILE
+
+        string NAME p "%s%s" PATH NAME
+        if ZIP == 0
+            log NAME OFFSET SIZE MEMORY_FILE
+        else
+            clog NAME OFFSET SIZE SIZE MEMORY_FILE
+        endif
+    next i
+endfunction

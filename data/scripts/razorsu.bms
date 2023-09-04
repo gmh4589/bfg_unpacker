@@ -1,0 +1,71 @@
+# Razor Shadow Unit
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+get archive_size asize
+set offset long 0
+for
+    if offset >= archive_size
+        cleanexit
+    endif
+    set CL long 0x89
+    set DL long 0x01
+    set fun_size long 4
+    log MEMORY_FILE offset 6
+    callfunction DECRYPT
+    math offset += 6
+
+    idstring MEMORY_FILE "PK\x03\x04"
+
+    getvarchr CL MEMORY_FILE 4
+    getvarchr DL MEMORY_FILE 5
+
+    set fun_size long 24
+    log MEMORY_FILE offset fun_size
+    callfunction DECRYPT
+    math offset += fun_size
+
+    #get ver         short MEMORY_FILE
+    get flag        short MEMORY_FILE
+    get method      short MEMORY_FILE
+    get timedate    long MEMORY_FILE
+    get crc         long MEMORY_FILE
+    get comp_size   long MEMORY_FILE
+    get uncomp_size long MEMORY_FILE
+    get name_len    short MEMORY_FILE
+    get extra_len   short MEMORY_FILE
+
+    set fun_size long name_len
+    log MEMORY_FILE offset fun_size
+    callfunction DECRYPT
+    math offset += fun_size
+    getdstring name     fun_size MEMORY_FILE
+
+    set fun_size long extra_len
+    log MEMORY_FILE offset fun_size
+    callfunction DECRYPT
+    math offset += fun_size
+    getdstring extra    fun_size MEMORY_FILE
+
+    if method == 0
+        Log name offset uncomp_size
+    elif method == 8
+        CLog name offset comp_size uncomp_size
+    else
+        print "method %method% not supported"
+        cleanexit
+    endif
+
+    math offset += comp_size
+    goto offset
+next
+
+startfunction DECRYPT
+    math TMP = CL
+    for j = 0 < fun_size
+        getvarchr CHR MEMORY_FILE j
+        math CHR ^= TMP
+        math TMP += DL
+        putvarchr MEMORY_FILE j CHR
+    next j
+endfunction

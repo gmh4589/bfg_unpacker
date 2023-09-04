@@ -1,0 +1,11 @@
+# Crazyoid
+
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 0x50    # it's just data, not the name?!
+    log "" OFFSET SIZE
+next i

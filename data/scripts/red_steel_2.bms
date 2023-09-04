@@ -1,0 +1,41 @@
+idstring "ABE\0"
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get INFO_OFF long
+get DUMMY long
+get ROOT_OFF long
+
+goto INFO_OFF
+get FILES long
+get DUMMY long
+get DUMMY long
+
+for i = 0 < FILES
+    getdstring NAME 0x40
+    getdstring DUMMY 0x10
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    getdstring DUMMY 0x40
+
+    if NAME & "."
+    else
+        strlen NAMESZ NAME
+        putvarchr NAME NAMESZ 0x2e
+    endif
+    log NAME OFFSET SIZE
+next i

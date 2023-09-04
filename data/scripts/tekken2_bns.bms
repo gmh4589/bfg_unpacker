@@ -1,0 +1,25 @@
+# Tekken 2 BNS
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDSE "SLUS_002.13" 1
+
+do
+    getdstring SKIP 4 1
+    findloc OFFSET binary "\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff" 1
+    goto OFFSET 1
+while OFFSET % 16
+math OFFSET + 0x10
+goto OFFSET 1
+
+for i = 0
+    get ZERO long 1
+    get OFFSET long 1
+    if OFFSET == 0
+    if i != 0
+        break
+    endif
+    endif
+    get SIZE long 1
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next i

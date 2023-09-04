@@ -1,0 +1,18 @@
+endian big
+idstring LDNB   # from QuickBMS 0.4.5 idstring is auto-endian... cool :)
+get VER long
+get OFFSET long
+goto 0x14
+get FILES long
+log MEMORY_FILE 0x18 OFFSET
+math OFFSET += 0x18
+for i = 0 < FILES
+    goto OFFSET
+    get NAME_OFF long
+    get SIZE long
+    savepos OFFSET
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next i

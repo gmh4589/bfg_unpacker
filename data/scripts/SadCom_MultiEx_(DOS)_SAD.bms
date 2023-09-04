@@ -1,0 +1,21 @@
+# SadCom MultiEx (DOS) (SAD)
+
+ImpType Standard ;
+IDString 0 SadComLtdat ;
+SavePos FS 0 ;
+Math FS += 2 ;
+GoTo FS 0 ;
+Get FC Long 0 ;
+SavePos FS 0 ;
+For T = 1 To FC ;
+Math FS += 2 ;
+GoTo FS 0 ;
+GetDString FN 254 0 ;
+SavePos FSO 0 ;
+Get FSI Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FS 0 ;
+Log FN FO FSI #FOO FSO ;
+Next T ;
+

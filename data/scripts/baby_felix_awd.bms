@@ -1,0 +1,39 @@
+# Baby Felix Tennis PS1 DATA.AWD
+
+idstring "AWAD"
+get VER long    # 1
+get OFFSET long
+get FILES long
+goto OFFSET
+
+set PATH string ""
+set NAME string ""
+    get FOLDERS long
+    get FILES long
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    math XFILES = FILES
+    for FOLDER = FOLDERS > 0
+        callfunction GET_INFO 1
+        savepos TMP
+        goto OFFSET
+        get FOLDERS long
+        get FILES long
+        callfunction EXTRACT
+        goto TMP
+    prev FOLDER
+    for i = 0 < XFILES
+        callfunction GET_INFO 1
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+endfunction
+
+startfunction GET_INFO
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+endfunction

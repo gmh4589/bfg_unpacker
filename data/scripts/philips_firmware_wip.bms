@@ -1,0 +1,95 @@
+# http://neophob.com/2010/01/root-my-tv-hack-philips-pfl9703/#comments
+
+get NAME string
+print "%NAME%"
+
+if NAME & "Auto"
+
+    get VERSION string
+    get NAME string
+    goto 0x80
+
+    set KEY binary  "09291094092910940929109409291094"
+    set IV binary   "00000000000000000000000000000000"
+    math SIZE = 0x90
+    callfunction DUMP 1
+    log "" 0 SIZE MEMORY_FILE
+
+    # 42PFL4208 (false, doesn't work!)
+    set KEY binary  "4816CA3649F0426FDFBAF1F56765A6FD"
+    set IV binary   "21F3680FFC43245087443E56405FB250"
+
+    # PFL3107h ???
+    set KEY binary  "5450565F5450565F5450565F5450565F"
+    set IV binary   "00000000000000000000000000000000"
+    
+    # 47PFL5007G
+    set KEY binary  "47fbf8cad62bb95af3ad9509e5c2175d"
+    set IV binary   "63120fb321b0410f216d6dc2d8641a11"
+
+    get FULL_SIZE asize
+    math HEADER_SIZE = 0x30
+    do
+        getdstring TAG 4
+        get DUMMY long
+        get SIZE long
+        math SIZE += HEADER_SIZE
+        callfunction DUMP 1
+
+        idstring MEMORY_FILE "reserved"
+        math SIZE -= HEADER_SIZE
+        log "" HEADER_SIZE SIZE MEMORY_FILE
+    while OFFSET < FULL_SIZE
+
+else
+
+    goto 0
+    getdstring NAME 8
+    get DATA_OFFSET long
+    get DATA_SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DATA_SIZEb long
+    get DUMMY long
+    get NAME string
+    goto 0x220
+
+    set KEY binary  "???"
+    set IV binary   "???"
+    math SIZE = 0x90
+    callfunction DUMP 1
+    log "" 0 SIZE MEMORY_FILE
+
+    set KEY binary  "???"
+    set IV binary   "???"
+    callfunction DUMP 1
+    goto DATA_OFFSET
+    math SIZE = DATA_SIZE
+    log "" 0 SIZE MEMORY_FILE
+    
+endif
+
+
+startfunction DUMP
+    savepos OFFSET
+    string KEY_TMP h= KEY
+    string IV_TMP  h= IV
+    encryption aes_128_cbc KEY_TMP IV_TMP 0 0x10
+    log MEMORY_FILE OFFSET SIZE
+    encryption "" ""
+    
+    xmath TMP "SIZE % 16"
+    if TMP != 0
+        xmath TMP2 "SIZE - TMP"
+        for x = 0 < TMP
+            getvarchr T0 MEMORY_FILE TMP2
+            getvarchr T1 KEY_TMP x
+            math T0 ^= T1
+            putvarchr MEMORY_FILE TMP2 T0
+            math TMP2 += 1
+        next x
+    endif
+    
+    math OFFSET += SIZE
+    goto OFFSET
+endfunction

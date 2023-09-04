@@ -1,0 +1,19 @@
+# Shards of Infinity .xpack
+
+idstring "KCPX"
+get VER long    # 7
+get FILES long
+for i = 0 < FILES
+    get DUMMY1 long
+    get DUMMY2 long
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get SOME_CRC long
+    get DUMMY8 long
+    get ZERO long
+    get ZERO long
+    getdstring NAME 0x80
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,58 @@
+# Marisa No Kagi / Astro Port / NRF (script 0.2)
+#   directory tree unsupported yet
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype wolf
+
+filexor "\x55\xaa\x20\x55\x55\x06\x55\xaa\x55\xd5\x7c\x66"
+
+getdstring MAGIC 2
+get VER short
+get FULL_INFO_SIZE long
+get NAMES long
+get NAMES_OFF long
+get NAMES_SIZE long
+get INFO_SIZE long
+if VER >= 4
+    get DUMMY long
+endif
+savepos BASE_OFF
+
+math INFO_OFF = NAMES_OFF
+math INFO_OFF + NAMES_SIZE
+goto INFO_OFF
+math INFO_LIMIT = NAMES_OFF
+math INFO_LIMIT + INFO_SIZE
+
+for
+    savepos TMP
+    if TMP u>= INFO_LIMIT
+        break
+    endif
+
+    get NAME_OFF long
+    get FLAGS long
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get TSTAMP longlong
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    math OFFSET + BASE_OFF
+
+    if SIZE != 0
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get DUMMY short # it's not a size
+        get DUMMY short
+        get NAME string
+        goto TMP
+
+        if ZSIZE == 0xffffffff
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    endif
+next

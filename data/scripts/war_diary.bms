@@ -1,0 +1,14 @@
+# War Diary II (RES)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get LIMIT asize
+do
+    getdstring NAME 0x1e
+    get OFFSET long
+    get SIZE long
+    if OFFSET u< LIMIT
+        math LIMIT = OFFSET
+    endif
+    savepos TMP
+    log NAME OFFSET SIZE
+while TMP != LIMIT

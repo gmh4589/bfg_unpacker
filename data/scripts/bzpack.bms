@@ -1,0 +1,37 @@
+# BzPack
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BzPack"
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    math XSIZE = 0
+    get TYPE byte
+    idstring "\x99"
+    if TYPE == 0x01
+        get SIZE long
+        get XSIZE long
+        get DUMMY long
+        get SOME_CRC long
+    elif TYPE == 0x02
+        get SIZE long
+        savepos OFFSET
+        if XSIZE == 0
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET SIZE XSIZE   # not tested
+        endif
+        math OFFSET + SIZE
+        goto OFFSET
+    elif TYPE == 0x03
+        get OFFSET long
+        get DUMMY longlong
+    elif TYPE == 0x04
+        get DUMMY short
+        get OFFSET long
+        get INFO_SIZE long
+    else
+        print "Error: unknown type %TYPE% at offset %OFFSET|X%"
+        cleanexit
+    endif
+    savepos OFFSET
+next

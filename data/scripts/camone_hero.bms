@@ -1,0 +1,9 @@
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    set NAME unicode NAME
+    log NAME OFFSET SIZE
+next i

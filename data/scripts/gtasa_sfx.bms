@@ -1,0 +1,89 @@
+# Grand Theft Auto San Andreas (PS2/XBOX) - "SFX" extractor
+
+get DATNAME filename
+get ARCHIVE_NAME basename
+
+open FDSE "BANKLKUP.DAT"
+
+get LKUP_SIZE asize
+for CURR_OFF = 0 < LKUP_SIZE
+	callfunction GET_DATINFO 1
+	callfunction GET_PAK 1
+	getarray DUMMY 0 i
+	getarray SIZE 1 i
+	math SIZE + 0x12c4
+	string NAME p= "%s/%s/%04x.gtasa_sfx" ARCHIVE_NAME ARCHIVE_NAME_FDSE CURR_OFF
+	log NAME OFFSET SIZE 1
+	savepos CURR_OFF
+next
+
+startfunction GET_DATINFO
+	get PAK_FDSE byte
+	get DUMMY threebyte
+	get OFFSET long
+	get SIZE long
+	putarray 0 i DUMMY
+	putarray 1 i SIZE
+endfunction
+
+startfunction GET_PAK
+	if DUMMY == 0
+		if PAK_FDSE == 0
+			open FDSE "FEET01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "FEET"
+		elif PAK_FDSE == 1
+			open FDSE "GENRL01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "GENRL"
+		elif PAK_FDSE == 2
+			open FDSE "PAIN_A01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "PAIN_A"
+		elif PAK_FDSE == 3
+			open FDSE "SCRIPT01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SCRIPT"
+		elif PAK_FDSE == 4
+			open FDSE "SPC_EA01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_EA"
+		elif PAK_FDSE == 5
+			open FDSE "SPC_FA01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_FA"
+		elif PAK_FDSE == 6
+			open FDSE "SPC_GA01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_GA"
+		elif PAK_FDSE == 7
+			open FDSE "SPC_NA01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_NA"
+		elif PAK_FDSE == 8
+			open FDSE "SPC_PA01.PAK" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_PA"
+		endif
+	else
+		if PAK_FDSE == 0
+			open FDSE "FEET" 1
+			string ARCHIVE_NAME_FDSE p= "FEET"
+		elif PAK_FDSE == 1
+			open FDSE "GENRL" 1
+			string ARCHIVE_NAME_FDSE p= "GENRL"
+		elif PAK_FDSE == 2
+			open FDSE "PAIN_A" 1
+			string ARCHIVE_NAME_FDSE p= "PAIN_A"
+		elif PAK_FDSE == 3
+			open FDSE "SCRIPT" 1
+			string ARCHIVE_NAME_FDSE p= "SCRIPT"
+		elif PAK_FDSE == 4
+			open FDSE "SPC_EA" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_EA"
+		elif PAK_FDSE == 5
+			open FDSE "SPC_FA" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_FA"
+		elif PAK_FDSE == 6
+			open FDSE "SPC_GA" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_GA"
+		elif PAK_FDSE == 7
+			open FDSE "SPC_NA" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_NA"
+		elif PAK_FDSE == 8
+			open FDSE "SPC_PA" 1
+			string ARCHIVE_NAME_FDSE p= "SPC_PA"
+		endif
+	endif
+endfunction

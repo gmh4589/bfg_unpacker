@@ -1,0 +1,16 @@
+# The Game Of Life (Virtuos, Ltd/PopCap.com) *.PAK
+
+get BASE_OFF long
+get FILES long
+for i = 0 < FILES
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,52 @@
+# RFI/RFP (script 0.1.1)
+# http://forum.aluigi.org/rfi-rfp-files-t1727.html
+
+open FDDE "RFI"
+comtype unzip_dynamic
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+open FDDE "RFP"
+
+comtype zlib
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    if i == 0
+        savepos TMP_OFF MEMORY_FILE
+        for x = 0 < NAMESZ
+            get TMP short MEMORY_FILE
+            if TMP == 0
+                callfunction EXTRACT2 1
+                cleanexit
+            endif
+        next x
+        goto TMP_OFF MEMORY_FILE
+    endif
+    math NAMESZ * 2
+    getdstring NAME NAMESZ MEMORY_FILE
+    set NAME unicode NAME
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+
+    math TMP = OFFSET
+    math TMP + SIZE
+    math TMP - 0x18
+    goto TMP
+    get ZSIZE long
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i
+
+startfunction EXTRACT2
+    for
+        savepos OFFSET
+        findloc NEXT_OFFSET binary "\xc0\xf0\xc1\xfc\0\0\0\0"
+        goto NEXT_OFFSET
+        get DUMMY long
+        get ZERO long
+        get ZSIZE long
+        get SIZE long
+        getdstring ZERO 0x10
+        clog "" OFFSET ZSIZE SIZE
+    next
+endfunction

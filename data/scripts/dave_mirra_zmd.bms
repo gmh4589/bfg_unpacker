@@ -1,0 +1,12 @@
+idstring "MODL"
+get ZMD_SIZE long
+math ZMD_SIZE + 8
+for OFFSET = 8 != ZMD_SIZE
+    getdstring TYPE 4
+    get SIZE long
+    savepos OFFSET
+    string NAME p "%s/" TYPE
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

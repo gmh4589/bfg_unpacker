@@ -1,0 +1,21 @@
+# Nioh (LNK) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "K300"
+get ZERO long
+get FILES longlong
+get DUMMY longlong
+get ALIGN longlong
+for i = 0 < FILES
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZIP longlong
+    if ZIP == 0
+        log "" OFFSET SIZE
+    else
+        math OFFSET + 4 # no idea what that 32bit is
+        math ZSIZE  - 4
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

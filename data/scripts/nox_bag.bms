@@ -1,0 +1,56 @@
+# NOX
+
+open FDDE "idx"
+open FDDE "bag" 1
+
+getdstring SIGN 4
+if SIGN == "GABA"
+
+    get VERSION long
+    get FILES long
+    for i = 0 < FILES
+        getdstring NAME 0x11
+        get OFFSET threebyte
+        get SIZE long
+        get FREQUENCY long
+        get DUMMY4 long # 12
+        get DUMMY5 long # 512
+        math OFFSET * 0x100
+        log NAME OFFSET SIZE 1
+    next i
+
+else
+    # "\xeb\xbc\xed\xfa" not fully supported
+
+    print "Error: Not supported"
+    cleanexit
+
+    get IDX_SIZE long
+    get DUMMY long
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+
+    # the offset and size don't match the bag archive!!!
+    math OFFSET = 0
+    for FOLDER = 0
+        get DUMMY4 long
+        get DUMMY5 long
+        get DUMMY6 long
+        get FILES long
+        if FILES == 0xffffffff
+            math FILES = 1
+        endif
+        for i = 0 < FILES
+            get NAMESZ byte
+            getdstring NAME NAMESZ
+            get DUMMY byte  # 1 or 0
+            get ZSIZE long  # it's ever the same of SIZE
+            get SIZE long
+            string FNAME p "%d/%s" FOLDER NAME
+            log FNAME OFFSET SIZE 1
+            math OFFSET + SIZE
+        next i
+    next FOLDER
+
+endif

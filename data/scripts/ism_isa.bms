@@ -1,0 +1,47 @@
+# ISM engine ISA
+#   converted from GARBro (untested)
+
+set MEMORY_FILE10 string "
+        void DecryptIndex (unsigned char *data, int data_Length)
+        {
+            int length = data_Length / 4;
+            int* data32 = (int*)data;
+            for (int i = 0; i < length; ++i)
+            {
+                data32[i] ^= ~(data_Length + length - i);
+            }
+        }
+"
+
+idstring "ISM "
+idstring "ARCHIVED"
+get FILES short
+get VER short
+
+xmath is_encrypted "VER & 0x8000"
+math VER & 0x7fff
+
+if VER != 1
+math name_length   = 0x0c
+math record_length = 0x14
+else
+math name_length   = 0x30
+math record_length = 0x10
+endif
+
+xmath TMP "FILES * record_length"
+if is_encrypted != 0
+    calldll MEMORY_FILE10 "DecryptIndex" "tcc" RET MEMORY_FILE TMP
+endif
+
+for i = 0 < FILES
+    savepos TMP MEMORY_FILE
+    getdstring NAME name_length MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    math TMP + record_length
+    goto TMP MEMORY_FILE
+
+    log NAME OFFSET SIZE
+next i

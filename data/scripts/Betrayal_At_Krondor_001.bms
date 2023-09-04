@@ -1,0 +1,23 @@
+# Betrayal At Krondor (001)
+
+ImpType SFileSize ;
+Set DUMMYL Long 0 ;
+Set FILECNTL Long 8 ;
+Set FILECNTL Long FILECNTL ;
+Math FILECNTL *= 220 ;
+Math FILECNTL += 5 ;
+Do ;
+SavePos FILESTART 0 ;
+Get FILENAME String 0 ;
+Math FILESTART += 13 ;
+GoTo FILESTART 0 ;
+SavePos FSO 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILEOFF 0 ;
+SavePos FILESTART 0 ;
+Math FILESTART += FILESIZE ;
+GoTo FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 FSO ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+

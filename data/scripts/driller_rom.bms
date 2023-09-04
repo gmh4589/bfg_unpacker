@@ -1,0 +1,16 @@
+# Mr.Driller ROM
+
+getdstring NAME 0x40
+get ROM_SIZE long
+get FILES long
+padding 0x10
+get DUMMY long  # same as DUMMY in each entry
+padding 0x10
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get SIZE long
+    get OFFSET long
+    get ID long
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

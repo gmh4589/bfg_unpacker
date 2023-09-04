@@ -1,0 +1,16 @@
+# VooFoo Studios games VFS
+#   Pure Pool
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES longlong
+savepos BASE_OFF
+xmath BASE_OFF "BASE_OFF + (FILES * 0x24)"
+for i = 0 < FILES
+    get NAME_CRC longlong
+    get OFFSET longlong
+    get SIZE longlong
+    get ZSIZE longlong
+    get ZERO long
+    math OFFSET += BASE_OFF
+    clog "" OFFSET ZSIZE SIZE
+next i

@@ -1,0 +1,31 @@
+# billiards3d.net
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+get SIZE asize
+clog MEMORY_FILE 0 SIZE SIZE
+
+endian big
+get MEM_SIZE asize MEMORY_FILE
+
+# xml
+get SIZE short MEMORY_FILE
+savepos OFFSET MEMORY_FILE
+log "" OFFSET SIZE MEMORY_FILE
+math OFFSET += SIZE
+goto OFFSET MEMORY_FILE
+
+get SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+    math OFFSET += SIZE
+    goto OFFSET MEMORY_FILE
+next i
+
+xmath SIZE "MEM_SIZE - OFFSET"
+log "" OFFSET SIZE MEMORY_FILE

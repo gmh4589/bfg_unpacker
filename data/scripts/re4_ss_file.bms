@@ -1,0 +1,21 @@
+# Resident Evil 4 ss_file.dat (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+endian guess FILES
+goto 0x10
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getdstring NAME 4
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    string NAME + /
+    log NAME OFFSET SIZE
+next

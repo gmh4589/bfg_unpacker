@@ -1,0 +1,7 @@
+# Blue Beards Castle data.pak->data.zip
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+encryption "aes" "\x86\x87\x03\xA9\x94\x3D\x73\xEF\x6B\xDF\x78\xAF\xA3\xEB\xA5\x38"
+log "data.zip" 0 SIZE
+

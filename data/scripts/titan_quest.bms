@@ -1,0 +1,28 @@
+# Titan Quest
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ARC\0"
+get DUMMY long
+get FILES long
+get FILES2 long
+get DUMMY long
+get SIZE long
+get OFFSET long
+xmath OFFSET "OFFSET + FILES * 12"
+math BASE_OFF = OFFSET
+math OFFSET + SIZE
+goto OFFSET
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long   # ???
+    getdstring DUMMY 24
+    get NAME_OFF long
+    math NAME_OFF + BASE_OFF
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    log NAME OFFSET ZSIZE # ???
+next i

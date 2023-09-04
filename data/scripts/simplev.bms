@@ -1,0 +1,38 @@
+# ＠SIMPLE V シリーズ Vol.1 THE どこでもギャル麻雀
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+
+if SIGN == "UFFA"
+
+    comtype lzss0
+    get ARCHIVE_SIZE asize
+    for OFFSET = 0 != ARCHIVE_SIZE
+        idstring "UFFA"
+        get ZSIZE long
+        get SIZE long
+        get ZERO long
+        savepos OFFSET
+        clog "" OFFSET ZSIZE SIZE
+        math OFFSET + ZSIZE
+        math OFFSET x 0x200
+        goto OFFSET
+    next
+
+else
+
+    idstring "HPK\0"
+    get ALIGN long
+    get FILES long
+    get ZERO long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        get DUMMY long
+        getdstring DUMMY 0x10
+        log "" OFFSET SIZE
+    next i
+
+endif

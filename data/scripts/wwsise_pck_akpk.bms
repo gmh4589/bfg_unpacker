@@ -1,0 +1,153 @@
+# extracts archives with AKPK identifier (Wwise sound engine)
+# newest func_getTYPE.bms is located at http://forum.xentax.com/viewtopic.php?f=13&p=69577#p69577
+# (c) 2012-12-10 by AlphaTwentyThree of XeNTaX
+#
+# tested and working on
+# ---------------------
+# Kinect Rush: A Disney Pixar Adventure (X360, 2012)
+# Assassin's Creed III (PC, 2012)
+# Dishonored (PC, 2012)
+# Warhammer 40,000: Space Marine (PC, 2012)
+# Halo 4 (X360, 2012)
+# Assasin's Creed: Revelations (PC, 2011)
+# BioShock: Infinite (PC/PS3/X360, 2013)
+
+include "func_getTYPE.bms"
+getDstring IDENT 4
+if IDENT == "AKPK"
+elif IDENT == "1KCP" # The Saboteur (PC)
+else
+   print "Error: no valid Wwise sound pack"
+   cleanexit
+endif
+set PC 0
+endian big
+get SIZE_HEADER long # data start offset
+get TEST long
+get FSIZE asize
+if TEST != 1
+   reverselong SIZE_HEADER
+   endian little
+   set PC 1
+endif
+get BNAME basename
+string BNAME += "/"
+
+goto 0xc
+get IDENT long
+set FOLDER_NAMES 1
+if IDENT == 0xc6
+   set NBIAS 0x18
+elif IDENT == 0x14
+   set NBIAS 0x1c
+   set PC 1
+else
+   set NBIAS 0x1c # also in PC versions
+endif
+goto NBIAS
+get NUM_FOLDERS long
+if NUM_FOLDERS > 10
+   math NBIAS -= 4
+   goto NBIAS
+   get NUM_FOLDERS long
+endif
+savepos MYOFF
+set INFO NUM_FOLDERS
+math INFO *= 8
+math INFO += MYOFF # = start of names, will hold offset to jump to for TOC
+set ALLNAMES 0 # for ceil after names
+
+for i = 0 < NUM_FOLDERS
+   goto MYOFF
+   get OFF_NAME_FOLDER long
+   math OFF_NAME_FOLDER += NBIAS
+   get ID_FOLDER long
+   savepos MYOFF
+   goto OFF_NAME_FOLDER
+   if PC == 0
+      get NAME_FOLDER string
+   else
+      callfunction getPCstring 1
+   endif
+      strlen LENGTH NAME_FOLDER
+      math ALLNAMES += LENGTH
+      math ALLNAMES += 1
+   string NAME_FOLDER += "/"
+   string NAME_FOLDER += BNAME
+   putArray 0 ID_FOLDER NAME_FOLDER
+next i
+if PC == 1
+   math ALLNAMES *= 2
+   math INFO += ALLNAMES
+else
+   savepos INFO
+   math INFO x= 4
+endif
+goto INFO
+set RUNS 1
+callfunction extract 1
+cleanexit
+
+startfunction getPCstring
+   set NAME_FOLDER ""
+   for s = 0
+      get CHAR byte
+      get NULL byte
+      putVarChr NAME_FOLDER s CHAR
+      if CHAR == 0
+         break
+      endif
+   next s
+endfunction
+   
+startfunction extract
+   savepos INFO
+   get NUM_FILES long
+   if NUM_FILES == 0
+      if RUNS == 1
+         get NUM_FILES long
+      else
+         cleanexit
+      endif
+   endif
+   print "extracting %NUM_FILES% files (number at offset %INFO%)"
+   for i = 1 <= NUM_FILES
+      get NAME_CRC long
+      get MULTI long # in certain cases only
+      get SIZE long
+      if SIZE == 0
+         get SIZE long
+      endif
+      get OFFSET long
+      get ID_FOLDER long
+      if OFFSET == 0
+         set OFFSET ID_FOLDER
+         get ID_FOLDER long
+      endif
+      string NAME_CRC p= "0x%08x" NAME_CRC      
+      if MULTI != 0
+         math OFFSET *= MULTI
+      endif
+      
+      savepos MYOFF
+      getArray NAME_FOLDER 0 ID_FOLDER
+      set NAME NAME_FOLDER
+      #string NAME += "/"
+      #string NAME += RUNS
+      #string NAME += "/"
+      string NAME += NAME_CRC
+      putVarChr MEMORY_FILE SIZE 0
+      log MEMORY_FILE 0 0
+      append
+      log MEMORY_FILE OFFSET SIZE
+      append
+      callfunction getTYPE 1
+      if PC == 0
+         endian big
+      endif
+      string NAME += EXT
+      log NAME 0 SIZE MEMORY_FILE
+   next i
+   math RUNS += 1
+   callfunction extract 1
+endfunction

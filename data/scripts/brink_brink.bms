@@ -1,0 +1,140 @@
+# Brink sdpk2 (script 0.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# http://svn.gib.me/public/brink
+# https://github.com/komiga/brinktools
+
+endian big
+idstring "PSAR"
+get MajorVersion short
+get MinorVersion short
+getdstring CompressionFormat 4
+get headerSize long
+get entrySize long
+get entryCount long
+get DataBlockSize long
+get CompressedBlockValueSize long
+
+math headerSize -= 32
+savepos INFO_OFF
+xmath EXTRA_OFF "INFO_OFF + (entryCount * entrySize)"
+xmath EXTRA_Count "(headerSize - (entryCount * entrySize)) / 2"
+goto EXTRA_OFF
+for i = 0 < EXTRA_Count
+    if CompressedBlockValueSize == 1
+        get ZSIZE byte
+    elif CompressedBlockValueSize == 4
+        get ZSIZE long
+    else
+        get ZSIZE short
+    endif
+    putarray 0 i ZSIZE
+next i
+
+for i = 0 < entryCount
+    goto INFO_OFF
+    getdstring HASH 16
+    get CompressedBlockSizeIndex long
+
+    get TMP byte
+    get UncompressedSize long
+    math TMP <<= 32
+    math UncompressedSize |= TMP
+
+    get TMP byte
+    get Offset long
+    math TMP <<= 32
+    math Offset |= TMP
+
+    math INFO_OFF += entrySize
+
+    # here due to DUMP_ZARC
+    if CompressionFormat == "lzx "
+        comtype xmemdecompress
+    elif CompressionFormat == "lzma"
+        comtype lzma
+    elif CompressionFormat == "zlib"
+        comtype zlib
+    endif
+
+    putvarchr MEMORY_FILE UncompressedSize 0
+    log MEMORY_FILE 0 0
+    append
+    for SIZE = 0 < UncompressedSize
+        getarray ZSIZE 0 CompressedBlockSizeIndex
+        if ZSIZE == 0
+            math ZSIZE = DataBlockSize
+        endif
+        xmath REMAINING "UncompressedSize - SIZE"
+        if zsize == DataBlockSize || zsize == REMAINING
+            log MEMORY_FILE Offset zsize
+        else
+            clog MEMORY_FILE Offset zsize DataBlockSize
+        endif
+        get SIZE asize MEMORY_FILE
+        math Offset += zsize
+    next CompressedBlockSizeIndex
+    append
+
+    if i == 0
+        callfunction LOAD_FILENAMES 1
+    endif
+
+    getarray NAME 10 i
+    callfunction DUMP_ZARC 1
+next i
+
+startfunction LOAD_FILENAMES
+    math LINE_FEEDS = 0
+    for x = 0 < UncompressedSize
+        getvarchr TMP MEMORY_FILE x
+        if TMP == '\n'
+            math LINE_FEEDS + 1
+        endif
+    next x
+    math LINE_FEEDS + 2
+    putarray 10 entryCount ""
+    if LINE_FEEDS == entryCount
+        math LINE_FEEDS - 1
+        goto 0 MEMORY_FILE
+        for x = 1 <= LINE_FEEDS
+            get NAME line MEMORY_FILE
+            putarray 10 x NAME
+        next x
+    endif
+endfunction
+
+startfunction DUMP_ZARC
+    comtype deflate
+    goto 0 MEMORY_FILE
+    if UncompressedSize > 4
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN == "zarc"
+            get VER short MEMORY_FILE
+            get CHUNKS short MEMORY_FILE
+            get UncompressedSize long MEMORY_FILE
+            get CompressedSize long MEMORY_FILE
+            putvarchr MEMORY_FILE2 UncompressedSize 0
+            log MEMORY_FILE2 0 0
+            append
+            for x = 0 < CHUNKS
+                get CHUNK_ZSIZE short MEMORY_FILE
+                get CHUNK_SIZE short MEMORY_FILE
+                get CHUNK_OFFSET long MEMORY_FILE
+                if CHUNK_SIZE == 0
+                    math CHUNK_SIZE = 0x10000
+                endif
+                math CHUNK_OFFSET - 1
+                if CHUNK_ZSIZE == CHUNK_SIZE
+                    log MEMORY_FILE2 CHUNK_OFFSET CHUNK_ZSIZE MEMORY_FILE
+                else
+                    clog MEMORY_FILE2 CHUNK_OFFSET CHUNK_ZSIZE CHUNK_SIZE MEMORY_FILE
+                endif
+            next x
+            append
+            log MEMORY_FILE 0 UncompressedSize MEMORY_FILE2
+            set NAME fullbasename NAME
+        endif
+    endif
+    log NAME 0 UncompressedSize MEMORY_FILE
+endfunction

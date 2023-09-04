@@ -1,0 +1,75 @@
+# Guitar Hero 3 PAK
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss0
+endian big
+
+get TMP long
+goto 0
+if TMP == 0xfacecaa7
+    callfunction EXTRACT_TEX
+    cleanexit
+endif
+
+for
+    savepos BASE_OFF
+    get TYPE long   # first is 0xa7f505c4
+    get OFFSET long
+    get SIZE long
+    if OFFSET == 0
+        break
+    endif
+    get ZERO long
+    get DUMMY longlong
+    get ZERO long
+    get ZERO long
+
+    string NAME p "%08x/" TYPE
+
+    math OFFSET + BASE_OFF
+    savepos BCK_OFF
+    if TYPE == 0xa7f505c4
+        goto OFFSET
+        get ZERO long
+        get SIZE long
+        getdstring DUMMY 0x2c
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    elif TYPE == 0x8bfa5e8e
+        goto OFFSET
+        callfunction EXTRACT_TEX
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto BCK_OFF
+next
+
+startfunction EXTRACT_TEX
+    savepos TMP_OFF
+    if TMP_OFF == 0
+        set NAME string ""
+    else
+        string NAME p "%s%08x/" NAME TMP_OFF
+    endif
+    idstring "\xfa\xce\xca\xa7"
+    get DUMMY short
+    get FILES short
+    get OFFSET long
+    math OFFSET + TMP_OFF
+    goto OFFSET
+    for i = 0 < FILES
+        getdstring DUMMY 0x18
+        get ZERO long   # OFFSET64?
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        math OFFSET + TMP_OFF
+        log NAME OFFSET SIZE
+    next i
+endfunction

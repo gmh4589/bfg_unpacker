@@ -1,0 +1,50 @@
+# Lunia
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma
+open FDDE "cfp"
+getdstring TYPE 2
+get DUMMY longlong
+get OFFSET longlong
+goto OFFSET
+set PATH string ""
+set NAME string ""
+math VAL1 = 0
+math VAL2 = 0
+callfunction ENTRY 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+
+    math FOLDERS = VAL1
+    math FILES = VAL2
+    for i = 0 < FOLDERS
+        callfunction ENTRY 1
+        callfunction EXTRACT
+    next i
+    for i = 0 < FILES
+        callfunction ENTRY 1
+        set FNAME string PATH
+        string FNAME += NAME
+        savepos TMP
+        goto VAL1
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        goto TMP
+        math ZSIZE += 5
+        clog FNAME OFFSET ZSIZE SIZE
+    next i
+endfunction
+
+startfunction ENTRY
+    getdstring TYPE 2
+    get VAL1 long
+    get VAL2 long
+    get NAMESZ short
+    math NAMESZ *- 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+endfunction

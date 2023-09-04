@@ -1,0 +1,25 @@
+# GameMill
+#   Castle: Never Judge a Book by Its Cover
+#   Hidden Mysteries: Buckingham Palace
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+goto 0x20
+get FIRST_CHAR byte
+get UNICODE_TEST byte
+goto 0x20
+for i = 0 < FILES
+    if UNICODE_TEST == 0
+        getdstring NAME 0x200
+        set NAME unicode NAME
+        get OFFSET long
+        get SIZE long
+    else
+        getdstring NAME 0x100
+        get OFFSET long
+        get ALIGNED_SIZE long
+        get SIZE long
+        getdstring DUMMY 0x14
+    endif
+    log NAME OFFSET SIZE
+next i

@@ -1,0 +1,22 @@
+# Sin & Punishment 2: Successor to the Sky (*.ARC)
+
+endian big
+idstring "NARC"
+get FILES long
+get NAME_SIZE long
+get BASE_OFF long
+math NAME_BASE = BASE_OFF
+math NAME_BASE -= NAME_SIZE
+for i = 0 < FILES
+    get DUMMY long
+    get NAME_OFF long
+    get OFFSET long
+    get SIZE long
+    savepos TMP
+    math NAME_OFF += NAME_BASE
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    math OFFSET += BASE_OFF
+    log NAME OFFSET SIZE
+next i

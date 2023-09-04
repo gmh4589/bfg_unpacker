@@ -1,0 +1,22 @@
+# 乱OL - Ran Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GtxPackFile\0"
+get FILES long
+get DUMMY long
+get DUMMY long
+savepos OFFSET
+get MAX_OFF asize
+for OFFSET = OFFSET != MAX_OFF
+    get NAMESZ long
+    filexor 0xff
+    getdstring NAME NAMESZ
+    filexor ""
+    get SIZE long
+    savepos OFFSET
+    filexor 0xff
+    log NAME OFFSET SIZE
+    filexor ""
+    math OFFSET + SIZE
+    goto OFFSET
+next

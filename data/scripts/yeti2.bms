@@ -1,0 +1,103 @@
+# another Yeti Engine YBIG format (script 0.1.1)
+#   ???????????????????????????????????????????????
+#   ??? I don't remember what games it supports ???
+#   ??? or if it has been ever tested!!!        ???
+#   ???????????????????????????????????????????????
+#   Ghost Recon Future Soldier
+# script for QuickBMS http://quickbms.aluigi.org
+
+math TMP = 0x10000000
+math TMP *= 16
+if TMP == 0
+    print "you must use quickbms_4gb_files.exe with BIG archives"
+    cleanexit
+endif
+
+
+# automatic assembly of the BIG archive if splitted
+# https://forum.xentax.com/viewtopic.php?t=9259#p144343
+get SIZE asize
+if SIZE u<= 0x7fffffff  # in case the input is already assembled
+    get NAME basename
+    get EXT extension
+
+    strlen EXTSZ EXT
+    if EXTSZ != 3
+        print "Error: select the main BIG file"
+        cleanexit
+    endif
+
+    string TMP p "%s.%s%d" NAME EXT 1   # check if BIG1 exists
+    open FDSE TMP 1 EXISTS
+    if EXISTS != 0
+        print "- start assemblying of BIG archives into one BIG file"
+        string NEW_NAME p "NEW_%s.%s" NAME EXT
+        log NEW_NAME 0 0
+        append
+        for i = 0
+            if i == 0
+                math OFFSET = 0
+                string TMP p "%s.%s"   NAME EXT
+            else
+                math OFFSET = 65536
+                string TMP p "%s.%s%d" NAME EXT i
+            endif
+
+            open FDSE TMP 0 EXISTS
+            if EXISTS == 0
+                break
+            endif
+            get SIZE asize
+            math SIZE - OFFSET
+            log NEW_NAME OFFSET SIZE
+        next i
+        append
+        open "." NEW_NAME
+    endif
+endif
+# done
+
+
+idstring YBIG
+
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get OFFSET long
+goto OFFSET
+get DUMMY short
+get DUMMY short
+get FILES long
+getdstring DUMMY 0x78
+
+savepos TMP
+math BASE_OFF = FILES
+math BASE_OFF *= 10
+math BASE_OFF += TMP
+math BASE_OFF x= 8
+
+for i = 0 < FILES
+    get OFFSET long
+    get file_ID long
+    get file_type byte
+    get bComplex byte
+
+    if bComplex != 0
+        print "bComplex not supported yet, contact me"
+        cleanexit
+
+        math CHUNKS = OFFSET
+        math CHUNKS u>>= 27
+        math OFFSET &= 0x7ffffff
+    endif
+
+    math OFFSET *= 8
+    math OFFSET += BASE_OFF
+
+    savepos TMP
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    log "" OFFSET SIZE
+    goto TMP
+next i

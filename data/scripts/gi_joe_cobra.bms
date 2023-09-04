@@ -1,0 +1,20 @@
+# G.I. Joe Rise of Cobra
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get DUMMY long
+get DUMMY long  # 0x813
+get DUMMY long  # 0x2a2
+get DUMMY long  # 0x840
+get DUMMY long  # 0x20
+savepos BASE_OFF
+xmath BASE_OFF "BASE_OFF + (FILES * 0x10)"
+math BASE_OFF x= 0x800
+for i = 0 < FILES
+    get CRC long    # ??
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    math OFFSET += BASE_OFF
+    log "" OFFSET SIZE
+next i

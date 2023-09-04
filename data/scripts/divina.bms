@@ -1,0 +1,14 @@
+# Divina / Lucen Heart / FILE.EX_
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+goto 0x14
+get NAMESZ long
+filexor 0x99
+getdstring NAME NAMESZ
+filexor ""
+get ZSIZE long
+get SIZE long
+get OFFSET asize
+math OFFSET -= ZSIZE
+clog NAME OFFSET ZSIZE SIZE

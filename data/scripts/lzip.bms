@@ -1,0 +1,11 @@
+# LZIP lunzip
+#   useful because the lunzip binary for Windows is not available
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "LZIP"
+comtype lzlib
+goto -16
+get SIZE longlong
+get ZSIZE longlong
+get NAME basename   # remove extension
+clog NAME 0 ZSIZE SIZE

@@ -1,0 +1,50 @@
+# Lifeline / Operator's Side
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "fat"
+open FDDE "snp" 1
+
+idstring " fat"
+get FLAGS long
+get ENTRIES long
+goto 0x80
+savepos BASE_OFF
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+    do
+        getdstring NAME 0x10
+        get SIZE long
+        get ZERO long
+        get OFFSET long
+        get SIZE_BLOCKS long
+        get FLAGS long
+        get PREV_ENTRY long
+        get NEXT_ENTRY long
+        get NEXT_SUB_ENTRY long
+
+        math PREV_ENTRY     + BASE_OFF
+        math NEXT_ENTRY     + BASE_OFF
+        math NEXT_SUB_ENTRY + BASE_OFF
+
+        math OFFSET * 0x800
+        if FLAGS & 0x10
+            if NEXT_SUB_ENTRY != BASE_OFF
+                goto NEXT_SUB_ENTRY
+                callfunction EXTRACT
+            endif
+        else
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE 1
+        endif
+
+        if NEXT_ENTRY != BASE_OFF
+            goto NEXT_ENTRY
+        endif
+    while NEXT_ENTRY != BASE_OFF
+endfunction

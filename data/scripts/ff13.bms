@@ -1,0 +1,93 @@
+# Final Fantasy XIII (script 0.1a)
+#   note: filelist* is the index and the other is the archive so it's enough
+#   to specify only one of those 2, the other will be opened automatically
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_NAME filename
+
+if ARCHIVE_NAME == "filelist.bin"
+    open FDSE "filelist.bin" 0
+    open FDSE "KEL.DAT" 1 EXISTS
+    if EXISTS == 0
+        open FDSE "E419C51B/KEL.DAT" 1
+    endif
+elif ARCHIVE_NAME == "KEL.DAT"
+    open FDSE "filelist.bin" 0 EXISTS
+    if EXISTS == 0
+        open FDSE "../filelist.bin" 0
+    endif
+    open FDSE "KEL.DAT" 1
+else
+    string ARCHIVE_NAME |= _
+    set NAME string "filelist_"
+    string NAME += ARCHIVE_NAME
+    open FDSE NAME 0
+    set NAME string "white_"
+    string NAME += ARCHIVE_NAME
+    open FDSE NAME 1
+endif
+
+get INFO_OFF long
+get FILES_OFF long
+get FILES long
+savepos FILES_INFO_OFF
+
+set EXTRACTED long 0
+set CURR_PAK long 0
+for MYOFF = INFO_OFF < FILES_OFF
+    goto MYOFF
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    math OFFSET += FILES_OFF
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    savepos MYOFF
+    callfunction extract 1
+next CURR_PAK
+
+startfunction extract
+    goto FILES_INFO_OFF
+    goto 0 MEMORY_FILE
+    for EXTRACTED = EXTRACTED < FILES
+        get DUMMY1 short
+        get DUMMY2 short
+        get PAK_NUM short
+        get OFFSET short
+        if PAK_NUM != CURR_PAK
+            break
+        endif
+        savepos FILES_INFO_OFF
+        goto OFFSET MEMORY_FILE
+
+        getct OFFSET string 0x3a MEMORY_FILE
+        set TMP string "$"
+        string TMP += OFFSET
+        set OFFSET long TMP
+
+        getct SIZE string 0x3a MEMORY_FILE
+        set TMP string "$"
+        string TMP += SIZE
+        set SIZE long TMP
+
+        getct ZSIZE string 0x3a MEMORY_FILE
+        set TMP string "$"
+        string TMP += ZSIZE
+        set ZSIZE long TMP
+
+        get NAME string MEMORY_FILE
+
+        set SKIP_THIS_FILE long 0
+        if NAME == "chr/npc/n039/bin/n039.ps3.trb"  # invalid in demo
+            #set SKIP_THIS_FILE long 1              # uncomment if you have the demo
+        endif
+
+        if SKIP_THIS_FILE == 0
+            math OFFSET *= 0x800
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE 1
+            else
+                clog NAME OFFSET ZSIZE SIZE 1
+            endif
+        endif
+    next EXTRACTED
+endfunction

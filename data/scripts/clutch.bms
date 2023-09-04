@@ -1,0 +1,262 @@
+# Armageddon Riders Clutch, Insane 2, Blaze Rush and possibly other Targem games (script 0.4.2)
+#   http://ru.wikipedia.org/wiki/Targem_Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # some archives use zlib while others use deflate
+getdstring SIGN 4
+if SIGN == "KAPT"
+    math TYPE = 0
+elif SIGN == "TPAK"
+    math TYPE = 1
+else
+    print "invalid signature (%SIGN%)"
+    cleanexit
+endif
+get VERSION short
+get DUMMY short
+if TYPE != 0
+    get DUMMY long
+endif
+get FILES long
+endian guess FILES
+
+if VERSION >= 4
+    get DUMMY long
+endif
+
+get NAMETABLESZ long
+if NAMETABLESZ < 0  # VERSION is 0?
+    get NAMETABLESZ long
+endif
+get NAMETABLESZZ long
+if TYPE == 0
+    get DUMMY long
+endif
+savepos OFFSET
+log MEMORY_FILE OFFSET NAMETABLESZZ
+getvarchr TMP MEMORY_FILE 0 long
+math TMP ^ FILES
+putvarchr MEMORY_FILE 0 TMP long
+clog MEMORY_FILE2 0 NAMETABLESZZ NAMETABLESZ MEMORY_FILE
+math OFFSET + NAMETABLESZZ
+if TYPE != 0
+    math OFFSET x 4
+endif
+goto OFFSET
+
+if VERSION >= 7
+    for i = 0 < FILES
+        get DUMMY long
+    next i
+    math FILETABLESZ = FILES
+    math FILETABLESZ * 16   # not necessary (automatic size)
+else
+    if TYPE != 0
+        for i = 0 < FILES
+            get DUMMY long
+        next i
+        if VERSION < 6
+        get TMP long
+        for i = 0 < TMP
+            get DUMMY long
+        next i
+        endif
+    endif
+
+    get FILETABLESZ long
+endif
+get FILETABLESZZ long
+savepos OFFSET
+log MEMORY_FILE OFFSET FILETABLESZZ
+getvarchr TMP MEMORY_FILE 0 long
+xmath TMP "TMP ^ (FILES + FILETABLESZZ)"
+putvarchr MEMORY_FILE 0 TMP long
+clog MEMORY_FILE3 0 FILETABLESZZ FILETABLESZ MEMORY_FILE
+math OFFSET + FILETABLESZZ
+if TYPE != 0
+    math OFFSET x 4
+endif
+goto OFFSET
+
+if VERSION >= 7
+    get ZSIZE long
+    get ENTRIES long
+    math SIZE = ENTRIES
+    math SIZE * 16
+    savepos OFFSET
+    log MEMORY_FILE OFFSET ZSIZE
+    getvarchr TMP MEMORY_FILE 0 long
+    xmath TMP "TMP ^ (ZSIZE + ENTRIES + FILES)"
+    putvarchr MEMORY_FILE 0 TMP long
+    clog MEMORY_FILE4 0 ZSIZE SIZE MEMORY_FILE
+    math OFFSET + ZSIZE
+    if TYPE != 0
+        math OFFSET x 4
+    endif
+    goto OFFSET
+elif VERSION == 6
+    get FILES2 long
+    savepos TMP
+    xmath BASE_OFF "TMP + (FILES2 * (4+4+4))"
+    for i = 0 < FILES2
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        math OFFSET + BASE_OFF
+        string NAME p "raw_%d" i
+        if SIZE == ZSIZE
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    next i
+endif
+
+savepos BASE_OFF
+
+#comtype zlib   # leave unzip_dynamic!
+
+for i = 0 < FILES
+    math NAMESZ = 0
+    math NAMEOFF = -1
+    math ZIP = 1
+    math CHUNKS = -1
+    math FILESIZE = -1
+    math SIZE = 0
+    math ZSIZE = 0
+
+    if VERSION >= 7
+        if VERSION >= 8
+            get NAMEOFF     long MEMORY_FILE3
+            get ZIP         long MEMORY_FILE3
+            get FILESIZE    long MEMORY_FILE3
+            get CHUNKS      short MEMORY_FILE3
+            get ID          short MEMORY_FILE3
+        else
+            get FILESIZE    long MEMORY_FILE3
+            get NAMEOFF     long MEMORY_FILE3
+            get ZIP         long MEMORY_FILE3
+            get ID          short MEMORY_FILE3
+            get CHUNKS      short MEMORY_FILE3  # ???
+        endif
+
+        xmath TMP "ID * (4 + 4 + 4 + 4)"
+        goto TMP MEMORY_FILE4
+
+        math TMP = CHUNKS
+        if TMP <= 0
+            math TMP = 1
+        endif
+        for x = 0 < TMP
+            get CHUNK_OFF   long MEMORY_FILE4
+            get SIZE        long MEMORY_FILE4
+            get OFFSET      long MEMORY_FILE4
+            get ZSIZE       long MEMORY_FILE4
+            putarray 0 x CHUNK_OFF
+            putarray 1 x SIZE
+            putarray 2 x OFFSET
+            putarray 3 x ZSIZE
+        next x
+
+        callfunction SOME_STUFF 1
+        callfunction SOME_STUFF2 1
+    elif VERSION == 6
+        get SIZE        long MEMORY_FILE3
+        get OFFSET      long MEMORY_FILE3
+        get NAMEOFF     long MEMORY_FILE3
+        get DUMMY       short MEMORY_FILE3
+        get DUMMY       short MEMORY_FILE3  # ???
+        math ZIP = 0
+        math CHUNKS = 0
+        callfunction SOME_STUFF 1
+        callfunction SOME_STUFF2 1
+    else
+        get SIZE long MEMORY_FILE3
+        get ZSIZE long MEMORY_FILE3
+        if TYPE == 0
+            get OFFSET long MEMORY_FILE3
+            get NAMEOFF long MEMORY_FILE3
+            get NAMESZ long MEMORY_FILE3
+            get ZIP long MEMORY_FILE3
+        else
+            get ZIP long MEMORY_FILE3
+            get OFFSET long MEMORY_FILE3
+            get NAMEOFF long MEMORY_FILE3
+
+            callfunction SOME_STUFF 1
+            callfunction SOME_STUFF2 1
+        endif
+        getdstring TIMESTAMP 8 MEMORY_FILE3
+    endif
+
+    if NAMEOFF < 0
+        set NAME string ""
+    else
+        goto NAMEOFF MEMORY_FILE2
+        if TYPE != 0
+            get NAMESZ long MEMORY_FILE2
+        endif
+        getdstring NAME NAMESZ MEMORY_FILE2
+    endif
+    callfunction DECRYPT_NAME 1
+
+    if CHUNKS <= 0
+        math OFFSET + BASE_OFF
+        if ZIP == 0
+            log NAME OFFSET SIZE
+        else
+            clog NAME OFFSET ZSIZE SIZE
+        endif
+    else
+        log MEMORY_FILE 0 0
+        putvarchr MEMORY_FILE FILESIZE 0
+        append 1
+        for x = 0 < CHUNKS
+            getarray CHUNK_OFF 0 x
+            getarray SIZE      1 x
+            getarray OFFSET    2 x
+            getarray ZSIZE     3 x
+            callfunction SOME_STUFF2 1
+            math OFFSET + BASE_OFF
+            goto CHUNK_OFF MEMORY_FILE
+            if ZIP == 0
+                log MEMORY_FILE OFFSET SIZE
+            else
+                clog MEMORY_FILE OFFSET ZSIZE SIZE
+            endif
+        next x
+        append
+        log NAME 0 FILESIZE MEMORY_FILE
+    endif
+next i
+
+startfunction SOME_STUFF
+    math NAMEOFF - 4
+endfunction
+
+startfunction SOME_STUFF2
+    if SIZE != ZSIZE
+        math ZIP = 1
+    endif
+    if ZIP != 0xffffffff
+    if SIZE == ZSIZE
+        math ZIP = 0
+    endif
+    endif
+endfunction
+
+startfunction DECRYPT_NAME
+    math CL = NAMESZ
+    math DL = NAMESZ
+    math DL % 5
+    math DL + i
+    for j = 0 < NAMESZ
+        getvarchr TMP NAME j
+        math BL = j
+        math BL + CL
+        math BL + BL
+        math BL + DL
+        math TMP ^ BL
+        putvarchr NAME j TMP
+    next j
+endfunction

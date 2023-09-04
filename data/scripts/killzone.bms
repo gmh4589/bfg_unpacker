@@ -1,0 +1,80 @@
+# Killzone Liberation (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_NAME basename
+
+get INFO_SIZE long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get ZERO long
+get ZERO long
+
+get NAMES_SIZE long
+savepos OFFSET
+log MEMORY_FILE OFFSET NAMES_SIZE
+
+math OFFSET + NAMES_SIZE
+goto OFFSET
+
+get INFO_SIZE long
+savepos OFFSET
+log MEMORY_FILE2 OFFSET INFO_SIZE
+
+get ENTRIES long MEMORY_FILE2
+savepos OFFSET MEMORY_FILE2
+set PATH string ""
+set NAME string ""
+putarray 0 0 0  # nested function
+callfunction EXTRACT
+
+startfunction EXTRACT
+    savepos BCK_OFF MEMORY_FILE2
+    goto OFFSET MEMORY_FILE2
+    string PATH + NAME
+    string PATH + /
+    for CUR_ENTRIES = ENTRIES > 0
+        get NAME_OFF long MEMORY_FILE2
+        math FLAGS = NAME_OFF
+        xmath NAME_OFF "NAME_OFF & ((1 << 23) - 1)"
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        get OFFSET long MEMORY_FILE2
+        if FLAGS & 0x80000000
+            get ENTRIES long MEMORY_FILE2
+            callfunction EXTRACT
+        else
+            callfunction HANDLE_PACK_NUM 1
+            get SIZE long MEMORY_FILE2
+            string NAME p "%s%s" PATH NAME
+            set EXT extension NAME
+            if EXT == "core" && ARCHIVE_NAME == "psp"
+                goto OFFSET
+                get ZERO long   # probably XSIZE64
+                get XSIZE long
+                reverselong XSIZE
+                math OFFSET + 8
+                math SIZE   - 8
+                clog NAME OFFSET SIZE XSIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+        endif
+    prev CUR_ENTRIES
+    goto BCK_OFF MEMORY_FILE2
+endfunction
+
+startfunction HANDLE_PACK_NUM
+    xmath PACK_NUM "(FLAGS >> 23) & 0x1f"
+    getarray LAST_PACK_NUM 0 0
+    if PACK_NUM != LAST_PACK_NUM
+        putarray 0 0 PACK_NUM
+        get EXT extension
+        if PACK_NUM == 0
+            string TMP p "%s.%s" ARCHIVE_NAME EXT
+        else
+            string TMP p "%s%02d.%s" ARCHIVE_NAME PACK_NUM EXT
+        endif
+        open FDSE TMP
+    endif
+endfunction

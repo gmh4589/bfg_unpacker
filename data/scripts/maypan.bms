@@ -1,0 +1,29 @@
+# Maypan
+# script for QuickBMS http://quickbms.aluigi.org
+
+get MYFILENAME filename
+string MYFILENAME -= "Adr.ltf"
+string MYFILENAME -= "Spr.ltf"
+set NAME_ADR MYFILENAME
+set NAME_SPR MYFILENAME
+string NAME_ADR += "Adr.ltf"
+string NAME_SPR += "Spr.ltf"
+open FDSE NAME_ADR 0
+open FDSE NAME_SPR 1
+
+get FILESIZE asize
+
+for
+    savepos OFFSET
+    if OFFSET >= FILESIZE
+        cleanexit
+    endif
+
+    getdstring NAME 108 # name and other useless stuff
+    get OFFSET long
+    get DUMMY long
+    get SIZE long
+    get TYPE long
+
+    log NAME OFFSET SIZE 1
+next

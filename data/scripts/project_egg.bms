@@ -1,0 +1,248 @@
+# Project EGG executable extractor (EGGDATA) (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+set NAME string ""
+get TMP long
+goto 0
+if TMP != 0x905a4d
+    get SIZE asize
+    callfunction DUMP2 1
+    cleanexit
+endif
+
+
+get EXE_NAME basename   # name of the executable without extension
+string EXE_NAME u EXE_NAME
+
+math DUMP_ORIGINAL_RESOURCES = 1    # valid only for the EGGDATA archives
+
+# lame way to locate the CONFIG and DATA resources without parsing the executable or using FindResource
+findloc RESOURCES_OFFSET binary "\xe4\x04\x00\x00\x00\x00\x00\x00"
+math RESOURCES_OFFSET - 8
+goto RESOURCES_OFFSET
+for RESOURCES = 0
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get ZERO long
+    if ZERO != 0
+        goto -0x10 0 SEEK_CUR
+        break
+    endif
+
+    putarray 0 -1 OFFSET
+    putarray 1 -1 SIZE
+next RESOURCES
+for i = 0 < RESOURCES
+    get NAMESZ short
+    if NAMESZ > 0x10
+        goto -2 0 SEEK_CUR
+        break
+    endif
+    math NAMESZ * 2
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    putarray 2 -1 NAME
+next i
+savepos OFFSET
+getarray RVA 0 0
+math RVA - OFFSET
+math RVA x 0x100
+print "RVA %RVA|X%"
+for i = 0 < RESOURCES
+    getarray OFFSET 0 i
+    math OFFSET - RVA
+    putarray 0 i OFFSET
+next i
+# end of lame code
+
+
+
+comtype zlib
+math METHOD = 1
+findloc TMP binary "EGGDATA" 0 ""
+if TMP == ""
+    comtype lzhlib
+    math METHOD = 2
+endif
+
+
+
+goto 0
+math DUMP2_TYPE = 0
+findloc TMP binary "\x63\x59\x88\x18" 0 ""
+if TMP != ""
+    goto TMP
+    get DUMP2_XOR_VALUE long
+    math DUMP2_TYPE = 1
+else
+    findloc TMP binary "\x33\x53\x93\x63\xA3\xC3\x35\x55\x95\x65\xA5\xC5\x36\x56\x96\x66" 0 ""
+    if TMP != ""
+        math DUMP2_TYPE = 2
+    endif
+endif
+
+
+
+for RESOURCE = 0 < RESOURCES
+    getarray OFFSET 0 RESOURCE
+    getarray SIZE   1 RESOURCE
+    #getarray NAME   2 RESOURCE
+    set NAME string ""  # not supported
+    goto OFFSET
+
+    if METHOD == 1
+
+        getdstring TMP 8
+        if TMP == "EGGDATA "
+            getdstring TMP 0x18
+            savepos OFFSET
+
+            if RESOURCE == 0    # CONFIG
+
+                encryption md5 EXE_NAME
+                encryption xor "\xff"
+                string KEY e QUICKBMS_HASH
+                encryption "" ""
+
+                set DUMP_EXT string "config"
+                callfunction DUMP 1
+                callfunction DUMP_EXTRACT 1
+
+                get SIZE asize MEMORY_FILE  # backup copy
+                log MEMORY_FILE2 0 SIZE MEMORY_FILE
+
+            else
+
+                goto 0 MEMORY_FILE2
+                findloc CRYPTKEY_OFF string "YekTpyrc=" MEMORY_FILE2
+                math CRYPTKEY_OFF + 9
+                goto CRYPTKEY_OFF MEMORY_FILE2
+                get KEY line MEMORY_FILE2
+                string KEY h KEY
+
+                set DUMP_EXT string "data"
+                if RESOURCE > 1
+                    string DUMP_EXT + RESOURCE
+                endif
+                callfunction DUMP 1
+                callfunction DUMP_EXTRACT 1
+
+            endif
+        endif
+
+    else
+
+        callfunction DUMP2 1
+
+    endif
+next RESOURCE
+
+
+
+startfunction DUMP2
+    savepos OFFSET
+
+    if DUMP2_TYPE == 1
+
+        get VAR long
+        math VAR ^ DUMP2_XOR_VALUE  # 0x18885963
+        xmath XSIZE "VAR / 0x4d"
+        #xmath XSIZE2 "(VAR * 0x3531dec1) >> 36"
+
+        xmath TMP "VAR % 0x4d"
+        if TMP == 0
+            savepos OFFSET
+            math SIZE - 4
+            clog NAME OFFSET SIZE XSIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+
+    else
+
+        if DUMP2_TYPE == 2
+            get TMP long
+            if TMP != 0x28
+            if SIZE >= 0x4000
+                filexor "\x33\x53\x93\x63\xA3\xC3\x35\x55\x95\x65\xA5\xC5\x36\x56\x96\x66" OFFSET
+                encryption xmath "(#INPUT# < 4) | (#INPUT# > 4)" 8  # 8bit ROL4 (xmath is 32bit)
+            endif
+            endif
+        endif
+
+        log NAME OFFSET SIZE
+
+        encryption "" ""
+        filexor ""
+
+    endif
+endfunction
+
+
+
+startfunction DUMP
+    math CHUNK_SIZE = 0x100
+    xmath CHUNKS "SIZE / CHUNK_SIZE"
+
+    log MEMORY_FILE 0 0
+    append
+    getvarchr KEY_INC KEY 0 long
+    for i = 0 < CHUNKS
+        xmath TMP "KEY_INC ^ i"
+        putvarchr KEY 0 TMP long
+
+        encryption "AES" KEY "" 0 16
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+        math OFFSET + CHUNK_SIZE
+    next i
+    append
+    encryption "" ""
+
+    if DUMP_ORIGINAL_RESOURCES != 0
+        get SIZE asize MEMORY_FILE
+        string NAME p "%s.%s" EXE_NAME DUMP_EXT
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+endfunction
+
+
+
+startfunction DUMP_EXTRACT
+    get MEM_LIMIT asize MEMORY_FILE
+    goto 0 MEMORY_FILE
+    for
+        savepos TMP MEMORY_FILE
+        if TMP >= MEM_LIMIT
+            break
+        endif
+        getdstring TYPE 4 MEMORY_FILE   # "DATA"
+        if TYPE == "END"
+            break
+        elif TYPE == "NEXT"
+            get OFFSET long MEMORY_FILE
+            math OFFSET * CHUNK_SIZE
+            goto OFFSET MEMORY_FILE
+        else
+            get OFFSET long MEMORY_FILE
+            get SIZE long MEMORY_FILE
+            getdstring NAME 0x14 MEMORY_FILE
+            math OFFSET * CHUNK_SIZE
+            string NAME + "."
+
+            savepos TMP MEMORY_FILE
+            goto OFFSET MEMORY_FILE
+            getdstring SIGN 8 MEMORY_FILE
+            if SIGN == "COMPZIP "
+                get XSIZE long MEMORY_FILE
+                get DUMMY long MEMORY_FILE
+                savepos OFFSET MEMORY_FILE
+                math SIZE - 0x10
+                clog NAME OFFSET SIZE XSIZE MEMORY_FILE
+            else
+                log NAME OFFSET SIZE MEMORY_FILE
+            endif
+            goto TMP MEMORY_FILE
+        endif
+    next
+endfunction

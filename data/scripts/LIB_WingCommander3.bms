@@ -1,0 +1,12 @@
+<bms author="Mr.Mouse" ext="lib" games="'Wing Commander 3'" platforms="'PS'" version="1.0" mexscript="3.0" verbose="no" silence="no">
+ImpType Standard ;
+Get FN Int 0 ;
+For T = 1 To FN ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+GetDString FName 16 0 ;
+Log FName FO FS #FOO FSO ;
+Next T ;
+</bms>

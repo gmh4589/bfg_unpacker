@@ -1,0 +1,81 @@
+# Sport Championship 2 BAKE/RES! (script 0.2)
+
+comtype deflate
+endian big
+idstring "BAKE"
+getdstring PLATFORM 4
+get VER long    # 5
+get FILES long
+get DATA_OFF long
+get CHUNKS long
+get INFO_OFF long
+savepos BASE_OFF
+
+if DATA_OFF == INFO_OFF
+    # this is probably wrong but I have no idea how it gets this value
+    # it's correct in one sample and different in another
+    math DATA_OFF + INFO_OFF
+endif
+
+math CHUNK_SIZE = 0x10000
+math INFO_OFF + BASE_OFF
+if DATA_OFF <= INFO_OFF #== 0
+    xmath DATA_OFF "INFO_OFF + (CHUNKS * (4 + 4))"
+    # math DATA_OFF x CHUNK_SIZE  # padding is necessary on some files, better to scan instead
+    goto DATA_OFF
+    do
+        get DUMMY long
+    while DUMMY == 0
+    goto -4 0 SEEK_CUR
+    savepos DATA_OFF
+endif
+goto INFO_OFF
+
+# do NOT use a MEMORY_FILE because some archives are huge
+get NAME basename
+log NAME 0 0
+
+
+append
+for i = 0 < CHUNKS
+    get OFFSET long
+    get SIZE long
+    #if SIZE == 0 || SIZE >= CHUNK_SIZE ???
+    math OFFSET * 0x10
+    math OFFSET + DATA_OFF
+    clog NAME OFFSET SIZE CHUNK_SIZE
+next i
+append
+
+
+# the format of some archives like baked_avatars.data is completely different
+xmath TMP "INFO_OFF - BASE_OFF"
+log MEMORY_FILE BASE_OFF TMP
+open FDSE NAME
+
+for i = 0 < FILES
+    get NAME_CRC long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get CRCS long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    for x = 0 < CRCS
+        get SOME_CRC long MEMORY_FILE
+    next x
+    if SOME_CRC != 0xffffffff
+        getdstring TYPE 4 MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+    endif
+    math OFFSET * 0x10
+    string NAME p "%08x." NAME_CRC
+    log NAME OFFSET SIZE
+next i
+
+print "For the RES files use http://aluigi.org/bms/sport_championship_res.bms"
+

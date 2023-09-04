@@ -1,0 +1,51 @@
+# Orc Attack Flatulent Rebellion (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PZZ_SIZE asize
+
+math ID = 1
+set NAME string ""
+set PATH string ""
+callfunction EXTRACT
+
+get FILES long
+for i = 0 < FILES
+    getarray NAME 0 i
+    get OFFSET long
+    get TYPE long
+    get SIZE long
+    if TYPE == 'z'
+        xmath ZSIZE "PZZ_SIZE - OFFSET"
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+next i
+
+startfunction EXTRACT
+    math FILES = ID
+    string PATH += NAME
+    string PATH += /
+
+    for i = 0 < FILES
+        get TYPE byte
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        get ID long
+
+        if TYPE == 'F'
+            string FNAME p= "%s/%s" PATH NAME
+            putarray 0 ID FNAME
+
+        elif TYPE == 'D'
+            callfunction EXTRACT
+
+        else
+            # I don't know what's the way to get the number of entries
+            break
+
+            #print "Error: unknown file type %TYPE|x%"
+            #cleanexit
+        endif
+    next i
+endfunction

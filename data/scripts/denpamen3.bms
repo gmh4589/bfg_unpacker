@@ -1,0 +1,23 @@
+# Denpamen 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get MODE long
+    get DUMMY long  # 1
+    get XSIZE long
+    get DUMMY long
+    get DUMMY long
+    if MODE & 6
+        clog "" OFFSET SIZE XSIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

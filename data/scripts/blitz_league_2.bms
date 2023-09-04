@@ -1,0 +1,61 @@
+# Blitz the League 2 (script 0.2.1)
+
+endian big
+
+get EXT extension
+if EXT == "of"
+    get DUMMY long
+    get DUMMY long
+    get INFO_OFF long
+    get FILES long
+    goto INFO_OFF
+    get INFO_SIZE long
+    for i = 0 < FILES
+        get DUMMY long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        getdstring DUMMY 12
+        get ZSIZE long
+        clog "" OFFSET ZSIZE SIZE
+    next i
+    cleanexit
+endif
+
+idstring "PAK "
+get DUMMY long  # 0x200
+get INFO_OFF long
+get INFO_SIZE long
+get NAMES_SIZE long
+get DUMMY byte  # 8
+goto INFO_OFF
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    get NAME_OFF long
+    get IS_FOLDER long
+    get OFFSET long
+
+    savepos TMP
+    math NAME_OFF + INFO_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if IS_FOLDER == 0
+        get SIZE long
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    else
+        get FILES long
+        for i = 0 < FILES
+            callfunction EXTRACT
+        next i
+    endif
+endfunction
+

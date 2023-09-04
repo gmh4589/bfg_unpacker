@@ -1,0 +1,53 @@
+# Fengsehuanxiang (?) 風色幻想
+# script for QuickBMS http://quickbms.aluigi.org
+
+# scanner because the last part of the archive is probably encrypted
+set EXPECTED_SIGN binary "\x4f\x44\x01\x02"
+comtype deflate_noerror
+get PAK_SIZE asize
+for PAK_OFF = PAK_SIZE >= 0
+    xmath ZSIZE "PAK_SIZE - PAK_OFF"
+    xmath SIZE "ZSIZE * 20"
+    clog MEMORY_FILE PAK_OFF ZSIZE SIZE
+    get MEM_SIZE asize MEMORY_FILE
+    if MEM_SIZE > 4
+        getdstring SIGN 4 MEMORY_FILE
+        if SIGN u== EXPECTED_SIGN
+            math PAK_OFF = -1   # break
+        endif
+    endif
+prev PAK_OFF
+
+goto 0 MEMORY_FILE
+for MEM_OFF = 0 < MEM_SIZE
+    getdstring SIGN 4 MEMORY_FILE
+        get ver_made        short MEMORY_FILE
+        get ver_need        short MEMORY_FILE
+        get flag            short MEMORY_FILE
+        get method          short MEMORY_FILE
+        get modtime         short MEMORY_FILE
+        get moddate         short MEMORY_FILE
+        get crc             long MEMORY_FILE
+        get comp_size       long MEMORY_FILE
+        get uncomp_size     long MEMORY_FILE
+        get name_len        short MEMORY_FILE
+        get extra_len       short MEMORY_FILE
+        get comm_len        short MEMORY_FILE
+        get disknum         short MEMORY_FILE
+        get int_attr        short MEMORY_FILE
+        get ext_attr        long MEMORY_FILE
+        get rel_offset      long MEMORY_FILE
+        getdstring name     name_len MEMORY_FILE
+        getdstring extra    extra_len MEMORY_FILE
+        getdstring comment  comm_len MEMORY_FILE
+    savepos MEM_OFF MEMORY_FILE
+
+    if method == 0
+        log name rel_offset uncomp_size
+    elif method == 8
+        clog name rel_offset comp_size uncomp_size
+    else
+        print "Error: unsupported method %method%"
+        cleanexit
+    endif
+next

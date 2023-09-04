@@ -1,0 +1,24 @@
+# WACKYLAND'S BOSS
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get DUMMY long
+get FILES long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+next i
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get ZIP long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,44 @@
+# Requiem of Hell
+
+open FDDE "idx"
+open FDDE "dat" 1
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    callfunction GET_INFO 1
+
+    string PATH + NAME
+    string PATH + /
+
+    math FOLDERS = _FOLDERS
+    math FILES   = _FILES
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+
+    for i = 0 < FILES
+        callfunction GET_INFO 1
+
+        string NAME p "%s%s" PATH NAME
+        clog NAME OFFSET ZSIZE SIZE 1
+    next i
+endfunction
+
+startfunction GET_INFO
+    get OBJECT_SIZE long
+    get _FOLDERS short
+    get _FILES short
+    get DUMMY long  # related to folders
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get NAMESZ byte
+    get TYPE byte   # 1 folder, 2 file
+    get ENTRY_SIZE2 short
+    getdstring NAME NAMESZ
+    padding 4
+endfunction

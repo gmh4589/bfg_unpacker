@@ -1,0 +1,40 @@
+# Mystery Stories: Mountains of Madness
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "gfcpk"
+get VER byte
+getdstring KEY 4
+get DUMMY long
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+
+print "wait some seconds/minutes for the decryption..."
+savepos OFFSET
+for i = OFFSET < SIZE
+    getvarchr T MEMORY_FILE i
+    math C = i
+    math X = i
+    math X &= 3
+    getvarchr X KEY X
+    math C ^= X
+    math T ^= C
+    putvarchr MEMORY_FILE i T
+next i
+
+print "extraction..."
+goto OFFSET MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    get ZIP long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    if ZIP == 0
+        log NAME OFFSET SIZE MEMORY_FILE
+    else
+        clog NAME OFFSET ZSIZE SIZE MEMORY_FILE
+    endif
+next i

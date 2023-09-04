@@ -1,0 +1,59 @@
+# Ghost Recon: Jungle Storm GR.IMG
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get IMG_SIZE long
+get HEADER_SIZE long
+get INFO_OFF long
+get INFO_LIMIT long
+get NAMES_OFF long
+get DATA_OFF long
+get DUMMY long  # 1
+get ZERO long
+get DUMMY_OFF long
+
+math INFO_OFF + 0x30
+for INFO_OFF = INFO_OFF != INFO_LIMIT
+    goto INFO_OFF
+    get NAME_OFF long
+    get DUMMY2 long
+    get ZERO long
+    get ZERO long
+    get ZIP long
+    get ONE long
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get FLAGS long
+    get DUMMY long
+    savepos INFO_OFF
+
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        goto OFFSET
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for MEM_SIZE = 0 != SIZE
+            get CHUNK_ZSIZE long
+            get CHUNK_SIZE long
+            savepos CHUNK_OFF
+            if CHUNK_ZSIZE == CHUNK_SIZE
+                log MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE
+            else
+                clog MEMORY_FILE CHUNK_OFF CHUNK_ZSIZE CHUNK_SIZE
+            endif
+            get MEM_SIZE asize MEMORY_FILE
+            math CHUNK_OFF + CHUNK_ZSIZE
+            goto CHUNK_OFF
+        next
+        append
+        log NAME 0 SIZE MEMORY_FILE
+    endif
+next

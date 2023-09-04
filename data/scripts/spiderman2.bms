@@ -1,0 +1,79 @@
+# Spider Man 2 PAK
+#   remember to press 'r' when quickbms will ask you to overwrite the files
+# script for QuickBMS http://quickbms.aluigi.org
+
+math PARSE_SUB_FILES = 1
+
+callfunction GET_HEADER 1
+get BASE_OFF long
+get INFO_OFF long
+get INFO_SIZE long
+get DUMMY_OFF long
+get DUMMY_SIZE long
+get FOLDERS_OFF long
+get FOLDERS_SIZE long
+get DUMMY11 long
+xmath FILES "INFO_SIZE / 0x38"
+xmath FOLDERS "FOLDERS_SIZE / 0x20"
+goto FOLDERS_OFF
+for ID = 0 < FOLDERS
+    getdstring PATH[ID] 0x20
+next ID
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x20
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    get ID long
+    get DUMMY long
+    string NAME p "%s/%s" PATH[ID] NAME
+    math OFFSET + BASE_OFF
+
+    if PARSE_SUB_FILES == 0
+
+        log NAME OFFSET SIZE
+
+    else
+
+        savepos TMP_OFF
+        goto OFFSET
+        callfunction GET_HEADER 1
+        get ZERO long
+        get DUMMY_OFF long
+        get FILE_OFF long
+        math FILE_OFF + OFFSET
+        getdstring DUMMY 0x30
+        get SUB_FILES short
+        math INFO_OFF = OFFSET
+        math INFO_OFF + 0x258
+        goto INFO_OFF
+        for
+            get DUMMY long
+            if DUMMY == 0 || DUMMY u>= 0x80000000
+            else
+                break
+            endif
+        next
+        goto -4 0 SEEK_CUR
+        for x = 0 < SUB_FILES
+            getdstring SUB_NAME 0x20
+            get OFFSET long
+            get SIZE long
+            string SUB_NAME p "%s/%s." NAME SUB_NAME
+            math OFFSET + FILE_OFF
+            log SUB_NAME OFFSET SIZE
+        next x
+        goto TMP_OFF
+
+    endif
+next i
+
+startfunction GET_HEADER
+    get DUMMY1 long # 0xb
+    get DUMMY2 long # 0x3d6
+    get DUMMY3 long # 0x333
+    get DUMMY4 long # 0x197
+endfunction
+

@@ -1,0 +1,30 @@
+# Shaiya (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE SAH
+open FDDE SAF 1
+idstring "SAH"
+getdstring DUMMY 0x30
+set PATH string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    get FOLDERSZ long
+    getdstring FOLDER FOLDERSZ
+    string PATH += FOLDER
+    string PATH += /
+    get FILES long
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get OFFSET longlong
+        get SIZE long
+        get DUMMY long
+        string FNAME p= "%s%s" PATH NAME
+        log FNAME OFFSET SIZE 1
+    next i
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+endfunction

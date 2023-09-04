@@ -1,0 +1,98 @@
+# This War Of Mine OBB/LANG/LNGP (script 0.1.1)
+
+get EXT extension
+if EXT != "obb"
+
+    if EXT == "lngp"
+        get DUMMY long
+        get DUMMY short
+        get DUMMY long
+        goto 0x14
+        get NAMES short
+        get TSTAMP longlong
+        get TSTAMP longlong
+        get NAME string
+        for i = 0 < NAMES
+            get NAME unicode
+        next i
+    endif
+
+    get LANG_SIZE long
+    get STRINGS long
+    for i = 0 < STRINGS
+        get NAMESZ short
+        slog "" -1 NAMESZ
+
+        get TEXT_SIZE short
+        math TEXT_SIZE * 2
+        slog "" -1 TEXT_SIZE unicode
+    next i
+
+    if EXT == "lngp"
+        get FILES short
+        for i = 0 < FILES
+            get ENTRY_SIZE long
+            savepos ENTRY_OFF
+            get DUMMY byte  # 1
+            get NAME string
+            get DUMMY byte  # 1
+            get NAME string # same as before
+            for x = 0 < 7
+                get DUMMY float
+            next x
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            math ENTRY_OFF + ENTRY_SIZE
+            math ENTRY_OFF + 4
+            goto ENTRY_OFF
+        next i
+    endif
+
+    cleanexit
+endif
+
+comtype gzip
+get DUMMY long
+get OBB_SIZE asize
+get MIN_OFF asize
+savepos MYOFF
+for MYOFF = MYOFF != MIN_OFF
+    get OFFSET long
+    get SIZE long
+    savepos MYOFF
+
+    if OFFSET != 0
+        if OFFSET u< MIN_OFF
+            math MIN_OFF = OFFSET
+        endif
+
+        xmath TMP "OFFSET + SIZE"
+        if TMP u< OBB_SIZE
+            savepos TMP
+            goto OFFSET
+            get TEST short
+            if TEST == 0x8b1f
+                callfunction DUMP_GZIPS
+            else
+                log "" OFFSET SIZE
+            endif
+            goto TMP
+        endif
+    endif
+next
+
+startfunction DUMP_GZIPS
+    xmath LIMIT "OFFSET + SIZE"
+    for OFFSET = OFFSET != LIMIT
+        goto OFFSET
+        getdstring DUMMY 3
+        findloc NEXT_OFF binary "\x1f\x8b\x08\x00" 0 ""
+        if NEXT_OFF == "" || NEXT_OFF u> LIMIT
+            break
+        endif
+        xmath SIZE "NEXT_OFF - OFFSET"
+        clog "" OFFSET SIZE SIZE
+        math OFFSET = NEXT_OFF
+    next
+endfunction

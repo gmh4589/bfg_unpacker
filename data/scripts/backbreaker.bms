@@ -1,0 +1,14 @@
+# extract pkd/pkh archive pairs from Backbreaker: Vengeance (XBLA)
+# (c) 2012-07-02 by AlphaTwentyThree of XeNTaX
+
+open FDDE pkh 0
+open FDDE pkd 1
+get FILES long 0
+get UNK long 0
+for i = 1 <= FILES
+   get NAMEL long 0
+   getDstring NAME NAMEL 0
+   get OFFSET long 0
+   get SIZE long 0
+   log NAME OFFSET SIZE 1
+next i

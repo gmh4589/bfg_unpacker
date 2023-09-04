@@ -1,0 +1,35 @@
+# Cabela's games series (script 0.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -0x800
+savepos MAX_SIZE
+idstring "ARC\0"
+get VER long
+get OFFSET long
+get SIZE long
+get ZSIZE long
+get FILES long
+get ALIGN long
+if ALIGN == 0
+    math ALIGN = 0x800
+endif
+
+math OFFSET *= ALIGN
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+for i = 0 < FILES
+    idstring MEMORY_FILE "ARCH"
+    get OFFSET long MEMORY_FILE
+    get NEXT long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get ZSIZE long MEMORY_FILE
+    get ZIP long MEMORY_FILE
+    get NAMESZ long MEMORY_FILE
+    getdstring NAME NAMESZ MEMORY_FILE
+    math OFFSET *= ALIGN
+    if ZIP == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

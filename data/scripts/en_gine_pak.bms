@@ -1,0 +1,24 @@
+# e^N-gine PAK (script 0.1.1)
+#   Car Jacker 2 / Crazy Drive Away, WarChess / Chess vs. the Axis of Evil, Dolphin3D Screensaver, Diver: Deep Water Adventures
+
+goto -4
+savepos TMP
+get FILES signed_long
+if FILES < 0
+    math FILES n FILES
+endif
+xmath INFO_OFF "TMP - (FILES * 0x90)"
+goto INFO_OFF
+
+# thanks Ekey: https://zenhax.com/viewtopic.php?p=69458#p69458
+encryption rotate 1
+filecrypt 1
+
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    get ZSIZE long  # same as SIZE
+    log NAME OFFSET SIZE
+next i

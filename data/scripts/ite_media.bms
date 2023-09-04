@@ -1,0 +1,16 @@
+# ITE Media ITERES (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "ITERES"
+get ALIGN long
+get BASE_OFF long
+math BASE_OFF * ALIGN
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get OFFSET long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

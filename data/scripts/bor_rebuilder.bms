@@ -1,0 +1,66 @@
+# example of rebuilding for Beats of Rage (script 0.1.1)
+# this game uses the following format:
+#   - initial header
+#   - files content
+#   - file info table
+#   - offset of the file info table
+# usage example:
+#   - cd c:\input_folder
+#   - quickbms -w c:\thisfile.bms output.pak .
+# script for QuickBMS http://quickbms.aluigi.org
+
+# this script has been updated for working with the current version of quickbms
+
+# some checks for quickbms, only the first 2 instructions are needed
+#quickbmsver 0.3.12a
+get PAK_NAME filename
+/* old check
+get PAK_NAME fullname           # used later to avoid the wasting of too much memory
+if PAK_NAME & ":"
+    print "Error: you must create the archive in this same input folder"
+    cleanexit
+endif
+*/
+set INPUT_FOLDER string "."
+/* old check
+get INPUT_FOLDER input_folder
+if INPUT_FOLDER != "."
+    print "Error: you must create the archive from the current folder"
+    cleanexit
+endif
+*/
+print "- start the rebuilding of the archive %PAK_NAME%"
+
+# add the header, scan the folder, append the files, build the index and append it
+putdstring "PACK" 4
+put 0 long
+savepos OFFSET
+
+putvarchr MEMORY_FILE 0 0       # init or pre-allocate the memory file
+append
+for
+    scanDir INPUT_FOLDER NAME SIZE  # get the file from the current folder
+    string NAME << 2    # remove ./
+
+    if NAME == ""               # no other files are available so append index
+        put OFFSET long MEMORY_FILE
+        get SIZE asize MEMORY_FILE
+        log PAK_NAME 0 SIZE MEMORY_FILE
+        cleanexit
+    endif
+
+    if NAME != PAK_NAME         # avoid to add the same archive to itself
+        open INPUT_FOLDER NAME
+        log PAK_NAME NAME SIZE  # append the file in the archive
+
+        strlen NAMESZ NAME
+        math TMP = NAMESZ
+        math TMP += 12
+        put TMP long MEMORY_FILE
+        put OFFSET long MEMORY_FILE
+        put SIZE long MEMORY_FILE
+        putdstring NAME NAMESZ MEMORY_FILE
+
+        math OFFSET += SIZE
+    endif
+next

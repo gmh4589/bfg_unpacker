@@ -1,0 +1,90 @@
+# de Blob (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math ENABLE_TTEX = 0
+
+get TRB_NAME basename
+idstring "TSFL"
+get TRB_SIZE long
+math TRB_SIZE + 8
+idstring "TRBF"
+math FILES = 0
+math BASE_OFF = 0
+do
+    getdstring CHUNK_TYPE 4
+    get CHUNK_SIZE long
+    savepos CHUNK_OFF
+
+    if CHUNK_TYPE == "HDRX"
+        get DUMMY short
+        get DUMMY short
+        get FILES long
+        get ZERO long
+        for i = 0 < FILES
+            get SIZE long
+            get ZERO long
+            get DUMMY long
+            get DUMMY long
+            putarray 0 i SIZE
+            putarray 1 i ""
+        next i
+    elif CHUNK_TYPE == "SECT"
+        math BASE_OFF = CHUNK_OFF
+    elif CHUNK_TYPE == "SYMB"
+        get NAMES long
+        savepos TMP
+        xmath NAMES_OFF "TMP + (NAMES * 12)"
+        for i = 0 < NAMES
+            get ID short
+            get NAME_OFF long
+            get DUMMY long
+            get DUMMY short
+
+            savepos TMP
+            math NAME_OFF + NAMES_OFF
+            goto NAME_OFF
+            get NAME string # not a name!
+            putarray 1 ID NAME
+            goto TMP
+        next i
+    endif
+
+    math CHUNK_OFF + CHUNK_SIZE
+    math CHUNK_OFF x 4
+    goto CHUNK_OFF
+while CHUNK_OFF != TRB_SIZE
+
+math OFFSET = BASE_OFF
+set BCK_NAME string ""
+for i = 0 < FILES
+    getarray SIZE 0 i
+    getarray NAME 1 i
+    if NAME == ""
+        set NAME string BCK_NAME
+    endif
+    set BCK_NAME string NAME
+
+    set REAL_NAME string ""
+    if NAME == "ttex" && ENABLE_TTEX != 0
+        math TMP = OFFSET
+        math TMP + 0x30
+        goto TMP
+        get REAL_NAME string
+        padding 4
+        getdstring DUMMY 0x18
+        savepos TMP
+        xmath SIZE "SIZE - (TMP - OFFSET)"
+        math OFFSET = TMP
+    endif
+    string NAME + /
+    string NAME + TRB_NAME
+    string NAME + /
+    if REAL_NAME != ""
+        string NAME + REAL_NAME
+        string NAME + "."
+    endif
+
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    math OFFSET x 4
+next i

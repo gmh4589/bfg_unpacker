@@ -1,0 +1,107 @@
+# Level5 games / Dark Cloud (script 0.1.3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "DAT" 1
+
+open FDDE "HED" 0 EXISTS
+if EXISTS != 0
+    get HED_SIZE asize
+    for
+        savepos TMP
+        if TMP >= HED_SIZE
+            break
+        endif
+
+        getdstring NAME 0x40
+        get OFFSET long
+        get SIZE long
+        get ID long
+        get SOME_ID long
+
+        log NAME OFFSET SIZE 1
+    next
+
+else
+
+    open FDDE "HD2" 0 EXISTS
+    if EXISTS != 0
+        for
+            get NAME_OFF long
+            get ZERO long
+            get ZERO long
+            get ZERO long
+            get OFFSET long
+            get SIZE long
+            get ID long
+            get SOME_ID long
+            if OFFSET == 0 && SIZE == 0
+                break
+            endif
+
+            savepos TMP
+            goto NAME_OFF
+            get NAME string
+            goto TMP
+
+            log NAME OFFSET SIZE 1
+        next
+
+    else
+
+        open FDDE "HD3" 0 EXISTS
+        if EXISTS != 0
+            for OFFSET = 0
+                get NAME_OFF long
+                get SIZE long
+                get ID long
+                get SOME_ID long
+                if SIZE == 0 && ID == 0
+                    break
+                endif
+
+                savepos TMP
+                goto NAME_OFF
+                get NAME string
+                goto TMP
+
+                log NAME OFFSET SIZE 1
+                math OFFSET + SIZE
+                math OFFSET x 0x800
+            next
+
+        else
+
+            open FDDE "HD6"
+            idstring "HD6\0"
+            get NAMES_OFF long
+            get NAMES_SIZE long
+            get DUMMY long
+            get ZERO long
+            get DUMMY_OFF long
+            get DUMMY_SIZE long
+            get ZERO long
+            get DUMMY long
+            get FILES long
+            get INFO_OFF long
+            get ZERO long
+            get HD6_SIZE long
+
+            # NAMES are built in an unknown way
+
+            goto INFO_OFF
+            for i = 0 < FILES
+                get NAME_ID short
+                get OFFSET threebyte
+                get SIZE threebyte
+                math OFFSET * 512
+                math SIZE   * 0x10
+                if SIZE != 0
+                    log "" OFFSET SIZE 1
+                endif
+            next i
+
+        endif
+
+    endif
+
+endif

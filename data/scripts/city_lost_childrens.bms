@@ -1,0 +1,16 @@
+# City Of Lost Childrens
+
+idstring "CRSL"
+get VER short
+get FILES short
+for i = 0 < FILES
+    get ZSIZE long
+    get SIZE long
+    get OFFSET long
+    getdstring NAME 0x10
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE # untested
+    endif
+next i

@@ -1,0 +1,15 @@
+# Super Cloudbuilt pkdwin/pkiwin
+
+open FDDE "pkiwin"
+open FDDE "pkdwin" 1
+
+get VER long    # 3
+get ZERO long
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get NAME_CRC long
+    clog "" OFFSET ZSIZE SIZE 1
+next i

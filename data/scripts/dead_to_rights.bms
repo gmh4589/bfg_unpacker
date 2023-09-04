@@ -1,0 +1,19 @@
+# Dead to Rights 2 PAK
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzo1x
+get DUMMY long  # 0xf4ea1072
+get ZERO long
+get INFO_OFF long
+get FILES long
+for i = 0 < FILES
+    get NAME line
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long  # aligned ZSIZE
+    if ZSIZE == 0
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

@@ -1,0 +1,12 @@
+# Digimon AndroidAsset data.png
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AndroidAsset"
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET longlong
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

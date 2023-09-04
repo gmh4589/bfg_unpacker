@@ -1,0 +1,27 @@
+# All Points Bulletin PCK (script 0.1.1)
+#   in a recent update the archive is now the same format of Borderlands 2
+#   so borderlands2_pck.bms works too
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "AKPK"
+#get SIZE long
+#get DUMMY long
+#get SIZE long
+#getdstring DUMMY SIZE
+
+findloc OFFSET string "s\x00f\x00x\x00"
+goto OFFSET
+
+get NAME unicode
+get DUMMY long
+get FILES long
+get DUMMY long
+
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    log "" OFFSET SIZE
+next i

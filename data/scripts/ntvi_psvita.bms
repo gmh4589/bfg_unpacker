@@ -1,0 +1,49 @@
+# Ridge Racer PSVita NTVI
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NTVI_SIZE asize
+for FOLDER = 0
+    savepos TMP
+    if TMP == NTVI_SIZE
+        break
+    endif
+    padding 0x40
+    idstring "NTVI"
+    get DUMMY short # 1
+    get FILES long
+    padding 0x10
+    for i = 0 < FILES
+        savepos ENTRY_OFF
+        get ENTRY_SIZE long
+        get ZERO long
+        get SIZE long
+        get OFFSET long
+        math OFFSET + ENTRY_OFF
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+        math ENTRY_OFF + ENTRY_SIZE
+        goto ENTRY_OFF
+    next i
+    padding 0x40
+    idstring "NPIN"
+    get FILES long
+    for i = 0 < FILES
+        get NAME_OFF long
+        putarray 2 i NAME_OFF
+    next i
+    savepos OFFSET
+    for i = 0 < FILES
+        getarray NAME_OFF 2 i
+        math NAME_OFF + OFFSET
+        goto NAME_OFF
+        get NAME string
+        putarray 2 i NAME
+    next i
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        getarray NAME   2 i
+        string NAME p "%d/%s" FOLDER NAME
+        log NAME OFFSET SIZE
+    next i
+next FOLDER

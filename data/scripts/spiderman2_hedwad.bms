@@ -1,0 +1,34 @@
+# Spider-Man 2: Enter Electro
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "HED"
+open FDDE "WAD" 1
+
+get HED_SIZE asize
+log MEMORY_FILE 0 0
+append
+do
+    idstring "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"
+    get DUMMY_SIZE long
+    get DUMMY long  # 0x00080000
+    get DUMMY long  # 0x00080000
+    savepos OFFSET
+    log MEMORY_FILE OFFSET 0x800
+    math OFFSET + 0x800
+    math OFFSET + 0x118
+    goto OFFSET
+while OFFSET != HED_SIZE
+append
+
+goto 0 MEMORY_FILE
+for
+    get NAME string MEMORY_FILE
+    getvarchr TMP NAME 0
+    if TMP == 0xff
+        break
+    endif
+    padding 4 MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    log NAME OFFSET SIZE 1
+next

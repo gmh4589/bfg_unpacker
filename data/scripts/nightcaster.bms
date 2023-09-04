@@ -1,0 +1,19 @@
+# NightCaster
+
+open FDDE "idx"
+open FDDE "pak" 1
+
+get FILES asize
+math FILES / 20
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get ZSIZE long
+    get DUMMY long
+    get DUMMY long
+
+    goto OFFSET 1
+    get SIZE long 1
+    savepos OFFSET 1
+    clog "" OFFSET ZSIZE SIZE 1
+next i

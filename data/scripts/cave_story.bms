@@ -1,0 +1,22 @@
+# [PSP] Cave Story (csz)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+idstring MEMORY_FILE "Cave"
+get DUMMY short MEMORY_FILE
+get DUMMY short MEMORY_FILE
+get ARCHIVE_SIZE long MEMORY_FILE
+get FILES long MEMORY_FILE
+for i = 0 < FILES
+    getdstring NAME 0x40 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    getdstring DUMMY 8 MEMORY_FILE
+    getdstring ZERO 16 MEMORY_FILE
+    log NAME OFFSET SIZE MEMORY_FILE
+next i

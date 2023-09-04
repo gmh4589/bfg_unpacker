@@ -1,0 +1,28 @@
+# Walt Disney World Quest Magical Racing Tour
+
+idstring "PKR2"
+get ONE long
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    getdstring PATH 0x20
+    get OFFSET long
+    get FILES long
+
+    savepos TMP
+    goto OFFSET
+    for x = 0 < FILES
+        getdstring NAME 0x20
+        get ZIP long
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        string FNAME p "%s%s" PATH NAME
+        if ZIP == 2
+            clog FNAME OFFSET ZSIZE SIZE
+        else    # 0xfffffffe
+            log FNAME OFFSET SIZE
+        endif
+    next x
+    goto TMP
+next i

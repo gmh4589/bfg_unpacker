@@ -1,0 +1,26 @@
+# Madden 2010
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BGFA"
+get DUMMY long
+get DUMMY long
+get FILES long
+get OFFSET long
+goto OFFSET
+get NAME string
+for i = 0 < FILES
+    get DUMMY long
+    get DUMMY long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE threebyte
+    get DUMMY byte
+    get DUMMY byte
+    math OFFSET *= 0x10
+    if SIZE == 0
+        log "" OFFSET ZSIZE
+    else
+        math SIZE += ZSIZE
+        clog "" OFFSET ZSIZE SIZE
+    endif
+next i

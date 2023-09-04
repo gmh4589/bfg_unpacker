@@ -1,0 +1,27 @@
+# Shrek SuperSlam
+#   info and algorithm from https://github.com/ShrekBoards
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.2"
+
+open FDDE "dir"
+open FDDE "dat" 1
+
+comtype shrek
+get FILES long
+endian guess FILES
+for i = 0 < FILES
+    get OFFSET long
+
+    if OFFSET != 0
+        savepos TMP
+        goto OFFSET
+        get OFFSET long
+        get SIZE long   # ???
+        get ZSIZE long
+        get NAME string
+        goto TMP
+
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+next i

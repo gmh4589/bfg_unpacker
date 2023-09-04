@@ -1,0 +1,127 @@
+# King Arthur (script 0.2.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.3.12
+
+# the following is the only addition in version 0.2.1 for handling single files
+getdstring SIGN 23
+if SIGN == "KingArthur Crypted File"
+    set BASE_OFFSET long 0
+    get SIZE asize
+    get NAME filename
+    callfunction quick_decrypt_unzip
+    cleanexit
+endif
+goto 0
+
+get DUMMY long
+get INFO_SIZE long
+savepos BASE_OFFSET
+log MEMORY_FILE BASE_OFFSET INFO_SIZE
+math BASE_OFFSET += INFO_SIZE
+
+callfunction read_numbits 1
+math FILES = NUM    # max is 0x7b301e?
+
+for i = 0 < FILES
+    callfunction read_numbits 1
+    math NAMESZ = NUM
+    math NAMESZ *= 8
+    getbits NAME NAMESZ MEMORY_FILE
+
+    callfunction read_numbits 1
+    math SIZE = NUM
+
+    callfunction read_numbits 1
+    math DUMMY = NUM
+
+    callfunction quick_decrypt_unzip
+    math BASE_OFFSET += SIZE
+next i
+
+# boring reading, it's a mix of big and little endian... blah
+startfunction read_numbits
+    endian big
+    getbits BITS 3 MEMORY_FILE
+    math BITS += 1
+    getbits BITSX 1 MEMORY_FILE
+    if BITS == 1
+        getbits NUM 8 MEMORY_FILE
+    elif BITS == 2
+        getbits NUM 16 MEMORY_FILE
+        reverseshort NUM
+    elif BITS == 4
+        getbits NUM 32 MEMORY_FILE
+        reverselong NUM
+    elif BITS == 8
+        getbits NUM 64 MEMORY_FILE
+        reverselong NUM # not supported!
+    else
+        print "Error: wrong bit size %BITS%"
+        cleanexit
+    endif
+endfunction
+
+# yeah, do the job on the fly without using zip.bms!
+startfunction quick_decrypt_unzip
+    endian little
+    goto BASE_OFFSET
+    if SIZE >= 23
+        getdstring SIGN 23
+    endif
+    if SIZE < 23
+        log NAME BASE_OFFSET SIZE
+    else if SIGN == "KingArthur Crypted File"
+        math BASE_OFFSET += 23
+        math SIZE -= 23
+        encryption CryptDecrypt "3s  4 f^%I8le988( &&  5t3td&&D dv g3)&G 6k4788s6   s w y7R D2d 277 dSW2fe8r 8%*B3s&gw4fiHD3 w7it2&GW6 * 33+o* 7d5fu7  WH7k&h746 &W1l3gg9fG^D d*4 3%g&(8s h78eH& 2s534 * **4fev 4wJ W4 4g3g&U &1drryy G^H"
+        log MEMORY_FILE2 BASE_OFFSET SIZE
+        encryption "" ""
+        get sign long MEMORY_FILE2
+        if sign != 0x04034b50
+            print "Error: wrong PKzip signature %sign%, contact me"
+            cleanexit
+        endif
+        get ver short MEMORY_FILE2
+        get flag short MEMORY_FILE2
+        get method short MEMORY_FILE2
+        get modtime short MEMORY_FILE2
+        get moddate short MEMORY_FILE2
+        get crc long MEMORY_FILE2
+        get comp_size long MEMORY_FILE2
+        get uncomp_size long MEMORY_FILE2
+        get name_len short MEMORY_FILE2
+        get extra_len short MEMORY_FILE2
+        getdstring name_zip name_len MEMORY_FILE2   # use the original name!
+        getdstring extra extra_len MEMORY_FILE2
+        savepos offset MEMORY_FILE2
+        # clog NAME OFFSET comp_size uncomp_size MEMORY_FILE2
+        if method == 0
+            Log name offset uncomp_size MEMORY_FILE2
+        else
+            if method == 8
+                ComType deflate
+            elif method == 1
+                ComType unshrink
+            elif method == 6
+                ComType explode
+            elif method == 9
+                ComType deflate64
+            elif method == 12
+                ComType bzip2
+            elif method == 14
+                ComType lzmaefs
+            elif method == 21
+                ComType XMemDecompress
+            elif method == 98
+                ComType ppmd
+            else
+                print "unsupported compression method %method%"
+                cleanexit
+            endif
+            CLog name offset comp_size uncomp_size MEMORY_FILE2
+        endif
+    else
+        log NAME BASE_OFFSET SIZE
+    endif
+endfunction

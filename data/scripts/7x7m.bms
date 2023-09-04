@@ -1,0 +1,107 @@
+# 7½7M archives / Harmonic Flow Framework (script 0.2.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# there is no way to guess if the file uses the compressed size field
+# set this variable to 1 for games like Zuma's Revenge! PS3
+math USE_COMPRESSION = 0
+
+set PASSWORD string ""
+
+putarray 0 -1 "1celowniczy23osral4kibel"
+putarray 0 -1 "www#quarterdigi@com"
+putarray 0 -1 "bigfish"
+putarray 0 -1 ""
+
+if PASSWORD != ""
+    putarray 0 0 PASSWORD
+endif
+
+math i = 0
+do
+    getarray PASSWORD 0 i
+    math i + 1
+
+    # filexor wants a sequence of numbers
+    set TMP string ""
+    strlen PASSWORD_LEN PASSWORD
+    for x = 0 < PASSWORD_LEN
+        getvarchr C PASSWORD x
+        string TMP + C
+        string TMP + " "
+    next x
+    filexor TMP
+
+    get SIGN long
+    goto 0
+
+    # this code is used for compatibility with old versions of quickbms
+    math DONE = 0
+    if SIGN == 0xbac04ac0
+        math DONE = 1
+    endif
+    if PASSWORD == ""   # yes, we check the last empty password too!
+        math DONE = 1
+    endif
+while DONE == 0
+
+get SIGN long
+if SIGN != 0xbac04ac0
+    goto 0
+    filexor 0xf7            # classical 0xf7
+    get SIGN long
+    if SIGN != 0xbac04ac0
+        for i = 0xff > 0    # scan
+            goto 0
+            filexor i
+            get SIGN long
+            if SIGN == 0xbac04ac0
+                break
+            endif
+            math i -= 1
+        next
+        if i <= 0
+            print "Error: not a 7½7M archive or you must set a password in the script"
+            cleanexit
+        endif
+    endif
+endif
+
+get VER long    # 0
+savepos START
+for EXTRACT = 0 < 2
+    for
+        get FLAGS byte
+        if FLAGS & 0x80  # FILEFLAGS_END
+            break
+        endif
+        get FNAMESZ byte
+        getdstring FNAME FNAMESZ
+        get SIZE long
+        if USE_COMPRESSION == 0
+            math XSIZE = 0
+        else
+            get XSIZE long
+        endif
+
+        get TSTAMP longlong
+
+        if EXTRACT != 0
+            if USE_COMPRESSION != 0
+                savepos TMP
+                goto OFFSET
+                get NUM short
+                getdstring DUMMY NUM
+                savepos OFFSET
+                goto TMP
+            endif
+            if XSIZE == 0
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET SIZE XSIZE
+            endif
+            math OFFSET + SIZE
+        endif
+    next
+    savepos OFFSET
+    goto START
+next EXTRACT

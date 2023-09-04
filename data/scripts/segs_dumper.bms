@@ -1,0 +1,25 @@
+# segs dumper (aligned)
+
+get FULLSIZE asize
+findloc OFFSET string "segs"
+for OFFSET = OFFSET < FULLSIZE
+    goto OFFSET
+    get DUMMY long
+    for
+        findloc SIZE string "segs" ""
+        if SIZE == ""
+            break
+        elif SIZE % 0x800
+            goto SIZE
+            get DUMMY long
+        else
+            break
+        endif
+    next
+    if SIZE == ""
+        math SIZE = FULLSIZE
+    endif
+    math SIZE -= OFFSET
+    log "" OFFSET SIZE
+    math OFFSET += SIZE
+next

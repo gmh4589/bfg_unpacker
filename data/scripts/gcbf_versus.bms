@@ -1,0 +1,43 @@
+# Modern Combat Versus GCBF (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GCBF"
+get CHUNKS long
+math CHUNKS - 1
+get ZERO long
+get OFFSET long
+for i = 0 < CHUNKS
+    get SIZE long
+    get ZSIZE long
+next i
+goto OFFSET
+
+get NAME basename
+string NAME + ".dat"
+log NAME 0 0
+
+append
+for i = 0 < CHUNKS
+    get Apad_MAGIC long
+    get ALGO long
+    get ZSIZE long
+    get SIZE long
+    get ZSIZE_CRC long  # ???
+    get SIZE_CRC long   # ???
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    savepos OFFSET
+    reverselong ALGO
+    string ALGO = ALGO
+    if ALGO == "Lz4 "
+        comtype lz4
+    else
+        print "Error: unknown compression magic %ALGO%"
+        cleanexit
+    endif
+    clog NAME OFFSET ZSIZE SIZE
+    math OFFSET + ZSIZE
+    goto OFFSET
+next i
+append

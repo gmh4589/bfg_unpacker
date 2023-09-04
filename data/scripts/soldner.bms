@@ -1,0 +1,39 @@
+# SÖLDNER - Secret Wars
+# note that the subdirectories tree is NOT the original one, it's only a simplified one!
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "WINGSPAK"
+get DUMMY long
+get INFO_OFF long
+goto INFO_OFF
+
+get PAK_SIZE asize
+set FOLDER string ""
+get DUMMY long
+for INFO_OFF = INFO_OFF < PAK_SIZE
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    get TYPE long
+    get DUMMY byte
+    if TYPE == 0
+        get OFFSET long
+        get DUMMY long
+        get ZSIZE long
+        get DUMMY long
+
+        savepos INFO_OFF
+        goto OFFSET
+        get SIZE long
+        reverselong SIZE
+        math OFFSET += 4
+        goto INFO_OFF
+
+        set FULLNAME string FOLDER
+        string FULLNAME += "/"
+        string FULLNAME += NAME
+        clog FULLNAME OFFSET ZSIZE SIZE
+    else
+        set FOLDER string NAME
+    endif
+next

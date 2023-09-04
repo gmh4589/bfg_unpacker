@@ -1,0 +1,40 @@
+# Siren Blood Course (ps3)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get DUMMY long
+get DUMMY short
+get DUMMY short
+get FILE_OFF long
+get DUMMY_OFF long
+get INFO2_OFF long
+get SKIP_OFF long
+get DUMMY long
+get DUMMY long
+get DUMMY long  # TEX
+get FILES long
+get NAME_BASE long
+get INFO_OFF long
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    savepos TMP
+    goto NAME_BASE
+    get NAME_OFF long
+    savepos NAME_BASE
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+    math SIZE -= 0x2c
+    log NAME OFFSET SIZE
+next i

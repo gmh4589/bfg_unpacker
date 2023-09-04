@@ -1,0 +1,35 @@
+# Neo Dark Saver (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FOLDER basename
+get NAMESZ byte
+getdstring NAME NAMESZ
+for
+    get NAMESZ byte
+    getdstring NAME 0xe
+    if NAME == "HEADEND"
+        break
+    endif
+    get COMPRESSION byte
+    get DUMMY long
+    get SIZE long
+    get ZSIZE long
+    get OFFSET long
+    get DUMMY long
+
+    string NAME p "%s/%s" FOLDER NAME
+
+    if COMPRESSION == 0
+        comtype lzah
+    elif COMPRESSION == 1
+        comtype lzss "12 4 2 2 0"
+    elif COMPRESSION == 2
+        # "pkzip compress" never used so I guess it's deflate
+        comtype deflate
+    else
+        print "Error: unknown compression %COMPRESSION%"
+        cleanexit
+    endif
+
+    clog NAME OFFSET ZSIZE SIZE
+next

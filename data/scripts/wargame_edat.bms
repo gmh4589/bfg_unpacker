@@ -1,0 +1,81 @@
+# Wargame European Escalation EDAT (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "edat"
+get VER long    # don't check VER to guess if the archive uses 64bit fields, for example 1 and 0x12 are 32bit
+getdstring HASH 16
+get DUMMY byte
+get INFO_OFF long
+get INFO_SIZE long
+get BASE_OFF long
+get DATA_SIZE long
+log MEMORY_FILE INFO_OFF INFO_SIZE
+
+putarray 10 0 -1 # IS32
+
+set PATH string ""
+set NAME string ""
+math ENTRY_OFF = 0
+math NEXT_ELEMENT = 0
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    if NEXT_ELEMENT == 0
+        math ENTRY_LIMIT = INFO_SIZE
+    else
+        xmath ENTRY_LIMIT "ENTRY_OFF + NEXT_ELEMENT"
+    endif
+    savepos ENTRY_OFF MEMORY_FILE
+    for ENTRY_OFF = ENTRY_OFF < ENTRY_LIMIT
+        get NEXT_SUB_ELEMENT signed_long MEMORY_FILE
+        get NEXT_ELEMENT signed_long MEMORY_FILE
+        if NEXT_SUB_ELEMENT > 0
+            get NAME string MEMORY_FILE
+            xmath TMP "ENTRY_OFF + NEXT_SUB_ELEMENT"
+            goto TMP MEMORY_FILE
+            callfunction EXTRACT
+        else
+            getarray IS32 10 0
+            if IS32 < 0
+                savepos TMP MEMORY_FILE
+                get OFFSET long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                goto TMP MEMORY_FILE
+                if SIZE != 0
+                    math IS32 = 1
+                else
+                    math IS32 = 0
+                endif
+                putarray 10 0 IS32
+            endif
+
+            if IS32 != 0
+                get OFFSET long MEMORY_FILE
+                get SIZE long MEMORY_FILE
+                get DUMMY byte MEMORY_FILE
+            else
+                get OFFSET longlong MEMORY_FILE
+                get SIZE longlong MEMORY_FILE
+                getdstring HASH 16 MEMORY_FILE
+            endif
+            if NEXT_SUB_ELEMENT < 0
+                xmath TMP "ENTRY_OFF + NEXT_SUB_ELEMENT"
+                goto TMP MEMORY_FILE
+            endif
+            get NAME string MEMORY_FILE
+
+            set FNAME string PATH
+            string FNAME + NAME
+            math OFFSET + BASE_OFF
+            log FNAME OFFSET SIZE
+        endif
+        if NEXT_ELEMENT != 0
+            math ENTRY_OFF + NEXT_ELEMENT
+            goto ENTRY_OFF MEMORY_FILE
+        else
+            padding 2 MEMORY_FILE
+            math ENTRY_OFF = ENTRY_LIMIT    # break
+        endif
+    next
+endfunction

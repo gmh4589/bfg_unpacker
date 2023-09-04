@@ -1,0 +1,20 @@
+# QQ.com SFC
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz4
+idstring "SFC\x1a"
+get VER long
+get SFC_SIZE asize
+for
+    savepos TMP
+    if TMP >= SFC_SIZE
+        break
+    endif
+    getdstring DUMMY 8
+    get ZSIZE long
+    savepos OFFSET
+    xmath TMP "OFFSET + ZSIZE"
+    goto TMP
+    get SIZE long
+    clog "" OFFSET ZSIZE SIZE
+next

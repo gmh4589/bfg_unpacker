@@ -1,0 +1,59 @@
+# shendaosanguo / sdsg.gyyx.cn
+
+comtype lzo1x
+
+open FDDE "dir"
+
+idstring "DIR\0"
+get DUMMY short # VER? 0x0102
+get DUMMY short
+get DUMMY long
+get DUMMY long
+get IDS long
+get FILES long
+get INFO_OFF long
+
+math LAST_PACK_NUM = -1
+
+goto INFO_OFF
+for i = 0 < FILES
+    get IS_FOLDER byte
+    get PACK_NUM byte
+    get SIZE long
+    get ID long
+    get PREV_ID long
+    get OFFSET long
+    getdstring HASH 16  # probably hash of the name
+
+    if IS_FOLDER != 0
+
+        putarray 0 ID PREV_ID
+
+    else
+
+        if PACK_NUM != LAST_PACK_NUM
+            math LAST_PACK_NUM = PACK_NUM
+            get TMP basename
+            string TMP p "%s_%02d.DAT" TMP PACK_NUM
+            open FDSE TMP 1
+        endif
+
+        string NAME p "%d." ID
+        for
+            math ID = PREV_ID
+            getarray PREV_ID 0 ID
+            if PREV_ID == 0xffffffff
+                break
+            endif
+            string NAME p "%d/%s" PREV_ID NAME
+        next
+
+        goto OFFSET 1
+        get SIZE long 1 # both the SIZE are the same
+        get SIZE long 1
+        get ZSIZE long 1
+        savepos OFFSET 1
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+
+next i

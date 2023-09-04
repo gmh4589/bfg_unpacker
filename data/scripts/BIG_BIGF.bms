@@ -1,0 +1,21 @@
+<bms ext="'big', 'viv'" games="'Ajax Club Football 2005', 'Battlefield 2 (PS2)', 'Command And Conquer: Generals', 'Def Jam: Fight For NY', 'EA Cricket 2005', 'Euro 2000', 'FIFA 1999', 'FIFA 2000', 'FIFA 2001', 'FIFA 2002', 'FIFA 2003', 'FIFA 2004', 'FIFA 2005', 'FIFA Manager 2006', 'Harry Potter And The Goblet Of Fire', 'Harry Potter And The Goblet Of Fire (PS2)', 'NBA 2003', 'NBA 2004', 'NBA 2005', 'NHL 2003', 'NHL 2004', 'NHL 2005', 'Need For Speed', 'Need For Speed 2', 'Need For Speed: Hot Pursuit', 'Need For Speed: Hot Pursuit 2', 'Need For Speed: Porsche Unleashed', 'Starlancer', 'UEFA Champions League 2004', 'UEFA Champions League 2005', 'UEFA Euro 2004'" author="WATTO" platforms="'PC', 'PS2'" version="1.0">
+ImpType Standard ;
+IDString 0 BIGF ;
+Get D Long 0 ;
+Get FC Long 0 ;
+ReverseLong FC ;
+Get D Long 0 ;
+SavePos FS 0 ;
+For T = 1 To FC ;
+GoTo FS 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+ReverseLong FO ;
+SavePos FSO 0 ;
+Get FSI Long 0 ;
+ReverseLong FSI ;
+Get FN String 0 ;
+SavePos FS 0 ;
+Log FN FO FSI #FOO FSO ;
+Next T ;
+</bms>

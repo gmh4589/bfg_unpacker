@@ -1,0 +1,20 @@
+# Mr Robot / MOON
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ARCHIVE_SIZE asize
+for OFFSET = 0 != ARCHIVE_SIZE
+    goto OFFSET
+    idstring "MOON"
+    get ZERO long
+    get ZERO long
+    getdstring DUMMY 2
+    get DUMMY long
+    get TMP long
+    get SIZE long
+    math SIZE * 2
+    math SIZE + TMP
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+next OFFSET + SIZE

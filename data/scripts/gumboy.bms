@@ -1,0 +1,28 @@
+# Gumboy
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "G U M B O Y"
+savepos INFO_OFF
+for EXTRACT = 0 < 2
+    goto INFO_OFF
+    
+    get FOLDERS long
+    for i = 0 < FOLDERS
+        get PATHSZ long
+        getdstring PATH PATHSZ
+        get FILES long
+        for j = 0 < FILES
+            get NAMESZ long
+            getdstring NAME NAMESZ
+            get SIZE long
+            get OFFSET long
+            if EXTRACT != 0
+                set FNAME string PATH
+                string FNAME += NAME
+                math OFFSET += BASE_OFF
+                log FNAME OFFSET SIZE
+            endif
+        next j
+    next i
+    savepos BASE_OFF
+next EXTRACT

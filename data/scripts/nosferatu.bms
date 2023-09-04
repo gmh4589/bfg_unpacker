@@ -1,0 +1,14 @@
+# Nosferatu: The Wrath of Malachi
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GEEK"
+get DUMMY long
+get BASE_OFF long
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x80
+    log NAME OFFSET SIZE
+next i

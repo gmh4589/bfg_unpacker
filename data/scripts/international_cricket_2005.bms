@@ -1,0 +1,25 @@
+# International Cricket 2005 (Brian Lara / Ricky Ponting)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+next i
+for i = 0 < FILES
+    get SIZE long
+    putarray 0 i SIZE
+next i
+for i = 0 < FILES
+    getdstring NAME 64
+    putarray 1 i NAME
+next i
+xmath BASE_OFF "8 + (FILES * 76)"
+math BASE_OFF x 256
+for i = 0 < FILES
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    getarray SIZE 0 i
+    getarray NAME 1 i
+    log NAME OFFSET SIZE
+next i

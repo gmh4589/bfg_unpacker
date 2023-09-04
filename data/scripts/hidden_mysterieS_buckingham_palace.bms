@@ -1,0 +1,9 @@
+get FILES long
+goto 0x20
+for i = 0 < FILES
+    getdstring NAME 0x200
+    set NAME unicode NAME
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

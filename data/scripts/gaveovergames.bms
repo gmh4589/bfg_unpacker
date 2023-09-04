@@ -1,0 +1,50 @@
+# GameOverGames - GaveOverGames (script 0.3.1)
+
+getdstring SIGN 0x20
+if SIGN & "Resource File"
+    # GameOverGames Resource File
+    # GaveOverGames Resource File
+    # Second Reality Resource File
+    if SIGN & "Second Reality"
+        /*
+        #define LZW_LITTLE_ENDIAN     0x00 ///< Read bytes in little-endian order
+        #define LZW_BIG_ENDIAN        0x01 ///< Read bytes in big-endian order
+        #define LZW_RESET_FULL_DICT   0x02 ///< Should the dict be wiped when it's full?
+        #define LZW_NO_BITSIZE_RESET  0x04 ///< Leave the codeword bit length unchanged after dictionary reset
+        #define LZW_EOF_PARAM_VALID   0x08 ///< Is the EOF parameter (to c'tor) valid?
+        #define LZW_RESET_PARAM_VALID 0x10 ///< Is the reset parameter (to c'tor) valid?
+        #define LZW_FLUSH_ON_RESET    0x20 ///< Jump to next word boundary on reset
+        */
+        xmath FLAGS "0x01 | 0x02 | 0x08 | 0x20"
+        string PARAMS p "%d %d %d %d %d %d" 9 12 257 0 256 FLAGS
+        comtype LZW_ENGINE PARAMS
+        print "Error: the settings of the LZW compression are not correct, files will be damaged"
+    endif
+else
+    print "Error: unsupported magic %SIGN%"
+    cleanexit
+endif
+get DUMMY short
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    if SIGN & "GameOverGames"
+        get DUMMY long
+        get DUMMY long
+    endif
+    get OFFSET long
+    get DUMMY long
+    get NEXT_OFF long
+    get SIZE long
+    get ZSIZE long
+    goto OFFSET
+    get NAME string
+    savepos OFFSET
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    goto NEXT_OFF
+next i

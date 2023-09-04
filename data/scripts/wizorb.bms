@@ -1,0 +1,12 @@
+# Wizorb pak
+
+get PAK_SIZE asize
+for OFFSET = 0 != PAK_SIZE
+    get SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

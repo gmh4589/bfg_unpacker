@@ -1,0 +1,21 @@
+<bms games="'Pool of Radiance'" platforms="'PC'" ext="'CNB', 'CNK'">
+ImpType SFileOff ;
+Get FILENUM Long 0 ;
+Get ARCSIZE Long 0 ;
+For F = 1 To FILENUM ;
+GetDString FNAME 52 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos TEMP 0 ;
+If F = FILENUM ;
+Set FSIZE Long ARCSIZE ;
+Math FSIZE -= FOFFSET ;
+Else ;
+GetDString FOOBAR 52 0 ;
+Get FSIZE Long 0 ;
+Math FSIZE -= FOFFSET ;
+EndIf ;
+Log FNAME FOFFSET FSIZE FOFFSETX 0 ;
+GoTo TEMP 0 ;
+Next F ;
+</bms>

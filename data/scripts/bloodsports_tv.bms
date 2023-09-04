@@ -1,0 +1,109 @@
+# Bloodsports.TV
+#   by aluigi & v00d00
+#   http://zenhax.com/viewtopic.php?f=9&t=827
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNK_SIZE = 0x00010000
+get FLAGS long
+get SIZE longlong
+putvarchr MEMORY_FILE SIZE 0
+log MEMORY_FILE 0 0
+append
+for MEM_SIZE = 0 u< SIZE
+    get CHUNK_ZSIZE long
+    savepos OFFSET
+    if CHUNK_ZSIZE == CHUNK_SIZE
+        log MEMORY_FILE OFFSET CHUNK_SIZE
+    else
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+    endif
+    math OFFSET + CHUNK_ZSIZE
+    goto OFFSET
+    get MEM_SIZE asize MEMORY_FILE
+next
+append
+
+goto 0 MEMORY_FILE
+get FILES long MEMORY_FILE
+getdstring DUMMY 0x40 MEMORY_FILE
+getdstring DUMMY 0xc0 MEMORY_FILE
+for i = 0 < FILES
+    getdstring DUMMY 0x10 MEMORY_FILE
+next i
+
+for i = 0 < FILES
+    get EXTA long MEMORY_FILE
+    get EXTB long MEMORY_FILE
+    string EXT p= "%08x%08x" EXTB EXTA
+    get PATHA long MEMORY_FILE
+    get PATHB long MEMORY_FILE
+    string PATH p= "%08x%08x" PATHB PATHA
+   
+    if EXT == "00a3e6c59a2b9c6c"
+        set EXT "timpani_master"
+    elif EXT == "169de9566953d264"
+        set EXT "navdata"
+    elif EXT == "18dead01056b72e9"
+        set EXT "bones"
+    elif EXT == "27862fe24795319c"
+        set EXT "render_config"
+    elif EXT == "2a690fd348fe9ac5"
+        set EXT "level"
+    elif EXT == "3b1fa9e8f6bac374"
+        set EXT "network_config"
+    elif EXT == "82645835e6b73232"
+        set EXT "config"
+    elif EXT == "84a01660022666eb"
+        set EXT "swf"
+    elif EXT == "931e336d7646cc26"
+        set EXT "animation"
+    elif EXT == "99736be1fff739a4"
+        set EXT "timpani_bank"
+    elif EXT == "9efe0a916aae7880"
+        set EXT "font"
+    elif EXT == "a14e8dfa2cd117e2"
+        set EXT "lua"
+    elif EXT == "a486d4045106165c"
+        set EXT "state_machine"
+    elif EXT == "a8193123526fad64"
+        set EXT "particles"
+    elif EXT == "ad9c6d9ed1e5e77a"
+        set EXT "package"
+    elif EXT == "b277b11fe4a61d37"
+        set EXT "mouse_cursor"
+    elif EXT == "bf21403a3ab0bbb1"
+        set EXT "physics_properties"
+    elif EXT == "cce8d5b5f5ae333f"
+        set EXT "shader"
+    elif EXT == "cd4238c6a0c69e32"
+        set EXT "texture"
+    elif EXT == "e0a48d0be9a7453f"
+        set EXT "unit"
+    elif EXT == "e5ee32a477239a93"
+        set EXT "shader_library"
+    elif EXT == "eac0b497876adedf"
+        set EXT "material"
+    elif EXT == "fa4a8e091a91201e"
+        set EXT "ivf"
+    elif EXT == "fe73c7dcff8a7ca5"
+        set EXT "shading_environment"
+    else
+        set EXT "." # auto-guess
+    endif
+    string FILENAME p= "%s.%s" PATH EXT
+   
+    get HASDATA long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    if HASDATA == 0
+        set SIZE 0
+    else
+        get ZERO long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get ZERO long MEMORY_FILE
+    endif
+   
+    savepos OFFSET MEMORY_FILE
+    log FILENAME OFFSET SIZE MEMORY_FILE
+    math OFFSET + SIZE
+    goto OFFSET MEMORY_FILE
+next i

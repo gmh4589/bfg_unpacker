@@ -1,0 +1,75 @@
+# Puzzle Quest
+# script for QuickBMS http://quickbms.aluigi.org
+
+math ALIGN = 0x800
+get HEADER_SIZE long
+get NAMES_OFF long
+get OFFSET long # 1
+get ALIGN long  # 0x800
+math OFFSET * ALIGN
+goto OFFSET
+math NAMES_OFF + OFFSET
+
+log MEMORY_FILE 0 0
+set PATH string ""
+math IDX = 0
+callfunction GET_FOLDER 1
+callfunction EXTRACT
+
+startfunction EXTRACT
+    goto INFO_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    get FILES long MEMORY_FILE
+    get FOLDERS long MEMORY_FILE
+    math IDX + 1
+
+    string PATH + NAME
+    string PATH + /
+
+    for i = 0 < FILES
+        callfunction GET_FILE 1
+    next i
+
+    for i = 0 < FOLDERS
+        callfunction GET_FOLDER 1
+    next i
+
+    for i = 0 < FOLDERS
+        getarray INFO_OFF IDX i
+        callfunction EXTRACT
+    next i
+endfunction
+
+startfunction GET_FILE
+    callfunction GET_NAME 1
+    get OFFSET long
+    get SIZE long
+
+    math OFFSET * ALIGN
+    string FNAME p "%s%s" PATH NAME
+    log FNAME OFFSET SIZE
+endfunction
+
+startfunction GET_FOLDER
+    callfunction GET_NAME 1
+    get XFILES long
+    get ZERO long
+    get XFOLDERS long
+    get ZERO long
+
+    get INFO_OFF asize MEMORY_FILE
+    goto INFO_OFF MEMORY_FILE
+    put NAME string MEMORY_FILE
+    put XFILES long MEMORY_FILE
+    put XFOLDERS long MEMORY_FILE
+    putarray IDX i INFO_OFF
+endfunction
+
+startfunction GET_NAME
+    get NAME_OFF long
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+endfunction

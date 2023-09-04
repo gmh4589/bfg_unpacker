@@ -1,0 +1,25 @@
+# Neko Puzzle
+
+get FULLSIZE asize
+for OFFSET = 0 != FULLSIZE
+    goto OFFSET
+    getdstring TYPE 4
+    get SIZE long
+    if SIZE == 0
+        # lame scanner
+        for
+            get TYPE long
+            math TMP = TYPE
+            math TMP & 0xff
+            if TYPE >= 0x41414141 && TMP == 'C'
+                break
+            endif
+            goto -3 0 SEEK_CUR
+        next
+        string TYPE = TYPE
+        get SIZE long
+    endif
+    savepos OFFSET
+    string TYPE + /
+    log TYPE OFFSET SIZE
+next OFFSET + SIZE

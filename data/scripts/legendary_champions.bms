@@ -1,0 +1,78 @@
+# Legendary Champions
+# script for QuickBMS http://quickbms.aluigi.org
+
+set ZIP_PASSWORD string "&:JRVRJ"
+ComType deflate
+
+goto -0x16
+savepos OFFSET
+get PK_sign short
+get sign short
+get disk_num        short
+get disk_start      short
+get central_entries short
+get central_entries short
+get central_size    long
+math OFFSET -= central_size
+math OFFSET += 4
+goto OFFSET
+for i = 0 < central_entries
+    get PK_sign short
+    get sign short
+    get ver_made        short
+    get ver_need        short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    get comm_len        short
+    get disknum         short
+    get int_attr        short
+    get ext_attr        long
+    get rel_offset      long
+    getdstring name     name_len
+    getdstring extra    extra_len
+    getdstring comment  comm_len
+    get DUMMY long
+
+    savepos CENTRAL_OFFSET
+    goto rel_offset
+        get PK_sign short
+        get sign short
+        get ver             short
+        get flag            short
+        get method          short
+        get modtime         short
+        get moddate         short
+        get crc             long
+        get skip_comp_size       long
+        get skip_uncomp_size     long
+        get name_len        short
+        get extra_len       short
+        filexor 0xb2
+        getdstring name     name_len
+        filexor 0
+        getdstring extra    extra_len
+        savepos offset
+
+        if flag != 0
+            if flag & 1
+                encryption zipcrypto ZIP_PASSWORD 1
+            endif
+            if method == 0
+                Log name offset uncomp_size
+            else
+                CLog name offset comp_size uncomp_size
+            endif
+            if flag & 1
+                encryption "" ""
+            endif
+        endif
+
+    goto CENTRAL_OFFSET
+next i

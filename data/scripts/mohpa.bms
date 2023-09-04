@@ -1,0 +1,47 @@
+# Medal of Honor Pacific Assault (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MOPA"
+get VERSION long
+get INFO_SIZE long
+putarray 0 0 "NONE"
+for i = 1 <= 3
+    getdstring CODEC 4
+    putarray 0 i CODEC
+next i
+
+math MEM_OFF = 0x18
+goto MEM_OFF
+get DUMMY long
+get FILES long
+
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    get ZSIZE long
+
+    math CODEC = NAME_OFF
+    math CODEC >>= 29
+    math NAME_OFF &= 0x1fffffff
+
+    savepos TMP
+    math NAME_OFF + MEM_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    getarray CODEC 0 CODEC
+    if CODEC == "NONE"
+        log NAME OFFSET SIZE
+    elif CODEC == "LZSS"
+        comtype mohlzss
+        clog NAME OFFSET ZSIZE SIZE
+    elif CODEC == "RLE "
+        comtype mohrle
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        print "Error: unknown codec (%CODEC%)"
+        cleanexit
+    endif
+next i

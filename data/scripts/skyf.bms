@@ -1,0 +1,28 @@
+# Istanbul Kiyamet Vakti
+
+idstring "SKYF"
+get VER short
+
+set PATH string ""
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    getdstring NAME 0x40
+    get FOLDERS short
+    get FILES short
+
+    string PATH + NAME
+    string PATH + /
+
+    for i = 0 < FOLDERS
+        callfunction EXTRACT
+    next i
+
+    for i = 0 < FILES
+        getdstring NAME 0x80
+        get OFFSET long
+        get SIZE long
+        string NAME p "%s%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+endfunction

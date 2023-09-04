@@ -1,0 +1,28 @@
+# Vacation Quest: The Hawaiian Islands
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzma86head
+get FILES long
+for EXTRACT = 0 < 2
+    goto 4
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        get ZSIZE long
+        get NAMESZ long
+        math NAMESZ *= 2
+        getdstring NAME NAMESZ
+        padding 4
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            set NAME unicode NAME
+            string NAME R= "_" "/"
+            if ZSIZE == SIZE
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET ZSIZE SIZE
+            endif
+        endif
+    next i
+    savepos BASE_OFF
+next EXTRACT

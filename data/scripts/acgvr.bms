@@ -1,0 +1,44 @@
+# acgvr unity3d decompressor (script 0.2.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get NAME basename
+get EXT extension
+
+math KEYSZ = 0x20
+get TMP asize
+math TMP - KEYSZ
+goto TMP
+getdstring KEY KEYSZ
+
+# check if the key at the end is real, some files use a sequences of 0x08!
+encryption xor KEY "" 0 KEYSZ
+log MEMORY_FILE 0 KEYSZ
+getdstring TEST 5 MEMORY_FILE
+if TEST u!= "Unity" # FS, Web and so on
+    set KEY string "2349fa6bed87588c6b4ff0f18cd9e320"
+endif
+
+encryption xor KEY "" 0 KEYSZ
+string NAME p "%s_decrypt.%s" NAME EXT
+log NAME 0 KEYSZ
+encryption "" ""
+get SIZE asize
+math SIZE - KEYSZ   # header
+math SIZE - KEYSZ   # footer
+append
+log NAME KEYSZ SIZE
+append
+cleanexit
+
+comtype lzma86head
+endian big
+getdstring DUMMY KEYSZ   # encrypted, "g]]M"
+get OFFSET threebyte
+get DUMMY long  # 1
+get DUMMY long  # 1
+get ZSIZE long
+get SIZE long
+get FULL_ZSIZE long
+get DUMMY long  # 0x34
+string NAME p "%s_unpack.%s" NAME EXT
+clog NAME OFFSET ZSIZE SIZE

@@ -1,0 +1,25 @@
+# MIX1
+#   Earth And Beyond
+#   Tiberium Crystal War
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MIX1"
+get INFO_OFF long
+get NAMES_OFF long
+
+goto INFO_OFF
+get FILES long
+savepos INFO_OFF
+math NAMES_OFF += 4
+for i = 0 < FILES
+    goto INFO_OFF
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    savepos INFO_OFF
+    goto NAMES_OFF
+    get NAMESZ  byte
+    getdstring NAME NAMESZ
+    savepos NAMES_OFF
+    log NAME OFFSET SIZE
+next i

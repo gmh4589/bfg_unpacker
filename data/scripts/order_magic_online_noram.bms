@@ -1,0 +1,67 @@
+# Order of Magic Online (script 0.1.1) (no MEMORY_FILE version)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# decryption function: thanx to Ekey / h4x0r
+#   int __stdcall Decrypt(unsigned char *src, int len, unsigned char *dst) {
+#       int             i;
+#       unsigned char   x = 0x73;
+#       for(i = 0; i < len; i++) {
+#           x = (x >> 7) + (x << 1);
+#           dst[i] = x ^ (src[i] ^ (i + i / 0xFF));
+#       }
+#       return len;
+#   }
+set MEMORY_FILE3 binary "\x55\x57\x56\x53\x83\xEC\x14\x8B\x7C\x24\x28\x8B\x6C\x24\x2C\x8B\x74\x24\x30\x85\xED\x7E\x43\xC6\x44\x24\x0F\x73\x31\xC9\x66\x90\xC0\x4C\x24\x0F\x07\x8A\x5C\x24\x0F\x32\x1C\x0F\xB8\x81\x80\x80\x80\xF7\xE9\x89\x04\x24\x89\x54\x24\x04\x01\xCA\xC1\xFA\x07\x89\x54\x24\x08\x89\xC8\x99\x29\x54\x24\x08\x8A\x44\x24\x08\x01\xC8\x31\xC3\x88\x1C\x0E\x41\x39\xE9\x75\xC6\x89\xE8\x83\xC4\x14\x5B\x5E\x5F\x5D\xC2\x0C\x00"
+
+comtype lzo1x
+
+idstring SGMF
+get DUMMY short
+get FILES long
+get CHUNKS long
+get CHUNK_SIZE long
+get DUMMY long
+
+savepos INFO_OFF
+math OFFSET = FILES
+math OFFSET *= 0x58
+math OFFSET += INFO_OFF
+goto OFFSET
+
+for i = 0 < CHUNKS
+    get CRC long
+    get ZIP long
+    get DUMMY long
+    get OFFSET long
+    putarray 0 i OFFSET
+    putarray 1 i ZIP
+next i
+
+log TEMPORARY_FILE 0 0
+for i = 0 < CHUNKS
+    getarray OFFSET 0 i
+    getarray ZIP    1 i
+    goto OFFSET
+    get SIZE long
+    savepos OFFSET
+    log MEMORY_FILE OFFSET SIZE
+    putvarchr MEMORY_FILE2 SIZE 0
+    calldll MEMORY_FILE3 0 stdcall SIZE MEMORY_FILE SIZE MEMORY_FILE2
+    append
+    if ZIP == 0
+        log TEMPORARY_FILE 0 SIZE MEMORY_FILE2
+    else
+        clog TEMPORARY_FILE 0 SIZE CHUNK_SIZE MEMORY_FILE2
+    endif
+    append
+next i
+
+open "." TEMPORARY_FILE 1
+
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x50
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE 1
+next i

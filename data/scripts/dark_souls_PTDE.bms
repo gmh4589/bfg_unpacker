@@ -1,0 +1,56 @@
+# extracts the contents of bdt/bhd5 archive pairs
+# tested on: Dark Souls: Prepare to Die Edition (PC, X360)
+# NOTE: make sure both bdt and bht5 files have the same name before running the script!
+#
+# (c) 2012-10-31 by AlphaTwentyThree of XeNTaX
+
+set X360 1
+include "func_getTYPE.bms"
+open FDDE bhd5 0
+open FDDE bdt 1
+
+if X360 == 1
+   endian big
+endif
+
+idstring "BHD5" 0
+get UNK long 0 # 00000000 (?)
+get FOLDERS long 0
+get NOF long 0 # number of files (not needed for loop)
+get GROUPS long 0
+get UNK long 0
+for i = 1 <= GROUPS
+   get FIG long 0 # files in group/folder
+   get OFF_INFO long 0
+   savepos MYOFF 0
+   goto OFF_INFO 0
+   for j = 1 <= FIG
+      get NAME_CRC long 0
+      get SIZE long 0
+      get OFFSET long 0
+      get ZERO long 0
+      if X360 == 1
+         set OFFSET ZERO
+      endif
+      get FOLDER basename 0
+      string FOLDER += "/"
+      set NAME i
+      string NAME += "_"
+      string NAME += j
+      string NAME += "_"
+      string NAME_CRC p= "0x%08x" NAME_CRC
+      string NAME += NAME_CRC
+      putVarChr MEMORY_FILE SIZE 0
+      log MEMORY_FILE 0 0
+      log MEMORY_FILE OFFSET SIZE 1
+      callfunction getTYPE 1
+      if X360 == 1
+         endian big
+      endif
+      string NAME += EXT
+      set WNAME FOLDER
+      string WNAME += NAME
+      log WNAME 0 SIZE MEMORY_FILE
+   next j
+   goto MYOFF 0
+next i

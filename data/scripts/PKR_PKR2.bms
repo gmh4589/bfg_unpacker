@@ -1,0 +1,29 @@
+<bms games="'Tony Hawk: Pro Skater 2'" platforms="'PC'" ext="PKR">
+ImpType Standard ;
+IDString 0 PKR2 ;
+Get TEMP Long 0 ;
+Get DIRNUM Long 0 ;
+Get TEMP Long 0 ;
+For D = 1 To DIRNUM ;
+GetDString DIRNAME 32 0 ;
+Get NEXTFILE Long 0 ;
+Get FILENUM Long 0 ;
+SavePos NEXTDIR 0 ;
+Set FNNUM Long 0 ;
+GoTo NEXTFILE 0 ;
+Do ;
+Math FNNUM += 1 ;
+GetDString FNREAL 32 0 ;
+Get TEMP Long 0 ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+Get FSIZE Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Set FNAME String DIRNAME ;
+String FNAME += FNREAL ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+While FNNUM < FILENUM ;
+GoTo NEXTDIR 0 ;
+Next D ;
+</bms>

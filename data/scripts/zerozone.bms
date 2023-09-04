@@ -1,0 +1,24 @@
+# ZeroZone
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BigFile 1.00\0\0\0\0"
+get FILES long
+get FILES_SIZE long
+get FILES_OFF long
+get DUMMY long
+
+for i = 0 < FILES
+    get NAMESZ long
+    get DUMMY long
+    get SIZE long
+    get SIZE2 long
+    get SIZE3 long
+    get DUMMY long
+    get OFFSET long
+    get DUMMY long
+    getdstring NAME NAMESZ
+
+    math OFFSET += FILES_OFF
+
+    log NAME OFFSET SIZE
+next i

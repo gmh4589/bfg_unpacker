@@ -1,0 +1,19 @@
+# 新英雄神鹰 PAK (script 0.1.1)
+
+get INFO_OFF long
+get FILES long
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x40
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    get FLAGS long
+    if SIZE != 0    # or FLAGS & 0x100 but one file in MediaWeek.pak has no filename and zero size
+        if FLAGS & 1
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+next i

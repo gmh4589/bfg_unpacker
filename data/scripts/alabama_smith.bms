@@ -1,0 +1,14 @@
+# Alabama Smith
+
+get BASE_OFF long
+math BASE_OFF + 4
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    set NAME unicode NAME
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next i

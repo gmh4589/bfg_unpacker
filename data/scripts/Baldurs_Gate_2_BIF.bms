@@ -1,0 +1,19 @@
+# Baldur's Gate 2 (BIF)
+
+ImpType Standard ;
+IDString 0 BIFFV1 ;
+Get I Int 0 ;
+SavePos FST 0 ;
+Get FC Long 0 ;
+Math FST += 16 ;
+For T = 1 To FC ;
+GoTo FST 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos FST 0 ;
+Math FST += 8 ;
+Log "" FO FS #FOO FSO ;
+Next T ;
+

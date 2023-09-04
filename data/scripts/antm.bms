@@ -1,0 +1,22 @@
+# Antm
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "Antm"
+math OFFSET = 0x10
+get SIZE asize
+math SIZE - OFFSET
+get NAME filename
+
+math TMP = 0x80
+if SIZE < TMP
+    math TMP = SIZE
+endif
+
+filexor 0xea
+log NAME OFFSET TMP
+filexor ""
+math OFFSET + TMP
+math SIZE   - TMP
+append
+log NAME OFFSET SIZE
+append

@@ -1,0 +1,112 @@
+# Sherlock Holmes versus Arsène Lupin / Sherlock Holmes: Nemesis (script 0.1.1)
+#   supports also Tornado the magic cave
+# script for QuickBMS http://quickbms.aluigi.org
+
+goto -4
+get OFFSET long
+goto OFFSET
+get ZIP byte
+if ZIP == 0
+    get SIZE long
+    savepos OFFSET
+    log MEMORY_FILE OFFSET SIZE
+else
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+endif
+math IDXSIZE = SIZE
+
+goto 0 MEMORY_FILE
+    get FILES long MEMORY_FILE
+        get DUMMY1 short MEMORY_FILE
+        get DUMMY2 short MEMORY_FILE
+        get NAMESZ short MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get XSIZE long MEMORY_FILE  # ???
+
+    get TMP long MEMORY_FILE
+    if TMP u<= 10   # timestamp
+        set VER long 1
+    else
+        set VER long 0
+    endif
+goto 0 MEMORY_FILE
+
+do
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get DUMMY1 short MEMORY_FILE
+        get DUMMY2 short MEMORY_FILE
+        get NAMESZ short MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get XSIZE long MEMORY_FILE  # ???
+        if VER > 0  # blah I thought was a NOZIP but it's wrong
+            get NOZIP long MEMORY_FILE
+        else
+            math NOZIP = -1
+        endif
+        get TSTAMP longlong MEMORY_FILE
+
+        putarray 0 i NAME
+        putarray 1 i OFFSET
+        putarray 2 i SIZE
+        putarray 3 i XSIZE
+        putarray 4 i NOZIP
+    next i
+
+    set EXT string ""
+    set PATH string ""
+    for i = 0 < 4
+        get NAMESZ short MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        if i == 1
+            set EXT string NAME
+        elif i == 2
+            set PATH string NAME
+        endif
+    next i
+
+    for i = 0 < FILES
+        getarray NAME   0 i
+        getarray OFFSET 1 i
+        getarray SIZE   2 i
+        getarray XSIZE  3 i
+        getarray NOZIP  4 i
+
+        set FNAME string PATH
+        string FNAME += /
+        string FNAME += NAME
+        string FNAME += EXT
+
+        if VER > 0
+            goto OFFSET
+            get ZIP byte
+            if ZIP == 0
+                get SIZE long
+                savepos OFFSET
+                log FNAME OFFSET SIZE
+            elif ZIP == 1
+                get ZSIZE long
+                get SIZE long
+                savepos OFFSET
+                clog FNAME OFFSET ZSIZE SIZE
+            else
+                log FNAME OFFSET SIZE
+            endif
+        else
+            if XSIZE == 0
+                log FNAME OFFSET SIZE
+            else
+                clog FNAME OFFSET SIZE XSIZE
+            endif
+        endif
+    next i
+
+    savepos OFFSET MEMORY_FILE
+while OFFSET < IDXSIZE

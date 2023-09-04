@@ -1,0 +1,24 @@
+# InstallShield EXE - CABs extractor (script 0.1.1)
+#   Tested just with few installers, others may differ.
+#   It's enough to use unshield or i6comp on the generated CAB files to extract them
+# script for QuickBMS http://quickbms.aluigi.org
+
+findloc OFFSET string "PADDINGX" 0 ""
+if OFFSET == ""
+    findloc OFFSET string "data1.cab\0Disk" 0 ""
+endif
+math OFFSET x 512
+get EXE_SIZE asize
+for OFFSET = OFFSET != EXE_SIZE
+    goto OFFSET
+    get SHORT_NAME string
+    if SHORT_NAME == ""
+        break
+    endif
+    get NAME string
+    get VER string
+    get SIZE string
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next

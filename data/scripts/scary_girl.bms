@@ -1,0 +1,16 @@
+# Scary Girl (map)
+
+getdstring DUMMY 12
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+math FILES - 1
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    math SIZE - OFFSET
+    log "" OFFSET SIZE
+next

@@ -1,0 +1,30 @@
+# Northgard Ragnarok
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TEST long
+goto 0
+if TEST == 0
+
+    get ZERO long
+    get STRINGS long
+    for i = 0 < STRINGS
+        get OFFSET long
+        get SIZE long
+        get ID long
+        slog "" OFFSET SIZE
+    next i
+
+else
+
+    idstring "GAV"
+    get VER byte
+    get FILES byte
+    savepos OFFSET
+    xmath OFFSET "OFFSET + (FILES * 4)"
+    for i = 0 < FILES
+        get SIZE long
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+    next i
+
+endif

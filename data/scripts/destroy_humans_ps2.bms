@@ -1,0 +1,121 @@
+# Destroy All Humans! PS2 E.DIR/PKG (script 0.1.2)
+#   The generated ss2 files use static samplerate/channels/interleave, therefore only the musics work
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT != "dir"
+    print "Error: you must open the E.DIR file"
+    cleanexit
+endif
+
+get DUMMY long  # 0x48bbc7fa
+get DUMMY long  # 2
+get PKG_FILES long
+get INFO_ENTRIES long
+get DUMMY long
+get ZERO long
+for i = 0 < INFO_ENTRIES
+    get OFFSET long
+    putarray 10 i OFFSET
+next i
+
+getarray OFFSET 10 0
+goto OFFSET
+get PKG_FILES long
+math MAX_PKG_FILES = 16
+putarray 0 MAX_PKG_FILES ""   # work-around
+for i = 0 < PKG_FILES
+    getdstring NAME 260
+    if NAME == "discard"
+        putarray 0 1 NAME
+    elif NAME == "soundcch"
+        putarray 0 2 NAME
+    elif NAME == "soundstr"
+        putarray 0 5 NAME
+        putarray 0 3 NAME   # ???
+    elif NAME == "soundres"
+        putarray 0 6 NAME
+        putarray 0 4 NAME   # ???
+    endif
+next i
+
+/*
+long story short, PKG_FILE doesn't point to the correct package file.
+and it's not possible to "guess" it from the size of the packages because some
+of them don't match (soundcch.pkg)
+resident
+discard
+soundcch
+soundstr
+soundres
+
+PKG_FILE:
+0
+1   discard
+2   soundcch
+3
+4
+5   soundstr
+6   soundres
+7
+8
+*/
+
+getarray OFFSET 10 2
+goto OFFSET
+get FILES long
+math EXISTS = 0
+math LAST_PKG_FILE = -1
+for i = 0 < FILES
+    get DUMMY longlong
+    get PKG_FILE long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+
+    if PKG_FILE >= MAX_PKG_FILES
+        set PKG_NAME string ""
+    else
+        getarray PKG_NAME 0 PKG_FILE
+    endif
+    if PKG_NAME != ""
+        if PKG_FILE != LAST_PKG_FILE
+            math LAST_PKG_FILE = PKG_FILE
+            string TMP p "%s.pkg" PKG_NAME
+            open FDSE TMP 1 EXISTS
+        endif
+        if EXISTS != 0
+            if PKG_NAME & "soundstr"
+                string NAME p "%s/%d.ss2" PKG_NAME i
+                math FREQUENCY = 44100
+                math CHANNELS = 2
+                math INTERLEAVE = 0x8000
+                callfunction DUMP_VAG 1
+            else
+                string NAME p "%s/" PKG_NAME
+                log NAME OFFSET SIZE 1
+            endif
+        endif
+    endif
+next i
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE 1
+    append
+endfunction

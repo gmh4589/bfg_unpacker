@@ -1,0 +1,32 @@
+# StreetFighter X Tekken
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype deflate
+idstring "#EAF"
+get DUMMY long
+get EAF_SIZE longlong
+get FILES long
+get DUMMY long
+goto 0x80
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get OFFSET longlong
+    get SIZE longlong
+    get ZERO longlong
+    get ZERO longlong
+
+    savepos TMP
+    goto OFFSET
+    getdstring SIGN 4
+    if SIGN == "#EMZ"
+        get SOME_CRC long
+        get XSIZE long
+        get START_OFF long
+        math OFFSET + START_OFF
+        math SIZE   - START_OFF
+        clog NAME OFFSET SIZE XSIZE
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

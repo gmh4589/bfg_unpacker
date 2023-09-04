@@ -1,0 +1,86 @@
+# example of lzss decompression function written in 100% bms scripting!!!
+# remember that QuickBMS supports the LZSS algorithm natively so this one
+# is only a funny demonstration of a script-only function
+
+set NAME string "unpacked.dat"
+get ZSIZE asize
+math SIZE = ZSIZE
+math SIZE *= 10
+log MEMORY_FILE 0 ZSIZE
+callfunction LZSS_BMS_DUMP
+
+# you must set: MEMORY_FILE (input), ZSIZE (input size), MEMORY_FILE2 (output), SIZE (max size)
+startfunction LZSS_BMS_DUMP
+    set EI long 12
+    set EJ long 4
+    set P long 2
+    set rless long P
+    set init_chr long 0x20
+
+    set N long 1
+    math N <<= EI
+    set F long 1
+    math F <<= EJ
+
+    # pre-allocate memory for faster performances
+    putvarchr MEMORY_FILE3 N 0
+    for i = 0 < N
+        putvarchr MEMORY_FILE3 i init_chr
+    next i
+    putvarchr MEMORY_FILE2 SIZE 0
+
+    math r = N
+    math r -= F
+    math r -= rless
+    math N -= 1
+    math F -= 1
+
+    math src = 0
+    math dst = 0
+    math srcend = ZSIZE
+    math dstend = SIZE
+
+    math flags = 0
+    for src = 0 < srcend
+        if flags & 0x100
+        else
+            getvarchr flags MEMORY_FILE src
+            math src += 1
+            math flags |= 0xff00
+        endif
+        if flags & 1
+            getvarchr c MEMORY_FILE src
+            math src += 1
+            putvarchr MEMORY_FILE2 dst c
+            math dst += 1
+            putvarchr MEMORY_FILE3 r c
+            math r += 1
+            math r &= N
+        else
+            getvarchr i MEMORY_FILE src
+            math src += 1
+            getvarchr j MEMORY_FILE src
+            math src += 1
+            math TMP = j
+            math TMP >>= EJ
+            math TMP <<= 8
+            math i |= TMP
+            math j &= F
+            math j += P
+            for k = 0 <= j
+                math TMP = i
+                math TMP += k
+                math TMP &= N
+                getvarchr c  MEMORY_FILE3 TMP
+                putvarchr MEMORY_FILE2 dst c
+                math dst += 1
+                putvarchr MEMORY_FILE3 r c
+                math r += 1
+                math r &= N
+            next k
+        endif
+        math flags >>= 1
+    next
+    math SIZE = dst
+    log NAME 0 SIZE MEMORY_FILE2
+endfunction

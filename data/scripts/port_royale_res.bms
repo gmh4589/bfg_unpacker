@@ -1,0 +1,29 @@
+# Port Royale RES (script 0.1.1)
+
+getdstring SIGN 4
+goto 0
+if SIGN u== "L10N"
+    idstring "L10N"
+    get VER long    # 0x0102
+    if VER == 3
+        get VER long    # 0x0102
+        get ZERO byte
+        get DUMMY long  # 6
+        get ZERO long
+        get DUMMY long  # 0x4f3a
+        get ZERO long
+    endif
+endif
+
+get STRINGS long
+savepos BASE_OFF
+for i = 0 < STRINGS
+    get SOME_CRC long
+    get OFFSET long
+    if SIGN u!= "L10N"
+        get ZERO long
+    endif
+    get SIZE long
+    math OFFSET + BASE_OFF
+    slog "" OFFSET SIZE unicode
+next i

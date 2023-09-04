@@ -1,0 +1,106 @@
+# Pipeworks bundle (nameless) (script 0.2.2)
+#   works also with monopoly.bds
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+getdstring SIGN 4
+if SIGN u== "MOMO"
+
+    get FILES long
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        log "" OFFSET SIZE
+    next i
+    get FILES long
+    get ZERO long
+    for i = 0 < FILES
+        get OFFSET longlong
+        get SIZE longlong
+        log "" OFFSET SIZE
+    next i
+
+elif SIGN u== "ipum"
+
+    endian big
+    getdstring DUMMY 8
+    get FILES long
+    get DUMMY long
+    if DUMMY u>= 0x01000000
+        goto -4 0 SEEK_CUR
+    endif
+    for i = 0 < FILES
+        getdstring NAME 4
+        string NAME + "/"
+        get SIZE long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math SIZE x 8
+        math OFFSET + SIZE
+        goto OFFSET
+        #padding 4
+    next i
+
+elif EXT == "dat"
+
+    goto 0
+    endian big
+    get FILES long
+    if FILES u<= 0x200
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            log "" OFFSET SIZE
+        next i
+    endif
+
+else    # EXT == "bdp"
+    goto 0
+    idstring "Pipeworks"
+    goto 0x5c
+    get FILES long
+    endian guess FILES
+    get OFFSET long
+    goto 0x6c
+    get INFO_OFF long
+
+    # too boring to handle names
+    #goto INFO_OFF
+    #getdstring DUMMY 0x20
+    #get XFILES long
+    #get NAMES long
+    #for i = 0 < XFILES
+    #    get DUMMY long
+    #    get DUMMY short
+    #    get DUMMY short
+    #    get DUMMY long
+    #next i
+    #for i = 0 < XFILES
+    #    get DUMMY long
+    #next i
+    #savepos NAMES_OFF
+    #for i = 0 < NAMES
+    #    get NAME_OFF long
+    #next i
+
+    goto OFFSET
+    for i = 0 < FILES
+        get OFFSET long
+        get SIZE long
+        math FLAGS2 = SIZE
+        math FLAGS2 u>> 24
+        math SIZE & 0x00ffffff
+        get ZSIZE long
+        math FLAGS = ZSIZE
+        math FLAGS u>> 24
+        math ZSIZE & 0x00ffffff
+        get NAME_CRC long
+
+        set NAME string ""
+        if FLAGS & 4
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            log NAME OFFSET SIZE
+        endif
+    next i
+endif

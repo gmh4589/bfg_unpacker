@@ -1,0 +1,13 @@
+# Survivalist
+# script for QuickBMS http://quickbms.aluigi.org
+
+get PAK_SIZE asize
+for OFFSET = 0 < PAK_SIZE
+    goto OFFSET
+    get SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET += SIZE
+next

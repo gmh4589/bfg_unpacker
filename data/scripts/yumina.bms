@@ -1,0 +1,103 @@
+# Yumina the Ethereal
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "bin"
+
+    idstring "KOTORI\0"
+    getdstring DUMMY 7
+    getdstring DUMMY 6
+    get FILES short
+    get DUMMY short
+    for i = 0 < FILES
+        get OFFSET long
+        get DUMMY short
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        goto OFFSET
+        idstring "KOTORi\0"
+        getdstring DUMMY 7
+        getdstring DUMMY 6
+        get DUMMY long
+        get ZERO long
+        get ZERO long
+        savepos OFFSET
+
+        xmath j "i + 1"
+        getarray SIZE 0 j
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next i
+    cleanexit
+
+endif
+
+# ARC
+idstring "MIKO"
+get DUMMY long
+get DUMMY longlong
+get FILES long
+get DUMMY short
+idstring "DFNM"
+get OFFSET longlong
+get DUMMY short
+
+idstring "NDIX"     # name index
+for i = 0 < FILES
+    get DUMMY short
+    get OFFSET long
+    get DUMMY short
+    putarray 0 i OFFSET
+next i
+
+idstring "EDIX"     # extension index?
+for i = 0 < FILES
+    get DUMMY short
+    get OFFSET long
+    get DUMMY short
+    putarray 1 i OFFSET
+next i
+
+idstring "CTIF"     # obfuscated names
+for i = 0 < FILES
+    get DUMMY short
+    get DUMMY short
+    get DUMMY short
+    get NAMESZ short
+    get DUMMY short
+    filexor 0x56
+    getdstring NAME NAMESZ
+    filexor ""
+    get DUMMY short
+    putarray 2 i NAME
+next i
+
+idstring "CADR"
+for i = 0 < FILES
+    get DUMMY short
+    get OFFSET longlong
+    get DUMMY short
+    putarray 3 i OFFSET
+next i
+
+for i = 0 < FILES
+    getarray NAME 2 i
+    getarray OFFSET 3 i
+    goto OFFSET
+    idstring "DATA"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY short
+    get DUMMY long
+    get DUMMY short
+    get DUMMY long
+    get SIZE long
+    get DUMMY short
+    savepos OFFSET
+    log NAME OFFSET SIZE
+next i

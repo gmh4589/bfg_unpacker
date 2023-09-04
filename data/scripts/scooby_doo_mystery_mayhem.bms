@@ -1,0 +1,69 @@
+# Scooby-Doo! Mystery Mayhem (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "p2r"
+
+    get DUMMY long  # ??db0100
+    get FILES long
+    savepos BASE_OFF
+    xmath BASE_OFF "BASE_OFF + (FILES * 16)"
+    for i = 0 < FILES
+        get DUMMY long
+        get SIZE long
+        get OFFSET long
+        get DUMMY long
+        math OFFSET + BASE_OFF
+        log "" OFFSET SIZE
+    next i
+
+elif EXT == "int"
+
+    endian big
+    idstring "A2M\0"
+    getdstring PLATFORM 4
+    goto 0x10
+    get FREQUENCY long
+    get NAME basename
+    string NAME + ".ads"
+    math OFFSET = 0x40
+    get SIZE asize
+    math SIZE - OFFSET
+    math CHANNELS = 2
+    math INTERLEAVE = 0x6000
+    callfunction DUMP_VAG
+
+else
+
+    print "Error: unsupported file %EXT%"
+    cleanexit
+
+endif
+
+# you must provide the following values: NAME OFFSET SIZE FREQUENCY CHANNELS and INTERLEAVE
+startfunction DUMP_VAG
+    endian save CURRENT_ENDIAN
+    endian little
+    putvarchr MEMORY_FILE SIZE 0
+    log MEMORY_FILE 0 0
+    put 0x64685353 long MEMORY_FILE
+    put 0x18 long MEMORY_FILE
+    put 0x10 long MEMORY_FILE
+    put FREQUENCY long MEMORY_FILE
+    put CHANNELS long MEMORY_FILE
+    put INTERLEAVE long MEMORY_FILE
+    put 0 long MEMORY_FILE
+    put 0xffffffff long MEMORY_FILE
+    put 0x64625353 long MEMORY_FILE
+    put SIZE long MEMORY_FILE
+    append
+    log MEMORY_FILE OFFSET SIZE
+    append
+
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+    if CURRENT_ENDIAN != 0
+        endian big
+    endif
+endfunction
+

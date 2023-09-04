@@ -1,0 +1,62 @@
+# ExciteBots: Trick Racing
+#   Incomplete script that works only with the non-compressed res archives like Turtle.car
+#   because I don't know the algorithm used for the compressed ones.
+
+#comtype ???    # unknown!
+get EXT extension
+if EXT == "toc"
+    open FDDE "res" 0 EXISTS
+    if EXISTS == 0
+        print "Error: you must open the archive file, not the toc one."
+        cleanexit
+    endif
+endif
+
+idstring "0TSR"
+goto 0x20
+get FILES long
+get SIZE long
+get ZSIZE long
+get OFFSET long
+if SIZE == ZSIZE
+    # SIZE is shorter than the archive but fits the size of the files-1
+    # probably the last file is not meant to be extracted
+    math OFFSET = 0x80
+    get SIZE asize
+    math SIZE - OFFSET
+    log MEMORY_FILE OFFSET SIZE
+else
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+endif
+
+math FILES + 1
+xmath NAMES_OFF "0xc + (0x28 * FILES)"
+
+open FDDE "toc"
+idstring "0SERCOTE"
+get DUMMY long
+for i = 0 < FILES
+    get NAME_OFF long
+    get TYPE long
+    get DUMMY1 long
+    get SIZE long
+    get OFFSET long
+    get DUMMY4 long
+    get DUMMY5 long
+    get DUMMY6 long
+    get DUMMY7 long
+    get DUMMY8 long
+    if DUMMY5 == 0  # DUMMY6, 7 and 8 too: the first file is not a file
+        reverselong TYPE
+        string TYPE = TYPE
+
+        savepos TMP
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        goto TMP
+
+        string FNAME p "%s/%s" TYPE NAME
+        log FNAME OFFSET SIZE MEMORY_FILE
+    endif
+next i

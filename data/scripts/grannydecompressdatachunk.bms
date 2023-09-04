@@ -1,0 +1,20 @@
+# GrannyDecompressDataChunk
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ZSIZE asize
+math SIZE = ZSIZE
+math SIZE *= 20
+log MEMORY_FILE 0 ZSIZE
+putvarchr MEMORY_FILE2 SIZE 0
+
+set ALGO long 0 # simple copying of the data
+set ALGO long 1 # Oodle0
+set ALGO long 2 # Oodle1
+set SWAP long 1 # boolean for inverting the order of the input 32bits of data
+calldll "granny2.dll" "_GrannyDecompressDataChunk@24" __stdcall RET ALGO SWAP ZSIZE MEMORY_FILE SIZE MEMORY_FILE2
+
+if RET == 0
+    print "Error: granny2 decompression failed"
+    cleanexit
+endif
+log "dump.dat" 0 SIZE MEMORY_FILE2

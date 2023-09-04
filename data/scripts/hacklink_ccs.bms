@@ -1,0 +1,69 @@
+# .hack//Link ccs (script 0.2)
+#   filenames are not supported
+# script for QuickBMS http://quickbms.aluigi.org
+
+for
+    get TYPE short
+    get DUMMY short # 0xcccc or 0
+    if TYPE == 1
+        get VER long    # 0xd
+        idstring "CCSF"
+        getdstring NAME 0x20
+        get DUMMY long  # 0x12*
+        get ZERO long
+        get DUMMY long  # 1
+        get ZERO long
+    elif TYPE == 2
+        get INFO_SIZE long
+        get NAMES long
+        get FILES long
+        for i = 0 < NAMES
+            getdstring SKIP 2   # sort of flag or similar
+            getdstring NAME 0x1e
+            putarray 0 i NAME
+        next i
+        for i = 0 < FILES
+            getdstring TYPE 0x1e
+            get IDX short
+            getarray NAME 0 IDX
+            string NAME p "%s/%s" TYPE NAME
+            putarray 1 i NAME
+        next i
+    elif TYPE == 3
+        get ZERO long
+        for i = 0 #< FILES  # do NOT use FILES here!
+            set NAME string ""
+            get FLAGS0 byte
+            if FLAGS0 != 0
+                cleanexit   # yes
+            endif
+            get FLAGS byte
+            getdstring SKIP 2 #idstring "\xcc\xcc"
+            get SIZE long
+            if FLAGS == 3   # do NOT use & 1
+                get ID long
+                get DUMMY1 long
+                get DUMMY2 long
+                get DUMMY3 long
+                get DUMMY4 long
+                get DUMMY5 long
+                get SIZE long
+                if DUMMY5 == 0xffffffff
+                    # do nothing
+                else
+                    math SIZE * 4
+                endif
+                getarray NAME 1 ID
+            else
+                math SIZE * 4   # sequence of numbers
+            endif
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            goto SIZE 0 SEEK_CUR
+        next i
+        cleanexit   # quit now!
+    else
+        print "Error: unknown type %TYPE%"
+        cleanexit
+    endif
+next

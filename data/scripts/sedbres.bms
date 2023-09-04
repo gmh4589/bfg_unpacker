@@ -1,0 +1,19 @@
+idstring "SEDBRES "
+get DUMMY long
+get DUMMY long
+get DUMMY long
+goto 0x20
+get FILES long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+savepos TMP
+xmath BASE_OFF "TMP + (FILES * 0x10) + 0x10"
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

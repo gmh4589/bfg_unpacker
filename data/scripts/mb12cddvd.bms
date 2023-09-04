@@ -1,0 +1,21 @@
+# MSG Encounters in Space PS2
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 8
+get FILES long
+get BASE_OFF long
+for i = 0 < FILES
+    get OFFSET long
+    getdstring NAME 0x20
+    if OFFSET == 0xffffffff
+        get OFFSET long
+        math OFFSET *= 0x800
+        math OFFSET += BASE_OFF
+    else
+        get DUMMY long
+        get DUMMY long
+        set BASE_OFF long OFFSET
+    endif
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

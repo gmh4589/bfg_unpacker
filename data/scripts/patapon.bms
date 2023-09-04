@@ -1,0 +1,73 @@
+# Patapon series (DATA_CMN.BND) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.24b"
+
+comtype gzip
+idstring "BND"
+get DUMMY byte
+get VER long    # 0 or 1
+get DUMMY long
+get DUMMY long  # 0 or 32
+get INFO_OFF long
+get FILES_OFF long
+get DUMMY long
+get DUMMY long
+get FILES long
+get ENTRIES long
+
+if VER == 0
+    for i = 0 < ENTRIES
+        get NAME_CRC long
+        get ZERO long
+        get OFFSET long
+        get SIZE long
+        string NAME p "%08x." NAME_CRC
+        log NAME OFFSET SIZE
+    next i
+    cleanexit
+endif
+
+putarray 0 0 ""
+do
+    goto INFO_OFF
+    get FOLDER_LEVEL signed_byte
+    get DUMMY_LEVEL signed_byte
+    get NEXT_SIZE signed_byte
+    get OFFSET long
+    get NAME string
+
+    goto OFFSET
+    get CRC long
+    get INFO_OFF2 long
+    get OFFSET long
+    get SIZE long
+
+    if FOLDER_LEVEL >= 0
+        putarray 0 FOLDER_LEVEL NAME
+    else
+        math FOLDER_LEVEL n= FOLDER_LEVEL
+        math FOLDER_LEVEL -= 1
+        set FNAME string ""
+        for j = FOLDER_LEVEL >= 0
+            getarray TMP FOLDER j
+            string TMP += FNAME
+            set FNAME string TMP
+            math j -= 1
+        next
+        string FNAME += NAME
+
+        savepos TMP
+        goto OFFSET
+        getdstring SIGN 2
+        goto TMP
+        if SIGN == "\x1f\x8b"
+            clog FNAME OFFSET SIZE SIZE
+        else
+            log FNAME OFFSET SIZE
+        endif
+
+    endif
+
+    math INFO_OFF += NEXT_SIZE
+while NEXT_SIZE >= 0

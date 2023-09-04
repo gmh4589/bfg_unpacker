@@ -1,0 +1,59 @@
+# Nicktoons: Attack Of The Toybots
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lz77wii
+math i = -1
+set PATH string ""
+get SIZE asize
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    if i >= 0
+        string PATH + i
+        string PATH + /
+    endif
+    math PAK_SIZE = SIZE
+
+    savepos BASE_OFF
+    idstring "PAK\0"
+    get MODE short
+    get FILES short
+    for i = 0 < FILES
+        get NAME_CRC long
+        if MODE == 0
+            get OFFSET[i] long
+        elif MODE == 0x10
+            get OFFSET[i] short
+        else
+            print "Error: unknown mode %MODE|x%"
+            cleanexit
+        endif
+        get ZIP[i] byte
+    next i
+    for i = 0 < FILES
+        math OFFSET = OFFSET[i]
+        math ZIP    = ZIP[i]
+        math i + 1
+        if i < FILES
+            math SIZE = OFFSET[i]
+        else
+            math SIZE = PAK_SIZE
+        endif
+        math SIZE - OFFSET
+        math OFFSET + BASE_OFF
+
+        goto OFFSET
+        getdstring SIGN 4
+        goto OFFSET
+        if SIGN u== "PAK"
+            callfunction EXTRACT
+        else
+            string NAME p "%s%08x." PATH OFFSET
+            if ZIP == 0
+                log NAME OFFSET SIZE
+            else
+                clog NAME OFFSET SIZE SIZE
+            endif
+        endif
+    next
+endfunction

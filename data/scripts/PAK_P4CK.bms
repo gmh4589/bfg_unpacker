@@ -1,0 +1,22 @@
+<bms games="'Second Sight'" platforms="'PC'" ext="PAK">
+ImpType Standard ;
+GoTo 4 0 ;
+Get DirOffset Long 0 ;
+Get FNum Long 0 ;
+Math FNum /= 16 ;
+Set JP Long DirOffset ;
+For n = 1 To FNum ;
+GoTo JP 0 ;
+Get FNO Long 0 ;
+Math FNO += DirOffset ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get DN Long 0 ;
+SavePos JP 0 ;
+GoTo FNO 0 ;
+Get FN String 0 ;
+Log FN FO FS #FOO FSO ;
+Next n ;
+</bms>

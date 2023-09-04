@@ -1,0 +1,26 @@
+<bms games="'Forza MotorSport'" platforms="'PC'" ext="CAB">
+ImpType Standard ;
+ComType ZLib1 ;
+GoTo 8 0 ;
+Get FNum Long 0 ;
+GoTo 24 0 ;
+Set FNDir Long 24 ;
+GoTo 306 0 ;
+Math FNDir *= FNum ;
+Math FNDir += 306 ;
+For n = 1 To FNum ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+SavePos DFSO 0 ;
+Get DFS Long 0 ;
+SavePos NextJump 0 ;
+Math NextJump += 12 ;
+GoTo FNDir 0 ;
+Get FN String 0 ;
+SavePos FNDir 0 ;
+GoTo NextJump 0 ;
+CLog FN FO FS DFS ; #CLog FN FO FS FOO FSO DFS DFSO ;
+Next n ;
+</bms>

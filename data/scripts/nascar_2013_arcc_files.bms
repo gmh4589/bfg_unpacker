@@ -1,0 +1,100 @@
+# Nascar 2013 ARC (ARCE) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.1"
+
+comtype lzo1x
+
+idstring "ARC"
+get TYPE byte
+get FILES long
+
+if TYPE == 'E'      # "ARCE" not tested!
+    goto 0x78
+    get ZSIZE long
+    get SIZE long
+    savepos OFFSET
+    clog TEMPORARY_FILE OFFSET ZSIZE SIZE
+    open "." TEMPORARY_FILE
+
+elif TYPE == '3'    # "ARC3"
+    comtype deflate
+    goto 0x78
+    get DUMMY long
+    get DUMMY long
+    get CHUNKS long
+    for i = 0 < CHUNKS
+        get ZSIZE long
+        putarray 0 i ZSIZE
+    next i
+    padding 0x80
+    savepos OFFSET
+
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < CHUNKS
+        getarray ZSIZE 0 i
+        clog MEMORY_FILE OFFSET ZSIZE 0x10000
+        math OFFSET + ZSIZE
+    next i
+    append
+
+    get NAME basename
+    get SIZE asize MEMORY_FILE
+    log NAME 0 SIZE MEMORY_FILE
+    cleanexit   # terminates here
+
+else
+    goto 0x80
+endif
+
+math NAMES_OFF = 0
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get NAME_OFF long
+    get DIR byte
+    get SIZE threebyte
+    reverselong SIZE
+    math SIZE u>>= 8 # because it's 24bit and not 32
+
+    putarray 0 i OFFSET
+    putarray 1 i NAME_OFF
+    putarray 2 i DIR
+    putarray 3 i SIZE
+
+    if OFFSET > NAMES_OFF
+        math NAMES_OFF = OFFSET
+    endif
+next i
+
+savepos BASE_OFF
+math NAMES_OFF += BASE_OFF
+
+set FOLDER string ""
+for i = 0 < FILES
+    getarray OFFSET   0 i
+    getarray NAME_OFF 1 i
+    getarray DIR      2 i
+    getarray SIZE     3 i
+    math OFFSET += BASE_OFF
+
+    math NAME_OFF += NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+
+    # note that the folders structure is NOT handled correctly!!!
+    # this is justa work-around
+
+    if NAME == ""
+        string NAME p= "%08x.dat" i
+    endif
+    if DIR == 0xff
+        set FOLDER string NAME
+    else
+        set FNAME string FOLDER
+        string FNAME += /
+        string FNAME += NAME
+        log FNAME OFFSET SIZE
+    endif
+next i

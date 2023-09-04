@@ -1,0 +1,11 @@
+# Syberia 2 OBB / Anuman Interctive
+
+get DUMMY byte
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

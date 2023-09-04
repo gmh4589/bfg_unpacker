@@ -1,0 +1,54 @@
+# Tokyo Xtreme Racer series (script 0.3.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.7.0"
+comtype uclpack
+
+open FDDE "TOC" 1
+
+open FDDE "DAT.DAT" 0 EXISTS
+if EXISTS == 0
+    open FDDE "DAT"
+endif
+
+get FILES long 1
+endian guess FILES  # x360 compatibility
+get DUMMY long 1
+get DUMMY long 1
+get DAT_SIZE long 1
+
+math METHOD = 0
+savepos TMP 1
+xmath TMP "TMP + (FILES * 0x14)"
+get TOC_SIZE asize 1
+if TMP u<= TOC_SIZE
+    math METHOD = 1
+endif
+
+for i = 0 < FILES
+    get OFFSET long 1
+    math OFFSET * 0x800
+    if METHOD == 1
+        get DUMMY long 1
+    endif
+    get ZSIZE long 1
+    if METHOD == 0
+        get SIZE long 1
+        get ZERO long 1
+    else
+        math ZSIZE * 0x800
+        get ZERO long 1
+        get SIZE long 1
+    endif
+
+    set NAME string ""
+    if SIZE == 0
+        if OFFSET != 0
+        if ZSIZE != 0
+        log NAME OFFSET ZSIZE
+        endif
+        endif
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+next i

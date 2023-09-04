@@ -1,0 +1,46 @@
+# QConfig encryption (script 0.1.1)
+#   based on the code of Yuanlin
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+get SIZE asize
+get NAME basename
+
+if EXT == "ecf"
+    string NAME += ".cfg"
+
+    log MEMORY_FILE 0 0
+    xmath TMP "SIZE / 4"
+    for i = 0 < TMP
+        get B0 short
+        get B2 short
+        put B2 short MEMORY_FILE
+        put B0 short MEMORY_FILE
+    next i
+    xmath TMP "SIZE % 4"
+    if TMP == 3
+        get B0 byte
+        get B1 byte
+        get B2 byte
+        put B2 byte MEMORY_FILE
+        put B1 byte MEMORY_FILE
+        put B0 byte MEMORY_FILE
+    else
+        getdstring DATA TMP
+        putdstring DATA TMP MEMORY_FILE
+    endif
+
+    encryption xmath "0xff - #INPUT#" 8
+    log NAME 0 SIZE MEMORY_FILE
+
+elif EXT == "tbl"
+    string NAME += ".csv"
+
+    # wrong key!
+    encryption aes "\x27\xf3\xa5\x57\x60\x9d\xc1\x8a\x2f\x59\x40\x17\x61\xb9\x49\x9b"
+    log NAME 0 SIZE
+
+else
+    print "Error: extension %EXT% not supported"
+    cleanexit
+endif

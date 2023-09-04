@@ -1,0 +1,113 @@
+# F1 2016 obb / Angry Birds (2KPX/XPK2) (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x02KPX"  # KPX/XPK
+get FOLDERS long
+get FILES long
+get DUMMY long
+get ZIP_MODE long
+if ZIP_MODE >= 2
+    comtype lz4
+endif
+
+savepos FOLDER_BASE
+math FILE_BASE = FOLDERS
+math FILE_BASE *= 32
+math FILE_BASE += FOLDER_BASE
+math NAME_BASE = FILES
+math NAME_BASE *= 32
+math NAME_BASE += FILE_BASE
+
+goto FILE_BASE
+for i = 0 < FILES
+    get NAME_OFF long
+    get DUMMY long
+    get SIZE long
+    get OFFSET long
+    get ZIP long
+    get CRC long
+    get ZSIZE long
+    get DUMMY long
+
+    math NAME_OFF += NAME_BASE
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    putarray 0 i NAME
+    putarray 1 i SIZE
+    putarray 2 i OFFSET
+    putarray 3 i ZIP
+    putarray 4 i ZSIZE
+next i
+
+goto FOLDER_BASE
+for i = 0 < FOLDERS
+    get NAME_OFF long
+    get DUMMY long
+    get XFILES_POS long
+    get DUMMY long
+    get XFOLDERS_POS long
+    get DUMMY long
+    get XFILES long
+    get XFOLDERS long
+
+    math NAME_OFF += NAME_BASE
+    savepos TMP
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    putarray 5 i NAME
+    putarray 6 i XFILES
+    putarray 7 i XFOLDERS
+    putarray 8 i XFILES_POS
+    putarray 9 i XFOLDERS_POS
+next i
+
+getarray NAME         5 0
+getarray XFILES       6 0
+getarray XFOLDERS     7 0
+getarray XFILES_POS   8 0
+getarray XFOLDERS_POS 9 0
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH += NAME
+    string PATH += /
+    math FILES = XFILES
+    math FOLDERS = XFOLDERS
+    math FILES_POS = XFILES_POS
+    math FOLDERS_POS = XFOLDERS_POS
+
+    for i = 0 < FILES
+        math T = FILES_POS
+        math T += i
+        getarray NAME   0 T
+        getarray SIZE   1 T
+        getarray OFFSET 2 T
+        getarray ZIP    3 T
+        getarray ZSIZE  4 T
+        set FNAME string PATH
+        string FNAME += NAME
+        if ZIP == 0
+            log FNAME OFFSET SIZE
+        else
+            clog FNAME OFFSET ZSIZE SIZE
+        endif
+    next i
+
+    for i = 0 < FOLDERS
+        math T = FOLDERS_POS
+        math T += i
+        getarray NAME         5 T
+        getarray XFILES       6 T
+        getarray XFOLDERS     7 T
+        getarray XFILES_POS   8 T
+        getarray XFOLDERS_POS 9 T
+        callfunction EXTRACT
+    next i
+endfunction

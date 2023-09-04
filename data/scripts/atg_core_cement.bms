@@ -1,0 +1,90 @@
+# ATG CORE CEMENT LIBRARY (script 0.2.2)
+#   The Incredible Hulk - Ultimate Destruction (XBox), Scarface,
+#   Prototype, Crash Tag Team Racing, Simpsons Road Rage
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.14"
+#idstring "ATG CORE CEMENT LIBRARY" # also "RADCORE CEMENT LIBRARY"
+get SIGN string
+if SIGN & "CEMENT LIBRARY"
+else
+    print "Error: unknown magic %SIGN%"
+    cleanexit
+endif
+goto 0x24
+get OFFSET long
+endian guess OFFSET
+if SIGN & "RADCORE"
+    goto OFFSET
+    get FILES long
+    get NAMES_OFF long
+    get DUMMY long
+    get DUMMY long
+else    # ATG
+    get INFOSZ long
+    get NAMES_OFF long
+    get NAMES_SIZE long
+    get DUMMY long
+    get FILES long
+    goto OFFSET
+endif
+
+# pre-allocate arrays, don't do it because the last element is calculated in sorting
+#putarray 0 FILES 0
+#putarray 1 FILES 0
+
+for i = 0 < FILES
+    get CRC long
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+
+# OFFSET sorting
+print "sort elements, please wait"
+sortarray 0 1
+
+# old way for quickbms <= 0.5.13
+#math TMP = FILES
+#math TMP -= 1
+#for i = 0 < TMP
+#    getarray OFFSET 0 i
+#    math j = i
+#    for j += 1 < FILES
+#        getarray OFFSET2 0 j
+#        if OFFSET2 < OFFSET
+#            getarray SIZE  1 i
+#            getarray SIZE2 1 j
+#            putarray 0 i OFFSET2
+#            putarray 1 i SIZE2
+#            putarray 0 j OFFSET
+#            putarray 1 j SIZE
+#            math OFFSET = OFFSET2
+#        endif
+#    next j
+#next i
+
+goto NAMES_OFF
+endian little
+get DUMMY long  # NAMES, like FILES
+get DUMMY long
+for i = 0 < FILES
+    if SIGN & "RADCORE"
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get DUMMY long
+    else    # ATG
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get NAMESZ long
+        math NAMESZ -= 1
+        getdstring NAME NAMESZ
+        get DUMMY long
+    endif
+
+    getarray OFFSET 0 i
+    getarray SIZE 1 i
+    log NAME OFFSET SIZE
+next i

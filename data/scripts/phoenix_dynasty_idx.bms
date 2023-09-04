@@ -1,0 +1,15 @@
+# Phoenix Dynasty 2 IDX
+# script for QuickBMS http://quickbms.aluigi.org
+
+get VER short
+get VER2 short
+get FILES long
+goto 0x488
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get ID long
+    get SIZE long
+    get OFFSET long
+    getdstring ZERO 0x38
+    log NAME OFFSET SIZE
+next i

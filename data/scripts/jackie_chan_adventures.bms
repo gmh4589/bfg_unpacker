@@ -1,0 +1,21 @@
+# Jackie Chan Adventures
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_SIZE long
+get DUMMY long
+get ZERO long
+get ZERO long
+get ZERO long
+get DUMMY long  # 0x20
+get FILES_OFF long
+get DUMMY short
+get DUMMY short
+goto FILES_OFF
+for FILES_OFF = FILES_OFF < INFO_SIZE
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # non zero on folders only
+    savepos FILES_OFF
+    log "" OFFSET SIZE
+next

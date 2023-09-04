@@ -1,0 +1,15 @@
+<bms games="'World Championship Poker 2'" platforms="'PC'" ext="WAD">
+Do ;
+GetDString FNAME 20 0 ;
+Get FSIZE Long 0 ;
+If FSIZE = 0 ;
+CleanExit ;
+EndIf ;
+Get FOOBAR Long 0 ;
+Get FOOBAR Long 0 ;
+SavePos FOFFSET 0 ;
+Log FNAME FOFFSET FSIZE 0 0 ;
+Math FOFFSET += FSIZE ;
+GoTo FOFFSET 0 ;
+While NotEOF <> 0 ;
+</bms>

@@ -1,0 +1,139 @@
+# Sport Championship DIR!/RES! (script 0.2)
+#   additional fix by akderebur
+
+endian big
+
+#getdstring SIGN 4
+#goto 0
+#if SIGN u== "RES!"
+
+get EXT extension
+if EXT == "res"
+    callfunction EXTRACT_RES 1
+    cleanexit
+endif
+
+open FDDE "dir" 1
+#open FDDE "000"
+math LAST_FILEID = -1
+
+idstring 1 "DIR!"
+get VER long 1    # 4
+get FILES long 1
+get DUMMY long 1
+for i = 0 < FILES
+    get SOME_CRC long 1
+    get FILEID long 1
+    get OFFSET long 1
+    get SIZE long 1
+    get DUMMY long 1
+
+    if FILEID != LAST_FILEID
+        math LAST_FILEID = FILEID
+        string TMP p "%03d" FILEID
+        open FDDE TMP
+    endif
+
+    log "" OFFSET SIZE
+    #callfunction EXTRACT_RES
+next i
+
+startfunction EXTRACT_RES
+    savepos RES_OFFSET
+    idstring "RES!"
+    getdstring PLATFORM 4
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    get INFO_OFF long
+    math INFO_OFF + RES_OFFSET
+    get DATA_OFF long
+    math DATA_OFF + RES_OFFSET
+    get ZERO long
+    get INFO_SIZE long
+    get DATA_SIZE long
+        get ZERO long
+        get DUMMY4 long
+        get DUMMY5 long
+    for i = 0 < FILES
+        getdstring TYPE 4
+        get DUMMY1 long
+        get DUMMY2 long
+        get DUMMY3 long
+        get OFFSET long
+        get ZERO long
+        get ZERO long
+        get SIZE long
+        get ZERO long
+        get ZERO long
+        get DUMMY4 long
+        get DUMMY5 long
+        putarray 0 i OFFSET
+        putarray 1 i SIZE
+    next i
+    get NAMES long
+    get DUMMY long  # 0xc
+    savepos TMP
+    get NAMES_OFF_OFF long
+    math NAMES_OFF_OFF + TMP
+    savepos TMP
+    get NAMES_OFF long
+    math NAMES_OFF + TMP
+    goto NAMES_OFF_OFF
+    for i = 0 < NAMES
+        get NAME_OFF long
+        putarray 2 i NAME_OFF
+    next i
+    for i = 0 < NAMES
+        getarray NAME_OFF 2 i
+        math NAME_OFF + NAMES_OFF
+        goto NAME_OFF
+        get NAME string
+        putarray 2 i NAME
+    next i
+
+    math OFFSET = INFO_OFF
+    math SIZE   = INFO_SIZE
+    callfunction RES_CHUNK 1
+    #log "" 0 SIZE MEMORY_FILE
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        getarray SIZE   1 i
+        getarray NAME   2 i
+        string NAME p "%s/%s" TYPE NAME
+        log NAME OFFSET SIZE MEMORY_FILE
+    next i
+
+    math OFFSET = DATA_OFF
+    math SIZE   = DATA_SIZE
+    callfunction RES_CHUNK 1
+    log "" 0 SIZE MEMORY_FILE
+endfunction
+
+startfunction RES_CHUNK
+    comtype deflate
+    xmath CHUNKS "SIZE / 0x10000"
+    if SIZE % 0x10000
+        math CHUNKS + 1
+    endif
+    log MEMORY_FILE 0 0
+    append
+    for x = 0 < CHUNKS
+        goto OFFSET
+        get CHUNK_ZSIZE short
+        get CHUNK_SIZE short
+        if CHUNK_SIZE == 0
+            math CHUNK_SIZE = 0x10000
+        endif
+        get FLAGS long
+        get ZERO long
+        get ZERO long
+        savepos OFFSET
+        clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+        math OFFSET + CHUNK_ZSIZE
+        math OFFSET x 16
+    next x
+    append
+endfunction

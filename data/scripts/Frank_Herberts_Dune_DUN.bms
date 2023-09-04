@@ -1,0 +1,18 @@
+# Frank Herbert's Dune (DUN)
+
+Set FS Long 8 ;
+ImpType Standard ;
+GoTo FS 0 ;
+SavePos TailOffOff 0 ;
+Get TAO Long 0 ;
+Get FN Long 0 ;
+GoTo TAO 0 ;
+For A = 1 To FN ;
+GetCT FIN String 10 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Log FIN FO FS #FOO FSO ;
+Next A ;
+

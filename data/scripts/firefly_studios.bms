@@ -1,0 +1,40 @@
+# FireFly Studios
+# script for QuickBMS http://quickbms.aluigi.org
+
+# guess
+get DAT_SIZE asize
+math OK = 1
+for i = 0
+    getdstring NAME 100
+
+    getvarchr TMP1 NAME 0 long
+    getvarchr TMP2 NAME 0 long
+    if TMP1 != 0
+        if TMP1 u< DAT_SIZE
+            math TMP2 + TMP1
+            if TMP2 u< DAT_SIZE
+                math OK = 0
+            endif
+        endif
+    endif
+
+    if OK == 0
+        break
+    endif
+
+    if NAME != ""
+        putarray 0 i NAME
+    endif
+next i
+
+goto -100 0 SEEK_CUR
+math FILES = i
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+
+    if OFFSET != 0
+        getarray NAME 0 i
+        log NAME OFFSET SIZE
+    endif
+next i

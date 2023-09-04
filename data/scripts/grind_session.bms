@@ -1,0 +1,13 @@
+# Grind Session
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "\x9a\xa6\x9a\xa6"
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get OFFSET long
+    get SIZE long
+    get DUMMY long
+    get DUMMY long
+    log NAME OFFSET SIZE
+next i

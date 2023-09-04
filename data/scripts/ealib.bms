@@ -1,0 +1,59 @@
+# EALIB (script 0.2)
+
+idstring "EALIB"
+get FILES short
+for i = 1 <= FILES
+	#getdstring PATH 2  # strange bytes in an archive I tested
+	getDstring NAME 0xd
+	get ZIP byte
+	get OFFSET long
+    #string NAME p "%s/%s" PATH NAME
+	putArray 0 i NAME
+	putArray 1 i OFFSET
+	putArray 2 i ZIP
+next i
+for i = 1 <= FILES
+	getArray NAME   0 i
+	getArray OFFSET 1 i
+	getArray ZIP    2 i
+	if i != FILES
+		xmath n "i + 1"
+		getArray SIZE 1 n
+	else
+		get SIZE asize
+	endif
+	math SIZE -= OFFSET
+
+    if ZIP == 0
+        log NAME OFFSET SIZE
+
+    elif ZIP == 1
+        comtype lzss
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        clog NAME OFFSET SIZE XSIZE
+
+    elif ZIP == 4
+        comtype pkware
+        goto OFFSET
+        get XSIZE long
+        math OFFSET + 4
+        math SIZE   - 4
+        clog NAME OFFSET SIZE XSIZE
+
+    elif ZIP == 3
+        goto OFFSET
+        idstring "PXPK"
+        #getdstring DUMMY 12
+        #get XSIZE long
+        #math OFFSET + 0x14
+        #math SIZE   - 0x14
+        string NAME p "%s/%s" "compressed" NAME
+        log NAME OFFSET SIZE
+    else
+        string NAME p "%s/%s" "compressed" NAME
+        log NAME OFFSET SIZE
+    endif
+next i

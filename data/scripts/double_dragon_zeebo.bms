@@ -1,0 +1,29 @@
+# Double Dragon (Zeebo) ggz
+
+comtype gzip
+endian big
+get FILES long
+math FILES / 8
+goto 0
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    getarray SIZE   1 i
+    math i + 1
+    getarray ZSIZE  0 i
+    math ZSIZE - OFFSET
+
+    # quickbms doesn't support gzip filenames for various reasons
+    xmath TMP "OFFSET + 10"
+    goto TMP
+    get NAME string
+
+    clog NAME OFFSET ZSIZE SIZE
+next

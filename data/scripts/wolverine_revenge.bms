@@ -1,0 +1,51 @@
+# Wolverine's Revenge 2 (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype bzip2
+math NAMESZ = 0x80
+
+idstring "PKR3"
+get OFFSET long
+goto OFFSET
+get DUMMY long  # 4 for both the types
+get FOLDERS long
+get FILES long
+
+    savepos TMP
+    getdstring NAME NAMESZ
+    strlen i NAME
+    for i = 0 < NAMESZ
+        getvarchr CHR NAME i
+        if CHR != 0
+            comtype zlib
+            math NAMESZ = 0x20
+            break
+        endif
+    next i
+    goto TMP
+
+putarray 0 FILES ""
+for i = 0 < FOLDERS
+    getdstring NAME NAMESZ
+    get FILE_ID long
+    get IDS long
+    for IDS + FILE_ID != FILE_ID
+        putarray 0 IDS NAME
+    prev IDS
+next i
+
+for i = 0 < FILES
+    getdstring NAME NAMESZ
+    get CRC long
+    get ZIP long
+    get OFFSET long
+    get SIZE long
+    get ZSIZE long
+    getarray FNAME 0 i
+    string FNAME + NAME
+    if ZIP == 0
+        log FNAME OFFSET SIZE
+    else
+        clog FNAME OFFSET ZSIZE SIZE
+    endif
+next i

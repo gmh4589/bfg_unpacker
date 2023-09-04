@@ -1,0 +1,35 @@
+# SFGP signature (*.pack) (Alawar / Stargaze Framework) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SF"
+getdstring SIGN 2   # "GP" or "G\x01" and so on
+get FILES long
+if SIGN == "GP"
+
+    get PACK_SIZE long
+    for i = 0 < FILES
+        get NAMESZ short
+        get NAME_ENTRYSZ short
+        get DUMMY long
+        getdstring NAME NAME_ENTRYSZ
+        putvarchr NAME NAMESZ 0
+        get SIZE long
+        get OFFSET long
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    get OFFSET long
+    goto OFFSET
+    get PACK_SIZE asize
+    for OFFSET = OFFSET != PACK_SIZE
+        get SIZE long
+        savepos OFFSET
+        log "" OFFSET SIZE
+        math OFFSET + SIZE
+        math OFFSET x 4
+        goto OFFSET
+    next
+
+endif

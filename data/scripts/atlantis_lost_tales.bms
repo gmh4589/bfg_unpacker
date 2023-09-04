@@ -1,0 +1,25 @@
+# Atlantis: The Lost Tales (Sega Saturn)
+
+endian big
+get INFO_SIZE long
+math BASE_OFF = INFO_SIZE
+math BASE_OFF x 0x800
+for
+    savepos TMP
+    if TMP >= INFO_SIZE
+        break
+    endif
+    getdstring NAME 8
+    strlen NAMESZ NAME
+    math NAMESZ + 1
+    if NAMESZ < 8
+        math TMP + NAMESZ
+        goto TMP
+    endif
+    get DUMMY byte
+    get SIZE threebyte
+    get OFFSET threebyte
+    math OFFSET * 0x800
+    math OFFSET + BASE_OFF
+    log NAME OFFSET SIZE
+next

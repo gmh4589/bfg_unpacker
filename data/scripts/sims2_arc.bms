@@ -1,0 +1,40 @@
+# Sims 2 (ARC) (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+get ALIGN long
+get TSTAMP longlong
+
+math VER = 0
+if ALIGN == 0
+    math VER = 1
+endif
+
+goto OFFSET
+get FILES long
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get NAME string
+    get TSTAMP longlong
+
+    if VER == 0
+        savepos TMP
+        goto OFFSET
+        get DUMMY long  # 6
+        get TYPE long   # "RNIB" -> "BINR"
+        get DUMMY long  # 0xffffffff
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+        goto TMP
+
+        reverselong TYPE
+        string TYPE = TYPE
+        string NAME p "%s/%s" TYPE NAME
+    endif
+
+    log NAME OFFSET SIZE
+next i

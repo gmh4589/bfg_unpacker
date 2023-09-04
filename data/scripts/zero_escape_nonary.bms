@@ -1,0 +1,111 @@
+# Zero Escape: The Nonary Games (999, VLR)
+#   Maybe it works also with other games developed by Spike Chunsoft
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.0"
+
+set MEMORY_FILE10 binary "
+// I use an empty data to generate the xor key so that we can use the same script for reimporting :)
+
+unsigned int nonary_crypt(unsigned char *data, int size, unsigned int key, unsigned int relative_offset) {
+    unsigned int    eax,
+                    ecx,
+                    edx,
+                    edi,
+                    esi;
+
+    eax = relative_offset;
+    esi = (relative_offset + 3) << 0x18;
+    ecx = (relative_offset + 2) << 0x10;
+    edi = (relative_offset + 1) << 0x8;
+
+    int i;
+    for(i = 0; i < ((size / 4) * 4); i += 4) {
+        edx = (ecx & 0xff0000) | (edi & 0xff00) | (esi & 0xff000000) | (eax & 0xff);
+        eax += 0x4;
+        edi += 0x400;
+        ecx += 0x40000;
+        esi += 0x4000000;
+        *(int *)(data + i) ^= edx ^ key;
+    }
+    for(; i < size; i++) {
+        data[i] ^= eax ^ key;
+        eax++;
+        key >>= 8;
+    }
+    return eax;
+}
+
+int nonary_calculate_key(char *name) {
+    int     i,
+            size;
+    unsigned int    eax = 0,
+                    esi = 0,
+                    edx = 0;
+
+    for(size = 0; name[size]; size++);
+
+    for(i = 0; i < ((size / 2) * 2); i += 2) {
+        eax += name[i] + name[i+1];
+        edx = (name[i]   & 0xdf) + (esi * 0x83);
+        esi = (name[i+1] & 0xdf) + (edx * 0x83);
+    }
+    for(; i < size; i++) {
+        eax += name[i];
+        esi = (name[i] & 0xdf)   + (esi * 0x83);
+    }
+    return (eax & 0xf) | ((esi & 0x07FFFFFF) << 4);
+}
+"
+
+get NAME basename
+if NAME & "ze1"
+    math KEY = 0xfabaceda   # ZE1 (999)
+else                        # VLR
+    calldll MEMORY_FILE10 "nonary_calculate_key" "tcc" KEY "ZeroEscapeTNG"
+endif
+
+math SIZE = 0x20
+math RET = 0
+callfunction SET_KEY 1
+log MEMORY_FILE 0 SIZE
+
+idstring MEMORY_FILE "bin."
+get OFFSET1 long MEMORY_FILE
+get OFFSET2 long MEMORY_FILE
+get OFFSET3 longlong MEMORY_FILE
+get OFFSET4 longlong MEMORY_FILE    # OFFSET3 is the same of OFFSET4
+
+math OFFSET = OFFSET2
+xmath SIZE "OFFSET4 - OFFSET"
+math RET = OFFSET
+callfunction SET_KEY 1
+log MEMORY_FILE OFFSET SIZE
+
+get OFFSET long MEMORY_FILE
+get FILES long MEMORY_FILE
+goto OFFSET MEMORY_FILE
+for i = 0 < FILES
+    get OFFSET longlong MEMORY_FILE
+    get KEY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get XSIZE long MEMORY_FILE  # there are no archives with this field, just invented by me
+    get ID long MEMORY_FILE
+    get FLAGS long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+
+    math RET = 0
+    callfunction SET_KEY 1
+    math OFFSET + OFFSET4
+    if XSIZE == 0
+        log "" OFFSET SIZE
+    else
+        clog "" OFFSET SIZE XSIZE
+    endif
+next i
+
+startfunction SET_KEY
+    set XOR_KEY alloc SIZE
+    calldll MEMORY_FILE10 "nonary_crypt" "tcc" RET XOR_KEY SIZE KEY RET
+    encryption xor XOR_KEY "" 0 SIZE
+endfunction

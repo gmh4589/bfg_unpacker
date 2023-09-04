@@ -1,0 +1,12 @@
+# Attack of the 50ft Robot
+
+idstring "50FPACK"
+goto 12
+get FILES long
+goto 0x24
+for i = 0 < FILES
+    getdstring NAME 0x100
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

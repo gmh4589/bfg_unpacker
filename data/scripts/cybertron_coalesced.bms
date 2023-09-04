@@ -1,0 +1,56 @@
+# Transformers: War for Cybertron coalesced.* decrypter (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math ENDIANESS = 0
+get TMP asize
+get LINES long
+if LINES u> TMP
+    endian big
+    math ENDIANESS = 1
+endif
+
+# thanx bacter
+encryption xor "as;dwepo2345098]qw]{}p2039458pseasdfzcvvp;aseiurwefsdcfszdcvn"
+
+log MEMORY_FILE 0 0
+append
+for i = 0 < LINES
+    get SIZE long
+    savepos OFFSET
+
+    if SIZE < 0
+        math SIZE ^= 0xffffffff
+        log MEMORY_FILE2 0 0
+        endian little
+        for j = 0 < SIZE
+            get DUMMY short
+            putvarchr MEMORY_FILE2 j DUMMY byte # yeah byte
+        next j
+        if ENDIANESS != 0
+            endian big
+        endif
+        log MEMORY_FILE 0 SIZE MEMORY_FILE2
+        math SIZE += 1
+        math SIZE *= 2
+    elif SIZE > 0
+        math SIZE -= 1
+        log MEMORY_FILE OFFSET SIZE
+        math SIZE += 1
+    endif
+
+    math OFFSET += SIZE
+    goto OFFSET
+
+    get SIZE asize MEMORY_FILE
+    putvarchr MEMORY_FILE SIZE 0x0a
+next i
+append
+
+get NAME basename
+get EXT extension
+string NAME += "_decrypt."
+string NAME += EXT
+encryption "" ""
+get SIZE asize MEMORY_FILE
+log NAME 0 SIZE MEMORY_FILE
+

@@ -1,0 +1,29 @@
+# Ghostbusters The Video Game Remastered
+
+idstring "POD6"
+get FILES long
+get VER long    # 1000
+get INFO_OFF long
+get NAMES_SIZE long
+goto INFO_OFF
+xmath NAMES_OFF "INFO_OFF + ((4+4+4+4+4+4) * FILES)"
+for i = 0 < FILES
+    get NAME_OFF long
+    get ZSIZE long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+    get ZERO long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    if FLAGS & 8
+        clog NAME OFFSET ZSIZE SIZE
+    else
+        log NAME OFFSET ZSIZE
+    endif
+next i

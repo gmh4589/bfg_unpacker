@@ -1,0 +1,39 @@
+# Project Zero / Fatal Frame 2 IMG_DB.BIN
+
+#math file_ext_tbl   = 0x1ffb00 # useless
+
+math cd_dat_tbl     = 0x1F35F8
+math FILES          = 0x1068
+open FDSE "SLPS_253.03" 1 EXISTS
+
+if EXISTS == 0
+math cd_dat_tbl     = 0x1FB7F8
+math FILES          = 4491
+open FDSE "SLES_523.84" 1 EXISTS
+endif
+
+if EXISTS == 0
+    print "Error: your version of the game is not supported"
+    cleanexit
+endif
+
+goto cd_dat_tbl 1
+for i = 0 < FILES
+    get OFFSET long 1
+    get XSIZE long 1
+    get SIZE long 1
+
+    xmath FLAGS "OFFSET & 3"
+    math OFFSET u>> 2
+    math OFFSET * 0x800
+    if FLAGS == 2
+        string NAME p "%d." i
+        log NAME OFFSET SIZE
+    elif FLAGS == 3
+        string NAME p "compressed/%d.LESS" i
+        log NAME OFFSET SIZE
+        #clog "" OFFSET SIZE XSIZE
+    endif
+next i
+
+print "\nUse the following script on the compressed files:\n\n  http://aluigi.org/bms/deless.bms"

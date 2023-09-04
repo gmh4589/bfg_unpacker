@@ -1,0 +1,20 @@
+get DIC_SIZE asize
+math DIC_SIZE - 0x28
+for OFFSET = 0 < DIC_SIZE
+    getdstring DUMMY 0x34
+    getdstring PS2_SIGN 4
+    getdstring DUMMY 0x10
+    get NAME string
+    padding 4
+    getdstring DUMMY 0xc
+    get NAME2 string
+    padding 4
+    getdstring DUMMY 0x4
+    get SIZE long
+    getdstring DUMMY 0x8
+    savepos OFFSET
+    math SIZE - 4
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next

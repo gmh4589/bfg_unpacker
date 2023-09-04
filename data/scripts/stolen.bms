@@ -1,0 +1,21 @@
+# Stolen
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+for i = 0 < FILES
+    get SIZE long
+    putarray 0 i SIZE
+next i
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    putarray 1 i NAME
+next i
+savepos OFFSET
+padding 2048
+for i = 0 < FILES
+    getarray SIZE 0 i
+    getarray NAME 1 i
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

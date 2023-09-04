@@ -1,0 +1,18 @@
+# dreamcast.sty
+
+for
+    get DUMMY long
+    get FILES long
+    if FILES == 0
+        break
+    endif
+    for i = 0 < FILES
+        getdstring NAME 0x18
+        get SIZE long
+        get OFFSET long
+        math OFFSET * 0x800
+        log NAME OFFSET SIZE
+    next i
+    get DUMMY long
+    getdstring NAME 0x1c
+next

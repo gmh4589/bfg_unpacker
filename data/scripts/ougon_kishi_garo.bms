@@ -1,0 +1,12 @@
+# Golden Knight Garo / Ougon Kishi Garo BIN
+
+idstring "PACK"
+get OFFSET long
+get FILES long
+goto OFFSET
+for i = 0 < FILES
+    getdstring NAME 0x38
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE
+next i

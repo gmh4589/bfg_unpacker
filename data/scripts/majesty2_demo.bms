@@ -1,0 +1,9 @@
+# Majesty 2 demo PAK->ZIP decrypter
+#   the retail game does NOT need this script because the (zip) files are NOT encrypted!
+# script for QuickBMS http://quickbms.aluigi.org
+
+encryption aes "\x10\x79\x93\xa2\xe1\x32\xef\xbb\xbf\xd1\x70\x6d\x86\x8e\xd7\x25"
+get SIZE asize
+get NAME basename
+string NAME += ".zip"
+log NAME 0 SIZE

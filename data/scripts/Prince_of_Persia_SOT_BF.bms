@@ -1,0 +1,21 @@
+# Prince of Persia SOT (BF)
+
+Get ST Long 0 ;
+Set STE Long ST ;
+Math STE += 4 ;
+For T = 0 To ST ;
+Get DOff Long 0 ;
+SavePos OffOff 0 ;
+Get Off Long 0 ;
+Math Off += STE ;
+SavePos SizeOff 0 ;
+Get Size Long 0 ;
+Get D Long 0 ;
+Get BS Long 0 ;
+GetDString FN BS 0 ;
+Log FN Off Size #OffOff SizeOff ;
+Math T -= 1 ;
+Math T += 20 ;
+Math T += BS ;
+Next T ;
+

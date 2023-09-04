@@ -1,0 +1,134 @@
+# The Adventures of Tintin / Ubisoft BBF (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math CHUNK_SIZE = 0x40000   # same for any version (both lzo and lzma)
+comtype lzo1x
+
+idstring "ABE"
+get DUMMY byte
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get NEXT long
+get DUMMY long
+get ROOT long
+get DUMMY long
+get DUMMY long  # packs?
+get FILES long
+do
+    goto NEXT
+    get FILES long
+    get PREV long
+    get NEXT long
+    for i = 0 < FILES
+        getdstring NAME 0x50
+        if NAME == ""
+            break   # in case the FILES calculation is wrong
+        endif
+        get ZERO long
+        if ZERO == 0xfafafafa
+            break
+        endif
+        get PREV_FILE long
+        get ZSIZE long
+        get TIMESTAMP longlong
+        get CRC long
+        get ZERO long
+        get OFFSET long
+        get FLAGS long  # like 0xa00 or 0
+        get SIZE long
+        getdstring DUMMY 0x50
+        string NAME R= "_" "/"
+        savepos TMP
+
+        if FLAGS == 0
+
+            log NAME OFFSET SIZE
+
+        else
+
+            goto OFFSET
+            get ZSIZE long
+            get SIZE long
+            get FLAGS long  # like 0xa00 or 0
+            get TEST long
+            math OFFSET += 0x20
+
+            if TEST == 3    # apparently this is correct
+                math SIZE = ZSIZE
+            endif
+            if SIZE == 0
+                math SIZE = ZSIZE   # just a test
+            endif
+            if SIZE != 0
+
+                if ZSIZE == SIZE
+
+                    goto OFFSET
+                    getdstring SIGN 4
+                    if SIGN == "LySE"
+                        math OFFSET += 0x14
+                        math SIZE   -= 0x14
+                    endif
+                    log NAME OFFSET SIZE
+
+                elif TEST == 0
+
+                    clog NAME OFFSET ZSIZE SIZE
+
+                else
+
+                    goto OFFSET
+                    if TEST >= 5    # it was 4 before but a sample doesn't have it, maybe 5 is correct?
+                    get DUMMY long  # 1
+                    endif
+                    get CHUNKS long
+                    for x = 0 < CHUNKS
+                        get ZSIZE[x] long
+                    next x
+
+                    log NAME 0 0
+                    append
+                    if TEST >= 6
+                        comtype lzma86dechead
+                        for x = 0 < CHUNKS
+                            get SIZE long
+                            get ZSIZE long
+                            savepos OFFSET
+                            clog NAME OFFSET ZSIZE SIZE
+                            goto ZSIZE 0 SEEK_CUR
+                        next x
+                    elif TEST >= 4
+                        comtype lzo1x
+                        for x = 0 < CHUNKS
+                            savepos OFFSET
+                            clog NAME OFFSET ZSIZE[x] CHUNK_SIZE
+                            goto ZSIZE[x] 0 SEEK_CUR
+                        next x
+                    endif
+                    append
+
+                    /*
+                    # this is the old code for reference
+                    # this TEST 4 is different than the one found in another sample for that DUMMY field, don't know why
+                    if TEST >= 4
+                        goto OFFSET
+                        get DUMMY long  # 1
+                        get NUM long
+                        xmath OFFSET "OFFSET + (4 + 4 + (NUM * 4))"
+                        xmath ZSIZE  "ZSIZE  - (4 + 4 + (NUM * 4))"
+                    endif
+                    clog NAME OFFSET ZSIZE SIZE
+                    */
+
+                endif
+            endif
+        endif
+        goto TMP
+    next i
+    if NEXT == 0xaaaaaaaa || NEXT == 0x7f7f7f7f
+        math NEXT = 0xffffffff
+    endif
+while NEXT != 0xffffffff

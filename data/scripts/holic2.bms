@@ -1,0 +1,31 @@
+# Holic 2 Online
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DIR\x1a"
+goto 12
+get TOTAL_SIZE long
+get INFO_OFFSET long
+get TOTAL_SIZE long
+get DUMMY long
+get FILES long
+
+math INFO_OFFSET += 0x1000
+goto INFO_OFFSET
+
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    get SIZE long
+    get NAME string
+
+    savepos TMP_OFFSET  # horrible relative padding
+    math TMP_OFFSET -= INFO_OFFSET
+    math TMP_OFFSET %= 4;
+    if TMP_OFFSET > 0
+        set TMPSZ long 4
+        math TMPSZ -= TMP_OFFSET
+        getdstring DUMMY TMPSZ
+    endif
+
+    log NAME OFFSET SIZE
+next i

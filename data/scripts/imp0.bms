@@ -1,0 +1,157 @@
+# IMP archives - Crusty Demons / Crash 'n' Burn (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.10 -9"   # -9 is necessary because String X performs badly
+open FDDE "imp" 1
+idstring 1 "iMp0"
+
+open FDDE "bin" 0 EXISTS
+if EXISTS != 0
+
+    get BIN_SIZE asize
+    get VER1 short
+    get VER2 short
+    set NAME string ""
+    callfunction EXTRACT_BIN
+
+else
+
+    open FDDE "xml"
+    set PATH string ""
+    for
+        get TMP line
+        if TMP & "<Directory"
+            string RET X TMP
+        elif TMP & "<File"
+            string RET X TMP
+
+            # Name, Offset, CompressedSize, Compression, Path, FullSize
+            string NAME p "%s/%s" PATH NAME
+            math ZSIZE = CompressedSize
+            math SIZE  = FullSize
+            set ZIP string COMPRESSION
+
+            callfunction EXTRACT_FILE 1
+        endif
+    next
+
+endif
+
+startfunction EXTRACT_FILE
+    if ZIP == "none"
+        log NAME OFFSET ZSIZE 1
+    else
+        if ZIP == "lzss"
+            comtype lzss0
+        else
+            print "Error: unknown compression algorithm %ZIP%, contact me"
+            cleanexit
+        endif
+        goto OFFSET 1
+        get DUMMY long 1
+        get DUMMY long 1    # 1
+        get SIZE long 1
+        savepos OFFSET 1
+        math ZSIZE - 12
+        clog NAME OFFSET ZSIZE SIZE 1
+    endif
+endfunction
+
+startfunction EXTRACT_BIN
+    string PATH + NAME
+    string PATH + /
+    do
+        math MAX_IDX = -1
+        get SIGN long
+        if SIGN == 0xcdab0df0
+            if VER2 == 2    # VER1 == 0x40
+                math ENTRY_SIZE = -1
+            else
+                get ENTRY_SIZE long
+            endif
+            savepos ENTRY_OFF
+            get ENTRY_TYPE long
+
+            if ENTRY_TYPE == 0x4939a99a
+                # "Root"
+                get DUMMY long
+                get VER float
+                callfunction EXTRACT_BIN
+
+            elif ENTRY_TYPE == 0x883f44f4
+                # "meta"
+                callfunction GET_ELEMENTS 1
+
+            elif ENTRY_TYPE == 0x3b763986
+                # "Directory"
+                math MAX_IDX = 2
+                callfunction GET_ELEMENTS 1
+                callfunction EXTRACT_BIN
+
+            elif ENTRY_TYPE == 0xd35266d1
+                # "File"
+                callfunction GET_ELEMENTS 1
+                string NAME p "%s/%s" PATH NAME
+                callfunction EXTRACT_FILE 1
+
+            else
+                print "Error: unknown entry type %ENTRY_TYPE|x%, contact me"
+                cleanexit
+            endif
+
+            if ENTRY_SIZE >= 0
+                math ENTRY_OFF + ENTRY_SIZE
+                goto ENTRY_OFF
+            endif
+        endif
+        savepos TMP
+        if TMP >= BIN_SIZE
+            math SIGN = 0xbadcadde
+        endif
+    while SIGN != 0xbadcadde
+endfunction
+
+startfunction GET_ELEMENTS
+    math IDX = 0
+    do
+        get TYPE long
+        if TYPE == 0xbadcadde
+        elif TYPE == 0x01ee2ec7 # "Name"
+            callfunction GET_STRING 1
+            set NAME string STR
+        elif TYPE == 0x5499dbce # "Path"
+            callfunction GET_STRING 1
+            set PATH string STR
+        elif TYPE == 0xa1593019 # "Offset"
+            get OFFSET longlong
+        elif TYPE == 0x2beab2cb # "CompressedSize"
+            get ZSIZE longlong
+        elif TYPE == 0x111d987d # "Compression"
+            callfunction GET_STRING 1
+            set ZIP string STR
+        elif TYPE == 0x3a8274cc # "Filename"
+            callfunction GET_STRING 1
+        elif TYPE == 0xb3cd22be # "HashedNames"
+            callfunction GET_STRING 1
+        else
+            print "Error: unknown hash value %TYPE|x%, contact me"
+            cleanexit
+        endif
+        math IDX + 1
+        if IDX == MAX_IDX
+            math TYPE = 0xbadcadde
+        endif
+    while TYPE != 0xbadcadde
+endfunction
+
+startfunction GET_STRING
+    if ENTRY_SIZE < 0   # or VER2 == 2
+        get STRSZ short
+    else
+        get STRSZ long
+    endif
+    getdstring STR STRSZ
+    if ENTRY_SIZE >= 0
+        padding 4
+    endif
+endfunction

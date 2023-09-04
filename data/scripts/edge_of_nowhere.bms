@@ -1,0 +1,155 @@
+# Edge of Nowhere (script 0.1a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+# better to keep it disabled at the moment, it's not very useful
+math PARSE_DAT1 = 0
+
+math SIGN_TOC   = 0x77af12af
+math SIGN_DAG   = 0x891f77af
+math SIGN_LZ4   = 0x50c874bf
+math SIGN_DAT1  = 0x44415431
+
+comtype zlib_noerror    # otherwise it gives error
+
+get SIGN long
+if SIGN == SIGN_DAT1
+    get SIZE asize
+    log MEMORY_FILE 0 SIZE
+    idstring MEMORY_FILE "1TAD"
+    callfunction EXTRACT_DAT1 1
+    cleanexit
+elif SIGN == SIGN_DAG
+    # currently useless! the names reported here are 1/4th of the real files
+    get SIZE long
+    get ZSIZE long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+    idstring MEMORY_FILE "1TAD"
+    callfunction EXTRACT_DAT1 1
+    cleanexit
+endif
+goto 0
+
+    # TOC #
+
+get NAME basename
+if NAME == "toc" || NAME & "toc_"
+else
+    open FDSE "TOC"
+endif
+get DUMMY long  # SIGN_TOC
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+idstring MEMORY_FILE "1TAD"
+callfunction GET_ENTRY 1
+math ENTRIES = SIZE
+for i = 0 < ENTRIES
+    callfunction GET_ENTRY 1
+    putarray 10 i OFFSET
+    putarray 11 i SIZE
+next i
+
+getarray OFFSET 10 0
+getarray PACKS  11 0
+math PACKS / 0x18
+goto OFFSET MEMORY_FILE
+for i = 0 < PACKS
+    get ZERO long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    getdstring NAME 8 MEMORY_FILE
+    getdstring NAME2 8 MEMORY_FILE
+    putarray 12 i NAME
+next i
+
+getarray OFFSET 10 2
+getarray SIZES  11 2
+math SIZES / 12
+goto OFFSET MEMORY_FILE
+for i = 0 < SIZES
+    get IDXS long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get IDX long MEMORY_FILE
+    putarray 0 i SIZE
+    putarray 1 i IDX
+    putarray 2 i IDXS
+next i
+
+getarray OFFSET 10 4
+getarray FILES  11 4
+math FILES / 8
+goto OFFSET MEMORY_FILE
+for i = 0 < FILES
+    get PACK_NUM long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    putarray 3 i PACK_NUM
+    putarray 4 i OFFSET
+next i
+
+    # g00s000/1/2 #
+
+comtype lz4
+
+math LAST_PACK_NUM = -1
+for i = 0 < SIZES
+    getarray SIZE 0 i
+    getarray IDX  1 i
+    getarray IDXS 2 i
+    for x = 0 < IDXS
+        getarray PACK_NUM 3 IDX
+        getarray OFFSET   4 IDX
+        math IDX + 1
+        if LAST_PACK_NUM != PACK_NUM
+            math LAST_PACK_NUM = PACK_NUM
+            getarray PACK_NAME 12 PACK_NUM
+            open FDSE PACK_NAME
+        endif
+
+        # collect the files for parsing them later
+        goto OFFSET
+        get SIGN long
+        if SIGN == SIGN_LZ4
+            math XSIZE = 0
+            for z = 0 < 8
+                get TMP long
+                math XSIZE + TMP
+            next z
+            math OFFSET + 0x24
+            math SIZE   - 0x24
+            clog MEMORY_FILE OFFSET SIZE XSIZE
+        else
+            log MEMORY_FILE OFFSET SIZE
+        endif
+
+        # parse the files (optional)
+        get SIZE asize MEMORY_FILE
+        if PARSE_DAT1 != 0
+            get SIGN long MEMORY_FILE
+            if SIGN == SIGN_DAT1
+                callfunction EXTRACT_DAT1 1
+            else
+                log "" 0 SIZE MEMORY_FILE
+            endif
+        else
+            log "" 0 SIZE MEMORY_FILE
+        endif
+
+    next x
+next i
+
+startfunction EXTRACT_DAT1
+    callfunction GET_ENTRY 1
+    math ENTRIES = SIZE
+    for z = 0 < ENTRIES
+        callfunction GET_ENTRY 1
+        log "" OFFSET SIZE MEMORY_FILE
+    next z
+endfunction
+
+startfunction GET_ENTRY
+    get DUMMY long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+endfunction

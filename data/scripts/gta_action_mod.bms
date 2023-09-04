@@ -1,0 +1,46 @@
+# Gta-Action Mod Pack (GAMI GAMP)
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype unzip_dynamic   # automatic decompression if needed
+idstring "VER2"
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    getdstring NAME 0x18
+    math OFFSET * 0x800
+    math SIZE   * 0x800
+    if NAME == "modpack.ini"
+        callfunction DUMP_INI
+    else
+        clog NAME OFFSET SIZE SIZE
+    endif
+next i
+
+startfunction DUMP_INI
+    set KEY binary "_\0_\0_\0W\0u\0R\0s\0T\0W\0A\0S\0S\0E\0R\0_\0/\0/\0_\0g\0t\0a\0_\0a\0c\0t\0i\0o\0n\0_\0\xd6\0\xb5\0" # "___WuRsTWASSER_//_gta_action_"
+    math KEYSZ = 0x3e
+
+    log MEMORY_FILE OFFSET SIZE
+
+    math j = 0
+    for i = 0 < SIZE
+        getvarchr TMP2 KEY j
+
+        getvarchr TMP MEMORY_FILE i
+        xmath TMP "TMP ^ TMP2 ^ (TMP2 * j)"
+        putvarchr MEMORY_FILE i TMP
+
+        xmath z "j + 1"
+        if z >= KEYSZ
+            math z = 1
+        endif
+
+        getvarchr TMP3 KEY z
+        math TMP2 + TMP3
+        putvarchr KEY j TMP2
+
+        math j = z
+    next i
+    clog NAME 0 SIZE SIZE MEMORY_FILE
+endfunction

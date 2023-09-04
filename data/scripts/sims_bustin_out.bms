@@ -1,0 +1,15 @@
+# The Sims Bustin' Out (QUICKDAT.ARC) (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET long
+goto OFFSET
+get FILES long
+endian guess FILES
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get NAME string
+    get TSTAMP longlong
+    log NAME OFFSET SIZE
+next i

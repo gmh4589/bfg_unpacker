@@ -1,0 +1,18 @@
+# Megaman X4
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FILES long
+get ARC_SIZE long
+for i = 0 < FILES
+    get DUMMY long
+    get SIZE long
+    putarray 0 i SIZE
+next i
+padding 0x800
+savepos OFFSET
+for i = 0 < FILES
+    getarray SIZE 0 i
+    log "" OFFSET SIZE
+    math OFFSET + SIZE
+    math OFFSET x 0x800
+next i

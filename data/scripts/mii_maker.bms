@@ -1,0 +1,24 @@
+# Mii Maker (Wii U)
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+idstring MEMORY_FILE "SA01"
+get FILES long MEMORY_FILE
+get BASE_OFF long MEMORY_FILE
+for i = 0 < FILES
+    get OFFSET[i] long MEMORY_FILE
+    math OFFSET[i] + BASE_OFF
+next i
+for i = 0 < FILES
+    get SIZE[i] long MEMORY_FILE
+next i
+for i = 0 < FILES
+    getdstring NAME 0x80 MEMORY_FILE
+    log NAME OFFSET[i] SIZE[i] MEMORY_FILE
+next i

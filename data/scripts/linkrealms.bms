@@ -1,0 +1,17 @@
+# Linkrealms
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "idx"
+open FDDE "pak" 1
+
+get FILES asize
+math FILES / 0xac
+for i = 0 < FILES
+    get NAMESZ byte
+    getdstring NAME 0xa3
+    putvarchr NAME NAMESZ 0
+    get OFFSET long
+    get SIZE long
+    log NAME OFFSET SIZE 1
+next i
+

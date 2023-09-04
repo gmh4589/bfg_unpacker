@@ -1,0 +1,15 @@
+# Cannon Fodder 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SFKP"
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+    getdstring NAME 240
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i

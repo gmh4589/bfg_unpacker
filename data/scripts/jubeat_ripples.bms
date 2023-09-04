@@ -1,0 +1,82 @@
+# Jubeat Ripples (script 0.2)
+#   The script works with:
+#   - the PAK archives (all the info are in packinfo.bin)
+#   - the tex_*.bin files
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype lzss "12 4 2 2 0"   # lzss 0x00
+
+get EXT extension
+if EXT == "pak"
+    open FDSE "packinfo.bin"
+endif
+
+getdstring SIGN 4
+if SIGN == "PXET"   # "TEXP"
+
+    get DUMMY long
+    get DUMMY long
+    get BIN_SIZE long
+    get DUMMY long
+    get FILES long #???
+    get DUMMY long
+    get BASE_OFF long
+    goto 0x34
+    get NAME_OFF long
+    goto NAME_OFF
+    idstring "PMAN"
+    get DUMMY long
+    get DUMMY long
+    get DUMMY long
+    get FILES long
+    get DUMMY long
+    get DUMMY long
+    for i = 0 < FILES
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    next i
+    for i = 0 < FILES
+        get NAME string
+        putarray 0 i NAME
+    next i
+    padding 4
+    for i = 0 < FILES
+        get DUMMY long
+        get SIZE long
+        get OFFSET long
+
+        savepos TMP
+        goto OFFSET
+        endian big
+        get SIZE long
+        get ZSIZE long
+        savepos OFFSET
+        endian little
+        goto TMP
+
+        getarray NAME 0 i
+        clog NAME OFFSET ZSIZE SIZE
+    next i
+
+else
+
+    get DUMMY long
+    get FILES long
+    math FILES /= 0x20
+    get DUMMY long
+    for i = 0 < FILES
+        getdstring HASH 0x10
+        get NAME_CRC long
+        get DUMMY short
+        get PACK short
+        get OFFSET long
+        get SIZE long
+        math TMP = PACK
+        math TMP /= 30
+        string PACK_NAME p= "d%03d/pack%04d.pak" TMP PACK
+        open FDSE PACK_NAME 1
+        log "" OFFSET SIZE 1
+    next i
+
+endif

@@ -1,0 +1,16 @@
+<bms games="'Sim Theme Park', 'Dungeon Keeper 2', 'Populus 3', 'Theme Park World'" platforms="'PC'" ext="SDT">
+Get FC Long 0 ;
+Get D Long 0 ;
+For TE = 1 To FC ;
+SavePos FS 0 ;
+GoTo D 0 ;
+Get DD Long 0 ;
+Get FSI Long 0 ;
+GetDString FN 16 0 ;
+SavePos FO 0 ;
+Math FO += 16 ;
+Log FN FO FSI 0 0 ;
+GoTo FS 0 ;
+Get D Long 0 ;
+Next TE ;
+</bms>

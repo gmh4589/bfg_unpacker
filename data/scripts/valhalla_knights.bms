@@ -1,0 +1,10 @@
+# Valhalla Knights 3
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "GDAT"
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next i

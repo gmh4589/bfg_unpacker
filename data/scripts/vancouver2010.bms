@@ -1,0 +1,27 @@
+set BLAH string "0" # 000 is converted in 0, that's the reason
+string BLAH += "0"
+string BLAH += "0"
+open FDDE "bin" 0
+open FDDE BLAH 1
+
+get DUMMY long
+get BIN_SIZE long
+get FILES long
+get DUMMY long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY1 long
+    get DUMMY2 long
+    get DUMMY3 long
+    get DUMMY4 long
+    get SIZE long
+    get DUMMY6 long
+    get DUMMY7 long
+    get OFFSET long
+    get OFFSET64 long
+    if OFFSET64 != 0
+        print "Error: QuickBMS doesn't support 64bit numbers"
+        cleanexit
+    endif
+    log "" OFFSET SIZE 1
+next i

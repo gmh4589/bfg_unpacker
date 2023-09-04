@@ -1,0 +1,23 @@
+# Gameloft GLA
+# script for QuickBMS http://quickbms.aluigi.org
+
+#endian big
+get DUMMY long
+endian guess DUMMY
+get DATA_OFF long
+get NAMES_OFF long
+get FILES long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    get ZERO long
+
+    savepos TMP
+    math NAME_OFF + NAMES_OFF
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i

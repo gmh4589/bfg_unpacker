@@ -1,0 +1,78 @@
+# Devil's Third .op360
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "OBPK\1"
+get DUMMY1 long
+endian guess DUMMY1
+get DUMMY2 long
+get FILES long
+get DUMMY4 long
+get INFO_OFF long
+get INFO_SIZE long
+get DUMMY7 long
+get DUMMY8 long
+
+goto INFO_OFF
+get NUM long
+for i = 0 < NUM
+    callfunction GET_NAME 1
+next i
+get NAMES long
+for i = 0 < NAMES
+    callfunction GET_NAME 1
+    putarray 1 i NAME
+next i
+
+get FOLDERS long
+for i = 0 < FOLDERS
+    get NAME_HASH longlong
+    get NUM long
+next i
+
+math OFFSET = 0
+for i = 0 < FILES
+    callfunction GET_NAME 1
+    get DUMMY1 long # 1
+    get DUMMY2 byte # 0x5c
+    get SIZE long
+    get DUMMY4 long # -1
+    get HEAD_SIZE long
+    get DATA_SIZE long
+    get ZERO byte
+
+    get DUMMYSZ long
+    getdstring DUMMY DUMMYSZ
+    set EXT string ""
+    if DUMMYSZ > 4
+        set EXT string DUMMY
+        putvarchr EXT 3 0
+    endif
+    string NAME + "."
+    string NAME + EXT
+
+    putarray 2 i OFFSET
+    putarray 3 i SIZE
+    putarray 4 i NAME
+    math OFFSET + SIZE
+next i
+
+math INFO_OFF + INFO_SIZE
+goto INFO_OFF
+padding 0x1000
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+for i = 0 < FILES
+    getarray OFFSET 2 i
+    getarray SIZE   3 i
+    getarray NAME   4 i
+    log NAME OFFSET SIZE MEMORY_FILE
+next i
+
+startfunction GET_NAME
+    get NAMESZ long
+    getdstring NAME NAMESZ
+endfunction

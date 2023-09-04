@@ -1,0 +1,14 @@
+<bms games="'TOCA Touring Car Championship'" platforms="'PC'" ext="BFP">
+ImpType SFileSize ;
+Get FILENUM Long 0 ;
+Get DATASTRT Long 0 ;
+Get FOOBAR Long 0 ;
+For X = 1 To FILENUM ;
+GetDString FNAME 16 0 ;
+Get FOFFSET Long 0 ;
+Math FOFFSET += DATASTRT ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+Log FNAME FOFFSET FSIZE 0 FSIZEX ;
+Next X ;
+</bms>

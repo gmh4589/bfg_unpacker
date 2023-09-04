@@ -1,0 +1,15 @@
+# Rocket Power Team Rocket Rescue
+
+get ZERO long
+get BASE_OFF long
+get ZERO long
+for i = 0
+    get CRC long
+    if CRC == 0
+        break
+    endif
+    get SIZE long
+    get OFFSET long
+    math OFFSET + BASE_OFF
+    log "" OFFSET SIZE
+next i

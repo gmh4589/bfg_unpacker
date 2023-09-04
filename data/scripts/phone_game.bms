@@ -1,0 +1,34 @@
+# Phone Game (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "kcap"
+get VER long
+get DUMMY long
+get FILES short
+get ARCHIVE_SIZE long
+getdstring ZEROES 0x12
+math BASE_OFF = 0x44002
+for i = 0 < FILES
+    get DUMMY longlong
+    get SIZE long
+    get OFFSET long
+    get TYPE byte
+
+    math OFFSET + BASE_OFF
+    savepos TMP
+    goto OFFSET
+
+    get NAMESZ byte
+    get ZSIZE long
+    get SIZE long
+    getdstring NAME NAMESZ
+    savepos OFFSET
+
+    if SIZE == ZSIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+
+    goto TMP
+next i

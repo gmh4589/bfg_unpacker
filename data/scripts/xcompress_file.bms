@@ -1,0 +1,56 @@
+# Xbox360 XCOMPRESS_FILE (script 0.1.2)
+#   use xbdecompress.exe for uncompressing these files!
+#   this script is only for fun and documentation
+#   "\x0f\xf5\x12\xee"
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+get Identifier long             # XCOMPRESS_FILE_HEADER
+get Version short
+get Reserved short
+
+if Identifier == 0x0FF512ED     # XCOMPRESS_FILE_IDENTIFIER_LZXTDECODE
+    get SIZE asize
+    get NAME basename
+    get EXT extension
+    string NAME += "_unpack."
+    string NAME += EXT
+    comtype XMemDecompress
+    clog NAME 0 SIZE SIZE
+    cleanexit
+elif Identifier == 0x0FF512EE   # XCOMPRESS_FILE_IDENTIFIER_LZXNATIVE
+    get ContextFlags long       # XCOMPRESS_FILE_HEADER_LZXNATIVE
+      get Flags long            # XMEMCODEC_PARAMETERS_LZX
+      get WindowSize long
+      get CompressionPartitionSize long
+    get UncompressedSizeHigh long
+    get UncompressedSizeLow long
+    get CompressedSizeHigh long
+    get CompressedSizeLow long
+    get UncompressedBlockSize long
+    get CompressedBlockSizeMax long
+else
+    cleanexit
+endif
+
+# here is needed to pass the WindowSize and CompressionPartitionSize parameters
+string ARGS p= "%d %d" WindowSize CompressionPartitionSize
+comtype XMemDecompress ARGS
+
+putvarchr MEMORY_FILE UncompressedSizeLow 0 # pre-allocate for speed
+log MEMORY_FILE 0 0 # init
+append
+for MYSIZE = 0 < UncompressedSizeLow
+    get CompressedBlockSize long
+    savepos OFFSET
+    clog MEMORY_FILE OFFSET CompressedBlockSize UncompressedBlockSize
+    math OFFSET += CompressedBlockSize
+    goto OFFSET
+    math MYSIZE += UncompressedBlockSize
+next
+append
+
+get NAME basename
+string NAME += ".unpacked"
+get MYSIZE asize MEMORY_FILE
+log NAME 0 MYSIZE MEMORY_FILE

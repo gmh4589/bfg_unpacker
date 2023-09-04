@@ -1,0 +1,15 @@
+<bms games="'Baldurs Gate', 'Baldurs Gate 2', 'Neverwinter Nights', 'Planetscape Torment', 'Star Wars: Knights Of The Old Republic 2'" platforms="'PC'" ext="BIF">
+IDString 0 BIFFV1 ;
+Get DUMMYL Int 0 ;
+SavePos FILESTART 0 ;
+Get FILECNTL Long 0 ;
+Math FILESTART += 16 ;
+Do ;
+GoTo FILESTART 0 ;
+Get FILEOFF Long 0 ;
+Get FILESIZE Long 0 ;
+Math FILESTART += 16 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math EXTRCNT += 1 ;
+While EXTRCNT <> FILECNTL ;
+</bms>

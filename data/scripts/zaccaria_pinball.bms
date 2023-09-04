@@ -1,0 +1,29 @@
+# Zaccaria Pinball ASK to ZIP decrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+set KEY binary "\x45\x23\x54\x27\x43\x74\x33\x28\x94\x18\x73\x82\x64\x12\x42\x93"
+
+set MEMORY_FILE10 string "
+    int tcc_shift(long long n, int s) {  //undefined symbol '__ashrdi3'
+        while(s--) n >>= 1;
+        return n;
+    }
+
+    void zaccaria_decrypt(int *key, unsigned char *data, int size) {
+        static const char   mask[] = {3,7,0,2,6,1,4,5};
+        for(int i = 0; i < size; i++) {
+            int n = key[(i >> 3) & 3] ^ (i >> 3);
+            n = (n >> 0x0c) ^ n;
+            n = (n << 0x19) ^ n;
+            n = (n >> 0x1b) ^ n;
+            data[i] ^= tcc_shift((long long)n * 0x2545F4914F6CDD1DLL, mask[i & 7] << 3);
+        }
+    }
+"
+
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+calldll MEMORY_FILE10 "zaccaria_decrypt" "tcc" RET KEY MEMORY_FILE SIZE
+get NAME basename
+string NAME + ".zip"
+log NAME 0 SIZE MEMORY_FILE

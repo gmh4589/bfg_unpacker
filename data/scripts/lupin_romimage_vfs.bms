@@ -1,0 +1,37 @@
+# Lupin the 3rd ROMIMAGE.VFS
+# script for QuickBMS http://quickbms.aluigi.org
+
+get OFFSET1 long
+get OFFSET2 long
+do
+    get NAME string
+while NAME != ""
+
+math OFFSET = OFFSET1
+callfunction EXTRACT 1
+
+math OFFSET = OFFSET2
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    goto OFFSET
+    set PATH string ""
+    for
+        for
+            savepos TMP_OFF
+            get NAME string
+            getvarchr TMP NAME 0
+            if TMP != '/'
+                break
+            endif
+            string PATH + NAME
+        next
+        if NAME == ""
+            break
+        endif
+        get SIZE long
+        get OFFSET long
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    next
+endfunction

@@ -1,0 +1,32 @@
+# Iron Man A2M
+#   no directory tree
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_SIZE long
+padding 0x800
+math FILES = INFO_SIZE
+math FILES / 0x1c
+for i = 0 < FILES
+    getdstring NAME 0x10
+    get TYPE long
+    get OFFSET long
+    get DUMMY long
+    putarray 0 i NAME
+    putarray 1 i OFFSET
+next i
+    get OFFSET asize
+        putarray 0 i ""
+        putarray 1 i OFFSET
+
+sortarray 1 1
+
+for i = 0 < FILES
+    getarray NAME   0 i
+    getarray OFFSET 1 i
+    math i + 1
+    getarray SIZE   1 i
+    math SIZE - OFFSET
+    if SIZE != 0
+        log NAME OFFSET SIZE
+    endif
+next

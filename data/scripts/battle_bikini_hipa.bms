@@ -1,0 +1,33 @@
+endian big
+idstring "HIPA"
+get ZERO long
+savepos OFFSET
+get SIZE asize
+math SIZE - OFFSET
+math LEVEL = 0
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    math LEVEL + 1
+    xmath END_OFFSET "OFFSET + SIZE"
+    for OFFSET = OFFSET != END_OFFSET
+        goto OFFSET
+        getdstring NAME 4
+        get SIZE long
+        savepos OFFSET
+
+        if LEVEL <= 1
+            callfunction EXTRACT
+        else
+            string FNAME p "%s%s." PATH NAME
+            log FNAME OFFSET SIZE
+        endif
+
+        math OFFSET + SIZE
+    next
+endfunction

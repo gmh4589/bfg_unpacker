@@ -1,0 +1,35 @@
+# Spider-Man (2002) PS2 ST2
+# script for QuickBMS http://quickbms.aluigi.org
+
+get INFO_OFF long
+get DUMMY long
+get FILES long
+get STRUCT_SIZE long
+get OFFSET long
+get SIZE long
+get OFFSET2 long
+get DUMMY long  # 3
+get OFFSET3 long
+get SIZE3 long
+get DUMMY long  # 2
+get DUMMY long
+get ZSIZE long
+get ZSIZE3 long
+if ZSIZE == SIZE
+    log MEMORY_FILE OFFSET SIZE
+else
+    clog MEMORY_FILE OFFSET ZSIZE SIZE
+endif
+if ZSIZE3 == SIZE3
+    log "" OFFSET3 SIZE3
+else
+    clog "" OFFSET3 ZSIZE3 SIZE3
+endif
+for i = 0 < FILES
+    goto INFO_OFF
+    getdstring DUMMY 0x20
+    get OFFSET long
+    get SIZE long
+    math INFO_OFF + STRUCT_SIZE
+    log "" OFFSET SIZE MEMORY_FILE
+next i

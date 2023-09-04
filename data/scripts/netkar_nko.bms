@@ -1,0 +1,141 @@
+# Netkar Dracula 3D Engine KOF/NKO parser (script 0.1.1)
+#   note that this script does nothing because there is nothing to extracts,
+#   it's only for documentation
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "sc666"
+get KOF_VERSION long
+if KOF_VERSION < 0x14
+    print "unsupported version"
+    cleanexit
+endif
+getdstring DUMMY 12
+getdstring DUMMY 12
+getdstring DUMMY 12
+get FILES long  # it was DUMMY before, it's FILES for version 0x27
+if KOF_VERSION >= 0x27
+    for i = 0 < FILES
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+        goto SIZE 0 SEEK_CUR
+    next i
+    cleanexit   # the rest is a mess
+endif
+get MATERIALS long  # loading materials...
+for x = 0 < MATERIALS
+    getdstring DUMMY 16
+    getdstring DUMMY 16
+    getdstring DUMMY 16
+    getdstring DUMMY 16
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY byte
+    get DUMMY long
+    get DUMMY byte
+    get DUMMY byte
+    get DUMMY byte
+    for i = 0 < 8
+        get DUMMY long
+        if DUMMY != 0
+            get DUMMY byte
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            # msgFilter
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get DUMMY long
+            get NAMESZ long
+            getdstring NAME NAMESZ
+        endif
+    next i
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get NUM long
+    for i = 0 < NUM
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get DUMMY long
+    next i
+next x
+
+get DUMMY long
+get FILES long
+for z = 0 < FILES
+    get DUMMY long
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    getdstring DUMMY 12 # uffa
+    getdstring DUMMY 12
+    getdstring DUMMY 12
+    get DUMMY long
+    get FRAMES long     # loading frames
+    for x = 0 < FRAMES
+        get DUMMY long
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        get NUM long
+        for i = 0 < NUM
+            getdstring DUMMY 12
+            getdstring DUMMY 12
+            getdstring DUMMY 12
+            getdstring DUMMY 12
+            getdstring DUMMY 8
+            getdstring DUMMY 8
+        next i
+        get NUM long
+        for i = 0 < NUM
+            getdstring DUMMY 6
+            getdstring DUMMY 6
+            getdstring DUMMY 12
+            getdstring DUMMY 12
+            getdstring DUMMY 12
+        next i
+        get DUMMY byte
+        if KOF_VERSION >= 0x19
+            get DUMMY byte
+        endif
+        if KOF_VERSION >= 0x1d
+            get DUMMY long
+            get DUMMY long
+        endif
+        if KOF_VERSION >= 0x17
+            get DUMMY17 long
+            if DUMMY17 != 0
+                get NAMESZ long
+                getdstring NAME NAMESZ
+                get DUMMY long
+            endif
+        endif
+        get DUMMY long
+    next x
+next z
+
+if KOF_VERSION >= 0x15
+    get CAMERAS long
+    for z = 0 < CAMERAS # cameras
+        get NAMESZ long
+        getdstring NAME NAMESZ
+        getdstring DUMMY 12
+        getdstring DUMMY 12
+        getdstring DUMMY 12
+        get DUMMY byte
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+        get DUMMY long
+    next z
+endif

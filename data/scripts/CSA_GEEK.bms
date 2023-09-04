@@ -1,0 +1,15 @@
+<bms games="'FBI Hostage Rescue'" platforms="'PC'" ext="CSA">
+ImpType Standard ;
+IDString 0 GEEK ;
+Set FOOBAR Long 16 ;
+GoTo FOOBAR 0 ;
+Get FILENUM Long 0 ;
+For X = 1 To FILENUM ;
+SavePos FOFFSETX 0 ;
+Get FOFFSET Long 0 ;
+SavePos FSIZEX 0 ;
+Get FSIZE Long 0 ;
+GetDString FNAME 128 0 ;
+Log FNAME FOFFSET FSIZE #FOFFSETX FSIZEX ;
+Next X ;
+</bms>

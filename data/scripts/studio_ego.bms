@@ -1,0 +1,73 @@
+# Studio e.go! games
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "PAK"
+get TMP byte
+get HEAD_SIZE long
+get FOLDERS long
+for i = 0 < FOLDERS
+    get SUB long
+    get LEVEL long
+    putarray 0 i SUB
+    putarray 1 i LEVEL
+next i
+get FILES long
+
+savepos INFO_OFF
+math NAMES_OFF = FILES
+math NAMES_OFF *= 0x10
+math NAMES_OFF += INFO_OFF
+
+goto NAMES_OFF
+for i = 0 < FOLDERS
+    getarray SUB 0 i
+    getarray LEVEL 1 i
+    if LEVEL < 0
+        set NAME string ""
+    else
+        get NAMESZ byte
+        getdstring NAME NAMESZ
+        putarray 4 LEVEL ""
+    endif
+    putarray 0 i SUB
+    putarray 1 i LEVEL
+    putarray 2 i NAME
+next i
+savepos NAMES_OFF
+
+set PATH string ""
+for i = 0 < FILES
+    for j = 0 < FOLDERS
+        getarray SUB   0 j
+        getarray LEVEL 1 j
+        getarray NAME  2 j
+        if i == SUB
+            if LEVEL < 0
+                set PATH string /
+            else
+                getarray PATH 4 LEVEL
+                string PATH += NAME
+                string PATH += /
+                math LEVEL += 1
+                putarray 4 LEVEL PATH
+            endif
+            break
+        endif
+    next j
+
+    goto INFO_OFF
+    get OFFSET long
+    get SIZE long
+    get DUMMY long  # 0x20
+    get TSTAMP long
+    savepos INFO_OFF
+
+    goto NAMES_OFF
+    get NAMESZ byte
+    getdstring NAME NAMESZ
+    savepos NAMES_OFF
+
+    set FNAME string PATH
+    string FNAME += NAME
+    log FNAME OFFSET SIZE
+next i

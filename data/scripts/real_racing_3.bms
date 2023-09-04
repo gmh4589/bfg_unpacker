@@ -1,0 +1,29 @@
+# Real Racing 3 (Z and BIN files)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+get EXT extension
+get NAME basename
+if EXT == "bin"
+    set EXT2 extension NAME
+    string NAME += "/*"
+    for OFFSET = 0 < FULLSIZE
+        goto OFFSET
+        get ZSIZE long
+        if EXT2 == "z"
+            math ZSIZE -= 4
+            get SIZE long
+            savepos OFFSET
+            clog NAME OFFSET ZSIZE SIZE
+        else
+            savepos OFFSET
+            log NAME OFFSET ZSIZE
+        endif
+        math OFFSET += ZSIZE
+    next
+elif EXT == "z"
+    get SIZE long
+    savepos OFFSET
+    xmath ZSIZE "FULLSIZE - OFFSET"
+    clog NAME OFFSET ZSIZE SIZE
+endif

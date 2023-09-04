@@ -1,0 +1,15 @@
+# Renegade Ops
+# script for QuickBMS http://quickbms.aluigi.org
+
+get ALIGN long
+get FULLSIZE asize
+for
+    savepos TMP
+    if TMP >= FULLSIZE
+        cleanexit
+    endif
+    get CRC long
+    get OFFSET long
+    get SIZE long
+    log "" OFFSET SIZE
+next

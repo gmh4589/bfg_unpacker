@@ -1,0 +1,30 @@
+# Ghost Recon 2001 PS2 PAK
+
+get PAK_SIZE asize
+for OFFSET = 0 != PAK_SIZE
+    get DUMMY long
+    if DUMMY != 2   # last is 0x63
+        break
+    endif
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    get TYPE long
+    get DUMMY long
+    get DUMMY long
+    string NAME + /
+    if TYPE == 0
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+            goto OFFSET
+    else    # 0x13
+        for x = 0 < 2
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+            goto OFFSET
+        next x
+    endif
+next

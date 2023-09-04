@@ -1,0 +1,29 @@
+# Blade Arcus from Shining RARC
+
+idstring "RARC1.00"
+get RARC_size longlong
+get FILES long
+get DUMMY long  # 0x20
+get DUMMY long  # 0x40
+get ZERO long
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+
+    if OFFSET != 0
+        savepos TMP_OFF
+        goto NAME_OFF
+        set NAME string
+        for x = 0
+            get TMP long
+            putvarchr NAME x TMP
+            if TMP == 0
+                break
+            endif
+        next x
+        goto TMP_OFF
+
+        log NAME OFFSET SIZE
+    endif
+next i

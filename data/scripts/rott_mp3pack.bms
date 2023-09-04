@@ -1,0 +1,18 @@
+# Rise of the Triad MP3PACK
+
+idstring "MP3PACK\0"
+get FILES long
+for i = 0 < FILES
+    getdstring DUMMY 0x16
+    get DUMMYSZ long
+    getdstring DUMMY DUMMYSZ
+    get NAMESZ long
+    getdstring NAME NAMESZ
+    string NAME > "."
+    string NAME + ".mp3"
+    get SIZE long
+    savepos OFFSET
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+    goto OFFSET
+next i

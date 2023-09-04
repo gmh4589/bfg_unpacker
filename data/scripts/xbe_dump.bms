@@ -1,0 +1,91 @@
+# Xbox XBE sections dumper
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "XBEH"
+getdstring SIGNATURE 256
+get BASE_ADDRESS long
+get SIZE_HEADERS long
+get SIZE_IMAGE long
+get SIZE_IMAGE_HEADER long
+get TSTAMP long
+get CERTIFICATE_ADDRESS long
+get SECTIONS long
+get SECTION_HEADERS long
+savepos XBE_MORE_STUFF
+
+# dump sections
+math SECTION_HEADERS -= BASE_ADDRESS
+goto SECTION_HEADERS
+for i = 0 < SECTIONS
+    get FLAGS long
+    get VIRTUAL_ADDRESS long
+    get VIRTUAL_SIZE long
+    get OFFSET long
+    get SIZE long
+    get NAME_OFF long
+    get NAME_REF long
+    get HEAD_ADDRESS long
+    get TAIL_ADDRESS long
+    getdstring DUMMY 20
+
+    savepos TMP
+    math NAME_OFF -= BASE_ADDRESS
+    goto NAME_OFF
+    get NAME string
+    goto TMP
+
+    log NAME OFFSET SIZE
+next i
+
+# not needed for dumping the sections, just the complete fields
+goto XBE_MORE_STUFF
+get FLAGS long
+get ENTRY_POINT long
+get TLSD_ADDRESS long
+get SIZE_STACK_COMMIT long
+get SIZE_HEAP_RESERVE long
+get SIZE_HEAP_COMMIT long
+get ORIGINAL_BASE_ADDRESS long
+get ORIGINAL_SIZE_IMAGE long
+get ORIGINAL_CHECKSUM long
+get ORIGINAL_TSTAMP long
+get PATH_ADDRESS long
+get FILENAME_ADDRESS long
+get UNICODE_FILENAME_ADDRESS long
+get KERNEL_ADDRESS long
+get NON_KERNEL_ADDRESS long
+get LIBRARIES long
+get LIBRARY_ADDRESS long
+get KERNEL_LIBRARY_ADDRESS long
+get XAPI_LIBRARY_ADDRESS long
+get LOGO_ADDRESS long
+get LOGO_SIZE long
+
+math CERTIFICATE_ADDRESS -= BASE_ADDRESS
+log "xbe_certificate" CERTIFICATE_ADDRESS CERTIFICATE_SIZE
+
+math LOGO_ADDRESS -= BASE_ADDRESS
+log "logo_bitmap" LOGO_ADDRESS LOGO_SIZE
+
+print "INFORMATION:"
+
+math PATH_ADDRESS -= BASE_ADDRESS
+goto PATH_ADDRESS
+get NAME string
+print "PATH %NAME%"
+
+math FILENAME_ADDRESS -= BASE_ADDRESS
+goto FILENAME_ADDRESS
+get NAME string
+print "NAME %NAME%"
+
+math LIBRARY_ADDRESS -= BASE_ADDRESS
+goto LIBRARY_ADDRESS
+for i = 0 < LIBRARIES
+    getdstring NAME 8
+    get MAJ_VER short
+    get MID_VER short
+    get MIN_VER short
+    get FLAGS short
+    print "LIBRARY %NAME% (%MAJ_VER%.%MID_VER%.%MIN_VER%)"
+next i

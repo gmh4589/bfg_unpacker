@@ -1,0 +1,161 @@
+# Zen Studio Pinball FX PXP (script 0.3.3)
+#   Zen Pinball
+#   Pinball FX2
+#   Pinball FX3
+#   CastleStorm
+#   Infinite Mini Golf
+#   Independence Day Resurgence
+#   Independence Day Battle Heroes
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.8.2"
+idstring "PX\x1a\xcd"
+get VER5 long
+if VER5 != 5    # used for archives, for example pxt have 0x10 and pxm have 0x20
+    print "Error: unsupported PX version %VER5%, only archives are supported"
+    cleanexit
+endif
+get VER long
+if VER <= 2 # FX2 says 1 and 2 while FX3 says 2 and 3... confusion
+    get FILES long
+    get SIZE long
+
+    if VER == 0
+        # SIZE is the offset of the first file
+        # please note that such offset may be even in the middle of file
+        goto -4 0 SEEK_CUR
+    endif
+
+    get TMP long
+    goto -4 0 SEEK_CUR
+    if TMP u>= 0x90000000
+        callfunction READ_TOC_XOR 1
+    else
+        savepos OFFSET
+        log MEMORY_FILE5 OFFSET SIZE
+    endif
+else
+    get SIZE longlong
+    getdstring DUMMY 32 # swap 32bit
+    get SIZE long
+    callfunction READ_TOC_XOR 1
+
+    math RAND1 = 0x9848804D
+    math RAND2 = 0x2200
+    for i = 0 < SIZE
+        callfunction NEXT_RAND 1
+        getvarchr TMP MEMORY_FILE5 i
+        xmath TMP "TMP ^ ((VALUE >> 16) ^ VALUE)"
+        putvarchr MEMORY_FILE5 i TMP
+    next i
+
+    getdstring ZERO 36 MEMORY_FILE5
+    get FILES long MEMORY_FILE5
+endif
+
+for i = 0 < FILES
+    get OFFSET long MEMORY_FILE5
+    get SIZE long MEMORY_FILE5
+    if VER == 0
+        get ZSIZE long MEMORY_FILE5
+        get FLAGS long MEMORY_FILE5
+        get NAMESZ byte MEMORY_FILE5
+        getdstring NAME NAMESZ MEMORY_FILE5
+    else
+        get FLAGS byte MEMORY_FILE5
+        get NAMESZ byte MEMORY_FILE5
+        getdstring NAME NAMESZ MEMORY_FILE5
+        padding 4 MEMORY_FILE5
+        get ZSIZE long MEMORY_FILE5
+    endif
+
+    if FLAGS == 0
+
+        log NAME OFFSET SIZE
+
+    elif VER == 0   # unfortunately this compression is unsupported, let's dump it as-is
+
+        string NAME p "_COMPRESSED_/%s" NAME
+        log NAME OFFSET ZSIZE
+
+    else    # 2 (chunk type <= 4) or 4 (chunk type 0xd and 0xe)
+
+        math LIMIT = OFFSET
+        math LIMIT + ZSIZE
+        putvarchr MEMORY_FILE SIZE 0
+        log MEMORY_FILE 0 0
+        append
+        for OFFSET = OFFSET != LIMIT
+            goto OFFSET
+            get CHUNK_TYPE byte
+            if VER == 0
+                get CHUNK_SIZE short
+            else
+                get CHUNK_SIZE threebyte
+            endif
+            if CHUNK_TYPE == 0
+                math CHUNK_ZSIZE = CHUNK_SIZE
+                math CHUNK_SIZE = 0
+            elif CHUNK_TYPE == 1
+                get CHUNK_ZSIZE short
+            elif CHUNK_TYPE == 2
+                get CHUNK_ZSIZE short
+            elif CHUNK_TYPE == 3
+                math CHUNK_ZSIZE = CHUNK_SIZE
+                math CHUNK_SIZE = 0x80000
+            elif CHUNK_TYPE == 4
+                get CHUNK_ZSIZE threebyte
+            elif CHUNK_TYPE == 0xd
+                math CHUNK_ZSIZE = CHUNK_SIZE
+                math CHUNK_SIZE = 0x10000
+            elif CHUNK_TYPE == 0xe
+                get CHUNK_ZSIZE threebyte
+            else
+                # 0x40 and 0x41 read the data from another input (dictionary?) but it's not implemented in the game
+                print "Error: unsupported CHUNK_TYPE %CHUNK_TYPE%. Contact me."
+                cleanexit
+            endif
+            if FLAGS & 0x80
+                if CHUNK_TYPE >= 3 && CHUNK_TYPE <= 0xe
+                    getdstring DUMMY 6
+                endif
+                get SOME_CRC long
+            endif
+            savepos OFFSET
+
+            if CHUNK_SIZE == 0
+                log MEMORY_FILE OFFSET CHUNK_ZSIZE
+            else
+                if VER == 0
+                    comtype ???
+                else
+                    comtype zenpxp CHUNK_TYPE
+                endif
+                clog MEMORY_FILE OFFSET CHUNK_ZSIZE CHUNK_SIZE
+            endif
+        next OFFSET + CHUNK_ZSIZE
+        append
+        log NAME 0 SIZE MEMORY_FILE
+
+    endif
+next i
+
+startfunction NEXT_RAND
+    xmath RAND1 "(((RAND1 << 0x12) ^ (RAND1 >> 7)) & 0x0007ffff) ^ (RAND1 << 0x12) ^ (RAND1 >> 0xd)"
+    xmath RAND2 "(((RAND2 >> 0x19) ^ (RAND2 << 2)) & 0x0000001f) ^ (RAND2 >> 0x1b) ^ (RAND2 << 2)"
+    math VALUE = RAND1
+    math VALUE ^ RAND2
+endfunction
+
+startfunction READ_TOC_XOR
+    get SIZE long   # it must be the same as the previous SIZE
+    get XSIZE long
+    get XSIZE2 long  # same as above, don't have samples with compressed info
+    get INFO_CRC_CRYPT long
+    get INFO_CRC long
+    math SIZE   ^ 0x903DEAEE
+    math XSIZE  ^ 0xF8CC486C
+    math XSIZE2 ^ 0x903917AF
+    savepos OFFSET
+    log MEMORY_FILE5 OFFSET SIZE
+endfunction

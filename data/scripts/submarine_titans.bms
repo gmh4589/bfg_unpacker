@@ -1,0 +1,70 @@
+# Submarine Titans (script 0.1.1)
+#   unknown compression algorithm
+# script for QuickBMS http://quickbms.aluigi.org
+
+#comtype ???
+
+open FDDE "DKX"
+idstring "DKBT"
+
+open FDDE "DKD" 1
+idstring 1 "DKFM"
+
+math NEXT_OFF = 0x20
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    savepos CURR_OFF
+    goto NEXT_OFF
+    get PREV_OFF long
+    get NEXT_XOFF long
+    get XSIZE short
+    get XTYPE short
+    get DUMMY long
+    savepos TMPL
+    math TMPL += XSIZE
+    savepos TMP
+    for TMP = TMP < TMPL
+        get NEXT_OFF long
+        get OFFSET long
+        get TYPE byte
+        get ZSIZE long
+        get ZIP byte
+        get SIZE long
+        get DUMMY long
+        get DATE longlong
+        get NAMESZ short
+        getdstring NAME NAMESZ
+        savepos TMP
+
+        # doesn't work, currently unsupported
+        #string FNAME p "%s%s" PATH NAME
+        set FNAME string NAME
+
+        if ZIP == 0
+            log FNAME OFFSET SIZE 1
+        else
+            #clog FNAME OFFSET ZSIZE SIZE 1
+            string FNAME p "compressed/%s" FNAME
+            log FNAME OFFSET ZSIZE 1
+        endif
+
+        if OFFSET != 0xffffffff
+        if NEXT_OFF != 0xffffffff
+        if CURR_OFF != NEXT_OFF
+            callfunction EXTRACT
+        endif
+        endif
+        endif
+    next
+    math NEXT_OFF = NEXT_XOFF
+    if NEXT_OFF != 0xffffffff
+            callfunction EXTRACT
+    endif
+    goto CURR_OFF
+endfunction

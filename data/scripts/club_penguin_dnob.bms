@@ -1,0 +1,27 @@
+# Club Penguin: Elite Penguin Force Save File
+
+comtype lz77wii
+idstring "DNOB"
+math BASE_OFF = 0x100
+goto BASE_OFF
+get FILES long
+for i = 0 < FILES
+    get NAME_CRC long
+    get OFFSET long
+    get SIZE long
+    if SIZE & 0x80000000
+        math SIZE ^ 0xffffffff
+    endif
+    math OFFSET + BASE_OFF
+
+    savepos TMP
+    goto OFFSET
+    get TEST byte   # there is no way to know if a file is compressed or not, quite common on Nintendo
+    goto TMP
+
+    if TEST == 0x11
+        clog "" OFFSET SIZE SIZE
+    else
+        log "" OFFSET SIZE
+    endif
+next i

@@ -1,0 +1,69 @@
+# Aquanox 1 / 2 / 3 (script 0.1.1)
+#   info for AN1 and AN3 from AquaNox PAK Archives Extractor of CTPAX-X Team
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "MASSIVEFILE\0"
+get VERSION short   # 3
+get REVISION short  # 2
+get FILES long
+getdstring COPYRIGHT 0x40
+
+math DO_DECRYPT = 0
+
+# VERSION is ever 3
+if VERSION == 3
+    if REVISION <= 2
+        math DO_DECRYPT = 1
+        set KEY binary "\x68\x3c\x61\x37\x4c\x6c\xc4\x4f\x6f\x72\x78\x48\x33\x4a\x2b\x78\xdc\xdf\x61\x62\x4b\x6e\x29\x6a\x73\x6c\x6e\x44\x6f\x4a\x44\x66\x68\x44\x33\x37\x66\x55\x67\x4f\x6f\xd6\x78\x48\x33\x58\x32\x78\x35\x41\x61\x35\x51\x37\x6e\x2a\xf6\x6c\x2b\xfc\x6f\x4a\x23\x40"
+    elif REVISION == 3
+        math DO_DECRYPT = 1
+        set KEY binary "\x70\x4a\x4b\x6a\x33\x77\x34\x44\x6f\x4d\x3b\x27\x44\x27\x53\x44\x36\x64\x6b\x6e\x6c\x3d\x36\x63\x41\x4a\x20\x53\x58\x63\x49\x41\x21\x59\x33\x34\x35\x53\x6f\x67\x24\xa3\x25\x53\x4e\x64\x36\x40\x20\x58\x30\x39\x38\x61\x73\x37\x78\x63\x41\x2a\x28\x53\x44\x7b"
+    endif
+endif
+
+for i = 0 < FILES
+    getdstring NAME 0x80
+    get SIZE long
+
+    if DO_DECRYPT != 0
+        if REVISION <= 1
+            math j = i
+        elif REVISION == 2
+            xmath j "i - 3 + 0x68"
+        elif REVISION == 3
+            xmath j "(0x41 + (i * 0x0d)) ^ 0x1b74"
+        endif
+        math j % 0x3c
+        getvarchr XOR_LONG KEY j long
+        math SIZE - XOR_LONG
+
+        if REVISION <= 1
+            math j = i
+        elif REVISION == 2
+            xmath j "i - 3"
+        elif REVISION == 3
+            xmath j "((-0x1d) - (0x1f * i)) ^ (-0x1b)"
+        endif
+        for x = 0 < 0x80
+            getvarchr C NAME x
+            if C == 0
+                break
+            endif
+            xmath j "(j + x) & 0x3f"
+            getvarchr XOR_BYTE KEY j
+            math C - XOR_BYTE
+            putvarchr NAME x C
+        next x
+    endif
+
+    putarray 0 i NAME
+    putarray 1 i SIZE
+next i
+
+savepos OFFSET
+for i = 0 < FILES
+    getarray NAME 0 i
+    getarray SIZE 1 i
+    log NAME OFFSET SIZE
+    math OFFSET + SIZE
+next i

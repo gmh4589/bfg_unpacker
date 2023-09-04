@@ -1,0 +1,53 @@
+# theHunter: Call of the Wild (script 0.1.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "TAB"
+open FDDE "ARC" 1
+
+idstring "TAB\0"
+get VER1 short  # 2
+get VER2 short  # 1
+get ALIGN long
+savepos TMP
+get TMP2 asize
+xmath FILES "(TMP2 - TMP) / (4 + 4 + 4)"
+math BASE_OFF = 0x10
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+
+    # this rule is not ever true, FSB files have "FSB5" instead of XSIZE!
+    # so let's guess it in a complex and boring way
+    goto OFFSET 1
+    get XSIZE long 1
+    get ZERO1 long 1
+    get ZERO2 long 1
+    get ZERO3 long 1
+    get GUESS_ZLIB byte 1
+
+    math TMP_SIZE = SIZE
+    math TMP_SIZE - BASE_OFF
+    if XSIZE u>= 0x30000000 # "0000", "FSB5" and so on
+        math XSIZE = 0
+    endif
+    # so the uncompressed files can have:
+    # - XSIZE equal to SIZE - 0x10
+    # - XSIZE being ANYTHING and so SIZE must be left as-is
+
+    # this is probably the header
+    if ZERO1 == 0
+    if ZERO2 == 0
+    if ZERO3 == 0
+        math OFFSET + BASE_OFF
+        math SIZE   - BASE_OFF
+    endif
+    endif
+    endif
+
+    if XSIZE u> TMP_SIZE && GUESS_ZLIB == 0x78
+        clog "" OFFSET SIZE XSIZE 1
+    else
+        log "" OFFSET SIZE 1
+    endif
+next i

@@ -1,0 +1,14 @@
+# Nicktoons Racing WOD
+
+get FILES long
+get DUMMY long  # 9
+get DATA_OFF long
+get ZERO long
+for i = 0 < FILES
+    get SOME_CRC long
+    get OFFSET long
+    get SIZE long
+    get FLAGS long
+    math OFFSET * 0x800
+    log "" OFFSET SIZE
+next i

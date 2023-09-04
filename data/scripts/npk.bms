@@ -1,0 +1,21 @@
+# Victory: The Age of Racing (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "NPK"
+get DUMMY byte
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ short
+
+    encryption rc4 "3b79424c9c0dd436"
+    filecrypt 1
+    getdstring NAME NAMESZ
+    filecrypt 0
+    encryption "" ""
+
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    clog NAME OFFSET ZSIZE SIZE
+next i

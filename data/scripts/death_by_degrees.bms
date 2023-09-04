@@ -1,0 +1,31 @@
+# Death by Degrees
+#   the script is correct but the index file covers only 30% of the archive
+
+open FDDE "I"
+open FDDE "D" 1
+
+idstring "NARC"
+get FILES long
+get ZERO long
+get ZERO long
+for x = 0 < FILES
+    getbits OFFSET 17
+    getbits DUMMY 1
+    getbits DUMMY 4
+    getbits SIZE 28
+    getbits DUMMY 1
+    getbits NAMESZ 6
+    getbits DUMMY 7
+    math OFFSET * 0x800
+    getdstring NAME NAMESZ
+    log NAME OFFSET SIZE 1
+next x
+
+math OFFSET + SIZE
+math OFFSET x 0x800
+math SIZE = 0x4000
+get ARCHIVE_SIZE asize 1
+for OFFSET = OFFSET u< ARCHIVE_SIZE
+    log "raw_dumped_audio/" OFFSET SIZE 1
+    math OFFSET + SIZE
+next

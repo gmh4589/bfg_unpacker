@@ -1,0 +1,64 @@
+# Yuka Engine YKS
+
+idstring "YKC0"
+getdstring VER 2    # 01
+if VER == "01"
+    codepage 932
+endif
+get ZERO short
+get DATA_OFF long
+get ZERO long
+get INFO_OFF long
+get INFO_SIZE long
+goto INFO_OFF
+xmath FILES "INFO_SIZE / 20"
+for i = 0 < FILES
+    get NAME_OFF long
+    get NAMESZ long
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+
+    savepos TMP
+    goto NAME_OFF
+    getdstring NAME NAMESZ
+    goto OFFSET
+
+    set EXT extension NAME
+    if EXT == "ykg"
+        idstring "YKG0"
+        getdstring DUMMY 0x24
+        get PNG_OFF long
+        get SIZE long
+        string NAME + ".png"    # mask is not saved
+        math OFFSET + PNG_OFF
+        log MEMORY_FILE OFFSET SIZE
+        get SIGN0 byte MEMORY_FILE
+        get SIGN1 byte MEMORY_FILE
+        get SIGN2 byte MEMORY_FILE
+        get SIGN3 byte MEMORY_FILE
+        goto 0 MEMORY_FILE
+        put SIGN0 byte MEMORY_FILE
+        put SIGN3 byte MEMORY_FILE
+        put SIGN2 byte MEMORY_FILE
+        put SIGN1 byte MEMORY_FILE
+        log NAME 0 SIZE MEMORY_FILE
+
+    elif EXT == "yks"
+        idstring "YKS0"
+        getdstring DUMMY 0x1c
+        get SCRIPT_OFF long
+        log NAME OFFSET SCRIPT_OFF
+        math OFFSET + SCRIPT_OFF
+        math SIZE   - SCRIPT_OFF
+        filexor 0xaa
+        append
+        log NAME OFFSET SIZE
+        append
+        filexor ""
+
+    else
+        log NAME OFFSET SIZE
+    endif
+    goto TMP
+next i

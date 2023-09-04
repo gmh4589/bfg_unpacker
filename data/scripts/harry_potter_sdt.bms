@@ -1,0 +1,105 @@
+# Harry Potter And The Chamber Of Secrets Gamecube SDT (script 0.1.1)
+#   The generated genh file may not work correctly
+
+idstring "BNK"
+get MYENDIAN byte
+if MYENDIAN == 'b'
+    endian big
+endif
+get DUMMY byte  # 5
+get FILES threebyte
+get INFO_SIZE long
+get DATA_SIZE long
+get ZERO long
+for i = 0 < FILES
+    savepos BASE_OFF
+    get INFO_OFF long
+
+    savepos TMP
+    math INFO_OFF + BASE_OFF
+    goto INFO_OFF
+    getdstring DUMMY 4
+    do
+        get TYPE byte
+        if TYPE >= 0xf0 # or 250?
+            get TYPE byte
+        endif
+        get DATASZ byte
+        getdstring DATA DATASZ
+        if TYPE == 0xa0
+            # codec? 0x12
+        elif TYPE == 0x84
+            getvarchr FREQUENCY DATA 0 short
+        elif TYPE == 0x88
+            getvarchr OFFSET DATA 0 long
+        elif TYPE == 0x8f
+            set COEFF = DATA
+        endif
+    while TYPE != 0 # 0 or 0xff
+    goto TMP
+
+    putarray 0 i OFFSET
+    putarray 1 i FREQUENCY
+    putarray 2 i COEFF
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+
+for i = 0 < FILES
+    string NAME p "%d.genh" i
+    math CHANNELS = 1
+    getarray OFFSET     0 i
+    getarray FREQUENCY  1 i
+    getarray COEFF      2 i
+
+    math i + 1
+    getarray SIZE       0 i
+    math SIZE - OFFSET
+    callfunction DUMP_GENH
+next
+
+# requirements: NAME, OFFSET, SIZE, CHANNELS, FREQUENCY, COEFF
+startfunction DUMP_GENH
+    endian save CURRENT_ENDIAN
+    endian little
+    math genhsz = 0x80
+    log MEMORY_FILE 0 0
+    putdstring "GENH" 4 MEMORY_FILE     // 0    magic
+    put CHANNELS long MEMORY_FILE       // 4    channel_count
+    put 2 long MEMORY_FILE              // 8    interleave
+    put FREQUENCY long MEMORY_FILE      // c    sample_rate
+    put 0xffffffff long MEMORY_FILE     // 10   loop_start
+    xmath loop_end "((SIZE * 14)/8)/CHANNELS"
+    put loop_end long MEMORY_FILE       // 14   loop_end
+    put 12 long MEMORY_FILE             // 18   codec
+    xmath start_off "genhsz + (CHANNELS * 32)"
+    put start_off long MEMORY_FILE      // 1c   start_offset
+    xmath header_size "genhsz + (CHANNELS * 32)"
+    put header_size long MEMORY_FILE    // 20   header_size
+    put genhsz long MEMORY_FILE         // 24   coef[0]
+    xmath TMP "genhsz + 32"
+    put TMP long MEMORY_FILE            // 28   coef[1]
+    put 1 long MEMORY_FILE              // 2c   dsp_interleave_type
+    put 0 long MEMORY_FILE              // 30   coef_type
+    put genhsz long MEMORY_FILE         // 34   coef_splitted[0]
+    put TMP long MEMORY_FILE            // 38   coef_splitted[1]
+    get z asize MEMORY_FILE
+    for z = z < genhsz
+        put 0 byte MEMORY_FILE
+    next z
+    math COEFF_PTR = 0
+    for z = 0 < CHANNELS
+        for x = 0 < 16
+            getvarchr TMP COEFF COEFF_PTR short
+            math COEFF_PTR + 2
+            put TMP short MEMORY_FILE
+        next x
+        #math COEFF_PTR + 0xe    # 0x20 + 0xe = 0x2e
+    next z
+    get TMP asize MEMORY_FILE
+    log NAME 0 TMP MEMORY_FILE
+    append
+    log NAME OFFSET SIZE
+    append
+    endian CURRENT_ENDIAN
+endfunction

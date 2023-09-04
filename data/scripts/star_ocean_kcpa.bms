@@ -1,0 +1,21 @@
+# Star Ocean 2 KCPA (apac)
+
+idstring "KCPA"
+get BASE_OFF long
+get ALIGN long      # 0x10
+get FILES long
+get NAMESZ long
+padding ALIGN
+for i = 0 < FILES
+    get SIZE longlong
+    get ZERO longlong   # probably a compressed size not available in samples
+    if ZERO != 0
+        print "Error: ZERO != 0, contact me"
+        cleanexit
+    endif
+    get OFFSET longlong
+    get FLAGS longlong  # 0x10
+    getdstring NAME NAMESZ
+    padding ALIGN
+    log NAME OFFSET SIZE
+next i

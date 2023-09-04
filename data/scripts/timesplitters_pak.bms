@@ -1,0 +1,14 @@
+# TimeSplitters 1 PS2 PAK
+
+idstring "P4CK"
+get INFO_OFF long
+get INFO_SIZE long
+xmath FILES "INFO_SIZE / 0x3c"
+goto INFO_OFF
+for i = 0 < FILES
+    getdstring NAME 0x30
+    get OFFSET long
+    get SIZE long
+    get ZERO long
+    log NAME OFFSET SIZE
+next i

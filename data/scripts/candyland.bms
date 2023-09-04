@@ -1,0 +1,31 @@
+# Candy Land Adventure .RFS
+
+set NAME string ""
+math OFFSET = 0
+callfunction EXTRACT 1
+
+startfunction EXTRACT
+    string NAME p "%s/%08x" NAME OFFSET
+    savepos BCK_OFF
+    goto OFFSET
+    savepos BASE_OFF
+    get SIGN long   # idstring "\x43\x65\x87\x09"
+    if SIGN == 0x09876543
+        get DATA_SIZE long
+        get FILES short
+        get FILES short # same
+        get DUMMY short
+        get DUMMY short # same
+        for i = 0 < FILES
+            get OFFSET long
+            get SIZE long
+            math OFFSET + BASE_OFF
+            callfunction EXTRACT
+        next i
+    else
+        string NAME + "."
+        log NAME OFFSET SIZE
+    endif
+
+    goto BCK_OFF
+endfunction

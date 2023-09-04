@@ -1,0 +1,26 @@
+# Petroglyph Games
+#   End of Nations, Rise of Immortals
+#   http://en.wikipedia.org/wiki/Petroglyph_Games
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DUMMY long
+get DUMMY long
+get BASE_OFF long
+get NAMES long
+get FILES long
+get SIZE long
+for i = 0 < NAMES
+    get NAMESZ short
+    getdstring NAME NAMESZ
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get ZERO short
+    get CRC long
+    get NUM long
+    get SIZE long
+    get OFFSET long
+    get NAME_NUM short
+    getarray NAME 0 NAME_NUM
+    log NAME OFFSET SIZE
+next i

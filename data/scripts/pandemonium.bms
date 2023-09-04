@@ -1,0 +1,22 @@
+# Pandemonium
+#   experimental
+
+get PKG_SIZE asize
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+get DUMMY long
+for i = 0
+    get OFFSET long
+    get SIZE long
+    if OFFSET == 0xffffffff
+    elif OFFSET == 0
+    elif SIZE == 0
+    elif OFFSET u> PKG_SIZE
+        break
+    else
+        log "" OFFSET SIZE
+    endif
+next i

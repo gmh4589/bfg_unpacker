@@ -1,0 +1,21 @@
+<bms author="Mr.Mouse" games="'Conquest Of The New World', 'Counterstrike', 'Gunman Chronicles', 'Half-Life', 'Hands Of Fate', 'Heretic 2', 'Hexen 2', 'Kingpin', 'Quake', 'Quake 2', 'Search And Rescue 2', 'Search And Rescue 3', 'Skisprung Winter Cup 2005', 'Sin', 'Soldier of Fortune', 'Trickstyle'" platforms="'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC', 'PC'" version="1.0" ext="PAK" verbose="no" silence="no">
+IDString 0 PACK ;
+ImpType Standard ;
+SavePos TailOffOff 0 ;
+Get T Long 0 ;
+Get TS Long 0 ;
+SavePos F 0 ;
+GoTo T 0 ;
+Math TS /= 64 ;
+For i = 1 To TS ;
+SavePos T 0 ;
+Get FN String 0 ;
+Math T += 56 ;
+GoTo T 0 ;
+SavePos Foo 0 ;
+Get Fo Long 0 ;
+SavePos Fso 0 ;
+Get Fs Long 0 ;
+Log FN Fo Fs #Foo Fso ;
+Next i ;
+</bms>

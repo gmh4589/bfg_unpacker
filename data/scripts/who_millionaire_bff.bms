@@ -1,0 +1,51 @@
+# Who wants to be a millionaire DC BFF and PAK (script 0.1.2)
+
+getdstring SIGN 4
+goto 0
+if SIGN == "BFF"
+
+    idstring "BFF\0"
+    get DUMMY long
+    get DUMMY long
+    savepos BASE_OFF
+    math FILES = -1
+    for i = 0 != FILES
+        get DUMMY long
+        get OFFSET long
+        if i == 0
+            xmath FILES "OFFSET / (4 + 4)"
+        endif
+        math OFFSET + BASE_OFF
+        putarray 0 i OFFSET
+    next i
+        get OFFSET asize
+        putarray 0 i OFFSET
+    for i = 0 < FILES
+        getarray OFFSET 0 i
+        math i + 1
+        getarray SIZE   0 i
+        math SIZE - OFFSET
+        log "" OFFSET SIZE
+    next
+
+else
+
+    math HAS_ZERO = 1
+    get FILES long
+    for i = 0 < FILES
+        get SOME_CRC long
+        get OFFSET long
+        get SIZE long
+        if HAS_ZERO != 0
+            get ZERO long
+            if i == 0
+            if ZERO != 0
+                math HAS_ZERO = 0
+                goto -4 0 SEEK_CUR
+            endif
+            endif
+        endif
+        log "" OFFSET SIZE
+    next i
+
+endif

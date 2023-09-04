@@ -1,0 +1,16 @@
+# Virtua Tennis
+
+get FILES long
+get DUMM long
+for i = 0 < FILES
+    get OFFSET long
+    putarray 0 i OFFSET
+next i
+    get OFFSET asize
+    putarray 0 i OFFSET
+for i = 0 < FILES
+    getarray OFFSET 0 i
+    math i + 1
+    getarray SIZE   0 i
+    log "" OFFSET SIZE
+next

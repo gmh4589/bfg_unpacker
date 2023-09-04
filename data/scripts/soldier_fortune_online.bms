@@ -1,0 +1,124 @@
+# Soldier of Fortune Online (script 0.1.1)
+#   unknown algorithm to calculate the 16bit xor key, try to guess it
+# script for QuickBMS http://quickbms.aluigi.org
+
+callfunction GUESS_KEY_INIT 1
+
+open FDDE "qpf"
+get FILES long
+for i = 0 < FILES
+    get DUMMY long  # 10
+    get ID long
+    get PATH unicode
+    putarray 0 i PATH
+next i
+get PAKS long
+for PAK = 0 < PAKS
+    get NAME unicode
+    get SIZE long
+    open FDSE NAME 1
+    callfunction EXTRACT 1
+next PAK
+
+startfunction EXTRACT
+    get DUMMY long 1    # 10
+    get DATA_OFF long 1
+    get DUMMY long 1
+    get DUMMY long 1
+    get SIZE long 1
+    get ZERO long 1
+    get FILES long 1
+    for i = 0 < FILES
+        get PATH_IDX long 1
+        get CRC long 1
+        get NAME unicode 1
+        get OFFSET long 1
+        get SIZE long 1
+        getarray PATH 0 PATH_IDX
+        string FNAME p "%s/%s" PATH NAME
+
+        callfunction GUESS_KEY 1
+        encryption xor XOR_KEY "" 0 2
+        log FNAME OFFSET SIZE 1
+        encryption "" ""
+    next i
+endfunction
+
+startfunction GUESS_KEY_INIT
+    putarray 1 -1 "ttf"
+    putarray 2 -1 0x0100
+    putarray 1 -1 "dds"
+    putarray 2 -1 0x4444
+    putarray 1 -1 "scn"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "msh"
+    putarray 2 -1 0x423c
+    putarray 1 -1 "hkp"
+    putarray 2 -1 0xe057
+    putarray 1 -1 "scp"
+    putarray 2 -1 0x6373
+    putarray 1 -1 "lua"
+    putarray 2 -1 0x4c1b
+    putarray 1 -1 "mtl"
+    putarray 2 -1 0x4223
+    putarray 1 -1 "ptd"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "ogg"
+    putarray 2 -1 0x674f
+    putarray 1 -1 "avi"
+    putarray 2 -1 0x4952
+    putarray 1 -1 "bin"
+    putarray 2 -1 0x0200
+    putarray 1 -1 "cew"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "cmt"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "fab"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "ani"
+    putarray 2 -1 0x433c
+    putarray 1 -1 "db"
+    putarray 2 -1 0xcfd0
+    putarray 1 -1 "def"
+    putarray 2 -1 0x7323    # "#sound"
+    putarray 1 -1 "bmp"
+    putarray 2 -1 0x4d42
+    putarray 1 -1 "tga"
+    putarray 2 -1 0x4444    # yeah DDS
+    putarray 1 -1 "spt"
+    putarray 2 -1 0x03e8
+    putarray 1 -1 "jpg"
+    putarray 2 -1 0xd8ff
+    putarray 1 -1 "lep"
+    putarray 2 -1 0x004b    # ???
+    putarray 1 -1 "swf"
+    putarray 2 -1 0x5743
+    putarray 1 -1 "html"
+    putarray 2 -1 0xbbef
+    putarray 1 -1 "txt"
+    putarray 2 -1 0x4c1b    # various txt are lua
+    putarray 1 -1 "rmg"
+    putarray 2 -1 0x006e    # ???
+    # end
+    putarray 1 -1 ""
+    putarray 2 -1 0
+endfunction
+startfunction GUESS_KEY
+    set MYEXT extension FNAME
+    set XOR_KEY binary "\0\0"
+    for x = 0
+        getarray EXT 1 x
+        if EXT == "" || EXT == MYEXT
+            break
+        endif
+    next x
+    if EXT == MYEXT
+        getarray SIGN 2 x
+        savepos TMP 1
+        goto OFFSET 1
+        get XSIGN short 1
+        goto TMP 1
+        math XSIGN ^ SIGN
+        string XOR_KEY = XSIGN
+    endif
+endfunction

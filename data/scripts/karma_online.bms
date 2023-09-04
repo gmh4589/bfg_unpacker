@@ -1,0 +1,26 @@
+# Karma Online (script 0.2)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get DATA_OFF long
+get DUMMY long
+get DUMMY long  # 1
+get FOLDERS long
+get FILES long
+for i = 0 < FOLDERS
+    get NAME unicode
+    putarray 0 i NAME
+next i
+for i = 0 < FILES
+    get FOLDER_ID long
+    get FILE_ID long
+    get NAME unicode
+    get OFFSET long
+    get SIZE long
+    getdstring KEY 2
+    getarray PATH 0 FOLDER_ID
+    string NAME p "%s/%s" PATH NAME
+
+    encryption xor KEY "" 0 2
+    log NAME OFFSET SIZE
+    encryption "" ""
+next i

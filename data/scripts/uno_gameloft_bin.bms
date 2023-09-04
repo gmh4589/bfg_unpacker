@@ -1,0 +1,21 @@
+# UNO (Gameloft) 3.6.7i (.BIN)
+
+comtype lzo1x
+get FILES long
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET[i] long
+next i
+    get OFFSET[i] asize
+for i = 0 < FILES
+    math OFFSET = OFFSET[i]
+    math i + 1
+    math SIZE   = OFFSET[i]
+    math SIZE - OFFSET
+
+    goto OFFSET
+    get XSIZE long
+    math OFFSET + 4
+    math SIZE   - 4
+    clog "" OFFSET SIZE XSIZE
+next

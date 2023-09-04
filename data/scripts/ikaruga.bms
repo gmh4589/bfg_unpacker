@@ -1,0 +1,90 @@
+# Ikaruga (script 0.1.2)
+#   thanks to Ekey (h4x0r)
+#   http://forum.xentax.com/viewtopic.php?p=92494#p92494
+#   https://zenhax.com/viewtopic.php?p=51129#p51129
+# script for QuickBMS http://quickbms.aluigi.org
+
+set MEMORY_FILE3 binary "\x83\xec\x14\x89\x44\x24\x10\x55\x8b\x6c\x24\x1c\x56\x57\x89\xce\xc6\x44\x24\x0c\x02\xc6\x44\x24\x0d\x03\xc6\x44\x24\x0e\x05\xc6\x44\x24\x0f\x07\xc6\x44\x24\x10\x0b\xc6\x44\x24\x11\x0d\xc6\x44\x24\x12\x11\xc6\x44\x24\x13\x13\xc6\x44\x24\x14\x17\xc6\x44\x24\x15\x1d\xc6\x44\x24\x16\x1f\xc6\x44\x24\x17\x25\xc6\x44\x24\x18\x29\xc6\x44\x24\x19\x2b\xbf\x10\x00\x00\x00\x53\x8d\x04\xb5\x02\x00\x00\x00\x8d\x48\x01\x0f\xaf\xc8\xc1\xe9\x02\x8d\x04\x8d\x02\x00\x00\x00\x8d\x70\x01\x0f\xaf\xf0\xb8\x25\x49\x92\x24\xf7\xe1\x89\xc8\x29\xd0\xd1\xe8\x01\xd0\xc1\xe8\x03\x8d\x14\xc5\x00\x00\x00\x00\x29\xc2\x01\xd2\x29\xd1\xc1\xee\x02\x8a\x5c\x0c\x10\xb8\x25\x49\x92\x24\xf7\xe6\x89\xf0\x29\xd0\xd1\xe8\x01\xd0\xc1\xe8\x03\x8d\x14\xc5\x00\x00\x00\x00\x29\xc2\x01\xd2\x89\xf0\x29\xd0\x83\xef\x01\x8a\x54\x04\x10\x8d\x4c\x0c\x10\x8d\x44\x04\x10\x88\x18\x88\x11\x75\x87\x31\xc9\x5b\x90\x0f\xb6\x54\x0c\x0c\x85\xd2\x7e\x18\x8d\x24\x24\x8d\x04\xb5\x02\x00\x00\x00\x8d\x70\x01\x0f\xaf\xf0\xc1\xee\x02\x83\xea\x01\x75\xeb\x89\x74\x8d\x00\x41\x83\xf9\x0e\x7c\xd5\x8b\x4c\x24\x1c\x5f\x5e\x5d\x83\xc4\x14\xc3"
+
+idstring "NARC"
+get dwTotalFiles long
+get dwNamesSize long
+get dwTableSize long   # -0x10
+
+math TRIES = 3
+
+putarray 0 0 "sdr.arc"
+putarray 1 0 0x3A4D6669
+putarray 2 0 0x321C8EAB
+putarray 3 0 0x211C37FC
+
+putarray 0 1 "obj.arc"
+putarray 1 1 0x327648CF
+putarray 2 1 0x7F11D463
+putarray 3 1 0x561A1065
+
+putarray 0 2 "snd.arc"
+putarray 1 2 0x30763DD9
+putarray 2 2 0x7711A88B
+putarray 3 2 0x1F1AD39C
+
+putarray 0 3 "tex.arc"
+putarray 1 3 0x327648CF
+putarray 2 3 0x7911B381
+putarray 3 3 0x4F1AF082
+
+putarray 0 4 "bin.arc"
+putarray 1 4 0x067640D6
+putarray 2 4 0x4D11AC87
+putarray 3 4 0x4B1ADB96
+
+math OK = 0
+get NAME filename
+for TRY = 1 <= TRIES
+    for x = 0 < 5
+        getarray TEST_NAME 0 x
+        if NAME == TEST_NAME
+            getarray dwMagicConstant TRY x
+            callfunction SET_KEY 1
+            log MEMORY_FILE 0x10 dwTableSize
+            get TMP long MEMORY_FILE
+            if TMP u< 0x100
+                math OK = 1
+            endif
+            break
+        endif
+    next x
+    if OK != 0
+        break
+    endif
+next TRY
+goto 0 MEMORY_FILE
+
+math NAMES_OFF = dwTotalFiles
+math NAMES_OFF *= 0x14
+
+for i = 0 < dwTotalFiles
+    get dwUnknown long MEMORY_FILE          # 0x00000007
+    get dwNameOffset long MEMORY_FILE       # + dwTotalFiles * 0x14
+    get dwOffset long MEMORY_FILE           # dwTableSize + 0x10
+    get dwSize long MEMORY_FILE
+    get dwMagicConstant long MEMORY_FILE    # Constant for generate key
+
+    savepos TMP MEMORY_FILE
+    math dwNameOffset += NAMES_OFF
+    goto dwNameOffset MEMORY_FILE
+    get NAME string MEMORY_FILE
+    goto TMP MEMORY_FILE
+    
+    callfunction SET_KEY 1
+    math dwOffset += dwTableSize
+    log NAME dwOffset dwSize
+next i
+
+startfunction SET_KEY
+    log MEMORY_FILE2 0 0
+    putvarchr MEMORY_FILE2 56 0
+    calldll MEMORY_FILE3 0 thiscall RET dwMagicConstant MEMORY_FILE2
+    getdstring KEY 56 MEMORY_FILE2
+    encryption blowfish KEY "" 0 56
+endfunction

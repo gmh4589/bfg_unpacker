@@ -1,0 +1,199 @@
+# Over The Hedge - Vicarious Visions - GFC/GOB - index.ind (script 0.3.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+get EXT extension
+if EXT == "gfc" || EXT == "gob"
+    open FDDE "gfc" 0 EXISTS
+    if EXISTS == 0
+        open FDDE "gob"
+        get FILES long
+        for i = 0 < FILES
+            get NAME_CRC long
+            get OFFSET long
+            get SIZE long
+            string NAME p "%08x." NAME_CRC
+            log NAME OFFSET SIZE
+        next i
+        cleanexit
+    endif
+    open FDDE "gob" 1
+
+    comtype zlib_noerror
+    get SIGN long   # 0x8008
+    math MYSIGN = SIGN
+    endian guess SIGN
+    get GOB_SIZE long
+    get BLOCKS long
+    get FILES long
+
+    math TMP = GOB_SIZE
+    math TMP * 3
+    putvarchr MEMORY_FILE TMP 0 # lame pre-allocation: gob_size * 3
+
+    log MEMORY_FILE 0 0
+    append
+    for i = 0 < BLOCKS
+        get ZSIZE long
+        get OFFSET long
+        if MYSIGN == 0x8008
+            get DUMMY_NEXT long # ???
+            get ZIP byte
+        else
+            get DUMMY long
+            goto OFFSET 1
+            getdstring TMP 4 1
+            if TMP == "STBL"
+                get ZIP byte 1
+                math OFFSET + 5
+                math ZSIZE  - 5
+            else
+                get ZIP byte
+                if ZIP == 'z'
+                    # for some unknown reasons it's an invalid zlib
+                    comtype deflate_noerror
+                    math OFFSET + 2
+                    math ZSIZE  - 2
+                endif
+            endif
+        endif
+        padding 4
+
+        savepos MEM_OFF MEMORY_FILE
+        putarray 0 i MEM_OFF
+
+        if ZIP == 'z'   # 'z'
+            clog MEMORY_FILE OFFSET ZSIZE ZSIZE 1
+        elif ZIP == '0' # '0'
+            log MEMORY_FILE OFFSET ZSIZE 1
+        else
+            print "Error: unknown compression algorithm %ZIP|x%"
+            cleanexit
+        endif
+    next i
+    append
+
+    for i = 0 < BLOCKS
+        get DUMMY long
+    next i
+
+    math NAMESZ = 104
+    savepos OFFSET
+    xmath TMP "OFFSET + (FILES * (4 * 3))"
+    xmath TMP2 "TMP + (FILES * NAMESZ)"
+    get SIZE asize
+    putarray 1 FILES ""
+    if TMP2 u<= SIZE
+        goto TMP
+        for i = 0 < FILES
+            getdstring NAME NAMESZ
+            putarray 1 i NAME
+        next i
+        goto OFFSET
+    endif
+
+    for i = 0 < FILES
+        get HASH long
+        get SIZE long
+        get BLOCK long
+        getarray OFFSET 0 BLOCK
+        getarray NAME   1 i
+        log NAME OFFSET SIZE MEMORY_FILE
+    next i
+
+else
+
+    open FDSE "index.ind" 1 EXISTS
+    if EXISTS != 0
+        get SIZE asize 1
+        log MEMORY_FILE2 0 SIZE 1
+
+        get ARCHIVES long MEMORY_FILE2
+        endian guess ARCHIVES
+        math ARCHIVES /= 2
+        for ARCHIVE = 0 < ARCHIVES
+            get NAME_OFF long MEMORY_FILE2
+            get INFO_OFF long MEMORY_FILE2
+            savepos RESTORE_OFF MEMORY_FILE2
+
+            goto NAME_OFF MEMORY_FILE2
+            get ARCHIVE_NAME string MEMORY_FILE2
+            string NAME p= "%.8s.arc" ARCHIVE_NAME
+            open FDSE NAME 0 EXISTS
+
+            if EXISTS != 0
+                # automatic folder and sequential names
+                goto INFO_OFF MEMORY_FILE2
+                get FILES long MEMORY_FILE2
+                for i = 0 < FILES
+                    get NAME_CRC long MEMORY_FILE2
+                next i
+                for i = 0 < FILES
+                    get OFFSET long MEMORY_FILE2
+                    get SIZE long MEMORY_FILE2
+                    if ARCHIVE_NAME == "DataSets"
+                        goto OFFSET
+                        getdstring DUMMY 0xd
+                        get NAME string
+                        string NAME p= "%s/%s." ARCHIVE_NAME NAME
+                    else
+                        string NAME p= "%s/%08x." ARCHIVE_NAME i
+                    endif
+                    callfunction SMART_DUMP 1
+                next i
+            endif
+
+            goto RESTORE_OFF MEMORY_FILE2
+        next ARCHIVE
+
+    else
+
+        get DUMMY long  # 4
+        get FILES long
+        for i = 0 < FILES
+            get CRC long
+            get OFFSET long
+            get SIZE long
+            get NAME string
+            get TSTAMP longlong
+            callfunction SMART_DUMP 1
+        next i
+
+    endif
+
+endif
+
+startfunction SMART_DUMP
+    if SIZE < 4
+        log NAME OFFSET SIZE
+    else
+        savepos TMP_OFF
+        goto OFFSET
+        getdstring SIGN 4
+
+        if SIGN == "fmt "
+            get FMT_SIZE long
+            log MEMORY_FILE 0 0
+            putdstring "RIFF" 4 MEMORY_FILE
+            xmath TMP "SIZE + 0xc"
+            put TMP long MEMORY_FILE
+            putdstring "WAVE" 4 MEMORY_FILE
+            append
+            math FMT_SIZE += 8
+            log MEMORY_FILE OFFSET FMT_SIZE
+            math OFFSET += FMT_SIZE
+            math SIZE   -= FMT_SIZE
+            goto 0 MEMORY_FILE SEEK_END
+            putdstring "data" 4 MEMORY_FILE
+            put SIZE long MEMORY_FILE
+            log MEMORY_FILE OFFSET SIZE
+            append
+            get SIZE asize MEMORY_FILE
+            string NAME += ".wav"
+            log NAME 0 SIZE MEMORY_FILE
+        else
+            log NAME OFFSET SIZE
+        endif
+
+        goto TMP_OFF
+    endif
+endfunction

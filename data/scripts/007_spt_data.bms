@@ -1,0 +1,36 @@
+# 007: Everything or Nothing SPT
+
+comtype dk2
+get SPT_SIZE asize
+do
+    idstring "DATA"
+    get SIZE long
+    math SIZE - 8
+    savepos OFFSET
+
+    get SIGN short
+    if SIGN == 0xfb10
+        clog MEMORY_FILE OFFSET SIZE SIZE
+    else
+        log MEMORY_FILE OFFSET SIZE
+    endif
+    math OFFSET + SIZE
+    goto OFFSET
+
+    get NAMESZ byte MEMORY_FILE
+    getdstring TEST 4 MEMORY_FILE
+    if TEST == "data"
+        goto -4 MEMORY_FILE SEEK_CUR
+        getdstring NAME NAMESZ MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get DUMMY long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+    else
+        get SIZE asize MEMORY_FILE
+        set NAME string ""
+    endif
+    log NAME 0 SIZE MEMORY_FILE
+
+while OFFSET != SPT_SIZE

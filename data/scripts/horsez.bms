@@ -1,0 +1,54 @@
+# Horsez BF
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BIG\0"
+get DUMMY long  # 0x24
+get DUMMY long
+get DUMMY long
+get ZERO long
+get ZERO long
+get DUMMY long
+get DUMMY long
+get ENTRIES_PER_BLOCK long
+get DUMMY long
+get DUMMY long
+get FILES long
+get DUMMY long
+get INFO_OFF long
+get NEXT_OFF long
+get ZERO long
+get DUMMY long  # 9999
+
+for
+    xmath NAMES_OFF "INFO_OFF + (ENTRIES_PER_BLOCK * (4 + 4))"
+
+    for i = 0 < FILES
+        goto INFO_OFF
+        get OFFSET long
+        get DUMMY long
+        savepos INFO_OFF
+
+        goto NAMES_OFF
+        getdstring DUMMY 0x14
+        getdstring NAME 0x40
+        get ZERO long
+        savepos NAMES_OFF
+
+        goto OFFSET
+        get SIZE long
+        savepos OFFSET
+        log NAME OFFSET SIZE
+    next i
+
+    if NEXT_OFF == 0xffffffff
+        break
+    endif
+    math NEXT_OFF - 0x18
+    goto NEXT_OFF
+    get FILES long
+    get ZERO long
+    get INFO_OFF long
+    get NEXT_OFF long
+    get DUMMY long  # sometimes like FILES
+    get DUMMY long
+next

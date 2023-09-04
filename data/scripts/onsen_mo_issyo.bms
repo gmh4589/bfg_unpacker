@@ -1,0 +1,10 @@
+# Onsen mo Issyo PAK
+
+idstring "APD "
+get FILES long
+for i = 0 < FILES
+    getdstring NAME 0x18
+    get SIZE long
+    get OFFSET long
+    log NAME OFFSET SIZE
+next i

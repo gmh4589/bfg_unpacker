@@ -1,0 +1,94 @@
+# Nicktoons Movin' (script 0.1.2b)
+#   the compressed files are totally senseless and only the decompressed size is available
+#   therefore it's not possible to know how big is the compressed file
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "BOLT"
+get DUMMY long
+get DUMMY short
+get SECTORS short
+get BOLT_SIZE long
+
+math WORK_AROUND = 0
+savepos TMP
+    get DUMMY short
+    get FILES short
+goto TMP
+if FILES >= 0x100   # happens with both DUMMY 8 and zero
+    math WORK_AROUND = 1
+endif
+
+for x = 0 < SECTORS
+    get DUMMY short
+    get FILES short
+    get SIZE long
+    get OFFSET long
+    get ZERO long
+
+    if x == 0
+        xmath TMP "(OFFSET - 0x10) / 0x10"
+        if TMP < SECTORS
+            math SECTORS = TMP
+        endif
+    endif
+
+    if WORK_AROUND != 0
+        reverseshort FILES
+    endif
+
+    if FILES == 0   # The Simpsons Skateboarding
+        math FILES = 0x100
+    endif
+
+    savepos TMP_OFF
+    goto OFFSET
+    for i = 0 < FILES
+        get FLAGS long
+        get SIZE long
+        get OFFSET long
+        get SOME_CRC long
+
+        string NAME p= "%d/*" x
+
+        savepos BCK_OFF
+        if FLAGS & 0x1000000
+            if FLAGS & 0x40
+                get DUMMY long
+                get DUMMY long
+                get ZSIZE long
+                math ZSIZE - OFFSET
+                xmath TMP "OFFSET + ZSIZE"
+                if TMP u> BOLT_SIZE
+                    xmath ZSIZE "BOLT_SIZE - OFFSET"
+                endif
+
+                /*
+                goto OFFSET
+                #get ZSIZE ???  # unknown type, looks like variable7 but it's wrong
+                findloc OFFSET binary "\x00"
+                goto OFFSET
+                get ZERO byte
+                get DUMMY short
+                clog NAME OFFSET ZSIZE SIZE
+                */
+
+                string NAME p "%s/%s" "compressed" NAME
+                log NAME OFFSET ZSIZE
+            else    # just FLAGS 0x1b000000
+                string NAME p "%s/%s" "compressed2" NAME
+                log NAME OFFSET SIZE
+            endif
+        else
+            log NAME OFFSET SIZE
+        endif
+        goto BCK_OFF
+
+        /*
+        xmath TMP "OFFSET + SIZE"
+        if TMP u<= BOLT_SIZE
+            log NAME OFFSET SIZE
+        endif
+        */
+    next i
+    goto TMP_OFF
+next x

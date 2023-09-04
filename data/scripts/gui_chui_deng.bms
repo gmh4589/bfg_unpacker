@@ -1,0 +1,22 @@
+# Gui Chui Deng Online
+#   filenames are not handled
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "SGDP Package File."
+goto 0x20
+get DUMMY long
+get DUMMY long
+get NAMES_OFF long
+get INFO_OFF long
+get CRC_OFF long
+get FILES long
+get CRC long
+get DUMMY long
+get DUMMY long
+goto INFO_OFF
+for i = 0 < FILES
+    get OFFSET long
+    get SIZE long
+    math OFFSET += 4
+    log "" OFFSET SIZE
+next i

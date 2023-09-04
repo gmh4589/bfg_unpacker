@@ -1,0 +1,26 @@
+# FTL: Faster Than Light
+# script for QuickBMS http://quickbms.aluigi.org
+
+endian big
+idstring "PKG\n"
+get DUMMY short # 0x10
+get DUMMY short # 0x14
+get FILES long
+get NAMES_SIZE long
+savepos TMP
+xmath NAMES_OFF "TMP + (FILES * (4 + 4 + 4 + 4 + 4))"
+log MEMORY_FILE NAMES_OFF NAMES_SIZE
+for i = 0 < FILES
+    get SOME_CRC long
+    get NAME_OFF long
+    get OFFSET long
+    get ZSIZE long
+    get SIZE long
+    goto NAME_OFF MEMORY_FILE
+    get NAME string MEMORY_FILE
+    if ZSIZE == SIZE
+        log NAME OFFSET SIZE
+    else
+        clog NAME OFFSET ZSIZE SIZE # I don't have compressed samples
+    endif
+next i

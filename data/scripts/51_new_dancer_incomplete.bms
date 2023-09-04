@@ -1,0 +1,20 @@
+# 51 new dancer (incomplete)
+#   doesn't support the first 0x200 bytes, sorry
+# script for QuickBMS http://quickbms.aluigi.org
+
+get TMP string
+get OFFSET1 long
+get OFFSET2 long
+goto OFFSET1
+get DUMMY long
+get FILES long
+get DUMMY long
+for i = 0 < FILES
+    get DUMMY long
+    getdstring NAME 0x40
+    get SIZE long
+    get OFFSET long
+    
+    # the first 0x200 bytes are encrypted probably with AES
+    log NAME OFFSET SIZE
+next i

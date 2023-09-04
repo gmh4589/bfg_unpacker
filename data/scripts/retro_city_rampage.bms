@@ -1,0 +1,39 @@
+# Retro City Rampage
+
+idstring "RTFP"
+get FILES long
+goto 0x20
+for i = 0 < FILES
+    get DUMMY long
+    get OFFSET long
+    if i == 0
+        math MAX_OFF = OFFSET
+    endif
+    get SIZE long
+    callfunction DUMP 1
+next i
+for 
+    savepos TMP
+    if TMP >= MAX_OFF
+        break
+    endif
+    get OFFSET long
+    get SIZE long
+    callfunction DUMP 1
+next
+
+startfunction DUMP
+    if OFFSET != 0
+        savepos TMP
+        goto OFFSET
+        get ZSIZE long
+        math OFFSET + 0x20
+        goto TMP
+
+        if ZSIZE == SIZE
+            log "" OFFSET SIZE
+        else
+            clog "" OFFSET ZSIZE SIZE
+        endif
+    endif
+endfunction

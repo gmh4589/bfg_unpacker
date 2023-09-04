@@ -1,0 +1,28 @@
+# Ranch Rush (script 0.1.1)
+
+math ENCRYPTED_BYTES = 0x14
+
+idstring "AR\0\0"
+get FILES long
+get DUMMY long
+get OFFSET long
+goto OFFSET
+for i = 0 < FILES
+    get ID short
+    get DUMMY short
+    get OFFSET long
+    get SIZE long
+    get KEY long
+
+    math KEY & 0xff
+    filexor KEY
+    log MEMORY_FILE OFFSET ENCRYPTED_BYTES
+    filexor ""
+    math OFFSET + ENCRYPTED_BYTES
+    math SIZE   - ENCRYPTED_BYTES
+    append
+    log MEMORY_FILE OFFSET SIZE
+    append
+    math SIZE   + ENCRYPTED_BYTES
+    log "" 0 SIZE MEMORY_FILE
+next i

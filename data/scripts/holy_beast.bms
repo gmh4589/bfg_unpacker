@@ -1,0 +1,75 @@
+# Holy Beast
+# script for QuickBMS http://quickbms.aluigi.org
+
+get zip_filesize asize
+for offset = 0 < zip_filesize
+    idstring "PK"
+    get sign short
+    if sign != 0x0403
+        break
+    endif
+
+    get ver             short
+    get flag            short
+    get method          short
+    get modtime         short
+    get moddate         short
+    get crc             long
+    get comp_size       long
+    get uncomp_size     long
+    get name_len        short
+    get extra_len       short
+    getdstring name     name_len
+    getdstring extra    extra_len
+    savepos offset
+
+    callfunction GET_PASSWORD_NAME 1
+
+    if flag & 1
+        encryption zipcrypto ZIP_PASSWORD 1
+    endif
+
+    if method == 0
+        Log name offset comp_size   # was uncomp_size before AES
+    else
+        if method == 8
+            ComType deflate
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+        CLog name offset comp_size uncomp_size
+    endif
+
+    if flag & 1
+        encryption "" ""
+    endif
+
+    math offset += comp_size
+    goto offset
+next
+
+startfunction GET_PASSWORD_NAME
+    putarray 0 0 0x59
+    putarray 0 1 0x182
+    putarray 0 2 0x313
+    putarray 0 3 0x39E
+    putarray 0 4 0x308
+    putarray 0 5 0x149
+    putarray 0 6 0x210
+    putarray 0 7 0x206
+    putarray 0 8 0x96
+    putarray 0 9 0x178
+    set ZIP_PASSWORD string NAME
+    strlen NAMESZ NAME
+    math EDI = 0
+    for x = 0 < NAMESZ
+        math ECX = x
+        math ECX % 10
+        getarray EAX 0 ECX
+        math EDI + EAX
+        math EDI % NAMESZ
+        getvarchr EAX NAME EDI
+        putvarchr ZIP_PASSWORD x EAX
+    next x
+endfunction

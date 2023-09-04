@@ -1,0 +1,166 @@
+# Fancy 3d engine (script 0.1.2a)
+# script for QuickBMS http://quickbms.aluigi.org
+
+math SKIP_FILENAMES = 0
+
+getdstring SIGN 4
+goto 0
+if SIGN == "USE"
+    comtype lzma0
+    idstring "USE\0"
+    get SIZE long
+    get ZERO long
+    get ZERO long
+    getdstring DUMMY 8
+    idstring "\x5d"
+    getdstring DUMMY 7    # lzma modified header
+    get XSIZE long
+    savepos OFFSET
+    math SIZE - OFFSET
+    get NAME basename
+    get EXT extension
+    string NAME + "."   # auto-guess
+    clog NAME OFFSET SIZE XSIZE
+    cleanexit
+endif
+
+open FDDE "foc"
+idstring "\xf7\xf4\xe4\xc8\xca\xd7\xd5\xc2"
+savepos OFFSET
+get TYPE long
+if TYPE == 0xc3c2d4d4
+    comtype zlib
+else
+    comtype lzma0
+endif
+
+get DUMMY long
+get SIZE long
+savepos OFFSET
+get ZSIZE asize
+math ZSIZE - OFFSET
+clog MEMORY_FILE OFFSET ZSIZE SIZE
+
+idstring MEMORY_FILE "FOC1"
+get FILES long MEMORY_FILE
+get DUMMY1 short MEMORY_FILE
+get DUMMY2 short MEMORY_FILE
+
+# unfortunately this game has a foc and a fob that don't match...
+get ARCHIVE_NAME basename
+if ARCHIVE_NAME == "ark"
+if DUMMY1 == 0x2596
+if DUMMY2 == 0x1414
+    math SKIP_FILENAMES = 1
+endif
+endif
+endif
+
+for i = 0 < FILES
+    callfunction GET_STRING_MEM 1
+    set NAME string STR
+    getdstring HASH 16 MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    callfunction GET_STRING_MEM 1
+    putarray 0 i OFFSET
+    putarray 1 i SIZE
+    putarray 2 i NAME
+next i
+
+open FDDE "fod"
+idstring "PSH\0"
+goto 0x1468
+do
+    findloc OFFSET binary "USE\0"
+    goto OFFSET
+    idstring "USE\0"
+    get SIZE long
+    get DUMMY1 long
+    get DUMMY2 long
+while DUMMY1 != 0
+goto OFFSET
+
+for i = 0 < FILES
+    savepos TMP
+    findloc OFFSET binary "USE\0"   # useful in some very rare cases
+    goto OFFSET
+    if OFFSET != TMP
+        print "the previous file had a wrong size"
+    endif
+    idstring "USE\0"
+    get SIZE long
+    get ZERO long
+    get SCRAMBLED_HEADER_SIZE long
+    savepos OFFSET
+    math SIZE - 0x10
+
+    
+    if SKIP_FILENAMES != 0
+        set NAME string ""
+    else
+        getarray NAME 2 i
+    endif
+
+    if SCRAMBLED_HEADER_SIZE != 0
+        math OFFSET + SCRAMBLED_HEADER_SIZE
+        math SIZE   - SCRAMBLED_HEADER_SIZE
+        #filexor KEY OFFSET # not implemented yet
+    endif
+
+    set EXT extension NAME
+
+    if SCRAMBLED_HEADER_SIZE != 0
+        set EXT string ""   # disable pak handling
+    endif
+
+    if EXT == "pak" # automatic PAK extraction
+        math LIMIT = OFFSET
+        math LIMIT + SIZE
+        for OFFSET = OFFSET != LIMIT
+            callfunction GET_STRING 1
+            get ZERO short  # there is a ever a NULL at the end
+            set NAME string STR
+            get SIZE long
+            savepos OFFSET
+            log NAME OFFSET SIZE
+            math OFFSET + SIZE
+            goto OFFSET
+        next
+        math SIZE = 0   # for the next instruction
+    else
+        if SCRAMBLED_HEADER_SIZE == 0
+            getdstring DUMMY 8
+            get TEST long
+            if TEST == 0x5d
+                get DUMMY long
+                get XSIZE long
+                savepos OFFSET
+                math SIZE - 0x14
+                clog NAME OFFSET SIZE XSIZE
+            else
+                log NAME OFFSET SIZE
+            endif
+        else
+            log NAME OFFSET SIZE
+        endif
+    endif
+
+    filexor ""
+    math OFFSET + SIZE
+    goto OFFSET
+next i
+
+startfunction GET_STRING_MEM
+    get STRSZ long MEMORY_FILE
+    math STRSZ * 2
+    getdstring STR STRSZ MEMORY_FILE
+    set STR unicode STR
+endfunction
+
+startfunction GET_STRING
+    get STRSZ long
+    math STRSZ * 2
+    getdstring STR STRSZ
+    set STR unicode STR
+endfunction

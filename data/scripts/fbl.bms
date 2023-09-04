@@ -1,0 +1,36 @@
+# FBL Floorball League
+# script for QuickBMS http://quickbms.aluigi.org
+
+print "decryption in progress, wait patiently..."
+get SIZE asize
+log MEMORY_FILE 0 SIZE
+for i = 0 < SIZE
+    getvarchr TMP MEMORY_FILE i
+    math TMP2 = i
+    if i & 1
+        math TMP2 >>= 8
+        math TMP2 ^= 0x28
+    else
+        math TMP2 ^= 0x52
+    endif
+    math TMP2 |= 0x22
+    math TMP ^= TMP2
+    putvarchr MEMORY_FILE i TMP
+next i
+
+for EXTRACT = 0 < 2
+    goto 0 MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+        get NAMESZ long MEMORY_FILE
+        getdstring NAME NAMESZ MEMORY_FILE
+        if EXTRACT != 0
+            math OFFSET += BASE_OFF
+            log NAME OFFSET SIZE MEMORY_FILE
+        endif
+    next i
+    savepos BASE_OFF MEMORY_FILE
+next EXTRACT

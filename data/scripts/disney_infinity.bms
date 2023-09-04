@@ -1,0 +1,134 @@
+# Disney Infinity 3.0 (script 0.2.2a)
+# script for QuickBMS http://quickbms.aluigi.org 
+
+set KEY binary "\x68\x1B\xBE\xEA\x63\x16\x01\x88\xF9\xB7\x94\x51\x04\xA5\x14\x99"
+
+get FILE_NAME basename
+set PATH string FILE_NAME   # just in case...
+get FILE_SIZE asize
+math SIZE = FILE_SIZE       # just in case...
+
+if FILE_NAME strncmp "psx_"
+    set KEY binary "\x7D\xDD\x6D\x92\xF3\xA4\x6A\xBA\xF0\x61\xEB\xC3\xC0\x1D\x7D\x88"
+endif
+
+encryption aes_128_ctr KEY "" 1 16
+log MEMORY_FILE 0 FILE_SIZE
+encryption "" ""
+
+set PK_SIGN binary "PK\xff\xff"
+
+getdstring SIGN 4 MEMORY_FILE
+if SIGN == PK_SIGN
+
+    get FILES long MEMORY_FILE
+    for i = 0 < FILES
+        get NAME_CRC long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        callfunction UNZIP 1
+    next i
+
+elif SIGN == "DBNK"
+
+    goto 0x14 MEMORY_FILE
+    get ENTRIES short MEMORY_FILE
+    get FILES short MEMORY_FILE
+    get BASE_OFF long MEMORY_FILE
+    get ZERO long MEMORY_FILE
+    savepos OFFSET MEMORY_FILE
+    xmath OFFSET "OFFSET + (ENTRIES * 4)"
+    goto OFFSET MEMORY_FILE
+    for i = 0 < FILES
+        get NAME_OFF long MEMORY_FILE
+        get OFFSET long MEMORY_FILE
+        get SIZE long MEMORY_FILE
+
+        savepos TMP MEMORY_FILE
+        goto NAME_OFF MEMORY_FILE
+        get NAME string MEMORY_FILE
+        goto TMP MEMORY_FILE
+
+        string NAME p "%s/%s." PATH NAME
+        log NAME OFFSET SIZE MEMORY_FILE
+    next i
+
+else
+
+    string FILE_NAME + "."
+    log FILE_NAME 0 FILE_SIZE MEMORY_FILE
+
+endif
+
+startfunction UNZIP
+    encryption aes_128_ctr KEY "" 1 16
+
+    log MEMORY_FILE2 OFFSET 0x1e
+    math OFFSET + 0x1e
+
+    idstring MEMORY_FILE2 "PK\x03\x04"
+    get ver             short MEMORY_FILE2
+    get flag            short MEMORY_FILE2
+    get method          short MEMORY_FILE2
+    get modtime         short MEMORY_FILE2
+    get moddate         short MEMORY_FILE2
+    get crc             long MEMORY_FILE2
+    get comp_size       long MEMORY_FILE2
+    get uncomp_size     long MEMORY_FILE2
+    get name_len        short MEMORY_FILE2
+    get extra_len       short MEMORY_FILE2
+
+    log MEMORY_FILE2 OFFSET name_len
+    math OFFSET + name_len
+    getdstring name     name_len MEMORY_FILE2
+
+    log MEMORY_FILE2 OFFSET extra_len
+    math OFFSET + extra_len
+    getdstring extra    extra_len MEMORY_FILE2
+
+    # only the first 0x200 bytes are encrypted
+    # while the dct files are not encrypted at all
+    math TMP = 0x200
+    set EXT extension NAME
+    if EXT == "dct"
+        math TMP = comp_size
+    endif
+    if TMP > comp_size
+        math TMP = comp_size
+    endif
+    log MEMORY_FILE2 OFFSET TMP
+    encryption "" ""
+    math OFFSET + TMP
+    xmath TMP "comp_size - TMP"
+    append
+    log MEMORY_FILE2 OFFSET TMP
+    append
+
+    string NAME p "%s/%s" PATH NAME
+    if method == 0
+        Log name 0 comp_size MEMORY_FILE2
+    else
+        if method == 8
+            ComType deflate
+        elif method == 1
+            ComType shrink
+        elif method == 6
+            ComType explode
+        elif method == 9
+            ComType deflate64
+        elif method == 12
+            ComType bzip2
+        elif method == 13
+            ComType XMemDecompress
+        elif method == 14
+            ComType lzmaefs
+        elif method == 21
+            ComType XMemDecompress
+        elif method == 98
+            ComType ppmd
+        else
+            print "unsupported compression method %method%"
+            cleanexit
+        endif
+        CLog name 0 comp_size uncomp_size MEMORY_FILE2
+    endif
+endfunction

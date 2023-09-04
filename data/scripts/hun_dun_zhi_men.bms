@@ -1,0 +1,11 @@
+get NAMESZ long
+getdstring NAME NAMESZ
+get DUMMY long
+get FILES long
+for i = 0 < FILES
+    get NAMESZ long
+    getdstring NAME NAMESZ  # obfuscated names
+    get OFFSET longlong
+    get SIZE longlong
+    log "" OFFSET SIZE
+next i

@@ -1,0 +1,14 @@
+# Lost Planet
+# script for QuickBMS http://quickbms.aluigi.org
+
+comtype zlib_noerror
+getdstring DUMMY 6
+get FILES short
+for i = 0 < FILES
+    getdstring NAME 64
+    get DUMMY long
+    get SIZE long
+    get DUMMY long
+    get OFFSET long
+    clog NAME OFFSET SIZE SIZE
+next i

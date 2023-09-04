@@ -1,0 +1,28 @@
+# The Pink Panther: Hokus Pokus ORB
+
+idstring "ORB\0"
+get DUMMY short # 0
+get DUMMY short # 2
+get TSTAMP long
+get OFFSET long
+get FOLDERS long
+goto OFFSET
+for FOLDER = 0 < FOLDERS
+    getdstring PATH 0x10
+    get OFFSET long # types?
+    get FILES long  # types?
+    get OFFSET long
+    get FILES long
+
+    savepos TMP
+    goto OFFSET
+    for i = 0 < FILES
+        getdstring NAME 0x10
+        get OFFSET long
+        get SIZE long
+        get ZERO short
+        string NAME p "%s/%s" PATH NAME
+        log NAME OFFSET SIZE
+    next i
+    goto TMP
+next FOLDER

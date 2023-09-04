@@ -1,0 +1,85 @@
+# Dokodemo Issho (script 0.1.4)
+# script for QuickBMS http://quickbms.aluigi.org
+
+getdstring SIGN 4
+goto 0
+if SIGN == "CNA"
+
+    idstring "CNA\0"
+    get DUMMY long
+    get FILES long
+    get DATA_SIZE long
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    getdstring NAME 0x24
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        get ZERO long
+        math OFFSET * 0x800
+        log "" OFFSET SIZE
+    next i
+
+elif SIGN == "NAR"
+
+    idstring "NAR\0"
+    get DUMMY long
+    get BASE_OFF long
+    get FILES long
+    for i = 0 < FILES
+        get ID long
+        get OFFSET long
+        get SIZE long
+        getdstring TYPE 4
+        get DUMMY long
+        getdstring NAME 0x2c
+        string NAME p "%s/%s" TYPE NAME
+        log NAME OFFSET SIZE
+    next i
+
+else
+
+    math OFFSET = 0
+    callfunction EXTRACT_BP 1
+
+endif
+
+startfunction EXTRACT_BP
+    savepos BACKUP_OFF
+    goto OFFSET
+    savepos BP_OFF
+    get FILES long
+    get ENTRIES long
+    get DUMMY long
+    get BASE_OFF long
+    math BASE_OFF + BP_OFF
+    savepos TMP
+    xmath NAMES_OFF "TMP + (ENTRIES * 16)"
+    for i = 0 < ENTRIES
+        get NAME_OFF long
+        get OFFSET long
+        get SIZE long
+        get DUMMY long
+        if OFFSET != 0xffffffff
+            if NAME_OFF == 0xffffffff
+                set NAME string ""
+            else
+                savepos TMP
+                math NAME_OFF + NAMES_OFF
+                goto NAME_OFF
+                get NAME string
+                goto TMP
+            endif
+            math OFFSET + BASE_OFF
+            set EXT extension NAME
+            if EXT == "BPM"
+                callfunction EXTRACT_BP
+            else
+                log NAME OFFSET SIZE
+            endif
+        endif
+    next i
+    goto BACKUP_OFF
+endfunction

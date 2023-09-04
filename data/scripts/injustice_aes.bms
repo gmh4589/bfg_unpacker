@@ -1,0 +1,60 @@
+# Injustice 2 Coalesced.LANG and ENI decrypter/encrypter
+# script for QuickBMS http://quickbms.aluigi.org
+
+get SIZE asize
+get NAME basename
+get EXT extension
+
+if EXT == "eni"
+    get NAME filename
+    log MEMORY_FILE 0 SIZE
+    for i = 0 < SIZE
+        math REM = SIZE
+        math REM - i
+        if REM < 2
+            math REM = 1
+            getvarchr c MEMORY_FILE i byte
+        elif REM < 4
+            math REM = 2
+            getvarchr c MEMORY_FILE i short
+        else
+            math REM = 4
+            getvarchr c MEMORY_FILE i long
+        endif
+
+        math EDX ~ c
+        math c = 0
+        math LIMIT = REM
+        math LIMIT * 8
+        for x = 0 < LIMIT
+            xmath TMP "(((edx >> x) & 1) << ((LIMIT - 1) - x)) | (((edx >> (x + 1)) & 1) << ((LIMIT - 2) - x)) | (((edx >> (x + 2)) & 1) << ((LIMIT - 3) - x)) | (((edx >> (x + 3)) & 1) << ((LIMIT - 4) - x))"
+            math c | TMP
+        next x + 4
+
+        if REM == 1
+            putvarchr MEMORY_FILE i c byte
+        elif REM == 2
+            putvarchr MEMORY_FILE i c short
+        else
+            putvarchr MEMORY_FILE i c long
+        endif
+
+        math i + REM
+   
+    next
+    log NAME 0 SIZE MEMORY_FILE
+    cleanexit
+endif
+
+if NAME & "_decrypt"
+    string NAME - "_decrypt"
+    string NAME + "_encrypt."
+    math DO_ENC = 1
+else
+    string NAME + "_decrypt."
+    math DO_ENC = 0
+endif
+string NAME + EXT
+
+encryption aes "\x93\xBB\x69\xDF\x37\xD5\x38\x57\xB8\x6B\x20\xE1\x45\xCB\xA0\x61\xDD\x7D\xCF\xED\x3A\xAC\xF2\xDB\x29\x35\x91\x6C\x27\x66\x0B\xAF" "" DO_ENC
+log NAME 0 SIZE

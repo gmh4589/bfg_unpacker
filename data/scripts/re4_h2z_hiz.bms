@@ -1,0 +1,36 @@
+# Resident Evil 4 Mobile H2Z
+#   based on https://github.com/ruslol/H2ZExtractor/
+
+comtype deflate
+idstring "H2Z\0"
+get SOME_CRC long
+get SIZE long
+
+idstring "HIZ\0"
+get FILES long
+get SIZE long
+
+math ENTRY_SIZE = 0
+for i = 0 < FILES
+    savepos OFFSET
+    math OFFSET - ENTRY_SIZE
+    filexor "bio4" OFFSET
+
+    get TYPE short
+    get ZSIZE long
+    get SIZE long
+    get NAMESZ short
+    getdstring NAME NAMESZ
+
+    filexor ""
+    savepos ENTRY_SIZE
+    math ENTRY_SIZE - OFFSET
+
+    savepos OFFSET
+    if TYPE == 0
+        log NAME OFFSET SIZE
+    else    # 8 for deflate
+        clog NAME OFFSET ZSIZE SIZE
+    endif
+    goto ZSIZE 0 SEEK_CUR
+next i

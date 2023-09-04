@@ -1,0 +1,28 @@
+# Geometry Wars 3 Dimensions
+# script for QuickBMS http://quickbms.aluigi.org
+
+idstring "DAWL"
+get DUMMY long
+get DUMMY long
+goto 0x800
+
+get NUM long
+for i = 0 < NUM
+    get DUMMY long
+    get DUMMY long
+next i
+
+get FILES long
+for i = 0 < FILES
+    get SOME_CRC long
+    get DUMMY1 long
+    get DUMMY2 long
+    get SOME_CRC long
+    get OFFSET long
+    get ZSIZE longlong
+    get SIZE longlong
+    get ZERO long
+    get ZERO long
+    get ZERO long
+    log "" OFFSET SIZE
+next i

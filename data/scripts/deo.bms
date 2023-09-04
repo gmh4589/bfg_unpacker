@@ -1,0 +1,79 @@
+# Deo
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver "0.5.27"
+
+get FULL_SIZE asize
+set KEY2 string "dodchcdodchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohchcdohchodohc"
+math XNUM = 0x67cc
+
+getdstring KEY1 1024
+goto -4
+get FILES long
+
+xmath TMP1 "(0x7f & 0xff) * 4"
+xmath TMP2 "(XNUM & 0x3f) * 4"
+getvarchr VALUE1 KEY1 TMP1 long
+getvarchr VALUE2 KEY2 TMP2 long
+xmath FILES "FILES ^ VALUE1 ^ VALUE2"
+
+xmath SIZE "FILES * 0x1a8"
+xmath OFFSET "FULL_SIZE - 4 - SIZE"
+
+log MEMORY_FILE OFFSET SIZE
+
+math INFO_TMP = XNUM
+math INFO_OFF = 0
+for i = 0 < FILES
+    for j = 0 < 0x6a # 2 cycles of 0x35
+        xmath TMP1 "(INFO_TMP & 0xff) * 4"
+        xmath TMP2 "(INFO_TMP & 0x3f) * 4"
+        getvarchr VALUE1 KEY1 TMP1 long
+        getvarchr VALUE2 KEY2 TMP2 long
+        getvarchr VALUE MEMORY_FILE INFO_OFF long
+        xmath VALUE "VALUE ^ VALUE1 ^ VALUE2"
+        putvarchr MEMORY_FILE INFO_OFF VALUE long
+        math INFO_TMP += 1
+        math INFO_OFF += 4
+    next j
+
+    getdstring NAME 0x82 MEMORY_FILE
+    getdstring NAME 0x106 MEMORY_FILE
+    get TIMESTAMP longlong MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get SIZE long MEMORY_FILE
+    get OFFSET long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+    get DUMMY long MEMORY_FILE
+
+    if SIZE != 0
+        log MEMORY_FILE2 OFFSET SIZE
+
+        xmath TMP "(OFFSET + XNUM) / 4"
+        xmath TMP_SIZE "(SIZE / 4) * 4"
+        for FILE_OFF = 0 < TMP_SIZE
+            xmath TMP1 "(TMP & 0xff) * 4"
+            xmath TMP2 "(TMP & 0x3f) * 4"
+            getvarchr VALUE1 KEY1 TMP1 long
+            getvarchr VALUE2 KEY2 TMP2 long
+            getvarchr VALUE MEMORY_FILE2 FILE_OFF long
+            xmath VALUE "VALUE ^ VALUE1 ^ VALUE2"
+            putvarchr MEMORY_FILE2 FILE_OFF VALUE long
+            math TMP += 1
+        next FILE_OFF + 4
+        xmath TMP "(OFFSET + XNUM) + TMP_SIZE"
+        for FILE_OFF = FILE_OFF < SIZE
+            xmath TMP1 "(TMP & 0x3ff)"
+            xmath TMP2 "(TMP & 0xff)"
+            getvarchr VALUE1 KEY1 TMP1
+            getvarchr VALUE2 KEY2 TMP2
+            getvarchr VALUE MEMORY_FILE2 FILE_OFF
+            xmath VALUE "VALUE ^ VALUE1 ^ VALUE2"
+            putvarchr MEMORY_FILE2 FILE_OFF VALUE
+            math TMP += 1
+        next FILE_OFF
+
+        log NAME 0 SIZE MEMORY_FILE2
+    endif
+next i

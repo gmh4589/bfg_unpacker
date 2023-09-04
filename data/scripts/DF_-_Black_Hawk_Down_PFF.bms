@@ -1,0 +1,25 @@
+# DF - Black Hawk Down (PFF)
+
+ImpType StandardTail ;
+Set FS Long 8 ;
+GoTo FS 0 ;
+Get FC Long 0 ;
+Get FJ Long 0 ;
+SavePos TailOffOff 0 ;
+Get TO Long 0 ;
+GoTo TO 0 ;
+For T = 1 To FC ;
+Get D Long 0 ;
+SavePos FOO 0 ;
+Get FO Long 0 ;
+SavePos FSO 0 ;
+Get FS Long 0 ;
+Get D Long 0 ;
+GetDString FN 36 0 ;
+Get D Long 0 ;
+Get D Long 0 ;
+Math TO += FJ ;
+GoTo TO 0 ;
+Log FN FO FS #FOO FSO ;
+Next T ;
+

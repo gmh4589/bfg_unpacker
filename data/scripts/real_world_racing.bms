@@ -1,0 +1,13 @@
+# Real World Racing
+# script for QuickBMS http://quickbms.aluigi.org
+
+get LAYER_SIZE asize
+for OFFSET = 0 < LAYER_SIZE
+    goto OFFSET
+    get SIZE long
+    get DUMMY long
+    savepos OFFSET
+    math SIZE -= 8
+    log "" OFFSET SIZE
+    math OFFSET += SIZE
+next

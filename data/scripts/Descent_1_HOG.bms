@@ -1,0 +1,18 @@
+# Descent 1 (HOG)
+
+IDString 0 DHF ;
+SavePos FILESTART 0 ;
+GoTo EOF 0 ;
+SavePos D 0 ;
+Do ;
+GoTo FILESTART 0 ;
+GetDString FILENAME 13 0 ;
+Get FILESIZE Long 0 ;
+SavePos FILEOFF 0 ;
+SavePos FILESTART 0 ;
+Log FILENAME FILEOFF FILESIZE 0 0 ;
+Math FILESTART += FILESIZE ;
+Set F Long FILESTART ;
+Math F += 17 ;
+While F < D ;
+

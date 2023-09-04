@@ -1,0 +1,15 @@
+# TT Superbikes
+# script for QuickBMS http://quickbms.aluigi.org
+
+get FULLSIZE asize
+get FILES long
+getdstring NAME 8
+get DUMMY long
+for i = 0 < FILES
+    getdstring NAME 9
+    get SIZE long
+    get OFFSET threebyte
+    math OFFSET *= 0x100
+    math SIZE *= 0x100
+    log NAME OFFSET SIZE
+next i

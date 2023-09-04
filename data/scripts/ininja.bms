@@ -1,0 +1,62 @@
+# I-Ninja (script 0.1.1)
+# script for QuickBMS http://quickbms.aluigi.org
+
+open FDDE "dir" 1
+open FDDE "wad"
+
+math ALIGN = 1
+
+get FILES long 1
+for i = 0 < FILES
+    getdstring NAME 0x40 1
+    get SIZE long 1
+    get OFFSET long 1
+    if i == 0
+    if OFFSET == 1
+        math ALIGN = 0x800
+    endif
+    endif
+    math OFFSET * ALIGN
+    log NAME OFFSET SIZE
+    callfunction DUMP_BIGB
+next i
+
+startfunction DUMP_BIGB
+    goto OFFSET
+    set NAME basename NAME
+    string NAME + "/."
+
+    # unknown compression algorithm, scanned from both offset 0 and 1 of the RIFF files
+    #comtype ???
+
+    getdstring SIGN 4
+    if SIGN == "BIGB"
+        get TMP long
+        xmath OFFSET "OFFSET + 0x10 + TMP"
+        getdstring DUMMY 0x70
+        get SIZE3 long
+        get SIZE4 long
+        get SIZE1 long
+        get SIZE2 long
+        get ZSIZE1 long
+        get ZSIZE2 long
+
+        #clog NAME OFFSET ZSIZE1 SIZE1
+        log NAME OFFSET ZSIZE1
+        math OFFSET + ZSIZE1
+
+        #clog NAME OFFSET ZSIZE2 SIZE2
+        log NAME OFFSET ZSIZE2
+        math OFFSET + ZSIZE2
+        math OFFSET x 0x800
+
+        if SIZE3 != 0
+            log NAME OFFSET SIZE3
+            math OFFSET + SIZE3
+            math OFFSET x 0x800
+        endif
+        if SIZE4 != 0
+            log NAME OFFSET SIZE4
+        endif
+    endif
+endfunction

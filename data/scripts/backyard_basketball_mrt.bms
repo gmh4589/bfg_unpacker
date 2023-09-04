@@ -1,0 +1,37 @@
+# Backyard Basketball (.mrt)
+
+get BASE_OFF long
+math BASE_OFF * 0x800
+get SIZE long
+
+set PATH string ""
+set NAME string ""
+callfunction EXTRACT
+
+startfunction EXTRACT
+    string PATH + NAME
+    string PATH + /
+
+    math ENTRIES = SIZE
+    for i = 0 < ENTRIES
+        savepos TMP
+        get TYPE short
+        get ENTRY_SIZE short
+        get SIZE long
+        get OFFSET long
+        savepos NAMESZ
+        xmath NAMESZ "ENTRY_SIZE - (NAMESZ - TMP)"
+        getdstring NAME NAMESZ
+
+        if TYPE == 0
+            savepos TMP
+            goto OFFSET
+            callfunction EXTRACT
+            goto TMP
+        else
+            math OFFSET + BASE_OFF
+            string NAME p "%s%s" PATH NAME
+            log NAME OFFSET SIZE
+        endif
+    next i
+endfunction
