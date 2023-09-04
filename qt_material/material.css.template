@@ -356,7 +356,9 @@ QPushButton:checked:disabled {
   border-color:  {{secondaryLightColor}};
 }
 
-QToolButton:focus,
+QToolButton:focus{
+  background-color: {{secondaryDarkColor}};
+}
 QPushButton:focus {
   background-color: {{primaryColor|opacity(0.2)}};
 }
