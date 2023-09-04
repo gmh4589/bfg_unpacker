@@ -1,3 +1,4 @@
+
 Func SettingMenu()
 	
 	Local $set_Gui = GUICreate($tOpenINI, 250, 220, -1, -1)
@@ -213,7 +214,13 @@ Func _ChangeButton($jBTN)
 	If $iMenuColor <> 'Classic' then GUISetBkColor($iColor1)
 	GUISetState(@SW_SHOW, $but_Gui)
 	GUISetIcon(@ScriptDir & "\Data\ico\i.ico")
-	Local $arg1 = 0, $arg2 = 0, $btnArray = IniReadSection(@ScriptDir & '\unpacker.ini', 'Button')
+	Local $arg1 = 0, $arg2 = 0
+	Local $btnArray = []
+	
+	For $i = 1 to 15
+		$iBtnName = IniRead(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $i, $abcArray[$i])
+		_ArrayAdd($btnArray, $iBtnName)
+	Next
 		
 	For $i = 2 To 25
 		$setBTN[$i] = GUICtrlCreateLabel($abcArray[$i], $arg1, $arg2, 50, 50, $SS_CENTER+$SS_CENTERIMAGE)
@@ -254,8 +261,8 @@ Func _ChangeButton($jBTN)
 							IniWrite(@ScriptDir & '\unpacker.ini', 'Button', 'Button' & $jBTN, $abcArray[$i])
 							GUICtrlSetData($idButton[$jBTN], $abcArray[$i])
 							GUICtrlSetFont($idButton[$jBTN], $iIconsArray[$i][0], 400, 0, "IconLib")
-							GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])
-							$btnArray[$jBTN-1][1] = $abcArray[$i]
+							GUICtrlSetTip($idButton[$jBTN], $iIconsArray[$i][1])							
+							$btnArray[$jBTN-1] = $abcArray[$i]
 							_MsgBox(0, $tMessage, $tBTN & $btnName & $tBTN2 & $iIconsArray[$i][1] & '"')  ;TODO!!!
 						EndIf
 					EndIf

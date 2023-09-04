@@ -1,41 +1,37 @@
 
 Func _fileReaper($iFunc, $iExt = '', $sFileName = '', $iPar1 = '')
-	Local $fDrive, $fDir, $fName, $fExp
-	$sFileName = _getFile($sFileName, $iExt)
-	If @error = 1 then Return
-	$iFileList = StringSplit($sFileName, '|')
-	Local $a = UBound($iFileList) - 1, $fc = 2
-	If $a = 1 Then $fc = 1
-	GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)	
-	
-	For $j = $fc to $a
-	
+    $sFileName = _getFile($sFileName, $iExt)
+    If @error = 1 Then Return
+    $iFileList = StringSplit($sFileName, '|')
+    Local $a = $iFileList[0], $fc = 2
+    If $a = 1 Then $fc = 1
+    GUICtrlSetData($iEdit, $tProcessingFile & @CRLF, 1)
+
+    For $j = $fc To $a
 		If $iFileList[0] > 1 Then $sFileName = $iFileList[1] & '\' & $iFileList[$j]
-		_PathSplit($sFileName, $fDrive, $fDir, $fName, $fExp)
-		_PathSplit($iPar1, $iDrive, $iDir, $iName, $iExp)
-		$pth = GUICtrlRead($iSubFolder_Checkbox) = 1 ? $sFolderName & '\' & $fName : $sFolderName
-		DirCreate($pth)
-		
-		If IsArray($iPar1) Then
-			
-			If $iPar1[4] Then
-				FileCopy($sFileName, $sFolderName & '\')
-				$sFileName = $sFolderName & '\' & $fName & $fExp
-			EndIf
-			;TODO: Something wrong
-			; Local $iParray = [$iPRGName, $iCommand1, $iCommand2, $iWorkDir, $iMove]
-			; _fileReaper(_Console, $iExtList, $sFileName, $iParray)
-			_Console(@ScriptDir & '\' & $iPar1[0], " " & $iPar1[1] & ' "' & $sFileName & '" ' & $iPar1[2], $sFolderName, $sFileName)
-			
-			If $iPar1[4] Then FileDelete($sFolderName & '\' & $fName & $fExp)
-			
-		ElseIf $iPar1 <> '' Then
-			_Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $pth & '"', $iDrive & $iDir, $sFileName)
-			
-		ElseIf $iPar1 = '' Then
-			$iFunc($sFileName)
-		EndIf
-	Next
+		_PathSplit($sFileName, $iDrive, $iDir, $iName, $iExp)
+        $pth = GUICtrlRead($iSubFolder_Checkbox) = 1 ? $sFolderName & '\' & $iName : $sFolderName
+        If Not FileExists($pth) Then DirCreate($pth)
+
+        If IsArray($iPar1) Then
+            If $iPar1[4] Then
+                FileCopy($sFileName, $sFolderName & '\')
+                $sFileName = $sFolderName & '\' & $iName & $iExp
+            EndIf
+
+            GUICtrlSetData($iEdit, @CRLF & $sFileName & @CRLF, 1)
+            _Console(@ScriptDir & '\' & $iPar1[0], " " & $iPar1[1] & ' "' & $sFileName & '" ' & $iPar1[2], $sFolderName, $sFileName)
+
+            If $iPar1[4] Then FileDelete($sFolderName & '\' & $iName & $iExp)
+
+        ElseIf $iPar1 <> '' Then
+            GUICtrlSetData($iEdit, @CRLF & $sFileName & @CRLF, 1)
+            _Console(@ScriptDir & "\data\quickbms.exe ", $rI & $iPar1 & ' "' & $sFileName & '" "' & $pth & '"', $iDrive & $iDir, $sFileName)
+
+        ElseIf $iPar1 = '' Then
+            $iFunc($sFileName)
+        EndIf
+    Next
 EndFunc
 
 Func _getFile($sFileName, $iExtList = '')
@@ -60,13 +56,16 @@ Func DDSSaving($dwHeight, $dwWidth, $iMediaFile_dds, $iOffset, $DDSOpenFile)
 	FileSetPos($DDSOpen, $iOffset, 0)
 	$iDDS_Data = FileRead($DDSOpen)
 	$iNewDDS = FileOpen($sFolderName & "\" & $iName & ".dds", 2+8+16)
+	
 	FileWrite($iNewDDS, "0x444453207C00000007100A00") 
 	FileWrite($iNewDDS, _BinaryFromInt32($dwHeight))
 	FileWrite($iNewDDS, _BinaryFromInt32($dwWidth))
 	FileWrite($iNewDDS, "0x70550500010000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000004000000") 
-	FileWrite($iNewDDS, $iMediaFile_dds)
-	FileWrite($iNewDDS, "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000") 
+	FileWrite($iNewDDS, $iMediaFile_dds = 'ARGB8' ? "0x00000000" : $iMediaFile_dds)
+	FileWrite($iNewDDS, $iMediaFile_dds = 'ARGB8' ? "0x20000000" : "0x00000000")
+	FileWrite($iNewDDS, "0x000000000000000000000000000000000000000000000000000000000000000000000000") 
 	FileWrite($iNewDDS, $iDDS_Data)
+	FileClose($iNewDDS)
 EndFunc
 
 Func CubeMapCreator()

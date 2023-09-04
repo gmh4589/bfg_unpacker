@@ -134,7 +134,7 @@ Func _ButtonDo($sFilePath, $iMenuData, $iGUIName, $nFolderName = $sFolderName)
 			Case "XWMA Tool GUI"
 				_OtherPRG('', '\data\xWMAEncode.exe ', ' -b ' & $iCombo[1] & ' ', ' "' & $nFolderName & '\' & $iName & '.' & $iCombo[2] & '"', $nFolderName, $sFilePath)
 			Case "DDS Tools GUI nVidia"
-				_OtherPRG('', '\data\dds_tools\nvdxt.exe ', ' -file "', '" ' & '-' & $iCombo[1] & ' -output "' & $nFolderName & '\' & $iName & '.dds"', $nFolderName, $sFilePath)
+				_OtherPRG('', '\data\dds_tools\nvdxt.exe ', ' -file ', ' ' & '-' & $iCombo[1] & ' -output "' & $nFolderName & '\' & $iName & '.dds"', $nFolderName, $sFilePath)
 			Case "DDS Tools GUI Microsoft"
 				If $iCombo[2] = 'PC' then $iProg = "\data\dds_tools\texconv.exe"
 				If $iCombo[2] = 'XBox One' then $iProg = "\data\dds_tools\xtexconv.exe"

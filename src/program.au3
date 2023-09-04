@@ -34,6 +34,7 @@ Func _OtherPRGExt($iMode1, $sFileName = '')
 		If $iMode1 = '_SAU' Then _OtherPRG('', 'data\sau.exe', './', " " & $sFolderName & '\', $iDrive & '\' & $iDir, $iName & $iExp)	
 		If $iMode1 = '_VGM' Then _OtherPRG('', 'data\vgmstream\test.exe', '-o ' & $sFolderName & '\' & $iName & '.wav ', '', $sFolderName, $sFileName)
 	Next
+	
 EndFunc
 
 Func _ScriptCreate($iStringArray, $iJobFolder = $sFolderName)

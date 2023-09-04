@@ -53,12 +53,20 @@ Func _BarCreate($percent, $txt = "Test", $txt2 = 'Test', $W = 250, $H = 90, $iSi
 
 	_CursorMove($progressGUI)
 	
+	If $percent < $ifPBlow Then
+		$hGraphic = _GDIPlus_GraphicsCreateFromHWND($progressGUI)
+		$hPen = _GDIPlus_PenCreate($iColor1, $iSize, 2)		
+		_GDIPlus_GraphicsDrawLine($hGraphic, 10, $iSize / 2 + 25, $W - 10, $iSize / 2 + 25, $hPen)
+	Else
+		$ifPBlow = $percent
+	EndIf
+	
 	If $percent >= 0 Then
 		$hGraphic = _GDIPlus_GraphicsCreateFromHWND($progressGUI)
 		$hPen = _GDIPlus_PenCreate($iColor, $iSize, 2)
-
+		
 		If $percent >= 100 Then $percent = 100
-
+		
 		$long = $percent * ($W / 100) - 10 < 10 ? 10 : $percent*($W / 100) - 10
 		
 		_GDIPlus_GraphicsDrawLine($hGraphic, 10, $iSize / 2 + 25, $long, $iSize / 2 + 25, $hPen)
@@ -72,6 +80,7 @@ Func _BarOff()
 	GUISetState(@SW_HIDE, $progressGUI)	
 	GUIDelete($progressGUI)
 	$iProgressFlagStart = True
+	$ifPBlow = 0
 EndFunc
 
 Func _MsgBox($flag, $title, $text, $c1 = $iColor2, $c2 = $iColor1, $fColor = $iFontColor, $mbFont = "Arial")

@@ -1,8 +1,8 @@
 
 #pragma compile(Icon, data\ico\i.ico)
 #pragma compile(x64, false)
-#pragma compile(FileVersion, 1.0.22.7, 18.04.2022)
-#pragma compile(ProductVersion, 1.0.22.7, 18.04.2022)
+#pragma compile(FileVersion, 1.23.2, sen 4 2023)
+#pragma compile(ProductVersion, 1..23.2, sen 4 2023)
 #pragma compile(ProductName, BFG Unpacker)
 #pragma compile(Out, BFGUnpacker.exe)
 #pragma compile(FileDescription, BFG Unpacker - Multifunctional Game Resource Unpacker, Packer and Converter.)
@@ -89,7 +89,7 @@ If $sFolderName = '' Then SelectFolder()
 
 ;Цвета и шрифты меню
 _WinAPI_AddFontResourceEx(@ScriptDir & '\data\fonts\IconLib.otf', $FR_PRIVATE)
-Global $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor
+Global $iFontColor, $iFontColor2, $iColor1, $iColor2, $iColor3, $iFolderColor, $iRecicleColor, $ifPBlow = 0
 $bUseRGBColors = True
 
 ;Массивы для генерации меню

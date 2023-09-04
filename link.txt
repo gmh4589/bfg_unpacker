@@ -17,6 +17,7 @@ https://www.zophar.net - сайт с большой базой программ 
 http://www.ctpax-x.org/index.php - сайт с крупной базой инструментов для разбора игровых ресурсов
 https://forum.xentax.com/viewtopic.php?f=13&t=4450&sid=5a77613e1749dcfedb17ab9e0fbed237 - страница программиста с ником AlphaTwentyThree, автора многих скриптов для QuickBMS
 https://github.com/babel92/Arianrhod - очень много софта для распаковки японских игр от японского программиста c ником Arianrhod на GitHub
+https://cloud.mail.ru/public/2b4p/is5Jw6Moa - чья-то коллекция русификаторов
 https://modding.tistory.com - корейский сайт, посвещенный моддингу игр, можно найти моды и инструменты
 https://progamercity.net/index.php - сайт для модоелов и переводчиков игр, можно найти множество инструментов
 https://www.zoneofgames.ru/ - российский сайт переводчиков игр, имеется огромная база русификаторов, инструментов для игр, и форум переводчиков, а также, игровые новости

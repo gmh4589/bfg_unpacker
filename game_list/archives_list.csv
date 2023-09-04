@@ -3,8 +3,8 @@ ARC	_OtherPRG	ARC Archives (*.arc)|	data\arc.exe	 e	 	 a	true	.arc	True	1
 BLZ	_OtherPRG	BLZ Archives (*.blz)|	data\blzpack.exe	 d	 	 c	true	.blz	True	1
 BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	\data\bma.exe	 e	 	 a	true	.bma	True	1
 DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	\data\dgcac.exe	 e	 "FolderName"	 a	false	.dgc	False	1
-NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	nz.exe\data\	 x	 	 a "FolderName"	true	.nz	False	1
-YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	\data\yz2tool.exe	 -x	 	 -c	true	.yz2	False	1
+NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	\data\nz.exe	 x	 	 a "FolderName"	true	.nz	False	1
+YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	\data\yz2tool.exe	 -x	 	 -c	true	.yz2	True	1
 DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	\data\dzip.exe	 -x	 	 -o	true	.dzip	False	2
 ExFAT File System Image	_7Zip	ExFAT Disc Images (*.fat;*.img)|								3
 AccessData FTK Imager Logical Image	_7Zip	AD1 Disc Images (*.ad1)|								3
