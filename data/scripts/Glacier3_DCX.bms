@@ -1,9 +1,0 @@
-endian big
-get fileCount long
-for i = 0 < fileCount
-   get NZIZE long
-   getdstring name NZIZE
-   get pointer long
-   get length long
-   log name pointer length
-next i

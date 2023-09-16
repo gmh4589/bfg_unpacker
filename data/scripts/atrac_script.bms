@@ -1,8 +1,0 @@
-include "func_header_AT9.bms"
-set FREQ 44100
-set CH 2
-set OFFSET 0x0
-set BITRATE 132
-get SIZE asize
-math SIZE -= OFFSET
-callfunction AT9 1
