@@ -21,6 +21,9 @@ class Ui_BFGUnpacker(Translate):
         self.toolButton_minus = QToolButton(self.centralwidget)
         self.toolButton_minus.setGeometry(QRect(resize.widget(485), resize.widget(40), resize.widget(30), resize.widget(30)))
         self.logWindow = QTextBrowser(self.centralwidget)
+        self.logWindow.setStyleSheet('QTextBrowser {'
+                                             f'font-size: {resize.widget(12)}px;'
+                                             '}')
         self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(79), resize.widget(295), resize.widget(520)))
         self.all_games_label = QLabel(self.centralwidget)
         self.all_games_label.setGeometry(QRect(resize.widget(451), resize.widget(605), resize.widget(100), resize.widget(15)))

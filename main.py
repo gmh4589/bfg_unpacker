@@ -2,12 +2,13 @@ import configparser
 import importlib
 import json
 import os
+import shutil
 import sys
 from datetime import datetime
 import pandas
 from threading import Thread
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 
@@ -17,6 +18,7 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm
+from source.reapers import pathologic
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -26,6 +28,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def __init__(self):
         super().__init__()
+        self.out_dir = setting['Main']['out_path']
+        self.path_to_root = os.path.abspath(__file__).split('source')[0]
+        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.setWindowTitle("BFGUnpacker")
         self.resize(resize.widget(600), resize.widget(650))
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -36,6 +41,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.model = QStandardItemModel()
         self.gameList_treeView.setModel(self.model)
         self.root_item = self.model.invisibleRootItem()
+        sys.stdout = EmittingStream(text_written=self.append_text)
+        self.unpacker = Unpacker()
 
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
 
@@ -66,8 +73,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         else:
             self.tree_view_create_by_year()
 
-        # pprint(self.parent_list)
-
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
         self.all_games_count.setText(str(self.all_games))
@@ -79,6 +84,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.create_theme.triggered.connect(
             lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
         self.archive_list = {}
+
+    def append_text(self, text):
+
+        if text.strip():
+            self.logWindow.append(text)
 
     # Создается список тем
     def themes_list_create(self):
@@ -162,61 +172,67 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             btn.setContextMenuPolicy(3)
             btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
 
+    def add_action(self, btn, action=''):
+
         match action:
             case '7zip':
-                pass
+                btn.clicked.connect(lambda: print('7zip'))
             case 'bink':
-                pass
+                btn.clicked.connect(lambda: print('bink'))
             case 'creation':
-                pass
+                btn.clicked.connect(lambda: print('creation'))
             case 'cry engine':
-                pass
+                btn.clicked.connect(lambda: print('cry engine'))
             case 'ffmpeg':
-                pass
+                btn.clicked.connect(lambda: print('ffmpeg'))
             case 'folder':
-                pass
+                btn.clicked.connect(lambda: print('folder'))
             case 'gaup':
-                pass
+                btn.clicked.connect(lambda: print('gaup'))
             case 'godot':
-                pass
+                btn.clicked.connect(lambda: print('godot'))
             case 'idtech':
-                pass
+                btn.clicked.connect(lambda: print('idtech'))
             case 'innosetup':
-                pass
+                btn.clicked.connect(lambda: print('innosetup'))
             case 'playstation':
-                pass
+                btn.clicked.connect(lambda: print('playstation'))
             case 'quickbms':
-                pass
+                btn.clicked.connect(lambda: print('quickbms'))
             case 'raw2atrac':
-                pass
+                btn.clicked.connect(lambda: print('raw2atrac'))
             case 'raw2dds':
-                pass
+                btn.clicked.connect(lambda: print('raw2dds'))
             case 'raw2wav':
-                pass
+                btn.clicked.connect(lambda: print('raw2wav'))
             case 'red engine':
-                pass
+                btn.clicked.connect(lambda: print('red engine'))
             case 'renpy':
-                pass
+                btn.clicked.connect(lambda: print('renpy'))
             case 'rpg maker':
-                pass
+                btn.clicked.connect(lambda: print('rpg maker'))
             case 'setting':
                 btn.clicked.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
             case 'source':
-                pass
+                btn.clicked.connect(lambda: print('source'))
             case 'trashcan':
-                pass
+                # btn.clicked.connect(lambda: print('trashcan'))
+                btn.clicked.connect(self.empty_out)
             case 'unreal':
-                pass
+                # btn.clicked.connect(lambda: print('unreal'))
+                btn.clicked.connect(lambda: Thread(target=self.unpacker.unreal, args=(
+                    self.file_open('Unreal Engine File(*.u*; *.xxx; *.pak; *.locres; *.pcc)|Unreal Engine 1-2(*.u*)|'
+                                   'Unreal Engine 3(*.u*; *.xxx; *.pcc)|Unreal Engine 4(*.pak; *.locres)|'), )).start())
             case 'unigen':
-                pass
+                btn.clicked.connect(lambda: print('unigen'))
             case 'unity':
-                pass
+                # btn.clicked.connect(lambda: print('unity'))
+                btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
+                                                   args=(self.file_open('', True), )).start())
             case 'wwise':
-                pass
+                btn.clicked.connect(lambda: print('wwise'))
             case 'xnconvert':
-                pass
-
-        self.upperButtons.addWidget(btn)
+                btn.clicked.connect(lambda: print('xnconvert'))
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
@@ -263,6 +279,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                                 l_func=[lambda: print('trash1'), lambda: print('trash2')])
             else:
                 self.add_button(btn, action=tool_tips[a])
+
+            self.add_action(btn, tool_tips[a])
+            self.upperButtons.addWidget(btn)
 
     def new_button(self, style, alpha):
         cbm.CBWindow(style=style, letter=alpha).exec()
@@ -420,17 +439,64 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         file_name = self.file_open(ext_list, select_folder, more_one)
 
         if file_name:
-            unpacker = Unpacker()
 
-            if func_name == "_Unity":
-                # unpacker.unity(file_name)
-                thread = Thread(target=unpacker.unity, args=(file_name, ))
-
-            else:
-                # unpacker.quick_bms(file_name, script_name)
-                thread = Thread(target=unpacker.quick_bms, args=(file_name, script_name))
+            match func_name:
+                case "_Unity":
+                    thread = Thread(target=self.unpacker.unity, args=(file_name, ), daemon=True)
+                case "_Unreal" | "_Unreal4":
+                    thread = Thread(target=self.unpacker.unreal, args=(self.file_open(
+                        'Unreal Engine File(*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2(*.u*)|'
+                        'Unreal Engine 3(*.u*;*.xxx;*.pcc)|Unreal Engine 4(*.pak;*.locres)|'
+                    ), script_name), daemon=True)
+                case "_Mor":
+                    thread = Thread(target=pathologic.mor_unpacker, args=(file_name, self.out_dir), daemon=True)
+                case _:
+                    thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
 
             thread.start()
+
+    def empty_out(self):
+
+        def empty():
+            not_deleted = 0
+
+            if os.listdir(self.out_dir):
+
+                for root, dirs, files in os.walk(self.out_dir):
+
+                    if files or dirs:
+                        for filename in files:
+
+                            try:
+                                os.remove(os.path.join(self.out_dir, filename))
+                                print(f'Deleting: {filename}...')
+                            except (PermissionError, FileNotFoundError):
+                                not_deleted += 1
+
+                        for dirname in dirs:
+
+                            try:
+                                shutil.rmtree(os.path.join(self.out_dir, dirname))
+                                print(f'Deleting: {dirname}...')
+                            except (PermissionError, FileNotFoundError):
+                                not_deleted += 1
+
+                if not_deleted:
+                    print(f"Some files or folders ({not_deleted}) could not be deleted. Try removing them manually")
+                else:
+                    print('Done!')
+
+            else:
+                print('The folder is empty!')
+
+        Thread(target=empty, daemon=True).start()
+
+
+class EmittingStream(QObject):
+    text_written = pyqtSignal(str)
+
+    def write(self, text):
+        self.text_written.emit(str(text))
 
 
 if __name__ == "__main__":

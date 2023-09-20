@@ -2,7 +2,6 @@
 import sys
 
 from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
-from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 
 from qt_material import apply_stylesheet
@@ -10,7 +9,6 @@ import configparser
 import xml.etree.ElementTree as ET
 
 import source.ui.localize as TL
-from source.ui import resize
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -25,36 +23,26 @@ class ThemeCreateWindow(QDialog):
         colors = []
 
         self.setObjectName("MainWindow")
-        self.resize(resize.widget(270), resize.widget(270))
+        self.resize(270, 270)
         self.centralwidget = QWidget(self)
-        self.font = QFont()
-        self.font.setPointSize(resize.widget(8))
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setFont(self.font)
-        self.saveButton.setGeometry(QRect(resize.widget(10), resize.widget(230), resize.widget(250), resize.widget(30)))
+        self.saveButton.setGeometry(QRect(10, 230, 250, 30))
         self.toolButton_1 = QToolButton(self.centralwidget)
-        self.toolButton_1.setFont(self.font)
-        self.toolButton_1.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(150), resize.widget(30)))
+        self.toolButton_1.setGeometry(QRect(10, 10, 150, 30))
         self.toolButton_2 = QToolButton(self.centralwidget)
-        self.toolButton_2.setFont(self.font)
-        self.toolButton_2.setGeometry(QRect(resize.widget(10), resize.widget(40), resize.widget(150), resize.widget(30)))
+        self.toolButton_2.setGeometry(QRect(10, 40, 150, 30))
         self.toolButton_3 = QToolButton(self.centralwidget)
-        self.toolButton_3.setFont(self.font)
-        self.toolButton_3.setGeometry(QRect(resize.widget(10), resize.widget(70), resize.widget(150), resize.widget(30)))
+        self.toolButton_3.setGeometry(QRect(10, 70, 150, 30))
         self.toolButton_4 = QToolButton(self.centralwidget)
-        self.toolButton_4.setFont(self.font)
-        self.toolButton_4.setGeometry(QRect(resize.widget(10), resize.widget(100), resize.widget(150), resize.widget(30)))
+        self.toolButton_4.setGeometry(QRect(10, 100, 150, 30))
         self.toolButton_5 = QToolButton(self.centralwidget)
-        self.toolButton_5.setFont(self.font)
-        self.toolButton_5.setGeometry(QRect(resize.widget(10), resize.widget(130), resize.widget(150), resize.widget(30)))
+        self.toolButton_5.setGeometry(QRect(10, 130, 150, 30))
         self.toolButton_6 = QToolButton(self.centralwidget)
-        self.toolButton_6.setFont(self.font)
-        self.toolButton_6.setGeometry(QRect(resize.widget(10), resize.widget(160), resize.widget(150), resize.widget(30)))
+        self.toolButton_6.setGeometry(QRect(10, 160, 150, 30))
         self.toolButton_7 = QToolButton(self.centralwidget)
-        self.toolButton_7.setFont(self.font)
-        self.toolButton_7.setGeometry(QRect(resize.widget(10), resize.widget(190), resize.widget(150), resize.widget(30)))
+        self.toolButton_7.setGeometry(QRect(10, 190, 150, 30))
         self.widget = QWidget(self.centralwidget)
-        self.widget.setGeometry(QRect(resize.widget(170), resize.widget(10), resize.widget(90), resize.widget(200)))
+        self.widget.setGeometry(QRect(168, 10, 91, 211))
         self.verticalLayout_2 = QVBoxLayout(self.widget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.label1 = QLabel(self.widget)
