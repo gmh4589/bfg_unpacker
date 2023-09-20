@@ -5,8 +5,10 @@ import os
 import shutil
 import sys
 from datetime import datetime
+from time import sleep
 import pandas
 from threading import Thread
+import asyncio
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -17,7 +19,7 @@ import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
-from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm
+from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
 from source.reapers import pathologic
 
 setting = configparser.ConfigParser()
@@ -457,39 +459,44 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def empty_out(self):
 
-        def empty():
+        async def empty():
             not_deleted = 0
+            deleting_list = os.listdir(self.out_dir)
 
-            if os.listdir(self.out_dir):
+            if deleting_list:
+                a = len(deleting_list)
+                pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')
+                pb.exec()
 
-                for root, dirs, files in os.walk(self.out_dir):
+                for i, item in enumerate(deleting_list):
+                    name = os.path.join(self.out_dir, item)
+                    info_text = f'Deleting {item}...'
+                    pb.update_info(int(100/a * i), f'{i}/{a}', info_text)
 
-                    if files or dirs:
-                        for filename in files:
+                    try:
 
-                            try:
-                                os.remove(os.path.join(self.out_dir, filename))
-                                print(f'Deleting: {filename}...')
-                            except (PermissionError, FileNotFoundError):
-                                not_deleted += 1
+                        if os.path.isfile(name):
+                            os.remove(name)
+                        elif os.path.isdir(name):
+                            shutil.rmtree(name)
 
-                        for dirname in dirs:
+                        print(info_text)
 
-                            try:
-                                shutil.rmtree(os.path.join(self.out_dir, dirname))
-                                print(f'Deleting: {dirname}...')
-                            except (PermissionError, FileNotFoundError):
-                                not_deleted += 1
+                    except (PermissionError, FileNotFoundError):
+                        not_deleted += 1
 
                 if not_deleted:
                     print(f"Some files or folders ({not_deleted}) could not be deleted. Try removing them manually")
                 else:
                     print('Done!')
 
+                sleep(2)
+                pb.close()
+
             else:
                 print('The folder is empty!')
 
-        Thread(target=empty, daemon=True).start()
+        asyncio.run(empty())
 
 
 class EmittingStream(QObject):

@@ -1,18 +1,20 @@
 import os
 from datetime import datetime
 import configparser
+import asyncio
+from subprocess import Popen, PIPE
 from source.reapers import locres
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
-def file_reaper(func_name):
 
+def file_reaper(func_name):
     def wrapper(*args, **kwargs):
         start = datetime.now()
         func_name(*args, **kwargs)
         end = datetime.now()
-        print(func_name, end-start)
+        print(func_name, end - start)
 
     return wrapper
 
@@ -29,7 +31,6 @@ class Unpacker:
         with open(file_path, 'r', encoding='utf-8') as script:
             lines = script.readlines()
 
-        # print(lines)
         lines[int(string_num)] = new_string
 
         with open(file_path, 'w') as new:
@@ -40,14 +41,22 @@ class Unpacker:
         self.quick_bms2(file_name, script_name)
 
     def quick_bms2(self, file_name, script_name):
+
         if file_name:
-            os.system(f'{self.path_to_root}/data/QuickBMS/quickbms.exe '
-                      f'"{self.path_to_root}/{script_name}" '
-                      f'"{file_name}" '
-                      f'"{self.out_dir}"')
+            bms = Popen(f'{self.path_to_root}/data/QuickBMS/quickbms.exe '
+                        f'"{self.path_to_root}/{script_name}" '
+                        f'"{file_name}" '
+                        f'"{self.out_dir}"',
+                        stdout=PIPE, stderr=PIPE, encoding='utf-8')
+
+            out_data, err_data = bms.communicate()
+
+            print(out_data)
+            print(err_data)
 
     @file_reaper
     def unity(self, folder_name):
+
         if folder_name:
             os.chdir(f'{self.path_to_root}/data/AssetStudio/')
             os.system('AssetStudioCLI.exe '
@@ -73,4 +82,3 @@ class Unpacker:
                 case _:
                     os.system(f'{self.path_to_root}/data/unreal_tools/extract.exe -extract -out="{self.out_dir}"'
                               f'{file_name}')
-
