@@ -1,29 +1,31 @@
-import configparser
+
 import importlib
 import json
 import os
-import shutil
 import sys
 from datetime import datetime
-from time import sleep
 import pandas
 from threading import Thread
-import asyncio
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 
-import source.ui.localize as TL
+import source.ui.localize as translate
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
 from source.reapers import pathologic
-
+from source import delete
+import configparser
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
+
+all_items = 0
+current_item = 0
+info_text = ''
 
 
 class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
@@ -45,6 +47,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.root_item = self.model.invisibleRootItem()
         sys.stdout = EmittingStream(text_written=self.append_text)
         self.unpacker = Unpacker()
+        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')
+        self.delete_thread = delete.DeleteThread(self.out_dir)
 
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
 
@@ -76,7 +80,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             self.tree_view_create_by_year()
 
         self.gameList_treeView.clicked.connect(self.file_reaper)
-        self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
+        self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
         self.all_games_count.setText(str(self.all_games))
         self.archive_list_create()
         self.changeTheme(setting["Main"]["theme"])
@@ -146,7 +150,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             else:
                 new_lang = other_submenu.addAction(lang)
 
-            new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.changeLang(x))
+            new_lang.triggered.connect(lambda x=lang_codes[i]: self.changeLang(x))
 
             if lang_codes[i] == setting["Main"]["lang"]:
                 new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
@@ -156,7 +160,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
         self.action_Language.addMenu(other_submenu)
 
-    def add_button(self, btn, l_func=None, contexts=None, action=''):
+    def add_button(self, btn, l_func=None, contexts=None):
 
         if contexts is not None:
             context_menu = QMenu(self)
@@ -164,7 +168,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             for i, action in enumerate(contexts):
                 context = context_menu.addAction(action)
 
-                if action != TL.cancel:
+                if action != translate.cancel:
 
                     if isinstance(l_func, list):
                         context.triggered.connect(l_func[i])
@@ -218,17 +222,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             case 'source':
                 btn.clicked.connect(lambda: print('source'))
             case 'trashcan':
-                # btn.clicked.connect(lambda: print('trashcan'))
                 btn.clicked.connect(self.empty_out)
             case 'unreal':
-                # btn.clicked.connect(lambda: print('unreal'))
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unreal, args=(
                     self.file_open('Unreal Engine File(*.u*; *.xxx; *.pak; *.locres; *.pcc)|Unreal Engine 1-2(*.u*)|'
                                    'Unreal Engine 3(*.u*; *.xxx; *.pcc)|Unreal Engine 4(*.pak; *.locres)|'), )).start())
             case 'unigen':
                 btn.clicked.connect(lambda: print('unigen'))
             case 'unity':
-                # btn.clicked.connect(lambda: print('unity'))
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
                                                    args=(self.file_open('', True), )).start())
             case 'wwise':
@@ -273,17 +274,24 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 '}')
 
             if i not in (0, 13, 14, -1):
-                self.add_button(btn, contexts=[TL.change_button, TL.cancel], action=tool_tips[a],
+                self.add_button(btn, contexts=[translate.change_button, translate.cancel],
                                 l_func=(lambda *args, l=i:
                                         self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
-                self.add_button(btn, contexts=[TL.delete_to_trash, TL.full_delete, TL.cancel], action=tool_tips[a],
-                                l_func=[lambda: print('trash1'), lambda: print('trash2')])
+                self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
+                                l_func=[lambda: self.setTrashSetting(True), lambda: self.setTrashSetting(False)])
             else:
-                self.add_button(btn, action=tool_tips[a])
+                self.add_button(btn)
 
             self.add_action(btn, tool_tips[a])
             self.upperButtons.addWidget(btn)
+
+    @staticmethod
+    def setTrashSetting(trash):
+        setting['Main']['trash'] = '1' if trash else '0'
+
+        with open('./setting.ini', "w") as config_file:
+            setting.write(config_file)
 
     def new_button(self, style, alpha):
         cbm.CBWindow(style=style, letter=alpha).exec()
@@ -326,8 +334,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     # Создается список игр в три-вью
     def tree_view_create_by_year(self):
-        new_parent = QStandardItem(TL.other)
-        self.parent_list[TL.other] = new_parent
+        new_parent = QStandardItem(translate.other)
+        self.parent_list[translate.other] = new_parent
         self.root_item.appendRow(new_parent)
         old_games = QStandardItem('... - 1990')
         self.parent_list['... - 1990'] = old_games
@@ -352,7 +360,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                     y = str(y)
 
             except ValueError:
-                y = TL.other
+                y = translate.other
 
             child = QStandardItem(name)
             child.setToolTip(name)
@@ -371,8 +379,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             self.parent_list[item] = new_parent
             self.root_item.appendRow(new_parent)
 
-        new_parent = QStandardItem(TL.other)
-        self.parent_list[TL.other] = new_parent
+        new_parent = QStandardItem(translate.other)
+        self.parent_list[translate.other] = new_parent
         self.root_item.appendRow(new_parent)
 
         self.filter_list_create(self.names)
@@ -384,7 +392,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             elif name[0].upper() in self.abc:
                 literal = name[0].upper()
             else:
-                literal = TL.other
+                literal = translate.other
 
             child = QStandardItem(name)
             child.setToolTip(name)
@@ -409,8 +417,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             setting.write(config_file)
 
         self.lang_list_create()
-        importlib.reload(TL)
-        self.model.setHeaderData(0, Qt.Horizontal, TL.select_something)
+        importlib.reload(translate)
+        self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
         self.retranslateUi()
 
     def file_open(self, ext_list, select_folder=False, more_one=False):
@@ -441,6 +449,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         file_name = self.file_open(ext_list, select_folder, more_one)
 
         if file_name:
+            thread = None
 
             match func_name:
                 case "_Unity":
@@ -451,52 +460,35 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                         'Unreal Engine 3(*.u*;*.xxx;*.pcc)|Unreal Engine 4(*.pak;*.locres)|'
                     ), script_name), daemon=True)
                 case "_Mor":
-                    thread = Thread(target=pathologic.mor_unpacker, args=(file_name, self.out_dir), daemon=True)
+                    # thread = Thread(target=pathologic.mor_unpacker, args=(file_name, self.out_dir), daemon=True)
+                    mor = pathologic.mor_unpacker(file_name, self.out_dir)
+                    self.pb.show()
+                    mor.update_signal.connect(self.update_progress)
+                    mor.start()
+
                 case _:
                     thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
 
-            thread.start()
+            if thread is not None:
+                thread.start()
 
     def empty_out(self):
 
-        async def empty():
-            not_deleted = 0
-            deleting_list = os.listdir(self.out_dir)
+        if os.listdir(self.out_dir):
+            self.pb.show()
+            self.delete_thread.deleting_list = os.listdir(self.out_dir)
+            self.delete_thread.update_signal.connect(self.update_progress)
+            self.delete_thread.start()
+        else:
+            print('The folder is empty!')
 
-            if deleting_list:
-                a = len(deleting_list)
-                pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')
-                pb.exec()
+    def update_progress(self, pb_value, p_text, info, process_done):
+        self.pb.progressBar.setValue(pb_value)
+        self.pb.progress.setText(p_text)
+        self.pb.status.setText(info)
 
-                for i, item in enumerate(deleting_list):
-                    name = os.path.join(self.out_dir, item)
-                    info_text = f'Deleting {item}...'
-                    pb.update_info(int(100/a * i), f'{i}/{a}', info_text)
-
-                    try:
-
-                        if os.path.isfile(name):
-                            os.remove(name)
-                        elif os.path.isdir(name):
-                            shutil.rmtree(name)
-
-                        print(info_text)
-
-                    except (PermissionError, FileNotFoundError):
-                        not_deleted += 1
-
-                if not_deleted:
-                    print(f"Some files or folders ({not_deleted}) could not be deleted. Try removing them manually")
-                else:
-                    print('Done!')
-
-                sleep(2)
-                pb.close()
-
-            else:
-                print('The folder is empty!')
-
-        asyncio.run(empty())
+        if process_done:
+            self.pb.close()
 
 
 class EmittingStream(QObject):

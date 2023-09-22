@@ -1,12 +1,8 @@
-import os
 
 from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 import configparser
-import json
 from qt_material import apply_stylesheet
-from qt_material import list_themes
 
 from source import theme_creator
 import source.ui.localize as TL

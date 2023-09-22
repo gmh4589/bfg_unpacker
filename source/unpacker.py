@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 import configparser
-import asyncio
 from subprocess import Popen, PIPE
 from source.reapers import locres
 

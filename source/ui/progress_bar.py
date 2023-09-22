@@ -22,7 +22,6 @@ class ProgressBar(QDialog):
         self.progress.setGeometry(QRect(10, 80, 100, 20))
         self.status = QLabel(self.centralwidget)
         self.status.setGeometry(QRect(10, 100, 500, 20))
-        # self.setCentralWidget(self.centralwidget)
 
         QMetaObject.connectSlotsByName(self)
 
