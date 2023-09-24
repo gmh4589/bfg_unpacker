@@ -19,7 +19,9 @@ from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
 from source.reapers import pathologic
 from source import delete
+from source import select_out
 import configparser
+
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
@@ -32,7 +34,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def __init__(self):
         super().__init__()
-        self.out_dir = setting['Main']['out_path']
+        self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else select_out.select()
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.setWindowTitle("BFGUnpacker")
@@ -48,8 +50,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         sys.stdout = EmittingStream(text_written=self.append_text)
         self.unpacker = Unpacker()
         self.pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')
-        self.delete_thread = delete.DeleteThread(self.out_dir)
 
+        # QProcesses connect
+        self.delete_thread = delete.DeleteThread(self.out_dir)
+        self.mor = pathologic.MorUnpacker(self.out_dir)
+
+        # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
 
         if int(setting['Engines']['unity']) > 0:
@@ -79,16 +85,17 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         else:
             self.tree_view_create_by_year()
 
+        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
-        self.all_games_count.setText(str(self.all_games))
         self.archive_list_create()
-        self.changeTheme(setting["Main"]["theme"])
+        self.change_theme(setting["Main"]["theme"])
         self.exitAction.triggered.connect(self.close)
         self.action_Settings.triggered.connect(
             lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
         self.create_theme.triggered.connect(
             lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
+        self.action_SelectOutPath.triggered.connect(select_out.select)
         self.archive_list = {}
 
     def append_text(self, text):
@@ -121,7 +128,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             else:
                 new_theme = other_themes_submenu.addAction(theme_name.replace('_', ' ').title())
 
-            new_theme.triggered.connect(lambda *args, x=theme_name: self.changeTheme(x))
+            new_theme.triggered.connect(lambda *args, x=theme_name: self.change_theme(x))
 
             if theme_name == setting["Main"]["theme"]:
                 new_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
@@ -150,7 +157,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             else:
                 new_lang = other_submenu.addAction(lang)
 
-            new_lang.triggered.connect(lambda x=lang_codes[i]: self.changeLang(x))
+            new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.change_lang(x))
 
             if lang_codes[i] == setting["Main"]["lang"]:
                 new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
@@ -279,7 +286,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                                         self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
                 self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
-                                l_func=[lambda: self.setTrashSetting(True), lambda: self.setTrashSetting(False)])
+                                l_func=[lambda: self.set_trash_setting(True), lambda: self.set_trash_setting(False)])
             else:
                 self.add_button(btn)
 
@@ -287,7 +294,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             self.upperButtons.addWidget(btn)
 
     @staticmethod
-    def setTrashSetting(trash):
+    def set_trash_setting(trash):
         setting['Main']['trash'] = '1' if trash else '0'
 
         with open('./setting.ini', "w") as config_file:
@@ -399,7 +406,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             self.parent_list[literal].appendRow(child)
             self.all_games += 1
 
-    def changeTheme(self, theme_name):
+    def change_theme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
         setting.read('./setting.ini')
         setting.set('Main', 'theme', theme_name)
@@ -409,7 +416,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
         self.themes_list_create()
 
-    def changeLang(self, lang):
+    def change_lang(self, lang):
         setting.read('./setting.ini')
         setting.set('Main', 'lang', lang)
 
@@ -419,6 +426,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.lang_list_create()
         importlib.reload(translate)
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
+        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.retranslateUi()
 
     def file_open(self, ext_list, select_folder=False, more_one=False):
@@ -461,10 +469,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                     ), script_name), daemon=True)
                 case "_Mor":
                     # thread = Thread(target=pathologic.mor_unpacker, args=(file_name, self.out_dir), daemon=True)
-                    mor = pathologic.mor_unpacker(file_name, self.out_dir)
+                    self.mor.file_name = file_name
+                    self.pb.set_theme(setting["Main"]["theme"])
                     self.pb.show()
-                    mor.update_signal.connect(self.update_progress)
-                    mor.start()
+                    self.mor.update_signal.connect(self.update_progress)
+                    self.mor.start()
 
                 case _:
                     thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
@@ -475,6 +484,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
     def empty_out(self):
 
         if os.listdir(self.out_dir):
+            self.pb.set_theme(setting["Main"]["theme"])
             self.pb.show()
             self.delete_thread.deleting_list = os.listdir(self.out_dir)
             self.delete_thread.update_signal.connect(self.update_progress)

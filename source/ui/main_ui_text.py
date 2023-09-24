@@ -9,7 +9,6 @@ class Translate:
         _translate = QCoreApplication.translate
         self.toolButton_plus.setText(_translate("BFGUnpacker", "+"))
         self.toolButton_minus.setText(_translate("BFGUnpacker", "-"))
-        self.all_games_label.setText(_translate("BFGUnpacker", TL.all_games))
         self.toolButton_Find.setText(_translate("BFGUnpacker", TL.find))
         self.btn_All_Favorite.setText(_translate("BFGUnpacker", TL.all_caps))
         self.checkBox_Reimport.setText(_translate("BFGUnpacker", TL.reimport))

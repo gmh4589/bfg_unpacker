@@ -7,6 +7,7 @@ from qt_material import apply_stylesheet
 
 import source.ui.localize as TL
 from source.ui import resize, theme_creator
+from source import select_out
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -58,28 +59,37 @@ class SettingWindow(QDialog):
         self.godot_checkBox.setCheckState(int(setting['Engines']['godot']))
         self.verticalLayout_2.addWidget(self.godot_checkBox)
         self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(resize.widget(160), resize.widget(30), resize.widget(130), resize.widget(60)))
+        self.groupBox_2.setGeometry(QRect(resize.widget(160), resize.widget(30),
+                                          resize.widget(130), resize.widget(60)))
         self.radioButton = QRadioButton(self.groupBox_2)
         self.radioButton.setFont(self.font)
-        self.radioButton.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(100), resize.widget(20)))
+        self.radioButton.setGeometry(QRect(resize.widget(10), resize.widget(10),
+                                           resize.widget(100), resize.widget(20)))
         self.radioButton_2 = QRadioButton(self.groupBox_2)
         self.radioButton_2.setFont(self.font)
-        self.radioButton_2.setGeometry(QRect(resize.widget(10), resize.widget(35), resize.widget(100), resize.widget(20)))
+        self.radioButton_2.setGeometry(QRect(resize.widget(10), resize.widget(35),
+                                             resize.widget(100), resize.widget(20)))
         self.checkBox_7 = QCheckBox(self.centralwidget)
         self.checkBox_7.setFont(self.font)
-        self.checkBox_7.setGeometry(QRect(resize.widget(10), resize.widget(220), resize.widget(200), resize.widget(20)))
+        self.checkBox_7.setGeometry(QRect(resize.widget(10), resize.widget(220),
+                                          resize.widget(200), resize.widget(20)))
         self.create_theme = QToolButton(self.centralwidget)
         self.create_theme.setFont(self.font)
-        self.create_theme.setGeometry(QRect(resize.widget(160), resize.widget(100), resize.widget(130), resize.widget(25)))
+        self.create_theme.setGeometry(QRect(resize.widget(160), resize.widget(100),
+                                            resize.widget(130), resize.widget(25)))
         self.out_folder = QToolButton(self.centralwidget)
         self.out_folder.setFont(self.font)
-        self.out_folder.setGeometry(QRect(resize.widget(160), resize.widget(130), resize.widget(130), resize.widget(25)))
+        self.out_folder.setGeometry(QRect(resize.widget(160), resize.widget(130),
+                                          resize.widget(130), resize.widget(25)))
         self.save_setting = QToolButton(self.centralwidget)
         self.save_setting.setFont(self.font)
-        self.save_setting.setGeometry(QRect(resize.widget(160), resize.widget(160), resize.widget(130), resize.widget(25)))
+        self.save_setting.setGeometry(QRect(resize.widget(160), resize.widget(160),
+                                            resize.widget(130), resize.widget(25)))
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
-        self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190), resize.widget(130), resize.widget(25)))
+        self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190),
+                                             resize.widget(130), resize.widget(25)))
+        self.out_folder.clicked.connect(select_out.select)
 
         if setting['Main']['group'] == 'name':
             self.radioButton.setChecked(True)

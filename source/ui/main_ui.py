@@ -1,4 +1,3 @@
-
 from PyQt5.QtCore import QRect, QMetaObject, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
@@ -15,41 +14,56 @@ class Ui_BFGUnpacker(Translate):
         self.font.setPointSize(resize.widget(8))
         self.centralwidget.setFont(self.font)
         self.comboBox_gameList = QComboBox(self.centralwidget)
-        self.comboBox_gameList.setGeometry(QRect(resize.widget(80), resize.widget(40), resize.widget(375), resize.widget(30)))
+        self.comboBox_gameList.setGeometry(
+            QRect(resize.widget(80), resize.widget(40), resize.widget(375), resize.widget(30)))
         self.toolButton_plus = QToolButton(self.centralwidget)
-        self.toolButton_plus.setGeometry(QRect(resize.widget(455), resize.widget(40), resize.widget(30), resize.widget(30)))
+        self.toolButton_plus.setGeometry(
+            QRect(resize.widget(455), resize.widget(40), resize.widget(30), resize.widget(30)))
         self.toolButton_minus = QToolButton(self.centralwidget)
-        self.toolButton_minus.setGeometry(QRect(resize.widget(485), resize.widget(40), resize.widget(30), resize.widget(30)))
+        self.toolButton_minus.setGeometry(
+            QRect(resize.widget(485), resize.widget(40), resize.widget(30), resize.widget(30)))
         self.logWindow = QTextBrowser(self.centralwidget)
         self.logWindow.setStyleSheet('QTextBrowser {'
-                                             f'font-size: {resize.widget(12)}px;'
-                                             '}')
+                                     f'font-size: {resize.widget(12)}px;'
+                                     '}')
         self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(79), resize.widget(295), resize.widget(520)))
-        self.all_games_label = QLabel(self.centralwidget)
-        self.all_games_label.setGeometry(QRect(resize.widget(451), resize.widget(605), resize.widget(100), resize.widget(15)))
-        self.all_games_label.setAlignment(Qt.AlignRight)
+
         self.all_games_count = QLabel(self.centralwidget)
-        self.all_games_count.setGeometry(QRect(resize.widget(555), resize.widget(605), resize.widget(50), resize.widget(15)))
+        self.all_games_count.setGeometry(
+            QRect(resize.widget(451), resize.widget(600), resize.widget(150), resize.widget(20)))
+        self.all_games_count.setAlignment(Qt.AlignCenter)
+
         self.gameList_treeView = QTreeView(self.centralwidget)
         self.gameList_treeView.setGeometry(QRect(0, resize.widget(80), resize.widget(295), resize.widget(520)))
         self.gameList_treeView.setStyleSheet('QTreeView::item {'
-                                                f'min-height: {resize.widget(20)}px;'
+                                             f'min-height: {resize.widget(20)}px;'
                                              '}')
         self.toolButton_Find = QToolButton(self.centralwidget)
-        self.toolButton_Find.setGeometry(QRect(resize.widget(515), resize.widget(40), resize.widget(85), resize.widget(30)))
+        self.toolButton_Find.setGeometry(
+            QRect(resize.widget(515), resize.widget(40), resize.widget(85), resize.widget(30)))
         self.btn_All_Favorite = QToolButton(self.centralwidget)
         self.btn_All_Favorite.setGeometry(QRect(0, resize.widget(40), resize.widget(80), resize.widget(30)))
-        self.checkBox_Reimport = QCheckBox(self.centralwidget)
-        self.checkBox_Reimport.setGeometry(QRect(resize.widget(10), resize.widget(600), resize.widget(100), resize.widget(20)))
-        self.checkBox_ShowConsole = QCheckBox(self.centralwidget)
-        self.checkBox_ShowConsole.setGeometry(QRect(resize.widget(100), resize.widget(600), resize.widget(140), resize.widget(20)))
-        self.checkBox_createSubfolders = QCheckBox(self.centralwidget)
-        self.checkBox_createSubfolders.setGeometry(QRect(resize.widget(250), resize.widget(600), resize.widget(150), resize.widget(20)))
+
+        # Чекбоксы
+        self.checkBoxes = QWidget(self.centralwidget)
+        self.checkBoxes.setGeometry(QRect(resize.widget(10), resize.widget(600), resize.widget(451), resize.widget(20)))
+        self.cb = QHBoxLayout(self.checkBoxes)
+        self.cb.setContentsMargins(0, 0, 0, 0)
+
+        self.checkBox_Reimport = QCheckBox(self.checkBoxes)
+        self.cb.addWidget(self.checkBox_Reimport)
+        self.checkBox_ShowConsole = QCheckBox(self.checkBoxes)
+        self.cb.addWidget(self.checkBox_ShowConsole)
+        self.checkBox_createSubfolders = QCheckBox(self.checkBoxes)
+        self.cb.addWidget(self.checkBox_createSubfolders)
+
+        # Панель кнопок
         self.layoutWidget = QWidget(self.centralwidget)
         self.layoutWidget.setGeometry(QRect(0, 0, resize.widget(600), resize.widget(40)))
         self.upperButtons = QHBoxLayout(self.layoutWidget)
         self.upperButtons.setContentsMargins(0, 0, 0, 0)
-        self.setCentralWidget(self.centralwidget)
+
+        # Меню
         self.menubar = QMenuBar(self)
         self.menu = QMenu(self.menubar)
         self.menubar.setStyleSheet('QMenu::item {'
@@ -218,6 +232,7 @@ class Ui_BFGUnpacker(Translate):
         self.menubar.addAction(self.menu_2.menuAction())
         self.menubar.addAction(self.menu_3.menuAction())
         self.menubar.addAction(self.menu_4.menuAction())
+        self.setCentralWidget(self.centralwidget)
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)

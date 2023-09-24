@@ -4,15 +4,15 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from source.unpacker import file_reaper
 
 
-class mor_unpacker(QThread):
+class MorUnpacker(QThread):
     update_signal = pyqtSignal(int, str, str, bool)
 
-    def __init__(self, file_name, output_folder):
+    def __init__(self, output_folder):
         super().__init__()
-        self.file_name = file_name
+        self.file_name = 'file_name'
         self.output_folder = output_folder
 
-    @file_reaper
+    # @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as f:

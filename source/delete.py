@@ -19,7 +19,6 @@ class DeleteThread(QThread):
         setting.read('./setting.ini')
         not_deleted = 0
         all_items = len(self.deleting_list)
-        print(setting['Main']['trash'])
 
         for i, item in enumerate(self.deleting_list):
             name = os.path.join(self.out_dir, item)
@@ -29,15 +28,16 @@ class DeleteThread(QThread):
 
             try:
                 if int(setting['Main']['trash']):
-                    send2trash(name)
+                    # send2trash(name)
+                    # os.system(f'del /Q "{name}"') if os.path.isfile(name) else (
+                    os.system(f'powershell.exe Remove-Item -Path {name} -Recurse -Force')
                 else:
                     os.remove(name) if os.path.isfile(name) else shutil.rmtree(name)
 
             except (PermissionError, FileNotFoundError):
+                # send2trash(name)
                 not_deleted += 1
 
-        msg = (f'Some files or folders ({not_deleted}) could not be deleted. '
-               f'Try removing them manually') if not_deleted else 'Done!'
+        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else 'Done!'
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
-
         print(msg)

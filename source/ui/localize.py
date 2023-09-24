@@ -8,7 +8,6 @@ lang = setting['Main']['lang']
 with open(f'./source/local/{lang}.json', 'r', encoding='utf-8') as json_file:
     local = json.load(json_file)
 
-
 all_games = local['all_games']
 find = local['find']
 all_caps = local['all_caps']
