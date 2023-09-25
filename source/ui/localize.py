@@ -1,9 +1,13 @@
 import configparser
 import json
+import os
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 lang = setting['Main']['lang']
+
+if not os.path.exists(f'./source/local/{lang}.json'):
+    lang = 'en'
 
 with open(f'./source/local/{lang}.json', 'r', encoding='utf-8') as json_file:
     local = json.load(json_file)

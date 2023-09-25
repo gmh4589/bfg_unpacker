@@ -88,7 +88,7 @@ class Translate:
         self.actionXWM_WAV_Audio_Converter.setText(_translate("BFGUnpacker", "XWM\\WAV Audio Converter"))
         self.actionFFMPEG_Image_Converter.setText(_translate("BFGUnpacker", "FFMPEG Image Converter"))
         self.actionSAU.setText(_translate("BFGUnpacker", "SAU"))
-        self.actionnConvert.setText(_translate("BFGUnpacker", "nConvert"))
+        self.action_nConvert.setText(_translate("BFGUnpacker", "nConvert"))
         self.actionImage_to_DDS_Microsoft.setText(_translate("BFGUnpacker", "Image to DDS (Microsoft)"))
         self.actionImage_to_DDS_nVidia.setText(_translate("BFGUnpacker", "Image to DDS (nVidia)"))
         self.actionDDS_Header_Generator.setText(_translate("BFGUnpacker", "DDS Header Generator"))

@@ -9,6 +9,7 @@ from source.ui import resize
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 
+
 class ProgressBar(QDialog):
 
     def __init__(self, style='dark_orange', header=''):

@@ -1,4 +1,3 @@
-
 import importlib
 import json
 import os
@@ -6,10 +5,19 @@ import sys
 from datetime import datetime
 import pandas
 from threading import Thread
+import configparser
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
+from source import general
+
+setting = configparser.ConfigParser()
+
+if not os.path.exists('./setting.ini'):
+    general.set_default(setting)
+else:
+    setting.read('./setting.ini')
 
 import source.ui.localize as translate
 import source.ui.main_ui as ui
@@ -19,11 +27,6 @@ from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
 from source.reapers import pathologic
 from source import delete
-from source import select_out
-import configparser
-
-setting = configparser.ConfigParser()
-setting.read('./setting.ini')
 
 all_items = 0
 current_item = 0
@@ -34,7 +37,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def __init__(self):
         super().__init__()
-        self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else select_out.select()
+
+        self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else (
+            general.select(setting))
+
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.setWindowTitle("BFGUnpacker")
@@ -85,18 +91,29 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         else:
             self.tree_view_create_by_year()
 
-        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
-        self.gameList_treeView.clicked.connect(self.file_reaper)
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
-        self.archive_list_create()
+        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
+
+        # Run functions and methods
         self.change_theme(setting["Main"]["theme"])
+        self.archive_list = {}
+        self.archive_list_create()
+
+        # Actions connected
+        self.gameList_treeView.clicked.connect(self.file_reaper)
         self.exitAction.triggered.connect(self.close)
-        self.action_Settings.triggered.connect(
-            lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
+        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
         self.create_theme.triggered.connect(
             lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
-        self.action_SelectOutPath.triggered.connect(select_out.select)
-        self.archive_list = {}
+        self.action_SelectOutPath.triggered.connect(general.select)
+        self.checkBox_ShowConsole.setCheckState(int(setting['Main']['show_console']))
+        self.checkBox_createSubfolders.setCheckState(int(setting['Main']['subfolders']))
+        self.checkBox_ShowConsole.stateChanged.connect(
+            lambda: general.set_setting(setting, 'Main', 'show_console',
+                                        "2" if self.checkBox_ShowConsole.isChecked() else "0"))
+        self.checkBox_createSubfolders.stateChanged.connect(
+            lambda: general.set_setting(setting, 'Main', 'subfolders',
+                                        "2" if self.checkBox_createSubfolders.isChecked() else "0"))
 
     def append_text(self, text):
 
@@ -185,7 +202,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             btn.setContextMenuPolicy(3)
             btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
 
-    def add_action(self, btn, action=''):
+    def add_btn_action(self, btn, action=''):
 
         match action:
             case '7zip':
@@ -233,12 +250,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             case 'unreal':
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unreal, args=(
                     self.file_open('Unreal Engine File(*.u*; *.xxx; *.pak; *.locres; *.pcc)|Unreal Engine 1-2(*.u*)|'
-                                   'Unreal Engine 3(*.u*; *.xxx; *.pcc)|Unreal Engine 4(*.pak; *.locres)|'), )).start())
+                                   'Unreal Engine 3(*.u*; *.xxx; *.pcc)|Unreal Engine 4(*.pak; *.locres)|'),)).start())
             case 'unigen':
                 btn.clicked.connect(lambda: print('unigen'))
             case 'unity':
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
-                                                   args=(self.file_open('', True), )).start())
+                                                   args=(self.file_open('', True),)).start())
             case 'wwise':
                 btn.clicked.connect(lambda: print('wwise'))
             case 'xnconvert':
@@ -286,19 +303,13 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                                         self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
                 self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
-                                l_func=[lambda: self.set_trash_setting(True), lambda: self.set_trash_setting(False)])
+                                l_func=[lambda: general.set_setting(setting, 'Main', 'trash', '1'),
+                                        lambda: general.set_setting(setting, 'Main', 'trash', '0')])
             else:
                 self.add_button(btn)
 
-            self.add_action(btn, tool_tips[a])
+            self.add_btn_action(btn, tool_tips[a])
             self.upperButtons.addWidget(btn)
-
-    @staticmethod
-    def set_trash_setting(trash):
-        setting['Main']['trash'] = '1' if trash else '0'
-
-        with open('./setting.ini', "w") as config_file:
-            setting.write(config_file)
 
     def new_button(self, style, alpha):
         cbm.CBWindow(style=style, letter=alpha).exec()
@@ -408,23 +419,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def change_theme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
-        setting.read('./setting.ini')
-        setting.set('Main', 'theme', theme_name)
-
-        with open('./setting.ini', "w") as config_file:
-            setting.write(config_file)
-
+        general.set_setting(setting, 'Main', 'theme', theme_name)
         self.themes_list_create()
 
     def change_lang(self, lang):
-        setting.read('./setting.ini')
-        setting.set('Main', 'lang', lang)
-
-        with open('./setting.ini', "w") as config_file:
-            setting.write(config_file)
-
+        general.set_setting(setting, 'Main', 'lang', lang)
         self.lang_list_create()
         importlib.reload(translate)
+        self.buttons_create()
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.retranslateUi()
@@ -461,7 +463,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
             match func_name:
                 case "_Unity":
-                    thread = Thread(target=self.unpacker.unity, args=(file_name, ), daemon=True)
+                    thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
                 case "_Unreal" | "_Unreal4":
                     thread = Thread(target=self.unpacker.unreal, args=(self.file_open(
                         'Unreal Engine File(*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2(*.u*)|'

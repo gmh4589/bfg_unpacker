@@ -58,37 +58,6 @@ class SettingWindow(QDialog):
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setGeometry(QRect(160, 190, 130, 25))
 
-        # self.widget1 = QWidget(self.centralwidget)
-        # self.widget1.setGeometry(QRect(10, 10, 280, 85))
-        # self.verticalLayout = QVBoxLayout(self.widget1)
-        # self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        # self.lang_label = QLabel(self.widget1)
-        # self.verticalLayout.addWidget(self.lang_label)
-        # self.lang_box = QComboBox(self.widget1)
-        # self.verticalLayout.addWidget(self.lang_box)
-        # self.themes_label = QLabel(self.widget1)
-        # self.verticalLayout.addWidget(self.themes_label)
-        # self.themes_box = QComboBox(self.widget1)
-        # self.verticalLayout.addWidget(self.themes_box)
-
-        # lang_files = [file for file in os.listdir('./source/local/') if file.endswith('.json')]
-        # lang_list = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
-        # lang_codes = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
-        #
-        # for i, lang in enumerate(lang_list):
-        #     new_lang = self.lang_box.addItem(lang)
-        #
-        #     if lang_codes[i] == setting["Main"]["lang"]:
-        #         self.lang_box.setCurrentText(new_lang)
-        #
-        # for theme in list_themes():
-        #     theme_name = theme.split('.')[0]
-        #     new_theme = self.themes_box.addItem(theme_name.replace('_', ' ').title())
-        #     # new_theme.triggered.connect(lambda *args, x=theme_name: self.changeTheme(x))
-        #
-        #     if theme_name == setting["Main"]["theme"]:
-        #         self.themes_box.setCurrentText(theme_name)
-
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 

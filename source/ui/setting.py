@@ -1,5 +1,4 @@
-
-from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication
+from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 import configparser
@@ -7,7 +6,7 @@ from qt_material import apply_stylesheet
 
 import source.ui.localize as TL
 from source.ui import resize, theme_creator
-from source import select_out
+from source import general
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -19,13 +18,14 @@ class SettingWindow(QDialog):
         super().__init__()
         apply_stylesheet(self, theme=f'{style}.xml')
 
-        self.resize(resize.widget(300), resize.widget(250))
+        self.resize(resize.widget(300), resize.widget(280))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(resize.widget(8))
         self.centralwidget.setFont(self.font)
         self.label_engines = QLabel(self.centralwidget)
-        self.label_engines.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(150), resize.widget(20)))
+        self.label_engines.setGeometry(
+            QRect(resize.widget(10), resize.widget(10), resize.widget(150), resize.widget(20)))
         self.label_sort = QLabel(self.centralwidget)
         self.label_sort.setGeometry(QRect(resize.widget(160), resize.widget(10), resize.widget(150), resize.widget(20)))
         self.groupBox = QGroupBox(self.centralwidget)
@@ -73,6 +73,21 @@ class SettingWindow(QDialog):
         self.checkBox_7.setFont(self.font)
         self.checkBox_7.setGeometry(QRect(resize.widget(10), resize.widget(220),
                                           resize.widget(200), resize.widget(20)))
+
+        self.zoom_label = QLabel(self.centralwidget)
+        self.zoom_label.setGeometry(QRect(resize.widget(10), resize.widget(250),
+                                          resize.widget(60), resize.widget(20)))
+        self.zoom_slider = QSlider(Qt.Horizontal, self.centralwidget)
+        self.zoom_slider.setRange(0, 4)
+        self.zoom_slider.setGeometry(QRect(resize.widget(80), resize.widget(250),
+                                           resize.widget(210), resize.widget(20)))
+        self.zoom_slider.setValue(int((float(setting['Main']['zoom']) - 1) / .25))
+        self.zoom_label.setText(f"Zoom {int(float(setting['Main']['zoom']) * 100)}%")
+        self.zoom_slider.valueChanged.connect(lambda:
+                                              self.zoom_label.setText(
+                                                  f"{self.zoom_label.text().split(' ')[0]} "
+                                                  f"{int((1 + int(self.zoom_slider.value()) * .25) * 100)}%"))
+
         self.create_theme = QToolButton(self.centralwidget)
         self.create_theme.setFont(self.font)
         self.create_theme.setGeometry(QRect(resize.widget(160), resize.widget(100),
@@ -89,7 +104,7 @@ class SettingWindow(QDialog):
         self.cancel_button.setFont(self.font)
         self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190),
                                              resize.widget(130), resize.widget(25)))
-        self.out_folder.clicked.connect(select_out.select)
+        self.out_folder.clicked.connect(general.select)
 
         if setting['Main']['group'] == 'name':
             self.radioButton.setChecked(True)
@@ -111,6 +126,7 @@ class SettingWindow(QDialog):
         setting.set('Engines', 'godot', "2" if self.godot_checkBox.isChecked() else "0")
         setting.set('Engines', 'renpy', "2" if self.renpy_checkBox.isChecked() else "0")
         setting.set('Main', 'group', "name" if self.radioButton.isChecked() else "year")
+        setting.set('Main', 'zoom', str(1 + int(self.zoom_slider.value()) * .25))
 
         with open('./setting.ini', "w") as config_file:
             setting.write(config_file)
