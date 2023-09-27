@@ -12,6 +12,7 @@ class DeleteThread(QThread):
     def __init__(self, out_dir):
         super().__init__()
         self.out_dir = out_dir
+        self.file_name = ''
         self.deleting_list = os.listdir(self.out_dir)
 
     def run(self):
@@ -28,9 +29,7 @@ class DeleteThread(QThread):
 
             try:
                 if int(setting['Main']['trash']):
-                    # send2trash(name)
-                    # os.system(f'del /Q "{name}"') if os.path.isfile(name) else (
-                    os.system(f'powershell.exe Remove-Item -Path {name} -Recurse -Force')
+                    send2trash(name)  # TODO: ?????
                 else:
                     os.remove(name) if os.path.isfile(name) else shutil.rmtree(name)
 

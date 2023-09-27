@@ -1,12 +1,12 @@
+
 from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication, Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import *
 import configparser
 from qt_material import apply_stylesheet
 
 import source.ui.localize as TL
 from source.ui import resize, theme_creator
-from source import general
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -19,6 +19,7 @@ class SettingWindow(QDialog):
         apply_stylesheet(self, theme=f'{style}.xml')
 
         self.resize(resize.widget(300), resize.widget(280))
+        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(resize.widget(8))
@@ -104,7 +105,7 @@ class SettingWindow(QDialog):
         self.cancel_button.setFont(self.font)
         self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190),
                                              resize.widget(130), resize.widget(25)))
-        self.out_folder.clicked.connect(general.select)
+        self.out_folder.clicked.connect(self.select)
 
         if setting['Main']['group'] == 'name':
             self.radioButton.setChecked(True)
@@ -116,9 +117,21 @@ class SettingWindow(QDialog):
 
         self.cancel_button.clicked.connect(self.close)
         self.create_theme.clicked.connect(lambda: theme_creator.ThemeCreateWindow(style=style).exec())
-        self.save_setting.clicked.connect(self.apply_setting)
+        self.save_setting.clicked.connect(lambda: self.apply_setting(style))
 
-    def apply_setting(self):
+    def select(self):
+        global setting
+        out_path = QFileDialog.getExistingDirectory(self, caption='Select folder',
+                                                    directory=setting['Main']['last_dir'])  # TODO: TEXT!!!
+
+        if out_path:
+            setting.set('Main', 'out_path', out_path)
+            setting.set('Main', 'last_dir', out_path)
+
+            with open('./setting.ini', "w") as config_file:
+                setting.write(config_file)
+
+    def apply_setting(self, style):
         setting.set('Engines', 'unreal', "2" if self.unreal_checkBox.isChecked() else "0")
         setting.set('Engines', 'unity', "2" if self.unity_checkBox.isChecked() else "0")
         setting.set('Engines', 'rpg_maker', "2" if self.rpg_checkBox.isChecked() else "0")
@@ -127,6 +140,7 @@ class SettingWindow(QDialog):
         setting.set('Engines', 'renpy', "2" if self.renpy_checkBox.isChecked() else "0")
         setting.set('Main', 'group', "name" if self.radioButton.isChecked() else "year")
         setting.set('Main', 'zoom', str(1 + int(self.zoom_slider.value()) * .25))
+        setting.set('Main', 'theme', style)
 
         with open('./setting.ini', "w") as config_file:
             setting.write(config_file)

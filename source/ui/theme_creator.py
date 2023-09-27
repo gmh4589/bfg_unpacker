@@ -2,7 +2,7 @@
 import sys
 
 from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import *
 
 from qt_material import apply_stylesheet
@@ -26,6 +26,7 @@ class ThemeCreateWindow(QDialog):
 
         self.setObjectName("MainWindow")
         self.resize(resize.widget(270), resize.widget(270))
+        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(resize.widget(8))

@@ -1,5 +1,6 @@
 import configparser
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
 
@@ -12,6 +13,7 @@ class CBWindow(QDialog):
         super().__init__()
         self.setWindowTitle("Change buttons")
         self.resize(resize.widget(255), resize.widget(255))
+        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.style = style
         apply_stylesheet(self, theme=f'{style}.xml')
 

@@ -4,18 +4,52 @@ import os
 import sys
 from datetime import datetime
 import pandas
+import locale
 from threading import Thread
-import configparser
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
-from source import general
+import configparser
 
 setting = configparser.ConfigParser()
 
 if not os.path.exists('./setting.ini'):
-    general.set_default(setting)
+    setting.add_section('Main')
+    setting.add_section('Buttons')
+    setting.add_section('Engines')
+    setting.set('Main', 'theme', 'classic_white')
+    lng = locale.getdefaultlocale()[0].split('_')[0]
+    setting.set('Main', 'lang', lng)
+    setting.set('Main', 'group', 'name')
+    setting.set('Main', 'zoom', '1.0')
+    setting.set('Main', 'last_dir', '')
+    setting.set('Main', 'out_path', '')
+    setting.set('Main', 'trash', '1')
+    setting.set('Main', 'show_console', '0')
+    setting.set('Main', 'subfolders', '2')
+    setting.set('Buttons', '1', 'B')
+    setting.set('Buttons', '2', 'C')
+    setting.set('Buttons', '3', 'D')
+    setting.set('Buttons', '4', 'E')
+    setting.set('Buttons', '5', 'F')
+    setting.set('Buttons', '6', 'G')
+    setting.set('Buttons', '7', 'H')
+    setting.set('Buttons', '8', 'I')
+    setting.set('Buttons', '9', 'J')
+    setting.set('Buttons', '10', 'K')
+    setting.set('Buttons', '11', 'L')
+    setting.set('Buttons', '12', 'M')
+    setting.set('Engines', 'unreal', '0')
+    setting.set('Engines', 'unity', '0')
+    setting.set('Engines', 'rpg_maker', '0')
+    setting.set('Engines', 'game_maker', '0')
+    setting.set('Engines', 'godot', '0')
+    setting.set('Engines', 'renpy', '0')
+
+    with open('./setting.ini', "w") as config_file:
+        setting.write(config_file)
+
 else:
     setting.read('./setting.ini')
 
@@ -25,7 +59,7 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
-from source.reapers import pathologic
+from source.reapers import pathologic, aurora_engine
 from source import delete
 
 all_items = 0
@@ -39,7 +73,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         super().__init__()
 
         self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else (
-            general.select(setting))
+            self.set_setting('Main', 'out_path', self.file_open(select_folder=True)))
 
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
@@ -55,11 +89,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.root_item = self.model.invisibleRootItem()
         sys.stdout = EmittingStream(text_written=self.append_text)
         self.unpacker = Unpacker()
-        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')
+        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')  # TODO: TEXT!!!
 
         # QProcesses connect
         self.delete_thread = delete.DeleteThread(self.out_dir)
         self.mor = pathologic.MorUnpacker(self.out_dir)
+        self.aurora = aurora_engine.ERFUnpacker(self.out_dir)
 
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
@@ -105,15 +140,26 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
         self.create_theme.triggered.connect(
             lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
-        self.action_SelectOutPath.triggered.connect(general.select)
+        self.action_SelectOutPath.triggered.connect(lambda: self.set_setting('Main', 'out_path',
+                                                                             self.file_open(select_folder=True)))
         self.checkBox_ShowConsole.setCheckState(int(setting['Main']['show_console']))
         self.checkBox_createSubfolders.setCheckState(int(setting['Main']['subfolders']))
         self.checkBox_ShowConsole.stateChanged.connect(
-            lambda: general.set_setting(setting, 'Main', 'show_console',
-                                        "2" if self.checkBox_ShowConsole.isChecked() else "0"))
+            lambda: self.set_setting('Main', 'show_console',
+                                     "2" if self.checkBox_ShowConsole.isChecked() else "0"))
         self.checkBox_createSubfolders.stateChanged.connect(
-            lambda: general.set_setting(setting, 'Main', 'subfolders',
-                                        "2" if self.checkBox_createSubfolders.isChecked() else "0"))
+            lambda: self.set_setting('Main', 'subfolders',
+                                     "2" if self.checkBox_createSubfolders.isChecked() else "0"))
+
+    @staticmethod
+    def set_setting(section, key, value):
+        global setting
+
+        if value:
+            setting.set(section, key, value)
+
+            with open('./setting.ini', "w") as cf:
+                setting.write(cf)
 
     def append_text(self, text):
 
@@ -303,8 +349,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                                         self.new_button(style=setting["Main"]["theme"], alpha=l)))
             elif i == 14:
                 self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
-                                l_func=[lambda: general.set_setting(setting, 'Main', 'trash', '1'),
-                                        lambda: general.set_setting(setting, 'Main', 'trash', '0')])
+                                l_func=[lambda: self.set_setting('Main', 'trash', '1'),
+                                        lambda: self.set_setting('Main', 'trash', '0')])
             else:
                 self.add_button(btn)
 
@@ -419,11 +465,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def change_theme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
-        general.set_setting(setting, 'Main', 'theme', theme_name)
+        self.set_setting('Main', 'theme', theme_name)
         self.themes_list_create()
 
     def change_lang(self, lang):
-        general.set_setting(setting, 'Main', 'lang', lang)
+        self.set_setting('Main', 'lang', lang)
         self.lang_list_create()
         importlib.reload(translate)
         self.buttons_create()
@@ -431,19 +477,26 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.retranslateUi()
 
-    def file_open(self, ext_list, select_folder=False, more_one=False):
+    def file_open(self, ext_list='', select_folder=False, more_one=False):
 
         if not select_folder:
 
             if more_one:
                 file_name = ''
             else:
-                file_name = QFileDialog.getOpenFileName(self, 'Open file', filter=ext_list.replace('|', ';;'))[0]
 
+                try:
+                    f = ext_list.replace('|', ';;')
+                except AttributeError:
+                    f = ''
+
+                file_name = QFileDialog.getOpenFileName(self, 'Open file', filter=f)[0]  # TODO: TEXT!!!
         else:
-            file_name = QFileDialog.getExistingDirectory(self, 'Select folder')
-
-        return file_name
+            file_name = QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
+                                                         directory=setting['Main']['last_dir'])
+        if file_name:
+            self.set_setting('Main', 'last_dir', file_name)
+            return file_name
 
     def file_reaper(self, index, select_folder=False, more_one=False):
 
@@ -470,27 +523,27 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                         'Unreal Engine 3(*.u*;*.xxx;*.pcc)|Unreal Engine 4(*.pak;*.locres)|'
                     ), script_name), daemon=True)
                 case "_Mor":
-                    # thread = Thread(target=pathologic.mor_unpacker, args=(file_name, self.out_dir), daemon=True)
-                    self.mor.file_name = file_name
-                    self.pb.set_theme(setting["Main"]["theme"])
-                    self.pb.show()
-                    self.mor.update_signal.connect(self.update_progress)
-                    self.mor.start()
-
+                    self.q_connect(self.mor, file_name)
+                case "_Aurora":
+                    self.q_connect(self.aurora, file_name)
                 case _:
                     thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
 
             if thread is not None:
                 thread.start()
 
+    def q_connect(self, threed, file_name=''):
+        threed.file_name = file_name
+        self.pb.set_theme(setting["Main"]["theme"])
+        self.pb.show()
+        threed.update_signal.connect(self.update_progress)
+        threed.start()
+
     def empty_out(self):
 
         if os.listdir(self.out_dir):
-            self.pb.set_theme(setting["Main"]["theme"])
-            self.pb.show()
             self.delete_thread.deleting_list = os.listdir(self.out_dir)
-            self.delete_thread.update_signal.connect(self.update_progress)
-            self.delete_thread.start()
+            self.q_connect(self.delete_thread)
         else:
             print('The folder is empty!')
 
