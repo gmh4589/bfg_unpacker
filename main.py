@@ -59,7 +59,7 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
-from source.reapers import pathologic, aurora_engine
+from source.reapers import pathologic, aurora_engine, seven_s_seven, celestia
 from source import delete
 
 all_items = 0
@@ -89,12 +89,15 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.root_item = self.model.invisibleRootItem()
         sys.stdout = EmittingStream(text_written=self.append_text)
         self.unpacker = Unpacker()
-        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"], header='Deleting...')  # TODO: TEXT!!!
+        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"])
+        self.pb_header_text = ''
 
         # QProcesses connect
-        self.delete_thread = delete.DeleteThread(self.out_dir)
-        self.mor = pathologic.MorUnpacker(self.out_dir)
-        self.aurora = aurora_engine.ERFUnpacker(self.out_dir)
+        self.delete_thread = delete.DeleteThread()
+        self.mor = pathologic.MorUnpacker()
+        self.aurora = aurora_engine.ERFUnpacker()
+        self.x7 = seven_s_seven.Seven()
+        self.celestia = celestia.Celestia()
 
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
@@ -199,11 +202,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.themes_list_2.addMenu(other_themes_submenu)
 
     def lang_list_create(self):
-        lang_files = [file for file in os.listdir('./source/local/') if file.endswith('.json')]
-        lang_list = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_name'] for file in
-                     lang_files]
-        lang_codes = [json.load(open(f'./source/local/{file}', 'r', encoding='utf-8'))['lang_code'] for file in
-                      lang_files]
+        d = './source/local/'
+        lang_files = [file for file in os.listdir(d) if file.endswith('.json')]
+        lang_list = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
+        lang_codes = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
         main_list = ['ru', 'ua', 'pl', 'tr', 'de', 'it', 'fr', 'en', 'es', 'es_la',
                      'pt_br', 'ar', 'jp', 'ko', 'id', 'zh', 'zh_tw', 'th', 'vn', 'fi']
 
@@ -481,22 +483,25 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
         if not select_folder:
 
+            try:
+                f = ext_list.replace('|', ';;')
+            except AttributeError:
+                f = ''
+
             if more_one:
-                file_name = ''
+                file_names = QFileDialog.getOpenFileName(self, 'Open file', filter=f,   # TODO: TEXT!!!
+                                                         directory=setting['Main']['last_dir'])[0]
             else:
-
-                try:
-                    f = ext_list.replace('|', ';;')
-                except AttributeError:
-                    f = ''
-
-                file_name = QFileDialog.getOpenFileName(self, 'Open file', filter=f)[0]  # TODO: TEXT!!!
+                file_names = QFileDialog.getOpenFileNames(self, 'Open file', filter=f,   # TODO: TEXT!!!
+                                                          directory=setting['Main']['last_dir'])[0]
         else:
-            file_name = QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
-                                                         directory=setting['Main']['last_dir'])
-        if file_name:
-            self.set_setting('Main', 'last_dir', file_name)
-            return file_name
+            file_names = QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
+                                                          directory=setting['Main']['last_dir'])
+        if file_names:
+
+            for file_name in file_names:
+                self.set_setting('Main', 'last_dir', os.path.dirname(file_name))
+                yield file_name
 
     def file_reaper(self, index, select_folder=False, more_one=False):
 
@@ -509,32 +514,40 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         if func_name == '_Unity':
             select_folder = True
 
-        file_name = self.file_open(ext_list, select_folder, more_one)
+        for file_name in self.file_open(ext_list, select_folder, more_one):
 
-        if file_name:
-            thread = None
+            if file_name:
+                thread = None
 
-            match func_name:
-                case "_Unity":
-                    thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
-                case "_Unreal" | "_Unreal4":
-                    thread = Thread(target=self.unpacker.unreal, args=(self.file_open(
-                        'Unreal Engine File(*.u*;*.xxx;*.pak;*.locres;*.pcc)|Unreal Engine 1-2(*.u*)|'
-                        'Unreal Engine 3(*.u*;*.xxx;*.pcc)|Unreal Engine 4(*.pak;*.locres)|'
-                    ), script_name), daemon=True)
-                case "_Mor":
-                    self.q_connect(self.mor, file_name)
-                case "_Aurora":
-                    self.q_connect(self.aurora, file_name)
-                case _:
-                    thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
+                match func_name:
+                    case "_Unity":
+                        thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
+                    case "_Unreal" | "_Unreal4":
+                        thread = Thread(target=self.unpacker.unreal, args=(self.file_open(
+                            'All Unreal Engine Files (*.u*;*.xxx;*.pak;*.locres;*.pcc)|'
+                            'Unreal Engine 1-2 (*.u*)|'
+                            'Unreal Engine 3 (*.u*;*.xxx;*.pcc)|'
+                            'Unreal Engine 4 (*.pak;*.locres)|'
+                        ), script_name), daemon=True)
+                    case "_Mor":
+                        self.q_connect(self.mor, file_name)
+                    case "_Aurora":
+                        self.q_connect(self.aurora, file_name)
+                    case "_7x7":
+                        self.q_connect(self.x7, file_name)
+                    case "_ExoPlanet":
+                        self.q_connect(self.celestia, file_name, header='Creating...')
+                    case _:
+                        thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
 
-            if thread is not None:
-                thread.start()
+                if thread is not None:
+                    thread.start()
 
-    def q_connect(self, threed, file_name=''):
+    def q_connect(self, threed, file_name='', header='Unpacking...'):
         threed.file_name = file_name
+        threed.output_folder = self.out_dir
         self.pb.set_theme(setting["Main"]["theme"])
+        self.pb_header_text = header
         self.pb.show()
         threed.update_signal.connect(self.update_progress)
         threed.start()
@@ -542,12 +555,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
     def empty_out(self):
 
         if os.listdir(self.out_dir):
-            self.delete_thread.deleting_list = os.listdir(self.out_dir)
-            self.q_connect(self.delete_thread)
+            self.q_connect(self.delete_thread, header='Deleting...')
         else:
             print('The folder is empty!')
 
     def update_progress(self, pb_value, p_text, info, process_done):
+        self.pb.header.setText(self.pb_header_text)
         self.pb.progressBar.setValue(pb_value)
         self.pb.progress.setText(p_text)
         self.pb.status.setText(info)

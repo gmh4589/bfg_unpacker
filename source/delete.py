@@ -2,27 +2,21 @@
 import os
 import shutil
 from send2trash import send2trash
-from PyQt5.QtCore import QThread, pyqtSignal
 import configparser
+from source.reaper import Reaper
 
 
-class DeleteThread(QThread):
-    update_signal = pyqtSignal(int, str, str, bool)
-
-    def __init__(self, out_dir):
-        super().__init__()
-        self.out_dir = out_dir
-        self.file_name = ''
-        self.deleting_list = os.listdir(self.out_dir)
+class DeleteThread(Reaper):
 
     def run(self):
         setting = configparser.ConfigParser()
         setting.read('./setting.ini')
         not_deleted = 0
-        all_items = len(self.deleting_list)
+        deleting_list = os.listdir(self.output_folder)
+        all_items = len(deleting_list)
 
-        for i, item in enumerate(self.deleting_list):
-            name = os.path.join(self.out_dir, item)
+        for i, item in enumerate(deleting_list):
+            name = os.path.join(self.output_folder, item)
             info_text = f'Deleting {item}...'
             print(info_text)
             self.update_signal.emit(int(100 / all_items * (i + 1)), f'{i + 1}/{all_items}', info_text, False)

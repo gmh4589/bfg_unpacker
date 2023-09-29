@@ -1,5 +1,5 @@
 import os
-from source.reapers.reaper import Reaper
+from source.reaper import Reaper
 
 
 class ERFUnpacker(Reaper):
@@ -11,13 +11,13 @@ class ERFUnpacker(Reaper):
             iVer = f.read(4)
 
             if iVer == b'\x56\x31\x2E\x30':
-                f.seek(16, 0)
-                iFileCount = int.from_bytes(f.read(4), byteorder='little') - 1
-                f.seek(24, 0)
+                f.seek(16)
+                iFileCount = int.from_bytes(f.read(4), byteorder='little')
+                f.seek(24)
                 iOff2Lst = int.from_bytes(f.read(4), byteorder='little')
-                f.seek(28, 0)
+                f.seek(28)
                 iERFLst = int.from_bytes(f.read(4), byteorder='little')
-                f.seek(iOff2Lst, 0)
+                f.seek(iOff2Lst)
 
                 FileNameArray = []
                 FileExtArray = []
@@ -41,24 +41,24 @@ class ERFUnpacker(Reaper):
                     data1 = int.from_bytes(f.read(4), byteorder='little')
                     data2 = int.from_bytes(f.read(4), byteorder='little')
                     c = f.tell()
-                    f.seek(data1, 0)
+                    f.seek(data1)
                     Data = f.read(data2)
                     rName = FileNameArray[j].decode('utf-8')
                     fName = rName + FileExtArray[j]
-                    iNewFile = open(os.path.join(self.output_folder, fName), 'wb')
-                    iNewFile.write(Data)
-                    iNewFile.close()
+
+                    with open(os.path.join(self.output_folder, fName), 'wb') as newFile:
+                        newFile.write(Data)
+
                     f.seek(c, 0)
                     print(f"{j}/{iFileCount} {fName}")
 
             else:
                 f.seek(8, 0)
                 iVer = f.read(4)
-                print(iVer)
 
                 if iVer == b'\x56\x00\x32\x00':
                     f.seek(16, 0)
-                    iFileCount = int.from_bytes(f.read(4), byteorder='little') - 1
+                    iFileCount = int.from_bytes(f.read(4), byteorder='little')
                     f.seek(32, 0)
 
                     for i in range(iFileCount):
@@ -66,14 +66,14 @@ class ERFUnpacker(Reaper):
                         iOffs = int.from_bytes(f.read(4), byteorder='little')
                         iLong = int.from_bytes(f.read(4), byteorder='little')
                         c = f.tell()
-                        f.seek(iOffs, 0)
+                        f.seek(iOffs)
                         Data = f.read(iLong)
                         rName = rName.decode('unicode_escape').replace('\x00', '')
                         iNewFile = open(os.path.join(self.output_folder, rName), 'wb')
                         iNewFile.write(Data)
                         iNewFile.close()
-                        f.seek(c, 0)
-                        print(f"{i}/{iFileCount} {rName}")
+                        f.seek(c)
+                        print(f"{i + 1}/{iFileCount} {rName}")
                         self.update_signal.emit(int(100 / iFileCount * (i + 1)), f'{i + 1}/{iFileCount}',
                                                 f'Saving - {rName}...', False)
 

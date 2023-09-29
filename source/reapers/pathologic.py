@@ -1,6 +1,6 @@
 
 import os
-from source.reapers.reaper import Reaper
+from source.reaper import Reaper
 
 
 class MorUnpacker(Reaper):
@@ -8,7 +8,7 @@ class MorUnpacker(Reaper):
     def run(self):
 
         with open(self.file_name, 'rb') as f:
-            f.seek(8, 0)
+            f.seek(8)
             file_count = int.from_bytes(f.read(4), byteorder='little')
 
             for i in range(file_count):
@@ -17,7 +17,7 @@ class MorUnpacker(Reaper):
                 file_position = f.tell()
                 file_size = int.from_bytes(f.read(4), byteorder='little')
                 file_offset = int.from_bytes(f.read(4), byteorder='little')
-                f.seek(file_offset, 0)
+                f.seek(file_offset)
                 file_data = f.read(file_size)
                 output_path = os.path.join(self.output_folder, name)
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -25,7 +25,7 @@ class MorUnpacker(Reaper):
                 with open(output_path, 'wb') as new_file:
                     new_file.write(file_data)
 
-                f.seek(file_position + 16, 0)
+                f.seek(file_position + 16)
                 print(f'{i + 1}/{file_count} - {name}')
                 self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
                                         f'Saving - {name}...', False)

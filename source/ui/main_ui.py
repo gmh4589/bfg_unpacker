@@ -26,7 +26,7 @@ class Ui_BFGUnpacker(Translate):
         self.logWindow.setStyleSheet('QTextBrowser {'
                                      f'font-size: {resize.widget(12)}px;'
                                      '}')
-        self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(79), resize.widget(295), resize.widget(520)))
+        self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(80), resize.widget(295), resize.widget(520)))
 
         self.all_games_count = QLabel(self.centralwidget)
         self.all_games_count.setGeometry(
