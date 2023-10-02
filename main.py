@@ -59,7 +59,7 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
-from source.reapers import pathologic, aurora_engine, seven_s_seven, celestia
+from source.reapers import pathologic, aurora_engine, seven_s_seven, celestia, doom_wad
 from source import delete
 
 all_items = 0
@@ -73,7 +73,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         super().__init__()
 
         self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else (
-            self.set_setting('Main', 'out_path', self.file_open(select_folder=True)))
+            self.set_setting('Main', 'out_path',
+                             QFileDialog.getExistingDirectory(self, 'Select folder')))
 
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.aurora = aurora_engine.ERFUnpacker()
         self.x7 = seven_s_seven.Seven()
         self.celestia = celestia.Celestia()
+        self.id_tech = doom_wad.WadExtractor()
 
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
@@ -303,7 +305,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 btn.clicked.connect(lambda: print('unigen'))
             case 'unity':
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
-                                                   args=(self.file_open('', True),)).start())
+                                                   args=(QFileDialog.getExistingDirectory(
+                                                       self, 'Select folder',  # TODO: TEXT!!!
+                                                       directory=setting['Main']['last_dir']),)).start())
             case 'wwise':
                 btn.clicked.connect(lambda: print('wwise'))
             case 'xnconvert':
@@ -495,13 +499,16 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 file_names = QFileDialog.getOpenFileNames(self, 'Open file', filter=f,   # TODO: TEXT!!!
                                                           directory=setting['Main']['last_dir'])[0]
         else:
-            file_names = QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
-                                                          directory=setting['Main']['last_dir'])
+            file_names = [QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
+                                                           directory=setting['Main']['last_dir']), '']
+
         if file_names:
 
             for file_name in file_names:
-                self.set_setting('Main', 'last_dir', os.path.dirname(file_name))
-                yield file_name
+
+                if file_name:
+                    self.set_setting('Main', 'last_dir', os.path.dirname(file_name))
+                    yield file_name
 
     def file_reaper(self, index, select_folder=False, more_one=False):
 
@@ -511,15 +518,29 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         script_name = data_string['script_name'].values[0]
         ext_list = data_string['ext_list'].values[0]
 
-        if func_name == '_Unity':
+        if func_name in ('_Unity', ):
             select_folder = True
 
         for file_name in self.file_open(ext_list, select_folder, more_one):
 
             if file_name:
                 thread = None
+                ext = file_name.split('.')[-1].lower()
 
                 match func_name:
+                    case "_7x7":
+                        self.q_connect(self.x7, file_name)
+                    case "_Aurora":
+                        self.q_connect(self.aurora, file_name)
+                    case "_ExoPlanet":
+                        self.q_connect(self.celestia, file_name, header='Creating...')
+                    case "_idTech":
+                        if ext == 'wad':
+                            self.q_connect(self.id_tech, file_name)
+                        else:
+                            print('TODO')  # TODO: Add function to unpack other file types
+                    case "_Mor":
+                        self.q_connect(self.mor, file_name)
                     case "_Unity":
                         thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
                     case "_Unreal" | "_Unreal4":
@@ -529,14 +550,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                             'Unreal Engine 3 (*.u*;*.xxx;*.pcc)|'
                             'Unreal Engine 4 (*.pak;*.locres)|'
                         ), script_name), daemon=True)
-                    case "_Mor":
-                        self.q_connect(self.mor, file_name)
-                    case "_Aurora":
-                        self.q_connect(self.aurora, file_name)
-                    case "_7x7":
-                        self.q_connect(self.x7, file_name)
-                    case "_ExoPlanet":
-                        self.q_connect(self.celestia, file_name, header='Creating...')
                     case _:
                         thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
 

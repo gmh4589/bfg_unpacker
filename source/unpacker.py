@@ -52,6 +52,7 @@ class Unpacker:
             os.system('AssetStudioCLI.exe '
                       f'"{folder_name}" "{self.out_dir}" --game Normal')
             os.chdir(f'{self.path_to_root}')
+            print('Done!')
 
     def unreal(self, file_name, key=''):
         if file_name:
