@@ -1,6 +1,6 @@
 import os
 import configparser
-from source.reapers import locres
+from source.reaper import file_reaper
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -23,6 +23,11 @@ class Unpacker:
         with open(file_path, 'w') as new:
             new.writelines(lines)
 
+    @file_reaper
+    def seven_zip(self, file_name):
+        os.system(f'{self.path_to_root}data\\7zip\\7z.exe x -o"{self.out_dir}" "{file_name}"')
+
+    @file_reaper
     def quick_bms(self, file_name, script_name):
         self.quick_bms2(file_name, script_name)
 
@@ -45,6 +50,7 @@ class Unpacker:
                       f'"{self.path_to_root}{script_name}" '
                       f'"{file_name}" "{self.out_dir}"')
 
+    @file_reaper
     def unity(self, folder_name):
 
         if folder_name:
@@ -52,17 +58,13 @@ class Unpacker:
             os.system('AssetStudioCLI.exe '
                       f'"{folder_name}" "{self.out_dir}" --game Normal')
             os.chdir(f'{self.path_to_root}')
-            print('Done!')
 
+    @file_reaper
     def unreal(self, file_name, key=''):
         if file_name:
             exp = file_name.split('.')[-1]
 
             match exp:
-                case 'locress':
-                    locres.locressImport(file_name)
-                case 'txt':
-                    locres.locressExport(file_name)
                 case 'umod':
                     self.quick_bms2(file_name, "/data/scripts/unreal_umod.bms")
                 case 'pak':

@@ -1,10 +1,11 @@
 
 import os
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class Seven(Reaper):
 
+    @file_reaper
     def run(self):
         self.update_signal.emit(0, '', f'Wait...', False)
 
@@ -52,4 +53,3 @@ class Seven(Reaper):
 
         os.remove('./temp.dat')
         self.update_signal.emit(100, f'{file_count}/{file_count}', f'Done!', True)
-        print('DONE!')

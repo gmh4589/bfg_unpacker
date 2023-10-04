@@ -1,10 +1,11 @@
 
 import os
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class RDR2Audio(Reaper):
 
+    @file_reaper
     def run(self):
         output_path = os.path.join(self.output_folder, self.file_name)
         name = os.path.dirname(output_path)
@@ -26,4 +27,3 @@ class RDR2Audio(Reaper):
                                     f'Saving - {name}_{i}...', False)
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', 'Done!', True)
-        print('Done!')

@@ -1,9 +1,10 @@
 import os
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class ERFUnpacker(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as f:
@@ -78,7 +79,6 @@ class ERFUnpacker(Reaper):
                                                 f'Saving - {rName}...', False)
 
                     self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', f'Done!', True)
-                    print('Done!')
 
                 elif iVer == b'\x56\x00\x33\x00':
                     self.update_signal.emit(100, f'0/0', f'TODO!', True)

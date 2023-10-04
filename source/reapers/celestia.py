@@ -2,7 +2,7 @@ import math
 import pandas
 
 from datetime import datetime
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class Celestia(Reaper):
@@ -51,6 +51,7 @@ class Celestia(Reaper):
 
         return str(semiAxis)
 
+    @file_reaper
     def run(self):
         self.list = pandas.read_csv(self.file_name, delimiter=',')
         now = datetime.now().strftime("%d.%m.%Y")
@@ -135,4 +136,3 @@ class Celestia(Reaper):
                     stars.write('}\n\n')
 
         self.update_signal.emit(100, f'{all_planets}/{all_planets}', f'Done!', True)
-        print('Done!')

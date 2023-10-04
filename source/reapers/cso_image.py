@@ -1,11 +1,12 @@
 import os
 import struct
 import zlib
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class CSO(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, "rb") as f:

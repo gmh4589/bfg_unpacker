@@ -1,10 +1,11 @@
 
 import os
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 
 
 class MorUnpacker(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as f:
@@ -31,4 +32,3 @@ class MorUnpacker(Reaper):
                                         f'Saving - {name}...', False)
 
             self.update_signal.emit(100, f'{file_count}/{file_count}', f'Done!', True)
-            print('Done!')
