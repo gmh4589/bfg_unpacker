@@ -1,13 +1,12 @@
 import importlib
 import json
 import os
-import sys
 from datetime import datetime
 import pandas
 import locale
 from threading import Thread
 
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 import configparser
@@ -60,10 +59,7 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.unpacker import Unpacker
 from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
-
-all_items = 0
-current_item = 0
-info_text = ''
+import source.ui.localize as TL
 
 
 class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
@@ -71,6 +67,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
     def __init__(self):
         super().__init__()
 
+        self.setting = setting
         self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else (
             self.set_setting('Main', 'out_path',
                              QFileDialog.getExistingDirectory(self, 'Select folder')))
@@ -87,11 +84,17 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.model = QStandardItemModel()
         self.gameList_treeView.setModel(self.model)
         self.root_item = self.model.invisibleRootItem()
-        sys.stdout = EmittingStream(text_written=self.append_text)
         self.unpacker = Unpacker()
         self.pb = progress_bar.ProgressBar(setting["Main"]["theme"])
         self.pb_header_text = ''
-        self.setting = setting
+        self.show_favorites = False
+        self.filter_model = QStandardItemModel()
+
+        with open('./favorites.ini', 'r') as fav:
+            self.favorites = []
+
+            for line in fav.readlines():
+                self.favorites.append(line[:-1])
 
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
@@ -147,16 +150,49 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.checkBox_createSubfolders.stateChanged.connect(
             lambda: self.set_setting('Main', 'subfolders',
                                      "2" if self.checkBox_createSubfolders.isChecked() else "0"))
+        self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())
+        self.toolButton_plus.clicked.connect(lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
+        self.toolButton_minus.clicked.connect(lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
+        self.toolButton_Find.clicked.connect(lambda: print('find'))
 
-    @staticmethod
-    def set_setting(section, key, value):
+    def all_favorites(self):
+        self.show_favorites = not self.show_favorites
+
+        if self.show_favorites:
+            self.filter_list_create(self.favorites)
+            self.btn_All_Favorite.setText(TL.fav_caps)
+        else:
+            self.filter_list_create(self.names)
+            self.btn_All_Favorite.setText(TL.all_caps)
+
+    def favorite_setting(self, action, item):
+
+        if action:
+
+            if item not in self.favorites:
+                self.favorites.append(item)
+                self.favorites.sort()
+        else:
+            self.favorites.remove(item)
+            self.filter_list_create(self.favorites)
+
+        with open('./favorites.ini', 'w') as fav:
+
+            for favorite in self.favorites:
+                fav.write(favorite + '\n')
+
+    def set_setting(self, section, key, value, remove=False):
         global setting
 
-        if value:
+        if remove:
+            setting.remove_option(section, key)
+        else:
             setting.set(section, key, value)
 
-            with open('./setting.ini', "w") as cf:
-                setting.write(cf)
+        with open('./setting.ini', "w") as cf:
+            setting.write(cf)
+
+        self.setting = setting
 
     def append_text(self, text):
 
@@ -388,11 +424,13 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     def filter_list_create(self, items):
 
-        for action in self.comboBox_gameList.actions():
-            self.comboBox_gameList.removeAction(action)
+        self.filter_model.clear()
+        self.filter_model.appendRow(QStandardItem(''))
 
-        self.comboBox_gameList.addItem('')
-        self.comboBox_gameList.addItems(items)
+        for item in items:
+            self.filter_model.appendRow(QStandardItem(item))
+
+        self.comboBox_gameList.setModel(self.filter_model)
 
     # Создается список игр в три-вью
     def tree_view_create_by_year(self):
@@ -474,10 +512,3 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.retranslateUi()
-
-
-class EmittingStream(QObject):
-    text_written = pyqtSignal(str)
-
-    def write(self, text):
-        self.text_written.emit(str(text))

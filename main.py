@@ -15,6 +15,7 @@ class UnpackerMain(MainWindow):
 
     def __init__(self):
         super().__init__()
+        sys.stdout = EmittingStream(text_written=self.append_text)
 
         # QProcesses connect
         self.aurora = aurora_engine.ERFUnpacker()

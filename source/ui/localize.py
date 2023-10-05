@@ -15,6 +15,7 @@ with open(f'./source/local/{lang}.json', 'r', encoding='utf-8') as json_file:
 all_games = local['all_games']
 find = local['find']
 all_caps = local['all_caps']
+fav_caps = local['fav_caps']
 reimport = local['reimport']
 show_console = local['show_console']
 create_subfolders = local['create_subfolders']
