@@ -1,10 +1,36 @@
 
 from datetime import datetime
 from PyQt5.QtCore import QThread, pyqtSignal
+from source.ui import localize
 
-after_dot = {'_Asura': ('All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|'
-                        'ASR Files(*.asr)|Localization Files(*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz)|'
-                        'GUI Files(*.gui)|HDR Files(*.hdr)|PC Files(*.pc)|'),
+
+def file_reaper(func_name):
+    def wrapper(*args, **kwargs):
+        start = datetime.now()
+        func_name(*args, **kwargs)
+        end = datetime.now()
+        print(f'{localize.done}\n'
+              f'{end - start}')
+
+    return wrapper
+
+
+class Reaper(QThread):
+    update_signal = pyqtSignal(int, str, str, bool)
+
+    def __init__(self):
+        super().__init__()
+        self.file_name = 'file_name'
+        self.output_folder = 'output_folder'
+        self.unpack = True
+
+    def run(self):
+        pass
+
+
+after_dot = {'_Asura': 'All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|'
+                       'ASR Files(*.asr)|Localization Files(*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz)|'
+                       'GUI Files(*.gui)|HDR Files(*.hdr)|PC Files(*.pc)|',
              '_Anvil': "Forge file(*.forge)|",
              '_Aurora': "All Aurora Engine Files(*.erf;*.dzip;*.bif;*.rim)|"
                         "ERF Files(*.erf)|BIF Files(*.bif)|RIM Files(*.rim)|DZIP files(*.dzip)|",
@@ -15,7 +41,7 @@ after_dot = {'_Asura': ('All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*
                           'Compiled Papyrus Scripts(*.pex)|Redgaurd Textures Archives(texbsi.*)|'
                           'Nexus Mod Files(*.omod;*.fomod)|Textures Archives(*textures*)|'
                           'Meshes Archives(*mesh*)|Audio Archives(*audio*; *sound*; *voice*)|'
-                          'Miscs Archives(*misc*; *script*)|Main Archives(*main*)|'
+                          'Scripts Archives(*misc*; *script*)|Main Archives(*main*)|'
                           'Animations Archives(*animation*)|',
              '_Build': 'Build Engine Files(*.grp; *.art; *.rff; *.tga)|',
              '_Chrome': 'Chrome Engine Files(*.csb; *.spb; *.rpack; *.pak)|',
@@ -59,33 +85,16 @@ after_dot = {'_Asura': ('All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*
                         'Unreal Engine 4(*.pak;*.locres)|',
              '_Unreal4': 'Unreal Engine 4(*.pak;*.locres)|',
              '_ZIP': 'All archive files (*.7z;*.zip;*.rar;*.001;*.cab;*.iso;*.xz;*.txz;*.lzma;*.tar;*.cpio;'
-                     '*.bz2;*.bzip2;*.tbz;*.tbz2;*.gz;*.gzip;*.tgz;*.tpz;*.z;*.taz;*.lzh;*.lha;*.rpm;*.ded;'
+                     '*.bz2;*.bzip2;*.tbz;*.tbz2;*.gz;*.gzip;*.tgz;*.tpz;*.z;*.taz;*.lzh;*.lha;*.rpm;*.deb;'
                      '*.arj;*.vhd;*.vhdx;*.wim;*.swm;*.esd;*.fat;*.ntfs;*.dmg;*.hfs;*.xar;*.squashfs;*.apfs;'
                      '*.epub;*.fbz;*.fb2z;*.docx;*.xlsx;*.doc;*.docm;*.dotm;*.xls;*.ods;*.odt;*.mgs;*.tnef;'
                      '*.dbx;*.mbx;*.mbox;*.tbb;*.pmm;*.emlx;*.eml;*.nws;*.mht;*.mhtml;*.b64;*.uue;*.xxe;*.ntx;'
                      '*.bin;*.hqx;*.warc;*.pyz;*.ccd;*.img;*.cdi;*.chd;*.ciso;*.cso;*.cue;*.ecm;*.gdi;*.isz;'
                      '*.mds;*.mdf;*.nrg;*.zisofs;*.asar;*.phar;*.s01;*.e01;*.ex01;*.lo1;*.lx01;*.aff;*.ad1;'
-                     '*.whx;*.exfat;*.pak;*.gro;*.kfs;*.lz)|'}
-
-
-def file_reaper(func_name):
-    def wrapper(*args, **kwargs):
-        start = datetime.now()
-        func_name(*args, **kwargs)
-        end = datetime.now()
-        print('Done!', end - start)
-
-    return wrapper
-
-
-class Reaper(QThread):
-    update_signal = pyqtSignal(int, str, str, bool)
-
-    def __init__(self):
-        super().__init__()
-        self.file_name = 'file_name'
-        self.output_folder = 'output_folder'
-        self.unpack = True
-
-    def run(self):
-        pass
+                     '*.whx;*.exfat;*.pak;*.gro;*.kfs;*.lz;*.grp;*fb3;*.piz;*.omod;*.fomod;*.rar5)|'
+                     '7zip Archives(*.7z)|ZIP archives(*.zip,*.zipx;*.piz;*.grp;*.gro;*.pk3;*.pk4;*.pak)|'
+                     'RAR Archives(*.rar;*.rar5;*.001)|Cabinet Archives(*.cab)|Mod Archives(*.omod;*.fomod)|'
+                     'E-book files(*.epub,*.fbz;*,fb2x;*.fb3;*.txtz)|GZIP Archives(*.gz;*.gzip)|'
+                     'Disc Image Files(*.iso;*.vhd;*.vhdx;*.wim;*.swm;*.esd;*.fat;*.ntfs;*.dmg;*.hfs;*.squashfs;'
+                     '*.apfs;*.bin;*.cue;*.img;*.cdi;*.chd;*.ciso;*.cso;*.ecm;*.gdi;*.isz;*.mds;*.mdf;*.nrg;*.zisofs|'
+                     'Web Archives(*.dbx;*.mbx;*.mbox;*.tbb;*.pmm;*.emlx;*.eml;*.nws;*.mht;*.mhtml;*.b64)|'}

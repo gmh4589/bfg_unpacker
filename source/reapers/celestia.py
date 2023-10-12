@@ -3,6 +3,7 @@ import pandas
 
 from datetime import datetime
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class Celestia(Reaper):
@@ -56,10 +57,10 @@ class Celestia(Reaper):
         self.list = pandas.read_csv(self.file_name, delimiter=',')
         now = datetime.now().strftime("%d.%m.%Y")
         all_planets = len(self.list)
-        header = (f"# Каталог экзопланет, составлен по состоянию на {now}\n"
-                  f"# Содержит данные о {all_planets - 1} планетах\n"
-                  "# Источник: Extrasolar planet encyclopedia http://exoplanet.eu/catalog/\n"
-                  "# Создано с помощью BFG Unpacker\n\n")
+        header = (f"# {localize.exo_catalog} {now}\n"
+                  f"# {localize.data_about} {all_planets - 1} {localize.planets}\n"
+                  f"# {localize.source}: Extrasolar planet encyclopedia http://exoplanet.eu/catalog/\n"
+                  f"# {localize.make_with} BFG Unpacker\n\n")
 
         with open(f'{self.output_folder}\\exoplanets.ssc', 'w') as planets:
             planets.write(header)
@@ -67,9 +68,9 @@ class Celestia(Reaper):
             for line in range(all_planets):
 
                 if str(self.list["star_name"][line]) != 'nan':
-                    print(f'Added planet: {self.list["# name"][line]}...')
+                    print(f'{localize.planet_added}: {self.list["# name"][line]}...')
                     self.update_signal.emit(int(100 / all_planets * (line + 1)), f'{line + 1}/{all_planets}',
-                                            f'Added planet - {self.list["# name"][line]}...', False)
+                                            f'{localize.planet_added} - {self.list["# name"][line]}...', False)
 
                     radius = self.list['radius'][line] if str(self.list['radius'][line]) != 'nan' else self.getRadius(
                         line)
@@ -111,9 +112,9 @@ class Celestia(Reaper):
                 starName = str(self.list["star_name"][line])
 
                 if starName != 'nan' and starName not in starList:
-                    print(f'Added star: {self.list["star_name"][line]}...')
+                    print(f'{localize.star_added}: {self.list["star_name"][line]}...')
                     self.update_signal.emit(int(100 / all_planets * (line + 1)), f'{line + 1}/{all_planets}',
-                                            f'Added star - {self.list["star_name"][line]}...', False)
+                                            f'{localize.star_added}- {self.list["star_name"][line]}...', False)
 
                     starList.append(starName)
 
@@ -135,4 +136,4 @@ class Celestia(Reaper):
                     stars.write(f'\tSpectralType "{specType}"\n')
                     stars.write('}\n\n')
 
-        self.update_signal.emit(100, f'{all_planets}/{all_planets}', f'Done!', True)
+        self.update_signal.emit(100, f'{all_planets}/{all_planets}', localize.done, True)

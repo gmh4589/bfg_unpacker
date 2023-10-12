@@ -1,19 +1,21 @@
 
 import os
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class Seven(Reaper):
 
     @file_reaper
     def run(self):
-        self.update_signal.emit(0, '', f'Wait...', False)
+        self.update_signal.emit(0, '', f'{localize.wait}...', False)
 
         with open(self.file_name, 'rb') as file:
             idstring = file.read(4)
 
             if idstring != b'\x37\xBD\x37\x4D':
-                print("Неверный формат файла 7Ѕ7M")
+                print(localize.not_correct_file)
+                self.update_signal.emit(100, localize.not_correct_file, localize.done, True)
                 return
 
             data = bytearray((byte ^ 0xf7) for byte in file.read())
@@ -49,7 +51,7 @@ class Seven(Reaper):
                     newFile.write(Data)
                     print(f'{i}/{file_count} - {name}')
                     self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
-                                            f'Saving - {name}...', False)
+                                            f'{localize.saving} - {name}...', False)
 
         os.remove('./temp.dat')
-        self.update_signal.emit(100, f'{file_count}/{file_count}', f'Done!', True)
+        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

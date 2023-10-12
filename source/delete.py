@@ -4,6 +4,7 @@ import shutil
 from send2trash import send2trash
 import configparser
 from source.reaper import Reaper
+from source.ui import localize
 
 
 class DeleteThread(Reaper):
@@ -17,7 +18,7 @@ class DeleteThread(Reaper):
 
         for i, item in enumerate(deleting_list):
             name = os.path.join(self.output_folder, item)
-            info_text = f'Deleting {item}...'
+            info_text = f'{localize.deleting} - {item}...'
             print(info_text)
             self.update_signal.emit(int(100 / all_items * (i + 1)), f'{i + 1}/{all_items}', info_text, False)
 
@@ -31,6 +32,7 @@ class DeleteThread(Reaper):
                 # send2trash(name)
                 not_deleted += 1
 
-        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else 'Done!'
+        # TODO: Text!!!
+        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else localize.done
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
         print(msg)

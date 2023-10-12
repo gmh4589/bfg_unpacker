@@ -289,7 +289,7 @@ Artemis Engine		_QuickBMS	(root.pfs.*)|	\data\scripts\artemis_engine.bms
 Arthur's Quest: Battle for the Kingdom	2002	_LithTech					
 Artifact Classic	2018	_Source					
 Artillerists	2017	_Construct					
-Arx Fatalis	2002	_OtherPRG	Arx Fatalis PAK File (*.pak)|	data\afunpak.exe	 	 	false
+Arx Fatalis	2002	_Arx	Arx Fatalis PAK File (*.pak)|	data\afunpak.exe	 	 	false
 Ascendancy		_GAUP	COB Files (*.COB)|				
 Asgard's Wrath		_Unreal4	0x64E9610C89AA1335A49CF94B9A4862FC0BEA20CA2752F20D8BFB872A99E24756				
 Ashes Cricket 2009	2009	_QuickBMS		\data\scripts\ashes_cricket_2009.bms			

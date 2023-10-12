@@ -3,72 +3,26 @@ import json
 import os
 from datetime import datetime
 import pandas
-import locale
 from threading import Thread
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
-import configparser
-
-
-setting = configparser.ConfigParser()
-
-if not os.path.exists('./setting.ini'):
-    setting.add_section('Main')
-    setting.add_section('Buttons')
-    setting.add_section('Engines')
-    setting.set('Main', 'theme', 'classic_white')
-    lng = locale.getdefaultlocale()[0].split('_')[0]
-    setting.set('Main', 'lang', lng)
-    setting.set('Main', 'group', 'name')
-    setting.set('Main', 'zoom', '1.0')
-    setting.set('Main', 'last_dir', '')
-    setting.set('Main', 'out_path', '')
-    setting.set('Main', 'trash', '1')
-    setting.set('Main', 'show_console', '0')
-    setting.set('Main', 'subfolders', '2')
-    setting.set('Buttons', '1', 'B')
-    setting.set('Buttons', '2', 'C')
-    setting.set('Buttons', '3', 'D')
-    setting.set('Buttons', '4', 'E')
-    setting.set('Buttons', '5', 'F')
-    setting.set('Buttons', '6', 'G')
-    setting.set('Buttons', '7', 'H')
-    setting.set('Buttons', '8', 'I')
-    setting.set('Buttons', '9', 'J')
-    setting.set('Buttons', '10', 'K')
-    setting.set('Buttons', '11', 'L')
-    setting.set('Buttons', '12', 'M')
-    setting.set('Engines', 'unreal', '0')
-    setting.set('Engines', 'unity', '0')
-    setting.set('Engines', 'rpg_maker', '0')
-    setting.set('Engines', 'game_maker', '0')
-    setting.set('Engines', 'godot', '0')
-    setting.set('Engines', 'renpy', '0')
-
-    with open('./setting.ini', "w") as config_file:
-        setting.write(config_file)
-
-else:
-    setting.read('./setting.ini')
-
-import source.ui.localize as translate
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
+from source.setting import Setting
 from source.unpacker import Unpacker
-from source.ui import resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar
-import source.ui.localize as TL
+from source.ui import (resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
+                       localize as translate)
 
 
-class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
+class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
 
     def __init__(self):
         super().__init__()
 
-        self.setting = setting
-        self.out_dir = setting['Main']['out_path'] if os.path.exists(setting['Main']['out_path']) else (
+        self.out_dir = self.setting['Main']['out_path'] if os.path.exists(self.setting['Main']['out_path']) else (
             self.set_setting('Main', 'out_path',
                              QFileDialog.getExistingDirectory(self, 'Select folder')))
 
@@ -85,7 +39,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.gameList_treeView.setModel(self.model)
         self.root_item = self.model.invisibleRootItem()
         self.unpacker = Unpacker()
-        self.pb = progress_bar.ProgressBar(setting["Main"]["theme"])
+        self.pb = progress_bar.ProgressBar(self.setting["Main"]["theme"])
         self.pb_header_text = ''
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
@@ -99,29 +53,29 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
 
-        if int(setting['Engines']['unity']) > 0:
+        if int(self.setting['Engines']['unity']) > 0:
             unity_list = pandas.read_csv('./game_list/unity_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, unity_list], axis=0, ignore_index=True)
-        if int(setting['Engines']['unreal']) > 0:
+        if int(self.setting['Engines']['unreal']) > 0:
             unreal_list = pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, unreal_list], axis=0, ignore_index=True)
-        if int(setting['Engines']['renpy']) > 0:
+        if int(self.setting['Engines']['renpy']) > 0:
             renpy_list = pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, renpy_list], axis=0, ignore_index=True)
-        if int(setting['Engines']['game_maker']) > 0:
+        if int(self.setting['Engines']['game_maker']) > 0:
             gamemaker_list = pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, gamemaker_list], axis=0, ignore_index=True)
-        if int(setting['Engines']['rpg_maker']) > 0:
+        if int(self.setting['Engines']['rpg_maker']) > 0:
             rpgmaker_list = pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, rpgmaker_list], axis=0, ignore_index=True)
-        if int(setting['Engines']['godot']) > 0:
+        if int(self.setting['Engines']['godot']) > 0:
             godot_list = pandas.read_csv('./game_list/godot_list.csv', delimiter='\t')
             self.mainList = pandas.concat([self.mainList, godot_list], axis=0, ignore_index=True)
 
         self.mainList = self.mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
         self.names = {row['game_name']: row['release_year'] for _, row in self.mainList.iterrows()}
 
-        if setting['Main']['group'] == 'name':
+        if self.setting['Main']['group'] == 'name':
             self.tree_view_create_by_name()
         else:
             self.tree_view_create_by_year()
@@ -130,20 +84,20 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
 
         # Run functions and methods
-        self.change_theme(setting["Main"]["theme"])
+        self.change_theme(self.setting["Main"]["theme"])
         self.archive_list = {}
         self.archive_list_create()
 
         # Actions connected
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.exitAction.triggered.connect(self.close)
-        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
+        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
         self.create_theme.triggered.connect(
-            lambda: theme_creator.ThemeCreateWindow(style=setting["Main"]["theme"]).exec())
+            lambda: theme_creator.ThemeCreateWindow(style=self.setting["Main"]["theme"]).exec())
         self.action_SelectOutPath.triggered.connect(lambda: self.set_setting('Main', 'out_path',
                                                                              self.file_open(select_folder=True)))
-        self.checkBox_ShowConsole.setCheckState(int(setting['Main']['show_console']))
-        self.checkBox_createSubfolders.setCheckState(int(setting['Main']['subfolders']))
+        self.checkBox_ShowConsole.setCheckState(int(self.setting['Main']['show_console']))
+        self.checkBox_createSubfolders.setCheckState(int(self.setting['Main']['subfolders']))
         self.checkBox_ShowConsole.stateChanged.connect(
             lambda: self.set_setting('Main', 'show_console',
                                      "2" if self.checkBox_ShowConsole.isChecked() else "0"))
@@ -160,10 +114,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
         if self.show_favorites:
             self.filter_list_create(self.favorites)
-            self.btn_All_Favorite.setText(TL.fav_caps)
+            self.btn_All_Favorite.setText(translate.fav_caps)
         else:
             self.filter_list_create(self.names)
-            self.btn_All_Favorite.setText(TL.all_caps)
+            self.btn_All_Favorite.setText(translate.all_caps)
 
     def favorite_setting(self, action, item):
 
@@ -182,17 +136,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
                 fav.write(favorite + '\n')
 
     def set_setting(self, section, key, value, remove=False):
-        global setting
 
         if remove:
-            setting.remove_option(section, key)
+            self.setting.remove_option(section, key)
         else:
-            setting.set(section, key, value)
+            self.setting.set(section, key, value)
 
         with open('./setting.ini', "w") as cf:
-            setting.write(cf)
-
-        self.setting = setting
+            self.setting.write(cf)
 
     def append_text(self, text):
 
@@ -219,14 +170,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         for theme in list_themes():
             theme_name = theme.split('.')[0]
 
-            if theme_name not in default_themes or theme_name == setting["Main"]["theme"]:
+            if theme_name not in default_themes or theme_name == self.setting["Main"]["theme"]:
                 new_theme = self.themes_list_2.addAction(theme_name.replace('_', ' ').title())
             else:
                 new_theme = other_themes_submenu.addAction(theme_name.replace('_', ' ').title())
 
             new_theme.triggered.connect(lambda *args, x=theme_name: self.change_theme(x))
 
-            if theme_name == setting["Main"]["theme"]:
+            if theme_name == self.setting["Main"]["theme"]:
                 new_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
 
         self.themes_list_2.addMenu(other_themes_submenu)
@@ -247,14 +198,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
         for i, lang in enumerate(lang_list):
 
-            if lang_codes[i] in main_list or lang_codes[i] == setting["Main"]["lang"]:
+            if lang_codes[i] in main_list or lang_codes[i] == self.setting["Main"]["lang"]:
                 new_lang = self.action_Language.addAction(lang)
             else:
                 new_lang = other_submenu.addAction(lang)
 
             new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.change_lang(x))
 
-            if lang_codes[i] == setting["Main"]["lang"]:
+            if lang_codes[i] == self.setting["Main"]["lang"]:
                 new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
 
                 if lang_codes[i] not in main_list:
@@ -320,7 +271,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             case 'rpg maker':
                 btn.clicked.connect(lambda: print('rpg maker'))
             case 'setting':
-                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=setting["Main"]["theme"]).exec())
+                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
             case 'source':
                 btn.clicked.connect(lambda: print('source'))
             case 'trashcan':
@@ -334,8 +285,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             case 'unity':
                 btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
                                                    args=(QFileDialog.getExistingDirectory(
-                                                       self, 'Select folder',  # TODO: TEXT!!!
-                                                       directory=setting['Main']['last_dir']),)).start())
+                                                       self, translate.select_folder,
+                                                       directory=self.setting['Main']['last_dir']),)).start())
             case 'wwise':
                 btn.clicked.connect(lambda: print('wwise'))
             case 'xnconvert':
@@ -343,11 +294,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
-        setting.read('./setting.ini')
+        self.setting.read('./setting.ini')
         alpha = ['A']
 
         for j in range(1, 13):
-            alpha.append(setting["Buttons"][str(j)])
+            alpha.append(self.setting["Buttons"][str(j)])
 
         alpha.append('Y')
         alpha.append('Z')
@@ -380,7 +331,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
             if i not in (0, 13, 14, -1):
                 self.add_button(btn, contexts=[translate.change_button, translate.cancel],
                                 l_func=(lambda *args, l=i:
-                                        self.new_button(style=setting["Main"]["theme"], alpha=l)))
+                                        self.new_button(style=self.setting["Main"]["theme"], alpha=l)))
             elif i == 14:
                 self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
                                 l_func=[lambda: self.set_setting('Main', 'trash', '1'),
@@ -482,7 +433,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker):
         new_parent = QStandardItem(translate.other)
         self.parent_list[translate.other] = new_parent
         self.root_item.appendRow(new_parent)
-
         self.filter_list_create(self.names)
 
         for name in self.names:

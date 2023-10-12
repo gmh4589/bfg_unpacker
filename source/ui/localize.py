@@ -6,6 +6,7 @@ setting = configparser.ConfigParser()
 setting.read('./setting.ini')
 lang = setting['Main']['lang']
 
+
 if not os.path.exists(f'./source/local/{lang}.json'):
     lang = 'en'
 
@@ -70,3 +71,22 @@ second_dark = local['second_dark']
 font_color_1 = local['font_color_1']
 font_color_2 = local['font_color_2']
 enter_theme_name = local['enter_theme_name']
+zoom = local['zoom']
+select_folder = local["select_folder"]
+open_file = local["open_file"]
+message = local["message"]
+successfully = local["successfully"]
+has_already_been = local["has_already_been"]
+not_correct_file = local["not_correct_file"]
+done = local["done"]
+saving = local["saving"]
+planet_added = local["planet_added"]
+star_added = local["star_added"]
+exo_catalog = local["exo_catalog"]
+data_about = local["data_about"]
+planets = local["planets"]
+source = local["source"]
+make_with = local["make_with"]
+wait = local["wait"]
+not_unzipped = local["not_unzipped"]
+deleting = local["deleting"]

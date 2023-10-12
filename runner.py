@@ -3,12 +3,12 @@ import sys
 
 from PyQt5.QtCore import QRect, pyqtSignal, QObject
 from PyQt5.QtWidgets import *
-from source.reapers import aurora_engine, pathologic, rdr2_audio, seven_s_seven
+from source.reapers import aurora_engine, pathologic, rdr2_audio, arx_fatalis
 
 
 class MainWindow(QMainWindow):
 
-    def __init__(self, run='7x7'):
+    def __init__(self, run='arx'):
         super().__init__()
         self.resize(300, 300)
         self.setWindowTitle("Simple Reaper")
@@ -21,15 +21,16 @@ class MainWindow(QMainWindow):
 
         match run:
             case 'aurora':
-                self.test = aurora_engine.ERFUnpacker(self.out_dir)
+                self.test = aurora_engine.ERFUnpacker()
             case 'pathologic':
-                self.test = pathologic.MorUnpacker(self.out_dir)
+                self.test = pathologic.MorUnpacker()
             case 'rdr2':
-                self.test = rdr2_audio.RDR2Audio(self.out_dir)
-            case '7x7':
-                self.test = seven_x_seven.Seven(self.out_dir)
+                self.test = rdr2_audio.RDR2Audio()
+            case 'arx':
+                self.test = arx_fatalis.PakExtractor()
 
         self.test.file_name = self.file_open()
+        self.test.output_folder = self.out_dir
 
         if self.test.file_name:
             self.test.start()

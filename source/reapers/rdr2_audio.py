@@ -1,6 +1,7 @@
 
 import os
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class RDR2Audio(Reaper):
@@ -24,6 +25,6 @@ class RDR2Audio(Reaper):
 
             print(f'{i + 1}/{file_count} - {name}_{i}')
             self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
-                                    f'Saving - {name}_{i}...', False)
+                                    f'{localize.saving} - {name}_{i}...', False)
 
-        self.update_signal.emit(100, f'{file_count}/{file_count}', 'Done!', True)
+        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

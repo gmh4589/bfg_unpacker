@@ -1,5 +1,6 @@
 import os
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class ERFUnpacker(Reaper):
@@ -76,15 +77,14 @@ class ERFUnpacker(Reaper):
                         f.seek(c)
                         print(f"{i + 1}/{iFileCount} {rName}")
                         self.update_signal.emit(int(100 / iFileCount * (i + 1)), f'{i + 1}/{iFileCount}',
-                                                f'Saving - {rName}...', False)
+                                                f'{localize.saving} - {rName}...', False)
 
-                    self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', f'Done!', True)
+                    self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)
 
                 elif iVer == b'\x56\x00\x33\x00':
-                    self.update_signal.emit(100, f'0/0', f'TODO!', True)
+                    self.update_signal.emit(100, f'0/0', f'TODO!', True)  # TODO: Add support
                     print('TODO!')
 
                 else:
-                    self.update_signal.emit(100, f'0/0', f'This file not Aurora Engine Archive!', True)
-                    print('This file not Aurora Engine Archive!')
-
+                    self.update_signal.emit(100, f'0/0', localize.not_correct_file.replace('%%', 'Aurora Engine'), True)
+                    print(localize.not_correct_file)

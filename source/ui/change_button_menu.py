@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
 
-from source.ui import resize
+from source.ui import resize, localize
 
 
 class CBWindow(QDialog):
@@ -50,8 +50,8 @@ class CBWindow(QDialog):
 
     def show_message_box(self, text):
         message_box = QMessageBox()
-        message_box.setWindowTitle('Сообщение')  # TODO: text!!!
-        message_box.setText(f'Кнопка {text} добавлена!')  # TODO: text!!!
+        message_box.setWindowTitle(localize.message)
+        message_box.setText(f'{text}')
         message_box.setIcon(QMessageBox.Information)
         message_box.setStandardButtons(QMessageBox.Ok)
         apply_stylesheet(message_box, theme=f'{self.style}.xml')
@@ -63,9 +63,9 @@ class CBWindow(QDialog):
         buttons = [button for button in setting['Buttons'].values()]
 
         if a in buttons:
-            self.show_message_box('уже')  # TODO: text!!!
+            self.show_message_box(localize.has_already_been)
         else:
-            self.show_message_box('успешно')  # TODO: text!!!
+            self.show_message_box(localize.successfully)
             setting.set('Buttons', str(num), str(a))
 
             with open('./setting.ini', "w") as config_file:

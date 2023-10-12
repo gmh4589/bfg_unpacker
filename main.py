@@ -6,7 +6,8 @@ from threading import Thread
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import *
 from source.ui.main_ui_init import MainWindow
-from source.reapers import pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres
+from source.ui import localize
+from source.reapers import pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres, arx_fatalis
 from source import delete
 from source.reaper import after_dot
 
@@ -19,6 +20,7 @@ class UnpackerMain(MainWindow):
 
         # QProcesses connect
         self.aurora = aurora_engine.ERFUnpacker()
+        self.arx = arx_fatalis.PakExtractor()
         self.celestia = celestia.Celestia()
         self.delete_thread = delete.DeleteThread()
         self.id_tech = doom_wad.WadExtractor()
@@ -38,13 +40,13 @@ class UnpackerMain(MainWindow):
                 f = ''
 
             if more_one:
-                file_names = QFileDialog.getOpenFileName(self, 'Open file', filter=f,  # TODO: TEXT!!!
+                file_names = QFileDialog.getOpenFileName(self, localize.open_file, filter=f,
                                                          directory=self.setting['Main']['last_dir'])[0]
             else:
-                file_names = QFileDialog.getOpenFileNames(self, 'Open file', filter=f,  # TODO: TEXT!!!
+                file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
                                                           directory=self.setting['Main']['last_dir'])[0]
         else:
-            file_names = [QFileDialog.getExistingDirectory(self, 'Select folder',  # TODO: TEXT!!!
+            file_names = [QFileDialog.getExistingDirectory(self, localize.select_folder,
                                                            directory=self.setting['Main']['last_dir']), '']
 
         if file_names:
@@ -64,7 +66,7 @@ class UnpackerMain(MainWindow):
         after_dot['Default'] = data_string['ext_list'].values[0] if data_string['ext_list'].values[0] != 'nan' else ''
         ext_list = after_dot[func_name] if func_name in after_dot.keys() else after_dot['Default']
 
-        if func_name in ('_Unity', '_Frostbite2+'):
+        if func_name in ('_Unity', '_Frostbite2', '_Frostbite3'):
             select_folder = True
 
         for file_name in self.file_open(ext_list, select_folder, more_one):
@@ -76,41 +78,46 @@ class UnpackerMain(MainWindow):
                 with open(file_name, 'rb') as fff:
                     header = fff.read(4)
 
-                match func_name:
-                    case "_7x7":
-                        self.q_connect(self.x7, file_name)
-                    case "_Aurora":
-                        self.q_connect(self.aurora, file_name)
-                    case "_ExoPlanet":
-                        self.q_connect(self.celestia, file_name, header='Creating...')
-                    case "_idTech":
-                        if ext == 'wad':
-                            self.q_connect(self.id_tech, file_name)
-                        elif ext in ('zip', 'pk3', 'pk4'):
-                            self.q_connect(self.zip, file_name)
-                        else:
-                            print('TODO')  # TODO: Add functions to unpack other file types
-                    case "_Mor":
-                        self.q_connect(self.mor, file_name)
-                    case "_Unity":
-                        thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
-                    case "_Unreal" | "_Unreal4":
-                        if ext == 'locres':
-                            self.q_connect(self.locres2txt, file_name)
-                        elif ext == 'txt':
-                            self.q_connect(self.txt2locres, file_name)
-                        else:
-                            thread = Thread(target=self.unpacker.unreal, args=(file_name, script_name), daemon=True)
-                    case '_ZIP':
-                        if header == b'PK\x03\x04':
-                            self.q_connect(self.zip, file_name)
-                        else:
-                            thread = Thread(target=self.unpacker.seven_zip, args=(file_name,), daemon=True)
-                    case _:
-                        thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
+                if header == b'PK\x03\x04':
+                    self.q_connect(self.zip, file_name)
+                else:
 
-                if thread is not None:
-                    thread.start()
+                    match func_name:
+                        case '_7x7':
+                            self.q_connect(self.x7, file_name)
+                        case '_Arx':
+                            self.q_connect(self.arx, file_name)
+                        case '_Aurora':
+                            self.q_connect(self.aurora, file_name)
+                        case '_ExoPlanet':
+                            self.q_connect(self.celestia, file_name, header='Creating...')
+                        case '_idTech':
+
+                            if ext == 'wad':
+                                self.q_connect(self.id_tech, file_name)
+                            else:
+                                print('TODO')  # TODO: Add functions to unpack other file types
+                                
+                        case '_Mor':
+                            self.q_connect(self.mor, file_name)
+                        case '_Unity':
+                            thread = Thread(target=self.unpacker.unity, args=(file_name,), daemon=True)
+                        case '_Unreal' | '_Unreal4':
+
+                            if ext == 'locres':
+                                self.q_connect(self.locres2txt, file_name)
+                            elif ext == 'txt':
+                                self.q_connect(self.txt2locres, file_name)
+                            else:
+                                thread = Thread(target=self.unpacker.unreal, args=(file_name, script_name), daemon=True)
+
+                        case '_ZIP':
+                            thread = Thread(target=self.unpacker.seven_zip, args=(file_name,), daemon=True)
+                        case _:
+                            thread = Thread(target=self.unpacker.quick_bms, args=(file_name, script_name), daemon=True)
+
+                    if thread is not None:
+                        thread.start()
 
     def q_connect(self, threed, file_name='', header='Unpacking...'):
         threed.file_name = file_name

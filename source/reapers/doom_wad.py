@@ -1,6 +1,7 @@
 
 import os
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class WadExtractor(Reaper):
@@ -12,8 +13,8 @@ class WadExtractor(Reaper):
             magic = wad_file.read(4)
 
             if magic not in (b'IWAD', b'PWAD'):
-                print("Ошибка: Неверный формат WAD-файла!")
-                self.update_signal.emit(100, '', "Ошибка: Неверный формат WAD-файла!", True)  # TODO: text!!!
+                print(localize.not_correct_file)
+                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'WAD'), True)
                 return
 
             num_entries = int.from_bytes(wad_file.read(4), byteorder="little")
@@ -41,6 +42,6 @@ class WadExtractor(Reaper):
 
                 print(f"{i + 1}/{num_entries} {entry_name}")
                 self.update_signal.emit(int(100 / num_entries * (i + 1)), f'{i + 1}/{num_entries}',
-                                        f'Saving - {entry_name}...', False)
+                                        f'{localize.saving} - {entry_name}...', False)
 
-            self.update_signal.emit(100, f'{num_entries}/{num_entries}', 'Done!', True)
+            self.update_signal.emit(100, f'{num_entries}/{num_entries}', localize.done, True)

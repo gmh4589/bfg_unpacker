@@ -1,4 +1,4 @@
-
+import pandas
 from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication, Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import *
@@ -13,6 +13,13 @@ setting.read('./setting.ini')
 
 
 class SettingWindow(QDialog):
+
+    unity_list = len(pandas.read_csv('./game_list/unity_list.csv', delimiter='\t'))
+    unreal_list = len(pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t'))
+    renpy_list = len(pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t'))
+    gamemaker_list = len(pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t'))
+    rpgmaker_list = len(pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t'))
+    godot_list = len(pandas.read_csv('./game_list/godot_list.csv', delimiter='\t'))
 
     def __init__(self, style='dark_orange'):
         super().__init__()
@@ -30,7 +37,7 @@ class SettingWindow(QDialog):
         self.label_sort = QLabel(self.centralwidget)
         self.label_sort.setGeometry(QRect(resize.widget(160), resize.widget(10), resize.widget(150), resize.widget(20)))
         self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(resize.widget(10), resize.widget(30), resize.widget(140), resize.widget(170)))
+        self.groupBox.setGeometry(QRect(resize.widget(10), resize.widget(30), resize.widget(145), resize.widget(170)))
         self.widget = QWidget(self.groupBox)
         self.widget.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(120), resize.widget(150)))
         self.verticalLayout_2 = QVBoxLayout(self.widget)
@@ -77,13 +84,12 @@ class SettingWindow(QDialog):
 
         self.zoom_label = QLabel(self.centralwidget)
         self.zoom_label.setGeometry(QRect(resize.widget(10), resize.widget(250),
-                                          resize.widget(60), resize.widget(20)))
+                                          resize.widget(90), resize.widget(20)))
         self.zoom_slider = QSlider(Qt.Horizontal, self.centralwidget)
         self.zoom_slider.setRange(0, 4)
-        self.zoom_slider.setGeometry(QRect(resize.widget(80), resize.widget(250),
-                                           resize.widget(210), resize.widget(20)))
+        self.zoom_slider.setGeometry(QRect(resize.widget(100), resize.widget(250),
+                                           resize.widget(190), resize.widget(20)))
         self.zoom_slider.setValue(int((float(setting['Main']['zoom']) - 1) / .25))
-        self.zoom_label.setText(f"Zoom {int(float(setting['Main']['zoom']) * 100)}%")
         self.zoom_slider.valueChanged.connect(lambda:
                                               self.zoom_label.setText(
                                                   f"{self.zoom_label.text().split(' ')[0]} "
@@ -105,7 +111,6 @@ class SettingWindow(QDialog):
         self.cancel_button.setFont(self.font)
         self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190),
                                              resize.widget(130), resize.widget(25)))
-        self.out_folder.clicked.connect(self.select)
 
         if setting['Main']['group'] == 'name':
             self.radioButton.setChecked(True)
@@ -115,14 +120,15 @@ class SettingWindow(QDialog):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
+        self.out_folder.clicked.connect(self.select)
         self.cancel_button.clicked.connect(self.close)
         self.create_theme.clicked.connect(lambda: theme_creator.ThemeCreateWindow(style=style).exec())
         self.save_setting.clicked.connect(lambda: self.apply_setting(style))
 
     def select(self):
         global setting
-        out_path = QFileDialog.getExistingDirectory(self, caption='Select folder',
-                                                    directory=setting['Main']['last_dir'])  # TODO: TEXT!!!
+        out_path = QFileDialog.getExistingDirectory(self, caption=TL.select_folder,
+                                                    directory=setting['Main']['last_dir'])
 
         if out_path:
             setting.set('Main', 'out_path', out_path)
@@ -148,12 +154,12 @@ class SettingWindow(QDialog):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", TL.settings))
-        self.unity_checkBox.setText(_translate("MainWindow", "Unity"))
-        self.unreal_checkBox.setText(_translate("MainWindow", "Unreal"))
-        self.rpg_checkBox.setText(_translate("MainWindow", "RPG Maker"))
-        self.gamemaker_checkBox.setText(_translate("MainWindow", "Game Maker"))
-        self.renpy_checkBox.setText(_translate("MainWindow", "RenPy"))
-        self.godot_checkBox.setText(_translate("MainWindow", "Godot"))
+        self.unity_checkBox.setText(_translate("MainWindow", f"Unity ({self.unity_list})"))
+        self.unreal_checkBox.setText(_translate("MainWindow", f"Unreal ({self.unreal_list})"))
+        self.rpg_checkBox.setText(_translate("MainWindow", f"RPG Maker ({self.rpgmaker_list})"))
+        self.gamemaker_checkBox.setText(_translate("MainWindow", f"Game Maker ({self.gamemaker_list})"))
+        self.renpy_checkBox.setText(_translate("MainWindow", f"RenPy ({self.renpy_list})"))
+        self.godot_checkBox.setText(_translate("MainWindow", f"Godot ({self.godot_list})"))
         self.radioButton.setText(_translate("MainWindow", TL.by_name))
         self.radioButton_2.setText(_translate("MainWindow", TL.by_years))
         self.checkBox_7.setText(_translate("MainWindow", TL.context_menu))
@@ -163,3 +169,4 @@ class SettingWindow(QDialog):
         self.cancel_button.setText(_translate("MainWindow", TL.cancel))
         self.label_engines.setText(_translate("MainWindow", TL.show_on))
         self.label_sort.setText(_translate("MainWindow", TL.sort_by))
+        self.zoom_label.setText(_translate("MainWindow", f"{TL.zoom} {int(float(setting['Main']['zoom']) * 100)}%"))

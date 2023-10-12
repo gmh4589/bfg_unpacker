@@ -2,8 +2,9 @@ import bz2
 import zlib
 # import lzma
 import os
-import zipfile
+# import zipfile
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 # class Zip(Reaper):
@@ -57,10 +58,10 @@ class Zip(Reaper):
                     #     pass
                     else:
                         new_file.write(cd)
-                        print("Warning! The data use rare compression format and may not be unzipped!")
+                        print(localize.not_unzipped)
 
-                print(f"Saving - {p}...")
-                self.update_signal.emit(percent, f'{percent}%', f'Saving - {p}...', False)
+                print(f"{localize.saving} - {p}...")
+                self.update_signal.emit(percent, f'{percent}%', f'{localize.saving} - {p}...', False)
 
         size = os.path.getsize(self.file_name)
 
@@ -91,7 +92,7 @@ class Zip(Reaper):
                     break
 
                 else:
-                    print('Файл не является ZIP архивом!')
+                    print(localize.not_correct_file)
                     break
 
-            self.update_signal.emit(100, '', 'Done!', True)
+            self.update_signal.emit(100, '', localize.done, True)
