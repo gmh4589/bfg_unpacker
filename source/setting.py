@@ -18,7 +18,7 @@ class Setting:
         setting.set('Main', 'zoom', '1.0')
         setting.set('Main', 'last_dir', '')
         setting.set('Main', 'out_path', '')
-        setting.set('Main', 'trash', '1')
+        setting.set('Main', 'trash', '0')
         setting.set('Main', 'show_console', '0')
         setting.set('Main', 'subfolders', '2')
         setting.set('Buttons', '1', 'B')

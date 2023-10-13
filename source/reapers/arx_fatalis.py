@@ -1,8 +1,9 @@
 
 import os
-import struct
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
+# TODO: Add unzipped function for bmp files
 
 
 class PakExtractor(Reaper):
@@ -15,6 +16,7 @@ class PakExtractor(Reaper):
 
     @file_reaper
     def run(self):
+        self.dirs = []
 
         with open(self.file_name, 'rb') as f:
             fat_offset = int.from_bytes(f.read(4), byteorder='little')
@@ -121,7 +123,6 @@ class FATDecryptor:
 
             str_bytes.append(char)
 
-        if no_caps:
-            return str_bytes.decode('utf-8').lower()
-
-        return str_bytes.decode('utf-8')
+        return str_bytes.decode('utf-8',
+                                errors='ignore').lower() if no_caps else str_bytes.decode('utf-8',
+                                                                                          errors='ignore')

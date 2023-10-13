@@ -5,7 +5,7 @@ import os
 # import zipfile
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-
+# TODO: Add support other compress codecs
 
 # class Zip(Reaper):
 #
@@ -40,22 +40,32 @@ class Zip(Reaper):
                         new_file.write(cd)
                     elif cm == b'\x08\x00':  # Deflate
                         new_file.write(zlib.decompress(cd, -zlib.MAX_WBITS))
-                    # elif cm in (b'\x09\x00', ):  # Deflate 64
-                    #     pass
-                    # elif cm in (b'\x0a\x00', ):  # PKWare
-                    #     pass
                     elif cm == b'\x0c\x00':  # BZIP2
                         new_file.write(bz2.decompress(cd))
-                    # elif cm == b'\x0e\x00':  # LZMA
-                        # new_file.write(lzma.decompress(cd))
-                    # elif cm in (b'\x12\x00', ):  # IBM TERSE
-                    #     pass
-                    # elif cm in (b'\x13\x00', ):  # LZ77
-                    #     pass
-                    # elif cm in (b'\x61\x00', ):  # WavPack
-                    #     pass
-                    # elif cm in (b'\x62\x00', ):  # PPMD
-                    #     pass
+
+                    #  Other methods:
+                    #  1 - shrink
+                    #  2 - reduce1
+                    #  3 - reduce2
+                    #  4 - reduce3
+                    #  5 - reduce4
+                    #  9 - deflate64
+                    #  6, 10 - pkware
+                    #  13, 21 - XMemDecompress
+                    #  14 - lzma
+                    #  15 - oodle
+                    #  18 - terse
+                    #  19 - LZ77
+                    #  24 - lzma86dechead
+                    #  28 - LZ4F
+                    #  34 - broti
+                    #  64 - darksector
+                    #  95 - LZMA2_EFS0
+                    #  96 - jpeg
+                    #  97 - wavpack
+                    #  98 - ppmd
+                    #  99 - lzfse
+
                     else:
                         new_file.write(cd)
                         print(localize.not_unzipped)

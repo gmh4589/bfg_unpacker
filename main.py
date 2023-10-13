@@ -123,7 +123,10 @@ class UnpackerMain(MainWindow):
         threed.file_name = file_name
         threed.output_folder = self.out_dir
         self.pb.set_theme(self.setting["Main"]["theme"])
-        self.pb_header_text = header
+        self.pb.header.setText(header)
+        self.pb.progressBar.setValue(0)
+        self.pb.progress.setText('')
+        self.pb.status.setText('')
         self.pb.show()
         threed.update_signal.connect(self.update_progress)
         threed.start()
@@ -136,7 +139,6 @@ class UnpackerMain(MainWindow):
             print('The folder is empty!')
 
     def update_progress(self, pb_value, p_text, info, process_done):
-        self.pb.header.setText(self.pb_header_text)
         self.pb.progressBar.setValue(pb_value)
         self.pb.progress.setText(p_text)
         self.pb.status.setText(info)

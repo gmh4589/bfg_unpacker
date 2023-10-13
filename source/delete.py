@@ -3,12 +3,13 @@ import os
 import shutil
 from send2trash import send2trash
 import configparser
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class DeleteThread(Reaper):
 
+    @file_reaper
     def run(self):
         setting = configparser.ConfigParser()
         setting.read('./setting.ini')
@@ -33,6 +34,6 @@ class DeleteThread(Reaper):
                 not_deleted += 1
 
         # TODO: Text!!!
-        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else localize.done
+        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else ''
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
         print(msg)

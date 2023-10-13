@@ -1,4 +1,6 @@
 import os
+import zlib
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -12,7 +14,7 @@ class ERFUnpacker(Reaper):
             f.seek(4, 0)
             iVer = f.read(4)
 
-            if iVer == b'\x56\x31\x2E\x30':
+            if iVer == b'\x56\x31\x2E\x30':  # Version 1
                 f.seek(16)
                 iFileCount = int.from_bytes(f.read(4), byteorder='little')
                 f.seek(24)
@@ -58,7 +60,7 @@ class ERFUnpacker(Reaper):
                 f.seek(8, 0)
                 iVer = f.read(4)
 
-                if iVer == b'\x56\x00\x32\x00':
+                if iVer == b'\x56\x00\x32\x00':  # Version 2
                     f.seek(16, 0)
                     iFileCount = int.from_bytes(f.read(4), byteorder='little')
                     f.seek(32, 0)
@@ -81,9 +83,33 @@ class ERFUnpacker(Reaper):
 
                     self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)
 
-                elif iVer == b'\x56\x00\x33\x00':
-                    self.update_signal.emit(100, f'0/0', f'TODO!', True)  # TODO: Add support
-                    print('TODO!')
+                elif iVer == b'\x56\x00\x33\x00':  # Version 3, Version 5
+                    # TODO: Need Tests!!!
+                    f.seek(48, 0)
+
+                    iFileCount = int.from_bytes(f.read(4), byteorder='little')
+
+                    for i in range(iFileCount):
+                        f.seek(16, 1)
+
+                        offset = int.from_bytes(f.read(4), byteorder='little') + 1
+                        zSize = int.from_bytes(f.read(4), byteorder='little') - 1
+                        size = int.from_bytes(f.read(4), byteorder='little')
+
+                        # Переместим указатель файла на OFFSET и прочитаем сжатые данные
+                        f.seek(offset, 0)
+                        compressed_data = f.read(zSize)
+
+                        decompressed_data = zlib.decompress(compressed_data)
+
+                        with open(f'{self.output_folder}\\{i}', 'wb') as file_out:
+                            file_out.write(decompressed_data)
+
+                        print(f"{i + 1}/{iFileCount} {i}")
+                        self.update_signal.emit(int(100 / iFileCount * (i + 1)), f'{i + 1}/{iFileCount}',
+                                                f'{localize.saving} - {i}...', False)
+
+                    self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)
 
                 else:
                     self.update_signal.emit(100, f'0/0', localize.not_correct_file.replace('%%', 'Aurora Engine'), True)

@@ -1,11 +1,15 @@
 import configparser
 import json
 import os
+import locale
 
 setting = configparser.ConfigParser()
-setting.read('./setting.ini')
-lang = setting['Main']['lang']
 
+if os.path.exists('./setting.ini'):
+    setting.read('./setting.ini')
+    lang = setting['Main']['lang']
+else:
+    lang = locale.getdefaultlocale()[0].split('_')[0]
 
 if not os.path.exists(f'./source/local/{lang}.json'):
     lang = 'en'

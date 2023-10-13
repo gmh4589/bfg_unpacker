@@ -40,7 +40,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.root_item = self.model.invisibleRootItem()
         self.unpacker = Unpacker()
         self.pb = progress_bar.ProgressBar(self.setting["Main"]["theme"])
-        self.pb_header_text = ''
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
 
