@@ -1,10 +1,12 @@
 
 from datetime import datetime
+import os
 from PyQt5.QtCore import QThread, pyqtSignal
 from source.ui import localize
 
 
 def file_reaper(func_name):
+
     def wrapper(*args, **kwargs):
         start = datetime.now()
         func_name(*args, **kwargs)
@@ -23,6 +25,7 @@ class Reaper(QThread):
         self.file_name = 'file_name'
         self.output_folder = 'output_folder'
         self.unpack = True
+        self.path_to_root = os.path.abspath(__file__).split('source')[0]
 
     def run(self):
         pass

@@ -1,5 +1,7 @@
 import os
 import configparser
+from subprocess import Popen, PIPE
+
 from source.reaper import file_reaper
 
 setting = configparser.ConfigParser()
@@ -44,7 +46,6 @@ class Unpacker:
             #
             # print(out_data)
             # print(err_data)
-            print(script_name)
 
             os.system(f'{self.path_to_root}data/QuickBMS/quickbms.exe '
                       f'"{self.path_to_root}{script_name}" '

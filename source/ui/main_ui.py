@@ -1,3 +1,4 @@
+
 from PyQt5.QtCore import QRect, QMetaObject, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
@@ -73,31 +74,132 @@ class Ui_BFGUnpacker(Translate):
         self.zippedFormats = QMenu(self.menu)
         self.formatSearch = QMenu(self.menu)
         self.additionalMenu = QMenu(self.menu)
+
+        # Consoles
         self.consolesMenu = QMenu(self.menu)
+
+        # Sony
         self.menuSony = QMenu(self.consolesMenu)
+
         self.menuPlayStation_1 = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_1.menuAction())
+        self.ps1_xa = QAction(self.menuPlayStation_1)
+        self.menuPlayStation_1.addAction(self.ps1_xa)
+
         self.menuPlayStation_2 = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_2.menuAction())
+
         self.menuPlayStation_3 = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_3.menuAction())
+        self.ps3PsarcZlib = QAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3PsarcZlib)
+        self.ps3PsarcLzma = QAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3PsarcLzma)
+        self.ps3XWS = QAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3XWS)
+
         self.menuPlayStation_4 = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_4.menuAction())
+        self.ps4PKG_CNT = QAction(self.menuPlayStation_4)
+        self.menuPlayStation_4.addAction(self.ps4PKG_CNT)
+
         self.menuPlayStation_5 = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_5.menuAction())
+
         self.menuPSP = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPSP.menuAction())
+        self.pspCSO = QAction(self.menuPSP)
+        self.menuPSP.addAction(self.pspCSO)
+
         self.menuPlayStation_Vita = QMenu(self.menuSony)
+        self.menuSony.addAction(self.menuPlayStation_Vita.menuAction())
+        self.gxt2png = QAction(self.menuPlayStation_Vita)
+        self.menuPlayStation_Vita.addAction(self.gxt2png)
+        self.png2gxt = QAction(self.menuPlayStation_Vita)
+        self.menuPlayStation_Vita.addAction(self.png2gxt)
+        self.psvPsarc = QAction(self.menuPlayStation_Vita)
+        self.menuPlayStation_Vita.addAction(self.psvPsarc)
+
+        self.consolesMenu.addAction(self.menuSony.menuAction())
+
+        # Microsoft
         self.menuMicrosoft = QMenu(self.consolesMenu)
+
         self.menuXBox_Classic = QMenu(self.menuMicrosoft)
+        self.menuMicrosoft.addAction(self.menuXBox_Classic.menuAction())
+        self.xboxISO = QAction(self.menuXBox_Classic)
+        self.menuXBox_Classic.addAction(self.xboxISO)
+        self.xboxAFS = QAction(self.menuXBox_Classic)
+        self.menuXBox_Classic.addAction(self.xboxAFS)
+
+        self.menuXBox_360 = QMenu(self.menuMicrosoft)
+        self.menuMicrosoft.addAction(self.menuXBox_360.menuAction())
+
         self.menuXBox_One = QMenu(self.menuMicrosoft)
+        self.menuMicrosoft.addAction(self.menuXBox_One.menuAction())
+
         self.menuXBox_Series = QMenu(self.menuMicrosoft)
+        self.menuMicrosoft.addAction(self.menuXBox_Series.menuAction())
+
+        self.consolesMenu.addAction(self.menuMicrosoft.menuAction())
+
+        # Nintendo
         self.menuNintendo = QMenu(self.consolesMenu)
+
         self.menuGameCube = QMenu(self.menuNintendo)
+        self.menuNintendo.addAction(self.menuGameCube.menuAction())
+
         self.menuWii = QMenu(self.menuNintendo)
+        self.menuNintendo.addAction(self.menuWii.menuAction())
+        self.wiiISO = QAction(self.menuWii)
+        self.menuWii.addAction(self.wiiISO)
+        self.wiiCSO = QAction(self.menuWii)
+        self.menuWii.addAction(self.wiiCSO)
+        self.wiiWBFS = QAction(self.menuWii)
+        self.menuWii.addAction(self.wiiWBFS)
+        self.wiiWDF = QAction(self.menuWii)
+        self.menuWii.addAction(self.wiiWDF)
+
         self.menuWii_U = QMenu(self.menuNintendo)
+        self.menuNintendo.addAction(self.menuWii_U.menuAction())
+
         self.menuSwitch = QMenu(self.menuNintendo)
+        self.menuNintendo.addAction(self.menuSwitch.menuAction())
+        self.switchNSP = QAction(self.menuSwitch)
+        self.menuSwitch.addAction(self.switchNSP)
+
         self.menuClassic_Consoles = QMenu(self.menuNintendo)
+        self.menuNintendo.addAction(self.menuClassic_Consoles.menuAction())
+        self.nintendoSARC = QAction(self.menuClassic_Consoles)
+        self.menuClassic_Consoles.addAction(self.nintendoSARC)
+        self.nintendoDS_SDAT = QAction(self.menuClassic_Consoles)
+        self.menuClassic_Consoles.addAction(self.nintendoDS_SDAT)
+
+        self.consolesMenu.addAction(self.menuNintendo.menuAction())
+
+        # Sega
         self.menuSega = QMenu(self.consolesMenu)
+
         self.menuDreamcast = QMenu(self.menuSega)
+        self.menuSega.addAction(self.menuDreamcast.menuAction())
+        self.dreamcastGDI = QAction(self.menuDreamcast)
+        self.menuDreamcast.addAction(self.dreamcastGDI)
+
         self.menuMegaDrive = QMenu(self.menuSega)
+        self.menuSega.addAction(self.menuMegaDrive.menuAction())
+
         self.menuSaturn = QMenu(self.menuSega)
+        self.menuSega.addAction(self.menuSaturn.menuAction())
+
         self.menuSegaOther = QMenu(self.menuSega)
+        self.menuSega.addAction(self.menuSegaOther.menuAction())
+
+        self.consolesMenu.addAction(self.menuSega.menuAction())
+
+        # Other
         self.menuOtherConsoles = QMenu(self.consolesMenu)
+        self.consolesMenu.addAction(self.menuOtherConsoles.menuAction())
+
         self.menu_5 = QMenu(self.menu)
         self.menu_6 = QMenu(self.menu)
         self.menu_7 = QMenu(self.menu)
@@ -160,30 +262,7 @@ class Ui_BFGUnpacker(Translate):
         self.additionalMenu.addAction(self.autoSearchScripts)
         self.additionalMenu.addAction(self.actionArchiveScanner)
         self.additionalMenu.addAction(self.actionFileList)
-        self.menuSony.addAction(self.menuPlayStation_1.menuAction())
-        self.menuSony.addAction(self.menuPlayStation_2.menuAction())
-        self.menuSony.addAction(self.menuPlayStation_3.menuAction())
-        self.menuSony.addAction(self.menuPlayStation_4.menuAction())
-        self.menuSony.addAction(self.menuPlayStation_5.menuAction())
-        self.menuSony.addAction(self.menuPSP.menuAction())
-        self.menuSony.addAction(self.menuPlayStation_Vita.menuAction())
-        self.menuMicrosoft.addAction(self.menuXBox_Classic.menuAction())
-        self.menuMicrosoft.addAction(self.menuXBox_One.menuAction())
-        self.menuMicrosoft.addAction(self.menuXBox_Series.menuAction())
-        self.menuNintendo.addAction(self.menuGameCube.menuAction())
-        self.menuNintendo.addAction(self.menuWii.menuAction())
-        self.menuNintendo.addAction(self.menuWii_U.menuAction())
-        self.menuNintendo.addAction(self.menuSwitch.menuAction())
-        self.menuNintendo.addAction(self.menuClassic_Consoles.menuAction())
-        self.menuSega.addAction(self.menuDreamcast.menuAction())
-        self.menuSega.addAction(self.menuMegaDrive.menuAction())
-        self.menuSega.addAction(self.menuSaturn.menuAction())
-        self.menuSega.addAction(self.menuSegaOther.menuAction())
-        self.consolesMenu.addAction(self.menuSony.menuAction())
-        self.consolesMenu.addAction(self.menuMicrosoft.menuAction())
-        self.consolesMenu.addAction(self.menuNintendo.menuAction())
-        self.consolesMenu.addAction(self.menuSega.menuAction())
-        self.consolesMenu.addAction(self.menuOtherConsoles.menuAction())
+
         self.menu.addAction(self.quickOpen)
         self.menu.addAction(self.unpackWith.menuAction())
         self.menu.addAction(self.menu_5.menuAction())

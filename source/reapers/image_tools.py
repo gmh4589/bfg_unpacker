@@ -25,7 +25,6 @@ def dds_save(x, y, codec, name, data):
 
 def png_save(x, y, codec, name, data):
     codec = codec.decode('utf-8')[:-1]
-    print(codec)
     Image.frombytes(codec, (y, x), data).save(f'{name}.png')
 
 
@@ -35,7 +34,7 @@ def gxt_save(name, data):
     with open(name, 'wb') as gxt_file:
         gxt_file.write(data)
 
-    os.system(f'GXTConvert.exe {name}')
+    os.system(f'./data/ps_tools/vita/GXTConvert.exe {name}')
 
 
 def byte_join(r, g, b, a, color_order):
