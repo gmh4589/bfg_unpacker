@@ -84,5 +84,7 @@
     "empty_folder": "The folder is empty!",
     "unsupported_platform": "Unsupported platform!\nSelect file from Switch, PC or PS Vita game version!",
     "disc_image": "Disc Image",
-    "classic_consoles": "Classic Consoles"
+    "classic_consoles": "Classic Consoles",
+    "error": "Error",
+    "all_files": "All Files"
 }

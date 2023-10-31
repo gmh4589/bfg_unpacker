@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 import pandas
-from threading import Thread
+# from threading import Thread
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -11,13 +11,14 @@ from PyQt5.QtWidgets import *
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
+from source.reaper import after_dot
 from source.setting import Setting
 from source.unpacker import Unpacker
 from source.ui import (resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
-                       localize as translate)
+                       localize as translate, child_gui)
 
 
-class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
+class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
 
     def __init__(self):
         super().__init__()
@@ -38,7 +39,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.model = QStandardItemModel()
         self.gameList_treeView.setModel(self.model)
         self.root_item = self.model.invisibleRootItem()
-        self.unpacker = Unpacker()
         self.pb = progress_bar.ProgressBar(self.setting["Main"]["theme"])
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
@@ -90,7 +90,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         # Actions connected
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.exitAction.triggered.connect(self.close)
-        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+        self.action_Settings.triggered.connect(
+            lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
         self.create_theme.triggered.connect(
             lambda: theme_creator.ThemeCreateWindow(style=self.setting["Main"]["theme"]).exec())
         self.action_SelectOutPath.triggered.connect(lambda: self.set_setting('Main', 'out_path',
@@ -105,8 +106,107 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                      "2" if self.checkBox_createSubfolders.isChecked() else "0"))
         self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())
         self.toolButton_plus.clicked.connect(lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
-        self.toolButton_minus.clicked.connect(lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
+        self.toolButton_minus.clicked.connect(
+            lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
         self.toolButton_Find.clicked.connect(lambda: print('find'))
+
+        # Converters with UI
+        self.actionFFMPEG_Video_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='FFMPEG Video Converter',
+                                            label_list=['Video Codec', 'Audio Codec', 'Video Bitrate', 'Audio Bitrate', 'Format', 'Width:High', 'Audio Track'],
+                                            action_list=[['a64_multi', 'a64_multi5', 'alias_pix', 'amv', 'apng', 'asv1', 'asv2', 'avrp', 'avui', 'ayuv', 'bmp', 'cinepak', 'cljr', 'dirac', 'dnxhd', 'dpx', 'dvvideo', 'ffv1', 'ffvhuff', 'flashsv', 'flashsv2', 'flv1', 'gif', 'h261', 'h263', 'h263p', 'h264', 'hap', 'hevc', 'huffyuv', 'jpeg2000', 'jpegls', 'ljpeg', 'mjpeg', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4v2', 'msmpeg4v3', 'msvideo1', 'pam', 'pbm', 'pcx', 'pgm', 'pgmyuv', 'png', 'ppm', 'prores', 'qtrle', 'r10k', 'r210', 'rawvideo', 'roq', 'rv10', 'rv20', 'sgi', 'snow', 'sunrast', 'svq1', 'targa', 'theora', 'tiff', 'utvideo', 'v210', 'v308', 'v408', 'v410', 'vp8', 'vp9', 'webp', 'wmv1', 'wmv2', 'wrapped_avframe', 'xbm', 'xface', 'xwd', 'y41p', 'yuv4', 'zlib', 'zmbv', translate.other],
+                                                         ['copy', 'aac', 'ac3', 'adpcm_adx', 'adpcm_g722', 'adpcm_g726', 'adpcm_ima_qt', 'adpcm_ima_wav', 'adpcm_ms', 'adpcm_swf', 'adpcm_yamaha', 'alac', 'amr_nb', 'amr_wb', 'comfortnoise', 'dts -strict -2', 'eac3', 'flac', 'g723_1', 'mp2', 'mp3',  'nellymoser', 'opus -strict -2', 'pcm_alaw', 'pcm_f32be',  'pcm_f32le', 'pcm_f64be', 'pcm_f64le', 'pcm_mulaw', 'pcm_s16be', 'pcm_s16be_planar', 'pcm_s16le', 'pcm_s16le_planar', 'pcm_s24be', 'pcm_s24daud', 'pcm_s24le', 'pcm_s24le_planar', 'pcm_s32be', 'pcm_s32le', 'pcm_s32le_planar', 'pcm_s8', 'pcm_s8_planar', 'pcm_u16be', 'pcm_u16le', 'pcm_u24be', 'pcm_u24le', 'pcm_u32be', 'pcm_u32le', 'pcm_u8', 'ra_144', 'roq_dpcm', 's302m', 'sonic', 'sonicls', 'speex', 'tta', 'vorbis -strict -2', 'wavpack', 'wmav1', 'wmav2', translate.other],
+                                                         ['64k', '128k', '192k', '256k', '512k', '768k', '1M', '2M', '3M', '4M', '5M', '6M', '8M', '10M', '12M', '15M', '16M', '20M', '25M', '30M', '40M', '50M', translate.other],
+                                                         ['16k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '224k', '256k', '320k', '360k', '448k', '512k', '768k', '1M', '2M', translate.other],
+                                                         ['3g2', '3gp', 'a64', 'asf', 'avi', 'dv', 'dvd', 'f4v', 'flv', 'hevc', 'ivf', 'm1v', 'm2v', 'm2t', 'm2ts', 'm4v', 'mkv', 'mjpeg', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'ogv', 'pam', 'rm', 'roq', 'swf', 'ts', 'vc1', 'vp8', 'vob', 'webm', 'wmv', 'wtv', translate.other],
+                                                         ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
+                                                         ['0', '1', '2', '3', '4', '5', '6', translate.other]],
+                                            default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1']).exec())
+        self.actionFFMPEG_Sound_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='FFMPEG Audio Converter',
+                                            label_list=['Frequency', 'Channels', 'Audio Bitrate', 'Format'],
+                                            action_list=[['8000', '12000', '16000', '22050', '24000', '32000', '36000', '44100', '48000', '96000', '192000', '384000', translate.other],
+                                                         ['1', '2', '3', '4', '5', '6', '7', '8', translate.other],
+                                                         ['8k', '12k', '16k', '20k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '256k', '320k', '448k', '512k', '768k', '1M', '2M', translate.other],
+                                                         ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'ogg', 'opus', 'ra', 'tta', 'wav', 'wma', 'wv', translate.other]],
+                                            default_list=['44100', '2', '128k', 'mp3']).exec())
+        self.actionRAW_to_WAV.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='RAW to WAV Converter',
+                                            label_list=['Frequency', 'Channels', 'Bit', 'Format', 'Offset'],
+                                            action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000', translate.other],
+                                                         ['1', '2', '3', '4', '5', '6', '7', '8', translate.other],
+                                                         ['8', '12', '16', '24', '32', '48', '64', '96', '128'],
+                                                         ['ADPCM', 'ALAW', 'ANTEX_ADPCME', 'APTX', 'ATRAC', 'AUDIOFILE_AF10', 'AUDIOFILE_AF36', 'BTV_DIGITAL', 'CANOPUS_ATRAC', 'CIRRUS', 'CONTROL_RES_CR10', 'CONTROL_RES_VQLPC', 'CREATIVE_ADPCM', 'CREATIVE_FASTSPEECH10', 'CREATIVE_FASTSPEECH8', 'CS2', 'CS_IMAADPCM', 'CU_CODEC', 'DF_G726', 'DF_GSM610', 'DIALOGIC_OKI_ADPCM', 'DIGIADPCM', 'DIGIFIX', 'DIGIREAL', 'DIGISTD', 'DIGITAL_G723', 'DOLBY_AC2', 'DOLBY_AC3_SPDIF', 'DRM', 'DSAT_DISPLAY', 'DSPGROUP_TRUESPEECH', 'DTS', 'DVI_ADPCM', 'DVM', 'ECHOSC1', 'ECHOSC3', 'ESPCM', 'ESST_AC3', 'FM_TOWNS_SND', 'G721_ADPCM', 'G722_ADPCM', 'G723_ADPCM', 'G726ADPCM', 'G726_ADPCM', 'G728_CELP', 'G729A', 'GSM610', 'IBM_CVSD', 'IEEE_FLOAT', 'ILINK_VC', 'IMA_ADPCM', 'IPI_HSX', 'IPI_RPELP', 'IRAT', 'ISIAUDIO', 'LH_CODEC', 'LRC', 'LUCENT_G723', 'MALDEN_PHONYTALK', 'MEDIASONIC_G723', 'MEDIASPACE_ADPCM', 'MEDIAVISION_ADPCM', 'MP3', 'MPEG', 'MSAUDIO1', 'MSG723', 'MSNAUDIO', 'MSRT24', 'MULAW', 'MVI_MVI2', 'NMS_VBXADPCM', 'NORRIS', 'OKI_ADPCM', 'OLIADPCM', 'OLICELP', 'OLIGSM', 'OLIOPR', 'OLISBC', 'ONLIVE', 'PAC', 'PACKED', 'PCM', 'PHILIPS_LPCBB', 'PROSODY_1612', 'PROSODY_8KBPS', 'QDESIGN_MUSIC', 'QUALCOMM_HALFRATE', 'QUALCOMM_PUREVOICE', 'QUARTERDECK', 'RAW_SPORT', 'RHETOREX_ADPCM', 'ROCKWELL_ADPCM', 'ROCKWELL_DIGITALK', 'RT24', 'SANYO_LD_ADPCM', 'SBC24', 'SIERRA_ADPCM', 'SIPROLAB_ACELP4800', 'SIPROLAB_ACELP8V3', 'SIPROLAB_ACEPLNET', 'SIPROLAB_G729', 'SIPROLAB_G729A', 'SIPROLAB_KELVIN', 'SOFTSOUND', 'SONARC', 'SONY_SCX', 'SOUNDSPACE_MUSICOMPRESS', 'TPC', 'TUBGSM', 'UHER_ADPCM', 'UNISYS_NAP_16K', 'UNISYS_NAP_ADPCM', 'UNISYS_NAP_ALAW', 'UNISYS_NAP_ULAW', 'UNKNOWN(0000)', 'UNKNOWN(FFFF)', 'VIVO_G723', 'VIVO_SIREN', 'VME_VMPCM', 'VOXWARE', 'VOXWARE_AC10', 'VOXWARE_AC16', 'VOXWARE_AC20', 'VOXWARE_AC8', 'VOXWARE_BYTE_ALIGNED', 'VOXWARE_RT24', 'VOXWARE_RT29', 'VOXWARE_RT29HW', 'VOXWARE_TQ40', 'VOXWARE_TQ60', 'VOXWARE_VR12', 'VOXWARE_VR18', 'VSELP', 'XEBEC', 'YAMAHA_ADPCM', 'ZYXEL_ADPCM'],
+                                                         ['0', translate.other]],
+                                            default_list=['44100', '2', '32', 'PCM', '0']).exec())
+        self.actionRAW_to_Atrac.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='RAW to Atrac Converter',
+                                            label_list=['Frequency', 'Channels', 'Bitrate', 'Format', 'Offset'],
+                                            action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000'],
+                                                         ['1', '2'],
+                                                         ['32', '48', '52', '64', '66', '96', '105', '128', '132', '160', '192', '256', '320', '352'],
+                                                         ['AT3', 'AT3Plus', 'AT9'],
+                                                         ['0', translate.other]],
+                                            default_list=['44100', '2', '32', 'PCM', '0']).exec())
+        self.actionPlayStation_Audio_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='Playstation Audio Tools',
+                                            label_list=['Platform', 'Mode'],
+                                            action_list=[['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
+                                                         ['Atrac2WAV', 'WAV2Atrac', 'Sound Bank', 'MSF2Atrac', 'SXD2Atrac', 'VAG2WAV', 'WAV2VAG']],
+                                            default_list=['PS2', 'Atrac2WAV']).exec())
+        self.actionFFMPEG_Image_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='FFMPEG Image Converter',
+                                            label_list=['Format'],
+                                            action_list=[['apng', 'bmp', 'dpx', 'gif', 'jpg', 'pcx', 'pgm', 'pix', 'png', 'ppm', 'sgi', 'tga', 'tiff', 'xbm', 'xwd', translate.other]],
+                                            default_list=['png']).exec())
+        self.action_nConvert.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='nConverter',
+                                            label_list=['Format'],
+                                            action_list=[['bmp', 'cur', 'dcx', 'dds', 'dib', 'dng', 'gif', 'jif', 'jpeg', 'pcd', 'pcx', 'pdf', 'png', 'psb', 'psd', 'raw', 'svg', 'tga', 'tiff', 'wbmp', '------', '2bp', '2d', '3fr', '411', 'a64', 'abmp', 'abr', 'abs', 'acc', 'ace', 'aces', 'acorn', 'adex', 'adt', 'afphoto', 'afx', 'ai', 'aim', 'aip', 'aipd', 'alias', 'ami', 'ani', 'anv', 'aphp', 'apx', 'arcib', 'arf', 'arn', 'art', 'artdir', 'arw', 'atk', 'att', 'aurora', 'avs', 'avw', 'az7', 'b16', 'b3d', 'bdr', 'bfli', 'bfx', 'bga', 'bias', 'bif', 'biorad', 'bip', 'bld', 'blp', 'bmc', 'bmg', 'bms', 'bmx', 'bob', 'bpr', 'brk', 'bsg', 'btn', 'bum', 'byusir', 'c4', 'cadc', 'cals', 'cam', 'can', 'car', 'cart', 'cat', 'cbmf', 'cdr', 'cdu', 'ce', 'ce1', 'cel', 'cft', 'cgm', 'che', 'cin', 'cip', 'ciph', 'cipt', 'cish', 'cism', 'cloe', 'clp', 'cmt', 'cmu', 'cmx', 'cncd', 'cnct', 'cp8', 'cpa', 'cpat', 'cpc', 'cpt', 'cr2', 'craw', 'crd', 'crg', 'crw', 'csv', 'ct', 'cut', 'cvp', 'cwg', 'd3d', 'dali', 'dbw', 'dcmp', 'dcpy', 'dcr', 'dd', 'degas', 'dicom', 'dkb', 'dol', 'doodle', 'dpx', 'drz', 'dsi', 'dta', 'dwg', 'dwg', 'ecc', 'efx', 'eidi', 'eif', 'emf', 'emz', 'epa', 'epi', 'eps', 'epsp', 'erf', 'esm', 'esmp', 'eyes', 'f96', 'face', 'fax', 'fbm', 'fcx', 'fff', 'fff', 'ffpg', 'fgs', 'fi', 'fit', 'fits', 'fli', 'fmag', 'fmap', 'fmf', 'fp2', 'fpg', 'fpr', 'fpt', 'fre', 'frm', 'frm2', 'fsh', 'fsy', 'ftf', 'fx3', 'fxs', 'g16', 'g3n', 'gaf', 'gbr', 'gcd', 'gem', 'geo', 'gfaray', 'gg', 'gicon', 'gig', 'gih', 'gm', 'gmf', 'god', 'gpat', 'gpb', 'grob', 'gun', 'hdri', 'hdru', 'hed', 'hf', 'hir', 'hpgl', 'hpi', 'hr', 'hru', 'hrz', 'hsi', 'hta', 'icb', 'icd', 'icl', 'icn', 'icns', 'ico', 'icon', 'iff', 'ifx', 'iim', 'iimg', 'ilab', 'im5', 'img', 'imgt', 'imi', 'imt', 'indd', 'info', 'ingr', 'ioca', 'ipg', 'ipl', 'ipl2', 'ipseq', 'iris', 'ish', 'iss', 'j6i', 'jbf', 'jbr', 'jig', 'jig2', 'jj', 'jls', 'jps', 'jtf', 'jxr', 'k25', 'k25b', 'kdc', 'kdc2', 'kfx', 'kntr', 'koa', 'kps', 'kqp', 'kro', 'kskn', 'lbm', 'lcel', 'lda', 'lff', 'lif', 'lsm', 'lss', 'lvp', 'lwi', 'm8', 'mac', 'mag', 'map', 'mbig', 'mdl', 'mef', 'mfrm', 'mgr', 'mh', 'miff', 'mil', 'mjpg', 'mkcf', 'mklg', 'mng', 'mon', 'mos', 'mph', 'mpo', 'mrc', 'mrf', 'mrw', 'msp', 'msx2', 'mtv', 'mtx', 'ncr', 'ncy', 'ncy', 'nef', 'neo', 'ngg', 'nifti', 'nist', 'nitf', 'nlm', 'nol', 'npm', 'nrw', 'nsr', 'oaz', 'ocp', 'of', 'ofx', 'ohir', 'oil', 'ols', 'orf', 'os2', 'otap', 'otb', 'p64', 'p7', 'pabx', 'palm', 'pam', 'pan', 'patps', 'pbm', 'pbt', 'pcl', 'pcp', 'pd', 'pdd', 'pds', 'pdx', 'pef', 'pegs', 'pfi', 'pfm', 'pfs', 'pgc', 'pgf', 'pgm', 'pi', 'pic', 'pict', 'pig', 'pixi', 'pixp', 'pld', 'pm', 'pm', 'pmg', 'pmp', 'pmsk', 'pnm', 'pp4', 'pp5', 'ppm', 'ppp', 'pps', 'ppt', 'prc', 'prf', 'prisms', 'prx', 'ps', 'psa', 'pseg', 'psf', 'psion3', 'psion5', 'psp', 'pspb', 'pspf', 'pspm', 'pspp', 'pspt', 'ptg', 'pwp', 'pxa', 'pxr', 'pzl', 'pzp', 'q0', 'qcad', 'qdv', 'qrt', 'qtif', 'rad', 'raf', 'ras', 'raw1', 'raw2', 'raw3', 'raw4', 'raw5', 'raw6', 'raw7', 'raw8', 'raw9', 'rawa', 'rawb', 'rawdvr', 'rawe', 'ray', 'rdc', 'rfa', 'rfax', 'ript', 'rix', 'rla', 'rlc2', 'rle', 'rp', 'rpm', 'rsb', 'rsrc', 'rw2', 'rwl', 'sar', 'sci', 'sct', 'sdg', 'sdt', 'sfax', 'sfw', 'sgi', 'sif', 'sir', 'sj1', 'skf', 'skn', 'skp', 'smp', 'soft', 'spc', 'spot', 'sps', 'spu', 'srf', 'srf2', 'srw', 'ssi', 'ssp', 'sst', 'st4', 'stad', 'star', 'stm', 'stw', 'stx', 'syj', 'synu', 'taac', 'tdi', 'tdim', 'teal', 'tg4', 'thmb', 'ti', 'til', 'tile', 'tim', 'tim2', 'tiny', 'tjp', 'tnl', 'trup', 'tsk', 'ttf', 'tub', 'txc', 'uni', 'upe4', 'upi', 'upst', 'uyvy', 'uyvyi', 'v', 'vda', 'vfx', 'vi', 'vicar', 'vid', 'vif', 'viff', 'vista', 'vit', 'vivid', 'vob', 'vort', 'vpb', 'wad', 'wal', 'wbc', 'wfx', 'winm', 'wmf', 'wmz', 'wpg', 'wrl', 'wzl', 'x3f', 'xar', 'xbm', 'xcf', 'xif', 'xim', 'xnf', 'xp0', 'xpm', 'xwd', 'xyz', 'yuv411', 'yuv422', 'yuv444', 'zbr', 'zmf', 'zxhob', 'zxscr', 'zxsna', 'zzrough', translate.other]],
+                                            default_list=['png']).exec())
+        self.actionImage_to_DDS_Microsoft.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='Image to DDS (Microsoft)',
+                                            label_list=['Format', 'Platform'],
+                                            action_list=[['R32G32B32A32_FLOAT', 'R32G32B32A32_UINT', 'R32G32B32A32_SINT', 'R32G32B32_FLOAT', 'R32G32B32_UINT', 'R32G32B32_SINT', 'R16G16B16A16_FLOAT', 'R16G16B16A16_UNORM', 'R16G16B16A16_UINT', 'R16G16B16A16_SNORM', 'R16G16B16A16_SINT', 'R32G32_FLOAT', 'R32G32_UINT', 'R32G32_SINT', 'R10G10B10A2_UNORM', 'R10G10B10A2_UINT', 'R11G11B10_FLOAT', 'R8G8B8A8_UNORM', 'R8G8B8A8_UNORM_SRGB', 'R8G8B8A8_UINT', 'R8G8B8A8_SNORM', 'R8G8B8A8_SINT', 'R16G16_FLOAT', 'R16G16_UNORM', 'R16G16_UINT', 'R16G16_SNORM', 'R16G16_SINT', 'R32_FLOAT', 'R32_UINT', 'R32_SINT', 'R8G8_UNORM', 'R8G8_UINT', 'R8G8_SNORM', 'R8G8_SINT', 'R16_FLOAT', 'R16_UNORM', 'R16_UINT', 'R16_SNORM', 'R16_SINT', 'R8_UNORM', 'R8_UINT', 'R8_SNORM', 'R8_SINT', 'A8_UNORM', 'R9G9B9E5_SHAREDEXP', 'R8G8_B8G8_UNORM', 'G8R8_G8B8_UNORM', 'BC1_UNORM', 'BC1_UNORM_SRGB', 'BC2_UNORM', 'BC2_UNORM_SRGB', 'BC3_UNORM', 'BC3_UNORM_SRGB', 'BC4_UNORM', 'BC4_SNORM', 'BC5_UNORM', 'BC5_SNORM', 'B5G6R5_UNORM', 'B5G5R5A1_UNORM', 'B8G8R8A8_UNORM', 'B8G8R8X8_UNORM', 'R10G10B10_XR_BIAS_A2_UNORM', 'B8G8R8A8_UNORM_SRGB', 'B8G8R8X8_UNORM_SRGB', 'BC6H_UF16', 'BC6H_SF16', 'BC7_UNORM', 'BC7_UNORM_SRGB', 'AYUV', 'Y410', 'Y416', 'YUY2', 'Y210', 'Y216', 'B4G4R4A4_UNORM', translate.other],
+                                                         ['PC', 'Xbox One']],
+                                            default_list=['BC3_UNORM', 'PC']).exec())
+        self.actionImage_to_DDS_nVidia.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='Image to DDS (nVidia)',
+                                            label_list=['Format'],
+                                            action_list=[['dxt1c', 'dxt1a', 'dxt3', 'dxt5', 'u1555', 'u4444', 'u565', 'u8888', 'u888', 'u555', 'p8c', 'p8a', 'p4c', 'p4a', 'a8', 'cxv8u8', 'v8u8', 'v16u16', 'A8L8', 'fp32x4', 'fp32', 'fp16x4', 'dxt5nm', 'g16r16', 'g16r16f', translate.other]],
+                                            default_list=['dxt5']).exec())
+        self.actionDDS_Header_Generator.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='DDS Header Generator',
+                                            label_list=['Height', 'Width', 'Format', 'Offset'],
+                                            action_list=[['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
+                                                         ['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
+                                                         ['DXT1', 'DXT3', 'DXT5', 'DX10', 'BC4U', 'BC5U', 'BC4S', 'BC5S', 'ARGB8', translate.other],
+                                                         ['0', translate.other]],
+                                            default_list=['512', '512', 'DXT5', '0']).exec())
+        self.actionXWM_WAV_Audio_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='XWMA Tool GUI',
+                                            label_list=['Frequency', 'Format'],
+                                            action_list=[['20000', '32000', '48000', '64000', '96000', '160000', '192000', translate.other],
+                                                         ['wav', 'xwm']],
+                                            default_list=['48000', 'wav']).exec())
+        self.actionWwise_Converter.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name='Wwise Converter',
+                                            label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
+                                            action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
+                                                         ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
+                                            default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
 
     def all_favorites(self):
         self.show_favorites = not self.show_favorites
@@ -165,6 +265,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
 
         for action in self.themes_list_2.actions():
             self.themes_list_2.removeAction(action)
+
+        # Default Theme
+        default_theme = self.themes_list_2.addAction('Default')
+        default_theme.triggered.connect(lambda *args, x='Default': self.change_theme(x))
+        self.themes_list_2.addMenu(other_themes_submenu)
+
+        if self.setting["Main"]["theme"].lower() == 'default':
+            default_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
 
         for theme in list_themes():
             theme_name = theme.split('.')[0]
@@ -250,11 +358,20 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             case 'godot':
                 btn.clicked.connect(lambda: print('godot'))
             case 'idtech':
-                btn.clicked.connect(lambda: print('idtech'))
+                btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
             case 'innosetup':
                 btn.clicked.connect(lambda: print('innosetup'))
             case 'playstation':
-                btn.clicked.connect(lambda: print('playstation'))
+                # btn.clicked.connect(lambda: print('playstation'))
+                btn.clicked.connect(lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                                                    gui_name='Playstation Audio Tools',
+                                                                    label_list=['Platform', 'Mode'],
+                                                                    action_list=[
+                                                                        ['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
+                                                                        ['Atrac2WAV', 'WAV2Atrac', 'Sound Bank',
+                                                                         'MSF2Atrac', 'SXD2Atrac', 'VAG2WAV',
+                                                                         'WAV2VAG']],
+                                                                    default_list=['PS2', 'Atrac2WAV']).exec())
             case 'quickbms':
                 btn.clicked.connect(lambda: print('quickbms'))
             case 'raw2atrac':
@@ -276,18 +393,19 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             case 'trashcan':
                 btn.clicked.connect(self.empty_out)
             case 'unreal':
-                btn.clicked.connect(lambda: Thread(target=self.unpacker.unreal, args=(
-                    self.file_open('Unreal Engine File(*.u*; *.xxx; *.pak; *.locres; *.pcc)|Unreal Engine 1-2(*.u*)|'
-                                   'Unreal Engine 3(*.u*; *.xxx; *.pcc)|Unreal Engine 4(*.pak; *.locres)|'),)).start())
+                btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
             case 'unigen':
                 btn.clicked.connect(lambda: print('unigen'))
             case 'unity':
-                btn.clicked.connect(lambda: Thread(target=self.unpacker.unity,
-                                                   args=(QFileDialog.getExistingDirectory(
-                                                       self, translate.select_folder,
-                                                       directory=self.setting['Main']['last_dir']),)).start())
+                btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
             case 'wwise':
-                btn.clicked.connect(lambda: print('wwise'))
+                btn.clicked.connect(
+                    lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                                    gui_name='Wwise Converter',
+                                                    label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
+                                                    action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
+                                                                 ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
+                                                    default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
             case 'xnconvert':
                 btn.clicked.connect(lambda: print('xnconvert'))
 

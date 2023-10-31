@@ -6,6 +6,7 @@ from qt_material import apply_stylesheet
 import configparser
 
 from source.ui import resize
+from source.ui import localize
 
 setting = configparser.ConfigParser()
 setting.read('./setting.ini')
@@ -18,7 +19,7 @@ class ProgressBar(QDialog):
         self.set_theme(style)
         self.resize(resize.widget(300), resize.widget(130))
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
-        self.setWindowTitle("Wait...")
+        self.setWindowTitle(f"{localize.wait}...")
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.progressBar = QProgressBar(self.centralwidget)

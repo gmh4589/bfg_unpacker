@@ -1,6 +1,4 @@
 
-import sys
-
 from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import *
@@ -21,10 +19,12 @@ class ThemeCreateWindow(QDialog):
     def __init__(self, style='dark_orange'):
         super().__init__()
         apply_stylesheet(self, theme=f'{style}.xml')
-        root = ET.parse(f'./qt_material/themes/{style}.xml').getroot()
-        colors = []
 
-        self.setObjectName("MainWindow")
+        try:
+            root = ET.parse(f'./qt_material/themes/{style}.xml').getroot()
+        except FileNotFoundError:
+            root = ''
+
         self.resize(resize.widget(270), resize.widget(270))
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.centralwidget = QWidget(self)
@@ -73,8 +73,8 @@ class ThemeCreateWindow(QDialog):
         self.label7 = QLabel(self.widget)
         self.verticalLayout_2.addWidget(self.label7)
 
-        for child in root:
-            colors.append(child.text)
+        colors = [child.text for child in root] if root else ['#808080', '#90ccff', '#ffffff', '#a0a0a0',
+                                                              '#ffffff', '#000000', '#000000']
 
         self.label1.setStyleSheet(f"background-color: {colors[0]}")
         self.label2.setStyleSheet(f"background-color: {colors[1]}")
@@ -132,10 +132,3 @@ class ThemeCreateWindow(QDialog):
                     file.write(f'  <color name="{names[i]}">{color.name()}</color>\n')
 
                 file.write('</resources>\n')
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = ThemeCreateWindow()
-    win.show()
-    sys.exit(app.exec())

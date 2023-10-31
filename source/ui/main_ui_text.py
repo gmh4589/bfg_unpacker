@@ -108,6 +108,7 @@ class Translate:
         self.actionPlayStation_Audio_Converter.setText(_translate("BFGUnpacker", "PlayStation Audio Converter"))
         self.actionXWM_WAV_Audio_Converter.setText(_translate("BFGUnpacker", "XWM\\WAV Audio Converter"))
         self.actionFFMPEG_Image_Converter.setText(_translate("BFGUnpacker", "FFMPEG Image Converter"))
+        self.actionWwise_Converter.setText(_translate("BFGUnpacker", "Wwise Converter"))
         self.actionSAU.setText(_translate("BFGUnpacker", "SAU"))
         self.action_nConvert.setText(_translate("BFGUnpacker", "nConvert"))
         self.actionImage_to_DDS_Microsoft.setText(_translate("BFGUnpacker", "Image to DDS (Microsoft)"))

@@ -30,7 +30,7 @@ class Unpacker:
         os.system(f'{self.path_to_root}data\\7zip\\7z.exe x -o"{self.out_dir}" "{file_name}"')
 
     @file_reaper
-    def quick_bms(self, file_name, script_name):
+    def quick_bms(self, script_name, file_name):
         self.quick_bms2(file_name, script_name)
 
     def quick_bms2(self, file_name, script_name):
@@ -61,17 +61,19 @@ class Unpacker:
             os.chdir(f'{self.path_to_root}')
 
     @file_reaper
-    def unreal(self, file_name, key=''):
-        if file_name:
-            exp = file_name.split('.')[-1]
+    def unreal(self, file_names, key=''):
 
-            match exp:
-                case 'umod':
-                    self.quick_bms2(file_name, "/data/scripts/unreal_umod.bms")
-                case 'pak':
-                    self.string_replace(self.path_to_root + "/data/scripts/unreal_tournament_4.bms",
-                                        f'set AES_KEY binary "{key}"', 11)
-                    self.quick_bms2(file_name, "/data/scripts/unreal_tournament_4.bms")
-                case _:
-                    os.system(f'{self.path_to_root}/data/unreal_tools/extract.exe '
-                              f'-extract -out="{self.out_dir}" "{file_name}"')
+        for file_name in file_names:
+            if file_name:
+                exp = file_name.split('.')[-1]
+
+                match exp:
+                    case 'umod':
+                        self.quick_bms2(file_name, "/data/scripts/unreal_umod.bms")
+                    case 'pak':
+                        self.string_replace(self.path_to_root + "/data/scripts/unreal_tournament_4.bms",
+                                            f'set AES_KEY binary "{key}"', 11)
+                        self.quick_bms2(file_name, "/data/scripts/unreal_tournament_4.bms")
+                    case _:
+                        os.system(f'{self.path_to_root}/data/unreal_tools/extract.exe '
+                                  f'-extract -out="{self.out_dir}" "{file_name}"')

@@ -11,7 +11,7 @@ class Setting:
         setting.add_section('Main')
         setting.add_section('Buttons')
         setting.add_section('Engines')
-        setting.set('Main', 'theme', 'classic_white')
+        setting.set('Main', 'theme', 'default')
         lng = locale.getdefaultlocale()[0].split('_')[0]
         setting.set('Main', 'lang', lng)
         setting.set('Main', 'group', 'name')

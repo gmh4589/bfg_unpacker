@@ -84,5 +84,7 @@
     "empty_folder": "Папка пуста!",
     "unsupported_platform": "Неподдерживаемая платформа!\nВыберите файл для Switch, PC или PS Vita версии игры!",
     "disc_image": "Образ Диска",
-    "classic_consoles": "Классические Консоли"
+    "classic_consoles": "Классические Консоли",
+    "error": "Ошибка",
+    "all_files": "Все файлы"
 }
