@@ -3,13 +3,9 @@ from PyQt5.QtCore import QRect, QMetaObject
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
-import configparser
 
 from source.ui import resize
 from source.ui import localize
-
-setting = configparser.ConfigParser()
-setting.read('./setting.ini')
 
 
 class ProgressBar(QDialog):

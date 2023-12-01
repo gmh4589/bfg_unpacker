@@ -15,39 +15,39 @@ class Ui_BFGUnpacker(Translate):
         self.font.setPointSize(resize.widget(8))
         self.centralwidget.setFont(self.font)
         self.comboBox_gameList = QComboBox(self.centralwidget)
-        self.comboBox_gameList.setGeometry(
-            QRect(resize.widget(80), resize.widget(40), resize.widget(375), resize.widget(30)))
+        self.comboBox_gameList.setGeometry(QRect(resize.widget(80), resize.widget(40),
+                                                 resize.widget(375), resize.widget(30)))
         self.toolButton_plus = QToolButton(self.centralwidget)
-        self.toolButton_plus.setGeometry(
-            QRect(resize.widget(455), resize.widget(40), resize.widget(30), resize.widget(30)))
+        self.toolButton_plus.setGeometry(QRect(resize.widget(455), resize.widget(40),
+                                               resize.widget(30), resize.widget(30)))
         self.toolButton_minus = QToolButton(self.centralwidget)
-        self.toolButton_minus.setGeometry(
-            QRect(resize.widget(485), resize.widget(40), resize.widget(30), resize.widget(30)))
+        self.toolButton_minus.setGeometry(QRect(resize.widget(485), resize.widget(40),
+                                                resize.widget(30), resize.widget(30)))
         self.logWindow = QTextBrowser(self.centralwidget)
         self.logWindow.setStyleSheet('QTextBrowser {'
                                      f'font-size: {resize.widget(12)}px;'
                                      '}')
-        self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(80), resize.widget(295), resize.widget(520)))
-
+        self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(80),
+                                         resize.widget(295), resize.widget(520)))
         self.all_games_count = QLabel(self.centralwidget)
-        self.all_games_count.setGeometry(
-            QRect(resize.widget(451), resize.widget(600), resize.widget(150), resize.widget(20)))
+        self.all_games_count.setGeometry(QRect(resize.widget(451), resize.widget(600),
+                                               resize.widget(150), resize.widget(20)))
         self.all_games_count.setAlignment(Qt.AlignCenter)
-
         self.gameList_treeView = QTreeView(self.centralwidget)
         self.gameList_treeView.setGeometry(QRect(0, resize.widget(80), resize.widget(295), resize.widget(520)))
         self.gameList_treeView.setStyleSheet('QTreeView::item {'
                                              f'min-height: {resize.widget(20)}px;'
                                              '}')
         self.toolButton_Find = QToolButton(self.centralwidget)
-        self.toolButton_Find.setGeometry(
-            QRect(resize.widget(515), resize.widget(40), resize.widget(85), resize.widget(30)))
+        self.toolButton_Find.setGeometry(QRect(resize.widget(515), resize.widget(40),
+                                               resize.widget(85), resize.widget(30)))
         self.btn_All_Favorite = QToolButton(self.centralwidget)
         self.btn_All_Favorite.setGeometry(QRect(0, resize.widget(40), resize.widget(80), resize.widget(30)))
 
         # Чекбоксы
         self.checkBoxes = QWidget(self.centralwidget)
-        self.checkBoxes.setGeometry(QRect(resize.widget(10), resize.widget(600), resize.widget(451), resize.widget(20)))
+        self.checkBoxes.setGeometry(QRect(resize.widget(10), resize.widget(600),
+                                          resize.widget(451), resize.widget(20)))
         self.cb = QHBoxLayout(self.checkBoxes)
         self.cb.setContentsMargins(0, 0, 0, 0)
 
@@ -203,6 +203,7 @@ class Ui_BFGUnpacker(Translate):
         self.menu_5 = QMenu(self.menu)
         self.menu_6 = QMenu(self.menu)
         self.menu_7 = QMenu(self.menu)
+        # self.menu_7.setIcon(QIcon('./source/ui/icons/disk_image.svg'))
         self.menu_8 = QMenu(self.menu)
         self.menu_2 = QMenu(self.menubar)
         self.videoConverters = QMenu(self.menu_2)
@@ -213,6 +214,7 @@ class Ui_BFGUnpacker(Translate):
         self.menu_4 = QMenu(self.menubar)
         self.setMenuBar(self.menubar)
         self.quickOpen = QAction(self)
+        # self.quickOpen.setIcon(QIcon('./source/ui/icons/quick_open.svg'))
         self.exitAction = QAction(self)
         self.action_Language = QMenu(self)
         self.action_SelectOutPath = QAction(self)

@@ -4,14 +4,10 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import *
 
 from qt_material import apply_stylesheet
-import configparser
 import xml.etree.ElementTree as ET
 
 import source.ui.localize as TL
 from source.ui import resize
-
-setting = configparser.ConfigParser()
-setting.read('./setting.ini')
 
 
 class ThemeCreateWindow(QDialog):

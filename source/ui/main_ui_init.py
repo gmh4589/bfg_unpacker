@@ -1,9 +1,9 @@
+
 import importlib
 import json
 import os
 from datetime import datetime
 import pandas
-# from threading import Thread
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -154,11 +154,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                             default_list=['44100', '2', '32', 'PCM', '0']).exec())
         self.actionPlayStation_Audio_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='Playstation Audio Tools',
+                                            gui_name='PlayStation Audio Tools',
                                             label_list=['Platform', 'Mode'],
                                             action_list=[['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
-                                                         ['Atrac2WAV', 'WAV2Atrac', 'Sound Bank', 'MSF2Atrac', 'SXD2Atrac', 'VAG2WAV', 'WAV2VAG']],
-                                            default_list=['PS2', 'Atrac2WAV']).exec())
+                                                         ['Atrac2WAV', 'WAV2Atrac', 'MSF2Atrac']],
+                                            default_list=['PS3', 'Atrac2WAV']).exec())
         self.actionFFMPEG_Image_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                             gui_name='FFMPEG Image Converter',
@@ -463,7 +463,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
         cbm.CBWindow(style=style, letter=alpha).exec()
         self.buttons_create()
 
-    # Наполняет списком меню "Архивы", "Образы дисков" и др.
+    # Наполняет списком меню "Архивы", "Образы дисков" и "Игровые Движки".
     def archive_list_create(self):
         archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
         archivesList = archivesList.sort_values(by='Archives Name', key=lambda x: x.str.lower()).reset_index(drop=True)
@@ -483,6 +483,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                 self.menu_7.addAction(archivesList['Archives Name'][n])
             elif archivesList['Index'][n] == 5:
                 self.menu_8.addAction(archivesList['Archives Name'][n])
+            elif archivesList['Index'][n] == 4:
+                self.menu_6.addAction(archivesList['Archives Name'][n])
             else:
 
                 if liter in '0123456789':

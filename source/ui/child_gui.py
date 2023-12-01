@@ -10,9 +10,6 @@ import os
 from source.ui import resize
 import source.ui.localize as TL
 
-setting = configparser.ConfigParser()
-setting.read('./setting.ini')
-
 
 class ChildUIWindow(QDialog):
 
@@ -21,6 +18,9 @@ class ChildUIWindow(QDialog):
                  action='rum_me', ext_list=''):
 
         super().__init__()
+
+        self.setting = configparser.ConfigParser()
+        self.setting.read('./setting.ini')
         apply_stylesheet(self, theme=f'{style}.xml')
         self.style = style
         self.gui_name = gui_name

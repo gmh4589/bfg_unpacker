@@ -1,6 +1,5 @@
 import os
 import configparser
-from subprocess import Popen, PIPE
 
 from source.reaper import file_reaper
 
