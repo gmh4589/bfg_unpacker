@@ -92,6 +92,16 @@ class UnpackerMain(QuickOpen):
 
                             if ext in ('phyre', 'dds', 'png', 'bmp', 'gxt'):
                                 self.q_connect(self.phyre, self.file_name)
+                            elif ext == 'dat':
+
+                                if 'book' in self.file_name:
+                                    if self.checkBox_Reimport.isChecked():
+                                        self.q_connect(self.sen_book_save, self.file_name)
+                                    else:
+                                        self.q_connect(self.sen_book, self.file_name)
+                                else:
+                                    pass
+
                             else:
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
