@@ -220,19 +220,21 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
 
     def favorite_setting(self, action, item):
 
-        if action:
+        if item.strip() != '':
 
-            if item not in self.favorites:
-                self.favorites.append(item)
-                self.favorites.sort()
-        else:
-            self.favorites.remove(item)
-            self.filter_list_create(self.favorites)
+            if action:
 
-        with open('./favorites.ini', 'w') as fav:
+                if item not in self.favorites:
+                    self.favorites.append(item)
+                    self.favorites.sort()
+            else:
+                self.favorites.remove(item)
+                self.filter_list_create(self.favorites)
 
-            for favorite in self.favorites:
-                fav.write(favorite + '\n')
+            with open('./favorites.ini', 'w') as fav:
+
+                for favorite in self.favorites:
+                    fav.write(favorite + '\n')
 
     def set_setting(self, section, key, value, remove=False):
 
@@ -341,27 +343,41 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
     def add_btn_action(self, btn, action=''):
 
         match action:
-            case '7zip':
+            case 'A':
+                btn.clicked.connect(lambda: self.q_open())
+            case 'B':
+                btn.clicked.connect(lambda: print('quickbms'))
+            case 'C':
                 btn.clicked.connect(lambda: print('7zip'))
-            case 'bink':
-                btn.clicked.connect(lambda: print('bink'))
-            case 'creation':
-                btn.clicked.connect(lambda: print('creation'))
-            case 'cry engine':
-                btn.clicked.connect(lambda: print('cry engine'))
-            case 'ffmpeg':
-                btn.clicked.connect(lambda: print('ffmpeg'))
-            case 'folder':
-                btn.clicked.connect(lambda: print('folder'))
-            case 'gaup':
+            case 'D':
                 btn.clicked.connect(lambda: print('gaup'))
-            case 'godot':
-                btn.clicked.connect(lambda: print('godot'))
-            case 'idtech':
-                btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
-            case 'innosetup':
+            case 'E':
                 btn.clicked.connect(lambda: print('innosetup'))
-            case 'playstation':
+            case 'F':
+                btn.clicked.connect(lambda: print('ffmpeg'))
+            case 'G':
+                btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
+            case 'H':
+                btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
+            case 'I':
+                btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
+            case 'J':
+                btn.clicked.connect(lambda: print('source'))
+            case 'K':
+                btn.clicked.connect(lambda: print('creation'))
+            case 'L':
+                btn.clicked.connect(lambda: print('cry engine'))
+            case 'M':
+                btn.clicked.connect(lambda: print('bink'))
+            case 'N':
+                btn.clicked.connect(
+                    lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                                    gui_name='Wwise Converter',
+                                                    label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
+                                                    action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
+                                                                 ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
+                                                    default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
+            case 'O':
                 # btn.clicked.connect(lambda: print('playstation'))
                 btn.clicked.connect(lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                                                     gui_name='Playstation Audio Tools',
@@ -372,42 +388,28 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                                                          'MSF2Atrac', 'SXD2Atrac', 'VAG2WAV',
                                                                          'WAV2VAG']],
                                                                     default_list=['PS2', 'Atrac2WAV']).exec())
-            case 'quickbms':
-                btn.clicked.connect(lambda: print('quickbms'))
-            case 'raw2atrac':
-                btn.clicked.connect(lambda: print('raw2atrac'))
-            case 'raw2dds':
-                btn.clicked.connect(lambda: print('raw2dds'))
-            case 'raw2wav':
-                btn.clicked.connect(lambda: print('raw2wav'))
-            case 'red engine':
-                btn.clicked.connect(lambda: print('red engine'))
-            case 'renpy':
-                btn.clicked.connect(lambda: print('renpy'))
-            case 'rpg maker':
-                btn.clicked.connect(lambda: print('rpg maker'))
-            case 'setting':
-                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
-            case 'source':
-                btn.clicked.connect(lambda: print('source'))
-            case 'trashcan':
-                btn.clicked.connect(self.empty_out)
-            case 'unreal':
-                btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
-            case 'unigen':
-                btn.clicked.connect(lambda: print('unigen'))
-            case 'unity':
-                btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
-            case 'wwise':
-                btn.clicked.connect(
-                    lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                                    gui_name='Wwise Converter',
-                                                    label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
-                                                    action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
-                                                                 ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
-                                                    default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
-            case 'xnconvert':
+            case 'P':
                 btn.clicked.connect(lambda: print('xnconvert'))
+            case 'Q':
+                btn.clicked.connect(lambda: print('red engine'))
+            case 'R':
+                btn.clicked.connect(lambda: print('godot'))
+            case 'S':
+                btn.clicked.connect(lambda: print('rpg maker'))
+            case 'T':
+                btn.clicked.connect(lambda: print('renpy'))
+            case 'U':
+                btn.clicked.connect(lambda: print('unigen'))
+            case 'V':
+                btn.clicked.connect(lambda: print('raw2dds'))
+            case 'W':
+                btn.clicked.connect(lambda: print('raw2atrac'))
+            case 'X':
+                btn.clicked.connect(lambda: print('raw2wav'))
+            case 'Y':
+                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+            case 'Z':
+                btn.clicked.connect(self.empty_out)
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
@@ -420,11 +422,32 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
         alpha.append('Y')
         alpha.append('Z')
 
-        tool_tips = {'A': 'folder', 'B': 'quickbms', 'C': '7zip', 'D': 'gaup', 'E': 'innosetup', 'F': 'ffmpeg',
-                     'G': 'unreal', 'H': 'unity', 'I': 'idtech', 'J': 'source', 'K': 'creation', 'L': 'cry engine',
-                     'M': 'bink', 'N': 'wwise', 'O': 'playstation', 'P': 'xnconvert', 'Q': 'red engine', 'R': 'godot',
-                     'S': 'rpg maker', 'T': 'renpy', 'U': 'unigen', 'V': 'raw2dds', 'W': 'raw2atrac', 'X': 'raw2wav',
-                     'Y': 'setting', 'Z': 'trashcan'}  # TODO: Set really tooltips
+        tool_tips = {'A': 'Quick open file',
+                     'B': 'Open with QuickBMS',
+                     'C': 'Open with 7zip',
+                     'D': 'Open with GAUP',
+                     'E': 'Unpack installer with InnoSetup',
+                     'F': 'Convert video with FFMPEG',
+                     'G': 'Unpack game on Unreal Engine',
+                     'H': 'Unpack game on Unity Engine',
+                     'I': 'Unpack game on idTech Engine',
+                     'J': 'Unpack game on Source Engine',
+                     'K': 'Unpack game on Creation Engine',
+                     'L': 'Unpack game on Cry Engine',
+                     'M': 'Bink video converter',
+                     'N': 'Wwise audio converter',
+                     'O': 'PlayStation audio tools',
+                     'P': 'Convert images with nConvert',
+                     'Q': 'Unpack game on Red Engine',
+                     'R': 'Unpack game on Godot Engine',
+                     'S': 'Unpack game on RPG Maker',
+                     'T': 'Unpack game on RenPy Engine',
+                     'U': 'Unpack game on Unigen Engine',
+                     'V': 'DDS header creator',
+                     'W': 'Atrac header creator',
+                     'X': 'WAV header creator',
+                     'Y': 'Run setting',
+                     'Z': 'Empty output folder'}
 
         for i in range(self.upperButtons.count()):
             item = self.upperButtons.itemAt(i)
@@ -456,7 +479,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
             else:
                 self.add_button(btn)
 
-            self.add_btn_action(btn, tool_tips[a])
+            self.add_btn_action(btn, a)
             self.upperButtons.addWidget(btn)
 
     def new_button(self, style, alpha):
@@ -468,7 +491,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
         archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
         archivesList = archivesList.sort_values(by='Archives Name', key=lambda x: x.str.lower()).reset_index(drop=True)
         abc = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
-                           if archivesList['Index'][n] not in (3, 5) and archivesList['Archives Name'][n][0]
+                           if archivesList['Index'][n] not in (3, 5, 4) and archivesList['Archives Name'][n][0]
                            not in '0123456789'}), key=lambda x: x)
 
         self.archive_list = {'0-9': self.menu_5.addMenu('0-9')}
@@ -477,15 +500,15 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
             self.archive_list[liter] = self.menu_5.addMenu(liter)
 
         for n in range(len(archivesList)):
-            liter = archivesList['Archives Name'][n][0].upper()
 
             if archivesList['Index'][n] == 3:
                 self.menu_7.addAction(archivesList['Archives Name'][n])
-            elif archivesList['Index'][n] == 5:
-                self.menu_8.addAction(archivesList['Archives Name'][n])
             elif archivesList['Index'][n] == 4:
                 self.menu_6.addAction(archivesList['Archives Name'][n])
+            elif archivesList['Index'][n] == 5:
+                self.menu_8.addAction(archivesList['Archives Name'][n])
             else:
+                liter = archivesList['Archives Name'][n][0].upper()
 
                 if liter in '0123456789':
                     self.archive_list['0-9'].addAction(archivesList['Archives Name'][n])

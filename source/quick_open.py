@@ -8,29 +8,29 @@ from source.unpacker import Unpacker
 class QuickOpen(QProcessList):
 
     def QuickPAK(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def QuickDAT(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def QuickPKG(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def QuickIMG(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def QuickBIN(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def QuickBundle(self, file):
-        pass
+        print('TODO: Work in progress...')
 
     def find_reaper(self):
 
         with open(self.file_name, 'rb') as fff:
             self.head = fff.read(4)
 
-        ext = self.file_name.split('')[-1]
+        ext = self.file_name.split('.')[-1]
         unpacker = Unpacker()
 
         if self.head == b'PK\x03\x04':
@@ -65,55 +65,53 @@ class QuickOpen(QProcessList):
 
         elif ext in after_dot2['sau']:
             # SAU(self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in after_dot2['seven_zip']:
             # OtherPRG('', '7zip/7z.exe ', ' x -o"' + self.sFolderName + '" ', '', self.root_dir + '/data/7zip',
             # self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in after_dot2['unreal']:
             # Engine('Unreal', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in after_dot2['rpg_maker']:
             # Engine('RPGMaker', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("toc", "sb"):
             # Engine('Frostbite', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in after_dot2['bethesda']:
             # Engine('Bethesda', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("csb", "spb", "rpack"):
             # Engine('Chrome', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("erf", "bif", "rim"):
-            # Engine('Aurora', self.file_name)
-            pass
+            self.q_connect(self.aurora, self.file_name)
 
         elif ext in ("bundle",):
             self.QuickBundle(self.file_name)
 
         elif ext in ("w3strings", "w3speech", "archive", "w2strings", "dzip"):
             # Engine('Red# Engine', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("assets", 'resS'):
             # Engine('Unity', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in after_dot2['id_tech']:
-            # Engine('idTech', self.file_name)
-            pass
+            self.q_connect(self.id_tech, self.file_name)
 
         elif ext in ("arc", "sbgw"):
             # Engine('MTFramework', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("bnk",):
             unpacker.quick_bms(f"{self.root_dir}/data/scripts/wwisebnk.bms", self.file_name)
@@ -343,19 +341,19 @@ class QuickOpen(QProcessList):
 
         elif ext in ("rpa",):
             # Engine('RenPy', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("asr",):
             # Engine('Asura', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("ung",):
             # Engine('Unigene', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("swf",):
             # Engine('Flash', self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("dz",):
             unpacker.quick_bms(f"{self.root_dir}/data/scripts/vector.bms", self.file_name)
@@ -416,10 +414,10 @@ class QuickOpen(QProcessList):
             unpacker.quick_bms(f"{self.root_dir}/data/scripts/hogg.bms", self.file_name)
 
         elif ext in ("lfs",):
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("yz2", "pack",):
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("rpkg",):
             unpacker.quick_bms(f"{self.root_dir}/data/scripts/hitman2016.bms", self.file_name)
@@ -429,7 +427,11 @@ class QuickOpen(QProcessList):
 
         elif ext in ("exo",):
             # fileReaper(mp3, "", self.file_name)
-            pass
+            print('TODO: Work in progress...')
 
         elif ext in ("phyre",):
             self.q_connect(self.phyre, self.file_name)
+
+        else:
+            print('Не удалось найти распаковщик автоматически!\n'
+                  'Попробуйте выбрать игру или тип файла вручную!')

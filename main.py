@@ -11,6 +11,16 @@ from source.reaper import after_dot
 
 class UnpackerMain(QuickOpen):
 
+    def __init__(self):
+        # Quick Open
+        super().__init__()
+        self.quickOpen.triggered.connect(lambda: self.q_open())
+
+    def q_open(self):
+
+        for self.file_name in self.file_open():
+            self.find_reaper()
+
     def file_open(self, ext_list='', select_folder=False, more_one=False):
 
         if not select_folder:

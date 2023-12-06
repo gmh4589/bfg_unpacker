@@ -2,25 +2,10 @@ import bz2
 import zlib
 # import lzma
 import os
-# import zipfile
+import zipfile
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 # TODO: Add support other compress codecs
-
-# class Zip(Reaper):
-#
-#     @file_reaper
-#     def run(self):
-#
-#         with zipfile.ZipFile(self.file_name, mode="r") as archive:
-#             # archive.extractall(self.output_folder)
-#             a = len(archive.namelist())
-#             for i, file in enumerate(archive.infolist()):
-#                 print(f"Saving - {file.filename}...")
-#                 self.update_signal.emit(int((100 / a) * i), f'{i + 1}/{a}%', f'Saving - {file.filename}...', False)
-#                 archive.extract(file, self.output_folder)
-#
-#         self.update_signal.emit(100, '', 'Done!', True)
 
 
 class Zip(Reaper):
@@ -39,7 +24,25 @@ class Zip(Reaper):
                     if cm == b'\x00\x00':
                         new_file.write(cd)
                     elif cm == b'\x08\x00':  # Deflate
-                        new_file.write(zlib.decompress(cd, -zlib.MAX_WBITS))
+
+                        try:
+                            new_file.write(zlib.decompress(cd, -zlib.MAX_WBITS))
+                        except zlib.error:
+
+                            with zipfile.ZipFile(self.file_name, mode="r") as archive:
+                                # archive.extractall(self.output_folder)
+                                a = len(archive.namelist())
+
+                                for i, file in enumerate(archive.infolist()):
+                                    print(f"Saving - {file.filename}...")
+                                    self.update_signal.emit(int((100 / a) * i), f'{i + 1}/{a}%',
+                                                            f'Saving - {file.filename}...', False)
+                                    archive.extract(file, self.output_folder)
+
+                            self.update_signal.emit(100, '', 'Done!', True)
+
+                            return -1
+
                     elif cm == b'\x0c\x00':  # BZIP2
                         new_file.write(bz2.decompress(cd))
 
@@ -70,8 +73,10 @@ class Zip(Reaper):
                         new_file.write(cd)
                         print(localize.not_unzipped)
 
-                print(f"{localize.saving} - {p}...")
-                self.update_signal.emit(percent, f'{percent}%', f'{localize.saving} - {p}...', False)
+                    print(f"{localize.saving} - {p}...")
+                    self.update_signal.emit(percent, f'{percent}%', f'{localize.saving} - {p}...', False)
+
+                    return 0
 
         size = os.path.getsize(self.file_name)
 
@@ -96,9 +101,9 @@ class Zip(Reaper):
                     additional_field = data.read(additional_field_long)
                     compressed_data = data.read(compressed_size)
                     path = os.path.join(self.output_folder, file_name)
-                    write_file(path, compress_method, compressed_data, pp)
+                    output_code = write_file(path, compress_method, compressed_data, pp)
 
-                elif magic in (b'PK\x05\x06', b'PK\x01\x02'):
+                elif magic in (b'PK\x05\x06', b'PK\x01\x02') or output_code == -1:
                     break
 
                 else:

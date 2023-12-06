@@ -21,7 +21,7 @@ class CBWindow(QDialog):
 
         grid_layout = QGridLayout(central_widget)
 
-        alphabet = "BCDEFGHIJKLMNOPQRSTUVWX12"
+        alphabet = "BCDEFGHIJKLMNOPQRSTUVWX✖"
         row, col = 0, 0
 
         for liter in alphabet:
@@ -39,6 +39,7 @@ class CBWindow(QDialog):
                 '}')
             grid_layout.addWidget(button, row, col)
             self.add_button(button, liter, letter)
+
             col += 1
 
             if col == 5:
@@ -58,15 +59,19 @@ class CBWindow(QDialog):
         message_box.exec()
 
     def save_button(self, a, num):
-        setting = configparser.ConfigParser()
-        setting.read('./setting.ini')
-        buttons = [button for button in setting['Buttons'].values()]
 
-        if a in buttons:
-            self.show_message_box(localize.has_already_been)
+        if a != '✖':
+            setting = configparser.ConfigParser()
+            setting.read('./setting.ini')
+            buttons = [button for button in setting['Buttons'].values()]
+
+            if a in buttons:
+                self.show_message_box(localize.has_already_been)
+            else:
+                self.show_message_box(localize.successfully)
+                setting.set('Buttons', str(num), str(a))
+
+                with open('./setting.ini', "w") as config_file:
+                    setting.write(config_file)
         else:
-            self.show_message_box(localize.successfully)
-            setting.set('Buttons', str(num), str(a))
-
-            with open('./setting.ini', "w") as config_file:
-                setting.write(config_file)
+            self.close()
