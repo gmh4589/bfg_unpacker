@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import pandas
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QVariant, QItemSelectionModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 import source.ui.main_ui as ui
@@ -108,21 +108,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
         self.toolButton_plus.clicked.connect(lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
         self.toolButton_minus.clicked.connect(
             lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
-        self.toolButton_Find.clicked.connect(lambda: print('find'))
+        self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())
 
         # Converters with UI
-        self.actionFFMPEG_Video_Converter.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='FFMPEG Video Converter',
-                                            label_list=['Video Codec', 'Audio Codec', 'Video Bitrate', 'Audio Bitrate', 'Format', 'Width:High', 'Audio Track'],
-                                            action_list=[['a64_multi', 'a64_multi5', 'alias_pix', 'amv', 'apng', 'asv1', 'asv2', 'avrp', 'avui', 'ayuv', 'bmp', 'cinepak', 'cljr', 'dirac', 'dnxhd', 'dpx', 'dvvideo', 'ffv1', 'ffvhuff', 'flashsv', 'flashsv2', 'flv1', 'gif', 'h261', 'h263', 'h263p', 'h264', 'hap', 'hevc', 'huffyuv', 'jpeg2000', 'jpegls', 'ljpeg', 'mjpeg', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4v2', 'msmpeg4v3', 'msvideo1', 'pam', 'pbm', 'pcx', 'pgm', 'pgmyuv', 'png', 'ppm', 'prores', 'qtrle', 'r10k', 'r210', 'rawvideo', 'roq', 'rv10', 'rv20', 'sgi', 'snow', 'sunrast', 'svq1', 'targa', 'theora', 'tiff', 'utvideo', 'v210', 'v308', 'v408', 'v410', 'vp8', 'vp9', 'webp', 'wmv1', 'wmv2', 'wrapped_avframe', 'xbm', 'xface', 'xwd', 'y41p', 'yuv4', 'zlib', 'zmbv', translate.other],
-                                                         ['copy', 'aac', 'ac3', 'adpcm_adx', 'adpcm_g722', 'adpcm_g726', 'adpcm_ima_qt', 'adpcm_ima_wav', 'adpcm_ms', 'adpcm_swf', 'adpcm_yamaha', 'alac', 'amr_nb', 'amr_wb', 'comfortnoise', 'dts -strict -2', 'eac3', 'flac', 'g723_1', 'mp2', 'mp3',  'nellymoser', 'opus -strict -2', 'pcm_alaw', 'pcm_f32be',  'pcm_f32le', 'pcm_f64be', 'pcm_f64le', 'pcm_mulaw', 'pcm_s16be', 'pcm_s16be_planar', 'pcm_s16le', 'pcm_s16le_planar', 'pcm_s24be', 'pcm_s24daud', 'pcm_s24le', 'pcm_s24le_planar', 'pcm_s32be', 'pcm_s32le', 'pcm_s32le_planar', 'pcm_s8', 'pcm_s8_planar', 'pcm_u16be', 'pcm_u16le', 'pcm_u24be', 'pcm_u24le', 'pcm_u32be', 'pcm_u32le', 'pcm_u8', 'ra_144', 'roq_dpcm', 's302m', 'sonic', 'sonicls', 'speex', 'tta', 'vorbis -strict -2', 'wavpack', 'wmav1', 'wmav2', translate.other],
-                                                         ['64k', '128k', '192k', '256k', '512k', '768k', '1M', '2M', '3M', '4M', '5M', '6M', '8M', '10M', '12M', '15M', '16M', '20M', '25M', '30M', '40M', '50M', translate.other],
-                                                         ['16k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '224k', '256k', '320k', '360k', '448k', '512k', '768k', '1M', '2M', translate.other],
-                                                         ['3g2', '3gp', 'a64', 'asf', 'avi', 'dv', 'dvd', 'f4v', 'flv', 'hevc', 'ivf', 'm1v', 'm2v', 'm2t', 'm2ts', 'm4v', 'mkv', 'mjpeg', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'ogv', 'pam', 'rm', 'roq', 'swf', 'ts', 'vc1', 'vp8', 'vob', 'webm', 'wmv', 'wtv', translate.other],
-                                                         ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
-                                                         ['0', '1', '2', '3', '4', '5', '6', translate.other]],
-                                            default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1']).exec())
+        self.actionFFMPEG_Video_Converter.triggered.connect(self.ffmpeg_video)
         self.actionFFMPEG_Sound_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                             gui_name='FFMPEG Audio Converter',
@@ -152,13 +141,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                                          ['AT3', 'AT3Plus', 'AT9'],
                                                          ['0', translate.other]],
                                             default_list=['44100', '2', '32', 'PCM', '0']).exec())
-        self.actionPlayStation_Audio_Converter.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='PlayStation Audio Tools',
-                                            label_list=['Platform', 'Mode'],
-                                            action_list=[['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
-                                                         ['Atrac2WAV', 'WAV2Atrac', 'MSF2Atrac']],
-                                            default_list=['PS3', 'Atrac2WAV']).exec())
+        self.actionPlayStation_Audio_Converter.triggered.connect(self.ps_audio_tools)
         self.actionFFMPEG_Image_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                             gui_name='FFMPEG Image Converter',
@@ -200,22 +183,72 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                             action_list=[['20000', '32000', '48000', '64000', '96000', '160000', '192000', translate.other],
                                                          ['wav', 'xwm']],
                                             default_list=['48000', 'wav']).exec())
-        self.actionWwise_Converter.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='Wwise Converter',
-                                            label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
-                                            action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
-                                                         ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
-                                            default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
+        self.actionWwise_Converter.triggered.connect(self.wwise_tools)
+
+    def ffmpeg_video(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='FFMPEG Video Converter',
+                                label_list=['Video Codec', 'Audio Codec', 'Video Bitrate', 'Audio Bitrate', 'Format', 'Width:High', 'Audio Track'],
+                                action_list=[['a64_multi', 'a64_multi5', 'alias_pix', 'amv', 'apng', 'asv1', 'asv2', 'avrp', 'avui', 'ayuv', 'bmp', 'cinepak', 'cljr', 'dirac', 'dnxhd', 'dpx', 'dvvideo', 'ffv1', 'ffvhuff', 'flashsv', 'flashsv2', 'flv1', 'gif', 'h261', 'h263', 'h263p', 'h264', 'hap', 'hevc', 'huffyuv', 'jpeg2000', 'jpegls', 'ljpeg', 'mjpeg', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4v2', 'msmpeg4v3', 'msvideo1', 'pam', 'pbm', 'pcx', 'pgm', 'pgmyuv', 'png', 'ppm', 'prores', 'qtrle', 'r10k', 'r210', 'rawvideo', 'roq', 'rv10', 'rv20', 'sgi', 'snow', 'sunrast', 'svq1', 'targa', 'theora', 'tiff', 'utvideo', 'v210', 'v308', 'v408', 'v410', 'vp8', 'vp9', 'webp', 'wmv1', 'wmv2', 'wrapped_avframe', 'xbm', 'xface', 'xwd', 'y41p', 'yuv4', 'zlib', 'zmbv', translate.other],
+                                             ['copy', 'aac', 'ac3', 'adpcm_adx', 'adpcm_g722', 'adpcm_g726', 'adpcm_ima_qt', 'adpcm_ima_wav', 'adpcm_ms', 'adpcm_swf', 'adpcm_yamaha', 'alac', 'amr_nb', 'amr_wb', 'comfortnoise', 'dts -strict -2', 'eac3', 'flac', 'g723_1', 'mp2', 'mp3',  'nellymoser', 'opus -strict -2', 'pcm_alaw', 'pcm_f32be',  'pcm_f32le', 'pcm_f64be', 'pcm_f64le', 'pcm_mulaw', 'pcm_s16be', 'pcm_s16be_planar', 'pcm_s16le', 'pcm_s16le_planar', 'pcm_s24be', 'pcm_s24daud', 'pcm_s24le', 'pcm_s24le_planar', 'pcm_s32be', 'pcm_s32le', 'pcm_s32le_planar', 'pcm_s8', 'pcm_s8_planar', 'pcm_u16be', 'pcm_u16le', 'pcm_u24be', 'pcm_u24le', 'pcm_u32be', 'pcm_u32le', 'pcm_u8', 'ra_144', 'roq_dpcm', 's302m', 'sonic', 'sonicls', 'speex', 'tta', 'vorbis -strict -2', 'wavpack', 'wmav1', 'wmav2', translate.other],
+                                             ['64k', '128k', '192k', '256k', '512k', '768k', '1M', '2M', '3M', '4M', '5M', '6M', '8M', '10M', '12M', '15M', '16M', '20M', '25M', '30M', '40M', '50M', translate.other],
+                                             ['16k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '224k', '256k', '320k', '360k', '448k', '512k', '768k', '1M', '2M', translate.other],
+                                             ['3g2', '3gp', 'a64', 'asf', 'avi', 'dv', 'dvd', 'f4v', 'flv', 'hevc', 'ivf', 'm1v', 'm2v', 'm2t', 'm2ts', 'm4v', 'mkv', 'mjpeg', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'ogv', 'pam', 'rm', 'roq', 'swf', 'ts', 'vc1', 'vp8', 'vob', 'webm', 'wmv', 'wtv', translate.other],
+                                             ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
+                                             ['0', '1', '2', '3', '4', '5', '6', translate.other]],
+                                default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1']).exec()
+
+    def ps_audio_tools(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='PlayStation Audio Tools',
+                                label_list=['Platform', 'Mode'],
+                                action_list=[['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
+                                             ['Atrac2WAV', 'WAV2Atrac', 'MSF2Atrac']],
+                                default_list=['PS3', 'Atrac2WAV']).exec()
+
+    def wwise_tools(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='Wwise Converter',
+                                label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
+                                action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
+                                             ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
+                                default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec()
+
+    def find_item_in_treeview(self):
+
+        item_text = self.comboBox_gameList.currentText()
+        root_item = self.model.invisibleRootItem()
+        index_to_activate = self.find_item_index(root_item, item_text)
+
+        if index_to_activate is not None:
+            self.gameList_treeView.selectionModel().setCurrentIndex(index_to_activate, QItemSelectionModel.Select)
+            self.gameList_treeView.scrollTo(index_to_activate)
+
+    def find_item_index(self, parent_item, target_text):
+
+        for row in range(parent_item.rowCount()):
+            child_item = parent_item.child(row)
+
+            if child_item.text() == target_text:
+                return child_item.index()
+            elif child_item.hasChildren():
+                result = self.find_item_index(child_item, target_text)
+
+                if result is not None:
+                    return result
+
+        return None
 
     def all_favorites(self):
         self.show_favorites = not self.show_favorites
 
         if self.show_favorites:
             self.filter_list_create(self.favorites)
+            self.comboBox_gameList.items = self.favorites
             self.btn_All_Favorite.setText(translate.fav_caps)
         else:
             self.filter_list_create(self.names)
+            self.comboBox_gameList.items = self.names
             self.btn_All_Favorite.setText(translate.all_caps)
 
     def favorite_setting(self, action, item):
@@ -343,73 +376,32 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
     def add_btn_action(self, btn, action=''):
 
         match action:
-            case 'A':
-                btn.clicked.connect(lambda: self.q_open())
-            case 'B':
-                btn.clicked.connect(lambda: print('quickbms'))
-            case 'C':
-                btn.clicked.connect(lambda: print('7zip'))
-            case 'D':
-                btn.clicked.connect(lambda: print('gaup'))
-            case 'E':
-                btn.clicked.connect(lambda: print('innosetup'))
-            case 'F':
-                btn.clicked.connect(lambda: print('ffmpeg'))
-            case 'G':
-                btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
-            case 'H':
-                btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
-            case 'I':
-                btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
-            case 'J':
-                btn.clicked.connect(lambda: print('source'))
-            case 'K':
-                btn.clicked.connect(lambda: print('creation'))
-            case 'L':
-                btn.clicked.connect(lambda: print('cry engine'))
-            case 'M':
-                btn.clicked.connect(lambda: print('bink'))
-            case 'N':
-                btn.clicked.connect(
-                    lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                                    gui_name='Wwise Converter',
-                                                    label_list=['Mode', 'Code book (only\nfor wwise2vorbis)'],
-                                                    action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
-                                                                 ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
-                                                    default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec())
-            case 'O':
-                # btn.clicked.connect(lambda: print('playstation'))
-                btn.clicked.connect(lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                                                    gui_name='Playstation Audio Tools',
-                                                                    label_list=['Platform', 'Mode'],
-                                                                    action_list=[
-                                                                        ['PS2', 'PS3', 'PS4', 'PSP', 'PS Vita'],
-                                                                        ['Atrac2WAV', 'WAV2Atrac', 'Sound Bank',
-                                                                         'MSF2Atrac', 'SXD2Atrac', 'VAG2WAV',
-                                                                         'WAV2VAG']],
-                                                                    default_list=['PS2', 'Atrac2WAV']).exec())
-            case 'P':
-                btn.clicked.connect(lambda: print('xnconvert'))
-            case 'Q':
-                btn.clicked.connect(lambda: print('red engine'))
-            case 'R':
-                btn.clicked.connect(lambda: print('godot'))
-            case 'S':
-                btn.clicked.connect(lambda: print('rpg maker'))
-            case 'T':
-                btn.clicked.connect(lambda: print('renpy'))
-            case 'U':
-                btn.clicked.connect(lambda: print('unigen'))
-            case 'V':
-                btn.clicked.connect(lambda: print('raw2dds'))
-            case 'W':
-                btn.clicked.connect(lambda: print('raw2atrac'))
-            case 'X':
-                btn.clicked.connect(lambda: print('raw2wav'))
-            case 'Y':
-                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
-            case 'Z':
-                btn.clicked.connect(self.empty_out)
+            case 'A': btn.clicked.connect(self.q_open)
+            case 'B': btn.clicked.connect(lambda: print('quickbms'))
+            case 'C': btn.clicked.connect(lambda: print('7zip'))
+            case 'D': btn.clicked.connect(lambda: print('gaup'))
+            case 'E': btn.clicked.connect(lambda: print('innosetup'))
+            case 'F': btn.clicked.connect(self.ffmpeg_video)
+            case 'G': btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
+            case 'H': btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
+            case 'I': btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
+            case 'J': btn.clicked.connect(lambda: print('source'))
+            case 'K': btn.clicked.connect(lambda: print('creation'))
+            case 'L': btn.clicked.connect(lambda: print('cry engine'))
+            case 'M': btn.clicked.connect(lambda: print('bink'))
+            case 'N': btn.clicked.connect(self.wwise_tools)
+            case 'O': btn.clicked.connect(self.ps_audio_tools)
+            case 'P': btn.clicked.connect(lambda: print('xnconvert'))
+            case 'Q': btn.clicked.connect(lambda: print('red engine'))
+            case 'R': btn.clicked.connect(lambda: print('godot'))
+            case 'S': btn.clicked.connect(lambda: print('rpg maker'))
+            case 'T': btn.clicked.connect(lambda: print('renpy'))
+            case 'U': btn.clicked.connect(lambda: print('unigen'))
+            case 'V': btn.clicked.connect(lambda: print('raw2dds'))
+            case 'W': btn.clicked.connect(lambda: print('raw2atrac'))
+            case 'X': btn.clicked.connect(lambda: print('raw2wav'))
+            case 'Y': btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+            case 'Z': btn.clicked.connect(self.empty_out)
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
@@ -516,7 +508,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                     self.archive_list[liter].addAction(archivesList['Archives Name'][n])
 
     def filter_list_create(self, items):
-
+        self.comboBox_gameList.items = self.names
         self.filter_model.clear()
         self.filter_model.appendRow(QStandardItem(''))
 
