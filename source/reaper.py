@@ -5,12 +5,30 @@ from source.ui import localize
 
 
 def file_reaper(func_name):
+
     def wrapper(*args, **kwargs):
+        error = None
+        function = str(func_name).split(" ")[1]
         start = datetime.now()
-        func_name(*args, **kwargs)
+
+        try:
+            func_name(*args, **kwargs)
+        except Exception as e:
+            error = e
+
         end = datetime.now()
         print(f'{localize.done}\n'
               f'{end - start}')
+
+        with open('./log.txt', 'a') as log:
+
+            if error is None:
+                log.write(f'Function: {function}\n'
+                          f'\tStart: {start}\tEnd: {end}\tDuration: {end-start}\n')
+            else:
+                print(f'ERROR IN {function}: {error}!!!')
+                log.write(f'Function: {function}\n'
+                          f'\tStart: {start}\tError: {error}\n')
 
     return wrapper
 

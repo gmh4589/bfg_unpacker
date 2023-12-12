@@ -5,6 +5,7 @@ from threading import Thread
 
 from PyQt5.QtWidgets import *
 from source.quick_open import QuickOpen
+from source.unpacker import Unpacker
 from source.ui import localize
 from source.reaper import after_dot
 
@@ -15,6 +16,7 @@ class UnpackerMain(QuickOpen):
         # Quick Open
         super().__init__()
         self.quickOpen.triggered.connect(lambda: self.q_open())
+        self.unpacker = Unpacker()
 
     def q_open(self):
 
@@ -31,7 +33,7 @@ class UnpackerMain(QuickOpen):
                 f = ''
 
             if more_one:
-                file_names = QFileDialog.getOpenFileName(self, localize.open_file, filter=f,
+                return QFileDialog.getOpenFileName(self, localize.open_file, filter=f,
                                                          directory=self.setting['Main']['last_dir'])[0]
             else:
                 file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
@@ -131,6 +133,8 @@ class UnpackerMain(QuickOpen):
                         case '_ZIP': thread = Thread(target=self.unpacker.seven_zip,
                                                      args=(self.file_name,), daemon=True)
                         case '_ZPL': self.q_connect(self.zpl2png, self.file_name)
+                        case '_GAUP': thread = Thread(target=self.unpacker.quick_bms,
+                                                      args=('data/wcx/gaup_pro.wcx', self.file_name), daemon=True)
                         case _:  thread = Thread(target=self.unpacker.quick_bms,
                                                  args=(script_name, self.file_name), daemon=True)
 

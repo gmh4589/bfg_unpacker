@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import pandas
 
-from PyQt5.QtCore import Qt, QVariant, QItemSelectionModel
+from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import *
 import source.ui.main_ui as ui
@@ -73,12 +73,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
 
         self.mainList = self.mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
         self.names = {row['game_name']: row['release_year'] for _, row in self.mainList.iterrows()}
-
-        if self.setting['Main']['group'] == 'name':
-            self.tree_view_create_by_name()
-        else:
-            self.tree_view_create_by_year()
-
+        self.tree_view_create_by_name() if self.setting['Main']['group'] == 'name' else self.tree_view_create_by_year()
         self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
 
@@ -89,26 +84,39 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
 
         # Actions connected
         self.gameList_treeView.clicked.connect(self.file_reaper)
+        self.action7z_Archiver.triggered.connect(  # ZIP
+            lambda: self.select_unpacker('_ZIP'))
+        self.actionGame_Archive_Unpacker_Plugin.triggered.connect(  # GAUP
+            lambda: self.select_unpacker('_GAUP'))
+        self.actionTotal_Observer.triggered.connect(  # Total Observer
+            lambda: self.select_unpacker('_', script_name='data/wcx/TotalObserver.wcx'))
         self.exitAction.triggered.connect(self.close)
-        self.action_Settings.triggered.connect(
+        self.action_Settings.triggered.connect(  # Settings run
             lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
-        self.create_theme.triggered.connect(
+        self.create_theme.triggered.connect(  # Theme creator run
             lambda: theme_creator.ThemeCreateWindow(style=self.setting["Main"]["theme"]).exec())
-        self.action_SelectOutPath.triggered.connect(lambda: self.set_setting('Main', 'out_path',
-                                                                             self.file_open(select_folder=True)))
-        self.checkBox_ShowConsole.setCheckState(int(self.setting['Main']['show_console']))
-        self.checkBox_createSubfolders.setCheckState(int(self.setting['Main']['subfolders']))
-        self.checkBox_ShowConsole.stateChanged.connect(
-            lambda: self.set_setting('Main', 'show_console',
-                                     "2" if self.checkBox_ShowConsole.isChecked() else "0"))
-        self.checkBox_createSubfolders.stateChanged.connect(
-            lambda: self.set_setting('Main', 'subfolders',
-                                     "2" if self.checkBox_createSubfolders.isChecked() else "0"))
-        self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())
-        self.toolButton_plus.clicked.connect(lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
-        self.toolButton_minus.clicked.connect(
+        self.action_SelectOutPath.triggered.connect(  # Set out folder
+            lambda: self.set_setting('Main', 'out_path', self.file_open(select_folder=True)))
+        self.actionRad_Video_Tools.triggered.connect(  # Run RAD Video Tools
+            lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))
+
+        # Favorite block
+        self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())  # All\favorite switch
+        self.toolButton_plus.clicked.connect(  # Add to favorite
+            lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
+        self.toolButton_minus.clicked.connect(  # Delete from favorite
             lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
-        self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())
+        self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())  # Find game button
+
+        # Show console checkbox
+        self.checkBox_ShowConsole.setCheckState(int(self.setting['Main']['show_console']))
+        self.checkBox_ShowConsole.stateChanged.connect(
+            lambda: self.set_setting('Main', 'show_console', "2" if self.checkBox_ShowConsole.isChecked() else "0"))
+
+        # Create subfolders checkbox
+        self.checkBox_createSubfolders.setCheckState(int(self.setting['Main']['subfolders']))
+        self.checkBox_createSubfolders.stateChanged.connect(
+            lambda: self.set_setting('Main', 'subfolders', "2" if self.checkBox_createSubfolders.isChecked() else "0"))
 
         # Converters with UI
         self.actionFFMPEG_Video_Converter.triggered.connect(self.ffmpeg_video)
@@ -121,26 +129,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                                          ['8k', '12k', '16k', '20k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '256k', '320k', '448k', '512k', '768k', '1M', '2M', translate.other],
                                                          ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'ogg', 'opus', 'ra', 'tta', 'wav', 'wma', 'wv', translate.other]],
                                             default_list=['44100', '2', '128k', 'mp3']).exec())
-        self.actionRAW_to_WAV.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='RAW to WAV Converter',
-                                            label_list=['Frequency', 'Channels', 'Bit', 'Format', 'Offset'],
-                                            action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000', translate.other],
-                                                         ['1', '2', '3', '4', '5', '6', '7', '8', translate.other],
-                                                         ['8', '12', '16', '24', '32', '48', '64', '96', '128'],
-                                                         ['ADPCM', 'ALAW', 'ANTEX_ADPCME', 'APTX', 'ATRAC', 'AUDIOFILE_AF10', 'AUDIOFILE_AF36', 'BTV_DIGITAL', 'CANOPUS_ATRAC', 'CIRRUS', 'CONTROL_RES_CR10', 'CONTROL_RES_VQLPC', 'CREATIVE_ADPCM', 'CREATIVE_FASTSPEECH10', 'CREATIVE_FASTSPEECH8', 'CS2', 'CS_IMAADPCM', 'CU_CODEC', 'DF_G726', 'DF_GSM610', 'DIALOGIC_OKI_ADPCM', 'DIGIADPCM', 'DIGIFIX', 'DIGIREAL', 'DIGISTD', 'DIGITAL_G723', 'DOLBY_AC2', 'DOLBY_AC3_SPDIF', 'DRM', 'DSAT_DISPLAY', 'DSPGROUP_TRUESPEECH', 'DTS', 'DVI_ADPCM', 'DVM', 'ECHOSC1', 'ECHOSC3', 'ESPCM', 'ESST_AC3', 'FM_TOWNS_SND', 'G721_ADPCM', 'G722_ADPCM', 'G723_ADPCM', 'G726ADPCM', 'G726_ADPCM', 'G728_CELP', 'G729A', 'GSM610', 'IBM_CVSD', 'IEEE_FLOAT', 'ILINK_VC', 'IMA_ADPCM', 'IPI_HSX', 'IPI_RPELP', 'IRAT', 'ISIAUDIO', 'LH_CODEC', 'LRC', 'LUCENT_G723', 'MALDEN_PHONYTALK', 'MEDIASONIC_G723', 'MEDIASPACE_ADPCM', 'MEDIAVISION_ADPCM', 'MP3', 'MPEG', 'MSAUDIO1', 'MSG723', 'MSNAUDIO', 'MSRT24', 'MULAW', 'MVI_MVI2', 'NMS_VBXADPCM', 'NORRIS', 'OKI_ADPCM', 'OLIADPCM', 'OLICELP', 'OLIGSM', 'OLIOPR', 'OLISBC', 'ONLIVE', 'PAC', 'PACKED', 'PCM', 'PHILIPS_LPCBB', 'PROSODY_1612', 'PROSODY_8KBPS', 'QDESIGN_MUSIC', 'QUALCOMM_HALFRATE', 'QUALCOMM_PUREVOICE', 'QUARTERDECK', 'RAW_SPORT', 'RHETOREX_ADPCM', 'ROCKWELL_ADPCM', 'ROCKWELL_DIGITALK', 'RT24', 'SANYO_LD_ADPCM', 'SBC24', 'SIERRA_ADPCM', 'SIPROLAB_ACELP4800', 'SIPROLAB_ACELP8V3', 'SIPROLAB_ACEPLNET', 'SIPROLAB_G729', 'SIPROLAB_G729A', 'SIPROLAB_KELVIN', 'SOFTSOUND', 'SONARC', 'SONY_SCX', 'SOUNDSPACE_MUSICOMPRESS', 'TPC', 'TUBGSM', 'UHER_ADPCM', 'UNISYS_NAP_16K', 'UNISYS_NAP_ADPCM', 'UNISYS_NAP_ALAW', 'UNISYS_NAP_ULAW', 'UNKNOWN(0000)', 'UNKNOWN(FFFF)', 'VIVO_G723', 'VIVO_SIREN', 'VME_VMPCM', 'VOXWARE', 'VOXWARE_AC10', 'VOXWARE_AC16', 'VOXWARE_AC20', 'VOXWARE_AC8', 'VOXWARE_BYTE_ALIGNED', 'VOXWARE_RT24', 'VOXWARE_RT29', 'VOXWARE_RT29HW', 'VOXWARE_TQ40', 'VOXWARE_TQ60', 'VOXWARE_VR12', 'VOXWARE_VR18', 'VSELP', 'XEBEC', 'YAMAHA_ADPCM', 'ZYXEL_ADPCM'],
-                                                         ['0', translate.other]],
-                                            default_list=['44100', '2', '32', 'PCM', '0']).exec())
-        self.actionRAW_to_Atrac.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='RAW to Atrac Converter',
-                                            label_list=['Frequency', 'Channels', 'Bitrate', 'Format', 'Offset'],
-                                            action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000'],
-                                                         ['1', '2'],
-                                                         ['32', '48', '52', '64', '66', '96', '105', '128', '132', '160', '192', '256', '320', '352'],
-                                                         ['AT3', 'AT3Plus', 'AT9'],
-                                                         ['0', translate.other]],
-                                            default_list=['44100', '2', '32', 'PCM', '0']).exec())
+        self.actionRAW_to_WAV.triggered.connect(self.raw2wav)
+        self.actionRAW_to_Atrac.triggered.connect(self.raw2atrac)
         self.actionPlayStation_Audio_Converter.triggered.connect(self.ps_audio_tools)
         self.actionFFMPEG_Image_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -148,12 +138,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                             label_list=['Format'],
                                             action_list=[['apng', 'bmp', 'dpx', 'gif', 'jpg', 'pcx', 'pgm', 'pix', 'png', 'ppm', 'sgi', 'tga', 'tiff', 'xbm', 'xwd', translate.other]],
                                             default_list=['png']).exec())
-        self.action_nConvert.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='nConverter',
-                                            label_list=['Format'],
-                                            action_list=[['bmp', 'cur', 'dcx', 'dds', 'dib', 'dng', 'gif', 'jif', 'jpeg', 'pcd', 'pcx', 'pdf', 'png', 'psb', 'psd', 'raw', 'svg', 'tga', 'tiff', 'wbmp', '------', '2bp', '2d', '3fr', '411', 'a64', 'abmp', 'abr', 'abs', 'acc', 'ace', 'aces', 'acorn', 'adex', 'adt', 'afphoto', 'afx', 'ai', 'aim', 'aip', 'aipd', 'alias', 'ami', 'ani', 'anv', 'aphp', 'apx', 'arcib', 'arf', 'arn', 'art', 'artdir', 'arw', 'atk', 'att', 'aurora', 'avs', 'avw', 'az7', 'b16', 'b3d', 'bdr', 'bfli', 'bfx', 'bga', 'bias', 'bif', 'biorad', 'bip', 'bld', 'blp', 'bmc', 'bmg', 'bms', 'bmx', 'bob', 'bpr', 'brk', 'bsg', 'btn', 'bum', 'byusir', 'c4', 'cadc', 'cals', 'cam', 'can', 'car', 'cart', 'cat', 'cbmf', 'cdr', 'cdu', 'ce', 'ce1', 'cel', 'cft', 'cgm', 'che', 'cin', 'cip', 'ciph', 'cipt', 'cish', 'cism', 'cloe', 'clp', 'cmt', 'cmu', 'cmx', 'cncd', 'cnct', 'cp8', 'cpa', 'cpat', 'cpc', 'cpt', 'cr2', 'craw', 'crd', 'crg', 'crw', 'csv', 'ct', 'cut', 'cvp', 'cwg', 'd3d', 'dali', 'dbw', 'dcmp', 'dcpy', 'dcr', 'dd', 'degas', 'dicom', 'dkb', 'dol', 'doodle', 'dpx', 'drz', 'dsi', 'dta', 'dwg', 'dwg', 'ecc', 'efx', 'eidi', 'eif', 'emf', 'emz', 'epa', 'epi', 'eps', 'epsp', 'erf', 'esm', 'esmp', 'eyes', 'f96', 'face', 'fax', 'fbm', 'fcx', 'fff', 'fff', 'ffpg', 'fgs', 'fi', 'fit', 'fits', 'fli', 'fmag', 'fmap', 'fmf', 'fp2', 'fpg', 'fpr', 'fpt', 'fre', 'frm', 'frm2', 'fsh', 'fsy', 'ftf', 'fx3', 'fxs', 'g16', 'g3n', 'gaf', 'gbr', 'gcd', 'gem', 'geo', 'gfaray', 'gg', 'gicon', 'gig', 'gih', 'gm', 'gmf', 'god', 'gpat', 'gpb', 'grob', 'gun', 'hdri', 'hdru', 'hed', 'hf', 'hir', 'hpgl', 'hpi', 'hr', 'hru', 'hrz', 'hsi', 'hta', 'icb', 'icd', 'icl', 'icn', 'icns', 'ico', 'icon', 'iff', 'ifx', 'iim', 'iimg', 'ilab', 'im5', 'img', 'imgt', 'imi', 'imt', 'indd', 'info', 'ingr', 'ioca', 'ipg', 'ipl', 'ipl2', 'ipseq', 'iris', 'ish', 'iss', 'j6i', 'jbf', 'jbr', 'jig', 'jig2', 'jj', 'jls', 'jps', 'jtf', 'jxr', 'k25', 'k25b', 'kdc', 'kdc2', 'kfx', 'kntr', 'koa', 'kps', 'kqp', 'kro', 'kskn', 'lbm', 'lcel', 'lda', 'lff', 'lif', 'lsm', 'lss', 'lvp', 'lwi', 'm8', 'mac', 'mag', 'map', 'mbig', 'mdl', 'mef', 'mfrm', 'mgr', 'mh', 'miff', 'mil', 'mjpg', 'mkcf', 'mklg', 'mng', 'mon', 'mos', 'mph', 'mpo', 'mrc', 'mrf', 'mrw', 'msp', 'msx2', 'mtv', 'mtx', 'ncr', 'ncy', 'ncy', 'nef', 'neo', 'ngg', 'nifti', 'nist', 'nitf', 'nlm', 'nol', 'npm', 'nrw', 'nsr', 'oaz', 'ocp', 'of', 'ofx', 'ohir', 'oil', 'ols', 'orf', 'os2', 'otap', 'otb', 'p64', 'p7', 'pabx', 'palm', 'pam', 'pan', 'patps', 'pbm', 'pbt', 'pcl', 'pcp', 'pd', 'pdd', 'pds', 'pdx', 'pef', 'pegs', 'pfi', 'pfm', 'pfs', 'pgc', 'pgf', 'pgm', 'pi', 'pic', 'pict', 'pig', 'pixi', 'pixp', 'pld', 'pm', 'pm', 'pmg', 'pmp', 'pmsk', 'pnm', 'pp4', 'pp5', 'ppm', 'ppp', 'pps', 'ppt', 'prc', 'prf', 'prisms', 'prx', 'ps', 'psa', 'pseg', 'psf', 'psion3', 'psion5', 'psp', 'pspb', 'pspf', 'pspm', 'pspp', 'pspt', 'ptg', 'pwp', 'pxa', 'pxr', 'pzl', 'pzp', 'q0', 'qcad', 'qdv', 'qrt', 'qtif', 'rad', 'raf', 'ras', 'raw1', 'raw2', 'raw3', 'raw4', 'raw5', 'raw6', 'raw7', 'raw8', 'raw9', 'rawa', 'rawb', 'rawdvr', 'rawe', 'ray', 'rdc', 'rfa', 'rfax', 'ript', 'rix', 'rla', 'rlc2', 'rle', 'rp', 'rpm', 'rsb', 'rsrc', 'rw2', 'rwl', 'sar', 'sci', 'sct', 'sdg', 'sdt', 'sfax', 'sfw', 'sgi', 'sif', 'sir', 'sj1', 'skf', 'skn', 'skp', 'smp', 'soft', 'spc', 'spot', 'sps', 'spu', 'srf', 'srf2', 'srw', 'ssi', 'ssp', 'sst', 'st4', 'stad', 'star', 'stm', 'stw', 'stx', 'syj', 'synu', 'taac', 'tdi', 'tdim', 'teal', 'tg4', 'thmb', 'ti', 'til', 'tile', 'tim', 'tim2', 'tiny', 'tjp', 'tnl', 'trup', 'tsk', 'ttf', 'tub', 'txc', 'uni', 'upe4', 'upi', 'upst', 'uyvy', 'uyvyi', 'v', 'vda', 'vfx', 'vi', 'vicar', 'vid', 'vif', 'viff', 'vista', 'vit', 'vivid', 'vob', 'vort', 'vpb', 'wad', 'wal', 'wbc', 'wfx', 'winm', 'wmf', 'wmz', 'wpg', 'wrl', 'wzl', 'x3f', 'xar', 'xbm', 'xcf', 'xif', 'xim', 'xnf', 'xp0', 'xpm', 'xwd', 'xyz', 'yuv411', 'yuv422', 'yuv444', 'zbr', 'zmf', 'zxhob', 'zxscr', 'zxsna', 'zzrough', translate.other]],
-                                            default_list=['png']).exec())
+        self.action_nConvert.triggered.connect(self.nConvert)
         self.actionImage_to_DDS_Microsoft.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                             gui_name='Image to DDS (Microsoft)',
@@ -167,15 +152,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                             label_list=['Format'],
                                             action_list=[['dxt1c', 'dxt1a', 'dxt3', 'dxt5', 'u1555', 'u4444', 'u565', 'u8888', 'u888', 'u555', 'p8c', 'p8a', 'p4c', 'p4a', 'a8', 'cxv8u8', 'v8u8', 'v16u16', 'A8L8', 'fp32x4', 'fp32', 'fp16x4', 'dxt5nm', 'g16r16', 'g16r16f', translate.other]],
                                             default_list=['dxt5']).exec())
-        self.actionDDS_Header_Generator.triggered.connect(
-            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                            gui_name='DDS Header Generator',
-                                            label_list=['Height', 'Width', 'Format', 'Offset'],
-                                            action_list=[['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
-                                                         ['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
-                                                         ['DXT1', 'DXT3', 'DXT5', 'DX10', 'BC4U', 'BC5U', 'BC4S', 'BC5S', 'ARGB8', translate.other],
-                                                         ['0', translate.other]],
-                                            default_list=['512', '512', 'DXT5', '0']).exec())
+        self.actionDDS_Header_Generator.triggered.connect(self.raw2dds)
         self.actionXWM_WAV_Audio_Converter.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                             gui_name='XWMA Tool GUI',
@@ -197,6 +174,45 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
                                              ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
                                              ['0', '1', '2', '3', '4', '5', '6', translate.other]],
                                 default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1']).exec()
+
+    def raw2wav(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='RAW to WAV Converter',
+                                label_list=['Frequency', 'Channels', 'Bit', 'Format', 'Offset'],
+                                action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000', translate.other],
+                                             ['1', '2', '3', '4', '5', '6', '7', '8', translate.other],
+                                             ['8', '12', '16', '24', '32', '48', '64', '96', '128'],
+                                             ['ADPCM', 'ALAW', 'ANTEX_ADPCME', 'APTX', 'ATRAC', 'AUDIOFILE_AF10', 'AUDIOFILE_AF36', 'BTV_DIGITAL', 'CANOPUS_ATRAC', 'CIRRUS', 'CONTROL_RES_CR10', 'CONTROL_RES_VQLPC', 'CREATIVE_ADPCM', 'CREATIVE_FASTSPEECH10', 'CREATIVE_FASTSPEECH8', 'CS2', 'CS_IMAADPCM', 'CU_CODEC', 'DF_G726', 'DF_GSM610', 'DIALOGIC_OKI_ADPCM', 'DIGIADPCM', 'DIGIFIX', 'DIGIREAL', 'DIGISTD', 'DIGITAL_G723', 'DOLBY_AC2', 'DOLBY_AC3_SPDIF', 'DRM', 'DSAT_DISPLAY', 'DSPGROUP_TRUESPEECH', 'DTS', 'DVI_ADPCM', 'DVM', 'ECHOSC1', 'ECHOSC3', 'ESPCM', 'ESST_AC3', 'FM_TOWNS_SND', 'G721_ADPCM', 'G722_ADPCM', 'G723_ADPCM', 'G726ADPCM', 'G726_ADPCM', 'G728_CELP', 'G729A', 'GSM610', 'IBM_CVSD', 'IEEE_FLOAT', 'ILINK_VC', 'IMA_ADPCM', 'IPI_HSX', 'IPI_RPELP', 'IRAT', 'ISIAUDIO', 'LH_CODEC', 'LRC', 'LUCENT_G723', 'MALDEN_PHONYTALK', 'MEDIASONIC_G723', 'MEDIASPACE_ADPCM', 'MEDIAVISION_ADPCM', 'MP3', 'MPEG', 'MSAUDIO1', 'MSG723', 'MSNAUDIO', 'MSRT24', 'MULAW', 'MVI_MVI2', 'NMS_VBXADPCM', 'NORRIS', 'OKI_ADPCM', 'OLIADPCM', 'OLICELP', 'OLIGSM', 'OLIOPR', 'OLISBC', 'ONLIVE', 'PAC', 'PACKED', 'PCM', 'PHILIPS_LPCBB', 'PROSODY_1612', 'PROSODY_8KBPS', 'QDESIGN_MUSIC', 'QUALCOMM_HALFRATE', 'QUALCOMM_PUREVOICE', 'QUARTERDECK', 'RAW_SPORT', 'RHETOREX_ADPCM', 'ROCKWELL_ADPCM', 'ROCKWELL_DIGITALK', 'RT24', 'SANYO_LD_ADPCM', 'SBC24', 'SIERRA_ADPCM', 'SIPROLAB_ACELP4800', 'SIPROLAB_ACELP8V3', 'SIPROLAB_ACEPLNET', 'SIPROLAB_G729', 'SIPROLAB_G729A', 'SIPROLAB_KELVIN', 'SOFTSOUND', 'SONARC', 'SONY_SCX', 'SOUNDSPACE_MUSICOMPRESS', 'TPC', 'TUBGSM', 'UHER_ADPCM', 'UNISYS_NAP_16K', 'UNISYS_NAP_ADPCM', 'UNISYS_NAP_ALAW', 'UNISYS_NAP_ULAW', 'UNKNOWN(0000)', 'UNKNOWN(FFFF)', 'VIVO_G723', 'VIVO_SIREN', 'VME_VMPCM', 'VOXWARE', 'VOXWARE_AC10', 'VOXWARE_AC16', 'VOXWARE_AC20', 'VOXWARE_AC8', 'VOXWARE_BYTE_ALIGNED', 'VOXWARE_RT24', 'VOXWARE_RT29', 'VOXWARE_RT29HW', 'VOXWARE_TQ40', 'VOXWARE_TQ60', 'VOXWARE_VR12', 'VOXWARE_VR18', 'VSELP', 'XEBEC', 'YAMAHA_ADPCM', 'ZYXEL_ADPCM'],
+                                             ['0', translate.other]],
+                                default_list=['44100', '2', '32', 'PCM', '0']).exec()
+
+    def raw2atrac(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='RAW to Atrac Converter',
+                                label_list=['Frequency', 'Channels', 'Bitrate', 'Format', 'Offset'],
+                                action_list=[['8000', '12000', '16000', '22050', '24000', '36000', '44100', '48000', '96000', '192000', '384000'],
+                                             ['1', '2'],
+                                             ['32', '48', '52', '64', '66', '96', '105', '128', '132', '160', '192', '256', '320', '352'],
+                                             ['AT3', 'AT3Plus', 'AT9'],
+                                             ['0', translate.other]],
+                                default_list=['44100', '2', '32', 'PCM', '0']).exec()
+
+    def raw2dds(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='DDS Header Generator',
+                                label_list=['Height', 'Width', 'Format', 'Offset'],
+                                action_list=[['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
+                                             ['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
+                                             ['DXT1', 'DXT3', 'DXT5', 'DX10', 'BC4U', 'BC5U', 'BC4S', 'BC5S', 'ARGB8', translate.other],
+                                             ['0', translate.other]],
+                                default_list=['512', '512', 'DXT5', '0']).exec()
+
+    def nConvert(self):
+        child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                gui_name='nConverter',
+                                label_list=['Format'],
+                                action_list=[['bmp', 'cur', 'dcx', 'dds', 'dib', 'dng', 'gif', 'jif', 'jpeg', 'pcd', 'pcx', 'pdf', 'png', 'psb', 'psd', 'raw', 'svg', 'tga', 'tiff', 'wbmp', '------', '2bp', '2d', '3fr', '411', 'a64', 'abmp', 'abr', 'abs', 'acc', 'ace', 'aces', 'acorn', 'adex', 'adt', 'afphoto', 'afx', 'ai', 'aim', 'aip', 'aipd', 'alias', 'ami', 'ani', 'anv', 'aphp', 'apx', 'arcib', 'arf', 'arn', 'art', 'artdir', 'arw', 'atk', 'att', 'aurora', 'avs', 'avw', 'az7', 'b16', 'b3d', 'bdr', 'bfli', 'bfx', 'bga', 'bias', 'bif', 'biorad', 'bip', 'bld', 'blp', 'bmc', 'bmg', 'bms', 'bmx', 'bob', 'bpr', 'brk', 'bsg', 'btn', 'bum', 'byusir', 'c4', 'cadc', 'cals', 'cam', 'can', 'car', 'cart', 'cat', 'cbmf', 'cdr', 'cdu', 'ce', 'ce1', 'cel', 'cft', 'cgm', 'che', 'cin', 'cip', 'ciph', 'cipt', 'cish', 'cism', 'cloe', 'clp', 'cmt', 'cmu', 'cmx', 'cncd', 'cnct', 'cp8', 'cpa', 'cpat', 'cpc', 'cpt', 'cr2', 'craw', 'crd', 'crg', 'crw', 'csv', 'ct', 'cut', 'cvp', 'cwg', 'd3d', 'dali', 'dbw', 'dcmp', 'dcpy', 'dcr', 'dd', 'degas', 'dicom', 'dkb', 'dol', 'doodle', 'dpx', 'drz', 'dsi', 'dta', 'dwg', 'dwg', 'ecc', 'efx', 'eidi', 'eif', 'emf', 'emz', 'epa', 'epi', 'eps', 'epsp', 'erf', 'esm', 'esmp', 'eyes', 'f96', 'face', 'fax', 'fbm', 'fcx', 'fff', 'fff', 'ffpg', 'fgs', 'fi', 'fit', 'fits', 'fli', 'fmag', 'fmap', 'fmf', 'fp2', 'fpg', 'fpr', 'fpt', 'fre', 'frm', 'frm2', 'fsh', 'fsy', 'ftf', 'fx3', 'fxs', 'g16', 'g3n', 'gaf', 'gbr', 'gcd', 'gem', 'geo', 'gfaray', 'gg', 'gicon', 'gig', 'gih', 'gm', 'gmf', 'god', 'gpat', 'gpb', 'grob', 'gun', 'hdri', 'hdru', 'hed', 'hf', 'hir', 'hpgl', 'hpi', 'hr', 'hru', 'hrz', 'hsi', 'hta', 'icb', 'icd', 'icl', 'icn', 'icns', 'ico', 'icon', 'iff', 'ifx', 'iim', 'iimg', 'ilab', 'im5', 'img', 'imgt', 'imi', 'imt', 'indd', 'info', 'ingr', 'ioca', 'ipg', 'ipl', 'ipl2', 'ipseq', 'iris', 'ish', 'iss', 'j6i', 'jbf', 'jbr', 'jig', 'jig2', 'jj', 'jls', 'jps', 'jtf', 'jxr', 'k25', 'k25b', 'kdc', 'kdc2', 'kfx', 'kntr', 'koa', 'kps', 'kqp', 'kro', 'kskn', 'lbm', 'lcel', 'lda', 'lff', 'lif', 'lsm', 'lss', 'lvp', 'lwi', 'm8', 'mac', 'mag', 'map', 'mbig', 'mdl', 'mef', 'mfrm', 'mgr', 'mh', 'miff', 'mil', 'mjpg', 'mkcf', 'mklg', 'mng', 'mon', 'mos', 'mph', 'mpo', 'mrc', 'mrf', 'mrw', 'msp', 'msx2', 'mtv', 'mtx', 'ncr', 'ncy', 'ncy', 'nef', 'neo', 'ngg', 'nifti', 'nist', 'nitf', 'nlm', 'nol', 'npm', 'nrw', 'nsr', 'oaz', 'ocp', 'of', 'ofx', 'ohir', 'oil', 'ols', 'orf', 'os2', 'otap', 'otb', 'p64', 'p7', 'pabx', 'palm', 'pam', 'pan', 'patps', 'pbm', 'pbt', 'pcl', 'pcp', 'pd', 'pdd', 'pds', 'pdx', 'pef', 'pegs', 'pfi', 'pfm', 'pfs', 'pgc', 'pgf', 'pgm', 'pi', 'pic', 'pict', 'pig', 'pixi', 'pixp', 'pld', 'pm', 'pm', 'pmg', 'pmp', 'pmsk', 'pnm', 'pp4', 'pp5', 'ppm', 'ppp', 'pps', 'ppt', 'prc', 'prf', 'prisms', 'prx', 'ps', 'psa', 'pseg', 'psf', 'psion3', 'psion5', 'psp', 'pspb', 'pspf', 'pspm', 'pspp', 'pspt', 'ptg', 'pwp', 'pxa', 'pxr', 'pzl', 'pzp', 'q0', 'qcad', 'qdv', 'qrt', 'qtif', 'rad', 'raf', 'ras', 'raw1', 'raw2', 'raw3', 'raw4', 'raw5', 'raw6', 'raw7', 'raw8', 'raw9', 'rawa', 'rawb', 'rawdvr', 'rawe', 'ray', 'rdc', 'rfa', 'rfax', 'ript', 'rix', 'rla', 'rlc2', 'rle', 'rp', 'rpm', 'rsb', 'rsrc', 'rw2', 'rwl', 'sar', 'sci', 'sct', 'sdg', 'sdt', 'sfax', 'sfw', 'sgi', 'sif', 'sir', 'sj1', 'skf', 'skn', 'skp', 'smp', 'soft', 'spc', 'spot', 'sps', 'spu', 'srf', 'srf2', 'srw', 'ssi', 'ssp', 'sst', 'st4', 'stad', 'star', 'stm', 'stw', 'stx', 'syj', 'synu', 'taac', 'tdi', 'tdim', 'teal', 'tg4', 'thmb', 'ti', 'til', 'tile', 'tim', 'tim2', 'tiny', 'tjp', 'tnl', 'trup', 'tsk', 'ttf', 'tub', 'txc', 'uni', 'upe4', 'upi', 'upst', 'uyvy', 'uyvyi', 'v', 'vda', 'vfx', 'vi', 'vicar', 'vid', 'vif', 'viff', 'vista', 'vit', 'vivid', 'vob', 'vort', 'vpb', 'wad', 'wal', 'wbc', 'wfx', 'winm', 'wmf', 'wmz', 'wpg', 'wrl', 'wzl', 'x3f', 'xar', 'xbm', 'xcf', 'xif', 'xim', 'xnf', 'xp0', 'xpm', 'xwd', 'xyz', 'yuv411', 'yuv422', 'yuv444', 'zbr', 'zmf', 'zxhob', 'zxscr', 'zxsna', 'zzrough', translate.other]],
+                                default_list=['png']).exec()
 
     def ps_audio_tools(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -377,9 +393,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
 
         match action:
             case 'A': btn.clicked.connect(self.q_open)
-            case 'B': btn.clicked.connect(lambda: print('quickbms'))
-            case 'C': btn.clicked.connect(lambda: print('7zip'))
-            case 'D': btn.clicked.connect(lambda: print('gaup'))
+            case 'B': btn.clicked.connect(lambda: self.select_unpacker('___', script_name=QFileDialog.getOpenFileName(
+                self, translate.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
+                f'{translate.all_files} (*.*)', directory=self.setting['Main']['last_dir'])[0], ext_list=''))
+            case 'C': btn.clicked.connect(lambda: self.select_unpacker('_ZIP'))
+            case 'D': btn.clicked.connect(lambda: self.select_unpacker('_GAUP'))
             case 'E': btn.clicked.connect(lambda: print('innosetup'))
             case 'F': btn.clicked.connect(self.ffmpeg_video)
             case 'G': btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
@@ -388,18 +406,18 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
             case 'J': btn.clicked.connect(lambda: print('source'))
             case 'K': btn.clicked.connect(lambda: print('creation'))
             case 'L': btn.clicked.connect(lambda: print('cry engine'))
-            case 'M': btn.clicked.connect(lambda: print('bink'))
+            case 'M': btn.clicked.connect(lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))
             case 'N': btn.clicked.connect(self.wwise_tools)
             case 'O': btn.clicked.connect(self.ps_audio_tools)
-            case 'P': btn.clicked.connect(lambda: print('xnconvert'))
+            case 'P': btn.clicked.connect(self.nConvert)
             case 'Q': btn.clicked.connect(lambda: print('red engine'))
             case 'R': btn.clicked.connect(lambda: print('godot'))
             case 'S': btn.clicked.connect(lambda: print('rpg maker'))
             case 'T': btn.clicked.connect(lambda: print('renpy'))
             case 'U': btn.clicked.connect(lambda: print('unigen'))
-            case 'V': btn.clicked.connect(lambda: print('raw2dds'))
-            case 'W': btn.clicked.connect(lambda: print('raw2atrac'))
-            case 'X': btn.clicked.connect(lambda: print('raw2wav'))
+            case 'V': btn.clicked.connect(self.raw2dds)
+            case 'W': btn.clicked.connect(self.raw2atrac)
+            case 'X': btn.clicked.connect(self.raw2wav)
             case 'Y': btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
             case 'Z': btn.clicked.connect(self.empty_out)
 
@@ -414,39 +432,39 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
         alpha.append('Y')
         alpha.append('Z')
 
-        tool_tips = {'A': 'Quick open file',
-                     'B': 'Open with QuickBMS',
-                     'C': 'Open with 7zip',
-                     'D': 'Open with GAUP',
-                     'E': 'Unpack installer with InnoSetup',
-                     'F': 'Convert video with FFMPEG',
-                     'G': 'Unpack game on Unreal Engine',
-                     'H': 'Unpack game on Unity Engine',
-                     'I': 'Unpack game on idTech Engine',
-                     'J': 'Unpack game on Source Engine',
-                     'K': 'Unpack game on Creation Engine',
-                     'L': 'Unpack game on Cry Engine',
-                     'M': 'Bink video converter',
-                     'N': 'Wwise audio converter',
-                     'O': 'PlayStation audio tools',
-                     'P': 'Convert images with nConvert',
-                     'Q': 'Unpack game on Red Engine',
-                     'R': 'Unpack game on Godot Engine',
-                     'S': 'Unpack game on RPG Maker',
-                     'T': 'Unpack game on RenPy Engine',
-                     'U': 'Unpack game on Unigen Engine',
-                     'V': 'DDS header creator',
-                     'W': 'Atrac header creator',
-                     'X': 'WAV header creator',
-                     'Y': 'Run setting',
-                     'Z': 'Empty output folder'}
+        tool_tips = {'A': translate.quick_of,
+                     'B': translate.open_qbms,
+                     'C': translate.open_7z,
+                     'D': translate.open_gaup,
+                     'E': translate.open_inno,
+                     'F': translate.convert_ffmpeg,
+                     'G': translate.unpack_unreal,
+                     'H': translate.unpack_unity,
+                     'I': translate.unpack_idtech,
+                     'J': translate.unpack_source,
+                     'K': translate.unpack_creation,
+                     'L': translate.unpack_cry,
+                     'M': translate.convert_bink,
+                     'N': translate.convert_wwise,
+                     'O': translate.ps_audio_tool,
+                     'P': translate.convert_nconvert,
+                     'Q': translate.unpack_red,
+                     'R': translate.unpack_godot,
+                     'S': translate.unpack_rpgmaker,
+                     'T': translate.unpack_renpy,
+                     'U': translate.unpack_unigen,
+                     'V': translate.header_dds,
+                     'W': translate.header_atrac,
+                     'X': translate.header_wav,
+                     'Y': translate.run_setting,
+                     'Z': translate.empty_of}
 
         for i in range(self.upperButtons.count()):
             item = self.upperButtons.itemAt(i)
             item.widget().deleteLater()
 
         for i, a in enumerate(alpha):
-            btn = QToolButton(text=a)
+            btn = QToolButton(text=a, parent=None)
             btn.setToolTip(tool_tips[a])
             btn.setStyleSheet(
                 'QToolButton {'

@@ -47,7 +47,7 @@ class Unpacker:
             # print(err_data)
 
             os.system(f'{self.path_to_root}data/QuickBMS/quickbms.exe '
-                      f'"{self.path_to_root}{script_name}" '
+                      f'"{os.path.join(self.path_to_root, script_name)}" '
                       f'"{file_name}" "{self.out_dir}"')
 
     @file_reaper
