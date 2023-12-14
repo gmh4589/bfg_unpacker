@@ -6,7 +6,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from source.ui.main_ui_init import MainWindow
 from source.ui import localize
 from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres,
-                            arx_fatalis, phyre, zpl2png, sen_book)
+                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, mt_arc, qbms)
 from source import delete
 
 
@@ -28,24 +28,27 @@ class QProcessList(MainWindow):
         self.locres2txt = locres.Locres2TXT()
         self.txt2locres = locres.TXT2Locres()
         self.mor = pathologic.MorUnpacker()
+        self.mt_framework = mt_arc.ARCExtractor()
         self.phyre = phyre.PhyreSave()
+        self.quake_pak = quake_pak.QPAKExtractor()
+        self.qbms = qbms.Q_BMS()
         self.sen_book = sen_book.SenBook()
         self.sen_book_save = sen_book.SenBookSave()
         self.x7 = seven_s_seven.Seven()
         self.zip = zip_archive.Zip()
         self.zpl2png = zpl2png.ZPL2PNG()
 
-    def q_connect(self, threed, fn='', header=f'{localize.unpacking}...'):
-        threed.file_name = fn
-        threed.output_folder = self.out_dir
+    def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
+        nuke.file_name = fn
+        nuke.output_folder = self.out_dir
         self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(header)
         self.pb.progressBar.setValue(0)
         self.pb.progress.setText('')
         self.pb.status.setText('')
         self.pb.show()
-        threed.update_signal.connect(self.update_progress)
-        threed.start()
+        nuke.update_signal.connect(self.update_progress)
+        nuke.start()
 
     def update_progress(self, pb_value, p_text, info, process_done):
         self.pb.progressBar.setValue(pb_value)

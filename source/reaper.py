@@ -3,6 +3,7 @@ import os
 from PyQt5.QtCore import QThread, pyqtSignal
 from source.ui import localize
 
+DEBUG = True
 
 def file_reaper(func_name):
 
@@ -11,10 +12,13 @@ def file_reaper(func_name):
         function = str(func_name).split(" ")[1]
         start = datetime.now()
 
-        try:
+        if DEBUG:
             func_name(*args, **kwargs)
-        except Exception as e:
-            error = e
+        else:
+            try:
+                func_name(*args, **kwargs)
+            except Exception as e:
+                error = e
 
         end = datetime.now()
         print(f'{localize.done}\n'

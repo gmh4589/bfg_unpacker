@@ -33,9 +33,8 @@ class WadExtractor(Reaper):
 
                 wad_file.seek(entry_offset)
                 entry_data = wad_file.read(entry_size)
-                output_file_path = os.path.join(self.output_folder, entry_name)
 
-                with open(output_file_path, "wb") as output_file:
+                with open(os.path.join(self.output_folder, entry_name), "wb") as output_file:
                     output_file.write(entry_data)
 
                 wad_file.seek(this_offset)

@@ -29,28 +29,6 @@ class Unpacker:
         os.system(f'{self.path_to_root}data\\7zip\\7z.exe x -o"{self.out_dir}" "{file_name}"')
 
     @file_reaper
-    def quick_bms(self, script_name, file_name):
-        self.quick_bms2(file_name, script_name)
-
-    def quick_bms2(self, file_name, script_name):
-
-        if file_name:
-            # bms = Popen(f'{self.path_to_root}data/QuickBMS/quickbms.exe '
-            #             f'"{self.path_to_root}{script_name}" '
-            #             f'"{file_name}" '
-            #             f'"{self.out_dir}"',
-            #             stdout=PIPE, stderr=PIPE, encoding='utf-8')
-            #
-            # out_data, err_data = bms.communicate()
-            #
-            # print(out_data)
-            # print(err_data)
-
-            os.system(f'{self.path_to_root}data/QuickBMS/quickbms.exe '
-                      f'"{os.path.join(self.path_to_root, script_name)}" '
-                      f'"{file_name}" "{self.out_dir}"')
-
-    @file_reaper
     def unity(self, folder_name):
 
         if folder_name:

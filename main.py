@@ -95,6 +95,8 @@ class UnpackerMain(QuickOpen):
 
                             if ext == 'wad':
                                 self.q_connect(self.id_tech, self.file_name)
+                            elif ext == 'pak':
+                                self.q_connect(self.quake_pak, self.file_name)
                             else:
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
