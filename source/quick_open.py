@@ -2,28 +2,70 @@ import os
 
 from source.reaper import after_dot2
 from source.qprocess import QProcessList
-from source.unpacker import Unpacker
 
 
 class QuickOpen(QProcessList):
 
-    def QuickPAK(self, file):
-        print('TODO: Work in progress...')
+    @staticmethod
+    def sorry():  # 😢
+        print('Не удалось найти распаковщик автоматически!\n'
+              'Попробуйте выбрать игру или тип файла вручную!')
 
-    def QuickDAT(self, file):
-        print('TODO: Work in progress...')
+    def QuickPAK(self):
 
-    def QuickPKG(self, file):
-        print('TODO: Work in progress...')
+        if self.head == b'7S7M':
+            self.q_connect(self.x7, self.file_name)
+        elif self.head == b'PACK':
+            self.q_connect(self.quake_pak, self.file_name)
+        elif self.head == b'KPKA':  # RE Engine
+            pass
+        elif self.head == b'\x00' * 4:
+            self.q_connect(self.unreal, self.file_name)
+        else:
+            self.sorry()
 
-    def QuickIMG(self, file):
-        print('TODO: Work in progress...')
+    def QuickDAT(self):
 
-    def QuickBIN(self, file):
-        print('TODO: Work in progress...')
+        if self.head == b'GCAX':  # GCA Archive
+            pass
+        else:
+            self.sorry()
 
-    def QuickBundle(self, file):
-        print('TODO: Work in progress...')
+    def QuickARC(self):
+
+        if self.head == b'ARC\x00':  # MT Framework
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/dmc4.bms"
+            self.q_connect(self.qbms, self.file_name)
+        else:
+            self.sorry()
+
+    def QuickPKG(self):
+
+        if self.head == b'':
+            pass
+        else:
+            self.sorry()
+
+    def QuickIMG(self):
+
+        if self.head == b'':
+            pass
+        else:
+            self.sorry()
+
+    def QuickBIN(self):
+
+        if self.head == b'':
+            pass
+        else:
+            self.sorry()
+
+    def QuickBundle(self):
+
+        if self.head == b'':
+            pass
+        else:
+            self.sorry()
 
     def find_reaper(self):
 
@@ -32,27 +74,64 @@ class QuickOpen(QProcessList):
 
         ext = self.file_name.split('.')[-1]
 
+        # Check on ZIP signature
         if self.head == b'PK\x03\x04':
             self.q_connect(self.zip, self.file_name)
 
+        # Check on multi format extension
         elif ext == 'pak':
-            self.QuickPAK(self.file_name)
+            self.QuickPAK()
 
         elif ext == "dat":
-            self.QuickDAT(self.file_name)
+            self.QuickDAT()
 
         elif ext == "pkg":
-            self.QuickPKG(self.file_name)
+            self.QuickPKG()
 
         elif ext == "img":
-            self.QuickIMG(self.file_name)
+            self.QuickIMG()
 
         elif ext == "bin":
-            self.QuickBIN(self.file_name)
+            self.QuickBIN()
 
+        elif ext == "bundle":
+            self.QuickBundle()
+
+        # Check on extension in GAUP list
         elif ext in after_dot2['gaup']:
             self.qbms.script_name = f'{self.root_dir}/data/wcx/gauppro.wcx'
             self.q_connect(self.qbms, self.file_name)
+
+        # Check on extension in Total Observer list
+        elif ext in after_dot2['total_observer']:
+            self.qbms.script_name = f'{self.root_dir}/data/wcx/TotalObserver.wcx'
+            self.q_connect(self.qbms, self.file_name)
+
+        # Check on extension in SAU list
+        elif ext in after_dot2['sau']:
+            # SAU(self.file_name)
+            print('TODO: Work in progress...')
+
+        # Check on archives
+        elif ext in after_dot2['seven_zip']:
+            # OtherPRG('', '7zip/7z.exe ', ' x -o"' + self.sFolderName + '" ', '', self.root_dir + '/data/7zip',
+            # self.file_name)
+            print('TODO: Work in progress...')
+
+        # Check on Unreal Engine game
+        elif ext in after_dot2['unreal']:
+            # Engine('Unreal', self.file_name)
+            print('TODO: Work in progress...')
+
+        # Check on RPG Maker game
+        elif ext in after_dot2['rpg_maker']:
+            # Engine('RPGMaker', self.file_name)
+            print('TODO: Work in progress...')
+
+        # Check on Bethesda game
+        elif ext in after_dot2['bethesda']:
+            # Engine('Bethesda', self.file_name)
+            print('TODO: Work in progress...')
 
         elif ext in ("Arch06",):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/shadowofmordor.bms"
@@ -61,64 +140,45 @@ class QuickOpen(QProcessList):
         elif ext in ("vfs",):
             self.q_connect(self.mor, self.file_name)
 
-        elif ext in after_dot2['total_observer']:
-            self.qbms.script_name = f'{self.root_dir}/data/wcx/TotalObserver.wcx'
-            self.q_connect(self.qbms, self.file_name)
-
-        elif ext in after_dot2['sau']:
-            # SAU(self.file_name)
-            print('TODO: Work in progress...')
-
-        elif ext in after_dot2['seven_zip']:
-            # OtherPRG('', '7zip/7z.exe ', ' x -o"' + self.sFolderName + '" ', '', self.root_dir + '/data/7zip',
-            # self.file_name)
-            print('TODO: Work in progress...')
-
-        elif ext in after_dot2['unreal']:
-            # Engine('Unreal', self.file_name)
-            print('TODO: Work in progress...')
-
-        elif ext in after_dot2['rpg_maker']:
-            # Engine('RPGMaker', self.file_name)
-            print('TODO: Work in progress...')
-
         elif ext in ("toc", "sb"):
             # Engine('Frostbite', self.file_name)
             print('TODO: Work in progress...')
 
-        elif ext in after_dot2['bethesda']:
-            # Engine('Bethesda', self.file_name)
-            print('TODO: Work in progress...')
-
+        # Check on Chrome Engine game
         elif ext in ("csb", "spb", "rpack"):
             # Engine('Chrome', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on Aurora Engine game
         elif ext in ("erf", "bif", "rim"):
             self.q_connect(self.aurora, self.file_name)
 
-        elif ext in ("bundle",):
-            self.QuickBundle(self.file_name)
-
+        # Check on RED Engine game
         elif ext in ("w3strings", "w3speech", "archive", "w2strings", "dzip"):
             # Engine('Red# Engine', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on Unity Engine game
         elif ext in ("assets", 'resS'):
             # Engine('Unity', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on idTech Engine game
         elif ext in after_dot2['id_tech']:
             self.q_connect(self.id_tech, self.file_name)
 
-        elif ext in ("arc", "sngw"):
-            self.qbms.script_name = f"{self.root_dir}/data/scripts/dmc4..bms"
-            self.q_connect(self.qbms, self.file_name)
+        elif ext == "arc":
+            self.QuickARC()
 
+        elif ext in ("sngw",):
+            pass
+
+        # Check on Wwise Audio
         elif ext in ("bnk",):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/wwisebnk.bms"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on X-Ray Engine game
         elif ext in after_dot2['x-ray']:
             self.qbms.script_name = f'{self.root_dir}/data/wcx/stalker.wcx'
             self.q_connect(self.qbms, self.file_name)
@@ -408,22 +468,27 @@ class QuickOpen(QProcessList):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/doctorwho.bms"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on video formats
         elif ext in after_dot2['video']:
             os.system(f'{self.root_dir}/data/ffmpeg.exe -i "{self.file_name}" -vb 5M -vcodec hevc "{self.sFolderName}'
                       f'{os.path.basename(self.file_name)}.mkv"')
 
+        # Check on RenPy Engine game
         elif ext in ("rpa",):
             # Engine('RenPy', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on Asura Engine game
         elif ext in ("asr",):
             # Engine('Asura', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on Unigene Engine game
         elif ext in ("ung",):
             # Engine('Unigene', self.file_name)
             print('TODO: Work in progress...')
 
+        # Check on ShockWave Flash game
         elif ext in ("swf",):
             # Engine('Flash', self.file_name)
             print('TODO: Work in progress...')
@@ -432,26 +497,32 @@ class QuickOpen(QProcessList):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/vector.bms"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on Java class file
         elif ext in ("class",):
             self.qbms.script_name = f"{self.root_dir}/data/wcx/JavaClassUnpacker.wcx"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on GCA archive
         elif ext in ("gca",):
             self.qbms.script_name = f"{self.root_dir}/data/wcx/gca.wcx"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on HA archive
         elif ext in ("ha",):
             self.qbms.script_name = f"{self.root_dir}/data/wcx/HA.wcx"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on UnArk support archive
         elif ext in ("alz", "egg", "bh",):
             self.qbms.script_name = f'{self.root_dir}/data/wcx/UnArkWCX.wcx'
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on Hrust archive
         elif ext in ("hrp", "hrip",):
             self.qbms.script_name = f"{self.root_dir}/data/wcx/inhrust.wcx"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on DGC archive
         elif ext in ("dgc", "dgca",):
             os.system(f'{self.root_dir}/data/dgcac.exe e "{self.file_name}" "{self.sFolderName}"')
 
@@ -489,6 +560,7 @@ class QuickOpen(QProcessList):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/CastlevaniaLOS2.bms"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on Dark Souls Engine game
         elif ext in ("bdt", "bhd5",):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/darksoul.bms"
             self.q_connect(self.qbms, self.file_name)
@@ -511,6 +583,7 @@ class QuickOpen(QProcessList):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/hitman2016.bms"
             self.q_connect(self.qbms, self.file_name)
 
+        # Check on Scimitar Engine game
         elif ext in ("forge",):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/scimitar.bms"
             self.q_connect(self.qbms, self.file_name)
@@ -522,6 +595,8 @@ class QuickOpen(QProcessList):
         elif ext in ("phyre",):
             self.q_connect(self.phyre, self.file_name)
 
+        elif ext in ("zpl",):
+            self.q_connect(self.zpl2png, self.file_name)
+
         else:
-            print('Не удалось найти распаковщик автоматически!\n'
-                  'Попробуйте выбрать игру или тип файла вручную!')
+            self.sorry()

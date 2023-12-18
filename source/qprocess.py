@@ -6,7 +6,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from source.ui.main_ui_init import MainWindow
 from source.ui import localize
 from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres,
-                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, mt_arc, qbms)
+                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, mt_arc, qbms, seven_zip, unreal,
+                            unity)
 from source import delete
 
 
@@ -34,6 +35,9 @@ class QProcessList(MainWindow):
         self.qbms = qbms.Q_BMS()
         self.sen_book = sen_book.SenBook()
         self.sen_book_save = sen_book.SenBookSave()
+        self.seven_zip = seven_zip.SevenZIP()
+        self.unity = unity.Unity()
+        self.unreal = unreal.Unreal()
         self.x7 = seven_s_seven.Seven()
         self.zip = zip_archive.Zip()
         self.zpl2png = zpl2png.ZPL2PNG()

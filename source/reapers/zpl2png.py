@@ -21,9 +21,9 @@ class ZPL2PNG(Reaper):
 
         if response.status_code == 200:
             response.raw.decode_content = True
-            zpl_name = f'{os.path.basename(self.file_name)}.zpl'
+            zpl_name = f'{os.path.basename(self.file_name).split(".")[0]}.png'
 
-            with open(os.path.join(self.path_to_root, zpl_name), 'wb') as out_file:
+            with open(os.path.join(self.output_folder, zpl_name), 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
 
             print(f'{localize.done} - {self.file_name}')

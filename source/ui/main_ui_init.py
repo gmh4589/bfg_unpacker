@@ -13,12 +13,11 @@ from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.reaper import after_dot
 from source.setting import Setting
-from source.unpacker import Unpacker
 from source.ui import (resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
                        localize as translate, child_gui)
 
 
-class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
+class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
 
     def __init__(self):
         super().__init__()
@@ -403,7 +402,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting, Unpacker):
             case 'G': btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
             case 'H': btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
             case 'I': btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
-            case 'J': btn.clicked.connect(lambda: print('source'))
+            case 'J': btn.clicked.connect(lambda: self.select_unpacker('_Total'))
             case 'K': btn.clicked.connect(lambda: print('creation'))
             case 'L': btn.clicked.connect(lambda: print('cry engine'))
             case 'M': btn.clicked.connect(lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))

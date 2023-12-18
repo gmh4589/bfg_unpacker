@@ -1,11 +1,9 @@
 
 import os
 import sys
-from threading import Thread
 
 from PyQt5.QtWidgets import *
 from source.quick_open import QuickOpen
-from source.unpacker import Unpacker
 from source.ui import localize
 from source.reaper import after_dot
 
@@ -13,10 +11,8 @@ from source.reaper import after_dot
 class UnpackerMain(QuickOpen):
 
     def __init__(self):
-        # Quick Open
         super().__init__()
         self.quickOpen.triggered.connect(lambda: self.q_open())
-        self.unpacker = Unpacker()
 
     def q_open(self):
 
@@ -75,7 +71,6 @@ class UnpackerMain(QuickOpen):
         for self.file_name in self.file_open(ext_list, select_folder, more_one):
 
             if self.file_name:
-                thread = None
                 ext = self.file_name.split('.')[-1].lower()
 
                 with open(self.file_name, 'rb') as fff:
@@ -120,8 +115,7 @@ class UnpackerMain(QuickOpen):
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
 
-                        case '_Unity': thread = Thread(target=self.unpacker.unity,
-                                                       args=(self.file_name,), daemon=True)
+                        case '_Unity': self.q_connect(self.unity, self.file_name)
                         case '_Unreal' | '_Unreal4':
 
                             if ext == 'locres':
@@ -129,19 +123,20 @@ class UnpackerMain(QuickOpen):
                             elif ext == 'txt':
                                 self.q_connect(self.txt2locres, self.file_name)
                             else:
-                                thread = Thread(target=self.unpacker.unreal,
-                                                args=(self.file_name, script_name), daemon=True)
+                                self.unreal.key = script_name
+                                self.q_connect(self.unreal, self.file_name)
 
-                        case '_ZIP': thread = Thread(target=self.unpacker.seven_zip,
-                                                     args=(self.file_name,), daemon=True)
+                        case '_ZIP': self.q_connect(self.seven_zip, self.file_name)
                         case '_ZPL': self.q_connect(self.zpl2png, self.file_name)
-                        case '_GAUP': thread = Thread(target=self.unpacker.quick_bms,
-                                                      args=('data/wcx/gaup_pro.wcx', self.file_name), daemon=True)
-                        case _:  thread = Thread(target=self.unpacker.quick_bms,
-                                                 args=(script_name, self.file_name), daemon=True)
-
-                    if thread is not None:
-                        thread.start()
+                        case '_Total':
+                            self.qbms.script_name = 'data/wcx/TotalObserver.wcx'
+                            self.q_connect(self.qbms, self.file_name)
+                        case '_GAUP':
+                            self.qbms.script_name = 'data/wcx/gaup_pro.wcx'
+                            self.q_connect(self.qbms, self.file_name)
+                        case _:
+                            self.qbms.script_name = script_name
+                            self.q_connect(self.qbms, self.file_name)
 
     def empty_out(self):
 
