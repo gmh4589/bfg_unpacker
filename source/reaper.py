@@ -150,7 +150,7 @@ after_dot2 = {'gaup':
                    'lp', 'lzh', 'lzm', 'lzma', 'msi', 'nob', 'obb', 'ocx', 'odb', 'ods', 'odt', 'ots', 'ott', 'pgz',
                    'piz', 'pk3', 'pk4', 'potm', 'ppsx', 'pptx', 'rar', 'rpm', 'squashfs', 'swm', 'tar', 'taz', 'tbz',
                    'tbz2', 'tgz', 'tgz2', 'tpz', 'txtz', 'txz', 'unitypackage', 'vhd', 'wim', 'xap', 'xar', 'xlsm',
-                   'xlsx', 'xpi', 'xz', 'z', 'zip'),
+                   'xlsx', 'xpi', 'xz', 'z', 'zip', 'cso'),
               'unreal':
                   ('pcc', 'u', 'uax', 'ugx', 'umx', 'un2', 'unr', 'upk', 'upx', 'usa', 'usx', 'ut2', 'utx', 'uvx',
                    'xxx'),

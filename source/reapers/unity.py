@@ -10,10 +10,10 @@ class Unity(Reaper):
 
     @file_reaper
     def run(self):
+        path = os.path.dirname(self.file_name)
 
-        # os.chdir(f'{self.path_to_root}data/AssetStudio/')
         unity = Popen(f'{self.path_to_root}/data/AssetStudio/AssetStudioCLI.exe '
-                      f'"{self.file_name}" "{self.output_folder}" --game Normal',
+                      f'"{path}" "{self.output_folder}" --game Normal',
                        stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
         while True:
@@ -27,4 +27,4 @@ class Unity(Reaper):
                 break
 
         self.update_signal.emit(100, '', localize.done, True)
-        # os.chdir(f'{self.path_to_root}')
+

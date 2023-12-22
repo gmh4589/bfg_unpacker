@@ -13,21 +13,28 @@ class QuickOpen(QProcessList):
 
     def QuickPAK(self):
 
-        if self.head == b'7S7M':
+        if self.head == b'\x37\xBD\x37\x4D':  # 7Ѕ7M, PopCap PAK
             self.q_connect(self.x7, self.file_name)
         elif self.head == b'PACK':
             self.q_connect(self.quake_pak, self.file_name)
         elif self.head == b'KPKA':  # RE Engine
             pass
         elif self.head == b'\x00' * 4:
-            self.q_connect(self.unreal, self.file_name)
+
+            if 'Content/Paks' in self.file_name:
+                self.q_connect(self.unreal, self.file_name)
+            else:
+                self.qbms.script_name = f"{self.root_dir}/data/scripts/alonedark.bms"
+                self.q_connect(self.qbms, self.file_name)
+
         else:
             self.sorry()
 
     def QuickDAT(self):
 
         if self.head == b'GCAX':  # GCA Archive
-            pass
+            self.qbms.script_name = f"{self.root_dir}/data/wcx/gca.wcx"
+            self.q_connect(self.qbms, self.file_name)
         else:
             self.sorry()
 
@@ -67,12 +74,19 @@ class QuickOpen(QProcessList):
         else:
             self.sorry()
 
+    def QuickAFS(self):
+
+        if self.head == b'AFS\00':
+            self.q_connect(self.afs, self.file_name)
+        else:
+            self.sorry()
+
     def find_reaper(self):
 
         with open(self.file_name, 'rb') as fff:
             self.head = fff.read(4)
 
-        ext = self.file_name.split('.')[-1]
+        ext = self.file_name.split('.')[-1].lower()
 
         # Check on ZIP signature
         if self.head == b'PK\x03\x04':
@@ -97,6 +111,12 @@ class QuickOpen(QProcessList):
         elif ext == "bundle":
             self.QuickBundle()
 
+        elif ext == "afs":
+            self.QuickAFS()
+
+        elif ext in ("vpk", ):
+            self.q_connect(self.source_vpk, self.file_name)
+
         # Check on extension in GAUP list
         elif ext in after_dot2['gaup']:
             self.qbms.script_name = f'{self.root_dir}/data/wcx/gauppro.wcx'
@@ -114,14 +134,11 @@ class QuickOpen(QProcessList):
 
         # Check on archives
         elif ext in after_dot2['seven_zip']:
-            # OtherPRG('', '7zip/7z.exe ', ' x -o"' + self.sFolderName + '" ', '', self.root_dir + '/data/7zip',
-            # self.file_name)
-            print('TODO: Work in progress...')
+            self.q_connect(self.seven_zip, self.file_name)
 
         # Check on Unreal Engine game
         elif ext in after_dot2['unreal']:
-            # Engine('Unreal', self.file_name)
-            print('TODO: Work in progress...')
+            self.q_connect(self.unreal, self.file_name)
 
         # Check on RPG Maker game
         elif ext in after_dot2['rpg_maker']:
@@ -160,8 +177,7 @@ class QuickOpen(QProcessList):
 
         # Check on Unity Engine game
         elif ext in ("assets", 'resS'):
-            # Engine('Unity', self.file_name)
-            print('TODO: Work in progress...')
+            self.q_connect(self.unity, self.file_name)
 
         # Check on idTech Engine game
         elif ext in after_dot2['id_tech']:
@@ -171,7 +187,7 @@ class QuickOpen(QProcessList):
             self.QuickARC()
 
         elif ext in ("sngw",):
-            pass
+            print('TODO: Work in progress...')
 
         # Check on Wwise Audio
         elif ext in ("bnk",):
@@ -184,13 +200,22 @@ class QuickOpen(QProcessList):
             self.q_connect(self.qbms, self.file_name)
 
         elif ext in ("cmp",):
-            os.system(f'"{self.root_dir}/data/ddcmpa.exe" /u "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = "/u"
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "ddcmpa.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("orc", "ork"):
-            os.system(f'{self.root_dir}/data/orkdec.exe "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = ""
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "orkdec.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("csc",):
-            os.system(f'{self.root_dir}/data/scsextractor.exe "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = ""
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "scsextractor.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("data", "mini", "wd2"):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/asphyre.bms"
@@ -470,8 +495,17 @@ class QuickOpen(QProcessList):
 
         # Check on video formats
         elif ext in after_dot2['video']:
-            os.system(f'{self.root_dir}/data/ffmpeg.exe -i "{self.file_name}" -vb 5M -vcodec hevc "{self.sFolderName}'
-                      f'{os.path.basename(self.file_name)}.mkv"')
+            # os.system(f'"{os.path.join(self.path_to_root, "data/ffmpeg/ffmpeg.exe")}" -i "{self.file_name}" '
+            #           f'-vb 5M -vcodec hevc "{self.out_dir}/{os.path.basename(self.file_name).split(".")[0]}.mkv"')
+
+            # self.other_prg.first_arg = "-i"
+            # self.other_prg.second_arg = (f'-vb 5M -vcodec hevc "{self.out_dir}/'
+            #                              f'{os.path.basename(self.file_name).split(".")[0]}.mkv"')
+            # self.other_prg.program_name = "ffmpeg/ffmpeg.exe"
+            # self.other_prg.percent_type = '_'
+            # self.q_connect(self.other_prg, self.file_name)
+            # TODO: Something wrong(
+            print("Work in process")
 
         # Check on RenPy Engine game
         elif ext in ("rpa",):
@@ -524,17 +558,28 @@ class QuickOpen(QProcessList):
 
         # Check on DGC archive
         elif ext in ("dgc", "dgca",):
-            os.system(f'{self.root_dir}/data/dgcac.exe e "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = "e"
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "dgcac.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("tiger",):
-            os.system(f'{self.root_dir}/data/gibbed/Gibbed.TombRaider9.Unpack.exe e "{self.file_name}" '
-                      f'"{self.sFolderName}"')
+            self.other_prg.first_arg = "e"
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "gibbed/Gibbed.TombRaider9.Unpack.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("blz",):
-            os.system(f'{self.root_dir}/data/blzpack.exe "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = ""
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "blzpack.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("mnf",):
-            os.system(f'{self.root_dir}/data/EsoExtractData.exe "{self.file_name}" "{self.sFolderName}"')
+            self.other_prg.first_arg = ""
+            self.other_prg.second_arg = f'"{self.out_dir}'
+            self.other_prg.program_name = "EsoExtractData.exe"
+            self.q_connect(self.other_prg, self.file_name)
 
         elif ext in ("arcv",):
             self.qbms.script_name = f"{self.root_dir}/data/scripts/3dsarcv.bms"

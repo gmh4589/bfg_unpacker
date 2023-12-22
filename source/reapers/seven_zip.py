@@ -19,7 +19,7 @@ class SevenZIP(Reaper):
 
         while zip7.poll() is None:
             a += randint(1, 5) if a <= 99 else 99
-            self.update_signal.emit(a, '', f'{localize.saving} - ...', False)
+            self.update_signal.emit(a, '', f'{localize.unpacking} - {self.file_name}...', False)
             sleep(randint(1, 5))
 
             # TODO: WTF? Why don't read output from 7zip?

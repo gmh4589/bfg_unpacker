@@ -40,7 +40,6 @@ class CSO(Reaper):
                     if isCompressed:
                         nextOffset = blockTable[blockIndex + 1] & 0x7FFFFFFF
                         compBlock = f.read((nextOffset - blockOffset) << offsetShift)
-                        # fw.write(rapi.decompInflate(compBlock, block_size, -15))
                         fw.write(zlib.decompress(compBlock, block_size, -15))
                     else:
                         fw.write(f.read(block_size))
