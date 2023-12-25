@@ -1,5 +1,7 @@
 
 import os
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -48,6 +50,7 @@ class SenBook(Reaper):
                 file.write(data)
 
             print(f'{j + 1}/{file_count} - {newFile}_{j}')
+            ic(newFile, j)
             self.update_signal.emit(int(100 / file_count * (j + 1)), f'{j + 1}/{file_count}',
                                     f'{localize.saving} - {newFile}_{j}...', False)
 
@@ -101,6 +104,7 @@ class SenBookSave(Reaper):
                 f.write(readData)
 
             print(f'{localize.saving} - {j + 1}/{contOff}')
+            ic(localize.saving)
             self.update_signal.emit(int(100 / contOff * (j + 1)), f'{j + 1}/{contOff}',
                                     f'{localize.saving} - {j + 1}/{contOff}...', False)
 

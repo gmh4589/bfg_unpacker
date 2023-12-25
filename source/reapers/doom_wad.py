@@ -1,5 +1,7 @@
 
 import os
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -40,6 +42,7 @@ class WadExtractor(Reaper):
                 wad_file.seek(this_offset)
 
                 print(f"{i + 1}/{num_entries} {entry_name}")
+                ic(entry_name)
                 self.update_signal.emit(int(100 / num_entries * (i + 1)), f'{i + 1}/{num_entries}',
                                         f'{localize.saving} - {entry_name}...', False)
 

@@ -1,8 +1,9 @@
 
 import os
 from PIL import Image
-from source.reapers import image_tools
+from icecream import ic
 
+from source.reapers import image_tools
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -238,4 +239,5 @@ class PhyreSave(Reaper):
                 image_tools.gxt_save(name, image_data)
 
             print(f'{localize.saving} - {name}.{file_type}')
+            ic(name, file_type)
             self.update_signal.emit(100, '', localize.done, True)

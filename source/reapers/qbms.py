@@ -1,6 +1,7 @@
 
 import os
 from subprocess import Popen, PIPE
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -22,13 +23,18 @@ class Q_BMS(Reaper):
                     stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
         while True:
-            out = bms.stdout.readline().strip()
+
+            try:
+                out = bms.stdout.readline().strip()
+            except UnicodeDecodeError:
+                continue
+
             o = out.split(' ')
 
             try:
                 percent = int(100 / size * int(o[0], 16))
                 print(f"{percent}% {o[-1]}")
-
+                ic(o[-1])
                 self.update_signal.emit(percent, '', f'{localize.saving} - {o[-1]}...', False)
             except (ValueError, IndexError):
                 pass

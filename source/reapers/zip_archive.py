@@ -3,6 +3,8 @@ import zlib
 # import lzma
 import os
 import zipfile
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 # TODO: Add support other compress codecs
@@ -35,6 +37,7 @@ class Zip(Reaper):
 
                                 for i, file in enumerate(archive.infolist()):
                                     print(f"Saving - {file.filename}...")
+                                    ic(file.filename)
                                     self.update_signal.emit(int((100 / a) * i), f'{i + 1}/{a}%',
                                                             f'Saving - {file.filename}...', False)
                                     archive.extract(file, self.output_folder)

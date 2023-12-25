@@ -2,6 +2,8 @@ import os
 import requests
 import shutil
 from time import sleep
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -27,9 +29,11 @@ class ZPL2PNG(Reaper):
                 shutil.copyfileobj(response.raw, out_file)
 
             print(f'{localize.done} - {self.file_name}')
+            ic(self.file_name, 'Done!')
 
         else:
             print(f'{localize.error}: {response.text}')
 
+        ic(response.status_code)
         self.update_signal.emit(100, '', localize.done, True)
         sleep(1)

@@ -1,5 +1,6 @@
 import os
 import zlib
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -55,6 +56,9 @@ class ERFUnpacker(Reaper):
 
                     f.seek(c, 0)
                     print(f"{j}/{iFileCount} {fName}")
+                    ic(fName)
+                    self.update_signal.emit(int(100 / iFileCount * (j + 1)), f'{j + 1}/{iFileCount}',
+                                            f'{localize.saving} - {rName}...', False)
 
             else:
                 f.seek(8, 0)
@@ -78,10 +82,9 @@ class ERFUnpacker(Reaper):
                         iNewFile.close()
                         f.seek(c)
                         print(f"{i + 1}/{iFileCount} {rName}")
+                        ic(rName)
                         self.update_signal.emit(int(100 / iFileCount * (i + 1)), f'{i + 1}/{iFileCount}',
                                                 f'{localize.saving} - {rName}...', False)
-
-                    self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)
 
                 elif iVer == b'\x56\x00\x33\x00':  # Version 3, Version 5
                     # TODO: Need Tests!!!
@@ -96,7 +99,6 @@ class ERFUnpacker(Reaper):
                         zSize = int.from_bytes(f.read(4), byteorder='little') - 1
                         size = int.from_bytes(f.read(4), byteorder='little')
 
-                        # Переместим указатель файла на OFFSET и прочитаем сжатые данные
                         f.seek(offset, 0)
                         compressed_data = f.read(zSize)
 
@@ -109,8 +111,7 @@ class ERFUnpacker(Reaper):
                         self.update_signal.emit(int(100 / iFileCount * (i + 1)), f'{i + 1}/{iFileCount}',
                                                 f'{localize.saving} - {i}...', False)
 
-                    self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)
-
                 else:
-                    self.update_signal.emit(100, f'0/0', localize.not_correct_file.replace('%%', 'Aurora Engine'), True)
                     print(localize.not_correct_file)
+
+            self.update_signal.emit(100, f'{iFileCount}/{iFileCount}', localize.done, True)

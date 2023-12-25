@@ -1,4 +1,3 @@
-import os
 
 from source.reaper import after_dot2
 from source.qprocess import QProcessList
@@ -16,9 +15,37 @@ class QuickOpen(QProcessList):
         if self.head == b'\x37\xBD\x37\x4D':  # 7Ѕ7M, PopCap PAK
             self.q_connect(self.x7, self.file_name)
         elif self.head == b'PACK':
-            self.q_connect(self.quake_pak, self.file_name)
+
+            if 'data.000.pak' in self.file_name:
+                self.qbms.script_name = f"{self.root_dir}/data/scripts/1242.bms"
+                self.q_connect(self.qbms, self.file_name)
+            elif 'azangara' in self.file_name.lower():
+                self.qbms.script_name = f"{self.root_dir}/data/scripts/azangara.bms"
+                self.q_connect(self.qbms, self.file_name)
+            else:
+                self.q_connect(self.quake_pak, self.file_name)
+
         elif self.head == b'KPKA':  # RE Engine
             pass
+        elif self.head == b'SBPA':  # Arcania: Gothic 4
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/arcania.bms"
+            self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'PAK ':  # Risen
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/risen.bms"
+            self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'KCAP':
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/full_mojo.bms"
+            self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'TONG':
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/tongas.bms"
+            self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'PAK2':
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/alien_isolation.bms"
+            self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'PSCD':
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/sega_classics.bms"
+            self.q_connect(self.qbms, self.file_name)
+
         elif self.head == b'\x00' * 4:
 
             if 'Content/Paks' in self.file_name:
@@ -35,6 +62,8 @@ class QuickOpen(QProcessList):
         if self.head == b'GCAX':  # GCA Archive
             self.qbms.script_name = f"{self.root_dir}/data/wcx/gca.wcx"
             self.q_connect(self.qbms, self.file_name)
+        elif self.head == b'ADAT':  # Anachronox
+            self.qbms.script_name = f"{self.root_dir}/data/scripts/anachronox.bms"
         else:
             self.sorry()
 

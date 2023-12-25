@@ -1,6 +1,7 @@
 
 import os
 from subprocess import Popen, PIPE
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -18,12 +19,12 @@ class Unity(Reaper):
 
         while True:
             out1 = unity.stdout.readline().strip()
-            out2 = unity.stderr.readline().strip()
 
-            print(out1, out2)
+            print(out1)
+            ic(out1)
             self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
 
-            if not out1 and not out2:
+            if not out1:
                 break
 
         self.update_signal.emit(100, '', localize.done, True)

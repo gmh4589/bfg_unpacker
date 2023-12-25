@@ -1,12 +1,14 @@
 
 import os
 import sys
-
 from PyQt5.QtWidgets import *
+from icecream import ic
+
 from source.quick_open import QuickOpen
 from source.ui import localize
 from source.reaper import after_dot
 
+ic.disable()
 
 class UnpackerMain(QuickOpen):
 

@@ -1,5 +1,6 @@
 import math
 import pandas
+from icecream import ic
 
 from datetime import datetime
 from source.reaper import Reaper, file_reaper
@@ -68,6 +69,7 @@ class Celestia(Reaper):
             for line in range(all_planets):
 
                 if str(self.list["star_name"][line]) != 'nan':
+                    ic(self.list["# name"][line])
                     print(f'{localize.planet_added}: {self.list["# name"][line]}...')
                     self.update_signal.emit(int(100 / all_planets * (line + 1)), f'{line + 1}/{all_planets}',
                                             f'{localize.planet_added} - {self.list["# name"][line]}...', False)
@@ -113,6 +115,7 @@ class Celestia(Reaper):
 
                 if starName != 'nan' and starName not in starList:
                     print(f'{localize.star_added}: {self.list["star_name"][line]}...')
+                    ic(self.list["star_name"][line])
                     self.update_signal.emit(int(100 / all_planets * (line + 1)), f'{line + 1}/{all_planets}',
                                             f'{localize.star_added}- {self.list["star_name"][line]}...', False)
 

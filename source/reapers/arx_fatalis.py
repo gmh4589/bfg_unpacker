@@ -1,5 +1,6 @@
 
 import os
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -49,6 +50,7 @@ class PakExtractor(Reaper):
                                 nf.write(new_file)
 
                             print(f"{current}/{all_files} {file['name']}")
+                            ic(file["name"])
                             self.update_signal.emit(int(100 / all_files * current), f'{current}/{all_files}',
                                                     f'{localize.saving} - {file["name"]}...', False)
 

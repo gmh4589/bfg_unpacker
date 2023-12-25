@@ -1,5 +1,7 @@
 
 import os
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -24,6 +26,7 @@ class RDR2Audio(Reaper):
                 new_track.write(b'ADAT' + file)
 
             print(f'{i + 1}/{file_count} - {name}_{i}')
+            ic(name, i)
             self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
                                     f'{localize.saving} - {name}_{i}...', False)
 

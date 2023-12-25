@@ -1,5 +1,7 @@
 
 import os
+from icecream import ic
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -50,6 +52,7 @@ class Seven(Reaper):
                 with open(path, 'wb') as newFile:
                     newFile.write(Data)
                     print(f'{i}/{file_count} - {name}')
+                    ic(name)
                     self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
                                             f'{localize.saving} - {name}...', False)
 
