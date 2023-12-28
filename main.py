@@ -8,13 +8,18 @@ from source.quick_open import QuickOpen
 from source.ui import localize
 from source.reaper import after_dot
 
-ic.disable()
 
 class UnpackerMain(QuickOpen):
 
     def __init__(self):
         super().__init__()
         self.quickOpen.triggered.connect(lambda: self.q_open())
+
+        try:
+            if self.setting['Main']['disable_ic'] == 'True':
+                ic.disable()
+        except KeyError:
+            ic.disable()
 
     def q_open(self):
 

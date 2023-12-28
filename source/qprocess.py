@@ -6,8 +6,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from source.ui.main_ui_init import MainWindow
 from source.ui import localize
 from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres,
-                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, mt_arc, qbms, seven_zip, unreal,
-                            unity, afs, source_vpk, cso_image, other_prg)
+                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, qbms, seven_zip, unreal,
+                            unity, afs, source_vpk, other_prg, ffmpeg_tool)
 from source import delete
 
 
@@ -25,13 +25,12 @@ class QProcessList(MainWindow):
         self.arx = arx_fatalis.PakExtractor()
         self.aurora = aurora_engine.ERFUnpacker()
         self.celestia = celestia.Celestia()
-        self.cso = cso_image.CSO()
         self.delete_thread = delete.DeleteThread()
+        self.ffmpeg = ffmpeg_tool.Converter()
         self.id_tech = doom_wad.WadExtractor()
         self.locres2txt = locres.Locres2TXT()
         self.txt2locres = locres.TXT2Locres()
         self.mor = pathologic.MorUnpacker()
-        self.mt_framework = mt_arc.ARCExtractor()
         self.other_prg = other_prg.OtherProg()
         self.phyre = phyre.PhyreSave()
         self.quake_pak = quake_pak.QPAKExtractor()

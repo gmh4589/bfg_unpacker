@@ -121,7 +121,7 @@ after_dot = {'_Asura': 'All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.
 
 after_dot2 = {'gaup':
                   ('Arch00', 'Arch01', 'Arch02', 'Arch03', 'Arch04', 'Arch05', 'a2c', 'abg', 'abl', 'acm', 'act', 'adf',
-                   'afs', 'age3scn', 'agg', 'ahm', 'al4', 'al8', 'ama', 'anm', 'ark', 'avix', 'awd', 'bag', 'bank1sbk',
+                   'age3scn', 'agg', 'ahm', 'al4', 'al8', 'ama', 'anm', 'ark', 'avix', 'awd', 'bag', 'bank1sbk',
                    'bar', 'bbk', 'bf', 'bfs', 'bgx', 'big', 'bpa', 'bpk', 'bun', 'cat', 'ceg', 'clz', 'cmo', 'cmp',
                    'cob', 'cpr', 'ctm', 'cts', 'cud', 'dbc', 'dbs', 'ddt', 'dir', 'dirinfo', 'drs', 'dta', 'dua', 'dun',
                    'dx1', 'dx2', 'dx3', 'ebm', 'editordata', 'elmares', 'emi', 'exp', 'ezd', 'far', 'fat', 'ff', 'fpk',
@@ -144,13 +144,15 @@ after_dot2 = {'gaup':
                    'group', 'hrs', 'ilb', 'jun', 'jus', 'key', 'lbx', 'maa', 'mul', 'nds', 'p00', 'p10', 'p99', 'rm',
                    'tgw', 'tlb', 'uop', 'vsr', 'war', 'wdb', 'xua', 'xub'),
               'seven_zip':
-                  ('7z', 'apk', 'arj', 'bz', 'bz2', 'bza', 'bzip', 'cab', 'cb7', 'cb7z', 'cbr', 'cbt', 'cbz', 'chm',
-                   'cpio', 'dazip', 'deb', 'dgdat', 'dll', 'dmg', 'docx', 'dotx', 'epub', 'exe', 'fods', 'fodt',
-                   'gadget', 'gog', 'gro', 'gz', 'gz2', 'gzip', 'hfs', 'ipa', 'ipg', 'iso', 'jar', 'kfs', 'lha', 'love',
-                   'lp', 'lzh', 'lzm', 'lzma', 'msi', 'nob', 'obb', 'ocx', 'odb', 'ods', 'odt', 'ots', 'ott', 'pgz',
-                   'piz', 'pk3', 'pk4', 'potm', 'ppsx', 'pptx', 'rar', 'rpm', 'squashfs', 'swm', 'tar', 'taz', 'tbz',
-                   'tbz2', 'tgz', 'tgz2', 'tpz', 'txtz', 'txz', 'unitypackage', 'vhd', 'wim', 'xap', 'xar', 'xlsm',
-                   'xlsx', 'xpi', 'xz', 'z', 'zip', 'cso'),
+                  ('7z', 'zip', 'rar', '001', 'cab', 'iso', 'xz', 'txz', 'lzma', 'tar', 'cpio', 'bz2', 'bzip2', 'tbz',
+                   'tbz2', 'gz', 'gzip', 'tgz', 'tpz', 'z', 'taz', 'lzh', 'lha', 'rpm', 'deb', 'arj', 'vhd', 'vhdx',
+                   'wim', 'swm', 'esd', 'fat', 'ntfs', 'dmg', 'hfs', 'xar', 'squashfs', 'apfs', 'epub', 'fbz', 'fb2z',
+                   'docx', 'xlsx', 'doc', 'docm', 'dotm', 'xls', 'ods', 'odt', 'mgs', 'tnef', 'dbx', 'mbx', 'mbox',
+                   'tbb', 'pmm', 'emlx', 'eml', 'nws', 'mht', 'mhtml', 'b64', 'uue', 'xxe', 'ntx', 'bin', 'hqx', 'warc',
+                   'pyz', 'ccd', 'img', 'cdi', 'chd', 'ciso', 'cso', 'cue', 'ecm', 'gdi', 'isz', 'mds', 'mdf', 'nrg',
+                   'zisofs', 'asar', 'phar', 's01', 'e01', 'ex01', 'lo1', 'lx01', 'aff', 'ad1', 'whx', 'exfat',
+                   'gro', 'kfs', 'lz', 'grp', 'fb3', 'piz', 'omod', 'fomod', 'rar5', 'zipx', 'pk3', 'pk4', 'fb2x',
+                   'txtz'),
               'unreal':
                   ('pcc', 'u', 'uax', 'ugx', 'umx', 'un2', 'unr', 'upk', 'upx', 'usa', 'usx', 'ut2', 'utx', 'uvx',
                    'xxx'),
@@ -165,6 +167,6 @@ after_dot2 = {'gaup':
                   ('db0', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9'),
               'video':
                   ('3g2', '3gp', '3gp2', '3gpp', 'amv', 'avi', 'divx', 'dvr-ms', 'f4v', 'flc', 'fli', 'flic', 'flv',
-                   'm1v', 'm2v', 'm4v', 'mk3d', 'mkv', 'mov', 'mpeg', 'mpg', 'mve', 'ogm', 'ogv', 'pam', 'pmf', 'pmm',
-                   'pss', 'rm', 'thp', 'ts', 'vid', 'vob', 'webm', 'wmv', 'xvid')
+                   'm1v', 'm2v', 'm4v', 'mk3d', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mve', 'ogm', 'ogv', 'pam', 'pmf',
+                   'pmm', 'pss', 'rm', 'thp', 'ts', 'vid', 'vob', 'webm', 'wmv', 'xvid')
               }

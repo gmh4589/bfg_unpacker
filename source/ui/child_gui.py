@@ -1,7 +1,9 @@
 
-from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
+from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject, QProcess
 from PyQt5.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import *
+from tkinter import simpledialog
+from icecream import ic
 
 from qt_material import apply_stylesheet
 import configparser
@@ -66,10 +68,27 @@ class ChildUIWindow(QDialog):
 
                 self.drops[i].setModel(filter_model)
                 self.drops[i].setCurrentText(default_list[i])
+                self.drops[i].currentTextChanged.connect(self.upvote)
 
-            self.drops[0].currentTextChanged.connect(self.drop_action)
+            if self.gui_name == 'PlayStation Audio Tools':
+                self.drops[0].currentTextChanged.connect(self.drop_action)
+
             self.retranslateUi()
             QMetaObject.connectSlotsByName(self)
+
+    def upvote(self):
+
+        for j in range(len(self.label_list)):
+            self.enter_other(j)
+
+    def enter_other(self, drop_index):
+        ic(drop_index)
+
+        if self.drops[drop_index].currentText() == TL.other:
+            text = simpledialog.askstring("", "Enter value:")
+            ic(text)
+            self.drops[drop_index].addItem(text)
+            self.drops[drop_index].setCurrentText(text)
 
     def drop_action(self):
 
