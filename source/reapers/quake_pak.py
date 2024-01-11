@@ -60,7 +60,7 @@ class QPAKExtractor(Reaper):
                     i += 1
                     offset, size = value
                     path = os.path.join(self.output_folder, name)
-                    ic(path)
+                    # ic(path)
                     os.makedirs(os.path.dirname(path), exist_ok=True)
 
                     with open(path, 'wb') as new_file:

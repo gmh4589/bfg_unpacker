@@ -10,9 +10,8 @@ class MorUnpacker(Reaper):
 
     @file_reaper
     def run(self):
-        file_name = self.file_name
 
-        with open(file_name, 'rb') as f:
+        with open(self.file_name, 'rb') as f:
 
             magic = f.read(4)
 
@@ -40,7 +39,7 @@ class MorUnpacker(Reaper):
 
                 f.seek(file_position + 16)
                 print(f'{i + 1}/{file_count} - {name}')
-                ic(name)
+                # ic(name)
                 self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
                                         f'{localize.saving} - {name}...', False)
 

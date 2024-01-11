@@ -18,6 +18,7 @@ class QProcessList(MainWindow):
         sys.stdout = EmittingStream(text_written=self.append_text)
         self.root_dir = os.path.abspath(__file__).split('source')[0]
         self.file_name = ''
+        self.last_run = None
         self.head = b''
 
         # QProcesses connect
@@ -55,6 +56,10 @@ class QProcessList(MainWindow):
         self.pb.status.setText('')
         self.pb.show()
         nuke.update_signal.connect(self.update_progress)
+
+        if self.last_run is not None:
+            nuke.finished.connect(self.last_run)
+
         nuke.start()
 
     def update_progress(self, pb_value, p_text, info, process_done):

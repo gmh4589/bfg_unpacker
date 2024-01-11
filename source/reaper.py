@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from source.ui import localize
 
 DEBUG = True
@@ -46,6 +46,13 @@ class Reaper(QThread):
         self.output_folder = ''
         self.unpack = True
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
+
+
+class SetStatus(QObject):
+    status = pyqtSignal(bool)
+
+    def write(self, b):
+        self.status.emit(bool(b))
 
 
 after_dot = {'_Asura': 'All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|'
@@ -138,7 +145,7 @@ after_dot2 = {'gaup':
                    'xfs', 'xmb', 'xpk', 'xti', 'xwb'),
               'total_observer':
                   ('S2MA', 'SC2', 'bsp', 'cache', 'cue', 'eml', 'etc', 'gcf', 'hdr', 'isz', 'mdf', 'mds', 'mht', 'mhtml',
-                   'mim', 'mime', 'mpq', 'mpqe', 'msm', 'nrg', 'pbb', 'pst', 'tbb', 'udf', 'vbsp', 'vp', 'vpk', 'xzp'),
+                   'mim', 'mime', 'mpq', 'mpqe', 'msm', 'nrg', 'pbb', 'pst', 'tbb', 'udf', 'vbsp', 'vp', 'xzp'),
               'sau':
                   ('4pp', 'bdx', 'box', 'brig', 'c', 'cam', 'cc', 'chr', 'dbi', 'df2', 'epf', 'fan', 'flx', 'gor',
                    'group', 'hrs', 'ilb', 'jun', 'jus', 'key', 'lbx', 'maa', 'mul', 'nds', 'p00', 'p10', 'p99', 'rm',

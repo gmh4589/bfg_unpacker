@@ -1,154 +1,187 @@
-Archives Name	Function	Ext List	Program Name	Unpack com 1	Unpack com 2	Pack com	Archive move	Archive ext	ff	Index
-ARC	_OtherPRG	ARC Archives (*.arc)|	arc.exe	 e	 	 a	true	.arc	True	1
-BLZ	_OtherPRG	BLZ Archives (*.blz)|	blzpack.exe	 d	 	 c	true	.blz	True	1
-BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	bma.exe	 e	 	 a	true	.bma	True	1
-DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	dgcac.exe	 e	FolderName	 a	false	.dgc	False	1
-NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	nz.exe	 x	 	" a ""FolderName"""	true	.nz	False	1
-YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	yz2tool.exe	 -x	 	 -c	true	.yz2	False	1
-DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	dzip.exe	 -x	 	 -o	true	.dzip	False	2
-ExFAT File System Image	_7Zip	ExFAT Disc Images (*.fat;*.img)|								3
-AccessData FTK Imager Logical Image	_7Zip	AD1 Disc Images (*.ad1)|								3
-Advanced Forensics Format	_7Zip	AFF Disc Images (*.aff)|								3
-ASR Expert Witness Compression Format	_7Zip	S01 Disc Images (*.so1)|								3
-BIN Disc Image (CUE/BIN)	_7Zip	BIN CUE Disc Images (*.bin;*.cue)|								3
-CDI\CDR Disc Image	_7Zip	CDR CDI Disc Images (*.cdi;*.cdr)|								3
-CCD\IMG  Disc Iamage	_7Zip	CCD IMG Disc Images (*.ccd;*.img)|								3
-CramFS Image	_7Zip	CramFS Disc Images (*.CramFS)|								3
-Encase Image File Format	_7Zip	L01 Disc Images (*.l01,*lx01)|								3
-FAT File System Image	_7Zip	FAT Disc Images (*.fat)|								3
-FHS File System Image	_7Zip	FHS Disc Images (*.fhs)|								3
-IMG Disc Image	_7Zip	IMG Disc Images (*.img)|								3
-ISO Disc Image	_7Zip	ISO Disc Images (*.iso)|								3
-ISZ Disc Image	_7Zip	ISZ Disc Images (*.isz)|								3
-MDF Disc Image (MDF/MDS)	_7Zip	MDF MDS Disc Images (*.mdf;*.mds)|								3
-NRG Disc Image	_7Zip	NRG Disc Images (*.nrg)|								3
-NTFS File System Image	_7Zip	NTFS Disc Images (*.ntfs)|								3
-SquashFS Image	_7Zip	SquashFS Disc Images (*.SquashFS)|								3
-VHD Disc Image	_7Zip	VHD Disc Images (*.VHD)|								3
-WIM Disc Image	_7Zip	WIM Disc Images (*.wim;*.swm)|								3
-WinHex WHX Format	_7Zip	WHX Disc Images (*.whx)|								3
-CHD Disc Image	_7Zip	CHD Disc Image (*.chd)|								3
-ECM Disc Image	_7Zip	ECM Disc Image (*.ecm)|								3
-ZiSofs Disc Image	_7Zip	ZiSofs Disc Image (*.zisofs)|								3
-UDF Disc Image	_QickBMS	UDF Disc Images (*.UDF)|	\data\wcx\TotalObserver.wcx							3
-Amiga OS Installer (LHA)	_7Zip	LHA Archives (*.lha; *.lzh)|								5
-Android Installer	_7Zip	APK Android Installer (*.apk)|								5
-Debian Installer (DEB)	_7Zip	DEB Debian Linux Package (*.deb)|								5
-Gadget Windows Installer	_7Zip	Gadget Files (*.gadget)|								5
-GCW-Zero Installer (OPK)	_7Zip	EXE Installer (*.exe)|								5
-InstallShield Installer	_7Zip	Install Shield (*.hdr;*.cab;*.z;*.exe)|								5
-iOS Installer	_7Zip	iOS Installer (*.ipa; *.ipg)|								5
-Java Installer	_7Zip	JAR Archives (*.jar; *.jad)|								5
-Linux Installer (TAR)	_7Zip	TAR Archives (*.tar; *.tbz; *.cbt)|								5
-Linux Installer (TARZIP)	_7Zip	TARZIP Archives (*.taz; *.tz; *.tbz; *.tbz2; *.tgz ;*.tar.*z*; *.t*z)|								5
-Mac OS Installer (DMG)	_7Zip	MacOS DMG Packege (*.dmg)|								5
-MSI Windows Installer	_7Zip	MSI Installer (*.msi)|								5
-SFX Archive Installer	_7Zip	SFX Archive (*.exe; *.sfx; *.7z; *.zip;*.rar)|								5
-Windows Mobile Installer (XAP)	_7Zip	Wiindows Mobile Installer (*.xap)|								5
-ZIP Installer	_7Zip	EXE Installer (*.exe)|								5
-FreeArc Installer	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	" x -dp""FolderName"""	 	not	false	 		5
-Inno Setup Installer	_OtherPRG	Inno Setup Installer (*.exe)|	innounp.exe	" -x -d""FolderName"""		not	false			5
-Symbian SIS Installer	_OtherPRG	Simbian OS Installer (*.sis)|	\data\unsisX.exe							5
-Eschalon Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
-Gentee Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
-Install4j Installer	_QickBMS	Install4j Installer (*.exe;*.sh)|Windows Install4j Installer (*.exe)|Linux Install4j Installer (*.sh)|	\data\scripts\install4j.bms							5
-Nullsoft Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
-Setup Factory Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\TotalObserver.wcx							5
-Smart Install Maker Installer	_QickBMS	EXE Installer (*.exe)|	\data\scripts\sminstcab.bms							5
-Vise Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5
-Wise Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\TotalObserver.wcx							5
-ZLB Installer	_QickBMS	EXE Installer (*.exe)|	\data\scripts\zlb1a.bms							5
-7z	_7Zip	7zip Archives (*.7z; *.7zip; *.lzma; *.cb7; *.cb7z; *.exe)|								
-ASAR	_7Zip	ASAR Archives (*.asar)|								
-ARJ	_7Zip	ARJ Archives (*.arj)|								
-Brotli	_7Zip									
-BIN	_7Zip	Binary Mac Archive (*.bin)|								
-BZIP	_7Zip	BZIP Archives (*.bzip; *.bz; *.tbz)|								
-Cabinet	_7Zip	Cabinet Archives (*.cab)|								
-CPIO	_7Zip	CPIO Archives (*.cpio; *.rpm.cpio)|								
-GZIP	_7Zip	GZIP Archives (*.gzip; *.gz; *.tgz)|								
-JAR	_7Zip	JAR Archives (*.jar; *.jad)|								
-LHA	_7Zip	LHA Archives (*.lha; *.lzh)|								
-Lizard	_7Zip									
-LZ4	_7Zip									
-LZ5	_7Zip									
-LZH	_7Zip	LZH Archives (*.lzh; *.lha)|								
-LZIP	_7Zip	LZIP Archives (*.lzip)|								
-LZMA	_7Zip	LZMA Archives (*.lzma; *.lzm)|								
-LZMA2	_7Zip	LZMA2 Archives (*.lzma; *.lzm; *.lzma2; *.lzm2)|								
-MBR	_7Zip	Master Boot Record File (*.mbr)|								
-PHAR	_7Zip	PHARArchives (*.phar; *.phr)|								
-PPMD	_7Zip	PPMD Archives (*.ppmd; *.pmd)|								
-RAR	_7Zip	RAR Archives (*.rar)|								
-RPM	_7Zip	RPM Archives (*.rpm; *.rpm.cpio)|								
-TAR	_7Zip	TAR Archives (*.tar; *.tbz; *.cbt)|								
-TAZ	_7Zip	TAZ Archives (*.taz)|								
-TZ	_7Zip	TARZIP Archives (*.taz; *.tz; *.tbz; *.tbz2; *.tgz ;*.tar.*z*; *.t*z)|								
-UUE	_7Zip	UUE Archives (*.uue)|								
-XXE	_7Zip	XXE Archives (*.xxe)|								
-XPI	_7Zip	XPI Plugins (*.xpi; *.zip)|								
-XZ	_7Zip	XZ Archives (*.xz; *.xzip; *.txz)|								
-Z	_7Zip	Z Archives (*.z)|								
-Zstandart	_7Zip	Zstandart Archives (*.zstd; *.7z; *.deb; *.nsz; *.xcz)|								
-ZIP	_7Zip	ZIP Archives (*.zip; *.bin; *.bsp; *.bza; *.cbz; *.dat; *.dazip; *.docx; *.dotx; *.epub; *.fods; *.fodt; *.fomod; *.gro; *.jar; *.kfs; *.lp; *.nob; *.odb; *.ods; *.odt; *.omod; *.ots; *.ott; *.pak; *.piz; *.pk3; *.pk4; *.potm; *.ppsx; *.pptx; *.txtz; *.xlsm; *.xlsx; *.xpi; *.zipx)|'								
-ZIPX	_7Zip	ZIPX Archives (*.zipx; *.zip)|								
-ACE	_OtherPRG	ACE Archives (*.ace)|	unace.exe	 x	 	not	true	 		
-FreeARC	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	unarc.exe	" x -dp""FolderName"""	 	not	false	 		
-YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	yzdec.exe	 -d	 	not	true	 		
-ZOO	_OtherPRG	ZOO Archives (*.zoo)|	unzoo.exe	 -x	 	not	true	 		
-ALZ	_QickBMS	ALZ Archves (*.alz)|	\data\wcx\UnArkWCX.wcx							
-ARK	_QickBMS	ARK Archives (*.ark)|	\data\wcx\UnArkWCX.wcx							
-BlackHole	_QickBMS	BlackHole Archives (*.bh)|	\data\wcx\UnArkWCX.wcx							
-BZIP2	_QickBMS	BZIP2 Archives (*.bzip2; *.bz2; *.tbz2)|	\data\wcx\UnArkWCX.wcx							
-DZ	_QickBMS	DZ Archives (*.dz; *.dzip)|	\data\scripts\vector.bms							
-EGG	_QickBMS	EGG Archives (*.egg)|	\data\wcx\UnArkWCX.wcx							
-FPRG	_QickBMS	FPRG Archives (*.fprg)|	\data\scripts\fprg.bms							
-FZIP	_QickBMS	FZIP Archives (*.fzip)|	\data\scripts\fzip_zlib.bms							
-GCA	_QickBMS	GCA Archives (*.gca; *.dat)|	\data\wcx\gca.wcx							
-HA	_QickBMS	HA Archives (*.ha)|	\data\wcx\HA.wcx							
-HRUST	_QickBMS	Hrust Archives (*.hrp; *.hrip)|	\data\wcx\inhrust.wcx							
-LZHAM	_QickBMS	LZHAM Archives (*.lzh; *.lza; *.lzm)|	\data\scripts\lzhamtest.bms							
-LZO	_QickBMS	LZO Archives (*.lzo)|	\data\wcx\lzopacktc.wcx							
-LZO PKG	_QickBMS	LZO PKG Archives (*.lzo; *.pkg)|	\data\scripts\pkg_lzo.bms							
-LZO PVR	_QickBMS	LZO PVR Archives (*.lzo; *.pvr)|	\data\scripts\pvrlzo.bms							
-LZSS	_QickBMS	LZSS Archives (*.lzss)|	\data\scripts\pure_lzss_script_only.bms							
-LZX	_QickBMS	LZX Archives (*.lzx)|	\data\wcx\unlzx.wcx							
-MHTML Web	_QickBMS	Web Archives (*.mht; *.mhtml. *.mime)	\data\wcx\TotalObserver.wcx							
-SIS	_QickBMS	SIS Archives (*.sis)|	\data\wcx\PDunSIS.wcx							
-SQX	_QickBMS	SQX Archives (*.sqx)|	\data\scripts\sqx.bms							
-XXZ	_QickBMS	XXZ Archives (*.xxz)|	\data\scripts\xxz.bms							
-GOG game.gog	_7Zip	GOG game image(game.gog)|								3
-Acknex Engine	_7Zip									4
-Anvil\Scimitar Engine	_7Zip									4
-Asura Engine	_7Zip									4
-Build Engine	_7Zip									4
-Chrome Engine	_7Zip									4
-Construct 2D	_7Zip									4
-Creation Engine	_7Zip									4
-Cry Engine	_7Zip									4
-GameMaker	_7Zip									4
-Godot Engine	_7Zip									4
-Fox Engine	_7Zip									4
-FPS Creator	_7Zip									4
-FrostBite Engine	_7Zip									4
-Gameloft	_7Zip									4
-Glacier Engine	_7Zip									4
-HuneX Engine	_7Zip									4
-idTech Engine	_7Zip									4
-Infinity Engine	_7Zip									4
-LithTech Engine	_7Zip									4
-MT Framework	_7Zip									4
-Phyre Engine	_7Zip									4
-PopCap Games	_7Zip									4
-RE Engine	_7Zip									4
-RED Engine	_7Zip									4
-RenPy Engine	_7Zip									4
-RPG Maker	_7Zip									4
-ShiVa Engine	_7Zip									4
-Shockwave Flash	_7Zip									4
-Source Engine	_7Zip									4
-Unigene	_7Zip									4
-Unity Engine	_7Zip									4
-Unreal Engine	_7Zip									4
-XNA Framework	_7Zip									4
-Love2D	_7Zip									4
+Archives Name	Function	Ext List	Program Name	Unpack com 1	Unpack com 2	Pack com	Archive move	Archive ext	ff	Index	
+ARC	_OtherPRG	ARC Archives (*.arc)|	data\arc.exe	 e	 	 a	true	.arc	True	1	not?
+BLZ	_OtherPRG	BLZ Archives (*.blz)|	data\blzpack.exe	 d	 	 c	true	.blz	True	1	not?
+BMA	_OtherPRG	BMA Archives (*.bma; *.bmz)|	data\bma.exe	 e	 	 a	true	.bma	True	1	not?
+DGCA	_OtherPRG	DGCA Archives (*.dgc; *.dgca)|	data\dgcac.exe	 e	 "FolderName"	 a	false	.dgc	False	1	
+NanoZIP	_OtherPRG	NanoZIP Archives (*.nz)|	data\nz.exe	 x	 	 a "FolderName"	true	.nz	False	1	
+YZ2	_OtherPRG	YZ2 Archives (*.yz; *.yz2; *.pack)|	data\yz2tool.exe	 -x	 	 -c	true	.yz2	True	1	Нужно только название папки для упаковки
+DZIP	_OtherPRG	DZIP Archives (*.dz; *.dzip)|	data\dzip.exe	 -x	 	 -o	true	.dzip	False	2	
+ExFAT File System Image	_7Zip	ExFAT Disc Images (*.fat;*.img)|								3	
+AccessData FTK Imager Logical Image	_7Zip	AD1 Disc Images (*.ad1)|								3	
+Advanced Forensics Format	_7Zip	AFF Disc Images (*.aff)|								3	
+ASR Expert Witness Compression Format	_7Zip	S01 Disc Images (*.so1)|								3	
+BIN Disc Image (CUE/BIN)	_7Zip	BIN CUE Disc Images (*.bin;*.cue)|								3	
+CDI\CDR Disc Image	_7Zip	CDR CDI Disc Images (*.cdi;*.cdr)|								3	
+CCD\IMG  Disc Iamage	_7Zip	CCD IMG Disc Images (*.ccd;*.img)|								3	
+CramFS Image	_7Zip	CramFS Disc Images (*.CramFS)|								3	
+Encase Image File Format	_7Zip	L01 Disc Images (*.l01,*lx01)|								3	
+FAT File System Image	_7Zip	FAT Disc Images (*.fat)|								3	
+FHS File System Image	_7Zip	FHS Disc Images (*.fhs)|								3	
+IMG Disc Image	_7Zip	IMG Disc Images (*.img)|								3	
+ISO Disc Image	_7Zip	ISO Disc Images (*.iso)|								3	
+ISZ Disc Image	_7Zip	ISZ Disc Images (*.isz)|								3	
+MDF Disc Image (MDF/MDS)	_7Zip	MDF MDS Disc Images (*.mdf;*.mds)|								3	
+NRG Disc Image	_7Zip	NRG Disc Images (*.nrg)|								3	
+NTFS File System Image	_7Zip	NTFS Disc Images (*.ntfs)|								3	
+SquashFS Image	_7Zip	SquashFS Disc Images (*.SquashFS)|								3	
+VHD Disc Image	_7Zip	VHD Disc Images (*.VHD)|								3	
+WIM Disc Image	_7Zip	WIM Disc Images (*.wim;*.swm)|								3	
+WinHex WHX Format	_7Zip	WHX Disc Images (*.whx)|								3	
+CHD Disc Image	_7Zip	CHD Disc Image (*.chd)|								3	
+ECM Disc Image	_7Zip	ECM Disc Image (*.ecm)|								3	
+ZiSofs Disc Image	_7Zip	ZiSofs Disc Image (*.zisofs)|								3	
+UDF Disc Image	_QickBMS	UDF Disc Images (*.UDF)|	\data\wcx\TotalObserver.wcx							3	
+Amiga OS Installer (LHA)	_7Zip	LHA Archives (*.lha; *.lzh)|								5	
+Android Installer	_7Zip	APK Android Installer (*.apk)|								5	
+Debian Installer (DEB)	_7Zip	DEB Debian Linux Package (*.deb)|								5	
+Gadget Windows Installer	_7Zip	Gadget Files (*.gadget)|								5	
+GCW-Zero Installer (OPK)	_7Zip	EXE Installer (*.exe)|								5	
+InstallShield Installer	_7Zip	Install Shield (*.hdr;*.cab;*.z;*.exe)|								5	
+iOS Installer	_7Zip	iOS Installer (*.ipa; *.ipg)|								5	
+Java Installer	_7Zip	JAR Archives (*.jar; *.jad)|								5	
+Linux Installer (TAR)	_7Zip	TAR Archives (*.tar; *.tbz; *.cbt)|								5	
+Linux Installer (TARZIP)	_7Zip	TARZIP Archives (*.taz; *.tz; *.tbz; *.tbz2; *.tgz ;*.tar.*z*; *.t*z)|								5	
+Mac OS Installer (DMG)	_7Zip	MacOS DMG Packege (*.dmg)|								5	
+MSI Windows Installer	_7Zip	MSI Installer (*.msi)|								5	
+SFX Archive Installer	_7Zip	SFX Archive (*.exe; *.sfx; *.7z; *.zip;*.rar)|								5	
+Windows Mobile Installer (XAP)	_7Zip	Wiindows Mobile Installer (*.xap)|								5	
+ZIP Installer	_7Zip	EXE Installer (*.exe)|								5	
+FreeArc Installer	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	data\unarc.exe	 x -dp"FolderName"	 	not	false	 		5	
+Inno Setup Installer	_OtherPRG	Inno Setup Installer (*.exe)|	data\innounp.exe	 -x -d"FolderName"		not	false			5	
+Symbian SIS Installer	_OtherPRG	Simbian OS Installer (*.sis)|	data\unsisX.exe							5	
+Eschalon Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5	
+Gentee Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5	
+Install4j Installer	_QickBMS	Install4j Installer (*.exe;*.sh)|Windows Install4j Installer (*.exe)|Linux Install4j Installer (*.sh)|	\data\scripts\install4j.bms							5	
+Nullsoft Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5	
+Setup Factory Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\TotalObserver.wcx							5	
+Smart Install Maker Installer	_QickBMS	EXE Installer (*.exe)|	\data\scripts\sminstcab.bms							5	
+Vise Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\InstExpl.wcx							5	
+Wise Installer	_QickBMS	EXE Installer (*.exe)|	\data\wcx\TotalObserver.wcx							5	
+ZLB Installer	_QickBMS	EXE Installer (*.exe)|	\data\scripts\zlb1a.bms							5	
+7z	_7Zip	7zip Archives (*.7z; *.7zip; *.lzma; *.cb7; *.cb7z; *.exe)|									
+ASAR	_7Zip	ASAR Archives (*.asar)|									
+ARJ	_7Zip	ARJ Archives (*.arj)|									
+Brotli	_7Zip										
+BIN	_7Zip	Binary Mac Archive (*.bin)|									
+BZIP	_7Zip	BZIP Archives (*.bzip; *.bz; *.tbz)|									
+Cabinet	_7Zip	Cabinet Archives (*.cab)|									
+CPIO	_7Zip	CPIO Archives (*.cpio; *.rpm.cpio)|									
+GZIP	_7Zip	GZIP Archives (*.gzip; *.gz; *.tgz)|									
+JAR	_7Zip	JAR Archives (*.jar; *.jad)|									
+LHA	_7Zip	LHA Archives (*.lha; *.lzh)|									
+Lizard	_7Zip										
+LZ4	_7Zip										
+LZ5	_7Zip										
+LZH	_7Zip	LZH Archives (*.lzh; *.lha)|									
+LZIP	_7Zip	LZIP Archives (*.lzip)|									
+LZMA	_7Zip	LZMA Archives (*.lzma; *.lzm)|									
+LZMA2	_7Zip	LZMA2 Archives (*.lzma; *.lzm; *.lzma2; *.lzm2)|									
+MBR	_7Zip	Master Boot Record File (*.mbr)|									
+PHAR	_7Zip	PHARArchives (*.phar; *.phr)|									
+PPMD	_7Zip	PPMD Archives (*.ppmd; *.pmd)|									
+RAR	_7Zip	RAR Archives (*.rar)|									
+RPM	_7Zip	RPM Archives (*.rpm; *.rpm.cpio)|									
+TAR	_7Zip	TAR Archives (*.tar; *.tbz; *.cbt)|									
+TAZ	_7Zip	TAZ Archives (*.taz)|									
+TZ	_7Zip	TARZIP Archives (*.taz; *.tz; *.tbz; *.tbz2; *.tgz ;*.tar.*z*; *.t*z)|									
+UUE	_7Zip	UUE Archives (*.uue)|									
+XXE	_7Zip	XXE Archives (*.xxe)|									
+XPI	_7Zip	XPI Plugins (*.xpi; *.zip)|									
+XZ	_7Zip	XZ Archives (*.xz; *.xzip; *.txz)|									
+Z	_7Zip	Z Archives (*.z)|									
+Zstandart	_7Zip	Zstandart Archives (*.zstd; *.7z; *.deb; *.nsz; *.xcz)|									
+ZIP	_7Zip	ZIP Archives (*.zip; *.bin; *.bsp; *.bza; *.cbz; *.dat; *.dazip; *.docx; *.dotx; *.epub; *.fods; *.fodt; *.fomod; *.gro; *.jar; *.kfs; *.lp; *.nob; *.odb; *.ods; *.odt; *.omod; *.ots; *.ott; *.pak; *.piz; *.pk3; *.pk4; *.potm; *.ppsx; *.pptx; *.txtz; *.xlsm; *.xlsx; *.xpi; *.zipx)|'									
+ZIPX	_7Zip	ZIPX Archives (*.zipx; *.zip)|									
+ACE	_OtherPRG	ACE Archives (*.ace)|	data\unace.exe	 x	 	not	true	 			
+FreeARC	_OtherPRG	FreeARC Archives (*.arc;*.exe;*.bin*;*.dat*;*cat*;setup*.*)|	data\unarc.exe	 x -dp"FolderName"	 	not	false	 			
+YZ1	_OtherPRG	YZ1 Archives (*.yz; *.yz1)|	data\yzdec.exe	 -d	 	not	true	 			
+ZOO	_OtherPRG	ZOO Archives (*.zoo)|	data\unzoo.exe	 -x	 	not	true	 			
+ALZ	_QickBMS	ALZ Archves (*.alz)|	\data\wcx\UnArkWCX.wcx								
+ARK	_QickBMS	ARK Archives (*.ark)|	\data\wcx\UnArkWCX.wcx								
+BlackHole	_QickBMS	BlackHole Archives (*.bh)|	\data\wcx\UnArkWCX.wcx								
+BZIP2	_QickBMS	BZIP2 Archives (*.bzip2; *.bz2; *.tbz2)|	\data\wcx\UnArkWCX.wcx								
+DZ	_QickBMS	DZ Archives (*.dz; *.dzip)|	\data\scripts\vector.bms								
+EGG	_QickBMS	EGG Archives (*.egg)|	\data\wcx\UnArkWCX.wcx								
+FPRG	_QickBMS	FPRG Archives (*.fprg)|	\data\scripts\fprg.bms								
+FZIP	_QickBMS	FZIP Archives (*.fzip)|	\data\scripts\fzip_zlib.bms								
+GCA	_QickBMS	GCA Archives (*.gca; *.dat)|	\data\wcx\gca.wcx								
+HA	_QickBMS	HA Archives (*.ha)|	\data\wcx\HA.wcx								
+HRUST	_QickBMS	Hrust Archives (*.hrp; *.hrip)|	\data\wcx\inhrust.wcx								
+LZHAM	_QickBMS	LZHAM Archives (*.lzh; *.lza; *.lzm)|	\data\scripts\lzhamtest.bms								
+LZO	_QickBMS	LZO Archives (*.lzo)|	\data\wcx\lzopacktc.wcx								
+LZO PKG	_QickBMS	LZO PKG Archives (*.lzo; *.pkg)|	\data\scripts\pkg_lzo.bms								
+LZO PVR	_QickBMS	LZO PVR Archives (*.lzo; *.pvr)|	\data\scripts\pvrlzo.bms								
+LZSS	_QickBMS	LZSS Archives (*.lzss)|	\data\scripts\pure_lzss_script_only.bms								
+LZX	_QickBMS	LZX Archives (*.lzx)|	\data\wcx\unlzx.wcx								
+MHTML Web	_QickBMS	Web Archives (*.mht; *.mhtml. *.mime)	\data\wcx\TotalObserver.wcx								
+SIS	_QickBMS	SIS Archives (*.sis)|	\data\wcx\PDunSIS.wcx								
+SQX	_QickBMS	SQX Archives (*.sqx)|	\data\scripts\sqx.bms								
+XXZ	_QickBMS	XXZ Archives (*.xxz)|	\data\scripts\xxz.bms								
+GOG game.gog	_7Zip	GOG game image(game.gog)|								3	
+Acknex Engine	_Zaglushka									4	
+Anvil\Scimitar Engine	_Zaglushka									4	
+Asura Engine	_Zaglushka									4	
+Build Engine	_Zaglushka									4	
+Chrome Engine	_Zaglushka									4	
+Construct 2D	_Zaglushka									4	
+Creation Engine	_Zaglushka									4	
+Cry Engine	_Zaglushka									4	
+GameMaker	_Zaglushka									4	
+Godot Engine	_Zaglushka									4	
+Fox Engine	_Zaglushka									4	
+FPS Creator	_Zaglushka									4	
+FrostBite Engine	_Zaglushka									4	
+Gameloft	_Zaglushka									4	
+Glacier Engine	_Zaglushka									4	
+HuneX Engine	_Zaglushka									4	
+idTech Engine	_Zaglushka									4	
+Infinity Engine	_Zaglushka	Infinity Engine Directory (*.key; *.big)|								4	
+LithTech Engine	_Zaglushka									4	
+MT Framework	_Zaglushka									4	
+Phyre Engine	_Zaglushka									4	
+PopCap Games	_Zaglushka									4	
+RE Engine	_Zaglushka									4	
+RED Engine	_Zaglushka									4	
+RenPy Engine	_Zaglushka									4	
+RPG Maker	_Zaglushka									4	
+ShiVa Engine	_Zaglushka									4	
+Shockwave Flash	_Zaglushka									4	
+Source Engine	_Zaglushka									4	
+Unigene	_Zaglushka									4	
+Unity Engine	_Zaglushka									4	
+Unreal Engine	_Zaglushka									4	
+XNA Framework	_Zaglushka									4	
+Love2D	_Zaglushka									4	
+A4-A8 Engine	_QickBMS		\data\scripts\gamestudio.bms							4	
+AeriaGames Pack	_QickBMS		\data\scripts\packver01.bms							4	
+GameOverGames	_QuickBMS		\data\scripts\gaveovergames.bms							4	
+GameTeam games	_QuickBMS	grp file (*.grp)|	\data\scripts\deadlystars_starsword.bms							4	
+GameTop games	_QuickBMS	grp file (*.grp)|	\data\scripts\deadlystars_starsword.bms							4	
+Gaming Mind Studios	_QuickBMS		\data\scripts\gaming_mind_studios_fuk.bms							4	
+10tons Ltd. Games	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms							4	
+Asphyre Sphinx Engine	_QuickBMS	Asphyre Engine File (*.data; *.mini; *.wd2; *.map)|	\data\scripts\asphyre.bms							4	
+Big Fish Games	_QuickBMS	bfg file (*.bfg)|	\data\scripts\bigfishgames81.bms							4	
+Burut Creative Team games	_QuickBMS		\data\scripts\burut.bms							4	
+Chromium (cef.pak)	_Chromium									4	
+Electronic Arts BGFA	_QuickBMS	BGFA containers (*.bgfa)|	\data\scripts\eabgfa.bms							4	
+Electronic Arts VFS	_QuickBMS		\data\scripts\vfs_ea_coltd.bms							4	
+Cabela's (some game)	_QuickBMS		\data\scripts\funlabs.bms							4	
+GameCore Engine	_QuickBMS		\data\scripts\gamecore.bms							4	
+Gamehouse	_QuickBMS		\data\scripts\gamehouse.bms							4	
+Gameloft (GLA)	_QuickBMS		\data\scripts\gameloft.bms							4	
+Gameloft (N-gage)	_QuickBMS		\data\scripts\gameloft_ngage.bms							4	
+Gameloft Voxarch	_QuickBMS		\data\scripts\voxarch.bms							4	
+GIANTS Software GAR archive	_QuickBMS		\data\scripts\giants_software.bms							4	
+GMotor engine (MAS)	_QuickBMS		\data\scripts\massive_assault.bms							4	
+GOB Magnussoft	_QuickBMS		\data\scripts\gob_magnussoft.bms							4	
+ITE Media	_QuickBMS		\data\scripts\ite_media.bms							4	
+LucAsarts Engine	_QuickBMS		\data\scripts\lucidity.bms							4	
+Nippon Ichi Software FAFULLFS	_QuickBMS		\data\scripts\fafullfs.bms							4	
+Novalogic games (PFF)	_QuickBMS		\data\scripts\novalogic.bms							4	
+Orneon Limited Games	_QuickBMS		\data\scripts\orneon_limited_games.bms							4	
+Studio e.go! games	_QuickBMS		\data\scripts\studio_ego.bms							4	
+Yeti Engine (GEAR BigFile)	_QuickBMS		\data\scripts\yeti_gear.bms							4	
+Yeti Engine (YBIG)	_QuickBMS		\data\scripts\yeti_ybig.bms							4	
+YoYo Games (data.win)	_QuickBMS		\data\scripts\yoyogames.bms							4	
+Yuke games	_QuickBMS		\data\scripts\yuke.bms							4	
+EPF	_SAU	East Point File System (*.epf)|									

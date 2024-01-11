@@ -39,6 +39,9 @@ class Setting:
         setting.set('Engines', 'game_maker', '0')
         setting.set('Engines', 'godot', '0')
         setting.set('Engines', 'renpy', '0')
+        setting.set('Main', 'group_ge', '2')
+        setting.set('Main', 'group_arch', '2')
+        setting.set('Main', 'disable_ic', 'True')
 
         with open('./setting.ini', "w") as config_file:
             setting.write(config_file)

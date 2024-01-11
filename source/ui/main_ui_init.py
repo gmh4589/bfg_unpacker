@@ -41,6 +41,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.pb = progress_bar.ProgressBar(self.setting["Main"]["theme"])
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
+        self.quickOpen.triggered.connect(self.q_open)
 
         with open('./favorites.ini', 'r') as fav:
             self.favorites = []
@@ -79,6 +80,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         # Run functions and methods
         self.change_theme(self.setting["Main"]["theme"])
         self.archive_list = {}
+        self.engine_list = {}
         self.archive_list_create()
 
         # Actions connected
@@ -499,30 +501,54 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
     def archive_list_create(self):
         archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
         archivesList = archivesList.sort_values(by='Archives Name', key=lambda x: x.str.lower()).reset_index(drop=True)
-        abc = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
-                           if archivesList['Index'][n] not in (3, 5, 4) and archivesList['Archives Name'][n][0]
-                           not in '0123456789'}), key=lambda x: x)
 
-        self.archive_list = {'0-9': self.menu_5.addMenu('0-9')}
+        if self.setting['Main']['group_arch'] == '2':
+            abc = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
+                               if archivesList['Index'][n] not in (3, 5, 4) and archivesList['Archives Name'][n][0]
+                               not in '0123456789'}), key=lambda x: x)
+            self.archive_list = {'0-9': self.menu_archives.addMenu('0-9')}
 
-        for liter in abc:
-            self.archive_list[liter] = self.menu_5.addMenu(liter)
+            for liter in abc:
+                self.archive_list[liter] = self.menu_archives.addMenu(liter)
+
+        if self.setting['Main']['group_ge'] == '2':
+            abc2 = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
+                                if archivesList['Index'][n] == 4 and archivesList['Archives Name'][n][0]
+                                not in '0123456789'}), key=lambda x: x)
+            self.engine_list = {'0-9': self.menu_game_engines.addMenu('0-9')}
+
+            for liter in abc2:
+                self.engine_list[liter] = self.menu_game_engines.addMenu(liter)
 
         for n in range(len(archivesList)):
 
             if archivesList['Index'][n] == 3:
-                self.menu_7.addAction(archivesList['Archives Name'][n])
+                self.menu_disk_images.addAction(archivesList['Archives Name'][n])
             elif archivesList['Index'][n] == 4:
-                self.menu_6.addAction(archivesList['Archives Name'][n])
-            elif archivesList['Index'][n] == 5:
-                self.menu_8.addAction(archivesList['Archives Name'][n])
-            else:
-                liter = archivesList['Archives Name'][n][0].upper()
 
-                if liter in '0123456789':
-                    self.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
+                if self.setting['Main']['group_ge'] == '2':
+                    liter = archivesList['Archives Name'][n][0].upper()
+
+                    if liter in '0123456789':
+                        self.engine_list['0-9'].addAction(archivesList['Archives Name'][n])
+                    else:
+                        self.engine_list[liter].addAction(archivesList['Archives Name'][n])
                 else:
-                    self.archive_list[liter].addAction(archivesList['Archives Name'][n])
+                    self.menu_game_engines.addAction(archivesList['Archives Name'][n])
+
+            elif archivesList['Index'][n] == 5:
+                self.menu_installers.addAction(archivesList['Archives Name'][n])
+            else:
+
+                if self.setting['Main']['group_arch'] == '2':
+                    liter = archivesList['Archives Name'][n][0].upper()
+
+                    if liter in '0123456789':
+                        self.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
+                    else:
+                        self.archive_list[liter].addAction(archivesList['Archives Name'][n])
+                else:
+                    self.menu_archives.addAction(archivesList['Archives Name'][n])
 
     def filter_list_create(self, items):
         self.comboBox_gameList.items = self.names

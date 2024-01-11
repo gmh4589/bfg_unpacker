@@ -24,7 +24,7 @@ class SettingWindow(QDialog):
         self.setting = configparser.ConfigParser()
         self.setting.read('./setting.ini')
 
-        self.resize(resize.widget(300), resize.widget(280))
+        self.resize(resize.widget(300), resize.widget(350))
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
@@ -81,6 +81,22 @@ class SettingWindow(QDialog):
         self.checkBox_7.setGeometry(QRect(resize.widget(10), resize.widget(220),
                                           resize.widget(200), resize.widget(20)))
 
+        self.label_alpha_group = QLabel(self.centralwidget)
+        self.label_alpha_group.setGeometry(QRect(resize.widget(160), resize.widget(100),
+                                                 resize.widget(120), resize.widget(30)))
+
+        self.groupBox_3 = QGroupBox(self.centralwidget)
+        self.groupBox_3.setGeometry(QRect(resize.widget(160), resize.widget(135),
+                                          resize.widget(130), resize.widget(60)))
+        self.arch_checkbox = QCheckBox(self.groupBox_3)
+        self.arch_checkbox.setGeometry(QRect(resize.widget(10), resize.widget(10),
+                                             resize.widget(120), resize.widget(20)))
+        self.arch_checkbox.setCheckState(int(self.setting['Main']['group_arch']))
+        self.ge_checkbox = QCheckBox(self.groupBox_3)
+        self.ge_checkbox.setGeometry(QRect(resize.widget(10), resize.widget(35),
+                                                 resize.widget(120), resize.widget(20)))
+        self.ge_checkbox.setCheckState(int(self.setting['Main']['group_ge']))
+
         self.zoom_label = QLabel(self.centralwidget)
         self.zoom_label.setGeometry(QRect(resize.widget(10), resize.widget(250),
                                           resize.widget(90), resize.widget(20)))
@@ -96,20 +112,20 @@ class SettingWindow(QDialog):
 
         self.create_theme = QToolButton(self.centralwidget)
         self.create_theme.setFont(self.font)
-        self.create_theme.setGeometry(QRect(resize.widget(160), resize.widget(100),
-                                            resize.widget(130), resize.widget(25)))
+        self.create_theme.setGeometry(QRect(resize.widget(10), resize.widget(280),
+                                            resize.widget(135), resize.widget(25)))
         self.out_folder = QToolButton(self.centralwidget)
         self.out_folder.setFont(self.font)
-        self.out_folder.setGeometry(QRect(resize.widget(160), resize.widget(130),
-                                          resize.widget(130), resize.widget(25)))
+        self.out_folder.setGeometry(QRect(resize.widget(10), resize.widget(310),
+                                          resize.widget(135), resize.widget(25)))
         self.save_setting = QToolButton(self.centralwidget)
         self.save_setting.setFont(self.font)
-        self.save_setting.setGeometry(QRect(resize.widget(160), resize.widget(160),
-                                            resize.widget(130), resize.widget(25)))
+        self.save_setting.setGeometry(QRect(resize.widget(155), resize.widget(280),
+                                            resize.widget(135), resize.widget(25)))
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
-        self.cancel_button.setGeometry(QRect(resize.widget(160), resize.widget(190),
-                                             resize.widget(130), resize.widget(25)))
+        self.cancel_button.setGeometry(QRect(resize.widget(155), resize.widget(310),
+                                             resize.widget(135), resize.widget(25)))
 
         if self.setting['Main']['group'] == 'name':
             self.radioButton.setChecked(True)
@@ -144,11 +160,15 @@ class SettingWindow(QDialog):
         self.setting.set('Engines', 'godot', "2" if self.godot_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'renpy', "2" if self.renpy_checkBox.isChecked() else "0")
         self.setting.set('Main', 'group', "name" if self.radioButton.isChecked() else "year")
+        self.setting.set('Main', 'group_arch', "2" if self.arch_checkbox.isChecked() else "0")
+        self.setting.set('Main', 'group_ge', "2" if self.ge_checkbox.isChecked() else "0")
         self.setting.set('Main', 'zoom', str(1 + int(self.zoom_slider.value()) * .25))
         self.setting.set('Main', 'theme', style)
 
         with open('./setting.ini', "w") as config_file:
             self.setting.write(config_file)
+
+        self.cancel_button.setText(TL.close)
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
@@ -167,5 +187,8 @@ class SettingWindow(QDialog):
         self.save_setting.setText(_translate("MainWindow", TL.apply))
         self.cancel_button.setText(_translate("MainWindow", TL.cancel))
         self.label_engines.setText(_translate("MainWindow", TL.show_on))
-        self.label_sort.setText(_translate("MainWindow", TL.sort_by))
+        self.label_sort.setText(_translate("MainWindow", f'{TL.group_by}:'))
         self.zoom_label.setText(_translate("MainWindow", f"{TL.zoom} {int(float(self.setting['Main']['zoom']) * 100)}%"))
+        self.label_alpha_group.setText(_translate("MainWindow", f'{TL.group_by} {TL.alphabet}:'))
+        self.ge_checkbox.setText(_translate("MainMenu", TL.game_engines))
+        self.arch_checkbox.setText(_translate("MainMenu", TL.archives))

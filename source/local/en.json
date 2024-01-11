@@ -47,7 +47,7 @@
     "by_name": "By name",
     "by_years": "By years",
     "context_menu": "Check in context menu",
-    "sort_by": "Sort by:",
+    "group_by": "Group by",
     "out_folder": "Out folder",
     "apply": "Apply",
     "save_theme": "Save Theme",
@@ -112,5 +112,7 @@
     "header_atrac": "Atrac header creator",
     "header_wav": "WAV header creator",
     "run_setting": "Run setting",
-    "empty_of": "Empty output folder"
+    "empty_of": "Empty output folder",
+    "alphabet": "alphabet",
+    "close": "Сlose"
 }

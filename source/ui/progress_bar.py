@@ -21,7 +21,7 @@ class ProgressBar(QDialog):
         self.progressBar = QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QRect(resize.widget(10), resize.widget(40), resize.widget(270), resize.widget(30)))
         self.header = QLabel(self.centralwidget)
-        self.header.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(100), resize.widget(20)))
+        self.header.setGeometry(QRect(resize.widget(10), resize.widget(10), resize.widget(280), resize.widget(20)))
         self.progress = QLabel(self.centralwidget)
         self.progress.setGeometry(QRect(resize.widget(10), resize.widget(80), resize.widget(100), resize.widget(20)))
         self.status = QLabel(self.centralwidget)
