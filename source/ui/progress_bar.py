@@ -17,7 +17,6 @@ class ProgressBar(QDialog):
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.setWindowTitle(f"{localize.wait}...")
         self.centralwidget = QWidget(self)
-        self.centralwidget.setObjectName("centralwidget")
         self.progressBar = QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QRect(resize.widget(10), resize.widget(40), resize.widget(270), resize.widget(30)))
         self.header = QLabel(self.centralwidget)
@@ -26,7 +25,6 @@ class ProgressBar(QDialog):
         self.progress.setGeometry(QRect(resize.widget(10), resize.widget(80), resize.widget(100), resize.widget(20)))
         self.status = QLabel(self.centralwidget)
         self.status.setGeometry(QRect(resize.widget(10), resize.widget(100), resize.widget(500), resize.widget(20)))
-
         QMetaObject.connectSlotsByName(self)
 
     def set_theme(self, theme):

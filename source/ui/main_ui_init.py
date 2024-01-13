@@ -394,17 +394,17 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
 
         match action:
             case 'A': btn.clicked.connect(self.q_open)
-            case 'B': btn.clicked.connect(lambda: self.select_unpacker('___', script_name=QFileDialog.getOpenFileName(
+            case 'B': btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
                 self, translate.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
-                f'{translate.all_files} (*.*)', directory=self.setting['Main']['last_dir'])[0], ext_list=''))
-            case 'C': btn.clicked.connect(lambda: self.select_unpacker('_ZIP'))
-            case 'D': btn.clicked.connect(lambda: self.select_unpacker('_GAUP'))
+                f'{translate.all_files} (*.*)', directory=self.setting['Main']['last_dir'])[0]))
+            case 'C': btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
+            case 'D': btn.clicked.connect(lambda: self.create_queue(func_name='_GAUP'))
             case 'E': btn.clicked.connect(lambda: print('innosetup'))
             case 'F': btn.clicked.connect(self.ffmpeg_video)
-            case 'G': btn.clicked.connect(lambda: self.select_unpacker('_Unreal', ext_list=after_dot['_Unreal']))
-            case 'H': btn.clicked.connect(lambda: self.select_unpacker('_Unity'))
-            case 'I': btn.clicked.connect(lambda: self.select_unpacker('_idTech', ext_list=after_dot['_idTech']))
-            case 'J': btn.clicked.connect(lambda: self.select_unpacker('_Total'))
+            case 'G': btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_Unreal'], func_name='_Unreal'))
+            case 'H': btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
+            case 'I': btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
+            case 'J': btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
             case 'K': btn.clicked.connect(lambda: print('creation'))
             case 'L': btn.clicked.connect(lambda: print('cry engine'))
             case 'M': btn.clicked.connect(lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))

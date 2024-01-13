@@ -38,12 +38,10 @@ class PakExtractor(Reaper):
                         all_files += len(d_['files'])
 
                     for d in self.dirs:
-                        # print("Directory:", d['name'])
                         os.makedirs(os.path.join(self.output_folder, d['name']), exist_ok=True)
 
                         for file in d['files']:
                             current += 1
-                            # print("File:", file['name'], "Size:", file['size'])
                             new_file = f.read(file['size'])
 
                             with open(os.path.join(self.output_folder, d['name'], file['name']), 'wb') as nf:

@@ -27,5 +27,6 @@ class Unity(Reaper):
             if not out1:
                 break
 
+        unity.kill()
         self.update_signal.emit(100, '', localize.done, True)
 

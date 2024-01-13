@@ -28,4 +28,5 @@ class SevenZIP(Reaper):
             # print(out1, out2)
             # self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
 
+        zip7.kill()
         self.update_signal.emit(100, '', localize.done, True)

@@ -37,9 +37,10 @@ class Q_BMS(Reaper):
                 ic(o[-1])
                 self.update_signal.emit(percent, '', f'{localize.saving} - {o[-1]}...', False)
             except (ValueError, IndexError):
-                pass
+                print(out)
 
             if not out:
+                bms.kill()
                 break
 
         self.update_signal.emit(100, '', localize.done, True)

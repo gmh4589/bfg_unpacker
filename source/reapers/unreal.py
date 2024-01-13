@@ -65,6 +65,7 @@ class Unreal(Reaper):
                 self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
 
             if not out1:
+                if not size: unreal.kill()
                 break
 
         self.update_signal.emit(100, '', localize.done, True)

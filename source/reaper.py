@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from PyQt5.QtCore import QThread, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, pyqtSignal
 from source.ui import localize
 
 DEBUG = True
@@ -46,13 +46,7 @@ class Reaper(QThread):
         self.output_folder = ''
         self.unpack = True
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
-
-
-class SetStatus(QObject):
-    status = pyqtSignal(bool)
-
-    def write(self, b):
-        self.status.emit(bool(b))
+        self.update_signal.emit(0, '', '', False)
 
 
 after_dot = {'_Asura': 'All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|'
