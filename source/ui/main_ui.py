@@ -1,13 +1,14 @@
 
-from PyQt5.QtCore import QRect, QMetaObject, Qt
-from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import *
+from icecream import ic
+
+from PyQt6.QtCore import QRect, QMetaObject, Qt
+from PyQt6.QtGui import QFont, QStandardItemModel, QStandardItem
+from PyQt6.QtWidgets import *
 from source.ui.main_ui_text import Translate
 from source.ui import resize
 
 
 class AutoCompleteComboBox(QComboBox):
-
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -16,17 +17,16 @@ class AutoCompleteComboBox(QComboBox):
         self.completer = QCompleter(self)
         self.setCompleter(self.completer)
         self.items = []
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         line_edit = self.lineEdit()
         line_edit.textEdited.connect(self.on_text_edited)
 
     def on_text_edited(self, text):
-        self.filter_model.setRowCount(0)
+        self.filter_model.clear()
         self.filter_model.appendRow(QStandardItem(self.lineEdit().text() + text
                                                   if text != self.lineEdit().text() else self.lineEdit().text()))
 
         for item in self.items:
-
             if self.lineEdit().text().lower() in item.lower():
                 self.filter_model.appendRow(QStandardItem(item))
 
@@ -41,7 +41,7 @@ class Ui_BFGUnpacker(Translate):
         self.font = QFont()
         self.font.setPointSize(resize.widget(8))
         self.centralwidget.setFont(self.font)
-        # self.comboBox_gameList = QComboBox(self.centralwidget)
+        self.centralwidget.setAcceptDrops(True)
         self.comboBox_gameList = AutoCompleteComboBox(self.centralwidget)
         self.comboBox_gameList.setGeometry(QRect(resize.widget(80), resize.widget(40),
                                                  resize.widget(375), resize.widget(30)))
@@ -60,7 +60,7 @@ class Ui_BFGUnpacker(Translate):
         self.all_games_count = QLabel(self.centralwidget)
         self.all_games_count.setGeometry(QRect(resize.widget(451), resize.widget(600),
                                                resize.widget(150), resize.widget(20)))
-        self.all_games_count.setAlignment(Qt.AlignCenter)
+        self.all_games_count.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.gameList_treeView = QTreeView(self.centralwidget)
         self.gameList_treeView.setGeometry(QRect(0, resize.widget(80), resize.widget(295), resize.widget(520)))
         self.gameList_treeView.setStyleSheet('QTreeView::item {'
@@ -111,7 +111,7 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuPlayStation_1 = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_1.menuAction())
-        self.ps1_xa = QAction(self.menuPlayStation_1)
+        self.ps1_xa = QWidgetAction(self.menuPlayStation_1)
         self.menuPlayStation_1.addAction(self.ps1_xa)
 
         self.menuPlayStation_2 = QMenu(self.menuSony)
@@ -119,16 +119,16 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuPlayStation_3 = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_3.menuAction())
-        self.ps3PsarcZlib = QAction(self.menuPlayStation_3)
+        self.ps3PsarcZlib = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3PsarcZlib)
-        self.ps3PsarcLzma = QAction(self.menuPlayStation_3)
+        self.ps3PsarcLzma = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3PsarcLzma)
-        self.ps3XWS = QAction(self.menuPlayStation_3)
+        self.ps3XWS = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3XWS)
 
         self.menuPlayStation_4 = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_4.menuAction())
-        self.ps4PKG_CNT = QAction(self.menuPlayStation_4)
+        self.ps4PKG_CNT = QWidgetAction(self.menuPlayStation_4)
         self.menuPlayStation_4.addAction(self.ps4PKG_CNT)
 
         self.menuPlayStation_5 = QMenu(self.menuSony)
@@ -136,16 +136,16 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuPSP = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPSP.menuAction())
-        self.pspCSO = QAction(self.menuPSP)
+        self.pspCSO = QWidgetAction(self.menuPSP)
         self.menuPSP.addAction(self.pspCSO)
 
         self.menuPlayStation_Vita = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_Vita.menuAction())
-        self.gxt2png = QAction(self.menuPlayStation_Vita)
+        self.gxt2png = QWidgetAction(self.menuPlayStation_Vita)
         self.menuPlayStation_Vita.addAction(self.gxt2png)
-        self.png2gxt = QAction(self.menuPlayStation_Vita)
+        self.png2gxt = QWidgetAction(self.menuPlayStation_Vita)
         self.menuPlayStation_Vita.addAction(self.png2gxt)
-        self.psvPsarc = QAction(self.menuPlayStation_Vita)
+        self.psvPsarc = QWidgetAction(self.menuPlayStation_Vita)
         self.menuPlayStation_Vita.addAction(self.psvPsarc)
 
         self.consolesMenu.addAction(self.menuSony.menuAction())
@@ -155,9 +155,9 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuXBox_Classic = QMenu(self.menuMicrosoft)
         self.menuMicrosoft.addAction(self.menuXBox_Classic.menuAction())
-        self.xboxISO = QAction(self.menuXBox_Classic)
+        self.xboxISO = QWidgetAction(self.menuXBox_Classic)
         self.menuXBox_Classic.addAction(self.xboxISO)
-        self.xboxAFS = QAction(self.menuXBox_Classic)
+        self.xboxAFS = QWidgetAction(self.menuXBox_Classic)
         self.menuXBox_Classic.addAction(self.xboxAFS)
 
         self.menuXBox_360 = QMenu(self.menuMicrosoft)
@@ -179,13 +179,13 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuWii = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuWii.menuAction())
-        self.wiiISO = QAction(self.menuWii)
+        self.wiiISO = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiISO)
-        self.wiiCSO = QAction(self.menuWii)
+        self.wiiCSO = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiCSO)
-        self.wiiWBFS = QAction(self.menuWii)
+        self.wiiWBFS = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiWBFS)
-        self.wiiWDF = QAction(self.menuWii)
+        self.wiiWDF = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiWDF)
 
         self.menuWii_U = QMenu(self.menuNintendo)
@@ -193,16 +193,16 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuSwitch = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuSwitch.menuAction())
-        self.switchNSP = QAction(self.menuSwitch)
+        self.switchNSP = QWidgetAction(self.menuSwitch)
         self.menuSwitch.addAction(self.switchNSP)
 
         self.menuClassic_Consoles = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuClassic_Consoles.menuAction())
-        self.nintendoSARC = QAction(self.menuClassic_Consoles)
+        self.nintendoSARC = QWidgetAction(self.menuClassic_Consoles)
         self.menuClassic_Consoles.addAction(self.nintendoSARC)
-        self.nintendoDS_SDAT = QAction(self.menuClassic_Consoles)
+        self.nintendoDS_SDAT = QWidgetAction(self.menuClassic_Consoles)
         self.menuClassic_Consoles.addAction(self.nintendoDS_SDAT)
-        self.nintendoNitro = QAction(self.menuClassic_Consoles)
+        self.nintendoNitro = QWidgetAction(self.menuClassic_Consoles)
         self.menuClassic_Consoles.addAction(self.nintendoNitro)
 
         self.consolesMenu.addAction(self.menuNintendo.menuAction())
@@ -212,7 +212,7 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuDreamcast = QMenu(self.menuSega)
         self.menuSega.addAction(self.menuDreamcast.menuAction())
-        self.dreamcastGDI = QAction(self.menuDreamcast)
+        self.dreamcastGDI = QWidgetAction(self.menuDreamcast)
         self.menuDreamcast.addAction(self.dreamcastGDI)
 
         self.menuMegaDrive = QMenu(self.menuSega)
@@ -230,13 +230,12 @@ class Ui_BFGUnpacker(Translate):
         self.menuOtherConsoles = QMenu(self.consolesMenu)
         self.consolesMenu.addAction(self.menuOtherConsoles.menuAction())
 
-        self.menuAmigaDiskFile = QAction(self.menuOtherConsoles)  # SAU
+        self.menuAmigaDiskFile = QWidgetAction(self.menuOtherConsoles)  # SAU
         self.menuOtherConsoles.addAction(self.menuAmigaDiskFile)
 
         self.menu_archives = QMenu(self.menu)
         self.menu_game_engines = QMenu(self.menu)
         self.menu_disk_images = QMenu(self.menu)
-        # self.menu_7.setIcon(QIcon('./source/ui/icons/disk_image.svg'))
         self.menu_installers = QMenu(self.menu)
         self.menu_convert = QMenu(self.menubar)
         self.videoConverters = QMenu(self.menu_convert)
@@ -246,48 +245,47 @@ class Ui_BFGUnpacker(Translate):
         self.themes_list_2 = QMenu(self.menu_settings)
         self.menu_about = QMenu(self.menubar)
         self.setMenuBar(self.menubar)
-        self.quickOpen = QAction(self)
-        # self.quickOpen.setIcon(QIcon('./source/ui/icons/quick_open.svg'))
-        self.exitAction = QAction(self)
+        self.quickOpen = QWidgetAction(self)
+        self.exitAction = QWidgetAction(self)
         self.action_Language = QMenu(self)
-        self.action_SelectOutPath = QAction(self)
-        self.action_ClearOutPath = QAction(self)
-        self.action_CreateOutPath = QAction(self)
-        self.action_Settings = QAction(self)
-        self.action_DeleteEmptyFiles = QAction(self)
-        self.action_DeleteEmptySubfolders = QAction(self)
-        self.action_About = QAction(self)
-        self.action7z_Archiver = QAction(self)
-        self.actionGame_Archive_Unpacker_Plugin = QAction(self)
-        self.actionTotal_Observer = QAction(self)
-        self.actionSprite_and_Archive_Utility = QAction(self)
-        self.actionZlib_Deflate = QAction(self)
-        self.actionLZ4 = QAction(self)
-        self.actionWAV = QAction(self)
-        self.autoSearchScripts = QAction(self)
-        self.actionFileList = QAction(self)
-        self.actionArchiveScanner = QAction(self)
-        self.actionFFMPEG_Video_Converter = QAction(self)
-        self.actionRad_Video_Tools = QAction(self)
-        self.actionMedia_Info = QAction(self)
-        self.actionFFMPEG_Sound_Converter = QAction(self)
-        self.actionVGM_Stream_Tools = QAction(self)
-        self.actionFSBext = QAction(self)
-        self.actionToWAV = QAction(self)
-        self.actionRAW_to_WAV = QAction(self)
-        self.actionRAW_to_Atrac = QAction(self)
-        self.actionPlayStation_Audio_Converter = QAction(self)
-        self.actionXWM_WAV_Audio_Converter = QAction(self)
-        self.actionFFMPEG_Image_Converter = QAction(self)
-        self.actionWwise_Converter = QAction(self)
-        self.actionSAU = QAction(self)
-        self.action_nConvert = QAction(self)
-        self.actionImage_to_DDS_Microsoft = QAction(self)
-        self.actionImage_to_DDS_nVidia = QAction(self)
-        self.actionDDS_Header_Generator = QAction(self)
-        self.actionCubeMap_Creator = QAction(self)
-        self.actionICO_Icon_Splitter = QAction(self)
-        self.create_theme = QAction(self)
+        self.action_SelectOutPath = QWidgetAction(self)
+        self.action_ClearOutPath = QWidgetAction(self)
+        self.action_CreateOutPath = QWidgetAction(self)
+        self.action_Settings = QWidgetAction(self)
+        self.action_DeleteEmptyFiles = QWidgetAction(self)
+        self.action_DeleteEmptySubfolders = QWidgetAction(self)
+        self.action_About = QWidgetAction(self)
+        self.action7z_Archiver = QWidgetAction(self)
+        self.actionGame_Archive_Unpacker_Plugin = QWidgetAction(self)
+        self.actionTotal_Observer = QWidgetAction(self)
+        self.actionSprite_and_Archive_Utility = QWidgetAction(self)
+        self.actionZlib_Deflate = QWidgetAction(self)
+        self.actionLZ4 = QWidgetAction(self)
+        self.actionWAV = QWidgetAction(self)
+        self.autoSearchScripts = QWidgetAction(self)
+        self.actionFileList = QWidgetAction(self)
+        self.actionArchiveScanner = QWidgetAction(self)
+        self.actionFFMPEG_Video_Converter = QWidgetAction(self)
+        self.actionRad_Video_Tools = QWidgetAction(self)
+        self.actionMedia_Info = QWidgetAction(self)
+        self.actionFFMPEG_Sound_Converter = QWidgetAction(self)
+        self.actionVGM_Stream_Tools = QWidgetAction(self)
+        self.actionFSBext = QWidgetAction(self)
+        self.actionToWAV = QWidgetAction(self)
+        self.actionRAW_to_WAV = QWidgetAction(self)
+        self.actionRAW_to_Atrac = QWidgetAction(self)
+        self.actionPlayStation_Audio_Converter = QWidgetAction(self)
+        self.actionXWM_WAV_Audio_Converter = QWidgetAction(self)
+        self.actionFFMPEG_Image_Converter = QWidgetAction(self)
+        self.actionWwise_Converter = QWidgetAction(self)
+        self.actionSAU = QWidgetAction(self)
+        self.action_nConvert = QWidgetAction(self)
+        self.actionImage_to_DDS_Microsoft = QWidgetAction(self)
+        self.actionImage_to_DDS_nVidia = QWidgetAction(self)
+        self.actionDDS_Header_Generator = QWidgetAction(self)
+        self.actionCubeMap_Creator = QWidgetAction(self)
+        self.actionICO_Icon_Splitter = QWidgetAction(self)
+        self.create_theme = QWidgetAction(self)
         self.unpackWith.addAction(self.action7z_Archiver)
         self.unpackWith.addAction(self.actionGame_Archive_Unpacker_Plugin)
         self.unpackWith.addAction(self.actionTotal_Observer)
@@ -352,3 +350,19 @@ class Ui_BFGUnpacker(Translate):
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
+
+    @staticmethod
+    def dragEnterEvent(event):
+        mime_data = event.mimeData()
+
+        if mime_data.hasUrls() and len(mime_data.urls()) == 1:
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        mime_data = event.mimeData()
+
+        if mime_data.hasUrls():
+            file_path = mime_data.urls()[0].toLocalFile()
+            ic(file_path)
+            self.file_list = [file_path]
+            self.find_reaper()

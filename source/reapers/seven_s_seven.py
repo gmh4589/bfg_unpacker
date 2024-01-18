@@ -2,13 +2,12 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
 
 
 class Seven(Reaper):
 
-    @file_reaper
     def run(self):
         self.update_signal.emit(0, '', f'{localize.wait}...', False)
 

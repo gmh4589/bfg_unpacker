@@ -3,13 +3,12 @@ from subprocess import Popen, PIPE
 from time import sleep
 from random import randint
 
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
 
 
 class SevenZIP(Reaper):
 
-    @file_reaper
     def run(self):
         a = 0
 

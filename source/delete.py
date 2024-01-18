@@ -1,7 +1,7 @@
 
 import os
 import shutil
-from send2trash import send2trash
+# from send2trash import send2trash
 import configparser
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -25,7 +25,8 @@ class DeleteThread(Reaper):
 
             try:
                 if int(setting['Main']['trash']):
-                    send2trash(name)  # TODO: ?????
+                    # send2trash(name)  # TODO: ?????
+                    pass
                 else:
                     os.remove(name) if os.path.isfile(name) else shutil.rmtree(name)
 

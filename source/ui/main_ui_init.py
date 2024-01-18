@@ -3,11 +3,13 @@ import importlib
 import json
 import os
 from datetime import datetime
+
+import ffmpeg
 import pandas
 
-from PyQt5.QtCore import Qt, QItemSelectionModel
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import Qt, QItemSelectionModel
+from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon
+from PyQt6.QtWidgets import *
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
@@ -74,7 +76,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.mainList = self.mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
         self.names = {row['game_name']: row['release_year'] for _, row in self.mainList.iterrows()}
         self.tree_view_create_by_name() if self.setting['Main']['group'] == 'name' else self.tree_view_create_by_year()
-        self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
+        self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
 
         # Run functions and methods
@@ -100,6 +102,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             lambda: self.set_setting('Main', 'out_path', self.file_open(select_folder=True)))
         self.actionRad_Video_Tools.triggered.connect(  # Run RAD Video Tools
             lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))
+        self.actionMedia_Info.triggered.connect(lambda: print(ffmpeg.probe(
+            QFileDialog.getOpenFileName(self, directory=self.setting['Main']['last_dir'])[0])))
 
         # Favorite block
         self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())  # All\favorite switch
@@ -110,12 +114,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())  # Find game button
 
         # Show console checkbox
-        self.checkBox_ShowConsole.setCheckState(int(self.setting['Main']['show_console']))
+        self.checkBox_ShowConsole.setChecked(bool(int(self.setting['Main']['show_console'])))
         self.checkBox_ShowConsole.stateChanged.connect(
             lambda: self.set_setting('Main', 'show_console', "2" if self.checkBox_ShowConsole.isChecked() else "0"))
 
         # Create subfolders checkbox
-        self.checkBox_createSubfolders.setCheckState(int(self.setting['Main']['subfolders']))
+        self.checkBox_createSubfolders.setChecked(bool(int(self.setting['Main']['subfolders'])))
         self.checkBox_createSubfolders.stateChanged.connect(
             lambda: self.set_setting('Main', 'subfolders', "2" if self.checkBox_createSubfolders.isChecked() else "0"))
 
@@ -129,7 +133,15 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                                          ['1', '2', '3', '4', '5', '6', '7', '8', translate.other],
                                                          ['8k', '12k', '16k', '20k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '256k', '320k', '448k', '512k', '768k', '1M', '2M', translate.other],
                                                          ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'ogg', 'opus', 'ra', 'tta', 'wav', 'wma', 'wv', translate.other]],
-                                            default_list=['44100', '2', '128k', 'mp3']).exec())
+                                            default_list=['44100', '2', '128k', 'mp3'],
+                                            action=f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
+                                                   f'-i "%file_name%" -vn '
+                                                   f'-acodec %action_3% '
+                                                   f'-ab %action_2% '
+                                                   f'-ar[:stream_specifier] %action_0% '
+                                                   # f'-af aresample=%action_1% '
+                                                   # TODO: Add frequency
+                                                   f'"%out_dir%/%out_name%.%action_3%"').exec())
         self.actionRAW_to_WAV.triggered.connect(self.raw2wav)
         self.actionRAW_to_Atrac.triggered.connect(self.raw2atrac)
         self.actionPlayStation_Audio_Converter.triggered.connect(self.ps_audio_tools)
@@ -138,7 +150,10 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                             gui_name='FFMPEG Image Converter',
                                             label_list=['Format'],
                                             action_list=[['apng', 'bmp', 'dpx', 'gif', 'jpg', 'pcx', 'pgm', 'pix', 'png', 'ppm', 'sgi', 'tga', 'tiff', 'xbm', 'xwd', translate.other]],
-                                            default_list=['png']).exec())
+                                            default_list=['png'],
+                                            action=f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
+                                                   f'-i "%file_name%" '
+                                                   f'"%out_dir%/%out_name%.%action_0%"').exec())
         self.action_nConvert.triggered.connect(self.nConvert)
         self.actionImage_to_DDS_Microsoft.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -174,7 +189,16 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                              ['3g2', '3gp', 'a64', 'asf', 'avi', 'dv', 'dvd', 'f4v', 'flv', 'hevc', 'ivf', 'm1v', 'm2v', 'm2t', 'm2ts', 'm4v', 'mkv', 'mjpeg', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'ogv', 'pam', 'rm', 'roq', 'swf', 'ts', 'vc1', 'vp8', 'vob', 'webm', 'wmv', 'wtv', translate.other],
                                              ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
                                              ['0', '1', '2', '3', '4', '5', '6', translate.other]],
-                                default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1']).exec()
+                                default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1'],
+                                action=f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
+                                       f'-i "%file_name%" '
+                                       f'-vcodec %action_0% '
+                                       f'-vb %action_2% '
+                                       f'-vf scale="%action_5%" '
+                                       f'-acodec %action_1% '
+                                       f'-ab %action_3% '
+                                       f'-map 0:0 -map 0:%action_6% '
+                                       f'"%out_dir%/%out_name%.%action_4%"').exec()
 
     def raw2wav(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -238,7 +262,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         index_to_activate = self.find_item_index(root_item, item_text)
 
         if index_to_activate is not None:
-            self.gameList_treeView.selectionModel().setCurrentIndex(index_to_activate, QItemSelectionModel.Select)
+            self.gameList_treeView.selectionModel().select(index_to_activate, QItemSelectionModel.SelectionFlag.Select)
             self.gameList_treeView.scrollTo(index_to_activate)
 
     def find_item_index(self, parent_item, target_text):
@@ -387,8 +411,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                     else:
                         context.triggered.connect(l_func)
 
-            btn.setContextMenuPolicy(3)
-            btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec_(b.mapToGlobal(pos)))
+            btn.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            btn.customContextMenuRequested.connect(lambda pos, b=btn: context_menu.exec(b.mapToGlobal(pos)))
 
     def add_btn_action(self, btn, action=''):
 
@@ -636,6 +660,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.lang_list_create()
         importlib.reload(translate)
         self.buttons_create()
-        self.model.setHeaderData(0, Qt.Horizontal, translate.select_something)
+        self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
         self.retranslateUi()

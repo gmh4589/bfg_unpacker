@@ -1,7 +1,7 @@
 
-from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject
+from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtWidgets import *
 
 from qt_material import apply_stylesheet
 import xml.etree.ElementTree as ET

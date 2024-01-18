@@ -1,7 +1,7 @@
 import pandas
-from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication, Qt
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import QRect, QMetaObject, QCoreApplication, Qt
+from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtWidgets import *
 import configparser
 from qt_material import apply_stylesheet
 
@@ -43,27 +43,27 @@ class SettingWindow(QDialog):
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.unity_checkBox = QCheckBox(self.widget)
         self.unity_checkBox.setFont(self.font)
-        self.unity_checkBox.setCheckState(int(self.setting['Engines']['unity']))
+        self.unity_checkBox.setChecked(bool(int(self.setting['Engines']['unity'])))
         self.verticalLayout_2.addWidget(self.unity_checkBox)
         self.unreal_checkBox = QCheckBox(self.widget)
         self.unreal_checkBox.setFont(self.font)
-        self.unreal_checkBox.setCheckState(int(self.setting['Engines']['unreal']))
+        self.unreal_checkBox.setChecked(bool(int(self.setting['Engines']['unreal'])))
         self.verticalLayout_2.addWidget(self.unreal_checkBox)
         self.rpg_checkBox = QCheckBox(self.widget)
         self.rpg_checkBox.setFont(self.font)
-        self.rpg_checkBox.setCheckState(int(self.setting['Engines']['rpg_maker']))
+        self.rpg_checkBox.setChecked(bool(int(self.setting['Engines']['rpg_maker'])))
         self.verticalLayout_2.addWidget(self.rpg_checkBox)
         self.gamemaker_checkBox = QCheckBox(self.widget)
         self.gamemaker_checkBox.setFont(self.font)
-        self.gamemaker_checkBox.setCheckState(int(self.setting['Engines']['game_maker']))
+        self.gamemaker_checkBox.setChecked(bool(int(self.setting['Engines']['game_maker'])))
         self.verticalLayout_2.addWidget(self.gamemaker_checkBox)
         self.renpy_checkBox = QCheckBox(self.widget)
         self.renpy_checkBox.setFont(self.font)
-        self.renpy_checkBox.setCheckState(int(self.setting['Engines']['renpy']))
+        self.renpy_checkBox.setChecked(bool(int(self.setting['Engines']['renpy'])))
         self.verticalLayout_2.addWidget(self.renpy_checkBox)
         self.godot_checkBox = QCheckBox(self.widget)
         self.godot_checkBox.setFont(self.font)
-        self.godot_checkBox.setCheckState(int(self.setting['Engines']['godot']))
+        self.godot_checkBox.setChecked(bool(int(self.setting['Engines']['godot'])))
         self.verticalLayout_2.addWidget(self.godot_checkBox)
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(resize.widget(160), resize.widget(30),
@@ -91,16 +91,16 @@ class SettingWindow(QDialog):
         self.arch_checkbox = QCheckBox(self.groupBox_3)
         self.arch_checkbox.setGeometry(QRect(resize.widget(10), resize.widget(10),
                                              resize.widget(120), resize.widget(20)))
-        self.arch_checkbox.setCheckState(int(self.setting['Main']['group_arch']))
+        self.arch_checkbox.setChecked(bool(int(self.setting['Main']['group_arch'])))
         self.ge_checkbox = QCheckBox(self.groupBox_3)
         self.ge_checkbox.setGeometry(QRect(resize.widget(10), resize.widget(35),
                                                  resize.widget(120), resize.widget(20)))
-        self.ge_checkbox.setCheckState(int(self.setting['Main']['group_ge']))
+        self.ge_checkbox.setChecked(bool(int(self.setting['Main']['group_ge'])))
 
         self.zoom_label = QLabel(self.centralwidget)
         self.zoom_label.setGeometry(QRect(resize.widget(10), resize.widget(250),
                                           resize.widget(90), resize.widget(20)))
-        self.zoom_slider = QSlider(Qt.Horizontal, self.centralwidget)
+        self.zoom_slider = QSlider(Qt.Orientation.Horizontal, self.centralwidget)
         self.zoom_slider.setRange(0, 4)
         self.zoom_slider.setGeometry(QRect(resize.widget(100), resize.widget(250),
                                            resize.widget(190), resize.widget(20)))

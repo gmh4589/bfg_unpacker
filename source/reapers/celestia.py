@@ -3,7 +3,7 @@ import pandas
 from icecream import ic
 
 from datetime import datetime
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
 
 
@@ -53,7 +53,6 @@ class Celestia(Reaper):
 
         return str(semiAxis)
 
-    @file_reaper
     def run(self):
         self.list = pandas.read_csv(self.file_name, delimiter=',')
         now = datetime.now().strftime("%d.%m.%Y")

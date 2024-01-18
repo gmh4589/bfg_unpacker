@@ -1,15 +1,13 @@
 
 import os
 import sys
-from PyQt5.QtWidgets import *
+from PyQt6.QtWidgets import *
 from icecream import ic
 
 from source.quick_open import QuickOpen
 from source.ui import localize
 from source.reaper import after_dot
-from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres,
-                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, qbms, seven_zip, unreal,
-                            unity, afs, source_vpk, other_prg, ffmpeg_tool)
+import source.reapers as reapers
 
 
 class UnpackerMain(QuickOpen):
@@ -82,7 +80,9 @@ class UnpackerMain(QuickOpen):
     def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name=''):
         self.func_name = func_name
         self.script_name = script_name
-        ext_list += f'{localize.all_files}(*.*)'
+        if type(ext_list) is float: ext_list = ''
+        ext_list = f'{ext_list}{localize.all_files}(*.*)'
+        ic(ext_list)
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
         self.last_run = self.select_unpacker
         self.select_unpacker()
@@ -101,42 +101,42 @@ class UnpackerMain(QuickOpen):
                     header = fff.read(4)
 
                 if header == b'PK\x03\x04':
-                    self.proc = seven_zip.SevenZIP()
+                    self.proc = reapers.seven_zip.SevenZIP()
                 else:
 
                     match self.func_name:
                         case '_7x7':
-                            self.proc = seven_s_seven.Seven()
+                            self.proc = reapers.seven_s_seven.Seven()
                         case '_Arx':
-                            self.proc = arx_fatalis.PakExtractor()
+                            self.proc = reapers.arx_fatalis.PakExtractor()
                         case '_Aurora':
-                            self.proc = aurora_engine.ERFUnpacker()
+                            self.proc = reapers.aurora_engine.ERFUnpacker()
                         case '_ExoPlanet':
-                            self.proc = celestia.Celestia()
+                            self.proc = reapers.celestia.Celestia()
                         case '_idTech':
 
                             if ext == 'wad':
-                                self.proc = doom_wad.WadExtractor()
+                                self.proc = reapers.doom_wad.WadExtractor()
                             elif ext == 'pak':
-                                self.proc = quake_pak.QPAKExtractor()
+                                self.proc = reapers.quake_pak.QPAKExtractor()
                             else:
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
 
                         case '_Mor':
-                            self.proc = pathologic.MorUnpacker()
+                            self.proc = reapers.pathologic.MorUnpacker()
                         case '_Sen':
 
                             if ext in ('phyre', 'dds', 'png', 'bmp', 'gxt'):
-                                self.proc = phyre.PhyreSave()
+                                self.proc = reapers.phyre.PhyreSave()
                             elif ext == 'dat':
 
                                 if 'book' in self.file_name:
 
                                     if self.checkBox_Reimport.isChecked():
-                                        self.proc = sen_book.SenBookSave()
+                                        self.proc = reapers.sen_book.SenBookSave()
                                     else:
-                                        self.proc = sen_book.SenBook()
+                                        self.proc = reapers.sen_book.SenBook()
                                 else:
                                     # TODO: Add functions to unpack other file types
                                     print(f'{localize.work_in_progress}...')
@@ -146,31 +146,33 @@ class UnpackerMain(QuickOpen):
                                 print(f'{localize.work_in_progress}...')
 
                         case '_Unity':
-                            self.proc = unity.Unity()
+                            self.proc = reapers.unity.Unity()
                         case '_Unreal' | '_Unreal4':
 
                             if ext == 'locres':
-                                self.proc = locres.Locres2TXT()
+                                self.proc = reapers.locres.Locres2TXT()
                             elif ext == 'txt':
-                                self.proc = locres.TXT2Locres()
+                                self.proc = reapers.locres.TXT2Locres()
                             else:
-                                self.proc = unreal.Unreal()
+                                self.proc = reapers.unreal.Unreal()
                                 self.proc.key = self.script_name
 
                         case '_ZIP':
-                            self.proc = zip_archive.Zip()
+                            self.proc = reapers.zip_archive.Zip()
                         case '_7ZIP':
-                            self.proc = seven_zip.SevenZIP()
+                            self.proc = reapers.seven_zip.SevenZIP()
                         case '_ZPL':
-                            self.proc = zpl2png.ZPL2PNG()
+                            self.proc = reapers.zpl2png.ZPL2PNG()
                         case '_Total':
-                            self.proc = qbms.Q_BMS()
+                            self.proc = reapers.qbms.Q_BMS()
                             self.proc.script_name = 'data/wcx/TotalObserver.wcx'
                         case '_GAUP':
-                            self.proc = qbms.Q_BMS()
+                            self.proc = reapers.qbms.Q_BMS()
                             self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+                        case '_Source':
+                            self.proc = reapers.source_vpk.VPKExtractor()
                         case _:
-                            self.proc = qbms.Q_BMS()
+                            self.proc = reapers.qbms.Q_BMS()
                             self.proc.script_name = self.script_name
                 
                 if self.proc is not None:

@@ -3,7 +3,7 @@ import os
 from subprocess import Popen, PIPE
 from icecream import ic
 
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
 
 
@@ -13,7 +13,6 @@ class Q_BMS(Reaper):
         super().__init__()
         self.script_name = ''
 
-    @file_reaper
     def run(self):
 
         size = os.path.getsize(self.file_name)

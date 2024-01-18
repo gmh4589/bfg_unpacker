@@ -1,12 +1,11 @@
 
 import os
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
 
 
 class ARCExtractor(Reaper):
 
-    @file_reaper
     def run(self):
 
         with open(self.file_name, "rb") as arc_file:

@@ -4,8 +4,9 @@ import psutil
 from icecream import ic
 from subprocess import Popen, PIPE
 
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper
 from source.ui import localize
+
 
 class Converter(Reaper):
 
@@ -18,7 +19,6 @@ class Converter(Reaper):
         self.ab = '192k'
         self.map = '1'
         self.format = 'mkv'
-        self.info_only = False
 
     def is_file_in_use(self):
         for process in psutil.process_iter(['pid', 'open_files']):
@@ -36,17 +36,12 @@ class Converter(Reaper):
 
         return False
 
-    @file_reaper
     def run(self):
         out_path = f'{self.output_folder}/{os.path.basename(self.file_name).split(".")[-2]}.{self.format}'
         media_info = ffmpeg.probe(self.file_name)
         dur = float(media_info['format']['duration'])
         ic(media_info)
         ic(dur)
-
-        if self.info_only:
-            print(media_info)
-            return
 
         ar = (f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
               f'-i "{self.file_name}" '
