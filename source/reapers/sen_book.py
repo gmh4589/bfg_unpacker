@@ -2,12 +2,13 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class SenBook(Reaper):
 
+    @file_reaper
     def run(self):
 
         file_path = self.file_name
@@ -58,6 +59,7 @@ class SenBook(Reaper):
 
 class SenBookSave(Reaper):
 
+    @file_reaper
     def run(self):
         file_path = self.file_name
         name = file_path.split('/')[-1]

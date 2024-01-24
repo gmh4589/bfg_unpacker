@@ -3,12 +3,13 @@ import os
 from subprocess import Popen, PIPE
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class Unity(Reaper):
 
+    @file_reaper
     def run(self):
         path = os.path.dirname(self.file_name)
 

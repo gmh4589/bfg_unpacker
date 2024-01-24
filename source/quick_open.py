@@ -9,7 +9,6 @@ from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, 
                             arx_fatalis, phyre, zpl2png, sen_book, quake_pak, qbms, seven_zip, unreal,
                             unity, afs, source_vpk, other_prg, ffmpeg_tool)
 
-
 class QuickOpen(QProcessList):
 
     @staticmethod
@@ -505,26 +504,13 @@ class QuickOpen(QProcessList):
 
                     elif self.head == b'\x00' * 4:
 
-                        with open(fn, 'rb') as test_read:
-                            test_read.seek(4)
-                            head2 = test_read.read(4)
-
-                        if head2 == b'\x00' * 4:  # Unreal Engine 4
+                        if 'Content/Paks' in fn:  # Unreal Engine 4
                             self.proc = unreal.Unreal()
                         else:  # Alone in the Dark
                             self.proc = qbms.Q_BMS()
                             self.proc.script_name = f"{self.root_dir}/data/scripts/alonedark.bms"
-
                     else:
-
-                        with open(fn, 'rb') as test_read:
-                            test_read.seek(int.from_bytes(self.head, byteorder='little') + 4)
-                            arx = int.from_bytes(test_read.read(4), byteorder='little')
-
-                        if arx in (0x46515641, 0x4149534E):
-                            self.proc = arx_fatalis.PakExtractor()
-                        else:
-                            self.sorry()
+                        self.sorry()
 
                 elif ext in ("phyre",):
                     self.proc = phyre.PhyreSave()

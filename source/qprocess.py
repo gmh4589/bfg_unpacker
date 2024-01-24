@@ -1,7 +1,7 @@
 
 import sys
 import os
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from source.ui.main_ui_init import MainWindow
 from source.ui import localize

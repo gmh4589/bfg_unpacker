@@ -2,7 +2,7 @@ import os
 from subprocess import Popen, PIPE
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
@@ -23,6 +23,7 @@ class Unreal(Reaper):
         with open(file_path, 'w') as new:
             new.writelines(lines)
 
+    @file_reaper
     def run(self):
         size = 0
         exp = self.file_name.split('.')[-1]
@@ -49,10 +50,7 @@ class Unreal(Reaper):
 
         while True:
             out1 = unreal.stdout.readline().strip()
-            out2 = unreal.stderr.readline()
             o = out1.split(' ')
-            # ic(out1)
-            # ic(out2)
 
             if size:
                 try:
@@ -66,15 +64,8 @@ class Unreal(Reaper):
                 ic(out1)
                 self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
 
-            if out2 == '- please insert the content for the variable KEY:':
-                print('Need description key to unpack this file!')
-                print('Please, select a game in manual...')
-
             if not out1:
-
-                if not size:
-                    unreal.kill()
-
+                if not size: unreal.kill()
                 break
 
         self.update_signal.emit(100, '', localize.done, True)

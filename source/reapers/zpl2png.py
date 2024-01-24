@@ -4,12 +4,13 @@ import shutil
 from time import sleep
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class ZPL2PNG(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, 'r', encoding='utf-8') as zpl_file:

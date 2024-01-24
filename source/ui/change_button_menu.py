@@ -1,7 +1,7 @@
 import configparser
 
-from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import *
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
 
 from source.ui import resize, localize

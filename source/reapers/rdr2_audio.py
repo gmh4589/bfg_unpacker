@@ -2,12 +2,13 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class RDR2Audio(Reaper):
 
+    @file_reaper
     def run(self):
         output_path = os.path.join(self.output_folder, self.file_name)
         name = os.path.dirname(output_path)

@@ -2,7 +2,7 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 # TODO: Add unzipped function for bmp files
 
@@ -15,6 +15,7 @@ class PakExtractor(Reaper):
         self.no_caps = True
         self.dirs = []
 
+    @file_reaper
     def run(self):
         self.dirs = []
 

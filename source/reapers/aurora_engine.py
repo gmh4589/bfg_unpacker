@@ -2,12 +2,13 @@ import os
 import zlib
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class ERFUnpacker(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as f:

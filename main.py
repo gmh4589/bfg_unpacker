@@ -1,7 +1,7 @@
 
 import os
 import sys
-from PyQt6.QtWidgets import *
+from PyQt5.QtWidgets import *
 from icecream import ic
 
 from source.quick_open import QuickOpen
@@ -80,9 +80,7 @@ class UnpackerMain(QuickOpen):
     def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name=''):
         self.func_name = func_name
         self.script_name = script_name
-        if type(ext_list) is float: ext_list = ''
         ext_list = f'{ext_list}{localize.all_files}(*.*)'
-        ic(ext_list)
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
         self.last_run = self.select_unpacker
         self.select_unpacker()

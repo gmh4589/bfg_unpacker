@@ -1,5 +1,5 @@
 
-from PyQt6.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication
 import source.ui.localize as TL
 
 

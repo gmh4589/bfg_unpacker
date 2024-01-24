@@ -1,13 +1,13 @@
-import os.path
-from subprocess import Popen
-from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject
-from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import *
+
+from PyQt5.QtCore import QRect, QCoreApplication, QMetaObject
+from PyQt5.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import *
 from tkinter import simpledialog
 from icecream import ic
 
 from qt_material import apply_stylesheet
 import configparser
+import os
 
 from source.ui import resize
 import source.ui.localize as TL
@@ -17,7 +17,7 @@ class ChildUIWindow(QDialog):
 
     def __init__(self, style='dark_orange', gui_name='test_child',
                  label_list=None, action_list=None, default_list=None,
-                 ext_list='', action=''):
+                 action='rum_me', ext_list=''):
 
         super().__init__()
 
@@ -116,10 +116,12 @@ class ChildUIWindow(QDialog):
                                                   directory=self.setting['Main']['last_dir'])[0]
         if file_names:
 
-            for file_name in file_names:
+            for self.file_name in file_names:
 
-                if file_name:
-                    yield file_name
+                if self.file_name:
+                    yield self.file_name
+
+            # self.set_setting('Main', 'last_dir', os.path.dirname(self.file_name))
 
     def run_p(self):
 
@@ -127,18 +129,14 @@ class ChildUIWindow(QDialog):
 
             for file_name in self.file_open():
 
-                if file_name:
-                    out_name = os.path.basename(file_name).split('.')[-2]
+                for drop in range(len(self.drops)):
+                    self.action = self.action.replace(f'%action_{drop}%', self.drops[drop].currentText())
 
-                    for drop in range(len(self.drops)):
-                        self.action = self.action.replace(f'%action_{drop}%', self.drops[drop].currentText())
+                self.action = (self.action.replace('%out_dir%', self.setting['Main']['out_path'])
+                               .replace('%file_name%', file_name))
+                ic(self.action)
 
-                    action = (self.action
-                                  .replace('%out_dir%', self.setting['Main']['out_path'])
-                                  .replace('%file_name%', file_name)
-                                  .replace('%out_name%', out_name))
-                    ic(action)
-                    Popen(action).wait()
+                os.system(self.action)
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
