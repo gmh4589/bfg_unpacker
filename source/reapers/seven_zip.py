@@ -1,20 +1,20 @@
-
 from subprocess import Popen, PIPE
 from time import sleep
 from random import randint
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class SevenZIP(Reaper):
 
+    @file_reaper
     def run(self):
         a = 0
 
         zip7 = Popen(f'{self.path_to_root}data\\7zip\\7z.exe x '
-                    f'-o"{self.output_folder}" "{self.file_name}"',
-                    stdout=PIPE, stderr=PIPE, encoding='utf-8')
+                     f'-o"{self.output_folder}" "{self.file_name}"',
+                     stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
         while zip7.poll() is None:
             a += randint(1, 5) if a <= 99 else 99

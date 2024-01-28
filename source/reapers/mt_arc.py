@@ -1,11 +1,14 @@
 
 import os
-from source.reaper import Reaper
+from icecream import ic
+
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class ARCExtractor(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, "rb") as arc_file:
@@ -20,13 +23,14 @@ class ARCExtractor(Reaper):
             file_count = int.from_bytes(arc_file.read(2), byteorder="little")
 
             if version in (4, 8):
-                compression = 'unzip_dynamic'
+                # 'unzip_dynamic'
+                c_num = 167
             elif version == 17:
-                compression = 'XMemDecompress 0x8000'
+                ic('XMemDecompress 0x8000')  # TODO: WTF?
+                c_num = 0
             else:
-                compression = 'zlib_noerror'
-
-            print(compression)
+                # 'zlib_noerror'
+                c_num = 1
 
             for i in range(file_count):
                 name = arc_file.read(64).decode("ascii").rstrip("\0")
@@ -40,13 +44,17 @@ class ARCExtractor(Reaper):
 
                 with open(path, 'wb') as new_file:
                     arc_file.seek(offset)
-                    # new_file.write(zlib.decompress(arc_file.read(file_size), -zlib.MAX_WBITS))
                     new_file.write(arc_file.read(file_size))
 
+                if c_num:
+                    self.unzip(path, c_num, get_ext=True)
+
                 arc_file.seek(here)
+                ic(name)
 
                 print(f"{i + 1}/{file_count} {name}")
                 self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i}/{file_count}',
                                         f'{localize.saving} - {name}...', False)
 
+        # os.remove(f"{self.output_folder}/ZLIB.dmp")
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

@@ -7,7 +7,10 @@ from icecream import ic
 from source.quick_open import QuickOpen
 from source.ui import localize
 from source.reaper import after_dot
-import source.reapers as reapers
+
+from source.reapers import (afs, arx_fatalis, aurora_engine, celestia, chrome_engine, doom_wad, ffmpeg_tool, locres,
+                            mt_arc, other_prg, pathologic, phyre, qbms, quake_pak, rdr2_audio, sen_book, seven_s_seven,
+                            seven_zip, source_vpk, unity, unreal, zip_archive, zpl2png)
 
 
 class UnpackerMain(QuickOpen):
@@ -18,12 +21,7 @@ class UnpackerMain(QuickOpen):
         self.script_name = ''
         self.file_list = []
 
-        try:
-
-            if self.setting['Main']['disable_ic'] == 'True':
-                ic.disable()
-
-        except KeyError:
+        if true_false(self.setting['Main']['disable_ic'].lower()):
             ic.disable()
 
     def q_open(self):
@@ -80,7 +78,10 @@ class UnpackerMain(QuickOpen):
     def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name=''):
         self.func_name = func_name
         self.script_name = script_name
-        if type(ext_list) is float: ext_list = ''
+
+        if type(ext_list) is float:
+            ext_list = ''
+
         ext_list = f'{ext_list}{localize.all_files}(*.*)'
         ic(ext_list)
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
@@ -101,42 +102,168 @@ class UnpackerMain(QuickOpen):
                     header = fff.read(4)
 
                 if header == b'PK\x03\x04':
-                    self.proc = reapers.seven_zip.SevenZIP()
+                    self.proc = zip_archive.Zip()
                 else:
 
                     match self.func_name:
                         case '_7x7':
-                            self.proc = reapers.seven_s_seven.Seven()
+                            self.proc = seven_s_seven.Seven()
+                        case '_7ZIP' | '_Chromium' | '_Construct' | '_Flash':
+                            self.proc = seven_zip.SevenZIP()
                         case '_Arx':
-                            self.proc = reapers.arx_fatalis.PakExtractor()
+                            self.proc = arx_fatalis.PakExtractor()
+                        case '_Anvil':
+                            # TODO: Move to QuickBMS
+                            self.proc = qbms.Q_BMS()
+                            self.proc.script_name = '/data/scripts/scimitar.bms'
+                        case '_Asura':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case '_Aurora':
-                            self.proc = reapers.aurora_engine.ERFUnpacker()
+
+                            if ext in ('erf', 'rim'):
+                                self.proc = aurora_engine.ERFUnpacker()
+                            elif ext in ('bif', 'key'):
+                                self.proc = qbms.Q_BMS()
+                                self.proc.script_name = '/data/scripts/BIF_BIFFV1.bms'
+                            elif ext == 'dzip':
+                                # TODO: Add DZIP support with \data\gibbed\Gibbed.RED.Unpack.exe
+                                print(f'{localize.work_in_progress}...')
+                            else:
+                                print(localize.not_correct_file.replace('%%', 'Aurora Engine'))
+
+                        case '_Bethesda' | '_CelTop':
+                            # TODO: Add functions to unpack other file types
+                            # TODO: Add _CelTop here
+                            print(f'{localize.work_in_progress}...')
+                        case '_Build':
+
+                            if ext == 'grp':
+                                self.proc = qbms.Q_BMS()
+                                self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+                            elif ext == 'art':
+                                # TODO: Add functions to unpack other file types
+                                # TODO: '\data\art2tga.exe'
+                                print(f'{localize.work_in_progress}...')
+                            elif ext == 'tga':
+                                # TODO: Add functions to unpack other file types
+                                # TODO: '\data\tga2art.exe'
+                                print(f'{localize.work_in_progress}...')
+                            elif ext == 'rff':
+                                # TODO: Add functions to unpack other file types
+                                # TODO: _DosBox('', 'barf.exe ', 1, ' -x ', $sFileName)
+                                print(f'{localize.work_in_progress}...')
+                            else:
+                                print(localize.not_correct_file.replace('%%', 'Build Engine'))
+
+                        case '_Chrome':
+
+                            if ext in ("csb", "spb"):
+                                self.proc = qbms.Q_BMS()
+                                self.proc.script_name = 'data/scripts/dying_light.bms'
+                            elif ext == ".rpack":
+
+                                if header == b'RP6L':
+                                    self.proc = chrome_engine.RP6L()
+                                else:
+                                    # TODO: Add functions to unpack other file types
+                                    print(f'{localize.work_in_progress}...')
+
+                                # If StringInStr($iDir, 'dying') > 0 Then
+                                # _OtherPRG('', "\data\lua_scripts\lua.exe", ' ' & @ScriptDir & '\data\lua_scripts\rp6l.lua ', $sFolderName, @ScriptDir & '\data\lua_scripts', $sFileName)
+                                # ElseIf StringInStr($iDir, 'sniper') > 0 Then
+                                # $iF = FileOpen($sFileName, 16)
+                                # FileSetPos($iF, 20, 0)
+                                # $iOffset = _BinaryToInt16(FileRead($iF, 4))
+                                # FileClose($iF)
+                                # _OtherPRG('', "\data\offzip.exe ", ' -a ', $sFolderName & ' ' & $iOffset, $sFolderName, $sFileName)
+                                # Else
+                                # _OtherPRG('', "\data\gibbed\Gibbed.Chrome.ResourceUnpack.exe", '', $sFolderName, $sFolderName, $sFileName)
+                                # EndIf
+
+                            else:
+                                print(localize.not_correct_file.replace('%%', 'Chrome Engine'))
+
+                        case '_CryEngine':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case '_ExoPlanet':
-                            self.proc = reapers.celestia.Celestia()
+                            self.proc = celestia.Celestia()
+                            # TODO: Add Space Engine support
+                        case '_FrostBite':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_Gamemaker':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_GAUP':
+                            self.proc = qbms.Q_BMS()
+                            self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+                        case '_Glacier':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_Godot':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case '_idTech':
 
                             if ext == 'wad':
-                                self.proc = reapers.doom_wad.WadExtractor()
+                                self.proc = doom_wad.WadExtractor()
                             elif ext == 'pak':
-                                self.proc = reapers.quake_pak.QPAKExtractor()
+                                self.proc = quake_pak.QPAKExtractor()
                             else:
                                 # TODO: Add functions to unpack other file types
+                                print(localize.not_correct_file.replace('%%', 'idTech Engine'))
                                 print(f'{localize.work_in_progress}...')
 
+                        case '_LithTech':
+
+                            if ext in ('rez', 'arch00', 'arch01', 'arch02', 'arch03', 'arch04', 'arch05'):
+                                self.proc = qbms.Q_BMS()
+                                self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+                            elif ext == 'arch06':
+                                self.proc = qbms.Q_BMS()
+                                self.proc.script_name = 'data/scripts/shadow_of_mordor.bms'
+                            else:
+                                print(localize.not_correct_file.replace('%%', 'LithTech Engine'))
+
                         case '_Mor':
-                            self.proc = reapers.pathologic.MorUnpacker()
+                            self.proc = pathologic.MorUnpacker()
+                        case '_MTFramework':
+                            self.proc = mt_arc.ARCExtractor()
+                        case '_OOAM':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_OtherPRG':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_RedEngine':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_REEngine':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_RenPy':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_RPGMaker':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_SAU':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case '_Sen':
 
                             if ext in ('phyre', 'dds', 'png', 'bmp', 'gxt'):
-                                self.proc = reapers.phyre.PhyreSave()
+                                self.proc = phyre.PhyreSave()
                             elif ext == 'dat':
 
                                 if 'book' in self.file_name:
 
                                     if self.checkBox_Reimport.isChecked():
-                                        self.proc = reapers.sen_book.SenBookSave()
+                                        self.proc = sen_book.SenBookSave()
                                     else:
-                                        self.proc = reapers.sen_book.SenBook()
+                                        self.proc = sen_book.SenBook()
                                 else:
                                     # TODO: Add functions to unpack other file types
                                     print(f'{localize.work_in_progress}...')
@@ -145,34 +272,43 @@ class UnpackerMain(QuickOpen):
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
 
+                        case '_Source':
+
+                            if ext == 'vpk':
+                                self.proc = source_vpk.VPKExtractor()
+                            else:
+                                # TODO: Add functions to unpack other file types
+                                print(localize.not_correct_file.replace('%%', 'Source Engine'))
+                                print(f'{localize.work_in_progress}...')
+
+                        case '_TellTale':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
+                        case '_Total':
+                            self.proc = qbms.Q_BMS()
+                            self.proc.script_name = 'data/wcx/TotalObserver.wcx'
+                        case '_Unigene':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case '_Unity':
-                            self.proc = reapers.unity.Unity()
+                            self.proc = unity.Unity()
                         case '_Unreal' | '_Unreal4':
 
                             if ext == 'locres':
-                                self.proc = reapers.locres.Locres2TXT()
+                                self.proc = locres.Locres2TXT()
                             elif ext == 'txt':
-                                self.proc = reapers.locres.TXT2Locres()
+                                self.proc = locres.TXT2Locres()
                             else:
-                                self.proc = reapers.unreal.Unreal()
+                                self.proc = unreal.Unreal()
                                 self.proc.key = self.script_name
 
-                        case '_ZIP':
-                            self.proc = reapers.zip_archive.Zip()
-                        case '_7ZIP':
-                            self.proc = reapers.seven_zip.SevenZIP()
                         case '_ZPL':
-                            self.proc = reapers.zpl2png.ZPL2PNG()
-                        case '_Total':
-                            self.proc = reapers.qbms.Q_BMS()
-                            self.proc.script_name = 'data/wcx/TotalObserver.wcx'
-                        case '_GAUP':
-                            self.proc = reapers.qbms.Q_BMS()
-                            self.proc.script_name = 'data/wcx/gaup_pro.wcx'
-                        case '_Source':
-                            self.proc = reapers.source_vpk.VPKExtractor()
+                            self.proc = zpl2png.ZPL2PNG()
+                        case '_Zaglushka':
+                            # TODO: Add functions to unpack other file types
+                            print(f'{localize.work_in_progress}...')
                         case _:
-                            self.proc = reapers.qbms.Q_BMS()
+                            self.proc = qbms.Q_BMS()
                             self.proc.script_name = self.script_name
                 
                 if self.proc is not None:
@@ -184,6 +320,16 @@ class UnpackerMain(QuickOpen):
             self.q_connect(self.delete_thread, header=f'{localize.deleting}...')
         else:
             print(localize.empty_folder)
+
+
+def true_false(boo):
+
+    try:
+        b1 = bool(int(boo))
+    except ValueError:
+        b1 = True if 'true' == boo else False
+
+    return b1
 
 
 if __name__ == "__main__":

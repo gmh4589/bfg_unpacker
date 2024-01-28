@@ -2,6 +2,7 @@
 import sys
 import os
 from PyQt6.QtCore import QObject, pyqtSignal
+from icecream import ic
 
 from source.ui.main_ui_init import MainWindow
 from source.ui import localize
@@ -22,7 +23,13 @@ class QProcessList(MainWindow):
 
     def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
         nuke.file_name = fn
-        nuke.output_folder = self.out_dir
+        fp = f'{self.out_dir}\\{os.path.basename(fn)}'
+        ic(fp)
+        nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
+
+        if self.checkBox_createSubfolders.isChecked():
+            os.makedirs(fp, exist_ok=True)
+
         self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(header)
         self.pb.progressBar.setValue(0)

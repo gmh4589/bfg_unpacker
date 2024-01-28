@@ -2,15 +2,15 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class RDR2Audio(Reaper):
 
+    @file_reaper
     def run(self):
-        output_path = os.path.join(self.output_folder, self.file_name)
-        name = os.path.dirname(output_path)
+        name = os.path.basename(self.file_name).split('.')[-2]
 
         with open(self.file_name, 'rb') as archive:
             data = archive.read()
@@ -21,7 +21,7 @@ class RDR2Audio(Reaper):
 
         for i, file in enumerate(files):
 
-            with open(f'{name}_{i}.awc', 'wb') as new_track:
+            with open(f'{self.output_folder}/{name}_{i}.awc', 'wb') as new_track:
                 new_track.write(b'ADAT' + file)
 
             print(f'{i + 1}/{file_count} - {name}_{i}')

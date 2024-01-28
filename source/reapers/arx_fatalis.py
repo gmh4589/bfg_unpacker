@@ -2,9 +2,8 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
-# TODO: Add unzipped function for bmp files
 
 
 class PakExtractor(Reaper):
@@ -15,6 +14,7 @@ class PakExtractor(Reaper):
         self.no_caps = True
         self.dirs = []
 
+    @file_reaper
     def run(self):
         self.dirs = []
 
@@ -42,9 +42,14 @@ class PakExtractor(Reaper):
                         for file in d['files']:
                             current += 1
                             new_file = f.read(file['size'])
+                            ext = file['name'].split('.')[-1]
+                            path = os.path.join(self.output_folder, d['name'], file['name'])
 
-                            with open(os.path.join(self.output_folder, d['name'], file['name']), 'wb') as nf:
+                            with open(path, 'wb') as nf:
                                 nf.write(new_file)
+
+                            if ext == 'bmp':
+                                self.unzip(path, 618)
 
                             print(f"{current}/{all_files} {file['name']}")
                             ic(file["name"])

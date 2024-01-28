@@ -4,7 +4,7 @@ from PIL import Image
 from icecream import ic
 
 from source.reapers import image_tools
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
@@ -106,6 +106,7 @@ class PhyreSave(Reaper):
                                 (b'\x06' if codec in (b'ARGB8', b'RGBA8') else b'\x05') +
                                 b'\x00\x00\x00\x0B\x00\x00\x00\x58\x02\x00\x01\x48\x04\x01\x48' + postfix + image_data)
 
+    @file_reaper
     def run(self):
 
         if self.file_name.split('.')[-1] != 'phyre':

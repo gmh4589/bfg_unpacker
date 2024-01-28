@@ -4,7 +4,7 @@ from time import sleep
 from icecream import ic
 from subprocess import Popen, PIPE
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
@@ -22,6 +22,7 @@ class OtherProg(Reaper):
         self.splitter = ' '
         self.real_pb = True
 
+    @file_reaper
     def run(self):
 
         prg = Popen(f'"{self.path_to_root}data/{self.program_name}" {self.first_arg} '

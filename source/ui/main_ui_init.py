@@ -13,10 +13,11 @@ from PyQt6.QtWidgets import *
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
-from source.reaper import after_dot
+from source.reaper import after_dot, Reaper
 from source.setting import Setting
-from source.ui import (resize, setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
+from source.ui import (setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
                        localize as translate, child_gui)
+# from source.reapers import encryption_scan
 
 
 class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
@@ -31,7 +32,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.setWindowTitle("BFGUnpacker")
-        self.resize(resize.widget(600), resize.widget(650))
+        self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.all_games = 0
         self.parent_list = {}
@@ -86,13 +87,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.archive_list_create()
 
         # Actions connected
+        self.actionArchiveScanner.triggered.connect(self.find_zip)
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.action7z_Archiver.triggered.connect(  # ZIP
-            lambda: self.select_unpacker('_ZIP'))
+            lambda: self.create_queue(func_name='_7ZIP'))
         self.actionGame_Archive_Unpacker_Plugin.triggered.connect(  # GAUP
-            lambda: self.select_unpacker('_GAUP'))
+            lambda: self.create_queue(func_name='_GAUP'))
         self.actionTotal_Observer.triggered.connect(  # Total Observer
-            lambda: self.select_unpacker('_', script_name='data/wcx/TotalObserver.wcx'))
+            lambda: self.create_queue(func_name='_Total'))
         self.exitAction.triggered.connect(self.close)
         self.action_Settings.triggered.connect(  # Settings run
             lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
@@ -104,6 +106,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))
         self.actionMedia_Info.triggered.connect(lambda: print(ffmpeg.probe(
             QFileDialog.getOpenFileName(self, directory=self.setting['Main']['last_dir'])[0])))
+        # self.actionArchiveScanner.triggered.connect(lambda file_name=QFileDialog.getOpenFileName(self):
+        #                                             self.q_connect(encryption_scan.ArchiveScan(), file_name,
+        #                                                            header=f'Scanning: {file_name}...'))
 
         # Favorite block
         self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())  # All\favorite switch
@@ -181,23 +186,24 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
     def ffmpeg_video(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                 gui_name='FFMPEG Video Converter',
-                                label_list=['Video Codec', 'Audio Codec', 'Video Bitrate', 'Audio Bitrate', 'Format', 'Width:High', 'Audio Track'],
+                                label_list=['Video Codec', 'Audio Codec', 'Video Bitrate', 'Audio Bitrate', 'Format', 'Width', 'High', 'Audio Track'],
                                 action_list=[['a64_multi', 'a64_multi5', 'alias_pix', 'amv', 'apng', 'asv1', 'asv2', 'avrp', 'avui', 'ayuv', 'bmp', 'cinepak', 'cljr', 'dirac', 'dnxhd', 'dpx', 'dvvideo', 'ffv1', 'ffvhuff', 'flashsv', 'flashsv2', 'flv1', 'gif', 'h261', 'h263', 'h263p', 'h264', 'hap', 'hevc', 'huffyuv', 'jpeg2000', 'jpegls', 'ljpeg', 'mjpeg', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4v2', 'msmpeg4v3', 'msvideo1', 'pam', 'pbm', 'pcx', 'pgm', 'pgmyuv', 'png', 'ppm', 'prores', 'qtrle', 'r10k', 'r210', 'rawvideo', 'roq', 'rv10', 'rv20', 'sgi', 'snow', 'sunrast', 'svq1', 'targa', 'theora', 'tiff', 'utvideo', 'v210', 'v308', 'v408', 'v410', 'vp8', 'vp9', 'webp', 'wmv1', 'wmv2', 'wrapped_avframe', 'xbm', 'xface', 'xwd', 'y41p', 'yuv4', 'zlib', 'zmbv', translate.other],
                                              ['copy', 'aac', 'ac3', 'adpcm_adx', 'adpcm_g722', 'adpcm_g726', 'adpcm_ima_qt', 'adpcm_ima_wav', 'adpcm_ms', 'adpcm_swf', 'adpcm_yamaha', 'alac', 'amr_nb', 'amr_wb', 'comfortnoise', 'dts -strict -2', 'eac3', 'flac', 'g723_1', 'mp2', 'mp3',  'nellymoser', 'opus -strict -2', 'pcm_alaw', 'pcm_f32be',  'pcm_f32le', 'pcm_f64be', 'pcm_f64le', 'pcm_mulaw', 'pcm_s16be', 'pcm_s16be_planar', 'pcm_s16le', 'pcm_s16le_planar', 'pcm_s24be', 'pcm_s24daud', 'pcm_s24le', 'pcm_s24le_planar', 'pcm_s32be', 'pcm_s32le', 'pcm_s32le_planar', 'pcm_s8', 'pcm_s8_planar', 'pcm_u16be', 'pcm_u16le', 'pcm_u24be', 'pcm_u24le', 'pcm_u32be', 'pcm_u32le', 'pcm_u8', 'ra_144', 'roq_dpcm', 's302m', 'sonic', 'sonicls', 'speex', 'tta', 'vorbis -strict -2', 'wavpack', 'wmav1', 'wmav2', translate.other],
                                              ['64k', '128k', '192k', '256k', '512k', '768k', '1M', '2M', '3M', '4M', '5M', '6M', '8M', '10M', '12M', '15M', '16M', '20M', '25M', '30M', '40M', '50M', translate.other],
                                              ['16k', '24k', '32k', '48k', '64k', '96k', '112k', '128k', '160k', '192k', '224k', '256k', '320k', '360k', '448k', '512k', '768k', '1M', '2M', translate.other],
                                              ['3g2', '3gp', 'a64', 'asf', 'avi', 'dv', 'dvd', 'f4v', 'flv', 'hevc', 'ivf', 'm1v', 'm2v', 'm2t', 'm2ts', 'm4v', 'mkv', 'mjpeg', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'ogv', 'pam', 'rm', 'roq', 'swf', 'ts', 'vc1', 'vp8', 'vob', 'webm', 'wmv', 'wtv', translate.other],
-                                             ['160:120', '240:144', '240:160', '320:240', '360:240', '384:240', '400:240', '432:240', '480:320', '480:360', '480:360', '640:360', '512:384', '640:480', '720:480', '800:480', '854:480', '720:540', '960:540', '720:576', '1024:576', '800:600', '1024:600', '800:640', '960:640', '1024:640', '1136:640', '960:720', '1152:720', '1200:720', '1280:720', '1024:768', '1152:768', '1280:768', '1366:768', '1280:800', '1152:864', '1280:864', '1536:864', '1440:900', '1600:900', '1280:960', '1440:960', '1280:1024', '1400:1050', '1680:1050', '1440:1080', '1920:1080', '2560:1080', '2048:1152', '1600:1200', '1920:1200', '1920:1440', '2560:1440', '3440:1440', '1920:1536', '2048:1536', '2560:1600', '2880:1620', '2880:1800', '3200:1800', '2560:2048', '3200:2048', '3840:2160', '5120:2880', '4069:2160', '4096:3072', '5120:3200', '5760:3240', '5120:4096', '6400:4096', '7680:4320', '6400:4800', '7680:4800', translate.other],
+                                             ['120', '144', '160', '192', '240', '256', '272', '288', '308', '320', '342', '360', '384', '400', '426', '480', '512', '540', '576', '600', '640', '720', '768', '800', '810', '854', '864', '900', '960', '1024', '1050', '1064', '1080', '1136', '1200', '1152', '1200', '1280', '1350', '1360', '1366', '1400', '1440', '1536', '1600', '1620', '1800', '1920', '2025', '2048', '2160', '2250', '2400', '2560', '2880', '3072', '3200', '3240', '3440', '3384', '3840', '4096', '4320', '4800', '5120', '5760', '6016', '6400', '7680', '8192', '8640', '10240', '10320', '15360', translate.other],
+                                             ['120', '144', '160', '192', '240', '256', '272', '288', '308', '320', '342', '360', '384', '400', '426', '480', '512', '540', '576', '600', '640', '720', '768', '800', '810', '854', '864', '900', '960', '1024', '1050', '1064', '1080', '1136', '1200', '1152', '1200', '1280', '1350', '1360', '1366', '1400', '1440', '1536', '1600', '1620', '1800', '1920', '2025', '2048', '2160', '2250', '2400', '2560', '2880', '3072', '3200', '3240', '3440', '3384', '3840', '4096', '4320', '4800', '5120', '5760', '6016', '6400', '7680', '8192', '8640', '10240', '10320', '15360', translate.other],
                                              ['0', '1', '2', '3', '4', '5', '6', translate.other]],
-                                default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920:1080', '1'],
+                                default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920', '1080', '1'],
                                 action=f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
                                        f'-i "%file_name%" '
                                        f'-vcodec %action_0% '
                                        f'-vb %action_2% '
-                                       f'-vf scale="%action_5%" '
+                                       f'-vf scale="%action_5%:%action_6%" '
                                        f'-acodec %action_1% '
                                        f'-ab %action_3% '
-                                       f'-map 0:0 -map 0:%action_6% '
+                                       f'-map 0:0 -map 0:%action_7% '
                                        f'"%out_dir%/%out_name%.%action_4%"').exec()
 
     def raw2wav(self):
@@ -254,6 +260,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                 action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2vorbis'],
                                              ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
                                 default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec()
+
+    def find_zip(self):
+        file_n = QFileDialog.getOpenFileName(self, translate.open_file)[0]
+        reaper = Reaper()
+        reaper.output_folder = self.out_dir
+        reaper.zip_scan(f_name=file_n)
 
     def find_item_in_treeview(self):
 
@@ -498,9 +510,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                 'margin: 0px;'
                 'padding: 0px;'
                 'border-radius: 10px;'
-                f'height: {resize.widget(40)}px;'
-                f'width: {resize.widget(40)}px;'
-                f'font-size: {resize.widget(40)}px;'
+                f'height: 40px;'
+                f'width: 40px;'
+                f'font-size: 40px;'
                 '}')
 
             if i not in (0, 13, 14, -1):

@@ -5,7 +5,6 @@ from PyQt6.QtCore import QRect, QMetaObject, Qt
 from PyQt6.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import *
 from source.ui.main_ui_text import Translate
-from source.ui import resize
 
 
 class AutoCompleteComboBox(QComboBox):
@@ -39,43 +38,39 @@ class Ui_BFGUnpacker(Translate):
     def __init__(self):
         self.centralwidget = QWidget(self)
         self.font = QFont()
-        self.font.setPointSize(resize.widget(8))
+        self.font.setPointSize(8)
+        self.big_font = QFont()
+        self.big_font.setPointSize(10)
         self.centralwidget.setFont(self.font)
         self.centralwidget.setAcceptDrops(True)
         self.comboBox_gameList = AutoCompleteComboBox(self.centralwidget)
-        self.comboBox_gameList.setGeometry(QRect(resize.widget(80), resize.widget(40),
-                                                 resize.widget(375), resize.widget(30)))
+        self.comboBox_gameList.setGeometry(QRect(80, 40, 375, 30))
         self.toolButton_plus = QToolButton(self.centralwidget)
-        self.toolButton_plus.setGeometry(QRect(resize.widget(455), resize.widget(40),
-                                               resize.widget(30), resize.widget(30)))
+        self.toolButton_plus.setGeometry(QRect(455, 40, 30, 30))
         self.toolButton_minus = QToolButton(self.centralwidget)
-        self.toolButton_minus.setGeometry(QRect(resize.widget(485), resize.widget(40),
-                                                resize.widget(30), resize.widget(30)))
+        self.toolButton_minus.setGeometry(QRect(485, 40, 30, 30))
         self.logWindow = QTextBrowser(self.centralwidget)
         self.logWindow.setStyleSheet('QTextBrowser {'
-                                     f'font-size: {resize.widget(12)}px;'
+                                     f'font-size: 12px;'
                                      '}')
-        self.logWindow.setGeometry(QRect(resize.widget(300), resize.widget(80),
-                                         resize.widget(295), resize.widget(520)))
+        self.logWindow.setGeometry(QRect(300, 80, 295, 520))
         self.all_games_count = QLabel(self.centralwidget)
-        self.all_games_count.setGeometry(QRect(resize.widget(451), resize.widget(600),
-                                               resize.widget(150), resize.widget(20)))
+        self.all_games_count.setGeometry(QRect(451, 603, 150, 20))
         self.all_games_count.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.all_games_count.setFont(self.big_font)
         self.gameList_treeView = QTreeView(self.centralwidget)
-        self.gameList_treeView.setGeometry(QRect(0, resize.widget(80), resize.widget(295), resize.widget(520)))
+        self.gameList_treeView.setGeometry(QRect(0, 80, 295, 520))
         self.gameList_treeView.setStyleSheet('QTreeView::item {'
-                                             f'min-height: {resize.widget(20)}px;'
+                                             f'min-height: 20px;'
                                              '}')
         self.toolButton_Find = QToolButton(self.centralwidget)
-        self.toolButton_Find.setGeometry(QRect(resize.widget(515), resize.widget(40),
-                                               resize.widget(85), resize.widget(30)))
+        self.toolButton_Find.setGeometry(QRect(515, 40, 85, 30))
         self.btn_All_Favorite = QToolButton(self.centralwidget)
-        self.btn_All_Favorite.setGeometry(QRect(0, resize.widget(40), resize.widget(80), resize.widget(30)))
+        self.btn_All_Favorite.setGeometry(QRect(0, 40, 80, 30))
 
         # Чекбоксы
         self.checkBoxes = QWidget(self.centralwidget)
-        self.checkBoxes.setGeometry(QRect(resize.widget(10), resize.widget(600),
-                                          resize.widget(451), resize.widget(20)))
+        self.checkBoxes.setGeometry(QRect(10, 600, 451, 20))
         self.cb = QHBoxLayout(self.checkBoxes)
         self.cb.setContentsMargins(0, 0, 0, 0)
 
@@ -88,7 +83,7 @@ class Ui_BFGUnpacker(Translate):
 
         # Панель кнопок
         self.layoutWidget = QWidget(self.centralwidget)
-        self.layoutWidget.setGeometry(QRect(0, 0, resize.widget(600), resize.widget(40)))
+        self.layoutWidget.setGeometry(QRect(0, 0, 600, 40))
         self.upperButtons = QHBoxLayout(self.layoutWidget)
         self.upperButtons.setContentsMargins(0, 0, 0, 0)
 
@@ -96,7 +91,7 @@ class Ui_BFGUnpacker(Translate):
         self.menubar = QMenuBar(self)
         self.menu = QMenu(self.menubar)
         self.menubar.setStyleSheet('QMenu::item {'
-                                   f'height: {resize.widget(20)}px;'
+                                   f'height: 20px;'
                                    '}')
         self.unpackWith = QMenu(self.menu)
         self.zippedFormats = QMenu(self.menu)

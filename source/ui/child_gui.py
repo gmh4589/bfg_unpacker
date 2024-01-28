@@ -9,7 +9,6 @@ from icecream import ic
 from qt_material import apply_stylesheet
 import configparser
 
-from source.ui import resize
 import source.ui.localize as TL
 
 
@@ -32,35 +31,31 @@ class ChildUIWindow(QDialog):
         h = drop_c * 40 + 10 if drop_c > 1 else 90
         self.action = action
         self.ext_list = ext_list
-        self.resize(resize.widget(400), resize.widget(h))
+        self.resize(400, h)
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
-        self.font.setPointSize(resize.widget(8))
+        self.font.setPointSize(8)
         self.ok_button = QToolButton(self.centralwidget)
         self.ok_button.setFont(self.font)
         self.ok_button.clicked.connect(self.run_p)
-        self.ok_button.setGeometry(QRect(resize.widget(260), resize.widget((h / 2) - 40),
-                                         resize.widget(130), resize.widget(30)))
+        self.ok_button.setGeometry(QRect(260, int((h / 2) - 40), 130, 30))
         self.ok_button.text()
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
         self.cancel_button.clicked.connect(self.close)
-        self.cancel_button.setGeometry(QRect(resize.widget(260), resize.widget((h / 2)),
-                                             resize.widget(130), resize.widget(30)))
+        self.cancel_button.setGeometry(QRect(260, int(h / 2), 130, 30))
         self.drops = [QComboBox(self.centralwidget) for _ in range(drop_c)]
 
         if label_list is not None:
 
             for x, label in enumerate(label_list):
                 new_l = QLabel(self.centralwidget)
-                new_l.setGeometry(QRect(resize.widget(5), resize.widget(40 * x + 10),
-                                        resize.widget(90), resize.widget(30)))
+                new_l.setGeometry(QRect(5, 40 * x + 10, 90, 30))
                 new_l.setText(f"{label}: ")
 
             for i in range(drop_c):
-                self.drops[i].setGeometry(QRect(resize.widget(100), resize.widget(40 * i + 10),
-                                                resize.widget(150), resize.widget(30)))
+                self.drops[i].setGeometry(QRect(100, 40 * i + 10, 120, 30))
                 filter_model = QStandardItemModel()
 
                 for item in action_list[i]:

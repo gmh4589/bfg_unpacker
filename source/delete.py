@@ -13,12 +13,13 @@ class DeleteThread(Reaper):
     def run(self):
         setting = configparser.ConfigParser()
         setting.read('./setting.ini')
-        not_deleted = 0
-        deleting_list = os.listdir(self.output_folder)
+        of = setting['Main']['out_path']
+        not_deleted = []
+        deleting_list = os.listdir(of)
         all_items = len(deleting_list)
 
         for i, item in enumerate(deleting_list):
-            name = os.path.join(self.output_folder, item)
+            name = os.path.join(of, item)
             info_text = f'{localize.deleting} - {item}...'
             print(info_text)
             self.update_signal.emit(int(100 / all_items * (i + 1)), f'{i + 1}/{all_items}', info_text, False)
@@ -32,9 +33,10 @@ class DeleteThread(Reaper):
 
             except (PermissionError, FileNotFoundError):
                 # send2trash(name)
-                not_deleted += 1
+                not_deleted.append(name)
 
         # TODO: Text!!!
-        msg = f'Some files or folders ({not_deleted}) could be moved to trashcan. ' if not_deleted else ''
+        msg = (f'Some files or folders ({len(not_deleted)}, {not_deleted}) '
+               f'could not deleted. ') if not_deleted else ''
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
         print(msg)

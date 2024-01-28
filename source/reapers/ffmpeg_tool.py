@@ -4,7 +4,7 @@ import psutil
 from icecream import ic
 from subprocess import Popen, PIPE
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
@@ -36,6 +36,7 @@ class Converter(Reaper):
 
         return False
 
+    @file_reaper
     def run(self):
         out_path = f'{self.output_folder}/{os.path.basename(self.file_name).split(".")[-2]}.{self.format}'
         media_info = ffmpeg.probe(self.file_name)

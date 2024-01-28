@@ -1,11 +1,15 @@
 import os
 import configparser
 import locale
+from icecream import ic
 
 
 class Setting:
 
     setting = configparser.ConfigParser()
+    # ic(locale.getlocale())
+    # ic(locale.getdefaultlocale()[0].split('_')[0])
+    # ic(locale.getdefaultlocale())
 
     if not os.path.exists('./setting.ini'):
         setting.add_section('Main')
@@ -15,7 +19,6 @@ class Setting:
         lng = locale.getdefaultlocale()[0].split('_')[0]
         setting.set('Main', 'lang', lng)
         setting.set('Main', 'group', 'name')
-        setting.set('Main', 'zoom', '1.0')
         setting.set('Main', 'last_dir', '')
         setting.set('Main', 'out_path', '')
         setting.set('Main', 'trash', '0')

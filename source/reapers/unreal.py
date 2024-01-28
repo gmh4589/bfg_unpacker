@@ -2,11 +2,12 @@ import os
 from subprocess import Popen, PIPE
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class Unreal(Reaper):
+    # TODO: Need testing
 
     def __init__(self):
         super().__init__()
@@ -23,6 +24,7 @@ class Unreal(Reaper):
         with open(file_path, 'w') as new:
             new.writelines(lines)
 
+    @file_reaper
     def run(self):
         size = 0
         exp = self.file_name.split('.')[-1]
@@ -51,8 +53,6 @@ class Unreal(Reaper):
             out1 = unreal.stdout.readline().strip()
             out2 = unreal.stderr.readline()
             o = out1.split(' ')
-            # ic(out1)
-            # ic(out2)
 
             if size:
                 try:

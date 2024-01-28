@@ -3,12 +3,13 @@ import os
 from tkinter import simpledialog
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class QPAKExtractor(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, "rb") as pak_file:

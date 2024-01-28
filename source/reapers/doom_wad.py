@@ -2,12 +2,13 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class WadExtractor(Reaper):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, "rb") as wad_file:

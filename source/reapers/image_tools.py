@@ -9,18 +9,16 @@ def dds_save(x, y, codec, name, data):
     elif codec == b'ARGB8':
         png_save(x, y, b'RGBA8', name, BGR2RGB(data, 'ABGR'))
 
-    else:
-
-        with open(f'{name}.dds', 'wb') as dds_file:
-            dds_file.write(b'DDS\x20\x7C\x00\x00\x00\x07\x10\x0A\x00' +
-                           x.to_bytes(4, byteorder='little') + y.to_bytes(4, byteorder='little') +
-                           b'\x70\x55\x05\x00\x01\x00\x00\x00\x01' + b'\x00' * 47 +
-                           b'\x20\x00\x00\x00\x04\x00\x00\x00' +
-                           (codec if codec not in (b'ARGB8', b'RGBA8') else b'\x00' * 4) +
-                           (b'\x00' * 4 if codec not in (b'ARGB8', b'RGBA8') else b'\x20\x00\x00\x00') +
-                           (b'\x00' * 16 if codec != b'RGBA8' else b'\xFF\x00\x00\x00\x00\xFF\x00\x00'
-                                                                   b'\x00\x00\xFF\x00\x00\x00\x00\xFF') +
-                           b'\x00' * 19 + data)
+    with open(f'{name}.dds', 'wb') as dds_file:
+        dds_file.write(b'DDS\x20\x7C\x00\x00\x00\x07\x10\x0A\x00' +
+                       x.to_bytes(4, byteorder='little') + y.to_bytes(4, byteorder='little') +
+                       b'\x70\x55\x05\x00\x01\x00\x00\x00\x01' + b'\x00' * 47 +
+                       b'\x20\x00\x00\x00\x04\x00\x00\x00' +
+                       (codec if codec not in (b'ARGB8', b'RGBA8') else b'\x00' * 4) +
+                       (b'\x00' * 4 if codec not in (b'ARGB8', b'RGBA8') else b'\x20\x00\x00\x00') +
+                       (b'\x00' * 16 if codec != b'RGBA8' else b'\xFF\x00\x00\x00\x00\xFF\x00\x00'
+                                                               b'\x00\x00\xFF\x00\x00\x00\x00\xFF') +
+                       b'\x00' * 19 + data)
 
 
 def png_save(x, y, codec, name, data):

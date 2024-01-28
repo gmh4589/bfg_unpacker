@@ -2,12 +2,13 @@ import os
 import vpk
 from icecream import ic
 
-from source.reaper import Reaper
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
 class VPKExtractor(Reaper):
 
+    @file_reaper
     def run(self):
 
         vpk_file = self.file_name if '_dir.vpk' in self.file_name else self.file_name[:-7] + 'dir.vpk'

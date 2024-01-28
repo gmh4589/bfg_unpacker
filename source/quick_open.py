@@ -5,9 +5,9 @@ from source.reaper import after_dot2
 from source.qprocess import QProcessList
 from source.ui import localize
 
-from source.reapers import (pathologic, aurora_engine, seven_s_seven, celestia, doom_wad, zip_archive, locres,
-                            arx_fatalis, phyre, zpl2png, sen_book, quake_pak, qbms, seven_zip, unreal,
-                            unity, afs, source_vpk, other_prg, ffmpeg_tool)
+from source.reapers import (afs, arx_fatalis, aurora_engine, celestia, chrome_engine, doom_wad, ffmpeg_tool, locres,
+                            mt_arc, other_prg, pathologic, phyre, qbms, quake_pak, rdr2_audio, sen_book, seven_s_seven,
+                            seven_zip, source_vpk, unity, unreal, zip_archive, zpl2png)
 
 
 class QuickOpen(QProcessList):
@@ -86,7 +86,7 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f'{self.root_dir}/data/wcx/stalker.wcx'
 
-                elif ext in ("aes",):
+                elif ext == "aes":
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/coalescedaes.bms"
 
@@ -110,8 +110,9 @@ class QuickOpen(QProcessList):
                     # TODO: The Incredible Hulk (2008)
 
                     if self.head == b'ARC\x00':  # MT Framework
-                        self.proc = qbms.Q_BMS()
-                        self.proc.script_name = f"{self.root_dir}/data/scripts/dmc4.bms"
+                        # self.proc = qbms.Q_BMS()
+                        # self.proc.script_name = f"{self.root_dir}/data/scripts/dmc4.bms"
+                        self.proc = mt_arc.ARCExtractor()
                     else:
                         self.sorry()
 
@@ -171,6 +172,11 @@ class QuickOpen(QProcessList):
                 elif ext in ("bfp",):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/BFP.bms"
+
+                elif ext in ("bif", "key"):
+                    # TODO: Add inner reaper
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = '/data/scripts/BIF_BIFFV1.bms'
 
                 elif ext in ("big",):
                     # TODO: Lost: Via Domus
@@ -260,8 +266,9 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = f"{self.root_dir}/data/scripts/CSAGEEK.bms"
 
                 # Check on Chrome Engine game
-                elif ext in ("csb", "spb", "rpack"):
-                    print('TODO: Work in progress...')
+                elif ext in ("csb", "spb"):
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = 'data/scripts/dying_light.bms'
 
                 elif ext in ("csc",):
                     self.proc = other_prg.OtherProg()
@@ -341,8 +348,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = f"{self.root_dir}/data/scripts/vector.bms"
 
                 # Check on Aurora Engine game
-                elif ext in ("erf", "bif", "rim"):
-                    # TODO: BIF???
+                elif ext in ("erf", "rim"):
                     self.proc = aurora_engine.ERFUnpacker()
 
                 elif ext in ("epc",):
@@ -560,6 +566,17 @@ class QuickOpen(QProcessList):
                 # Check on RenPy Engine game
                 elif ext in ("rpa",):
                     self.sorry()
+
+                elif ext in ("rpf", ):
+                    self.proc = rdr2_audio.RDR2Audio()
+
+                elif ext in ("rpack", ):
+
+                    if self.head == b'RP6L':
+                        self.proc = chrome_engine.RP6L()
+                    else:
+                        # TODO: Add functions to unpack other file types
+                        print(f'{localize.work_in_progress}...')
 
                 elif ext in ("rpkg",):
                     self.proc = qbms.Q_BMS()

@@ -4,7 +4,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import *
 from qt_material import apply_stylesheet
 
-from source.ui import resize, localize
+from source.ui import localize
 
 
 class CBWindow(QDialog):
@@ -12,7 +12,7 @@ class CBWindow(QDialog):
     def __init__(self, letter, style='dark_orange'):
         super().__init__()
         self.setWindowTitle("Change buttons")
-        self.resize(resize.widget(255), resize.widget(255))
+        self.resize(255, 255)
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
         self.style = style
         apply_stylesheet(self, theme=f'{style}.xml')
@@ -33,9 +33,9 @@ class CBWindow(QDialog):
                 'margin: 0px;'
                 'padding: 0px;'
                 'border-radius: 10px;'
-                f'height: {resize.widget(40)}px;'
-                f'width: {resize.widget(40)}px;'
-                f'font-size: {resize.widget(40)}px;'
+                f'height: 40px;'
+                f'width: 40px;'
+                f'font-size: 40px;'
                 '}')
             grid_layout.addWidget(button, row, col)
             self.add_button(button, liter, letter)
