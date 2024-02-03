@@ -7,10 +7,7 @@ from icecream import ic
 from source.quick_open import QuickOpen
 from source.ui import localize
 from source.reaper import after_dot
-
-from source.reapers import (afs, arx_fatalis, aurora_engine, celestia, chrome_engine, doom_wad, ffmpeg_tool, locres,
-                            mt_arc, other_prg, pathologic, phyre, qbms, quake_pak, rdr2_audio, sen_book, seven_s_seven,
-                            seven_zip, source_vpk, unity, unreal, zip_archive, zpl2png)
+from source.reapers import *
 
 
 class UnpackerMain(QuickOpen):
@@ -87,6 +84,12 @@ class UnpackerMain(QuickOpen):
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
         self.last_run = self.select_unpacker
         self.select_unpacker()
+
+    def find_zip(self):
+
+        file_n = ''.join(self.file_open(more_one=True))
+        self.proc = zip_scan.ZipScanner()
+        self.q_connect(self.proc, file_n, header=f'Testing: {file_n}...')
 
     def select_unpacker(self):
 
@@ -258,15 +261,15 @@ class UnpackerMain(QuickOpen):
                                 self.proc = phyre.PhyreSave()
                             elif ext == 'dat':
 
-                                if 'book' in self.file_name:
-
-                                    if self.checkBox_Reimport.isChecked():
-                                        self.proc = sen_book.SenBookSave()
-                                    else:
-                                        self.proc = sen_book.SenBook()
+                                if self.checkBox_Reimport.isChecked():
+                                    self.proc = sen_book.SenBookSave()
                                 else:
-                                    # TODO: Add functions to unpack other file types
-                                    print(f'{localize.work_in_progress}...')
+
+                                    if header == b'\x20\x00\x00\x00':
+                                        self.proc = sen_book.SenBook()
+                                    else:
+                                        # TODO: Add functions to unpack other file types
+                                        print(f'{localize.work_in_progress}...')
 
                             else:
                                 # TODO: Add functions to unpack other file types

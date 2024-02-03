@@ -261,12 +261,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                              ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
                                 default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec()
 
-    def find_zip(self):
-        file_n = QFileDialog.getOpenFileName(self, translate.open_file)[0]
-        reaper = Reaper()
-        reaper.output_folder = self.out_dir
-        reaper.zip_scan(f_name=file_n)
-
     def find_item_in_treeview(self):
 
         item_text = self.comboBox_gameList.currentText()

@@ -5,6 +5,9 @@ from subprocess import Popen
 
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
+
+from icecream import ic
+
 from source.ui import localize
 
 DEBUG = True
@@ -18,12 +21,12 @@ def file_reaper(func_name):
         start = datetime.now()
 
         if DEBUG:
-            func_name(*args, **kwargs)
-        else:
             try:
                 func_name(*args, **kwargs)
             except Exception as e:
                 error = e
+        else:
+            func_name(*args, **kwargs)
 
         end = datetime.now()
         print(f'{localize.done}\n'
@@ -62,23 +65,25 @@ class Reaper(QThread):
     def unzip(self, f_name: str, c_num=1, get_ext=False, test=False,
               encrypt=False, crypt_method='', crypt_key=''):
 
+        out_path = self.output_folder if test else os.environ['TEMP']
+
         if encrypt:
             # TODO: Need tests
             dump_name = crypt_method + '_enc.dmp'
             script = (f'"{self.path_to_root}data/QuickBMS/quickbms.exe" '
                       f'-o -a "{crypt_method}{" " + crypt_key if crypt_key else ""}" '
                       f'"{self.path_to_root}data/QuickBMS/encryption_scan.bms")" '
-                      f'"{f_name}" "{self.output_folder}"').replace("/", "\\")
+                      f'"{f_name}" "{out_path}"').replace("/", "\\")
         else:
             dump_name = self.zip_methods[c_num] + '.dmp'
             script = (f'"{self.path_to_root}data/QuickBMS/quickbms.exe" -o -a "{c_num}" '
                       f'"{self.path_to_root}data/QuickBMS/comtype_scan2.bms" '
-                      f'"{f_name}" "{self.output_folder}"').replace("/", "\\")
+                      f'"{f_name}" "{out_path}"').replace("/", "\\")
 
         if not test:
 
             Popen(script).wait()
-            dump_file = os.path.join(self.output_folder, dump_name)
+            dump_file = os.path.join(out_path, dump_name)
 
             with open(dump_file, 'rb') as dmp:
                 unzip_data = dmp.read()
@@ -97,15 +102,17 @@ class Reaper(QThread):
             threading.Timer(10, proc.terminate).start()
             proc.wait()
 
-    @file_reaper
-    def zip_scan(self, f_name):
-
-        for i in self.zip_methods.keys():
-            self.unzip(f_name=f_name, c_num=i, test=True)
-
     @staticmethod
     def get_ext(index: bytes):
-        ext_list = {b'RIFF': 'wav', b'RIFX': 'wav', b'DDS\x20': 'dds'}
+        ext_list = {  # Image Formats
+                    b'DDS\x20': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
+                      # Audio Formats
+                    b'RIFF': 'wav', b'RIFX': 'wav',
+                      # Archive Formats
+                    b'PK\x03\x04': 'zip',
+                      # Document formats
+                    b'\x25PDF': 'pdf',
+                    }
 
         try:
             return ext_list[index]
@@ -352,55 +359,3 @@ after_dot = {'_Asura': 'All Asura Engine File(*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.
                      'Disc Image Files(*.iso;*.vhd;*.vhdx;*.wim;*.swm;*.esd;*.fat;*.ntfs;*.dmg;*.hfs;*.squashfs;'
                      '*.apfs;*.bin;*.cue;*.img;*.cdi;*.chd;*.ciso;*.cso;*.ecm;*.gdi;*.isz;*.mds;*.mdf;*.nrg;*.zisofs|'
                      'Web Archives(*.dbx;*.mbx;*.mbox;*.tbb;*.pmm;*.emlx;*.eml;*.nws;*.mht;*.mhtml;*.b64)|'}
-
-after_dot2 = {'gaup':
-                  ('Arch00', 'Arch01', 'Arch02', 'Arch03', 'Arch04', 'Arch05', 'a2c', 'abg', 'abl', 'acm', 'act', 'adf',
-                   'age3scn', 'agg', 'ahm', 'al4', 'al8', 'ama', 'anm', 'ark', 'avix', 'awd', 'bag', 'bank1sbk',
-                   'bar', 'bbk', 'bf', 'bfs', 'bgx', 'big', 'bpa', 'bpk', 'bun', 'cat', 'ceg', 'clz', 'cmo', 'cmp',
-                   'cob', 'cpr', 'ctm', 'cts', 'cud', 'dbc', 'dbs', 'ddt', 'dir', 'dirinfo', 'drs', 'dta', 'dua', 'dun',
-                   'dx1', 'dx2', 'dx3', 'ebm', 'editordata', 'elmares', 'emi', 'exp', 'ezd', 'far', 'fat', 'ff', 'fpk',
-                   'fra', 'frame', 'fsh', 'fuk', 'gdp', 'gea', 'gfx', 'glb', 'grl', 'grp', 'gsc', 'gtr', 'h2o', 'h4c',
-                   'h4d', 'h4r', 'hak', 'his', 'hog', 'idx', 'ifx', 'ins', 'iwi', 'jap', 'jaz', 'jdr', 'jsr', 'jtr',
-                   'lbx', 'lgr', 'lgt', 'lmp', 'lod', 'lte', 'lud', 'lug', 'lut', 'lzc', 'map', 'md5', 'mdl', 'meg',
-                   'mix', 'mjp', 'mjz', 'mod', 'msf', 'msk', 'mult', 'mus', 'nif', 'nmo', 'npk', 'pac', 'pal', 'paq',
-                   'pbd', 'pbo', 'pck', 'pcx', 'pff', 'poa', 'pod', 'prm', 'psk', 'psp', 'ptx', 'pvd', 'qar', 'qfs',
-                   'r16', 'r24', 'r8', 'raw', 'res', 'rez', 'rfd', 'rfh', 'rmp', 'rr', 'rs', 'rsb', 'rss', 'rts', 's4m',
-                   'sbf', 'sc3', 'sct', 'scx', 'sdf', 'sdt', 'sdt', 'sequence', 'sga', 'sh4', 'sks', 'sl', 'slf', 'slv',
-                   'snd', 'spa', 'spk', 'spr', 'st3', 'stb', 'stg', 'str', 'sud', 'sue', 'swa', 'syb', 'syj', 't24',
-                   'tbf', 'tdu', 'ted', 'tf', 'thu', 'trc', 'twd', 'twt', 'txd', 'ucx', 'ugx', 'uka', 'ukx', 'unr',
-                   'uvx', 'vdu', 'vid', 'viv', 'vmp', 'vol', 'vpp', 'vtf', 'wd', 'wdt', 'wep', 'whd', 'wtn', 'xcr',
-                   'xfs', 'xmb', 'xpk', 'xti', 'xwb'),
-              'total_observer':
-                  ('S2MA', 'SC2', 'bsp', 'cache', 'cue', 'eml', 'etc', 'gcf', 'hdr', 'isz', 'mdf', 'mds', 'mht', 'mhtml',
-                   'mim', 'mime', 'mpq', 'mpqe', 'msm', 'nrg', 'pbb', 'pst', 'tbb', 'udf', 'vbsp', 'vp', 'xzp'),
-              'sau':
-                  ('4pp', 'bdx', 'box', 'brig', 'c', 'cam', 'cc', 'chr', 'dbi', 'df2', 'epf', 'fan', 'flx', 'gor',
-                   'group', 'hrs', 'ilb', 'jun', 'jus', 'key', 'lbx', 'maa', 'mul', 'nds', 'p00', 'p10', 'p99', 'rm',
-                   'tgw', 'tlb', 'uop', 'vsr', 'war', 'wdb', 'xua', 'xub'),
-              'seven_zip':
-                  ('7z', 'zip', 'rar', '001', 'cab', 'iso', 'xz', 'txz', 'lzma', 'tar', 'cpio', 'bz2', 'bzip2', 'tbz',
-                   'tbz2', 'gz', 'gzip', 'tgz', 'tpz', 'z', 'taz', 'lzh', 'lha', 'rpm', 'deb', 'arj', 'vhd', 'vhdx',
-                   'wim', 'swm', 'esd', 'fat', 'ntfs', 'dmg', 'hfs', 'xar', 'squashfs', 'apfs', 'epub', 'fbz', 'fb2z',
-                   'docx', 'xlsx', 'doc', 'docm', 'dotm', 'xls', 'ods', 'odt', 'mgs', 'tnef', 'dbx', 'mbx', 'mbox',
-                   'tbb', 'pmm', 'emlx', 'eml', 'nws', 'mht', 'mhtml', 'b64', 'uue', 'xxe', 'ntx', 'bin', 'hqx', 'warc',
-                   'pyz', 'ccd', 'img', 'cdi', 'chd', 'ciso', 'cso', 'cue', 'ecm', 'gdi', 'isz', 'mds', 'mdf', 'nrg',
-                   'zisofs', 'asar', 'phar', 's01', 'e01', 'ex01', 'lo1', 'lx01', 'aff', 'ad1', 'whx', 'exfat',
-                   'gro', 'kfs', 'lz', 'grp', 'fb3', 'piz', 'omod', 'fomod', 'rar5', 'zipx', 'pk3', 'pk4', 'fb2x',
-                   'txtz'),
-              'unreal':
-                  ('pcc', 'u', 'uax', 'ugx', 'umx', 'un2', 'unr', 'upk', 'upx', 'usa', 'usx', 'ut2', 'utx', 'uvx',
-                   'xxx'),
-              'rpg_maker':
-                  ('rgss2a', 'rgss3a', 'rgssad', 'rpgmvm', 'rpgmvo', 'rpgmvp'),
-              'bethesda':
-                  ('ba2', 'bsa', 'esl', 'esm', 'esp', 'esx', 'pex'),
-              'id_tech':
-                  ('bimage', 'idwav', 'index', 'mega2', 'msf', 'pages', 'ptr', 'resources', 'streamed', 'vmtr', 'wad',
-                   'wl6', 'xma', 'xpr'),
-              'x-ray':
-                  ('db0', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9'),
-              'video':
-                  ('3g2', '3gp', '3gp2', '3gpp', 'amv', 'avi', 'divx', 'dvr-ms', 'f4v', 'flc', 'fli', 'flic', 'flv',
-                   'm1v', 'm2v', 'm4v', 'mk3d', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mve', 'ogm', 'ogv', 'pam', 'pmf',
-                   'pmm', 'pss', 'rm', 'thp', 'ts', 'vid', 'vob', 'webm', 'wmv', 'xvid')
-              }

@@ -1,13 +1,9 @@
 import os.path
 
 from icecream import ic
-from source.reaper import after_dot2
 from source.qprocess import QProcessList
 from source.ui import localize
-
-from source.reapers import (afs, arx_fatalis, aurora_engine, celestia, chrome_engine, doom_wad, ffmpeg_tool, locres,
-                            mt_arc, other_prg, pathologic, phyre, qbms, quake_pak, rdr2_audio, sen_book, seven_s_seven,
-                            seven_zip, source_vpk, unity, unreal, zip_archive, zpl2png)
+from source.reapers import *
 
 
 class QuickOpen(QProcessList):
@@ -34,57 +30,6 @@ class QuickOpen(QProcessList):
                 # Check on ZIP signature
                 if self.head == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
-
-                # Check on Bethesda game
-                elif ext in after_dot2['bethesda']:
-                    # TODO: Add functions to unpack other file types
-                    print(f'{localize.work_in_progress}...')
-
-                # Check on extension in GAUP list
-                elif ext in after_dot2['gaup']:
-                    self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.root_dir}/data/wcx/gauppro.wcx'
-
-                # Check on idTech Engine game
-                elif ext in after_dot2['id_tech']:
-
-                    if ext == 'wad':
-                        self.proc = doom_wad.WadExtractor()
-                    elif ext == 'pak':
-                        self.proc = quake_pak.QPAKExtractor()
-                    else:
-                        # TODO: Add functions to unpack other file types
-                        print(f'{localize.work_in_progress}...')
-
-                # Check on RPG Maker game
-                elif ext in after_dot2['rpg_maker']:
-                    print('TODO: Work in progress...')
-
-                # Check on extension in Total Observer list
-                elif ext in after_dot2['total_observer']:
-                    self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.root_dir}/data/wcx/TotalObserver.wcx'
-
-                # Check on extension in SAU list
-                elif ext in after_dot2['sau']:
-                    print('TODO: Work in progress...')
-
-                # Check on archives
-                elif ext in after_dot2['seven_zip']:
-                    self.proc = seven_zip.SevenZIP()
-
-                # Check on video formats
-                elif ext in after_dot2['video']:
-                    self.proc = ffmpeg_tool.Converter()
-
-                # Check on Unreal Engine game
-                elif ext in after_dot2['unreal']:
-                    self.proc = unreal.Unreal()
-
-                # Check on X-Ray Engine game
-                elif ext in after_dot2['x-ray']:
-                    self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.root_dir}/data/wcx/stalker.wcx'
 
                 elif ext == "aes":
                     self.proc = qbms.Q_BMS()
@@ -123,6 +68,14 @@ class QuickOpen(QProcessList):
                 elif ext in ("arch06",):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/shadowofmordor.bms"
+
+                elif ext == "ark":
+                    # TODO: Add ARK archive and other
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
 
                 elif ext in ("arz",):
                     self.proc = qbms.Q_BMS()
@@ -179,7 +132,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = '/data/scripts/BIF_BIFFV1.bms'
 
                 elif ext in ("big",):
-                    # TODO: Lost: Via Domus
+                    # TODO: Lost: Via Domus, add from GAUP
 
                     if self.head == b'':
                         pass
@@ -188,7 +141,7 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("bin",):
                     # TODO: Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G,
-                    #  Fatal Frame\Project Zero
+                    #  Fatal Frame\Project Zero, BIN disk image (7zip), BIN archive (?)
 
                     if self.head == b'':
                         pass
@@ -230,6 +183,14 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/CAR.bms"
 
+                elif ext in ("cat",):
+                    # TODO: Add from GAUP and other
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
+
                 elif ext in ("cfs",):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/c9.bms"
@@ -243,7 +204,7 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/wcx/JavaClassUnpacker.wcx"
 
-                elif ext in ("cmp",):
+                elif ext in ("cmp",):  # TODO: Add from GAUP
                     self.proc = other_prg.OtherProg()
                     self.proc.first_arg = "/u"
                     self.proc.second_arg = f'"{self.out_dir}'
@@ -253,7 +214,15 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/CNTHiddenAndDangerous.bms"
 
-                elif ext in ("cpr",):
+                elif ext == "coalesced":
+                    # TODO: coalesced from various Unreal Engine 3 games
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
+
+                elif ext in ("cpr",):  # TODO: Add from GAUP
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/coyoteconsole.bms"
 
@@ -301,6 +270,9 @@ class QuickOpen(QProcessList):
                     elif self.head == b'ADAT':  # Anachronox
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = f"{self.root_dir}/data/scripts/anachronox.bms"
+                    elif self.head == b'\x20\x00\x00\x00':  # TLOH
+                        # TODO: Try how it's be work in the game TLOH
+                        self.proc = sen_book.SenBook()
                     else:
                         self.sorry()
 
@@ -314,6 +286,14 @@ class QuickOpen(QProcessList):
                     self.proc.first_arg = "e"
                     self.proc.second_arg = f'"{self.out_dir}'
                     self.proc.program_name = "dgcac.exe"
+
+                elif ext == "dir":
+                    # TODO: Add from GAUP and other
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
 
                 elif ext in ("dfl",):
                     self.proc = qbms.Q_BMS()
@@ -335,7 +315,7 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/drg2sbg.bms"
 
-                elif ext in ("drs",):
+                elif ext in ("drs",):  # TODO: Add from GAUP
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/DRS.bms"
 
@@ -358,9 +338,17 @@ class QuickOpen(QProcessList):
                 elif ext in ("exo",):
                     print('TODO: Work in progress...')
 
-                elif ext in ("far",):
+                elif ext in ("far",):  # TODO: Add from GAUP
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/djherofar.bms"
+
+                elif ext == "fat":
+                    # TODO: Add from GAUP, FAT image
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
 
                 elif ext in ("flx",):
                     self.proc = qbms.Q_BMS()
@@ -469,6 +457,14 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/CastlevaniaLOS2.bms"
 
+                elif ext == "pac":
+                    # TODO: Add PAC from GAUP and other
+
+                    if self.head == b'':
+                        pass
+                    else:
+                        self.sorry()
+
                 elif ext in ("pack",):  # YZ2 from RE4HD
                     print('TODO: Work in progress...')
 
@@ -502,7 +498,7 @@ class QuickOpen(QProcessList):
                     elif self.head == b'TONG':
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = f"{self.root_dir}/data/scripts/tongas.bms"
-                    elif self.head == b'PAK2':
+                    elif self.head == b'PAK2':  # Alien: Isolation
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = f"{self.root_dir}/data/scripts/alien_isolation.bms"
                     elif self.head == b'PSCD':
@@ -607,6 +603,9 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = f"{self.root_dir}/data/scripts/janeangel2.bms"
 
                 elif ext in ("sngw",):  # MT Framework Audio
+                    print('TODO: Work in progress...')
+
+                elif ext in ("snd",):  # TODO: Add Daggerfall SND, SND from GAUP
                     print('TODO: Work in progress...')
 
                 elif ext in ("spf",):
@@ -716,6 +715,88 @@ class QuickOpen(QProcessList):
                 elif ext in ("zwp",):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/DarkReign2ZWP.bms"
+
+                # Check on Bethesda game
+                elif ext in ('ba2', 'bsa', 'esl', 'esm', 'esp', 'esx', 'pex'):
+                    # TODO: Add functions to unpack other file types
+                    print(f'{localize.work_in_progress}...')
+
+                # Check on extension in GAUP list
+                elif ext in ('arch00', 'arch01', 'arch02', 'arch03', 'arch04', 'arch05', 'a2c', 'abg', 'abl', 'acm',
+                             'act', 'adf', 'age3scn', 'agg', 'ahm', 'al4', 'al8', 'ama', 'anm', 'avix', 'awd', 'bag',
+                             'bank1sbk', 'bar', 'bbk', 'bf', 'bfs', 'bgx', 'bpa', 'bpk', 'bun', 'ceg', 'clz', 'cmo',
+                             'cob', 'ctm', 'cts', 'cud', 'dbc', 'dbs', 'ddt', 'dirinfo', 'dta', 'dua', 'dun', 'dx1',
+                             'dx2', 'dx3', 'ebm', 'editordata', 'elmares', 'emi', 'exp', 'ezd', 'ff', 'fpk', 'fra',
+                             'frame', 'fsh', 'fuk', 'gdp', 'gea', 'gfx', 'glb', 'grl', 'grp', 'gsc', 'gtr', 'h2o',
+                             'h4c', 'h4d', 'h4r', 'hak', 'his', 'hog', 'idx', 'ifx', 'ins', 'iwi', 'jap', 'jaz', 'jdr',
+                             'jsr', 'jtr', 'lbx', 'lgr', 'lgt', 'lmp', 'lod', 'lte', 'lud', 'lug', 'lut', 'lzc', 'map',
+                             'md5', 'mdl', 'meg', 'mix', 'mjp', 'mjz', 'mod', 'msf', 'msk', 'mult', 'mus', 'nif', 'nmo',
+                             'npk', 'pal', 'paq', 'pbd', 'pbo', 'pck', 'pcx', 'pff', 'poa', 'pod', 'prm', 'psk', 'psp',
+                             'ptx', 'pvd', 'qar', 'qfs', 'r16', 'r24', 'r8', 'raw', 'res', 'rez', 'rfd', 'rfh', 'rmp',
+                             'rr', 'rs', 'rsb', 'rss', 'rts', 's4m', 'sbf', 'sc3', 'sct', 'scx', 'sdf', 'sdt',
+                             'sequence', 'sga', 'sh4', 'sks', 'sl', 'slf', 'slv', 'spa', 'spk', 'spr', 'st3', 'stb',
+                             'stg', 'str', 'sud', 'sue', 'swa', 'syb', 'syj', 't24', 'tbf', 'tdu', 'ted', 'tf', 'thu',
+                             'trc', 'twd', 'twt', 'txd', 'ucx', 'uka', 'ukx', 'vdu', 'vid', 'viv', 'vmp', 'vol', 'vpp',
+                             'vtf', 'wd', 'wdt', 'wep', 'whd', 'wtn', 'xcr', 'xfs', 'xmb', 'xpk', 'xti', 'xwb'):
+                    # TODO: Check NIF from here and maybe add NIF model from other game, check PAL, check PCK,
+                    #  check RAW, check RES, check REZ, check VID and maybe add selector for video and VID from  here
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = f'{self.root_dir}/data/wcx/gauppro.wcx'
+
+                # Check on idTech Engine game
+                elif ext in ('bimage', 'idwav', 'index', 'mega2', 'msf', 'pages', 'ptr', 'resources', 'streamed',
+                             'vmtr', 'wad', 'wl6', 'xpr'):
+                    # TODO: WAD move out, check MSF from GAUP and here
+
+                    if ext == 'wad':
+                        self.proc = doom_wad.WadExtractor()
+                    else:
+                        # TODO: Add functions to unpack other file types
+                        print(f'{localize.work_in_progress}...')
+
+                # Check on RPG Maker game
+                elif ext in ('rgss2a', 'rgss3a', 'rgssad', 'rpgmvm', 'rpgmvo', 'rpgmvp'):
+                    print('TODO: Work in progress...')
+
+                # Check on extension in Total Observer list
+                elif ext in ('s2ma', 'sc2', 'bsp', 'cache', 'etc', 'gcf', 'hdr', 'mim', 'mime', 'mpq', 'mpqe', 'msm',
+                             'pbb', 'pst', 'udf', 'vbsp', 'vp', 'xzp'):
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = f'{self.root_dir}/data/wcx/TotalObserver.wcx'
+
+                # Check on extension in SAU list
+                elif ext in ('4pp', 'bdx', 'box', 'brig', 'c', 'cam', 'cc', 'chr', 'dbi', 'df2', 'epf', 'fan', 'flx',
+                             'gor', 'group', 'hrs', 'ilb', 'jun', 'jus', 'key', 'lbx', 'maa', 'mul', 'nds', 'p00',
+                             'p10', 'p99', 'rm', 'tgw', 'tlb', 'uop', 'vsr', 'war', 'wdb', 'xua', 'xub'):
+                    # TODO: Check LBX from GAUP and SAU, check BOX, FLX, KEY
+                    print('TODO: Work in progress...')
+
+                # Check on archives
+                elif ext in ('7z', 'rar', '001', 'cab', 'iso', 'xz', 'lzma', 'tar', 'cpio', 'bz2', 'bzip2', 'tbz',
+                             'tbz2', 'gz', 'gzip', 'tgz', 'tpz', 'taz', 'lzh', 'lha', 'rpm', 'deb', 'arj', 'vhd',
+                             'vhdx', 'wim', 'swm', 'esd', 'ntfs', 'dmg', 'hfs', 'xar', 'squashfs', 'apfs', 'doc',
+                             'xls', 'mgs', 'tnef', 'dbx', 'mbx', 'mbox', 'tbb', 'pmm', 'emlx', 'eml', 'nws', 'mht',
+                             'mhtml', 'b64', 'uue', 'xxe', 'ntx', 'hqx', 'warc', 'ccd', 'cdi', 'chd',
+                             'ciso', 'cso', 'cue', 'ecm', 'gdi', 'isz', 'mds', 'mdf', 'nrg', 'zisofs', 'asar', 'phar',
+                             's01', 'e01', 'ex01', 'lo1', 'lx01', 'aff', 'ad1', 'whx', 'exfat', 'lz', 'rar5', 'txz'):
+                    # TODO: Check MBX here and upper, check PMM from video and here, check TXZ
+                    self.proc = seven_zip.SevenZIP()
+
+                # Check on video formats
+                elif ext in ('3g2', '3gp', '3gp2', '3gpp', 'amv', 'avi', 'divx', 'dvr-ms', 'f4v', 'flc', 'fli', 'flic',
+                             'flv', 'm1v', 'm2v', 'm4v', 'mk3d', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mve', 'ogm',
+                             'ogv', 'pam', 'pmf', 'pmm', 'pss', 'rm', 'thp', 'ts', 'vid', 'vob', 'webm', 'wmv', 'xvid'):
+                    self.proc = ffmpeg_tool.Converter()
+
+                # Check on Unreal Engine game
+                elif ext in ('pcc', 'u', 'uax', 'ugx', 'umx', 'un2', 'unr', 'upk', 'upx', 'usa', 'usx', 'ut2', 'utx',
+                             'uvx', 'xxx'):
+                    self.proc = unreal.Unreal()
+
+                # Check on X-Ray Engine game
+                elif ext in ('db0', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9'):
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = f'{self.root_dir}/data/wcx/stalker.wcx'
 
                 else:
                     self.sorry()

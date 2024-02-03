@@ -50,9 +50,7 @@ class Ui_BFGUnpacker(Translate):
         self.toolButton_minus = QToolButton(self.centralwidget)
         self.toolButton_minus.setGeometry(QRect(485, 40, 30, 30))
         self.logWindow = QTextBrowser(self.centralwidget)
-        self.logWindow.setStyleSheet('QTextBrowser {'
-                                     f'font-size: 12px;'
-                                     '}')
+        self.logWindow.setStyleSheet('QTextBrowser {font-size: 12px;}')
         self.logWindow.setGeometry(QRect(300, 80, 295, 520))
         self.all_games_count = QLabel(self.centralwidget)
         self.all_games_count.setGeometry(QRect(451, 603, 150, 20))
@@ -60,9 +58,7 @@ class Ui_BFGUnpacker(Translate):
         self.all_games_count.setFont(self.big_font)
         self.gameList_treeView = QTreeView(self.centralwidget)
         self.gameList_treeView.setGeometry(QRect(0, 80, 295, 520))
-        self.gameList_treeView.setStyleSheet('QTreeView::item {'
-                                             f'min-height: 20px;'
-                                             '}')
+        self.gameList_treeView.setStyleSheet('QTreeView::item {min-height: 20px;}')
         self.toolButton_Find = QToolButton(self.centralwidget)
         self.toolButton_Find.setGeometry(QRect(515, 40, 85, 30))
         self.btn_All_Favorite = QToolButton(self.centralwidget)
@@ -90,9 +86,7 @@ class Ui_BFGUnpacker(Translate):
         # Меню
         self.menubar = QMenuBar(self)
         self.menu = QMenu(self.menubar)
-        self.menubar.setStyleSheet('QMenu::item {'
-                                   f'height: 20px;'
-                                   '}')
+        self.menubar.setStyleSheet('QMenu::item {height: 20px;}')
         self.unpackWith = QMenu(self.menu)
         self.zippedFormats = QMenu(self.menu)
         self.formatSearch = QMenu(self.menu)

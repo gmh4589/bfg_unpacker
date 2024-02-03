@@ -11,8 +11,7 @@ class SenBook(Reaper):
     @file_reaper
     def run(self):
 
-        file_path = self.file_name
-        book = open(file_path, 'rb')
+        book = open(self.file_name, 'rb')
         book.seek(8, 0)
         start = int.from_bytes(book.read(4), byteorder='little')
         book.seek(20, 0)
@@ -30,13 +29,13 @@ class SenBook(Reaper):
             nameOffsetArray.append(int.from_bytes(book.read(2), byteorder='little'))
 
         a = book.tell()
-        size = os.path.getsize(file_path)
+        size = os.path.getsize(self.file_name)
         data = book.read(startData - a)
         nameArray = data.split(b'\x00')
 
         offsetArray.append(size)
 
-        path = file_path[:-4] + '\\'
+        path = f"{self.output_folder}\\{self.file_name[-10:-4]}\\"
         os.makedirs(path)
         file_count = len(offsetArray) - 1
 
@@ -60,9 +59,9 @@ class SenBook(Reaper):
 class SenBookSave(Reaper):
 
     def run(self):
-        file_path = self.file_name
-        name = file_path.split('/')[-1]
-        fileList = os.listdir(file_path)
+        self.file_name = os.path.dirname(self.file_name)
+        name = self.file_name.split('/')[-1]
+        fileList = os.listdir(self.file_name)
         list1 = b''
 
         for n in fileList:
@@ -75,7 +74,7 @@ class SenBookSave(Reaper):
         block2Start = blockOff + (contOff * 6)
         startData = block2Start + len(list1)
 
-        with open(file_path + '_new.dat', 'wb') as f:
+        with open(f'{self.output_folder}\\{name}_new.dat', 'wb') as f:
             f.write(b'\x20\x00\x00\x00\x20\x00\x00\x00')
             f.write(blockOff.to_bytes(4, byteorder='little'))
             f.write(size.to_bytes(4, byteorder='little'))
@@ -87,7 +86,7 @@ class SenBookSave(Reaper):
             startData += 1
             f.write(startData.to_bytes(4, byteorder='little'))
             for i in range(contOff - 1):
-                startData += os.path.getsize(file_path + '/' + fileList[i])
+                startData += os.path.getsize(self.file_name + '/' + fileList[i])
                 f.write(startData.to_bytes(4, byteorder='little'))
 
             f.write(block2Start.to_bytes(2, byteorder='little'))
@@ -98,7 +97,7 @@ class SenBookSave(Reaper):
             f.write(list1 + b'\x00')
 
             for file in fileList:
-                with open(file_path + '/' + file, 'rb') as readF:
+                with open(self.file_name + '/' + file, 'rb') as readF:
                     readData = readF.read()
                 f.write(readData)
 
