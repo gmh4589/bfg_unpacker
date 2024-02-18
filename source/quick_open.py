@@ -70,7 +70,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = f"{self.root_dir}/data/scripts/shadowofmordor.bms"
 
                 elif ext == "ark":
-                    # TODO: Add ARK archive and other
+                    # TODO: Add ARK, FreeARK archive and other
 
                     if self.head == b'':
                         pass
@@ -140,10 +140,12 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("bin",):
-                    # TODO: Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G,
+                    # TODO: Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G, from Remedy games,
                     #  Fatal Frame\Project Zero, BIN disk image (7zip), BIN archive (?)
 
-                    if self.head == b'':
+                    if self.head == b'\x01\x00\x00\x00':  # Alan Wake Remastered
+                        pass
+                    elif self.head == b'\x00\x09\x00\x00':  # Control
                         pass
                     else:
                         self.sorry()
@@ -172,10 +174,11 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = f"{self.root_dir}/data/scripts/BOXLEMBOX.bms"
 
                 elif ext == "bundle":
-                    # TODO: Red Engine, Pay Day
+                    # TODO: Red Engine (The Witcher 3), PayDay 2, Bionic Commando
 
-                    if self.head == b'':
-                        pass
+                    if self.head == b'POTA':  # The Witcher 3
+                        self.proc = qbms.Q_BMS()
+                        self.proc.script_name = f"{self.root_dir}/data/scripts/Witcher3.bms"
                     else:
                         self.sorry()
 
@@ -468,6 +471,10 @@ class QuickOpen(QProcessList):
                 elif ext in ("pack",):  # YZ2 from RE4HD
                     print('TODO: Work in progress...')
 
+                elif ext == 'packmeta':
+                    self.sorry()
+                    # TODO: Add Control
+
                 elif ext == 'pak':
                     # TODO: Arx Fatalis, Sacred, Necrovision, Painkiller
 
@@ -559,6 +566,10 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/rkv.bms"
 
+                elif ext == 'rmdp':
+                    # TODO: Add Remedy games support
+                    self.sorry()
+
                 # Check on RenPy Engine game
                 elif ext in ("rpa",):
                     self.sorry()
@@ -628,7 +639,7 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f'{self.root_dir}/data/scripts/madmax.bms'
 
-                elif ext in ("tiger",):
+                elif ext in ("tiger",):  # TODO: Add something else
                     self.proc = other_prg.OtherProg()
                     self.proc.first_arg = "e"
                     self.proc.second_arg = f'"{self.out_dir}'
@@ -690,6 +701,9 @@ class QuickOpen(QProcessList):
                 elif ext in ("xnb",):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = f"{self.root_dir}/data/scripts/xnb.bms"
+
+                elif ext == "xxx":
+                    self.proc = unreal.Unreal()
 
                 elif ext in ("yz1", ):
                     print('TODO: Work in progress...')

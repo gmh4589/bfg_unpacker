@@ -6,8 +6,6 @@ from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
 
-from icecream import ic
-
 from source.ui import localize
 
 DEBUG = True
@@ -55,7 +53,6 @@ class Reaper(QThread):
         self.output_folder = ''
         self.unpack = True
         self.path_to_root = os.path.abspath(__file__).split('source')[0]
-        self.update_signal.emit(0, '', '', False)
 
     @file_reaper
     @abstractmethod
@@ -107,7 +104,7 @@ class Reaper(QThread):
         ext_list = {  # Image Formats
                     b'DDS\x20': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
                       # Audio Formats
-                    b'RIFF': 'wav', b'RIFX': 'wav',
+                    b'RIFF': 'wav', b'RIFX': 'wav', b'OggS': 'ogg',
                       # Archive Formats
                     b'PK\x03\x04': 'zip',
                       # Document formats

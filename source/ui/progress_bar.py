@@ -28,8 +28,3 @@ class ProgressBar(QDialog):
 
     def set_theme(self, theme):
         apply_stylesheet(self, theme=f'{theme}.xml')
-
-    def update_info(self, pb_value, p_text, info):
-        self.progressBar.setValue(pb_value)
-        self.progress.setText(p_text)
-        self.status.setText(info)

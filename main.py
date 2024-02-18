@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import *
 from icecream import ic
 
 from source.quick_open import QuickOpen
-from source.ui import localize
+from source.ui import localize, dialogs
 from source.reaper import after_dot
 from source.reapers import *
 
@@ -35,12 +35,12 @@ class UnpackerMain(QuickOpen):
             except AttributeError:
                 f = ''
 
+            file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
+                                                      directory=self.setting['Main']['last_dir'])[0]
+
             if more_one:
-                file_names = QFileDialog.getOpenFileName(self, localize.open_file, filter=f,
-                                                         directory=self.setting['Main']['last_dir'])[0]
-            else:
-                file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
-                                                          directory=self.setting['Main']['last_dir'])[0]
+                file_names = [file_names[0], '']
+
         else:
             file_names = [QFileDialog.getExistingDirectory(self, localize.select_folder,
                                                            directory=self.setting['Main']['last_dir']), '']
@@ -101,8 +101,11 @@ class UnpackerMain(QuickOpen):
                 ext = file_name.split('.')[-1].lower()
                 self.proc = None
 
-                with open(file_name, 'rb') as fff:
-                    header = fff.read(4)
+                try:
+                    with open(file_name, 'rb') as fff:
+                        header = fff.read(4)
+                except PermissionError:
+                    header = b''
 
                 if header == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
@@ -297,13 +300,57 @@ class UnpackerMain(QuickOpen):
                             self.proc = unity.Unity()
                         case '_Unreal' | '_Unreal4':
 
-                            if ext == 'locres':
-                                self.proc = locres.Locres2TXT()
-                            elif ext == 'txt':
-                                self.proc = locres.TXT2Locres()
+                            if self.checkBox_Reimport.isChecked():
+
+                                if ext in ('upk', 'upx', 'xxx', 'u'):
+                                    dialogs.CustomDialog(text='Порядок действий при упаковке файлов игр на UE3:\n\n'
+                                                              '1. Выбрать исходный архив (если вы видите это сообщение\n'
+                                                              '     он уже должен быть выбран)\n'
+                                                              '2. Выбрать папку с исходными распакованными файлами\n'
+                                                              '     в следующем окне выбора папки\n'
+                                                              '3. Выбрать папку с измененными файлами\n\n'
+                                                              'Новый архив сохранится в выходной папке\n'
+                                                              'согласно настройкам').exec()
+                                    self.proc = ue3_injector.U3Injector()
+                                    self.proc.source_folder = self.file_open(select_folder=True)
+                                    self.proc.new_folder = self.file_open(select_folder=True)
+                                elif ext == 'txt':
+                                    self.proc = locres.TXT2Locres()
+
                             else:
-                                self.proc = unreal.Unreal()
-                                self.proc.key = self.script_name
+
+                                if ext == 'locres':
+                                    self.proc = locres.Locres2TXT()
+                                elif ext == 'txt':
+                                    self.proc = locres.TXT2Locres()
+                                else:
+                                    self.proc = unreal.Unreal()
+                                    self.proc.key = self.script_name
+
+                        case '_Wii_iso':
+                            empty = os.path.basename(file_name).split('.')[0]
+                            new_empty_folder = empty
+                            a = 0
+
+                            while True:
+
+                                if not os.path.exists(f"{self.out_dir}\\{new_empty_folder}"):
+                                    break
+                                else:
+                                    new_empty_folder = f"{empty}_{a}"
+                                    a += 1
+
+                            self.proc = other_prg.OtherProg()
+                            self.proc.percent_type = '50'
+
+                            if ext in ('iso', 'wbfs'):
+                                self.proc.program_name = 'wit\\wit.exe'
+                                self.proc.first_arg = 'x'
+                                self.proc.second_arg = f'-d "{self.out_dir}\\{new_empty_folder}"'
+                            else:  # TODO: Test with CISO, WDF and WIA disc images
+                                self.proc.program_name = 'wit\\wdf.exe'
+                                self.proc.first_arg = '+u'
+                                self.proc.second_arg = f'"{self.out_dir}\\{new_empty_folder}"'
 
                         case '_ZPL':
                             self.proc = zpl2png.ZPL2PNG()

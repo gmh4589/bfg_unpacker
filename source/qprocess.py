@@ -31,7 +31,7 @@ class QProcessList(MainWindow):
             os.makedirs(fp, exist_ok=True)
 
         self.pb.set_theme(self.setting["Main"]["theme"])
-        self.pb.header.setText(header)
+        self.pb.header.setText(self.get_short_text(header))
         self.pb.progressBar.setValue(0)
         self.pb.progress.setText('')
         self.pb.status.setText('')
@@ -43,6 +43,16 @@ class QProcessList(MainWindow):
 
         nuke.start()
 
+    @staticmethod
+    def get_short_text(text):
+
+        if len(text) > 50:
+            short_name = text[:30] + '...' + text[-15:]
+        else:
+            short_name = text
+
+        return short_name
+
     def update_progress(self, pb_value, p_text, info, process_done):
 
         if process_done:
@@ -51,8 +61,8 @@ class QProcessList(MainWindow):
 
         else:
             self.pb.progressBar.setValue(pb_value)
-            self.pb.progress.setText(p_text)
-            self.pb.status.setText(info)
+            self.pb.progress.setText(self.get_short_text(p_text))
+            self.pb.status.setText(self.get_short_text(info))
 
 
 class PrintTo(QObject):

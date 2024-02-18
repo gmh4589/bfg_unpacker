@@ -32,11 +32,13 @@ class Unreal(Reaper):
         match exp:
             case 'umod':
                 size = os.path.getsize(self.file_name)
+                version = 0
                 unreal = Popen(f'{self.path_to_root}data/QuickBMS/quickbms.exe -K '
                                f"{self.path_to_root}data/scripts/unreal_umod.bms "
                                f'"{self.file_name}" "{self.output_folder}"',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
             case 'pak':
+                version = 4
                 self.string_replace(f"{self.path_to_root}data/scripts/unreal_tournament_4.bms",
                                     f'set AES_KEY binary "{self.key}"', 11)
                 size = os.path.getsize(self.file_name)
@@ -45,36 +47,31 @@ class Unreal(Reaper):
                                f'"{self.file_name}" "{self.output_folder}"',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
             case _:
+                version = 3
                 unreal = Popen(f'{self.path_to_root}/data/unreal_tools/extract.exe '
-                               f'-extract -out="{self.output_folder}" "{self.file_name}"',
+                               f'-extract -out="{self.output_folder}" "{self.file_name}" ',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
-        while True:
-            out1 = unreal.stdout.readline().strip()
-            out2 = unreal.stderr.readline()
-            o = out1.split(' ')
+        while unreal.poll() is None:
+            out = unreal.stdout.readline().split(' ')
 
-            if size:
+            if version in (0, 4):
+
                 try:
-                    percent = int(100 / size * int(o[0], 16))
-                    print(f"{percent}% {o[-1]}")
-                    self.update_signal.emit(percent, '', f'{localize.saving} - {o[-1]}...', False)
+                    percent = int((100 / size) * int(out[0], 16))
+                    print(f"{percent}% {out[-1]}")
+                    self.update_signal.emit(percent, '', f'{localize.saving} - {out[-1]}...', False)
                 except (ValueError, IndexError):
                     pass
-            else:
-                print(out1)
-                ic(out1)
-                self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
 
-            if out2 == '- please insert the content for the variable KEY:':
-                print('Need description key to unpack this file!')
-                print('Please, select a game in manual...')
+            elif version == 3:
+                ic(out)
 
-            if not out1:
-
-                if not size:
-                    unreal.kill()
-
-                break
+                if len(out) == 3:
+                    current_f, all_f = out[1].split('/')
+                    ic(current_f, all_f)
+                    percent = int((100 / int(all_f)) * int(current_f))
+                    self.update_signal.emit(percent, f'{out[1]}', f'{localize.saving} - {out[1]}...', False)
 
         self.update_signal.emit(100, '', localize.done, True)
+

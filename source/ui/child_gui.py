@@ -14,9 +14,10 @@ import source.ui.localize as TL
 
 class ChildUIWindow(QDialog):
 
-    def __init__(self, style='dark_orange', gui_name='test_child',
+    def __init__(self, style='', gui_name='test_child',
                  label_list=None, action_list=None, default_list=None,
-                 ext_list='', action=''):
+                 ext_list='', action='', drop_a=False, item1=0, item2=1,
+                 combos=''):
 
         super().__init__()
 
@@ -30,6 +31,7 @@ class ChildUIWindow(QDialog):
         drop_c = len(label_list)
         h = drop_c * 40 + 10 if drop_c > 1 else 90
         self.action = action
+        self.command_line = ''
         self.ext_list = ext_list
         self.resize(400, h)
         self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
@@ -46,6 +48,10 @@ class ChildUIWindow(QDialog):
         self.cancel_button.clicked.connect(self.close)
         self.cancel_button.setGeometry(QRect(260, int(h / 2), 130, 30))
         self.drops = [QComboBox(self.centralwidget) for _ in range(drop_c)]
+        self.drop_a = drop_a
+        self.combos = {} if not combos else combos
+        self.item1 = item1
+        self.item2 = item2
 
         if label_list is not None:
 
@@ -65,8 +71,8 @@ class ChildUIWindow(QDialog):
                 self.drops[i].setCurrentText(default_list[i])
                 self.drops[i].currentTextChanged.connect(self.upvote)
 
-            if self.gui_name == 'PlayStation Audio Tools':
-                self.drops[0].currentTextChanged.connect(self.drop_action)
+            if self.drop_a:
+                self.drops[item1].currentTextChanged.connect(self.drop_action)
 
             self.retranslateUi()
             QMetaObject.connectSlotsByName(self)
@@ -77,7 +83,6 @@ class ChildUIWindow(QDialog):
             self.enter_other(j)
 
     def enter_other(self, drop_index):
-        ic(drop_index)
 
         if self.drops[drop_index].currentText() == TL.other:
             text = simpledialog.askstring("", "Enter value:")
@@ -86,19 +91,10 @@ class ChildUIWindow(QDialog):
             self.drops[drop_index].setCurrentText(text)
 
     def drop_action(self):
-
-        if self.gui_name == 'PlayStation Audio Tools':
-            second_combobox_items = {
-                'PS2': ['VAG2WAV', 'WAV2VAG', 'PS2_SoundBank'],
-                'PS3': ['Atrac2WAV', 'WAV2Atrac', 'MSF2Atrac'],
-                'PS4': ['Atrac2WAV', 'WAV2Atrac', 'SXD2Atrac'],
-                'PSP': ['Atrac2WAV', 'WAV2Atrac'],
-                'PS Vita': ['Atrac2WAV', 'WAV2Atrac']
-            }
-
-            selected_text = self.drops[0].currentText()
-            self.drops[1].clear()
-            self.drops[1].addItems(second_combobox_items.get(selected_text, []))
+        selected_text = self.drops[self.item1].currentText()
+        self.drops[self.item2].clear()
+        ic(selected_text)
+        self.drops[self.item2].addItems(self.combos.get(selected_text, [selected_text, TL.other]))
 
     def file_open(self):
 
@@ -119,6 +115,7 @@ class ChildUIWindow(QDialog):
     def run_p(self):
 
         if self.action:
+            self.command_line = self.action
 
             for file_name in self.file_open():
 
@@ -126,16 +123,20 @@ class ChildUIWindow(QDialog):
                     out_name = os.path.basename(file_name).split('.')[-2]
 
                     for drop in range(len(self.drops)):
-                        self.action = self.action.replace(f'%action_{drop}%', self.drops[drop].currentText())
+                        self.command_line = self.command_line.replace(f'%action_{drop}%', self.drops[drop].currentText())
 
-                    action = (self.action
-                                  .replace('%out_dir%', self.setting['Main']['out_path'])
-                                  .replace('%file_name%', file_name)
-                                  .replace('%out_name%', out_name))
-                    ic(action)
-                    Popen(action).wait()
+                    self.command_line = (self.command_line
+                                            .replace('%out_dir%', self.setting['Main']['out_path'])
+                                            .replace('%file_name%', file_name)
+                                            .replace('%out_name%', out_name)
+                                            .replace('/', '\\')
+                                            .replace('%x%', 'x' if self.drops[1] == 'Xbox One' else ''))
+
+                    ic(self.command_line)
+                    Popen(self.command_line).wait()
+                    self.command_line = ''
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.ok_button.setText(_translate("MainWindow", "OK"))
+        self.ok_button.setText(_translate("MainWindow", TL.open_file))
         self.cancel_button.setText(_translate("MainWindow", TL.cancel))

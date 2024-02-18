@@ -19,10 +19,18 @@ class Unity(Reaper):
 
         while True:
             out1 = unity.stdout.readline().strip()
+            out = out1.split(' ')
 
             print(out1)
             ic(out1)
-            self.update_signal.emit(50, '', f'{localize.saving} - ...', False)
+
+            try:
+                i = int(out[1].split('/')[0])
+                a = int(out[1].split('/')[1])
+                percent = (100 / a) * i
+                self.update_signal.emit(percent, '', f'{localize.saving} - {out[-1]}...', False)
+            except (IndexError, ValueError):
+                pass
 
             if not out1:
                 break
