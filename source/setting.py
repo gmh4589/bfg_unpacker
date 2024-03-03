@@ -1,7 +1,8 @@
 import os
 import configparser
 import locale
-from icecream import ic
+# from tkinter.filedialog import askdirectory
+# from icecream import ic
 
 
 class Setting:
@@ -12,12 +13,14 @@ class Setting:
     # ic(locale.getdefaultlocale())
 
     if not os.path.exists('./setting.ini'):
+        # root_dir = askdirectory(title='Select BFG Unpacker directory')
         setting.add_section('Main')
         setting.add_section('Buttons')
         setting.add_section('Engines')
         setting.set('Main', 'theme', 'default')
         lng = locale.getdefaultlocale()[0].split('_')[0]
         setting.set('Main', 'lang', lng)
+        # setting.set('Main', 'root_dir', root_dir)
         setting.set('Main', 'group', 'name')
         setting.set('Main', 'last_dir', '')
         setting.set('Main', 'out_path', '')

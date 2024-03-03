@@ -25,7 +25,7 @@ class SettingWindow(QDialog):
         self.setting.read('./setting.ini')
 
         self.resize(300, 350)
-        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(8)

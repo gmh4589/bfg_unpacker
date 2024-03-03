@@ -19,9 +19,9 @@ class Q_BMS(Reaper):
 
         size = os.path.getsize(self.file_name)
         self.file_name = self.file_name.replace("/", "\\")
-        script = (f'"{self.path_to_root}data/QuickBMS/quickbms.exe" {self.add} '
-                  f'"{os.path.join(self.path_to_root, self.script_name)}" '
-                  f'"{self.file_name}" "{self.output_folder}"')
+        script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" {self.add} '
+                  f'"{self.path_to_root}{self.script_name}" '
+                  f'"{self.file_name}" "{self.output_folder}"').replace('/', '\\')
         ic(self.script_name)
         ic(script)
         bms = Popen(script, stdout=PIPE, stderr=PIPE, encoding='utf-8')

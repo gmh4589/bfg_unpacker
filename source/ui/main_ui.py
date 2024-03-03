@@ -2,34 +2,10 @@
 from icecream import ic
 
 from PyQt6.QtCore import QRect, QMetaObject, Qt
-from PyQt6.QtGui import QFont, QStandardItemModel, QStandardItem
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import *
+from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui.main_ui_text import Translate
-
-
-class AutoCompleteComboBox(QComboBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.filter_model = QStandardItemModel()
-        self.setEditable(True)
-        self.completer = QCompleter(self)
-        self.setCompleter(self.completer)
-        self.items = []
-        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        line_edit = self.lineEdit()
-        line_edit.textEdited.connect(self.on_text_edited)
-
-    def on_text_edited(self, text):
-        self.filter_model.clear()
-        self.filter_model.appendRow(QStandardItem(self.lineEdit().text() + text
-                                                  if text != self.lineEdit().text() else self.lineEdit().text()))
-
-        for item in self.items:
-            if self.lineEdit().text().lower() in item.lower():
-                self.filter_model.appendRow(QStandardItem(item))
-
-        self.setModel(self.filter_model)
 
 
 # noinspection PyTypeChecker
@@ -258,6 +234,7 @@ class Ui_BFGUnpacker(Translate):
         self.videoConverters = QMenu(self.menu_convert)
         self.audioConverters = QMenu(self.menu_convert)
         self.imageConverters = QMenu(self.menu_convert)
+        self.archiveConverters = QMenu(self.menu_convert)
         self.menu_settings = QMenu(self.menubar)
         self.themes_list_2 = QMenu(self.menu_settings)
         self.menu_about = QMenu(self.menubar)
@@ -269,8 +246,6 @@ class Ui_BFGUnpacker(Translate):
         self.action_ClearOutPath = QWidgetAction(self)
         self.action_CreateOutPath = QWidgetAction(self)
         self.action_Settings = QWidgetAction(self)
-        self.action_DeleteEmptyFiles = QWidgetAction(self)
-        self.action_DeleteEmptySubfolders = QWidgetAction(self)
         self.action_About = QWidgetAction(self)
         self.action7z_Archiver = QWidgetAction(self)
         self.actionGame_Archive_Unpacker_Plugin = QWidgetAction(self)
@@ -282,6 +257,7 @@ class Ui_BFGUnpacker(Translate):
         self.autoSearchScripts = QWidgetAction(self)
         self.actionFileList = QWidgetAction(self)
         self.actionArchiveScanner = QWidgetAction(self)
+        self.actionFindZipMethod = QWidgetAction(self)
         self.actionFFMPEG_Video_Converter = QWidgetAction(self)
         self.actionRad_Video_Tools = QWidgetAction(self)
         self.actionMedia_Info = QWidgetAction(self)
@@ -311,7 +287,6 @@ class Ui_BFGUnpacker(Translate):
         self.zippedFormats.addAction(self.actionLZ4)
         self.formatSearch.addAction(self.actionWAV)
         self.additionalMenu.addAction(self.autoSearchScripts)
-        self.additionalMenu.addAction(self.actionArchiveScanner)
         self.additionalMenu.addAction(self.actionFileList)
 
         self.menu.addAction(self.quickOpen)
@@ -346,9 +321,12 @@ class Ui_BFGUnpacker(Translate):
         self.imageConverters.addAction(self.actionDDS_Header_Generator)
         self.imageConverters.addAction(self.actionCubeMap_Creator)
         self.imageConverters.addAction(self.actionICO_Icon_Splitter)
+        self.archiveConverters.addAction(self.actionArchiveScanner)
+        self.archiveConverters.addAction(self.actionFindZipMethod)
         self.menu_convert.addAction(self.videoConverters.menuAction())
         self.menu_convert.addAction(self.audioConverters.menuAction())
         self.menu_convert.addAction(self.imageConverters.menuAction())
+        self.menu_convert.addAction(self.archiveConverters.menuAction())
         self.menu_settings.addAction(self.action_Language.menuAction())
         self.menu_settings.addAction(self.themes_list_2.menuAction())
         self.menu_settings.addAction(self.create_theme)
@@ -356,8 +334,6 @@ class Ui_BFGUnpacker(Translate):
         self.menu_settings.addAction(self.action_SelectOutPath)
         self.menu_settings.addAction(self.action_ClearOutPath)
         self.menu_settings.addAction(self.action_CreateOutPath)
-        self.menu_settings.addAction(self.action_DeleteEmptyFiles)
-        self.menu_settings.addAction(self.action_DeleteEmptySubfolders)
         self.menu_about.addAction(self.action_About)
         self.menubar.addAction(self.menu.menuAction())
         self.menubar.addAction(self.menu_convert.menuAction())

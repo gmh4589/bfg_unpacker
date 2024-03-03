@@ -4,9 +4,9 @@ from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtWidgets import *
 
 from qt_material import apply_stylesheet
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as XML_Parce
 
-import source.ui.localize as TL
+import source.ui.localize as translate
 
 
 class ThemeCreateWindow(QDialog):
@@ -16,12 +16,12 @@ class ThemeCreateWindow(QDialog):
         apply_stylesheet(self, theme=f'{style}.xml')
 
         try:
-            root = ET.parse(f'./qt_material/themes/{style}.xml').getroot()
+            root = XML_Parce.parse(f'./data/themes/{style}.xml').getroot()
         except FileNotFoundError:
             root = ''
 
         self.resize(270, 270)
-        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(8)
@@ -94,14 +94,14 @@ class ThemeCreateWindow(QDialog):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "Theme Creator"))
-        self.saveButton.setText(_translate("MainWindow", TL.save_theme))
-        self.toolButton_1.setText(_translate("MainWindow", TL.primary_color))
-        self.toolButton_2.setText(_translate("MainWindow", TL.primary_light))
-        self.toolButton_3.setText(_translate("MainWindow", TL.second_color))
-        self.toolButton_4.setText(_translate("MainWindow", TL.second_light))
-        self.toolButton_5.setText(_translate("MainWindow", TL.second_dark))
-        self.toolButton_6.setText(_translate("MainWindow", TL.font_color_1))
-        self.toolButton_7.setText(_translate("MainWindow", TL.font_color_2))
+        self.saveButton.setText(_translate("MainWindow", translate.save_theme))
+        self.toolButton_1.setText(_translate("MainWindow", translate.primary_color))
+        self.toolButton_2.setText(_translate("MainWindow", translate.primary_light))
+        self.toolButton_3.setText(_translate("MainWindow", translate.second_color))
+        self.toolButton_4.setText(_translate("MainWindow", translate.second_light))
+        self.toolButton_5.setText(_translate("MainWindow", translate.second_dark))
+        self.toolButton_6.setText(_translate("MainWindow", translate.font_color_1))
+        self.toolButton_7.setText(_translate("MainWindow", translate.font_color_2))
 
     @staticmethod
     def color_picker(element):
@@ -109,10 +109,10 @@ class ThemeCreateWindow(QDialog):
         element.setStyleSheet(f"background-color: {color.name()}")
 
     def save_theme(self):
-        style_name, ok = QInputDialog.getText(self, TL.save_theme, TL.enter_theme_name)
+        style_name, ok = QInputDialog.getText(self, translate.save_theme, translate.enter_theme_name)
 
         if ok and style_name:
-            theme_xml = f'./qt_material/themes/{style_name.lower().replace(" ", "_")}.xml'
+            theme_xml = f'./data/themes/{style_name.lower().replace(" ", "_")}.xml'
 
             with open(theme_xml, 'w') as file:
                 file.write('<!--?xml version="1.0" encoding="UTF-8"?-->\n')

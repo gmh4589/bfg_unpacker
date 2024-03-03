@@ -9,6 +9,7 @@ from icecream import ic
 from qt_material import apply_stylesheet
 import configparser
 
+from source.ui.custom_ui import AutoCompleteComboBox
 import source.ui.localize as TL
 
 
@@ -31,10 +32,11 @@ class ChildUIWindow(QDialog):
         drop_c = len(label_list)
         h = drop_c * 40 + 10 if drop_c > 1 else 90
         self.action = action
+        self.action_list = action_list
         self.command_line = ''
         self.ext_list = ext_list
         self.resize(400, h)
-        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(8)
@@ -47,7 +49,7 @@ class ChildUIWindow(QDialog):
         self.cancel_button.setFont(self.font)
         self.cancel_button.clicked.connect(self.close)
         self.cancel_button.setGeometry(QRect(260, int(h / 2), 130, 30))
-        self.drops = [QComboBox(self.centralwidget) for _ in range(drop_c)]
+        self.drops = []
         self.drop_a = drop_a
         self.combos = {} if not combos else combos
         self.item1 = item1
@@ -61,14 +63,21 @@ class ChildUIWindow(QDialog):
                 new_l.setText(f"{label}: ")
 
             for i in range(drop_c):
-                self.drops[i].setGeometry(QRect(100, 40 * i + 10, 120, 30))
                 filter_model = QStandardItemModel()
+                al = sorted(self.action_list[i].values()) if type(self.action_list[i]) is dict else self.action_list[i]
 
-                for item in action_list[i]:
+                for item in al:
                     filter_model.appendRow(QStandardItem(item))
+
+                if len(al) > 100:
+                    self.drops.append(AutoCompleteComboBox(self.centralwidget))
+                    self.drops[i].items = al
+                else:
+                    self.drops.append(QComboBox(self.centralwidget))
 
                 self.drops[i].setModel(filter_model)
                 self.drops[i].setCurrentText(default_list[i])
+                self.drops[i].setGeometry(QRect(100, 40 * i + 10, 150, 30))
                 self.drops[i].currentTextChanged.connect(self.upvote)
 
             if self.drop_a:
@@ -80,15 +89,12 @@ class ChildUIWindow(QDialog):
     def upvote(self):
 
         for j in range(len(self.label_list)):
-            self.enter_other(j)
 
-    def enter_other(self, drop_index):
-
-        if self.drops[drop_index].currentText() == TL.other:
-            text = simpledialog.askstring("", "Enter value:")
-            ic(text)
-            self.drops[drop_index].addItem(text)
-            self.drops[drop_index].setCurrentText(text)
+            if self.drops[j].currentText() == TL.other:
+                text = simpledialog.askstring("", "Enter value:")
+                ic(text)
+                self.drops[j].addItem(text)
+                self.drops[j].setCurrentText(text)
 
     def drop_action(self):
         selected_text = self.drops[self.item1].currentText()
@@ -123,14 +129,20 @@ class ChildUIWindow(QDialog):
                     out_name = os.path.basename(file_name).split('.')[-2]
 
                     for drop in range(len(self.drops)):
-                        self.command_line = self.command_line.replace(f'%action_{drop}%', self.drops[drop].currentText())
+
+                        if type(self.action_list[drop]) is dict:
+                            rev_list = {v: str(k) for k, v in self.action_list[drop].items()}
+                            self.command_line = self.command_line.replace(f'%action_{drop}%',
+                                                                          rev_list[self.drops[drop].currentText()])
+                        else:
+                            self.command_line = self.command_line.replace(f'%action_{drop}%',
+                                                                          self.drops[drop].currentText())
 
                     self.command_line = (self.command_line
                                             .replace('%out_dir%', self.setting['Main']['out_path'])
                                             .replace('%file_name%', file_name)
                                             .replace('%out_name%', out_name)
-                                            .replace('/', '\\')
-                                            .replace('%x%', 'x' if self.drops[1] == 'Xbox One' else ''))
+                                            .replace('/', '\\'))
 
                     ic(self.command_line)
                     Popen(self.command_line).wait()

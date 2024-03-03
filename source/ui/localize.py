@@ -11,10 +11,10 @@ if os.path.exists('./setting.ini'):
 else:
     lang = locale.getdefaultlocale()[0].split('_')[0]
 
-if not os.path.exists(f'./source/local/{lang}.json'):
+if not os.path.exists(f'./data/local/{lang}.json'):
     lang = 'en'
 
-with open(f'./source/local/{lang}.json', 'r', encoding='utf-8') as json_file:
+with open(f'./data/local/{lang}.json', 'r', encoding='utf-8') as json_file:
     local = json.load(json_file)
 
 all_games = local['all_games']
@@ -48,10 +48,10 @@ language = local['language']
 select_out_folder = local['select_out_folder']
 clear_out_folder = local['clear_out_folder']
 make_out_folder = local['make_out_folder']
-delete_empty_files = local['delete_empty_files']
-delete_empty_subfolders = local['delete_empty_subfolders']
 autofind = local['autofind']
 archive_scanner = local['archive_scanner']
+find_zip_method = local['find_zip_method']
+zip_method = local['zip_method']
 file_list = local['file_list']
 create_theme = local['create_theme']
 select_something = local['select_something']

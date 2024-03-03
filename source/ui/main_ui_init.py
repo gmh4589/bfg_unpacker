@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import *
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
-from source.reaper import after_dot
+from source.reaper import after_dot, zip_methods
+from source.reapers import codec_list
 from source.setting import Setting
 from source.ui import (setting as setting_ui, theme_creator, change_button_menu as cbm, progress_bar,
                        localize as translate, child_gui)
@@ -28,8 +29,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             self.set_setting('Main', 'out_path',
                              QFileDialog.getExistingDirectory(self, 'Select folder')))
 
-        self.path_to_root = os.path.abspath(__file__).split('source')[0]
-        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
+        # self.path_to_root = os.path.abspath(__file__).split('source')[0]
+        self.path_to_root = os.path.curdir
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.setWindowTitle("BFGUnpacker")
         self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -56,12 +58,15 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                                                 ext_list=f'CSO {translate.disc_image} (*.cso)|'))
         self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
                                                                 ext_list=f'CSO {translate.disc_image} (*.cso)|'))
+        self.favorites = []
 
-        with open('./favorites.ini', 'r') as fav:
-            self.favorites = []
+        if os.path.exists('favorites.ini'):
+            with open('favorites.ini', 'r') as fav:
 
-            for line in fav.readlines():
-                self.favorites.append(line[:-1])
+                for line in fav.readlines():
+                    self.favorites.append(line[:-1])
+        else:
+            with open('favorites.ini', 'w'): pass
 
         # Game list creating
         self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
@@ -117,9 +122,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             lambda: os.system(f'{self.root_dir}data/rad_tools/radvideo64.exe'))
         self.actionMedia_Info.triggered.connect(lambda: print(ffmpeg.probe(
             QFileDialog.getOpenFileName(self, directory=self.setting['Main']['last_dir'])[0])))
-        # self.actionArchiveScanner.triggered.connect(lambda file_name=QFileDialog.getOpenFileName(self):
-        #                                             self.q_connect(encryption_scan.ArchiveScan(), file_name,
-        #                                                            header=f'Scanning: {file_name}...'))
 
         # Favorite block
         self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())  # All\favorite switch
@@ -188,9 +190,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                             gui_name='Image to DDS (Microsoft)',
                                             label_list=['Format', 'Platform'],
                                             action_list=[['R32G32B32A32_FLOAT', 'R32G32B32A32_UINT', 'R32G32B32A32_SINT', 'R32G32B32_FLOAT', 'R32G32B32_UINT', 'R32G32B32_SINT', 'R16G16B16A16_FLOAT', 'R16G16B16A16_UNORM', 'R16G16B16A16_UINT', 'R16G16B16A16_SNORM', 'R16G16B16A16_SINT', 'R32G32_FLOAT', 'R32G32_UINT', 'R32G32_SINT', 'R10G10B10A2_UNORM', 'R10G10B10A2_UINT', 'R11G11B10_FLOAT', 'R8G8B8A8_UNORM', 'R8G8B8A8_UNORM_SRGB', 'R8G8B8A8_UINT', 'R8G8B8A8_SNORM', 'R8G8B8A8_SINT', 'R16G16_FLOAT', 'R16G16_UNORM', 'R16G16_UINT', 'R16G16_SNORM', 'R16G16_SINT', 'R32_FLOAT', 'R32_UINT', 'R32_SINT', 'R8G8_UNORM', 'R8G8_UINT', 'R8G8_SNORM', 'R8G8_SINT', 'R16_FLOAT', 'R16_UNORM', 'R16_UINT', 'R16_SNORM', 'R16_SINT', 'R8_UNORM', 'R8_UINT', 'R8_SNORM', 'R8_SINT', 'A8_UNORM', 'R9G9B9E5_SHAREDEXP', 'R8G8_B8G8_UNORM', 'G8R8_G8B8_UNORM', 'BC1_UNORM', 'BC1_UNORM_SRGB', 'BC2_UNORM', 'BC2_UNORM_SRGB', 'BC3_UNORM', 'BC3_UNORM_SRGB', 'BC4_UNORM', 'BC4_SNORM', 'BC5_UNORM', 'BC5_SNORM', 'B5G6R5_UNORM', 'B5G5R5A1_UNORM', 'B8G8R8A8_UNORM', 'B8G8R8X8_UNORM', 'R10G10B10_XR_BIAS_A2_UNORM', 'B8G8R8A8_UNORM_SRGB', 'B8G8R8X8_UNORM_SRGB', 'BC6H_UF16', 'BC6H_SF16', 'BC7_UNORM', 'BC7_UNORM_SRGB', 'AYUV', 'Y410', 'Y416', 'YUY2', 'Y210', 'Y216', 'B4G4R4A4_UNORM', translate.other],
-                                                         ['PC', 'Xbox One']],
+                                                         {"texconv": 'PC', "xtexconv": 'Xbox One'}],
                                             default_list=['BC3_UNORM', 'PC'],
-                                            action=f'"{self.path_to_root}data\\dds_tools\\%x%texconv.exe" '
+                                            action=f'"{self.path_to_root}data\\dds_tools\\%action_1%.exe" '
                                                    f'-f %action_0% -o "%out_dir%" "%file_name%"').exec())
         self.actionImage_to_DDS_nVidia.triggered.connect(
             lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -210,6 +212,16 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                                          ['wav', 'xwm']],
                                             default_list=['48000', 'wav']).exec())
         self.actionWwise_Converter.triggered.connect(self.wwise_tools)
+        self.actionFindZipMethod.triggered.connect(
+            lambda: child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+                                            gui_name=translate.find_zip_method,
+                                            label_list=[translate.zip_method],
+                                            # action_list=[sorted(key for key in zip_methods.values())],
+                                            action_list=[zip_methods],
+                                            default_list=['DEFLATE'],
+                                            action=(f'"{self.path_to_root}data/QuickBMS/quickbms.exe" -o -a "%action_0%" '
+                                                    f'"{self.path_to_root}data/QuickBMS/comtype_scan2.bms" '
+                                                    f'"%file_name%" "%out_dir%"').replace("/", "\\")).exec())
 
     def ffmpeg_video(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -262,9 +274,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
                                 label_list=['Height', 'Width', 'Format', 'Offset'],
                                 action_list=[['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
                                              ['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
-                                             ['DXT1', 'DXT3', 'DXT5', 'DX10', 'BC4U', 'BC5U', 'BC4S', 'BC5S', 'ARGB8', translate.other],
+                                             [key for key in codec_list.codec_list],
                                              ['0', translate.other]],
-                                default_list=['512', '512', 'DXT5', '0']).exec()
+                                default_list=['512', '512', 'R8G8B8A8_SNORM', '0']).exec()
 
     def nConvert(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -390,7 +402,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
         self.themes_list_2.addMenu(other_themes_submenu)
 
         if self.setting["Main"]["theme"].lower() == 'default':
-            default_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
+            default_theme.setIcon(QIcon('./data/icons/checked.svg'))
 
         for theme in list_themes():
             theme_name = theme.split('.')[0]
@@ -403,12 +415,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             new_theme.triggered.connect(lambda *args, x=theme_name: self.change_theme(x))
 
             if theme_name == self.setting["Main"]["theme"]:
-                new_theme.setIcon(QIcon('./source/ui/icons/checked.svg'))
+                new_theme.setIcon(QIcon('./data/icons/checked.svg'))
 
         self.themes_list_2.addMenu(other_themes_submenu)
 
     def lang_list_create(self):
-        d = './source/local/'
+        d = './data/local/'
         lang_files = [file for file in os.listdir(d) if file.endswith('.json')]
         lang_list = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
         lang_codes = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
@@ -431,7 +443,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, Setting):
             new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.change_lang(x))
 
             if lang_codes[i] == self.setting["Main"]["lang"]:
-                new_lang.setIcon(QIcon('./source/ui/icons/checked.svg'))
+                new_lang.setIcon(QIcon('./data/icons/checked.svg'))
 
                 if lang_codes[i] not in main_list:
                     main_list.append(lang_codes[i])

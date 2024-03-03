@@ -26,7 +26,6 @@ class Converter(Reaper):
             try:
 
                 for file_info in process.open_files():
-                    # ic(file_info.path)
 
                     if os.path.abspath(file_info.path) == os.path.abspath(self.file_name):
                         return True

@@ -13,7 +13,7 @@ class ProgressBar(QDialog):
         super().__init__()
         self.set_theme(style)
         self.resize(300, 130)
-        self.setWindowIcon(QIcon('./source/ui/icons/i.ico'))
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.setWindowTitle(f"{localize.wait}...")
         self.centralwidget = QWidget(self)
         self.progressBar = QProgressBar(self.centralwidget)

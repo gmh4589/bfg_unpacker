@@ -14,7 +14,7 @@ class QProcessList(MainWindow):
     def __init__(self):
         super().__init__()
         sys.stdout = PrintTo(text_written=self.append_text)
-        self.root_dir = os.path.abspath(__file__).split('source')[0]
+        self.root_dir = os.path.curdir
         self.file_name = ''
         self.last_run = None
         self.head = b''

@@ -5,8 +5,7 @@ block_cipher = None
 a = Analysis(['main.py'],
              pathex=['...'],
              binaries=[],
-             datas=[('setting.ini', '.'),
-                    ('./game_list/*.csv', './game_list')],
+             datas=[('./game_list/*.csv', './game_list')],
              hiddenimports=[],
              runtime_hooks=[],
              excludes=[],
@@ -31,4 +30,4 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=True,
-          icon='F:\\bfg_unpacker\\source\\ui\\icons\\i.ico')
+          icon='F:\\bfg_unpacker\\data\\icons\\i.ico')

@@ -75,7 +75,8 @@ class RP6L(Reaper):
             else:
                 s["data"] = data
 
-        fmt = {2: b'RGBA', 3: b'RGBA', 14: b'DXT3', 17: b'DXT1', 18: b'DXT3', 19: b'DXT5', 33: b'DXT5',}
+        fmt = {2: 'R8G8B8A8_SNORM', 3: 'R8G8B8A8_SNORM', 14: 'BC2_UNORM', 17: 'BC1_UNORM',
+               18: 'BC2_UNORM', 19: 'BC3_UNORM', 33: 'BC3_UNORM'}
         ext_list = {16: "msh", 32: "dds", 48: "shd", 64: "anm", 80: "fx"}
         file_count = len(filemap)
 

@@ -1,25 +1,23 @@
 import os
 from PIL import Image
 
+from source.reapers.codec_list import codec_list
 
-def dds_save(x, y, codec, name, data):
 
-    if codec == b'RGBA8':
-        png_save(x, y, codec, name, BGR2RGB(data, 'ARGB'))
-    elif codec == b'ARGB8':
-        png_save(x, y, b'RGBA8', name, BGR2RGB(data, 'ABGR'))
+def dds_save(y, x, codec, name, data):
+
+    flags = codec_list[codec]['flags']
+    cdc = codec_list[codec]['codec']
+    bpp = codec_list[codec]['bpp']
+    rgba_mask = codec_list[codec]['rgb_mask']
+    h_flg = codec_list[codec]['head_flg']
 
     with open(f'{name}.dds', 'wb') as dds_file:
-        dds_file.write(b'DDS\x20\x7C\x00\x00\x00\x07\x10\x0A\x00' +
-                       x.to_bytes(4, byteorder='little') + y.to_bytes(4, byteorder='little') +
-                       b'\x70\x55\x05\x00\x01\x00\x00\x00\x01' + b'\x00' * 47 +
-                       b'\x20\x00\x00\x00\x04\x00\x00\x00' +
-                       (codec if codec not in (b'ARGB8', b'RGBA8') else b'\x00' * 4) +
-                       (b'\x00' * 4 if codec not in (b'ARGB8', b'RGBA8') else b'\x20\x00\x00\x00') +
-                       (b'\x00' * 16 if codec != b'RGBA8' else b'\xFF\x00\x00\x00\x00\xFF\x00\x00'
-                                                               b'\x00\x00\xFF\x00\x00\x00\x00\xFF') +
-                       b'\x00' * 19 + data)
-
+        dds_file.write(b'DDS\x20\x7C\x00\x00\x00' + h_flg +  # DDS Header
+                       x.to_bytes(4, byteorder='little') +  # Height
+                       y.to_bytes(4, byteorder='little') * 2 +  # width and linear size
+                       b'\x01\x00\x00\x00' * 2 + b'\x00' * 44 + b'\x20\x00\x00\x00' +
+                       flags + cdc + bpp + rgba_mask + b'\x08\x10\x40\x00' + b'\x00' * 16 + data)
 
 def png_save(x, y, codec, name, data):
     codec = codec.decode('utf-8')[:-1]

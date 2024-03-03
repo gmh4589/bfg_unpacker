@@ -318,8 +318,9 @@ class UnpackerMain(QuickOpen):
                                     self.proc = locres.TXT2Locres()
 
                             else:
-
-                                if ext == 'locres':
+                                if ext in ('upk', 'upx', 'xxx', 'u'):
+                                    self.proc = ue3_reaper.UE3()
+                                elif ext == 'locres':
                                     self.proc = locres.Locres2TXT()
                                 elif ext == 'txt':
                                     self.proc = locres.TXT2Locres()
