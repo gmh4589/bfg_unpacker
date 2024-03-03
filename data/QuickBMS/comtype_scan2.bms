@@ -1,0 +1,29 @@
+# QuickBMS comtype scanner 2 (version 0.1.2)
+# you NEED http://aluigi.org/papers/bms/comtype_scan2.bat
+# - the number can be verified in defs.h from COMP_NONE
+#   where all the algorithms are numbered each 5
+# - associate the dmp extension with your hex editor for a
+#   faster viewing of the results
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.5.4
+if QUICKBMS_ARG1 == ""
+    print "you must launch comtype_scan2.bat for using this script\nhttp://aluigi.org/papers/bms/comtype_scan2.bat"
+    cleanexit
+endif
+set i long QUICKBMS_ARG1
+get ZSIZE asize
+set SIZE long QUICKBMS_ARG2
+if SIZE <= 0
+    math SIZE = ZSIZE
+    math SIZE *= 20
+endif
+
+        print "test algorithm number %i%: ZSIZE %ZSIZE%, SIZE %SIZE%"
+        comtype i
+        set NAME string QUICKBMS_COMTYPE
+        if NAME & "_COMTYPE"    # check if the variable is set
+            set NAME string i
+        endif
+        string NAME += ".dmp"
+        clog NAME 0 ZSIZE SIZE
