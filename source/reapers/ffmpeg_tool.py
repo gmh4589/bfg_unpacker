@@ -1,5 +1,5 @@
 import os
-import ffmpeg
+# import ffmpeg
 import psutil
 from icecream import ic
 from subprocess import Popen, PIPE
@@ -37,13 +37,13 @@ class Converter(Reaper):
 
     @file_reaper
     def run(self):
-        out_path = f'{self.output_folder}/{os.path.basename(self.file_name).split(".")[-2]}.{self.format}'
-        media_info = ffmpeg.probe(self.file_name)
-        dur = float(media_info['format']['duration'])
-        ic(media_info)
-        ic(dur)
+        out_path = f'{self.output_folder}\\{os.path.basename(self.file_name).split(".")[-2]}.{self.format}'
+        # media_info = ffmpeg.probe(self.file_name)
+        # dur = float(media_info['format']['duration'])
+        # ic(media_info)
+        # ic(dur)
 
-        ar = (f'"{self.path_to_root}data\\ffmpeg\\ffmpeg.exe" '
+        ar = (f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
               f'-i "{self.file_name}" '
               f'-vcodec {self.v_codec} '
               f'-vb {self.vb} '
@@ -69,20 +69,21 @@ class Converter(Reaper):
         else:
             vb = int(self.vb)
 
-        size = int(((ab + vb) * dur) / 8)
-        ic(size)
+        # size = int(((ab + vb) * dur) / 8)
+        # ic(size)
 
         Popen(ar, stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
         while True:
 
-            try:
-                new = os.path.getsize(out_path)
-                ic(new)
-            except FileNotFoundError:
-                new = 0
+            # try:
+            #     new = os.path.getsize(out_path)
+            #     ic(new)
+            # except FileNotFoundError:
+            #     new = 0
 
-            percent = int(100/size * new)
+            # percent = int(100/size * new)
+            percent = 50
             self.update_signal.emit(percent, '', f'{localize.convert} - {self.file_name}...', False)
 
             # Конечно, костыль, но работает...

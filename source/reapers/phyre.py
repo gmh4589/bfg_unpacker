@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from icecream import ic
 
-from source.reapers import image_tools
+from source.codecs import image_tools
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 

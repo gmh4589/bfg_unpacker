@@ -1,0 +1,28 @@
+
+bitrate =  32[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate =  48[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate =  57[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate =  64[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate =  72[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate =  96[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+bitrate = 128[kbps], Ch = 1[ch], Sampling Rate = 48000[Hz]
+
+bitrate =  64[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate =  72[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate =  96[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 114[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 128[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 144[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 160[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 192[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 256[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+bitrate = 320[kbps], Ch = 2[ch], Sampling Rate = 48000[Hz]
+
+bitrate = 192[kbps], Ch = 6[ch], Sampling Rate = 48000[Hz]
+bitrate = 256[kbps], Ch = 6[ch], Sampling Rate = 48000[Hz]
+bitrate = 320[kbps], Ch = 6[ch], Sampling Rate = 48000[Hz]
+bitrate = 384[kbps], Ch = 6[ch], Sampling Rate = 48000[Hz]
+bitrate = 512[kbps], Ch = 6[ch], Sampling Rate = 48000[Hz]
+
+bitrate = 384[kbps], Ch = 8[ch], Sampling Rate = 48000[Hz]
+bitrate = 768[kbps], Ch = 8[ch], Sampling Rate = 48000[Hz]

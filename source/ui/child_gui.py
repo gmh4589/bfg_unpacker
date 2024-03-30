@@ -10,15 +10,13 @@ from qt_material import apply_stylesheet
 import configparser
 
 from source.ui.custom_ui import AutoCompleteComboBox
-import source.ui.localize as TL
+import source.ui.localize as translate
 
 
 class ChildUIWindow(QDialog):
 
-    def __init__(self, style='', gui_name='test_child',
-                 label_list=None, action_list=None, default_list=None,
-                 ext_list='', action='', drop_a=False, item1=0, item2=1,
-                 combos=''):
+    def __init__(self, label_list=None, action_list=None, default_list=None, action=None,
+                 style='', gui_name='test_child', ext_list='',  drop_a=False, item1=0, item2=1, combos=''):
 
         super().__init__()
 
@@ -26,7 +24,6 @@ class ChildUIWindow(QDialog):
         self.setting.read('./setting.ini')
         apply_stylesheet(self, theme=f'{style}.xml')
         self.style = style
-        self.gui_name = gui_name
         self.setWindowTitle(gui_name)
         self.label_list = label_list
         drop_c = len(label_list)
@@ -42,8 +39,8 @@ class ChildUIWindow(QDialog):
         self.font.setPointSize(8)
         self.ok_button = QToolButton(self.centralwidget)
         self.ok_button.setFont(self.font)
-        self.ok_button.clicked.connect(self.run_p)
         self.ok_button.setGeometry(QRect(260, int((h / 2) - 40), 130, 30))
+        self.ok_button.clicked.connect(self.run_p)
         self.ok_button.text()
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
@@ -54,6 +51,7 @@ class ChildUIWindow(QDialog):
         self.combos = {} if not combos else combos
         self.item1 = item1
         self.item2 = item2
+        self.outer = True if type(self.action) is str or None else False
 
         if label_list is not None:
 
@@ -90,7 +88,7 @@ class ChildUIWindow(QDialog):
 
         for j in range(len(self.label_list)):
 
-            if self.drops[j].currentText() == TL.other:
+            if self.drops[j].currentText() == translate.other:
                 text = simpledialog.askstring("", "Enter value:")
                 ic(text)
                 self.drops[j].addItem(text)
@@ -100,7 +98,7 @@ class ChildUIWindow(QDialog):
         selected_text = self.drops[self.item1].currentText()
         self.drops[self.item2].clear()
         ic(selected_text)
-        self.drops[self.item2].addItems(self.combos.get(selected_text, [selected_text, TL.other]))
+        self.drops[self.item2].addItems(self.combos.get(selected_text, [selected_text, translate.other]))
 
     def file_open(self):
 
@@ -109,7 +107,7 @@ class ChildUIWindow(QDialog):
         except AttributeError:
             f = ''
 
-        file_names = QFileDialog.getOpenFileNames(self, TL.open_file, filter=f,
+        file_names = QFileDialog.getOpenFileNames(self, translate.open_file, filter=f,
                                                   directory=self.setting['Main']['last_dir'])[0]
         if file_names:
 
@@ -117,6 +115,7 @@ class ChildUIWindow(QDialog):
 
                 if file_name:
                     yield file_name
+
 
     def run_p(self):
 
@@ -126,29 +125,47 @@ class ChildUIWindow(QDialog):
             for file_name in self.file_open():
 
                 if file_name:
-                    out_name = os.path.basename(file_name).split('.')[-2]
+                    out_name = os.path.basename(file_name).split('.')[0]
 
-                    for drop in range(len(self.drops)):
+                    if self.outer:
 
-                        if type(self.action_list[drop]) is dict:
-                            rev_list = {v: str(k) for k, v in self.action_list[drop].items()}
-                            self.command_line = self.command_line.replace(f'%action_{drop}%',
-                                                                          rev_list[self.drops[drop].currentText()])
-                        else:
-                            self.command_line = self.command_line.replace(f'%action_{drop}%',
-                                                                          self.drops[drop].currentText())
+                        for drop in range(len(self.drops)):
 
-                    self.command_line = (self.command_line
-                                            .replace('%out_dir%', self.setting['Main']['out_path'])
-                                            .replace('%file_name%', file_name)
-                                            .replace('%out_name%', out_name)
-                                            .replace('/', '\\'))
+                            if type(self.action_list[drop]) is dict:
+                                rev_list = {v: str(k) for k, v in self.action_list[drop].items()}
+                                self.command_line = self.command_line.replace(f'%action_{drop}%',
+                                                                              rev_list[self.drops[drop].currentText()])
+                            else:
+                                self.command_line = self.command_line.replace(f'%action_{drop}%',
+                                                                              self.drops[drop].currentText())
 
-                    ic(self.command_line)
-                    Popen(self.command_line).wait()
-                    self.command_line = ''
+                        self.command_line = (self.command_line
+                                                .replace('%out_dir%', self.setting['Main']['out_path'])
+                                                .replace('%file_name%', file_name)
+                                                .replace('%out_name%', out_name)
+                                                .replace('/', '\\'))
+
+                        print(f'Wait, file {file_name} being processed...')
+                        ic(self.command_line)
+                        Popen(self.command_line).wait()
+                        self.command_line = ''
+
+                    else:
+                        args = {'file_name': file_name}
+
+                        for drop in range(len(self.drops)):
+
+                            match self.drops[drop].currentText():
+                                case translate.yes: a = True
+                                case translate.no: a = False
+                                case _: a = self.drops[drop].currentText()
+
+                            args[self.label_list[drop].split(' ')[0]] = a
+
+                        self.action(args)
+
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.ok_button.setText(_translate("MainWindow", TL.open_file))
-        self.cancel_button.setText(_translate("MainWindow", TL.cancel))
+        self.ok_button.setText(_translate("MainWindow", translate.open_file))
+        self.cancel_button.setText(_translate("MainWindow", translate.cancel))

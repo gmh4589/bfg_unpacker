@@ -1,3 +1,4 @@
+import os
 
 from icecream import ic
 
@@ -12,6 +13,7 @@ from source.ui.main_ui_text import Translate
 class Ui_BFGUnpacker(Translate):
 
     def __init__(self):
+        self.path_to_root = os.path.curdir
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(8)
@@ -267,7 +269,8 @@ class Ui_BFGUnpacker(Translate):
         self.actionToWAV = QWidgetAction(self)
         self.actionRAW_to_WAV = QWidgetAction(self)
         self.actionRAW_to_Atrac = QWidgetAction(self)
-        # self.actionPlayStation_Audio_Converter = QWidgetAction(self)
+        # self.actionRAW_to_MP3 = QWidgetAction(self)
+        self.actionPlayStation_Audio_Converter = QWidgetAction(self)
         self.actionXWM_WAV_Audio_Converter = QWidgetAction(self)
         self.actionFFMPEG_Image_Converter = QWidgetAction(self)
         self.actionWwise_Converter = QWidgetAction(self)
@@ -310,7 +313,8 @@ class Ui_BFGUnpacker(Translate):
         self.audioConverters.addAction(self.actionToWAV)
         self.audioConverters.addAction(self.actionRAW_to_WAV)
         self.audioConverters.addAction(self.actionRAW_to_Atrac)
-        # self.audioConverters.addAction(self.actionPlayStation_Audio_Converter)
+        # self.audioConverters.addAction(self.actionRAW_to_MP3)
+        self.audioConverters.addAction(self.actionPlayStation_Audio_Converter)
         self.audioConverters.addAction(self.actionXWM_WAV_Audio_Converter)
         self.audioConverters.addAction(self.actionWwise_Converter)
         self.imageConverters.addAction(self.actionFFMPEG_Image_Converter)
