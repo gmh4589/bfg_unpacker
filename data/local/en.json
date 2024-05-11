@@ -114,5 +114,8 @@
     "alphabet": "alphabet",
     "close": "Close",
     "find_zip_method": "Unzip file",
-    "zip_method": "Zip method"
+    "zip_method": "Zip method",
+    "yes": "Yes",
+    "no": "No",
+    "load_bar": "Load Bar"
 }
