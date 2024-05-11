@@ -48,13 +48,11 @@ class Reaper(QThread, Setting):
 
     def __init__(self):
         super().__init__()
-        super().__init__()
         self.file_name = ''
         self.output_folder = ''
         self.unpack = True
         self.path_to_root = os.path.curdir
 
-    @file_reaper
     @abstractmethod
     def run(self):
         pass

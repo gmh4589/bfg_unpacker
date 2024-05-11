@@ -12,7 +12,7 @@ class SevenZIP(Reaper):
     def run(self):
         a = 0
 
-        zip7 = Popen(f'{self.path_to_root}data\\7zip\\7z.exe x '
+        zip7 = Popen(f'{self.path_to_root}\\data\\7zip\\7z.exe x '
                      f'-o"{self.output_folder}" "{self.file_name}"',
                      stdout=PIPE, stderr=PIPE, encoding='utf-8')
 

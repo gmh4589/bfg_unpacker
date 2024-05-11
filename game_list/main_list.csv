@@ -322,6 +322,7 @@ Avengers	Page not found!	_QuickBMS		\data\scripts\awad.bms
 Aviary Attorney	2015	_Construct					
 Awakened Fate: Ultimatum, The (PS3)	Page not found!	_QuickBMS	DAT File (*.dat)|	\data\scripts\awakened_fate.bms			
 AxySnake		_GAUP	bmppack.bin Files (bmppack.bin)|				
+Azangara		_QuickBMS	PAK Files (*.PAK)|	\data\scripts\azangara.bms			
 Azkend	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms			
 Azkend 2	Page not found!	_QuickBMS	paq file (*.paq)|	\data\scripts\10tons.bms			
 Azure Striker Gunvolt	2014	_QuickBMS		\data\scripts\azure_striker_gunvolt.bms			
@@ -423,7 +424,7 @@ Battlespire, An Elder Scrolls Legend	1998	_Bethesda
 Battlestrike: Force of Resistance	2007	_Chrome					
 Battlestrike: Force of Resistance 2	2009	_LithTech					
 Battlestrike: Shadow of Stalingrad	2009	_LithTech					
-BCC PSP Archive	Page not found!	_QuickBMS	bcc file (*.bcc)|	\data\scripts\bcc_psp.bms			
+BCC PSP Archive	Move to consoles PSP	_QuickBMS	bcc file (*.bcc)|	\data\scripts\bcc_psp.bms			
 Beans: The Coffee Shop Simulator	2017	_Construct					
 Bear Party: Adventure	2020	_Source					
 Beasts & Bumpkins	1997	_SAU					
@@ -1160,7 +1161,7 @@ Doom 3	2004	_idTech
 Doom 3: BFG Edition	2012	_idTech					
 Doom 3: Resurrection of Evil	2005	_idTech					
 Doom 64	1997	_idTech					
-DOOM 64 (Remastered)	2020	_ZIP	KPF Files (*,kpf)|				
+DOOM 64 (Remastered)	2020	_ZIP	KPF Files (*.kpf)|				
 DOOM Eternal	2020	_idTech					
 Doom II: Hell on Earth	1994	_idTech					
 DOOM VFR	2017	_idTech					
@@ -1187,7 +1188,7 @@ Dracula Twins		_ZIP
 DRAG Orontes Engine		_QuickBMS		\data\scripts\drag_orontes.bms			
 Dragon Age 2	2011	_Aurora					
 Dragon Age: Inquisition	2014	_FrostBite	3				
-Dragon Age: Origin	2009	_Aurora					
+Dragon Age: Origin	2009	_Aurora	ERF, RIM Files (*.erf; *.rim)|				
 Dragon Ball FighterZ		_Unreal4	0x6239755730524B4E593931626538484E334C656D6936386A36587369326C3766				
 Dragon Ball mobile	Page not found!	_QuickBMS		\data\scripts\dragonball_mobile.bms			
 Dragon Ball Xenoverse	2015	_QuickBMS		\data\scripts\db_xenoverse_emb.bms			
@@ -1598,7 +1599,7 @@ Freestyle Football	Page not found!	_QuickBMS		\data\scripts\freestyle_football.b
 Freestyle Street Basketball 2	Page not found!	_QuickBMS		\data\scripts\freestyle_basketball.bms			
 Friday the 13th: The Game	2017	_Unreal4	0x3545393442413134363631443542433534333633323446424642444142363343				
 Friends: The One with All the Trivia	2005	_QuickBMS		\data\scripts\friends_dpk.bms			
-Friendship Club (Remastered)	2015	_ZIP	KPF Files (*,kpf)|				
+Friendship Club (Remastered)	2015	_ZIP	KPF Files (*.kpf)|				
 FRM Fonts	Page not found!	_QuickBMS	frm file (*.frm)|	\data\scripts\frm_fonts.bms			
 Frogger	Page not found!	_QuickBMS		\data\scripts\frogger.bms			
 Frogger 2		_QuickBMS	FLA File (*.fla)|	\data\scripts\frogger_fla.bms			
@@ -3223,7 +3224,7 @@ Quadra	Page not found!	_QuickBMS		\data\scripts\quadra.bms
 quadrant	2015	_ZIP	Love2D Engine Files (*.love; *.exe)|				
 Quadrilateral Cowboy	2016	_idTech					
 Quake	1996	_idTech					
-Quake (Remastered)	2021	_ZIP	KPF Files (*,kpf)|				
+Quake (Remastered)	2021	_ZIP	KPF Files (*.kpf)|				
 Quake 3: Arena (Xbox)	1999	_QuickBMS		\data\scripts\quake_arena_arcade.bms			
 Quake 3: Revolution	Page not found!	_QuickBMS		\data\scripts\quake3_revolution.bms			
 Quake 4	2005	_idTech					
@@ -3590,7 +3591,7 @@ Shade: Wrath of Angels		_GAUP	RES Files (*.RES)|
 Shades of Death: Royal Blood	Page not found!	_QuickBMS		\data\scripts\vogat.bms			
 Shadow  series	Page not found!	_QuickBMS	imageblock.bin file (imageblock.bin)|	\data\scripts\fps_creator_imageblock.bms			
 Shadow Force: Razor Unit	2002	_QuickBMS		\data\scripts\funlabs.bms			
-Shadow Man Remastered (Remastered)	2021	_ZIP	KPF Files (*,kpf)|				
+Shadow Man Remastered (Remastered)	2021	_ZIP	KPF Files (*.kpf)|				
 Shadow Man: 2econd Coming	Page not found!	_QuickBMS		\data\scripts\shadowman_2econd.bms			
 Shadow of Memories (XBOX)	Page not found!	_QuickBMS	(game.wad; default.xbe)|	\data\scripts\shadow_of_memories_xbox.bms			
 Shadow of Rome IMAGE0.IMG (SLUS_209.02)		_QuickBMS		\data\scripts\shadow_of_rome_img.bms			
@@ -4020,7 +4021,7 @@ Syndicates of Arkon MMORPG	2010	_Unigene
 Synergy	2008	_Source					
 System Shock 2		_ZIP					
 System Shock Remastered (demo)		_Unreal4	0xA7628FFD62C258B1CC5D3D27AE7238B2A39C2DB54CC77CCFFC006BF18B82D9EE				
-System Shock: Enhanced Edition	2015	_ZIP	KPF Files (*,kpf)|				
+System Shock: Enhanced Edition	2015	_ZIP	KPF Files (*.kpf)|				
 SYSTEM-ε PACKDAT		_QuickBMS		\data\scripts\systeme_packdat.bms			
 Taco Bell: Tasty Temple Challenge	2000	_QuickBMS	Gamestudio WRS File (*.wrs)|	\data\scripts\gamestudio.bms			
 Taco Tom 2	2018	_Construct					
@@ -4220,7 +4221,7 @@ Titanfall® 2	2020	_Source
 Titanic Explorer	Page not found!	_QuickBMS		\data\scripts\titanic_explorer.bms			
 TL online	Page not found!	_QuickBMS		\data\scripts\tl_online.bms			
 TO4: Tactical Operations		_Unreal4	0x9B40AB6D4A9631E403A3FA24B3D609472FA7A488459E66AF448AA438BF52119B				
-Toast Time (Remastered)	2014	_ZIP	KPF Files (*,kpf)|				
+Toast Time (Remastered)	2014	_ZIP	KPF Files (*.kpf)|				
 ToaZZle	2018	_Construct					
 Toca Race Driver 3	2006	_QuickBMS		\data\scripts\toca3.bms			
 ToCA Race Driver 3		_QuickBMS		\data\scripts\race_driver_3.bms			
@@ -4333,9 +4334,9 @@ Tsukiyo ni Saraba	2005	_QuickBMS		\data\scripts\10000_bullets.bms
 TT Superbikes	Page not found!	_QuickBMS		\data\scripts\ttsuperbike.bms			
 Tumblebugs 2	Page not found!	_QuickBMS		\data\scripts\wildfire_wfar.bms			
 Turok	2008	_QuickBMS		\data\scripts\turok.bms			
-Turok (Remastered)	2015	_ZIP	KPF Files (*,kpf)|				
+Turok (Remastered)	2015	_ZIP	KPF Files (*.kpf)|				
 Turok 2: Seeds Of Evil	1998	_QuickBMS	dat file (*.dat)|	\data\scripts\11k.bms			
-Turok 2: Seeds of Evil (Remastered)	2017	_ZIP	KPF Files (*,kpf)|				
+Turok 2: Seeds of Evil (Remastered)	2017	_ZIP	KPF Files (*.kpf)|				
 Turok Evolution	2002	_QuickBMS		\data\scripts\turok_evolution.bms			
 Turok: Dinosaur Hunter	1997	_QuickBMS	dat file (*.dat)|	\data\scripts\11k.bms			
 Turok: Evolution (PS2) (STREE0.TRE)	2002	_QuickBMS	(STREE0.TRE)|	\data\scripts\turok_ev_ps2.bms			

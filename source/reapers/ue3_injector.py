@@ -25,8 +25,7 @@ class U3Injector(Reaper):
         all_files = len(source_fl)
 
         if len(source_fl) != len(new_fl):
-            print('Количество файлов в исходной и новой папках не равно!\n'
-                  'Для выхода из программы нажмите ENTER')
+            print('Количество файлов в исходной и новой папках не равно!\n')
             return
 
         with open(self.file_name, 'rb') as sa:

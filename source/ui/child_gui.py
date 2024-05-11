@@ -15,8 +15,8 @@ import source.ui.localize as translate
 
 class ChildUIWindow(QDialog):
 
-    def __init__(self, label_list=None, action_list=None, default_list=None, action=None,
-                 style='', gui_name='test_child', ext_list='',  drop_a=False, item1=0, item2=1, combos=''):
+    def __init__(self, label_list=None, action_list=None, default_list=None, action=None, style='',
+                 gui_name='test_child', ext_list='',  drop_a=False, item1=0, item2=1, combos=''):
 
         super().__init__()
 

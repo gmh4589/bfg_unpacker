@@ -76,6 +76,10 @@ class SettingWindow(QDialog):
         self.checkBox_7 = QCheckBox(self.centralwidget)
         self.checkBox_7.setFont(self.font)
         self.checkBox_7.setGeometry(QRect(10, 220, 200, 20))
+        self.load_bar = QCheckBox(self.centralwidget)
+        self.load_bar.setFont(self.font)
+        self.load_bar.setGeometry(QRect(10, 240, 200, 20))
+        self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
 
         self.label_alpha_group = QLabel(self.centralwidget)
         self.label_alpha_group.setGeometry(QRect(160, 100, 120, 30))
@@ -136,6 +140,7 @@ class SettingWindow(QDialog):
         self.setting.set('Main', 'group', "name" if self.radioButton.isChecked() else "year")
         self.setting.set('Main', 'group_arch', "2" if self.arch_checkbox.isChecked() else "0")
         self.setting.set('Main', 'group_ge', "2" if self.ge_checkbox.isChecked() else "0")
+        self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
         self.setting.set('Main', 'theme', style)
 
         with open('./setting.ini', "w") as config_file:
@@ -155,6 +160,7 @@ class SettingWindow(QDialog):
         self.radioButton.setText(_translate("MainWindow", translate.by_name))
         self.radioButton_2.setText(_translate("MainWindow", translate.by_years))
         self.checkBox_7.setText(_translate("MainWindow", translate.context_menu))
+        self.load_bar.setText(_translate("MainWindow", translate.load_bar))
         self.create_theme.setText(_translate("MainWindow", translate.create_theme))
         self.out_folder.setText(_translate("MainWindow", translate.out_folder))
         self.save_setting.setText(_translate("MainWindow", translate.apply))

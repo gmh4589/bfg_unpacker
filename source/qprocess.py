@@ -15,7 +15,6 @@ class QProcessList(MainWindow):
         super().__init__()
         sys.stdout = PrintTo(text_written=self.append_text)
         self.file_name = ''
-        self.last_run = None
         self.head = b''
         self.delete_thread = delete.DeleteThread()
         self.proc = None
@@ -31,6 +30,20 @@ class QProcessList(MainWindow):
 
         self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(self.get_short_text(header))
+        self.pb.progressBar.setValue(0)
+        self.pb.progress.setText('')
+        self.pb.status.setText('')
+        self.pb.show()
+        nuke.update_signal.connect(self.update_progress)
+
+        if self.last_run is not None:
+            nuke.finished.connect(self.last_run)
+
+        nuke.start()
+
+    def load_bar(self, nuke):
+        self.pb.set_theme(self.setting["Main"]["theme"])
+        self.pb.header.setText('Loading...')
         self.pb.progressBar.setValue(0)
         self.pb.progress.setText('')
         self.pb.status.setText('')

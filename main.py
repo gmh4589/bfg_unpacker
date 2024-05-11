@@ -1,6 +1,7 @@
 
 import os
 import sys
+
 from PyQt6.QtWidgets import *
 from icecream import ic
 
@@ -8,7 +9,6 @@ from source.quick_open import QuickOpen
 from source.ui import localize, dialogs
 from source.reaper import after_dot
 from source.reapers import *
-
 
 class UnpackerMain(QuickOpen):
 
@@ -378,7 +378,7 @@ def true_false(boo):
     try:
         b1 = bool(int(boo))
     except ValueError:
-        b1 = True if 'true' == boo else False
+        b1 = True if boo.lower() == 'true' else False
 
     return b1
 
@@ -387,4 +387,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     win = UnpackerMain()
     win.show()
+    win.raise_()
     sys.exit(app.exec())

@@ -48,6 +48,7 @@ class Setting:
         setting.set('Main', 'group_ge', '2')
         setting.set('Main', 'group_arch', '2')
         setting.set('Main', 'disable_ic', 'True')
+        setting.set('Main', 'load_bar', '2')
 
         with open('./setting.ini', "w") as config_file:
             setting.write(config_file)
