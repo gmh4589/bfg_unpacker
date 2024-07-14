@@ -382,6 +382,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
     # Создается список игр в три-вью
     def tree_view_create(self):
         self.mainList = self.mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
+
         for _, row in self.mainList.iterrows():
             self.current_game += 1
             self.names[row['game_name']] = row['release_year']

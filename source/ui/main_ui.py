@@ -1,9 +1,10 @@
 import os
-from datetime import datetime
 
 from threading import Thread
 import pandas
-from icecream import ic
+# from icecream import ic
+# from datetime import datetime
+import sqlalchemy
 
 from PyQt6.QtCore import QRect, QMetaObject, Qt
 from PyQt6.QtGui import QFont
@@ -13,6 +14,8 @@ from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
 from source.ui import setting as setting_ui, theme_creator, progress_bar, localize as translate
 SHOW_LOAD = True
+CSV = False
+
 
 # noinspection PyTypeChecker
 class Ui_BFGUnpacker(Translate):
@@ -363,30 +366,60 @@ class Ui_BFGUnpacker(Translate):
         if int(self.setting["Main"]["load_bar"]):
             Thread(target=self.pb_show, daemon=True).start()
 
-        # Game list creating
-        self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
+        if CSV:
+            # Game list creating via CSV table
+            self.mainList = pandas.read_csv('./game_list/main_list.csv', delimiter='\t')
 
-        if int(self.setting['Engines']['unity']) > 0:
-            unity_list = pandas.read_csv('./game_list/unity_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, unity_list], axis=0, ignore_index=True)
-        if int(self.setting['Engines']['unreal']) > 0:
-            unreal_list = pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, unreal_list], axis=0, ignore_index=True)
-        if int(self.setting['Engines']['renpy']) > 0:
-            renpy_list = pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, renpy_list], axis=0, ignore_index=True)
-        if int(self.setting['Engines']['game_maker']) > 0:
-            gamemaker_list = pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, gamemaker_list], axis=0, ignore_index=True)
-        if int(self.setting['Engines']['rpg_maker']) > 0:
-            rpgmaker_list = pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, rpgmaker_list], axis=0, ignore_index=True)
-        if int(self.setting['Engines']['godot']) > 0:
-            godot_list = pandas.read_csv('./game_list/godot_list.csv', delimiter='\t')
-            self.mainList = pandas.concat([self.mainList, godot_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['unity']) > 0:
+                unity_list = pandas.read_csv('./game_list/unity_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, unity_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['unreal']) > 0:
+                unreal_list = pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, unreal_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['renpy']) > 0:
+                renpy_list = pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, renpy_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['game_maker']) > 0:
+                gamemaker_list = pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, gamemaker_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['rpg_maker']) > 0:
+                rpgmaker_list = pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, rpgmaker_list], axis=0, ignore_index=True)
+            if int(self.setting['Engines']['godot']) > 0:
+                godot_list = pandas.read_csv('./game_list/godot_list.csv', delimiter='\t')
+                self.mainList = pandas.concat([self.mainList, godot_list], axis=0, ignore_index=True)
+
+        else:
+            # Game list creating via SQL database
+            engine = sqlalchemy.create_engine("sqlite:///game_base.db")
+
+            with engine.connect() as conn:
+                metadata = sqlalchemy.MetaData()
+                game_list_table = sqlalchemy.Table('game_list', metadata, autoload_with=engine)
+                game_list_query = sqlalchemy.select(game_list_table)
+                self.mainList = pandas.read_sql_query(game_list_query, conn)
+
+                def load_table(table_name):
+                    table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
+                    query = sqlalchemy.select(table)
+                    t_list = pandas.read_sql_query(query, conn)
+                    self.mainList = pandas.concat([self.mainList, t_list], axis=0, ignore_index=True)
+
+                if int(self.setting['Engines']['unity']) > 0:
+                    load_table('unity_list')
+                if int(self.setting['Engines']['unreal']) > 0:
+                    load_table('unreal_list')
+                if int(self.setting['Engines']['renpy']) > 0:
+                    load_table('renpy_list')
+                if int(self.setting['Engines']['game_maker']) > 0:
+                    load_table('gamemaker_list')
+                if int(self.setting['Engines']['rpg_maker']) > 0:
+                    load_table('rpgmaker_list')
+                if int(self.setting['Engines']['godot']) > 0:
+                    load_table('godot_list')
 
         self.all_games = len(self.mainList)
-        ic(self.all_games)
+        # ic(self.mainList)
 
         self.names = {}
         self.setWindowIcon(QIcon('./data/icons/i.ico'))

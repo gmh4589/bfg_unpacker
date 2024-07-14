@@ -108,6 +108,8 @@ class Zip(Reaper):
                     output_code = self.write_file(path, compress_method, compressed_data, pp)
 
                 elif magic in (b'PK\x05\x06', b'PK\x01\x02') or output_code == -1:
+                    print(localize.not_correct_file.replace('%%', 'ZIP'))
+                    self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'ZIP'), True)
                     break
 
                 else:

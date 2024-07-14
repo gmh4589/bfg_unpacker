@@ -1,4 +1,3 @@
-
 import os
 from subprocess import Popen, PIPE
 from icecream import ic
@@ -15,7 +14,7 @@ class Unity(Reaper):
 
         unity = Popen(f'{self.path_to_root}/data/AssetStudio/AssetStudioCLI.exe '
                       f'"{path}" "{self.output_folder}" --game Normal',
-                       stdout=PIPE, stderr=PIPE, encoding='utf-8')
+                      stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
         while True:
             out1 = unity.stdout.readline().strip()

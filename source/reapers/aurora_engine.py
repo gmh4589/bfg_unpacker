@@ -13,6 +13,7 @@ resource_type = {1: 'bmp', 3: 'tga', 4: 'wav', 6: 'plt', 7: 'ini', 10: 'txt', 20
 
 
 class ERFUnpacker(Reaper):
+    # TODO: Добавить поддержку Jade Empire
 
     @file_reaper
     def run(self):

@@ -10,6 +10,8 @@ class QuickOpen(QProcessList):
 
     @staticmethod
     def sorry():  # 😢
+
+        # TODO: Нужно локализовать текст!!!
         print('Не удалось найти распаковщик автоматически!\n'
               'Попробуйте выбрать игру или тип файла вручную!')
 
@@ -45,7 +47,7 @@ class QuickOpen(QProcessList):
                 # Check on UnArk support archive
                 elif ext in ("alz", "egg", "bh",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.path_to_root}\\data\\wcx\\UnArkWCX.wcx'
+                    self.proc.script_name = 'data\\wcx\\UnArkWCX.wcx'
 
                 elif ext in ("ara",):
                     self.proc = qbms.Q_BMS()
@@ -127,9 +129,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\BFP.bms"
 
                 elif ext in ("bif", "key"):
-                    # TODO: Add inner reaper
-                    self.proc = qbms.Q_BMS()
-                    self.proc.script_name = '\\data\\scripts\\BIF_BIFFV1.bms'
+                    self.proc = aurora_bif_key.BifKey()
 
                 elif ext in ("big",):
                     # TODO: Lost: Via Domus, add from GAUP
@@ -205,7 +205,7 @@ class QuickOpen(QProcessList):
                 # Check on Java class file
                 elif ext in ("class",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f"{self.path_to_root}\\data\\wcx\\JavaClassUnpacker.wcx"
+                    self.proc.script_name = "\\data\\wcx\\JavaClassUnpacker.wcx"
 
                 elif ext in ("cmp",):  # TODO: Add from GAUP
                     self.proc = other_prg.OtherProg()
@@ -269,7 +269,7 @@ class QuickOpen(QProcessList):
 
                     if self.head == b'GCAX':  # GCA Archive
                         self.proc = qbms.Q_BMS()
-                        self.proc.script_name = f"{self.path_to_root}\\data\\wcx\\gca.wcx"
+                        self.proc.script_name = "data\\wcx\\gca.wcx"
                     elif self.head == b'ADAT':  # Anachronox
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\anachronox.bms"
@@ -373,7 +373,7 @@ class QuickOpen(QProcessList):
                 # Check on GCA archive
                 elif ext in ("gca",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f"{self.path_to_root}\\data\\wcx\\gca.wcx"
+                    self.proc.script_name = "\\data\\wcx\\gca.wcx"
 
                 elif ext in ("gob",):
                     self.proc = qbms.Q_BMS()
@@ -382,7 +382,7 @@ class QuickOpen(QProcessList):
                 # Check on HA archive
                 elif ext in ("ha",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f"{self.path_to_root}\\data\\wcx\\HA.wcx"
+                    self.proc.script_name = "\\data\\wcx\\HA.wcx"
 
                 elif ext in ("hal",):
                     self.proc = qbms.Q_BMS()
@@ -403,7 +403,7 @@ class QuickOpen(QProcessList):
                 # Check on Hrust archive
                 elif ext in ("hrp", "hrip",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f"{self.path_to_root}\\data\\wcx\\inhrust.wcx"
+                    self.proc.script_name = "\\data\\wcx\\inhrust.wcx"
 
                 elif ext == "img":
                     # TODO: GTA, Disc Image
@@ -476,7 +476,7 @@ class QuickOpen(QProcessList):
                     # TODO: Add Control
 
                 elif ext == 'pak':
-                    # TODO: Arx Fatalis, Sacred, Necrovision, Painkiller
+                    # TODO: Sacred, Necrovision, Painkiller
 
                     if self.head == b'\x37\xBD\x37\x4D':  # 7Ѕ7M, PopCap PAK
                         self.proc = seven_s_seven.Seven()
@@ -547,10 +547,10 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\CloseCombat4PIX.bms"
 
                 elif ext == "pkg":
-                    # TODO: Space Rangers, SWAT 4, Trails of Cold Steel
+                    # TODO: Space Rangers, SWAT 4
 
-                    if self.head == b'':
-                        pass
+                    if self.head == b'\0' * 4:
+                        self.proc = sen_pkg.PKGExtractor()
                     else:
                         self.sorry()
 
@@ -637,7 +637,7 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("tab",):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.path_to_root}\\data\\scripts\\madmax.bms'
+                    self.proc.script_name = 'data\\scripts\\madmax.bms'
 
                 elif ext in ("tiger",):  # TODO: Add something else
                     self.proc = other_prg.OtherProg()
@@ -736,7 +736,9 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\DarkReign2ZWP.bms"
 
                 # Check on Bethesda game
-                elif ext in ('ba2', 'bsa', 'esl', 'esm', 'esp', 'esx', 'pex'):
+                elif ext in ('ba2', 'bsa', ):
+                    self.proc = bsa_ba2.BethesdaArchive()
+                elif ext in ('esl', 'esm', 'esp', 'esx', 'pex'):
                     # TODO: Add functions to unpack other file types
                     print(f'{localize.work_in_progress}...')
 
@@ -760,7 +762,7 @@ class QuickOpen(QProcessList):
                     # TODO: Check NIF from here and maybe add NIF model from other game, check PAL, check PCK,
                     #  check RAW, check RES, check REZ, check VID and maybe add selector for video and VID from  here
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.path_to_root}\\data\\wcx\\gauppro.wcx'
+                    self.proc.script_name = 'data\\wcx\\gauppro.wcx'
 
                 # Check on idTech Engine game
                 elif ext in ('bimage', 'idwav', 'index', 'mega2', 'msf', 'pages', 'ptr', 'resources', 'streamed',
@@ -781,7 +783,7 @@ class QuickOpen(QProcessList):
                 elif ext in ('s2ma', 'sc2', 'bsp', 'cache', 'etc', 'gcf', 'hdr', 'mim', 'mime', 'mpq', 'mpqe', 'msm',
                              'pbb', 'pst', 'udf', 'vbsp', 'vp', 'xzp'):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.path_to_root}\\data\\wcx\\TotalObserver.wcx'
+                    self.proc.script_name = 'data\\wcx\\TotalObserver.wcx'
 
                 # Check on extension in SAU list
                 elif ext in ('4pp', 'bdx', 'box', 'brig', 'c', 'cam', 'cc', 'chr', 'dbi', 'df2', 'epf', 'fan', 'flx',
@@ -815,7 +817,7 @@ class QuickOpen(QProcessList):
                 # Check on X-Ray Engine game
                 elif ext in ('db0', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9'):
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = f'{self.path_to_root}\\data\\wcx\\stalker.wcx'
+                    self.proc.script_name = 'data\\wcx\\stalker.wcx'
 
                 else:
                     self.sorry()

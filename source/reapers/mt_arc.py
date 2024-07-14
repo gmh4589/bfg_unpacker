@@ -15,7 +15,7 @@ class ARCExtractor(Reaper):
             magic = arc_file.read(4)
 
             if magic not in (b'ARC\x00', b'\x00CRA'):
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'ARC'))
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'ARC'), True)
                 return
 

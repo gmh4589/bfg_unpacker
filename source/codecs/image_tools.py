@@ -4,22 +4,6 @@ from PIL import Image
 from source.codecs.dds_list import dds_list
 
 
-# def dds_save(y, x, codec, name, data):
-# 
-#     flags = dds_list[codec]['flags']
-#     cdc = dds_list[codec]['codec']
-#     bpp = dds_list[codec]['bpp']
-#     rgba_mask = dds_list[codec]['rgb_mask']
-#     h_flg = dds_list[codec]['head_flg']
-# 
-#     with open(f'{name}.dds', 'wb') as dds_file:
-#         dds_file.write(b'DDS\x20\x7C\x00\x00\x00' + h_flg +  # DDS Header
-#                        x.to_bytes(4, byteorder='little') +  # Height
-#                        y.to_bytes(4, byteorder='little') * 2 +  # width and linear size
-#                        b'\x01\x00\x00\x00' * 2 + b'\x00' * 44 + b'\x20\x00\x00\x00' +
-#                        flags + cdc + bpp + rgba_mask + b'\x08\x10\x40\x00' + b'\x00' * 16 + data)
-
-
 def dds_save(y, x, codec, name, data):
 
     keys = dds_list[codec]['keys']

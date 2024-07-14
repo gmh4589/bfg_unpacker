@@ -15,7 +15,7 @@ class WadExtractor(Reaper):
             magic = wad_file.read(4)
 
             if magic not in (b'IWAD', b'PWAD'):
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'WAD'))
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'WAD'), True)
                 return
 

@@ -19,15 +19,20 @@ pyz = PYZ(a.pure, a.zipped_data,
 
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
+          [],
+          exclude_binaries=True,
           name='bfg_unpacker',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
-          upx=True,
-          upx_exclude=[],
-          runtime_tmpdir=None,
           console=True,
-          icon='F:\\bfg_unpacker\\data\\icons\\i.ico')
+          icon='data\\icons\\i.ico')
+
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=False,
+               upx_exclude=[],
+               name='release')

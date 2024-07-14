@@ -2,13 +2,17 @@
 import os
 import sys
 
-from PyQt6.QtWidgets import *
+# Это костыль, без него не работает компилляция
+from sqlalchemy.dialects.mysql.mariadb import *
+
+from PyQt6.QtWidgets import QFileDialog, QApplication
 from icecream import ic
 
 from source.quick_open import QuickOpen
 from source.ui import localize, dialogs
 from source.reaper import after_dot
 from source.reapers import *
+
 
 class UnpackerMain(QuickOpen):
 
@@ -31,18 +35,18 @@ class UnpackerMain(QuickOpen):
         if not select_folder:
 
             try:
-                f = ext_list.replace('|', ';;')
+                f = ext_list.replace('|', ';;').replace('None', '')
             except AttributeError:
                 f = ''
 
-            file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
+            file_names = QFileDialog.getOpenFileNames(self, caption=localize.open_file, filter=f,
                                                       directory=self.setting['Main']['last_dir'])[0]
 
             if more_one:
                 file_names = [file_names[0], '']
 
         else:
-            file_names = [QFileDialog.getExistingDirectory(self, localize.select_folder,
+            file_names = [QFileDialog.getExistingDirectory(self, caption=localize.select_folder,
                                                            directory=self.setting['Main']['last_dir']), '']
         if file_names:
             self.set_setting('Main', 'last_dir', os.path.dirname(file_names[0]))
@@ -58,16 +62,16 @@ class UnpackerMain(QuickOpen):
         try:
             item = self.model.itemFromIndex(index)
             data_string = self.mainList.loc[self.mainList['game_name'] == item.text()]
-            func_name = data_string['func_name'].values[0]
+            self.func_name = data_string['func_name'].values[0]
             script_name = data_string['script_name'].values[0]
             after_dot['Default'] = (data_string['ext_list'].values[0]
                                     if data_string['ext_list'].values[0] != 'nan' else '')
             ext_list = after_dot[self.func_name] if self.func_name in after_dot.keys() else after_dot['Default']
 
-            if self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3'):
+            if self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop'):
                 select_folder = True
 
-            self.create_queue(ext_list, select_folder, more_one, func_name, script_name)
+            self.create_queue(ext_list, select_folder, more_one, self.func_name, script_name)
 
         except IndexError:
             pass
@@ -102,12 +106,15 @@ class UnpackerMain(QuickOpen):
                 self.proc = None
 
                 try:
-                    with open(file_name, 'rb') as fff:
-                        header = fff.read(4)
-                except PermissionError:
-                    header = b''
 
-                if header == b'PK\x03\x04':
+                    with open(file_name, 'rb') as fff:
+                        magic = fff.read(4)
+                        magic2 = fff.read(4)
+
+                except PermissionError:
+                    magic, magic2 = b'', b''
+
+                if magic == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
                 else:
 
@@ -129,19 +136,62 @@ class UnpackerMain(QuickOpen):
 
                             if ext in ('erf', 'rim'):
                                 self.proc = aurora_engine.ERFUnpacker()
-                            elif ext in ('bif', 'key'):
-                                self.proc = qbms.Q_BMS()
-                                self.proc.script_name = '/data/scripts/BIF_BIFFV1.bms'
+                            elif ext == 'bif':
+                                self.proc = aurora_bif_key.BifKey()
+                            elif ext == 'key':
+                                # TODO: Нужно локализовать текст!!!
+                                dialogs.CustomDialog(text='Select a BIF file!').exec()
                             elif ext == 'dzip':
-                                # TODO: Add DZIP support with \data\gibbed\Gibbed.RED.Unpack.exe
-                                print(f'{localize.work_in_progress}...')
+                                # TODO: Need test!!!
+                                self.proc = other_prg.OtherProg()
+                                self.proc.program_name = "gibbed\\Gibbed.RED.Unpack.exe"
+
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Aurora Engine'))
 
                         case '_Bethesda' | '_CelTop':
-                            # TODO: Add functions to unpack other file types
-                            # TODO: Add _CelTop here
-                            print(f'{localize.work_in_progress}...')
+
+                            match ext:
+                                case 'bsa':
+
+                                    if magic == b'BSA\0':
+
+                                        if magic2 in (104, 105):
+                                            self.proc = bsa_ba2.BethesdaArchive()
+                                        else:
+                                            self.proc = qbms.Q_BMS()
+                                            self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+
+                                    else:
+                                        self.proc = qbms.Q_BMS()
+                                        self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+
+                                    if 'ARCH3D' in self.file_name:
+                                        pass
+                                    elif 'arena' in self.file_name.lower() or 'battle' in self.file_name.lower():
+                                        pass
+
+                                case 'ba2':
+                                    pass
+
+                                case 'esp' | 'esm' | 'esl':
+                                    pass
+                                case 'esx':
+                                    pass
+                                case 'snd':
+                                    pass
+                                case 'pex':
+                                    pass
+                                case '':
+                                    pass
+                                    # TODO: CEL\TOP creator
+                                case _:
+
+                                    if 'TEXBSI' in self.file_name:
+                                        pass
+                                    else:
+                                        print(localize.not_correct_file.replace('%%', 'Bethesda Game'))
+
                         case '_Build':
 
                             if ext == 'grp':
@@ -169,23 +219,11 @@ class UnpackerMain(QuickOpen):
                                 self.proc.script_name = 'data/scripts/dying_light.bms'
                             elif ext == ".rpack":
 
-                                if header == b'RP6L':
+                                if magic == b'RP6L':
                                     self.proc = chrome_engine.RP6L()
                                 else:
                                     # TODO: Add functions to unpack other file types
                                     print(f'{localize.work_in_progress}...')
-
-                                # If StringInStr($iDir, 'dying') > 0 Then
-                                # _OtherPRG('', "\data\lua_scripts\lua.exe", ' ' & @ScriptDir & '\data\lua_scripts\rp6l.lua ', $sFolderName, @ScriptDir & '\data\lua_scripts', $sFileName)
-                                # ElseIf StringInStr($iDir, 'sniper') > 0 Then
-                                # $iF = FileOpen($sFileName, 16)
-                                # FileSetPos($iF, 20, 0)
-                                # $iOffset = _BinaryToInt16(FileRead($iF, 4))
-                                # FileClose($iF)
-                                # _OtherPRG('', "\data\offzip.exe ", ' -a ', $sFolderName & ' ' & $iOffset, $sFolderName, $sFileName)
-                                # Else
-                                # _OtherPRG('', "\data\gibbed\Gibbed.Chrome.ResourceUnpack.exe", '', $sFolderName, $sFolderName, $sFileName)
-                                # EndIf
 
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Chrome Engine'))
@@ -262,13 +300,15 @@ class UnpackerMain(QuickOpen):
 
                             if ext in ('phyre', 'dds', 'png', 'bmp', 'gxt'):
                                 self.proc = phyre.PhyreSave()
+                            elif ext == 'pkg':
+                                self.proc = sen_pkg.PKGExtractor()
                             elif ext == 'dat':
 
                                 if self.checkBox_Reimport.isChecked():
                                     self.proc = sen_book.SenBookSave()
                                 else:
 
-                                    if header == b'\x20\x00\x00\x00':
+                                    if magic == b'\x20\x00\x00\x00':
                                         self.proc = sen_book.SenBook()
                                     else:
                                         # TODO: Add functions to unpack other file types
@@ -303,9 +343,11 @@ class UnpackerMain(QuickOpen):
                             if self.checkBox_Reimport.isChecked():
 
                                 if ext in ('upk', 'upx', 'xxx', 'u'):
+
+                                    # TODO: Нужно локализовать текст!!!
                                     dialogs.CustomDialog(text='Порядок действий при упаковке файлов игр на UE3:\n\n'
-                                                              '1. Выбрать исходный архив (если вы видите это сообщение\n'
-                                                              '     он уже должен быть выбран)\n'
+                                                              '1. Выбрать исходный архив (если вы видите это\n'
+                                                              '     сообщение он уже должен быть выбран)\n'
                                                               '2. Выбрать папку с исходными распакованными файлами\n'
                                                               '     в следующем окне выбора папки\n'
                                                               '3. Выбрать папку с измененными файлами\n\n'
@@ -318,6 +360,7 @@ class UnpackerMain(QuickOpen):
                                     self.proc = locres.TXT2Locres()
 
                             else:
+
                                 if ext in ('upk', 'upx', 'xxx', 'u'):
                                     self.proc = ue3_reaper.UE3()
                                 elif ext == 'locres':
@@ -356,7 +399,6 @@ class UnpackerMain(QuickOpen):
                         case '_ZPL':
                             self.proc = zpl2png.ZPL2PNG()
                         case '_Zaglushka':
-                            # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case _:
                             self.proc = qbms.Q_BMS()

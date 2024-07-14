@@ -1,245 +1,254 @@
+July 14, 2024
 
-11.05.24 - релиз версии 2.0.0 beta_1
+ - Game list now forming with SQL database
+ - Zip methods list moved to codecs folder
+ - Added native support BIF\KEY archives from games by Aurora Engine
+ - Added native support BSA\BA2 archives from games by Bethesda Game Studio
+ - Added native support PKG archives from Legend of Hero: Trails of Cold Steal game series
+ - Fixed a bug where a filter was shown based on the extension of the previously selected file type
 
- - Добавлен прогресс-бра процесса загрузки при запуске программы (отключается в меню настроек)
- - Исправлены данные для сохранения DDS файлов
- - Добавлена функция для сохранения BMP файлов с заданными параметрами
- - Добавлена новая тема Cat Mint
- - Методы в классах для формирования интерфейса разбиты на несколько классов
- - Исправлены несколько ошибок в файлах локализаций
- - Исправлены несколько проблем с распаковкой различных типов файлов через QuickBMS
+May 11, 2024 - 2.0.0 beta_1 version release
 
-30.03.24
+ - Added load process progress-bar after program run (can off in setting menu)
+ - Fixed save data for DDS file format
+ - Added function for saving BMP image format with specified parameters
+ - Added new theme "Cat Mint"
+ - Methods in classes for GUI creating separated for few classes
+ - Fixed few errors in localized files
+ - Fixed few problems with unpacking some file types via QuickBMS
 
- - Добавлена функция для создания заголовков WAV и Atrac аудиофайлов
- - Файлы, содержащие функции и методы для сохранения мультимедиа файлов, перенесены в папку source\codecs
- - В класс для дочерних меню добавлена возможность вызова внешних функций, классов и методов
+Mart 30, 2024
 
-03.03.24
+ - Added function for creating headers for WAV and Atrac audio files
+ - Files, includes functions and methods for saving multimedia files, moved to source\codecs folder
+ - To class for children menus added option for call out functions, classes and methods
 
- - Добавлено новое подменю "Архивы" в меню "Конвертеры", туда добавлены:
-        "Сканер архивов" - перенесен из "Меню" -> "Дополнительно",
-        "Разжать файл" - позволяет выбрать метод сжатия и разжать файл с помощью него
- - Расширен функционал класса ChildUIWindow, теперь в него можно передавать словари в качестве параметров для
-        выпадающих списков, где ключ словаря это передаваемый параметр, а значение - отображаемый в списке текст,
-        так же, большим выпадающим спискам, в которых более 100 элементов, добавлена возможность поиска
- - Папки с локализациями, темами, иконки и шрифт перенесены в папку data
- - Программа теперь собирается в EXE файл, запускается и полностью работает из него
+Mart 3, 2024
 
-18.02.24
+ - Added new submenus "Archives" into "Converters" menu, with:
+        "Archive scanner" - moved from "Menu" -> "Additional",
+        "Unzip file" - with this you can select zipped method and unzip any file with it
+ - Into class ChildUIWindow added functions for
+ - The functionality of the ChildUIWindow class has been expanded, now you can pass dictionaries to it as parameters for
+         drop-down lists, where the dictionary key is the parameter being passed, and the value is the text displayed in the list,
+         Also, large drop-down lists with more than 100 elements now have the ability to search
+ - Folders with localizations, themes, icons and fonts have been moved to the data folder
+ - The program is now assembled into an EXE file, launched and fully functional from it
 
- - Добавлена поддержка распаковки ресурсов из игр на Unreal Engine 3
- - Добавлена упаковка файлов из игр на Unreal Engine 3 (ограничено, режим тестирования)
- - Добавлена активность кнопкам в меню "Конвертеры":
-        "FFMPEG Audio Converter",
-        "Image to DDS (Microsoft)",
-        "Image to DDS (nVidia)"
- - В дочерние интерфейсы конвертеров добавлена возможность изменения одного дроп-бокса в зависимости от выбранного другого
- - В "FFMPEG Audio Converter" добавлена возможность изменения скорости звука, частоты и кодека аудио
- - Восстановлена работа функции распаковки ресурсов из игр на Unity Engine
- - Наведен порядок в функциях и классах обновления прогресс-бара
- - Наведен порядок в классе OtherPRG
- - Добавлена поддержка распаковки образов дисков с Nintendo Wii, GameCube и PlayStation Portable
+February 18, 2024
 
-03.02.24
+  - Added support for unpacking resources from games on Unreal Engine 3
+  - Added packaging of files from games on Unreal Engine 3 (limited, testing mode)
+  - Added activity to buttons in the "Converters" menu:
+         "FFMPEG Audio Converter",
+         "Image to DDS (Microsoft)",
+         "Image to DDS (nVidia)"
+  - The ability to change one drop box depending on the selected other has been added to the child interfaces of converters
+  - Added the ability to change audio speed, frequency and audio codec to "FFMPEG Audio Converter"
+  - The function of unpacking resources from games on Unity Engine has been restored.
+  - The functions and classes for updating the progress bar have been put in order
+  - Cleaned up the OtherPRG class
+  - Added support for unpacking disk images from Nintendo Wii, GameCube and PlayStation Portable
 
- - Функция для определения метода сжатия вынесена в отдельный класс, теперь при ее вызове отображается прогресс-бар и
-        сообщения о статусе распаковки
- - В папку reapers, в которой содержатся классы распаковщиков, добавлен файл __init__.py для упрощения импорта распаковщиков
- - Проверены и полностью интегрированы функции для работы с файлами книг и сцен из игр серии Legend of Hero: Trails of Cold Steel
+February 3, 2024
 
-28.01.24
+  - The function for defining the compression method has been moved to a separate class; now when it is called,
+        a progress bar is displayed and unpacking status messages
+  - The __init__.py file has been added to the reapers folder, which contains the unpacker classes, to simplify the import of unpackers
+  - Tested and fully integrated functions for working with files of books and scenes from games in the Legend of Hero: Trails of Cold Steel series
 
- - Исправлена работа с плагином GAUP
- - В функцию "Открыть быстро" интегрирована поддержка аудио файлов из игры Red Dead Redemption 2
- - Убран из настроек слайдер для масштабирования интерфейса, в связи с тем, что в PyQT6 масштабирование происходит
-        автоматически. Так же, удалено все, что отвечало в коде за масштабирование
- - Теперь подпапки с именем файла в выходной папке создаются, если чекбокс "Создавать подпапки" активен
- - В функцию для работы с ERF и RIM файлами из игр от BioWare, добавлена поддержка различных версий движков
- - В функцию для работы с ARC файлами из игр на движке MT Framework, добавлена поддержка распаковки файлов, сжатых
-        методами ZLIB и Deflate
- - В класс Reaper добавлен метод для определения расширения файла по его заголовку, она нужна для сохранения файлов
-        из архивов, в которых нет данных по расширению файлов
- - В класс Reaper добавлен метод для разжатия данных через программу QuickBMS, которая поддерживает более 850
-        различных методов сжатия данных
+January 28, 2024
 
-18.01.24
+  - Fixed work with the GAUP plugin
+  - Support for audio files from the game Red Dead Redemption 2 is integrated into the “Open Quickly” function
+  - The slider for scaling the interface has been removed from the settings, due to the fact that scaling occurs in PyQT6
+         automatically. Also, everything that was responsible for scaling in the code was removed.
+  - Now subfolders with the file name in the output folder are created if the "Create subfolders" checkbox is active
+  - Support for different versions of engines has been added to the function for working with ERF and RIM files from games from BioWare
+  - Added support for unpacking compressed files to the function for working with ARC files from games based on the MT Framework engine
+         ZLIB and Deflate methods
+  - A method has been added to the Reaper class to determine the file extension by its title, it is needed to save files
+         from archives that do not contain file extension data
+  - A method has been added to the Reaper class for decompressing data through the QuickBMS program, which supports more than 850
+         various data compression methods
 
- - Осуществлен переход с PyQT5 на PyQT6
- - Добавлен файл requirements.txt
- - Добавлена активность обработчикам видео, аудио и изображений через ffmpeg
- - В функцию "Открыть быстро" добавлено определение PAK-архивов из игры Arx Fatalis
- - Класс Reaper теперь абстрактный, декоратор file_reaper вызывается всегда при создании экземпляра класса
- - Добавлена опция вызова функции "Отрыть быстро" с помощью перетаскивания файлов в интерфейс программы
+January 18, 2024
 
-13.01.24
+  - Changed from PyQT5 to PyQT6
+  - Added requirements.txt file
+  - Added activity to video, audio and image handlers via ffmpeg
+  - Added detection of PAK archives from the game Arx Fatalis to the "Open quickly" function
+  - The Reaper class is now abstract, the file_reaper decorator is always called when creating an instance of the class
+  - Added the option to call the "Open Quickly" function by dragging files into the program interface
 
- - Исправлена работа программы при открытии нескольких файлов. Теперь все выбранные за один раз файлы обрабатываются
-	корректно и без ошибок, у всех работает прогресс-бар и процессы обработки не накладываются один на другой
+January 12, 2024
 
-11.01.24
+  - Fixed program operation when opening multiple files. Now all files selected at one time are processed correctly
+        and without errors, the progress bar works for everyone and processing processes do not overlap one another
 
- - Добавлены новые пункты в меню "Движки", "Консоли" и "Архивы"
- - Список игр на движке Godot вынесены в отдельный файл и теперь их отображение можно вкл\выкл в меню настроек
- - Меню "Игровые движки" разделено на подменю в виде алфавитного списка
- - В настройки добавлена опция вкл\откл группировки по алфавиту меню "Движки" и "Архивы"
- - Изменен дизайн меню настроек, кнопки перенесены вниз, а на место кнопок помещены чекбоксы группировки по алфавиту
-        для меню "Движки" и "Архивы"
- - В прогресс-баре теперь отображается имя обрабатываемого файла
- - При выборе нескольких файлов теперь обрабатываются все выбранные файлы
+January 11, 2024
 
-28.12.23
+  - Added new items to the "Engines", "Consoles" and "Archives" menus
+  - The list of games on the Godot engine has been moved to a separate file and now their display can be turned on/off in the settings menu
+  - The "Game engines" menu is divided into submenus in the form of an alphabetical list
+  - An option has been added to the settings to enable/disable alphabetical grouping of the "Engines" and "Archives" menus
+  - The design of the settings menu has been changed, the buttons have been moved down, and alphabetical grouping
+        checkboxes have been placed in place of the buttons for the "Engines" and "Archives" menus
+  - The progress bar now displays the name of the file being processed
+  - When selecting multiple files, all selected files are now processed
 
- - Оптимизация функции "Открыть быстро"
- - Добавлена функция для обработки мультимедиа файлов через ffmpeg
- - Добавлена возможность ввода не предусмотренных значений в дроп-боксы в функциях с дочерними интерфейсами, для этого
-        нужно выбрать пункт "Другие" в любом из дроп-боксов, в котором есть такой пункт
- - Добавлена "скрытая" опция в файл настроек для вкл\откл режим отладки
+December 28, 2023
 
-25.12.23
+  - Optimization of the "Open quickly" function
+  - Added function for processing multimedia files via ffmpeg
+  - Added the ability to enter unspecified values into drop boxes in functions with child interfaces, for this
+         you need to select the “Others” item in any of the drop boxes that have such an item
+  - Added a "hidden" option to the settings file to enable/disable debugging mode
 
- - Добавлены несколько новых типов файлов с расширением PAK в функцию быстрого поиска
- - Небольшие правки в распаковщике игр на Aurora Engine
- - Во все встроенные распаковщики добавлена библиотека icecream для отладки
+December 25, 2023
 
-22.12.23
+  - Added several new file types with PAK extension to the quick search function
+  - Minor fixes in the Aurora Engine game unpacker
+  - The icecream library for debugging has been added to all built-in unpackers
 
- - В распаковщик Quake (a.k.a. idTech 1) Engine добавлена поддержка игр на idTech 2. Версия движка определяется
-        автоматически в большинстве случаев, а если это не возможно, программа откроет диалог выбора версии движка
- - Добавлен встроенный распаковщик AFS архивов, используемый во многих играх от Capcom, SEGA, Konami и других
-        разработчиков из Японии. Этот формат не содержит названий файлов, поэтому на выходе файлам дается номер
- - Добавлен встроенный распаковщик VPK файлов из игр на движке Source на основе библиотеки vpk
- - В функцию "Открыть быстро" добавлена поддержка еще нескольких форматов файлов
- - Добавлен класс OtherPRG для распаковки файлов через внешние программы
+December 22, 2023
 
-18.12.23
+  - Support for games on idTech 2 has been added to the Quake (a.k.a. idTech 1) Engine unpacker. The engine version is determined
+         automatically in most cases, and if this is not possible, the program will open a dialog for selecting the engine version
+  - Added built-in AFS archive unpacker, used in many games from Capcom, SEGA, Konami and others developers from Japan.
+         This format does not contain file names, so the output files are given a number
+  - Added built-in unpacker of VPK files from games on the Source engine based on the vpk library
+  - Added support for several more file formats to the "Open Quickly" function
+  - Added OtherPRG class for unpacking files through external programs
 
- - Функции для работы с играми на движках Unreal, Unity, а так же для архивов, поддерживаемых 7zip, вынесены в
-        отдельный класс. Теперь им будет добавлен прогресс-бар и вывод консоли в окно программы
- - Удален файл unpacker.py, весь его функционал перенесен в отдельные классы
- - Исправлен путь для сохранения ZPL файлов при их конвертации в PNG
- - Начата работа над функциями для обработки файлов, тип которых нельзя определить по расширению (DAT, PAK, ARC и тд)
+December 18, 2023
 
-14.12.23
+  - Functions for working with games on the Unreal, Unity engines, as well as for archives supported by 7zip, have
+        been moved to separate class. Now they will add a progress bar and console output to the program window
+  - The unpacker.py file has been removed, all its functionality has been moved to separate classes
+  - Fixed the path for saving ZPL files when converting them to PNG
+  - Work has begun on functions for processing files whose type cannot be determined by extension (DAT, PAK, ARC, etc.)
 
- - Добавлен встроенный распаковщик файлов PAK из игр на idTech 2, Quake Engine, GoldSource и других от id Software и Valve
- - Добавлен встроенный распаковщик файлов ARK из игр на MT Framework от Capcom (не интегрирован полностью, пока игры
-        на этом движке распаковываются через bms-скрипт)
- - Функция для работы с bms-скриптами вынесена в отдельный класс, который наследуется от класса Reaper. За счет этого,
-        теперь при распаковке через bms-скрипты и wcx-плагины работает вывод данных в окно программы и прогресс-бар
- - В класс Reaper добавлен режим включения\отключения отладки функций-распаковщиков
+December 14, 2023
 
-12.12.23
+  - Added built-in unpacker of PAK files from games on idTech 2, Quake Engine, GoldSource and others from id Software and Valve
+  - Added built-in unpacker of ARK files from games on Capcom's MT Framework (not fully integrated until games on this
+        engine they are unpacked via a bms script)
+  - The function for working with bms scripts is placed in a separate class, which is inherited from the Reaper class.
+        Thereby, now, when unpacking via bms scripts and wcx plugins, data output to the program window and progress bar works
+  - A mode for enabling/disabling debugging of unpacking functions has been added to the Reaper class
 
- - Локализованы подсказки при наведении на кнопки в верхнем меню
- - Добавлена активность пунктам меню "Распаковать с помощью..." -> "7zip", "GAUP" и "Total Observer"
- - Добавлена поддержка игр из списка, в качестве распаковщика которых указан GAUP
- - Интегрирован RAD Video Tools
- - В декоратор file_reaper добавлен функционал ведение лога работы программы и отлов ошибок в функциях
- - Добавлен функционал кнопкам QuickBMS, RAW2WAV, RAW2Atrac, RAW2DDS, nConvert, Bink Convert в верхнем меню
- - Исправлена ошибка добавления второго пути к корневому каталогу программы при выборе BMS-скрипта
+December 12, 2023
 
-07.12.23
+  - Localized tooltips when hovering over buttons in the top menu
+  - Added activity to menu items "Extract with..." -> "7zip", "GAUP" and "Total Observer"
+  - Added support for games from the list, for which GAUP is specified as an unpacker
+  - RAD Video Tools integrated
+  - Added functionality to the file_reaper decorator for logging program operation and catching errors in functions
+  - Added functionality to the QuickBMS, RAW2WAV, RAW2Atrac, RAW2DDS, nConvert, Bink Convert buttons in the top menu
+  - Fixed an error in adding a second path to the program root directory when selecting a BMS script
 
- - Добавлен функционал еще нескольким кнопка в верхнем меню
- - Добавлен функционал кнопке "Поиск", теперь, если выбрать игру из общего списка или списка избранного, программа
-        найдет игру в списке и выделит ее
- - Теперь, если вводить название игры в строку поиска, список игр будет фильтроваться по мере ввода текста
+December 7, 2023
 
-06.12.23
+  - Added functionality to several more buttons in the top menu
+  - Added functionality to the "Search" button; now, if you select a game from the general list or favorites list,
+        the program will find the game in the list and highlight it
+  - Now, if you enter a game name into the search bar, the list of games will be filtered as you type
 
- - Добавлено действие на кнопки "Открыть быстро" в главном меню и меню файл
- - Исправлен вылет при нажатии на кнопки добавить\удалить в\из избранного если не выбрать игру
- - Добавлены подсказки при наведении на кнопки в главном меню
- - Убрано пустое подменю I из меню "Архивы"
+December 6, 2023
 
-04.12.23
+  - Added action to the "Open quickly" buttons in the main menu and the file menu
+  - Fixed a crash when clicking on the add/remove to/from favorites buttons if you do not select a game
+  - Added hints when hovering over buttons in the main menu
+  - Removed empty submenu I from the "Archives" menu
 
- - Добавлен инструмент: обработчик книг из игр серии Legend of Hero
+December 5, 2023
 
-31.10.23
+ - Added tool: handler for books from games in the Legend of Hero series
 
- - Добавлена поддержка конвертации ZPL файлов в PNG
- - Добавлена функция быстрого поиска распаковщиков
- - Добавление функций для распаковки вынесено в отдельный класс
- - Добавлена дефолтная тема (устанавливается при первом запуске, при выборе из меню нужно перезапускать программу!)
- - Добавлены четыре новые темы (Winter, Classic Light 2, Classic Light 3, Darkest Night)
- - Добавлены GUI для встроенных конвертеров
+October 31, 2023
 
-18.10.23
+  - Added support for converting ZPL files to PNG
+  - Added a quick search function for unpackers
+  - Adding functions for unpacking has been moved to a separate class
+  - Added default theme (installed upon first launch, when selecting from the menu you need to restart the program!)
+  - Added four new themes (Winter, Classic Light 2, Classic Light 3, Darkest Night)
+  - Added GUI for built-in converters
 
- - Интегрирован в программу ранее добавленный встроенный упаковщик\распаковщик Phyre файлов из игр на движке Phyre Engine
- - Добавлены инструменты для работы с файлами от игр с PS Vita
- - Исправлен вылет при нажатии на название группы в три-вью
- - Еще немного текста локализовано
+October 18, 2023
 
-13.10.23
+  - The previously added built-in packer/unpacker of Phyre files from games on the Phyre Engine has been integrated into the program
+  - Added tools for working with files from games on PS Vita
+  - Fixed a crash when clicking on the group name in three-view
+  - Some more text has been localized
 
- - Исправлен вылет при распаковке некоторых архивов из Arx Fatalis
- - Исправлено отображение количества файлов при последовательной распаковке нескольких архивов из Arx Fatalis
- - Исправлена ошибка прогресс-бара, теперь он не показывает при запуске значения из предыдущего вызова
- - Исправлен вылет во время первого запуска при создании файла настроек
- - Добавлена поддержка (пока не проверена) версий 3 и 5 движка Aurora Engine
+October 13, 2023
 
-12.10.23
+  - Fixed a crash when unpacking some archives from Arx Fatalis
+  - Fixed display of the number of files when sequentially unpacking several archives from Arx Fatalis
+  - Fixed a bug in the progress bar, now it does not show the value from the previous call when starting
+  - Fixed a crash during the first launch when creating a settings file
+  - Added support (not yet tested) for versions 3 and 5 of the Aurora Engine
 
- - Оптимизация импортов
- - Чтение файла настроек вынесено в отдельный класс
- - В настройках теперь отображается количество игр на каждом движке
- - Локализованы строки текста
- - Добавлен встроенный распаковщик для игры Arx Fatalis
+October 12, 2023
 
-05.10.23
+  - Optimization of imports
+  - Reading the settings file is placed in a separate class
+  - The settings now display the number of games on each engine
+  - Localized lines of text
+  - Added built-in unpacker for the game Arx Fatalis
 
- - Фильтр игр теперь имеет переключаемый режим, показать все игры, или только избранные,
-        режим переключается по нажатию на кнопку ВСЕ\ИЗБР.
- - Добавлена возможность добавлять игры в избранное и удалять их от туда
+October 5, 2023
 
-04.10.23
+  - The game filter now has a switchable mode, show all games, or only selected ones,
+         The mode is switched by pressing the ALL\SELECT button.
+  - Added the ability to add games to favorites and remove them from there
 
- - Добавлен рабочий прогресс бар во время распаковки zip-архивов
- - Все встроенные и внешние распаковщики обернуты в декоратор file_reaper, на данный момент он всего лишь
-        выводит время выполнения функций и сообщение об их завершении. В будущем его функциональность
-        планируется сильно расширить
- - Встроен архиватор 7zip, а также, несколько плагинов для него
- - Исправлена ошибка при распаковке некоторых WAD-файлов
- - Перенесены из старой версии фильтры расширений файлов для популярных игровых движков
- - Методы создания интерфейса вынесены в отдельный файл main_ui_init.py
+October 4, 2023
 
-03.10.23
+  - Added a progress bar while unpacking zip archives
+  - All built-in and external unpackers are wrapped in the file_reaper decorator, at the moment it is just
+         displays the execution time of functions and a message about their completion. In the future its functionality
+         it is planned to greatly expand
+  - Built-in 7zip archiver, as well as several plugins for it
+  - Fixed an error when unpacking some WAD files
+  - File extension filters for popular game engines have been moved from the old version
+  - Interface creation methods are moved to a separate file main_ui_init.py
 
- - Добавлен встроенный распаковщик для ZIP-архивов (пока работает с методами сжатия Deflate, lzma и bzip2,
-        в процессе добавления Deflate64 и PPMD, также работает с несжатыми архивами)
- - Добавлен встроенный конвертор в CSO в ISO (пока не протестирован и не интегрирован в программу)
- - Добавлен встроенный распаковщик PHYRE-файлов для игр на движке Phyre Engine (пока полностью не интегрирован в программу)
- - Добавлены инструменты для работы с изображениями (пока полностью не интегрированы в программу)
+October 3, 2023
 
-02.10.23
+  - Added built-in unpacker for ZIP archives (currently works with Deflate, lzma and bzip2 compression methods,
+         in the process of adding Deflate64 and PPMD, also works with uncompressed archives)
+  - Added built-in CSO to ISO converter (not yet tested and integrated into the program)
+  - Added a built-in PHYRE file unpacker for games on the Phyre Engine (not yet fully integrated into the program)
+  - Added tools for working with images (not yet fully integrated into the program)
 
- - Фикс распаковки игр на Unity
- - Добавлен встроенный распаковщик для игр на движке idTech 1 (например, Doom, Heretic и др.)
+October 2, 2023
 
-29.09.23
+  - Fix unpacking games on Unity
+  - Added built-in unpacker for games on the idTech 1 engine (for example, Doom, Heretic, etc.)
 
- - Добавлен встроенный распаковщик для игр, использующих 7Ѕ7M архивы (например, Plants vs. Zombies)
- - Поток удаления файлов из выходной папки теперь наследуется от класса Reaper
- - Немного оптимизирован код функций распаковщиков
- - Добавлена поддержка создания каталогов экзопланет для Celestia
- - Добавлена возможность выбора нескольких файлов
+September 29, 2023
 
-27.09.23
+  - Added built-in unpacker for games that use 7S7M archives (for example, Plants vs. Zombies)
+  - The flow of deleting files from the output folder is now inherited from the Reaper class
+  - The code of unpacker functions has been slightly optimized
+  - Added support for creating exoplanet catalogs for Celestia
+  - Added the ability to select multiple files
 
- - Удален файл general.py, его содержимое включено в main.py
- - Переписана логика выбора выходной папки
- - Исправлена ошибка смены темы, если после смены темы открыть меню настроек и сохранить их
- - Добавлена и проверена функция для распаковки архивов игр на Aurora Engine
- - Добавлена (пока не проверена) функция распаковки аудиофайлов из RDR 2
- - Конструктор классов распаковщиков вынесен в отдельный класс Reaper, от которого наследуются распаковщики
+September 27, 2023
 
-25.06.23
+  - Removed file general.py, its contents included in main.py
+  - The logic for selecting the output folder has been rewritten
+  - Fixed an error changing the theme, if after changing the theme you open the settings menu and save them
+  - Added and tested a function for unpacking game archives on the Aurora Engine
+  - Added (not yet tested) function for unpacking audio files from RDR 2
+  - The constructor of unpacker classes is placed in a separate class Reaper, from which unpackers are inherited
 
- - Установка настроек вынесена в отдельную функцию
- - Исправлены имена контекстных действий на кнопках при смене языка
- - Запись состояния чекбоксов "Показать консоль" и "Создавать подпапки" в файл настроек
- - Добавлена настройка масштабирования в меню "Настройки"
- - Добавлена возможность автоматически создавать дефолтные настройки при первом запуске
+Jun 25, 2023
+
+  - Setting set has been moved to a separate function
+  - Fixed names of contextual actions on buttons when changing language
+  - Recording the state of the "Show console" and "Create subfolders" checkboxes in the settings file
+  - Added scaling option to the "Settings" menu
+  - Added the ability to automatically create default settings on first launch

@@ -13,17 +13,17 @@ class Seven(Reaper):
         self.update_signal.emit(0, '', f'{localize.wait}...', False)
 
         with open(self.file_name, 'rb') as file:
-            idstring = file.read(4)
+            magic = file.read(4)
 
-            if idstring != b'\x37\xBD\x37\x4D':
-                print(localize.not_correct_file)
-                self.update_signal.emit(100, localize.not_correct_file, localize.done, True)
+            if magic != b'\x37\xBD\x37\x4D':
+                print(localize.not_correct_file.replace('%%', '7x7'))
+                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', '7x7'), True)
                 return
 
             data = bytearray((byte ^ 0xf7) for byte in file.read())
 
             with open('./temp.dat', 'wb') as new_file:
-                new_file.write(idstring+data)
+                new_file.write(magic + data)
 
         with open('./temp.dat', 'rb') as f:
             f.seek(9)

@@ -1,5 +1,6 @@
 
-from source.reapers import (afs, arx_fatalis, aurora_engine,
+from source.reapers import (afs, arx_fatalis, aurora_engine, aurora_bif_key,
+                            bsa_ba2,
                             celestia, chrome_engine,
                             doom_wad,
                             ffmpeg_tool,
@@ -9,6 +10,6 @@ from source.reapers import (afs, arx_fatalis, aurora_engine,
                             pathologic, phyre,
                             qbms, quake_pak,
                             rdr2_audio,
-                            sen_book, seven_s_seven, seven_zip, source_vpk,
+                            sen_book, sen_pkg, seven_s_seven, seven_zip, source_vpk,
                             ue3_injector, ue3_reaper, unity, unreal,
                             zip_archive, zip_scan, zpl2png)

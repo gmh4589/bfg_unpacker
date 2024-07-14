@@ -15,14 +15,14 @@ class AFSExtractor(Reaper):
             magic = afs_file.read(4)
 
             if magic != b'AFS\x00':
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'AFS'))
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'AFS'), True)
                 return
 
             file_count = int.from_bytes(afs_file.read(4), byteorder="little")
 
             for i in range(file_count):
-                name = '00000000'[:(len(str(i)))] + str(i) + '.dat'
+                name = str(i).rjust(8, '0') + '.dat'
                 offset = int.from_bytes(afs_file.read(4), byteorder="little")
                 size = int.from_bytes(afs_file.read(4), byteorder="little")
                 ic(name)

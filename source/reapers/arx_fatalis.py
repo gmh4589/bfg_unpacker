@@ -59,7 +59,7 @@ class PakExtractor(Reaper):
                     self.update_signal.emit(100, '', localize.done, True)
 
             else:
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'Arx Fatalis'),)
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Arx Fatalis'), True)
 
     def decrypt_fat(self, key):

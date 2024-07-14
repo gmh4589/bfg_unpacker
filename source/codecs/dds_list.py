@@ -1,13 +1,13 @@
 dds_list = {'A8_UNORM': {'codec': b'\x00\x00\x00\x00',
-                           'codec_data': b'\x08\x00\x00\x00\x00\x00\x00\x00'
-                                         b'\x00\x00\x00\x00\x00\x00\x00\x00'
-                                         b'\xff\x00\x00\x00\x08\x10@\x00\x00\x00\x00\x00'
-                                         b'\x00\x00\x00\x00\x00\x00\x00\x00'
-                                         b'\x00\x00\x00\x00',
-                           'depth': b'\x02',
-                           'keys': b'\x0f',
-                           'pixel_format': b'\x10',
-                           'rgb': b'\x02\x00\x00\x00'},
+                        'codec_data': b'\x08\x00\x00\x00\x00\x00\x00\x00'
+                                     b'\x00\x00\x00\x00\x00\x00\x00\x00'
+                                     b'\xff\x00\x00\x00\x08\x10@\x00\x00\x00\x00\x00'
+                                     b'\x00\x00\x00\x00\x00\x00\x00\x00'
+                                     b'\x00\x00\x00\x00',
+                        'depth': b'\x02',
+                        'keys': b'\x0f',
+                        'pixel_format': b'\x10',
+                        'rgb': b'\x02\x00\x00\x00'},
               'AYUV': {'codec': b'DX10',
                        'codec_data': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
                                      b'\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10@\x00'

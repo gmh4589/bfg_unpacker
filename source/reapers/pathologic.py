@@ -17,7 +17,7 @@ class MorUnpacker(Reaper):
 
             if magic != b'LP1C':
                 print(localize.not_correct_file.replace('%%', 'Pathologic Classic'))
-                self.update_signal.emit(100, '', localize.done, True)
+                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Pathologic Classic'), True)
                 return
 
             f.seek(8)

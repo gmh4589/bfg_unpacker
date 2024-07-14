@@ -116,7 +116,6 @@ class ChildUIWindow(QDialog):
                 if file_name:
                     yield file_name
 
-
     def run_p(self):
 
         if self.action:

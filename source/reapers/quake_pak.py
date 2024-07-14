@@ -16,7 +16,7 @@ class QPAKExtractor(Reaper):
             magic = pak_file.read(4)
 
             if magic != b'PACK':
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'PAK'))
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'PAK'), True)
                 return
 
