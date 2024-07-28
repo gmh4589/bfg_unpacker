@@ -2,17 +2,17 @@ import os
 
 from threading import Thread
 import pandas
-# from icecream import ic
-# from datetime import datetime
 import sqlalchemy
 
 from PyQt6.QtCore import QRect, QMetaObject, Qt
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import *
+
 from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
-from source.ui import setting as setting_ui, theme_creator, progress_bar, localize as translate
+from source.ui import setting as setting_ui, theme_creator, custom_ui, localize as translate
+
 SHOW_LOAD = True
 CSV = False
 
@@ -31,6 +31,8 @@ class Ui_BFGUnpacker(Translate):
         self.centralwidget.setAcceptDrops(True)
         self.comboBox_gameList = AutoCompleteComboBox(self.centralwidget)
         self.comboBox_gameList.setGeometry(QRect(80, 40, 375, 30))
+        self.comboBox_favList = QComboBox(self.centralwidget)
+        self.comboBox_favList.setGeometry(QRect(80, 40, 0, 0))
         self.toolButton_plus = QToolButton(self.centralwidget)
         self.toolButton_plus.setGeometry(QRect(455, 40, 30, 30))
         self.toolButton_minus = QToolButton(self.centralwidget)
@@ -58,8 +60,8 @@ class Ui_BFGUnpacker(Translate):
 
         self.checkBox_Reimport = QCheckBox(self.checkBoxes)
         self.cb.addWidget(self.checkBox_Reimport)
-        self.checkBox_ShowConsole = QCheckBox(self.checkBoxes)
-        self.cb.addWidget(self.checkBox_ShowConsole)
+        self.checkBox_ZipData = QCheckBox(self.checkBoxes)
+        self.cb.addWidget(self.checkBox_ZipData)
         self.checkBox_createSubfolders = QCheckBox(self.checkBoxes)
         self.cb.addWidget(self.checkBox_createSubfolders)
 
@@ -361,7 +363,7 @@ class Ui_BFGUnpacker(Translate):
             self.set_setting('Main', 'out_path',
                              QFileDialog.getExistingDirectory(self, 'Select folder')))
 
-        self.pb = progress_bar.ProgressBar(self.setting["Main"]["theme"])
+        self.pb = custom_ui.ProgressBar(self.setting["Main"]["theme"])
 
         if int(self.setting["Main"]["load_bar"]):
             Thread(target=self.pb_show, daemon=True).start()
@@ -434,6 +436,7 @@ class Ui_BFGUnpacker(Translate):
         self.root_item = self.model.invisibleRootItem()
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
+        self.fav_filter_model = QStandardItemModel()
 
         Thread(target=self.tree_view_create, daemon=True).start()
         self.quickOpen.triggered.connect(self.q_open)
@@ -469,7 +472,7 @@ class Ui_BFGUnpacker(Translate):
         self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
 
         # Actions connected
-        self.actionArchiveScanner.triggered.connect(self.find_zip)
+        self.actionArchiveScanner.triggered.connect(self.find_zip_method)
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.action7z_Archiver.triggered.connect(  # ZIP
             lambda: self.create_queue(func_name='_7ZIP'))
@@ -496,11 +499,6 @@ class Ui_BFGUnpacker(Translate):
         self.toolButton_minus.clicked.connect(  # Delete from favorite
             lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
         self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())  # Find game button
-
-        # Show console checkbox
-        self.checkBox_ShowConsole.setChecked(bool(int(self.setting['Main']['show_console'])))
-        self.checkBox_ShowConsole.stateChanged.connect(
-            lambda: self.set_setting('Main', 'show_console', "2" if self.checkBox_ShowConsole.isChecked() else "0"))
 
         # Create subfolders checkbox
         self.checkBox_createSubfolders.setChecked(bool(int(self.setting['Main']['subfolders'])))

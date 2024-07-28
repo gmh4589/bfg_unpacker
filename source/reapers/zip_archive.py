@@ -1,8 +1,8 @@
-import bz2
-import zlib
+# import bz2
+# import zlib
 # import lzma
 import os
-import zipfile
+# import zipfile
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
@@ -12,72 +12,82 @@ from source.ui import localize
 
 class Zip(Reaper):
 
-    def write_file(self, p, cm, cd, percent):
+    def write_file(self, path, cm, cd, percent):
 
-        if p[-1] == '/':
-            os.makedirs(p, exist_ok=True)
+        if path[-1] == '/':
+            os.makedirs(path, exist_ok=True)
         else:
-            os.makedirs(os.path.dirname(p), exist_ok=True)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
 
-            with open(p, 'wb') as new_file:
+            with open(path, 'wb') as new_file:
+                new_file.write(cd)
 
-                if cm == b'\x00\x00':
-                    new_file.write(cd)
-                elif cm == b'\x08\x00':  # Deflate
+            if cm == 1:  # Shrink
+                self.unzip(path, 80)
 
-                    try:
-                        new_file.write(zlib.decompress(cd, -zlib.MAX_WBITS))
-                    except zlib.error:
+            elif cm == 2:  # reduce1
+                self.unzip(path, 622)
 
-                        with zipfile.ZipFile(self.file_name, mode="r") as archive:
-                            # archive.extractall(self.output_folder)
-                            a = len(archive.namelist())
+            elif cm == 3:  # reduce2
+                self.unzip(path, 623)
 
-                            for i, file in enumerate(archive.infolist()):
-                                print(f"Saving - {file.filename}...")
-                                ic(file.filename)
-                                self.update_signal.emit(int((100 / a) * i), f'{i + 1}/{a}%',
-                                                        f'Saving - {file.filename}...', False)
-                                archive.extract(file, self.output_folder)
+            elif cm == 4:  # reduce3
+                self.unzip(path, 624)
 
-                        self.update_signal.emit(100, '', 'Done!', True)
+            elif cm == 5:  # reduce4
+                self.unzip(path, 625)
 
-                        return -1
+            elif cm == 8:  # Deflate
+                self.unzip(path, 171)
 
-                elif cm == b'\x0c\x00':  # BZIP2
-                    new_file.write(bz2.decompress(cd))
+            elif cm == 9:  # Deflate 64
+                self.unzip(path, 79)
 
-                #  Other methods:
-                #  1 - shrink
-                #  2 - reduce1
-                #  3 - reduce2
-                #  4 - reduce3
-                #  5 - reduce4
-                #  9 - deflate64
-                #  6, 10 - pkware
-                #  13, 21 - XMemDecompress
-                #  14 - lzma
-                #  15 - oodle
-                #  18 - terse
-                #  19 - LZ77
-                #  24 - lzma86dechead
-                #  28 - LZ4F
-                #  34 - broti
-                #  64 - darksector
-                #  95 - LZMA2_EFS0
-                #  96 - jpeg
-                #  97 - wavpack
-                #  98 - ppmd
-                #  99 - lzfse
+            elif cm in (6, 10):  # PKWare
+                self.unzip(path, 618)
 
-                else:
-                    new_file.write(cd)
-                    print(localize.not_unzipped)
+            elif cm == 12:  # BZIP2
+                self.unzip(path, 21)
 
-                print(f"{localize.saving} - {p}...")
-                self.update_signal.emit(percent, f'{percent}%', f'{localize.saving} - {p}...', False)
+            elif cm == 14:  # LZMA
+                self.unzip(path, 295)
 
-                return 0
+            elif cm == 15:  # Oodle
+                self.unzip(path, 650)
+
+            elif cm == 18:  # Terse
+                self.unzip(path, 619)
+
+            elif cm == 24:  # LZMA86_Dechead
+                self.unzip(path, 19)
+
+            elif cm == 28:  # LZ4F
+                self.unzip(path, 429)
+
+            elif cm == 64:  # LZ4F
+                self.unzip(path, 60)
+
+            elif cm == 95:  # LZMA2_EFS0
+                self.unzip(path, 454)
+
+            elif cm == 98:  # PPMD
+                self.unzip(path, 81)
+
+            elif cm == 99:  # LZMA2_EFS0
+                self.unzip(path, 667)
+
+            #  Other methods:
+            #  13, 21 - XMemDecompress
+            #  19 - LZ77
+            #  34 - broti
+            #  96 - jpeg
+            #  97 - wavpack
+
+            else:
+                print(localize.not_unzipped)
+
+            print(f"{localize.saving} - {path}...")
+            self.update_signal.emit(percent, f'{percent}%', f'{localize.saving} - {path}...', False)
 
     @file_reaper
     def run(self):
@@ -94,7 +104,7 @@ class Zip(Reaper):
                 if magic in b'PK\x03\x04':
                     version = data.read(2)
                     flags = data.read(2)
-                    compress_method = data.read(2)
+                    compress_method = int.from_bytes(data.read(2), byteorder="little")
                     date_time = data.read(4)
                     crc32 = data.read(4)
                     compressed_size = int.from_bytes(data.read(4), byteorder="little")
@@ -105,16 +115,15 @@ class Zip(Reaper):
                     additional_field = data.read(additional_field_long)
                     compressed_data = data.read(compressed_size)
                     path = os.path.join(self.output_folder, file_name)
-                    output_code = self.write_file(path, compress_method, compressed_data, pp)
+                    self.write_file(path, compress_method, compressed_data, pp)
 
-                elif magic in (b'PK\x05\x06', b'PK\x01\x02') or output_code == -1:
-                    print(localize.not_correct_file.replace('%%', 'ZIP'))
-                    self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'ZIP'), True)
+                elif magic in (b'PK\x05\x06', b'PK\x01\x02'):
+                    self.update_signal.emit(100, '', localize.done, True)
                     break
 
                 else:
-                    ic(output_code)
                     ic(magic)
+                    self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'ZIP'), True)
                     print(localize.not_correct_file.replace('%%', 'ZIP'))
                     break
 

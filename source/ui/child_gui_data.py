@@ -185,6 +185,7 @@ class ChildGuiData(Setting):
                                         f'"%file_name%" "%out_dir%"').replace("/", "\\")).exec()
 
     def pb_show(self):
+
         theme = f'data/themes/{self.setting["Main"]["theme"]}.xml'
 
         try:

@@ -12,7 +12,7 @@ class Translate:
         self.toolButton_Find.setText(_translate("BFGUnpacker", translate.find))
         self.btn_All_Favorite.setText(_translate("BFGUnpacker", translate.all_caps))
         self.checkBox_Reimport.setText(_translate("BFGUnpacker", translate.reimport))
-        self.checkBox_ShowConsole.setText(_translate("BFGUnpacker", translate.show_console))
+        self.checkBox_ZipData.setText(_translate("BFGUnpacker", translate.compress))
         self.checkBox_createSubfolders.setText(_translate("BFGUnpacker", translate.create_subfolders))
         self.menu.setTitle(_translate("BFGUnpacker", translate.file))
         self.unpackWith.setTitle(_translate("BFGUnpacker", translate.unpack_with))

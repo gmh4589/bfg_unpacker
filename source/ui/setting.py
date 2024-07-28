@@ -1,4 +1,5 @@
 import pandas
+import sqlalchemy
 from PyQt6.QtCore import QRect, QMetaObject, QCoreApplication
 from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtWidgets import *
@@ -11,18 +12,28 @@ from source.ui import theme_creator
 
 class SettingWindow(QDialog):
 
-    unity_list = len(pandas.read_csv('./game_list/unity_list.csv', delimiter='\t'))
-    unreal_list = len(pandas.read_csv('./game_list/unreal_list.csv', delimiter='\t'))
-    renpy_list = len(pandas.read_csv('./game_list/renpy_list.csv', delimiter='\t'))
-    gamemaker_list = len(pandas.read_csv('./game_list/gamemaker_list.csv', delimiter='\t'))
-    rpgmaker_list = len(pandas.read_csv('./game_list/rpgmaker_list.csv', delimiter='\t'))
-    godot_list = len(pandas.read_csv('./game_list/godot_list.csv', delimiter='\t'))
-
     def __init__(self, style='dark_orange'):
         super().__init__()
         apply_stylesheet(self, theme=f'{style}.xml')
         self.setting = configparser.ConfigParser()
         self.setting.read('./setting.ini')
+
+        engine = sqlalchemy.create_engine("sqlite:///game_base.db")
+
+        with engine.connect() as conn:
+            metadata = sqlalchemy.MetaData()
+
+            def load_table(table_name):
+                table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
+                query = sqlalchemy.select(table)
+                return len(pandas.read_sql_query(query, conn))
+
+            self.unity_list = load_table('unity_list')
+            self.unreal_list = load_table('unreal_list')
+            self.renpy_list = load_table('renpy_list')
+            self.gamemaker_list = load_table('gamemaker_list')
+            self.rpgmaker_list = load_table('rpgmaker_list')
+            self.godot_list = load_table('godot_list')
 
         self.resize(300, 350)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
@@ -41,30 +52,43 @@ class SettingWindow(QDialog):
         self.widget.setGeometry(QRect(10, 10, 130, 150))
         self.verticalLayout_2 = QVBoxLayout(self.widget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+
+        # Unity checkbox
         self.unity_checkBox = QCheckBox(self.widget)
         self.unity_checkBox.setFont(self.font)
         self.unity_checkBox.setChecked(bool(int(self.setting['Engines']['unity'])))
         self.verticalLayout_2.addWidget(self.unity_checkBox)
+
+        # Unreal checkbox
         self.unreal_checkBox = QCheckBox(self.widget)
         self.unreal_checkBox.setFont(self.font)
         self.unreal_checkBox.setChecked(bool(int(self.setting['Engines']['unreal'])))
         self.verticalLayout_2.addWidget(self.unreal_checkBox)
+
+        # RPG Maker checkbox
         self.rpg_checkBox = QCheckBox(self.widget)
         self.rpg_checkBox.setFont(self.font)
         self.rpg_checkBox.setChecked(bool(int(self.setting['Engines']['rpg_maker'])))
         self.verticalLayout_2.addWidget(self.rpg_checkBox)
+
+        # Game Maker checkbox
         self.gamemaker_checkBox = QCheckBox(self.widget)
         self.gamemaker_checkBox.setFont(self.font)
         self.gamemaker_checkBox.setChecked(bool(int(self.setting['Engines']['game_maker'])))
         self.verticalLayout_2.addWidget(self.gamemaker_checkBox)
+
+        # RenPy checkbox
         self.renpy_checkBox = QCheckBox(self.widget)
         self.renpy_checkBox.setFont(self.font)
         self.renpy_checkBox.setChecked(bool(int(self.setting['Engines']['renpy'])))
         self.verticalLayout_2.addWidget(self.renpy_checkBox)
+
+        # Godot checkbox
         self.godot_checkBox = QCheckBox(self.widget)
         self.godot_checkBox.setFont(self.font)
         self.godot_checkBox.setChecked(bool(int(self.setting['Engines']['godot'])))
         self.verticalLayout_2.addWidget(self.godot_checkBox)
+
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(160, 30, 130, 60))
         self.radioButton = QRadioButton(self.groupBox_2)
@@ -151,12 +175,14 @@ class SettingWindow(QDialog):
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", translate.settings))
+
         self.unity_checkBox.setText(_translate("MainWindow", f"Unity ({self.unity_list})"))
         self.unreal_checkBox.setText(_translate("MainWindow", f"Unreal ({self.unreal_list})"))
         self.rpg_checkBox.setText(_translate("MainWindow", f"RPG Maker ({self.rpgmaker_list})"))
         self.gamemaker_checkBox.setText(_translate("MainWindow", f"GameMaker ({self.gamemaker_list})"))
         self.renpy_checkBox.setText(_translate("MainWindow", f"RenPy ({self.renpy_list})"))
         self.godot_checkBox.setText(_translate("MainWindow", f"Godot ({self.godot_list})"))
+
         self.radioButton.setText(_translate("MainWindow", translate.by_name))
         self.radioButton_2.setText(_translate("MainWindow", translate.by_years))
         self.checkBox_7.setText(_translate("MainWindow", translate.context_menu))

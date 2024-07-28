@@ -1,5 +1,6 @@
 import os.path
 
+from PyQt6.QtWidgets import QInputDialog
 from icecream import ic
 from source.qprocess import QProcessList
 from source.ui import localize
@@ -25,12 +26,14 @@ class QuickOpen(QProcessList):
                 self.proc = None
 
                 with open(fn, 'rb') as fff:
-                    self.head = fff.read(4)
+                    magic = fff.read(4)
+                    magic2 = fff.read(4)
+                    magic3 = fff.read(4)
 
                 ext = fn.split('.')[-1].lower()
 
                 # Check on ZIP signature
-                if self.head == b'PK\x03\x04':
+                if magic == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
 
                 elif ext == "aes":
@@ -39,7 +42,7 @@ class QuickOpen(QProcessList):
 
                 elif ext == "afs":
 
-                    if self.head == b'AFS\00':
+                    if magic == b'AFS\00':
                         self.proc = afs.AFSExtractor()
                     else:
                         self.sorry()
@@ -56,7 +59,7 @@ class QuickOpen(QProcessList):
                 elif ext == "arc":
                     # TODO: The Incredible Hulk (2008)
 
-                    if self.head == b'ARC\x00':  # MT Framework
+                    if magic == b'ARC\x00':  # MT Framework
                         # self.proc = qbms.Q_BMS()
                         # self.proc.script_name = "data\\scripts\\dmc4.bms"
                         self.proc = mt_arc.ARCExtractor()
@@ -74,7 +77,7 @@ class QuickOpen(QProcessList):
                 elif ext == "ark":
                     # TODO: Add ARK, FreeARK archive and other
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -134,7 +137,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("big",):
                     # TODO: Lost: Via Domus, add from GAUP
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -143,9 +146,9 @@ class QuickOpen(QProcessList):
                     # TODO: Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G, from Remedy games,
                     #  Fatal Frame\Project Zero, BIN disk image (7zip), BIN archive (?)
 
-                    if self.head == b'\x01\x00\x00\x00':  # Alan Wake Remastered
+                    if magic == b'\x01\x00\x00\x00':  # Alan Wake Remastered
                         pass
-                    elif self.head == b'\x00\x09\x00\x00':  # Control
+                    elif magic == b'\x00\x09\x00\x00':  # Control
                         pass
                     else:
                         self.sorry()
@@ -176,7 +179,7 @@ class QuickOpen(QProcessList):
                 elif ext == "bundle":
                     # TODO: Red Engine (The Witcher 3), PayDay 2, Bionic Commando
 
-                    if self.head == b'POTA':  # The Witcher 3
+                    if magic == b'POTA':  # The Witcher 3
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\Witcher3.bms"
                     else:
@@ -189,7 +192,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("cat",):
                     # TODO: Add from GAUP and other
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -220,7 +223,7 @@ class QuickOpen(QProcessList):
                 elif ext == "coalesced":
                     # TODO: coalesced from various Unreal Engine 3 games
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -267,13 +270,13 @@ class QuickOpen(QProcessList):
                 elif ext == "dat":
                     # TODO: A Engine, Learning Company Games, Moto Racer 3, Dirt 5
 
-                    if self.head == b'GCAX':  # GCA Archive
+                    if magic == b'GCAX':  # GCA Archive
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\wcx\\gca.wcx"
-                    elif self.head == b'ADAT':  # Anachronox
+                    elif magic == b'ADAT':  # Anachronox
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\anachronox.bms"
-                    elif self.head == b'\x20\x00\x00\x00':  # TLOH
+                    elif magic == b'\x20\x00\x00\x00':  # TLOH
                         # TODO: Try how it's be work in the game TLOH
                         self.proc = sen_book.SenBook()
                     else:
@@ -293,7 +296,7 @@ class QuickOpen(QProcessList):
                 elif ext == "dir":
                     # TODO: Add from GAUP and other
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -348,7 +351,7 @@ class QuickOpen(QProcessList):
                 elif ext == "fat":
                     # TODO: Add from GAUP, FAT image
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -408,7 +411,7 @@ class QuickOpen(QProcessList):
                 elif ext == "img":
                     # TODO: GTA, Disc Image
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -463,7 +466,7 @@ class QuickOpen(QProcessList):
                 elif ext == "pac":
                     # TODO: Add PAC from GAUP and other
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -478,9 +481,9 @@ class QuickOpen(QProcessList):
                 elif ext == 'pak':
                     # TODO: Sacred, Necrovision, Painkiller
 
-                    if self.head == b'\x37\xBD\x37\x4D':  # 7Ѕ7M, PopCap PAK
+                    if magic == b'\x37\xBD\x37\x4D':  # 7Ѕ7M, PopCap PAK
                         self.proc = seven_s_seven.Seven()
-                    elif self.head == b'PACK':
+                    elif magic == b'PACK':
 
                         if 'data.000.pak' in fn:  # 1242
                             self.proc = qbms.Q_BMS()
@@ -489,30 +492,38 @@ class QuickOpen(QProcessList):
                             self.proc = qbms.Q_BMS()
                             self.proc.script_name = "data\\scripts\\azangara.bms"
                         else:  # idTech 1+2
-                            self.proc = quake_pak.QPAKExtractor()
+                            magic3 = int.from_bytes(magic3, 'little')
 
-                    elif self.head == b'KPKA':  # RE Engine
+                            if magic3 % 576 != 0:
+                                l2 = magic3 % 64
+                                version = 1 if l2 == 0 else 2
+                            else:
+                                version, ok = QInputDialog.getInt(self, 'WARNING', 'Select a version:', min=1, max=2)
+
+                            self.proc = quake_pak.QPAKExtractor(version)
+
+                    elif magic == b'KPKA':  # RE Engine
                         pass
-                    elif self.head == b'SBPA':  # Arcania: Gothic 4
+                    elif magic == b'SBPA':  # Arcania: Gothic 4
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\arcania.bms"
-                    elif self.head == b'PAK ':  # Risen
+                    elif magic == b'PAK ':  # Risen
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\risen.bms"
-                    elif self.head == b'KCAP':
+                    elif magic == b'KCAP':
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\full_mojo.bms"
-                    elif self.head == b'TONG':
+                    elif magic == b'TONG':
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\tongas.bms"
-                    elif self.head == b'PAK2':  # Alien: Isolation
+                    elif magic == b'PAK2':  # Alien: Isolation
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\alien_isolation.bms"
-                    elif self.head == b'PSCD':
+                    elif magic == b'PSCD':
                         self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\sega_classics.bms"
 
-                    elif self.head == b'\x00' * 4:
+                    elif magic == b'\x00' * 4:
 
                         with open(fn, 'rb') as test_read:
                             test_read.seek(4)
@@ -527,7 +538,7 @@ class QuickOpen(QProcessList):
                     else:
 
                         with open(fn, 'rb') as test_read:
-                            test_read.seek(int.from_bytes(self.head, byteorder='little') + 4)
+                            test_read.seek(int.from_bytes(magic, byteorder='little') + 4)
                             arx = int.from_bytes(test_read.read(4), byteorder='little')
 
                         if arx in (0x46515641, 0x4149534E):
@@ -548,11 +559,12 @@ class QuickOpen(QProcessList):
 
                 elif ext == "pkg":
                     # TODO: Space Rangers, SWAT 4
+                    self.proc = sen_pkg.PKGExtractor()
 
-                    if self.head == b'\0' * 4:
-                        self.proc = sen_pkg.PKGExtractor()
-                    else:
-                        self.sorry()
+                    # if magic in (b'\0' * 4, b'\x00\x00\x81\x60', b'\xB1\x83\x81\x60'):
+                    #     self.proc = sen_pkg.PKGExtractor()
+                    # else:
+                    #     self.sorry()
 
                 elif ext in ("pwf",):
                     self.proc = qbms.Q_BMS()
@@ -579,7 +591,7 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("rpack", ):
 
-                    if self.head == b'RP6L':
+                    if magic == b'RP6L':
                         self.proc = chrome_engine.RP6L()
                     else:
                         # TODO: Add functions to unpack other file types
@@ -651,7 +663,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("txt",):
                     # TODO: Lumia Saga, Simple text
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -719,7 +731,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("z",):
                     # TODO: Z Archive, LEGO Chess
 
-                    if self.head == b'':
+                    if magic == b'':
                         pass
                     else:
                         self.sorry()
@@ -736,8 +748,14 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\DarkReign2ZWP.bms"
 
                 # Check on Bethesda game
-                elif ext in ('ba2', 'bsa', ):
-                    self.proc = bsa_ba2.BethesdaArchive()
+                elif ext == 'ba2':
+                    self.proc = ba2_archives.BethesdaArchive()
+                elif ext == 'bsa':
+                    if magic == b'BSA\0':
+                        self.proc = bsa_archives.BethesdaArchive()
+                    else:
+                        self.proc = qbms.Q_BMS()
+                        self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
                 elif ext in ('esl', 'esm', 'esp', 'esx', 'pex'):
                     # TODO: Add functions to unpack other file types
                     print(f'{localize.work_in_progress}...')
@@ -762,7 +780,7 @@ class QuickOpen(QProcessList):
                     # TODO: Check NIF from here and maybe add NIF model from other game, check PAL, check PCK,
                     #  check RAW, check RES, check REZ, check VID and maybe add selector for video and VID from  here
                     self.proc = qbms.Q_BMS()
-                    self.proc.script_name = 'data\\wcx\\gauppro.wcx'
+                    self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
 
                 # Check on idTech Engine game
                 elif ext in ('bimage', 'idwav', 'index', 'mega2', 'msf', 'pages', 'ptr', 'resources', 'streamed',
@@ -828,3 +846,4 @@ class QuickOpen(QProcessList):
                     if result == 7:
                         self.proc = seven_zip.SevenZIP()
                         self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...')
+

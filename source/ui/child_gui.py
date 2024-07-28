@@ -73,10 +73,10 @@ class ChildUIWindow(QDialog):
                 else:
                     self.drops.append(QComboBox(self.centralwidget))
 
-                self.drops[i].setModel(filter_model)
-                self.drops[i].setCurrentText(default_list[i])
                 self.drops[i].setGeometry(QRect(100, 40 * i + 10, 150, 30))
                 self.drops[i].currentTextChanged.connect(self.upvote)
+                self.drops[i].setModel(filter_model)
+                self.drops[i].setCurrentText(default_list[i])
 
             if self.drop_a:
                 self.drops[item1].currentTextChanged.connect(self.drop_action)
@@ -162,7 +162,6 @@ class ChildUIWindow(QDialog):
                             args[self.label_list[drop].split(' ')[0]] = a
 
                         self.action(args)
-
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate

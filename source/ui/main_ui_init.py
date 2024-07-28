@@ -41,9 +41,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
         if mime_data.hasUrls():
             file_path = mime_data.urls()[0].toLocalFile()
-            ic(file_path)
-            self.file_list = [file_path]
-            self.find_reaper()
+
+            if not os.path.isdir(file_path):
+                ic(file_path)
+                self.file_list = [file_path]
+                self.find_reaper()
 
     def find_item_in_treeview(self):
 
@@ -367,7 +369,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                     self.menu_archives.addAction(archivesList['Archives Name'][n])
 
     def flc(self, items):
-        self.comboBox_gameList.items = self.names
+        self.comboBox_gameList.items = items
         self.filter_model.clear()
         self.filter_model.appendRow(QStandardItem(''))
 
@@ -401,7 +403,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             new_parent = QStandardItem(translate.other)
             self.parent_list[translate.other] = new_parent
             self.root_item.appendRow(new_parent)
-            self.filter_list_create(self.names)
 
             for name in self.names:
 
@@ -431,8 +432,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 self.parent_list[item] = new_parent
                 self.root_item.appendRow(new_parent)
 
-            self.filter_list_create(self.names)
-
             for name in self.names:
 
                 try:
@@ -452,6 +451,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
             self.root_item.appendRow(old_games)
 
+        self.filter_list_create(self.names)
         self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
         self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
 

@@ -1,15 +1,14 @@
-
 import os
 import sys
 
 # Это костыль, без него не работает компилляция
 from sqlalchemy.dialects.mysql.mariadb import *
 
-from PyQt6.QtWidgets import QFileDialog, QApplication
+from PyQt6.QtWidgets import QFileDialog, QApplication, QInputDialog
 from icecream import ic
 
 from source.quick_open import QuickOpen
-from source.ui import localize, dialogs
+from source.ui import localize, custom_ui
 from source.reaper import after_dot
 from source.reapers import *
 
@@ -42,7 +41,7 @@ class UnpackerMain(QuickOpen):
             file_names = QFileDialog.getOpenFileNames(self, caption=localize.open_file, filter=f,
                                                       directory=self.setting['Main']['last_dir'])[0]
 
-            if more_one:
+            if more_one and file_names:
                 file_names = [file_names[0], '']
 
         else:
@@ -68,7 +67,8 @@ class UnpackerMain(QuickOpen):
                                     if data_string['ext_list'].values[0] != 'nan' else '')
             ext_list = after_dot[self.func_name] if self.func_name in after_dot.keys() else after_dot['Default']
 
-            if self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop'):
+            if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop') or
+                    self.checkBox_Reimport.isChecked()):
                 select_folder = True
 
             self.create_queue(ext_list, select_folder, more_one, self.func_name, script_name)
@@ -89,11 +89,13 @@ class UnpackerMain(QuickOpen):
         self.last_run = self.select_unpacker
         self.select_unpacker()
 
-    def find_zip(self):
+    def find_zip_method(self):
 
         file_n = ''.join(self.file_open(more_one=True))
-        self.proc = zip_scan.ZipScanner()
-        self.q_connect(self.proc, file_n, header=f'Testing: {file_n}...')
+
+        if file_n:
+            self.proc = zip_scan.ZipScanner()
+            self.q_connect(self.proc, file_n, header=f'{localize.file}: {file_n}...')
 
     def select_unpacker(self):
 
@@ -110,9 +112,10 @@ class UnpackerMain(QuickOpen):
                     with open(file_name, 'rb') as fff:
                         magic = fff.read(4)
                         magic2 = fff.read(4)
+                        magic3 = fff.read(4)
 
                 except PermissionError:
-                    magic, magic2 = b'', b''
+                    magic, magic2, magic3 = b'', b'', b''
 
                 if magic == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
@@ -140,7 +143,9 @@ class UnpackerMain(QuickOpen):
                                 self.proc = aurora_bif_key.BifKey()
                             elif ext == 'key':
                                 # TODO: Нужно локализовать текст!!!
-                                dialogs.CustomDialog(text='Select a BIF file!').exec()
+                                custom_ui.CustomDialog(text='Select a BIF file!',
+                                                       style=self.setting["Main"]["theme"]).exec()
+
                             elif ext == 'dzip':
                                 # TODO: Need test!!!
                                 self.proc = other_prg.OtherProg()
@@ -157,7 +162,7 @@ class UnpackerMain(QuickOpen):
                                     if magic == b'BSA\0':
 
                                         if magic2 in (104, 105):
-                                            self.proc = bsa_ba2.BethesdaArchive()
+                                            self.proc = bsa_archives.BethesdaArchive()
                                         else:
                                             self.proc = qbms.Q_BMS()
                                             self.proc.script_name = 'data/wcx/gaup_pro.wcx'
@@ -172,7 +177,7 @@ class UnpackerMain(QuickOpen):
                                         pass
 
                                 case 'ba2':
-                                    pass
+                                    self.proc = ba2_archives.BethesdaArchive()
 
                                 case 'esp' | 'esm' | 'esl':
                                     pass
@@ -254,7 +259,15 @@ class UnpackerMain(QuickOpen):
                             if ext == 'wad':
                                 self.proc = doom_wad.WadExtractor()
                             elif ext == 'pak':
-                                self.proc = quake_pak.QPAKExtractor()
+                                magic3 = int.from_bytes(magic2, 'little')
+
+                                if magic3 % 576 != 0:
+                                    l2 = magic3 % 64
+                                    version = 1 if l2 == 0 else 2
+                                else:
+                                    version, ok = QInputDialog.getInt(self, 'WARNING', 'Select a version:', min=1, max=2)
+
+                                self.proc = quake_pak.QPAKExtractor(version)
                             else:
                                 # TODO: Add functions to unpack other file types
                                 print(localize.not_correct_file.replace('%%', 'idTech Engine'))
@@ -314,6 +327,12 @@ class UnpackerMain(QuickOpen):
                                         # TODO: Add functions to unpack other file types
                                         print(f'{localize.work_in_progress}...')
 
+                            elif os.path.isdir(file_name):
+
+                                if self.checkBox_Reimport.isChecked():
+                                    self.proc = sen_pkg.PKGPacker()
+                                    self.proc.COMPRESSED = self.checkBox_ZipData.isChecked()
+
                             else:
                                 # TODO: Add functions to unpack other file types
                                 print(f'{localize.work_in_progress}...')
@@ -322,9 +341,17 @@ class UnpackerMain(QuickOpen):
 
                             if ext == 'vpk':
                                 self.proc = source_vpk.VPKExtractor()
+                            elif os.path.isdir(file_name):
+                                version, ok = QInputDialog.getInt(self,
+                                                                  title='WARNING', label='Select a version:',
+                                                                  min=1, max=2)
+
+                                if ok and version:
+                                    self.proc = source_vpk.VPKPacker()
+                                    self.proc.VERSION = version
+
                             else:
                                 # TODO: Add functions to unpack other file types
-                                print(localize.not_correct_file.replace('%%', 'Source Engine'))
                                 print(f'{localize.work_in_progress}...')
 
                         case '_TellTale':
@@ -343,16 +370,6 @@ class UnpackerMain(QuickOpen):
                             if self.checkBox_Reimport.isChecked():
 
                                 if ext in ('upk', 'upx', 'xxx', 'u'):
-
-                                    # TODO: Нужно локализовать текст!!!
-                                    dialogs.CustomDialog(text='Порядок действий при упаковке файлов игр на UE3:\n\n'
-                                                              '1. Выбрать исходный архив (если вы видите это\n'
-                                                              '     сообщение он уже должен быть выбран)\n'
-                                                              '2. Выбрать папку с исходными распакованными файлами\n'
-                                                              '     в следующем окне выбора папки\n'
-                                                              '3. Выбрать папку с измененными файлами\n\n'
-                                                              'Новый архив сохранится в выходной папке\n'
-                                                              'согласно настройкам').exec()
                                     self.proc = ue3_injector.U3Injector()
                                     self.proc.source_folder = self.file_open(select_folder=True)
                                     self.proc.new_folder = self.file_open(select_folder=True)
@@ -403,7 +420,7 @@ class UnpackerMain(QuickOpen):
                         case _:
                             self.proc = qbms.Q_BMS()
                             self.proc.script_name = self.script_name
-                
+
                 if self.proc is not None:
                     self.q_connect(self.proc, file_name, header=f'{localize.unpacking}: {file_name}...')
 
@@ -416,7 +433,6 @@ class UnpackerMain(QuickOpen):
 
 
 def true_false(boo):
-
     try:
         b1 = bool(int(boo))
     except ValueError:

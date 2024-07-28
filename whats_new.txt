@@ -1,9 +1,20 @@
+
+July 28, 2024
+
+ - Continue move to SQL
+ - Added native support to creation PKG archives for Legend of Hero: Trails of Cold Steal game series
+ - Added support almost all compression data in ZIP archives
+ - Added native support to creation VPK archives for Source Engine games
+ - All input windows now use main window theme
+ - Best support for BSA\BA2 archives from Bethesda Game Studio games
+ - When closing the progress bar with the unpacking status, the unpacking process now stops
+
 July 14, 2024
 
  - Game list now forming with SQL database
  - Zip methods list moved to codecs folder
- - Added native support BIF\KEY archives from games by Aurora Engine
- - Added native support BSA\BA2 archives from games by Bethesda Game Studio
+ - Added native support BIF\KEY archives from Aurora Engine games
+ - Added native support BSA\BA2 archives from Bethesda Game Studio games
  - Added native support PKG archives from Legend of Hero: Trails of Cold Steal game series
  - Fixed a bug where a filter was shown based on the extension of the previously selected file type
 

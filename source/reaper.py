@@ -12,7 +12,7 @@ from source.ui import localize
 from source.setting import Setting
 from source.codecs.zip_methods import zip_methods
 
-DEBUG = True
+DEBUG = False
 
 
 def file_reaper(func_name):
@@ -34,7 +34,7 @@ def file_reaper(func_name):
 
         end = datetime.now()
         print(f'{localize.done}\n'
-              f'{end - start}')
+              f'{localize.duration} {end - start}')
 
         with open('log.txt', 'a') as log:
 
@@ -52,13 +52,13 @@ def file_reaper(func_name):
 class Reaper(QThread, Setting):
     update_signal = pyqtSignal(int, str, str, bool)
 
+    file_name = ''
+    output_folder = ''
+    path_to_root = os.path.curdir
+    com_type = None
+
     def __init__(self):
         super().__init__()
-        self.file_name = ''
-        self.output_folder = ''
-        self.unpack = True
-        self.path_to_root = os.path.curdir
-        self.com_type = None
 
     @abstractmethod
     def run(self):
@@ -69,6 +69,7 @@ class Reaper(QThread, Setting):
         return next((key for key, value in zip_methods.items() if value == method_name), None)
 
     def unzip(self, f_name: str, c_num=1, get_ext=False, test=False, encrypt=False, crypt_method='', crypt_key=''):
+        # TODO: Very slow working. Maybe upload as DLL?
         out_path = self.output_folder if test else os.environ['TEMP']
 
         if encrypt:
@@ -102,8 +103,9 @@ class Reaper(QThread, Setting):
                 with open(f_name, 'wb') as out_f:
                     out_f.write(unzip_data)
 
-            except FileNotFoundError:
-                ic('Unzip fall...')
+            except (FileNotFoundError, PermissionError):
+                print(localize.filed_to_unzip)
+                ic(localize.filed_to_unzip)
 
         else:
             proc = Popen(script)

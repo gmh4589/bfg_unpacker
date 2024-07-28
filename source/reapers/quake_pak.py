@@ -1,13 +1,26 @@
 
 import os
 from tkinter import simpledialog
+
+from PyQt6.QtWidgets import QInputDialog, QWidget
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
+class HideWindow(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(0, 0, 0, 0)
+
+
 class QPAKExtractor(Reaper):
+
+    def __init__(self, version=0):
+        super().__init__()
+        self.version = version
 
     @file_reaper
     def run(self):
@@ -23,12 +36,17 @@ class QPAKExtractor(Reaper):
             entry_offset = int.from_bytes(pak_file.read(4), byteorder="little")
             long = int.from_bytes(pak_file.read(4), byteorder="little")
 
-            if long % 576 != 0:
-                l2 = long % 64
-                version = 1 if l2 == 0 else 2
-            else:
-                version = simpledialog.askinteger("", "Enter engine version (1 or 2):",
-                                                  minvalue=1, maxvalue=2)
+            # if long % 576 != 0:
+            #     l2 = long % 64
+            #     version = 1 if l2 == 0 else 2
+            # else:
+            #     version = self.version
+            #     print(version)
+            #
+            # if not version:
+            #     # TODO: Localize text!!!
+            #     print('Enter valid version!')
+            #     return
 
             pak_file.seek(entry_offset)
             file_list = {}
@@ -40,6 +58,7 @@ class QPAKExtractor(Reaper):
                     name = pak_file.read(56).decode("ascii").rstrip("\0").replace("\0", '.')
                     i = 0
                 except UnicodeDecodeError:
+                    # TODO: Localize text!!!
                     print('You select invalid version, select other version!')
                     i = -1
                     break
@@ -48,7 +67,7 @@ class QPAKExtractor(Reaper):
                 size = int.from_bytes(pak_file.read(4), byteorder="little")
                 file_list[name] = [offset, size]
 
-                if version == 2:
+                if self.version == 2:
                     pak_file.seek(8, 1)
 
                 if pak_file.tell() >= file_size:

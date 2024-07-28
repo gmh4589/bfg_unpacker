@@ -1,6 +1,6 @@
 
 from source.reapers import (afs, arx_fatalis, aurora_engine, aurora_bif_key,
-                            bsa_ba2,
+                            ba2_archives, bsa_archives,
                             celestia, chrome_engine,
                             doom_wad,
                             ffmpeg_tool,

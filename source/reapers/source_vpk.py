@@ -1,4 +1,5 @@
 import os
+
 import vpk
 from icecream import ic
 
@@ -30,3 +31,24 @@ class VPKExtractor(Reaper):
                                     f'{localize.saving} - {name}...', False)
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+
+
+class VPKPacker(Reaper):
+
+    VERSION = 2
+
+    @file_reaper
+    def run(self):
+
+        # version = simpledialog.askinteger("", "Enter engine version (1 or 2):",
+        #                                   minvalue=1, maxvalue=2)
+
+        folder_path = self.file_name
+        archive_name = os.path.basename(self.file_name)
+        new_vpk = vpk.NewVPK(path=folder_path)
+        ic(self.VERSION)
+        new_vpk.version = self.VERSION
+        out_path = os.path.join(self.output_folder, archive_name + '_dir.vpk')
+        print(out_path)
+        new_vpk.save(out_path)
+        self.update_signal.emit(100, f'1/1', localize.done, True)

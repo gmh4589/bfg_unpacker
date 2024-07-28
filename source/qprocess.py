@@ -18,42 +18,31 @@ class QProcessList(MainWindow):
         self.head = b''
         self.delete_thread = delete.DeleteThread()
         self.proc = None
+        self.nuke = None
 
     def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
-        nuke.file_name = fn
+        self.nuke = nuke
+        self.nuke.file_name = fn
         fp = f'{self.out_dir}\\{os.path.basename(fn)}'
         ic(fp)
-        nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
+        self.nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
 
         if self.checkBox_createSubfolders.isChecked():
             os.makedirs(fp, exist_ok=True)
 
-        self.pb.set_theme(self.setting["Main"]["theme"])
+        # self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(self.get_short_text(header))
         self.pb.progressBar.setValue(0)
         self.pb.progress.setText('')
         self.pb.status.setText('')
+        self.pb.is_stop = False
         self.pb.show()
-        nuke.update_signal.connect(self.update_progress)
+        self.nuke.update_signal.connect(self.update_progress)
 
         if self.last_run is not None:
-            nuke.finished.connect(self.last_run)
+            self.nuke.finished.connect(self.last_run)
 
-        nuke.start()
-
-    def load_bar(self, nuke):
-        self.pb.set_theme(self.setting["Main"]["theme"])
-        self.pb.header.setText('Loading...')
-        self.pb.progressBar.setValue(0)
-        self.pb.progress.setText('')
-        self.pb.status.setText('')
-        self.pb.show()
-        nuke.update_signal.connect(self.update_progress)
-
-        if self.last_run is not None:
-            nuke.finished.connect(self.last_run)
-
-        nuke.start()
+        self.nuke.start()
 
     @staticmethod
     def get_short_text(text):
@@ -67,8 +56,11 @@ class QProcessList(MainWindow):
 
     def update_progress(self, pb_value, p_text, info, process_done):
 
+        if self.pb.is_stop:
+            self.nuke.terminate()
+
         if process_done:
-            self.pb.progressBar.setValue(0)
+
             self.pb.close()
 
         else:

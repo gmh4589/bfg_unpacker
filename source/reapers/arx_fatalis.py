@@ -16,7 +16,6 @@ class PakExtractor(Reaper):
 
     @file_reaper
     def run(self):
-        self.dirs = []
 
         with open(self.file_name, 'rb') as f:
             fat_offset = int.from_bytes(f.read(4), byteorder='little')
@@ -82,8 +81,10 @@ class PakExtractor(Reaper):
 
     @staticmethod
     def select_key(first_bytes):
-        full_key = b"AVQF3FCKE50GRIAYXJP2AMEYO5QGA0JGIIH2NHBTVOA1VOGGU5H3GSSIARKPRQPQKKYEOIAQG1XRX0J4F5OEAEFI4DD3LL45VJTVOA1VOGGUKE50GRIAYX"
-        demo_key = b"NSIARKPRQPHBTE50GRIH3AYXJP2AMF3FCEYAVQO5QGA0JGIIH2AYXKVOA1VOGGU5GSQKKYEOIAQG1XRX0J4F5OEAEFI4DD3LL45VJTVOA1VOGGUKE50GRIAYX"
+        full_key = (b"AVQF3FCKE50GRIAYXJP2AMEYO5QGA0JGIIH2NHBTVOA1VOGGU5H3GSSIARK"
+                    b"PRQPQKKYEOIAQG1XRX0J4F5OEAEFI4DD3LL45VJTVOA1VOGGUKE50GRIAYX")
+        demo_key = (b"NSIARKPRQPHBTE50GRIH3AYXJP2AMF3FCEYAVQO5QGA0JGIIH2AYXKVOA1VOG"
+                    b"GU5GSQKKYEOIAQG1XRX0J4F5OEAEFI4DD3LL45VJTVOA1VOGGUKE50GRIAYX")
 
         if first_bytes == 0x46515641:
             return full_key
