@@ -1,5 +1,5 @@
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt6.QtCore import QRect, QMetaObject
 from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QWidget, QProgressBar
@@ -98,3 +98,12 @@ class ProgressBar(QDialog):
     def closeEvent(self, a0):
         self.is_stop = True
 
+
+class PrintTo(QObject):
+    text_written = pyqtSignal(str)
+
+    def write(self, text):
+        self.text_written.emit(str(text))
+
+    def flush(self):
+        pass

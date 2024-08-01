@@ -1,22 +1,18 @@
 
-import sys
 import os
-from PyQt6.QtCore import QObject, pyqtSignal
 from icecream import ic
 
-from source.ui.main_ui_init import MainWindow
+from source.setting import Setting
 from source.ui import localize
-from source import delete
 
 
-class QProcessList(MainWindow):
+class QProcessList(Setting):
 
     def __init__(self):
         super().__init__()
-        sys.stdout = PrintTo(text_written=self.append_text)
         self.file_name = ''
         self.head = b''
-        self.delete_thread = delete.DeleteThread()
+        self.out_dir = self.setting['Main']['out_path']
         self.proc = None
         self.nuke = None
 
@@ -25,10 +21,14 @@ class QProcessList(MainWindow):
         self.nuke.file_name = fn
         fp = f'{self.out_dir}\\{os.path.basename(fn)}'
         ic(fp)
-        self.nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
 
-        if self.checkBox_createSubfolders.isChecked():
-            os.makedirs(fp, exist_ok=True)
+        try:
+            self.nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
+
+            if self.checkBox_createSubfolders.isChecked():
+                os.makedirs(fp, exist_ok=True)
+        except AttributeError:
+            pass
 
         # self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(self.get_short_text(header))
@@ -67,13 +67,3 @@ class QProcessList(MainWindow):
             self.pb.progressBar.setValue(pb_value)
             self.pb.progress.setText(self.get_short_text(p_text))
             self.pb.status.setText(self.get_short_text(info))
-
-
-class PrintTo(QObject):
-    text_written = pyqtSignal(str)
-
-    def write(self, text):
-        self.text_written.emit(str(text))
-
-    def flush(self):
-        pass

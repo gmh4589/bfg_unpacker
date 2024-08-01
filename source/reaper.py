@@ -11,6 +11,7 @@ from icecream import ic
 from source.ui import localize
 from source.setting import Setting
 from source.codecs.zip_methods import zip_methods
+from source.ui.custom_ui import CustomDialog
 
 DEBUG = False
 
@@ -53,12 +54,14 @@ class Reaper(QThread, Setting):
     update_signal = pyqtSignal(int, str, str, bool)
 
     file_name = ''
-    output_folder = ''
+    # output_folder = ''
     path_to_root = os.path.curdir
     com_type = None
 
     def __init__(self):
         super().__init__()
+        self.output_folder = self.setting['Main']['out_path']
+        os.makedirs(self.output_folder, exist_ok=True)
 
     @abstractmethod
     def run(self):

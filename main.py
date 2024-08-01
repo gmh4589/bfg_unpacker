@@ -4,19 +4,23 @@ import sys
 # Это костыль, без него не работает компилляция
 from sqlalchemy.dialects.mysql.mariadb import *
 
-from PyQt6.QtWidgets import QFileDialog, QApplication, QInputDialog
+from PyQt6.QtWidgets import QFileDialog, QApplication, QInputDialog, QMainWindow
 from icecream import ic
 
 from source.quick_open import QuickOpen
+from source.ui.main_ui_init import MainWindow
+from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui
 from source.reaper import after_dot
 from source.reapers import *
+from source.delete import DeleteThread
 
 
-class UnpackerMain(QuickOpen):
+class UnpackerMain(MainWindow, QuickOpen):
 
     def __init__(self):
         super().__init__()
+        sys.stdout = PrintTo(text_written=self.append_text)
         self.func_name = ''
         self.script_name = ''
         self.file_list = []
@@ -427,7 +431,7 @@ class UnpackerMain(QuickOpen):
     def empty_out(self):
 
         if os.listdir(self.out_dir):
-            self.q_connect(self.delete_thread, header=f'{localize.deleting}...')
+            self.q_connect(DeleteThread(), header=f'{localize.deleting}...')
         else:
             print(localize.empty_folder)
 
@@ -441,9 +445,29 @@ def true_false(boo):
     return b1
 
 
+class QuickUnpack(QMainWindow, QuickOpen):
+
+    def __init__(self):
+        super().__init__()
+
+        self.is_stop = False
+        self.pb = custom_ui.ProgressBar(self.setting["Main"]["theme"])
+        self.last_run = None
+        self.file_list = [sys.argv[1], ]
+        self.find_reaper()
+
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = UnpackerMain()
-    win.show()
-    win.raise_()
+
+    try:
+        print(sys.argv[1])
+        app = QApplication(sys.argv)
+        win = QuickUnpack()
+
+    except IndexError:
+        app = QApplication(sys.argv)
+        win = UnpackerMain()
+        win.show()
+        win.raise_()
+
     sys.exit(app.exec())
