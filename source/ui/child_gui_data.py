@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from source.setting import Setting
-from source.codecs import dds_list, wav_list, audio_tools, image_tools
+from source.codecs import wav_list, audio_tools, image_tools
 from source.ui import localize as translate, child_gui
 from source.reaper import zip_methods
 
