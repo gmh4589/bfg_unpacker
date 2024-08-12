@@ -31,8 +31,6 @@ class Ui_BFGUnpacker(Translate):
         self.centralwidget.setAcceptDrops(True)
         self.comboBox_gameList = AutoCompleteComboBox(self.centralwidget)
         self.comboBox_gameList.setGeometry(QRect(80, 40, 375, 30))
-        self.comboBox_favList = QComboBox(self.centralwidget)
-        self.comboBox_favList.setGeometry(QRect(80, 40, 0, 0))
         self.toolButton_plus = QToolButton(self.centralwidget)
         self.toolButton_plus.setGeometry(QRect(455, 40, 30, 30))
         self.toolButton_minus = QToolButton(self.centralwidget)

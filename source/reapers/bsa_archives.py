@@ -1,4 +1,7 @@
 import os
+import zlib
+import lz4.frame
+
 from icecream import ic
 from collections import namedtuple
 
@@ -7,14 +10,18 @@ from source.ui import localize
 
 
 class BethesdaArchive(Reaper):
+    #  TODO:
+    #   Don't work this archives:
+    #       Enderal -> works only scripts
+    #       Enderal SE -> works only meshes
+    #       Nehrim -> works only voices
+    #       TES IV: Oblivion -> Knights.bsa, retry OBJ files
 
     @file_reaper
     def run(self):
-        # TODO: Add support Morrowind and older games
-        # TODO: Trouble with unpack some Oblivion, Skyrim LE, F3 and FNV archives
 
-        with open(self.file_name, "rb") as file:
-            magic = file.read(4)
+        with open(self.file_name, "rb") as bsa_file:
+            magic = bsa_file.read(4)
 
             if magic != b'BSA\0':
                 print(localize.not_correct_file.replace('%%', 'Bethesda Softworks Archive'))
@@ -22,10 +29,11 @@ class BethesdaArchive(Reaper):
                                         localize.not_correct_file.replace('%%', 'Bethesda Softworks Archive'), True)
                 return
 
-            version = int.from_bytes(file.read(4), byteorder="little")
+            version = int.from_bytes(bsa_file.read(4), byteorder="little")
+
             step = 4 if version == 105 else 0
-            folder_list_start = int.from_bytes(file.read(4), byteorder="little")
-            flags = int.from_bytes(file.read(4), byteorder="little")
+            folder_list_start = int.from_bytes(bsa_file.read(4), byteorder="little")
+            flags = int.from_bytes(bsa_file.read(4), byteorder="little")
 
             directory_names = bool(flags & 0x1)
             file_names = bool(flags & 0x2)
@@ -40,13 +48,13 @@ class BethesdaArchive(Reaper):
 
             byteorder = 'big' if xbox else 'little'
 
-            folder_count = int.from_bytes(file.read(4), byteorder=byteorder)
-            file_count = int.from_bytes(file.read(4), byteorder=byteorder)
-            all_folders_len = int.from_bytes(file.read(4), byteorder=byteorder)
-            all_files_len = int.from_bytes(file.read(4), byteorder=byteorder)
+            folder_count = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+            file_count = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+            all_folders_len = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+            all_files_len = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
 
-            ic(folder_count, file_count, all_folders_len, all_files_len)
-            file_type_flags = int.from_bytes(file.read(4), byteorder=byteorder)
+            ic(compressed, folder_count, file_count, all_folders_len, all_files_len)
+            file_type_flags = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
 
             nif = bool(file_type_flags & 0x1)
             dds = bool(file_type_flags & 0x2)
@@ -63,14 +71,15 @@ class BethesdaArchive(Reaper):
                                     ['name_hash', 'files_in_folder', 'offset_to_files'])
             folder_data = []
 
+            self.update_signal.emit(0, '', f'{localize.wait}...', False)
+
             for i in range(folder_count):
-                name_hash = file.read(8)
-                files_in_folder = int.from_bytes(file.read(4), byteorder=byteorder)
-                file.seek(step, 1)
-                offset_to_files = int.from_bytes(file.read(4), byteorder=byteorder)
-                file.seek(step, 1)
+                name_hash = bsa_file.read(8)
+                files_in_folder = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                bsa_file.seek(step, 1)
+                offset_to_files = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                bsa_file.seek(step, 1)
                 folder_data.append(FolderData(name_hash, files_in_folder, offset_to_files))
-                ic(name_hash, files_in_folder)
 
             FileData = namedtuple('FileData',
                                   ['folder_name', 'name_hash', 'file_size', 'file_offset'])
@@ -78,46 +87,181 @@ class BethesdaArchive(Reaper):
 
             for data in folder_data:
 
-                folder_name_len = int.from_bytes(file.read(1), byteorder=byteorder)
-                folder_name = file.read(folder_name_len).rstrip(b'\x00').decode('utf-8', errors='ignore')
-                os.makedirs(os.path.join(self.output_folder, folder_name), exist_ok=True)
+                folder_name_len = int.from_bytes(bsa_file.read(1), byteorder=byteorder)
+                folder_name = bsa_file.read(folder_name_len).rstrip(b'\x00').decode('utf-8', errors='ignore')
+                # os.makedirs(os.path.join(self.output_folder, folder_name), exist_ok=True)
 
                 for j in range(data.files_in_folder):
-                    name_hash = file.read(8)
-                    file_size = int.from_bytes(file.read(4), byteorder=byteorder)
-                    file_offset = int.from_bytes(file.read(4), byteorder=byteorder)
+                    name_hash = bsa_file.read(8)
+                    file_size = int.from_bytes(bsa_file.read(3), byteorder=byteorder)
+                    something = int.from_bytes(bsa_file.read(1))
+                    file_offset = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
                     file_data.append(FileData(folder_name, name_hash, file_size, file_offset))
 
-            files_list = [file_name.decode('utf-8') for file_name in
-                          file.read(all_files_len).split(b'\0') if file_name]
+            files_list = [file_name.decode('utf-8', errors='ignore')
+                          for file_name in bsa_file.read(all_files_len).split(b'\0') if file_name]
 
             for k, file_name in enumerate(files_list):
 
-                comp = 0
                 path = os.path.join(self.output_folder, file_data[k].folder_name, file_name)
-                file.seek(file_data[k].file_offset)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                bsa_file.seek(file_data[k].file_offset + 4)
+                error = False
+                ext = file_name.split('.')[-1]
 
-                if compressed:
-                    unzip_size = int.from_bytes(file.read(4), byteorder=byteorder)
-
-                    if file_data[k].file_size - unzip_size == 0x13:
-                        comp = 0xf
-                        file.seek(0xb, 1)
-                    else:
-                        file.seek(file_data[k].file_offset)
-
-                with open(path, 'wb') as new_file:
-                    new_file.write(file.read(file_data[k].file_size - comp))
-
-                if compressed and comp == 0:
-                    self.unzip(path, 171)
-                elif compressed and comp and version == 105:
-                    # TODO: Research compress algorythm into Skyrim SE
-                    self.unzip(path, 170)
-
-                ic(file_name)
+                ic(f'{k}/{file_count}: {localize.saving} - {file_name}...')
                 print(f'{k}/{file_count}: {localize.saving} - {file_name}...')
                 self.update_signal.emit(int(100 / file_count * k), f'{k + 1}/{file_count}',
                                         f'{localize.saving} - {file_name}...', False)
+
+                if version == 103:
+
+                    if b'\x78\x9C' in bsa_file.read(8):
+                        compressed = True
+
+                    if ext in ('mp3', 'ogg'):
+                        compressed = False
+
+                bsa_file.seek(file_data[k].file_offset)
+
+                if compressed:
+
+                    if version in (103, 104):  # 103 - Oblivion, 104 - Skyrim LE, Fallout 3, Fallout NV
+                        codec = 170
+
+                        if embed_names:
+                            name_l = int.from_bytes(bsa_file.read(1))
+                            file_name = bsa_file.read(name_l)
+
+                        unzip_size = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                        unzip_data = bsa_file.read(file_data[k].file_size)
+
+                        try:
+                            unzip_data = zlib.decompress(unzip_data)
+                        except zlib.error:
+                            error = True
+
+                    elif version == 105:
+                        codec = 249
+
+                        if dds and '.dds' in file_name:
+                            name_l = int.from_bytes(bsa_file.read(1))
+                            file_name = bsa_file.read(name_l)
+
+                        unzip_size = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                        unzip_data = bsa_file.read(file_data[k].file_size)
+
+                        try:
+                            unzip_data = lz4.frame.decompress(unzip_data)
+                        except RuntimeError:
+                            pass
+
+                else:
+                    unzip_data = bsa_file.read(file_data[k].file_size)
+
+                with open(path, 'wb') as new_file:
+                    # new_file.write(bsa_file.read(file_data[k].file_size))
+                    new_file.write(unzip_data)
+
+                if compressed and error:
+                    self.unzip(path, codec)
+
+        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+
+
+class OldBSA(Reaper):
+    # TODO: Crash with ARCH3D.BSA from TES II
+
+    @file_reaper
+    def run(self):
+
+        with open(self.file_name, "rb") as bsa_file:
+            file_len = os.path.getsize(self.file_name)
+            file_count = int.from_bytes(bsa_file.read(2), byteorder="little")
+            file_list_start = file_len - file_count * 0x12
+            bsa_file.seek(file_list_start)
+            file_data = {}
+
+            for i in range(file_count):
+                name = bsa_file.read(14)[:13].rstrip(b'\x00').decode('utf-8', errors='ignore')
+                size = int.from_bytes(bsa_file.read(4), byteorder="little")
+                file_data[name] = size
+
+            bsa_file.seek(2)
+            key = bsa_file.read(2)
+
+            if key != b'\x00\x01':
+                bsa_file.seek(2)
+
+            i = 0
+
+            for name, size in file_data.items():
+                data = bsa_file.read(size)
+                i += 1
+
+                with open(os.path.join(self.output_folder, name), 'wb') as new_file:
+                    new_file.write(data)
+
+                ic(f'{i}/{file_count}: {localize.saving} - {name}...')
+                print(f'{i}/{file_count}: {localize.saving} - {name}...')
+                self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
+                                        f'{localize.saving} - {name}...', False)
+
+        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+
+
+class MorrowindBSA(Reaper):
+
+    @file_reaper
+    def run(self):
+
+        with open(self.file_name, 'rb') as bsa_file:
+            magic = bsa_file.read(4)
+
+            if magic != b'\0\x01\0\0':
+                print(localize.not_correct_file.replace('%%', 'Bethesda Softworks Archive'))
+                self.update_signal.emit(100, '',
+                                        localize.not_correct_file.replace('%%', 'Bethesda Softworks Archive'), True)
+                return
+
+            long_data = int.from_bytes(bsa_file.read(4), byteorder="little")
+            file_count = int.from_bytes(bsa_file.read(4), byteorder="little")
+            offsets = []
+            longs = []
+
+            for i in range(file_count):
+                long = int.from_bytes(bsa_file.read(4), byteorder="little")
+                offset = int.from_bytes(bsa_file.read(4), byteorder="little")
+                longs.append(long)
+                offsets.append(offset)
+
+            for _ in range(file_count):
+                bsa_file.read(4)
+
+            here = bsa_file.tell()
+
+            pos = long_data - here + 12
+            files_list = [file_name.decode('utf-8') for file_name in
+                          bsa_file.read(pos).split(b'\0') if file_name]
+
+            for _ in range(file_count):
+                bsa_file.read(8)
+
+            here = bsa_file.tell()
+
+            for i, name in enumerate(files_list):
+                bsa_file.seek(offsets[i] + here)
+                data = bsa_file.read(longs[i])
+                os.makedirs(os.path.join(self.output_folder, os.path.dirname(name)), exist_ok=True)
+
+                with open(os.path.join(self.output_folder, name), 'wb') as new_file:
+                    new_file.write(data)
+
+                # ic(f'{i + 1}/{file_count}: {localize.saving} - {name}...')
+                print(f'{i + 1}/{file_count}: {localize.saving} - {name}...')
+                self.update_signal.emit(int(100 / file_count * i), f'{i + 1}/{file_count}',
+                                        f'{localize.saving} - {name}...', False)
+
+            ic(len(files_list))
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

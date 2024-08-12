@@ -164,21 +164,13 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 case 'bsa':
 
                                     if magic == b'BSA\0':
-
-                                        if magic2 in (104, 105):
-                                            self.proc = bsa_archives.BethesdaArchive()
-                                        else:
-                                            self.proc = qbms.Q_BMS()
-                                            self.proc.script_name = 'data/wcx/gaup_pro.wcx'
-
+                                        self.proc = bsa_archives.BethesdaArchive()
+                                    elif magic == b'\0\x01\0\0':
+                                        self.proc = bsa_archives.MorrowindBSA()
                                     else:
-                                        self.proc = qbms.Q_BMS()
-                                        self.proc.script_name = 'data/wcx/gaup_pro.wcx'
-
-                                    if 'ARCH3D' in self.file_name:
-                                        pass
-                                    elif 'arena' in self.file_name.lower() or 'battle' in self.file_name.lower():
-                                        pass
+                                        self.proc = bsa_archives.OldBSA()
+                                        # self.proc = qbms.Q_BMS()
+                                        # self.proc.script_name = 'data/wcx/gaup_pro.wcx'
 
                                 case 'ba2':
                                     self.proc = ba2_archives.BethesdaArchive()

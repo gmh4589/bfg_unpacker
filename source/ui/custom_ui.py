@@ -20,22 +20,16 @@ class AutoCompleteComboBox(QComboBox):
         self.setCompleter(self.completer)
         self.items = []
         self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        # line_edit = self.lineEdit()
-        # line_edit.textEdited.connect(self.on_text_edited)
         self.line_edit = self.lineEdit()
         self.line_edit.textEdited.connect(self.on_text_edited)
 
     def on_text_edited(self, text):
         self.filter_model.clear()
-        # self.filter_model.appendRow(QStandardItem(self.lineEdit().text() + text
-        #                                           if text != self.lineEdit().text() else self.lineEdit().text()))
         self.filter_model.appendRow(QStandardItem(self.line_edit.text() + text
                                                   if text != self.line_edit.text() else self.line_edit.text()))
 
         for item in self.items:
 
-            # if self.lineEdit().text().lower() in item.lower():
-            #     self.filter_model.appendRow(QStandardItem(item))
             if self.line_edit.text().lower() in item.lower():
                 self.filter_model.appendRow(QStandardItem(item))
 

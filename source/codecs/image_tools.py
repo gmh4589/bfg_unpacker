@@ -1,26 +1,6 @@
 import os
 from PIL import Image
 
-from source.codecs.dds_list import dds_list
-
-
-def dds_save(y, x, codec, name, data):
-
-    keys = dds_list[codec]['keys']
-    pixel_format = dds_list[codec]['pixel_format']
-    depth = dds_list[codec]['depth']
-    rgb = dds_list[codec]['rgb']
-    codec_name = dds_list[codec]['codec']
-    codec_data = dds_list[codec]['codec_data']
-
-    with open(f'{name}.dds', 'wb') as dds_file:
-        dds_file.write(b'DDS\x20\x7C\x00\x00\x00' +
-                       keys + pixel_format + depth + b'\x00' +
-                       x.to_bytes(4, byteorder='little') +  # Height
-                       y.to_bytes(4, byteorder='little') * 2 +  # width and linear size
-                       b'\x01' + (b'\x00' * 51) + b'\x20\x00\x00\x00' +
-                       rgb + codec_name + codec_data + data)
-
 
 def bmp_save(x, y, b, name, image_data):
 

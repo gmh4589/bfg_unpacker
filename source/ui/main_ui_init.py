@@ -221,7 +221,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             case 'H': btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
             case 'I': btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
             case 'J': btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
-            case 'K': btn.clicked.connect(lambda: print('creation'))
+            case 'K': btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
             case 'L': btn.clicked.connect(lambda: print('cry engine'))
             case 'M': btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
             case 'N': btn.clicked.connect(self.wwise_tools)

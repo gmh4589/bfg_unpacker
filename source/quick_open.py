@@ -753,9 +753,12 @@ class QuickOpen(QProcessList):
                 elif ext == 'bsa':
                     if magic == b'BSA\0':
                         self.proc = bsa_archives.BethesdaArchive()
+                    elif magic == b'\x00\x01\x00\x00':
+                        self.proc = bsa_archives.MorrowindBSA()
                     else:
-                        self.proc = qbms.Q_BMS()
-                        self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
+                        self.proc = bsa_archives.OldBSA()
+                        # self.proc = qbms.Q_BMS()
+                        # self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
                 elif ext in ('esl', 'esm', 'esp', 'esx', 'pex'):
                     # TODO: Add functions to unpack other file types
                     print(f'{localize.work_in_progress}...')

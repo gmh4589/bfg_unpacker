@@ -4,6 +4,7 @@ from PIL import Image
 from icecream import ic
 
 from source.codecs import image_tools
+from source.codecs.dds_tools import DDSCreator
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -137,7 +138,8 @@ class PhyreSave(Reaper):
                     head_file.write(head_data + b'\x00' * 13 + b'PTexture2D\x00' + image[:head_size])
 
             if file_type == 'dds':
-                image_tools.dds_save(x, y, p, name, image_data)
+                dds = DDSCreator()
+                dds.dds_save(x, y, p, name, image_data)
             elif file_type == 'png' or file_type == 'gxt_png':
                 image_tools.png_save(x, y, p, name, image_data)
             elif file_type == 'gxt':

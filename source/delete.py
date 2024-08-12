@@ -22,7 +22,8 @@ class DeleteThread(Reaper):
             name = os.path.join(of, item)
             info_text = f'{localize.deleting} - {item}...'
             print(info_text)
-            self.update_signal.emit(int(100 / all_items * (i + 1)), f'{i + 1}/{all_items}', info_text, False)
+            percent = int(100 / all_items * (i + 1))
+            self.update_signal.emit(percent if percent < 95 else 95, f'{i + 1}/{all_items}', info_text, False)
 
             try:
                 if int(setting['Main']['trash']):

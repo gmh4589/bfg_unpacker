@@ -74,6 +74,7 @@ class Reaper(QThread, Setting):
     def unzip(self, f_name: str, c_num=1, get_ext=False, test=False, encrypt=False, crypt_method='', crypt_key=''):
         # TODO: Very slow working. Maybe upload as DLL?
         out_path = self.output_folder if test else os.environ['TEMP']
+        ext = os.path.split(f_name)[1].split('.')[-1]
 
         if encrypt:
             # TODO: Need tests
@@ -83,7 +84,7 @@ class Reaper(QThread, Setting):
                       f'"{self.path_to_root}\\data\\QuickBMS\\encryption_scan.bms")" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")
         else:
-            dump_name = zip_methods[c_num] + '.dmp'
+            dump_name = zip_methods[c_num] + ext
             script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "{c_num}" '
                       f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")

@@ -48,7 +48,7 @@ class QProcessList(Setting):
     def get_short_text(text):
 
         if len(text) > 50:
-            short_name = text[:30] + '...' + text[-15:]
+            short_name = text[:10] + '...' + text[-35:]
         else:
             short_name = text
 
