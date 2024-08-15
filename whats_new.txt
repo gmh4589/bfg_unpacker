@@ -1,4 +1,20 @@
 
+
+August 12, 2024
+
+ - Fixed unpacking some BA2 archives from Fallout 4, Fallout 76 and Starfield, unpacking of which caused
+        the program crash
+ - Fixed unpacking some BSA archives from TES IV: Oblivion, Fallout 3, Fallout NV, TES V: Skyrim LE,
+        TES V Skyrim SE\AE, unpacking of which caused the program crash
+ - Added support BSA archives from TES I: Arena, TES II: Daggerfall and AES Legend Battlespire, TES III: Morrowind
+ - Fixed slow unpacking big BSA\BA2 archives (biggest 3 GB)
+ - Functions for working with DDS files are placed in a separate class
+
+August 1, 2024
+
+ - Added APK Android installer support into ZIP unpacker function
+ - Added command line support with one argument (path to file). If run application with command line, run QuickOpen function
+
 July 28, 2024
 
  - Continue move to SQL
