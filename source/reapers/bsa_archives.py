@@ -11,11 +11,8 @@ from source.ui import localize
 
 class BethesdaArchive(Reaper):
     #  TODO:
-    #   Don't work this archives:
-    #       Enderal -> works only scripts
-    #       Enderal SE -> works only meshes
-    #       Nehrim -> works only voices
-    #       TES IV: Oblivion -> Knights.bsa, retry OBJ files
+    #   retry OBJ files,
+    #   add x_mem support
 
     @file_reaper
     def run(self):
@@ -119,7 +116,7 @@ class BethesdaArchive(Reaper):
                     if b'\x78\x9C' in bsa_file.read(8):
                         compressed = True
 
-                    if ext in ('mp3', 'ogg'):
+                    if ext in ('mp3', 'ogg', 'png'):
                         compressed = False
 
                 bsa_file.seek(file_data[k].file_offset)
@@ -128,6 +125,7 @@ class BethesdaArchive(Reaper):
 
                     if version in (103, 104):  # 103 - Oblivion, 104 - Skyrim LE, Fallout 3, Fallout NV
                         codec = 170
+                        here = bsa_file.tell()
 
                         if embed_names:
                             name_l = int.from_bytes(bsa_file.read(1))
@@ -139,12 +137,20 @@ class BethesdaArchive(Reaper):
                         try:
                             unzip_data = zlib.decompress(unzip_data)
                         except zlib.error:
-                            error = True
+                            bsa_file.seek(here)
+                            unzip_size = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                            unzip_data = bsa_file.read(file_data[k].file_size)
+
+                            try:
+                                unzip_data = zlib.decompress(unzip_data)
+                            except zlib.error:
+                                error = True
 
                     elif version == 105:
                         codec = 249
+                        here = bsa_file.tell()
 
-                        if dds and '.dds' in file_name:
+                        if ext in ('dds', 'png'):
                             name_l = int.from_bytes(bsa_file.read(1))
                             file_name = bsa_file.read(name_l)
 
@@ -154,7 +160,14 @@ class BethesdaArchive(Reaper):
                         try:
                             unzip_data = lz4.frame.decompress(unzip_data)
                         except RuntimeError:
-                            pass
+                            bsa_file.seek(here)
+                            unzip_size = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
+                            unzip_data = bsa_file.read(file_data[k].file_size)
+
+                            try:
+                                unzip_data = lz4.frame.decompress(unzip_data)
+                            except RuntimeError:
+                                error = True
 
                 else:
                     unzip_data = bsa_file.read(file_data[k].file_size)
@@ -170,7 +183,6 @@ class BethesdaArchive(Reaper):
 
 
 class OldBSA(Reaper):
-    # TODO: Crash with ARCH3D.BSA from TES II
 
     @file_reaper
     def run(self):
@@ -178,34 +190,33 @@ class OldBSA(Reaper):
         with open(self.file_name, "rb") as bsa_file:
             file_len = os.path.getsize(self.file_name)
             file_count = int.from_bytes(bsa_file.read(2), byteorder="little")
-            file_list_start = file_len - file_count * 0x12
+            key = int.from_bytes(bsa_file.read(2), byteorder="big")
+            pos = 4 if key < 3 else 2
+
+            file_list_start = (file_len - file_count * 0x12) if "ARCH3D" not in self.file_name else 0x19CED14
             bsa_file.seek(file_list_start)
-            file_data = {}
 
             for i in range(file_count):
-                name = bsa_file.read(14)[:13].rstrip(b'\x00').decode('utf-8', errors='ignore')
+                name = (bsa_file.read(14)[:13].rstrip(b'\x00').decode('utf-8', errors='ignore')
+                        if "ARCH3D" not in self.file_name else str(int.from_bytes(bsa_file.read(4), byteorder="little")))
                 size = int.from_bytes(bsa_file.read(4), byteorder="little")
-                file_data[name] = size
-
-            bsa_file.seek(2)
-            key = bsa_file.read(2)
-
-            if key != b'\x00\x01':
-                bsa_file.seek(2)
-
-            i = 0
-
-            for name, size in file_data.items():
+                here = bsa_file.tell()
+                bsa_file.seek(pos)
                 data = bsa_file.read(size)
-                i += 1
+                pos += size
+                bsa_file.seek(here)
 
-                with open(os.path.join(self.output_folder, name), 'wb') as new_file:
-                    new_file.write(data)
+                if "ARCH3D" in self.file_name:
+                    name += '.3D'
 
-                ic(f'{i}/{file_count}: {localize.saving} - {name}...')
-                print(f'{i}/{file_count}: {localize.saving} - {name}...')
-                self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
+                ic(f'{i + 1}/{file_count}: {localize.saving} - {name}...')
+                print(f'{i + 1}/{file_count}: {localize.saving} - {name}...')
+                self.update_signal.emit(int(100 / file_count * i), f'{i + 1}/{file_count}',
                                         f'{localize.saving} - {name}...', False)
+
+                with open(os.path.join(self.output_folder, f"{name}"), 'wb') as nf:
+                    nf.write(data)
+
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
 
@@ -265,3 +276,4 @@ class MorrowindBSA(Reaper):
             ic(len(files_list))
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+

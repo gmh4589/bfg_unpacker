@@ -9,7 +9,7 @@ from source.reapers import (afs, arx_fatalis, aurora_engine, aurora_bif_key,
                             other_prg,
                             pathologic, phyre,
                             qbms, quake_pak,
-                            rdr2_audio,
+                            remedy, rdr2_audio,
                             sen_book, sen_pkg, seven_s_seven, seven_zip, source_vpk,
                             ue3_injector, ue3_reaper, unity, unreal,
                             zip_archive, zip_scan, zpl2png)

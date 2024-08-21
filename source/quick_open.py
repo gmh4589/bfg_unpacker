@@ -146,10 +146,8 @@ class QuickOpen(QProcessList):
                     # TODO: Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G, from Remedy games,
                     #  Fatal Frame\Project Zero, BIN disk image (7zip), BIN archive (?)
 
-                    if magic == b'\x01\x00\x00\x00':  # Alan Wake Remastered
-                        pass
-                    elif magic == b'\x00\x09\x00\x00':  # Control
-                        pass
+                    if magic in (b'\x01\x00\x00\x00', b'\0' * 4, b'\x00\x09\x00\x00', b'\x01\x09\x00\x00'):
+                        self.proc = remedy.Remedy()
                     else:
                         self.sorry()
 
@@ -474,10 +472,6 @@ class QuickOpen(QProcessList):
                 elif ext in ("pack",):  # YZ2 from RE4HD
                     print('TODO: Work in progress...')
 
-                elif ext == 'packmeta':
-                    self.sorry()
-                    # TODO: Add Control
-
                 elif ext == 'pak':
                     # TODO: Sacred, Necrovision, Painkiller
 
@@ -578,9 +572,8 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\rkv.bms"
 
-                elif ext == 'rmdp':
-                    # TODO: Add Remedy games support
-                    self.sorry()
+                elif ext in ('rmdp', 'packmeta'):
+                    self.proc = remedy.Remedy()
 
                 # Check on RenPy Engine game
                 elif ext in ("rpa",):

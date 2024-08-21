@@ -46,6 +46,7 @@ def wav_save(args: dict):
                         len(new_data).to_bytes(4, byteorder='little') +
                         new_data)
 
+
 def atrac_save(args: dict):
     ic(args)
 
@@ -100,6 +101,7 @@ def atrac_save(args: dict):
                         b'WAVEfmt ' + head + b'data' +
                         len(new_data).to_bytes(4, byteorder='little') +
                         new_data)
+
 
 # TODO: Наличие сомнительно...
 def mp3_save(args: dict):

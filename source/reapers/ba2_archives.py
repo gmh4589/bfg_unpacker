@@ -10,6 +10,7 @@ from source.ui import localize
 # from source.codecs.image_tools import dds_save
 from source.codecs.dds_tools import DDSCreator
 
+
 class BethesdaArchive(Reaper):
     # TODO:
     #  Add all DDS codec support
@@ -42,12 +43,6 @@ class BethesdaArchive(Reaper):
                              f'Work in progress!')
                     return
 
-            match version:
-                case 2:
-                    zeros = 8
-                case _:
-                    zeros = 0
-
             file_count = int.from_bytes(ba2.read(4), byteorder="little")
             file_names_list_offset = int.from_bytes(ba2.read(4), byteorder="little")
             here = ba2.tell()
@@ -68,7 +63,7 @@ class BethesdaArchive(Reaper):
             DDSData = namedtuple('DDSData',
                                  ['x_size', 'y_size', 'mip_count', 'dds_format', 'flags', 'tiled'])
             dds_data = []
-            ba2.seek(zeros, 1)
+            ba2.seek(8 if version == 2 else 0, 1)
 
             for j in range(file_count):
                 ba2.seek(0x10, 1)

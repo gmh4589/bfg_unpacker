@@ -1,7 +1,7 @@
 import os
 import sys
 
-# Это костыль, без него не работает компилляция
+# Это костыль, без него не работает сборка в екзешник
 from sqlalchemy.dialects.mysql.mariadb import *
 
 from PyQt6.QtWidgets import QFileDialog, QApplication, QInputDialog, QMainWindow
@@ -169,8 +169,6 @@ class UnpackerMain(MainWindow, QuickOpen):
                                         self.proc = bsa_archives.MorrowindBSA()
                                     else:
                                         self.proc = bsa_archives.OldBSA()
-                                        # self.proc = qbms.Q_BMS()
-                                        # self.proc.script_name = 'data/wcx/gaup_pro.wcx'
 
                                 case 'ba2':
                                     self.proc = ba2_archives.BethesdaArchive()
@@ -290,12 +288,16 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_OtherPRG':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+                        case '_RDR':
+                            self.proc = rdr2_audio.RDR2Audio()
                         case '_RedEngine':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_REEngine':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+                        case '_Remedy':
+                            self.proc = remedy.Remedy()
                         case '_RenPy':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
