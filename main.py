@@ -1,6 +1,7 @@
 import os
 import sys
 
+import numpy
 # Это костыль, без него не работает сборка в екзешник
 from sqlalchemy.dialects.mysql.mariadb import *
 
@@ -14,6 +15,8 @@ from source.ui import localize, custom_ui
 from source.reaper import after_dot
 from source.reapers import *
 from source.delete import DeleteThread
+# from source.codecs.dds_tools import DDSCreator
+from source.codecs.image_tools import bmp_save
 
 
 class UnpackerMain(MainWindow, QuickOpen):
@@ -128,27 +131,17 @@ class UnpackerMain(MainWindow, QuickOpen):
                     match self.func_name:
                         case '_7x7':
                             self.proc = seven_s_seven.Seven()
+
                         case '_7ZIP' | '_Chromium' | '_Construct' | '_Flash':
                             self.proc = seven_zip.SevenZIP()
+
                         case '_Arx':
                             self.proc = arx_fatalis.PakExtractor()
-                        case '_Anvil':
-                            # TODO: Move to QuickBMS
-                            self.proc = qbms.Q_BMS()
-                            self.proc.script_name = '/data/scripts/scimitar.bms'
-                        case '_Asura':
-                            # TODO: Add functions to unpack other file types
-                            print(f'{localize.work_in_progress}...')
+
                         case '_Aurora':
 
                             if ext in ('erf', 'rim'):
                                 self.proc = aurora_engine.ERFUnpacker()
-                            elif ext == 'bif':
-                                self.proc = aurora_bif_key.BifKey()
-                            elif ext == 'key':
-                                # TODO: Нужно локализовать текст!!!
-                                custom_ui.CustomDialog(text='Select a BIF file!',
-                                                       style=self.setting["Main"]["theme"]).exec()
 
                             elif ext == 'dzip':
                                 # TODO: Need test!!!
@@ -158,7 +151,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Aurora Engine'))
 
-                        case '_Bethesda' | '_CelTop':
+                        case '_Bethesda':
 
                             match ext:
                                 case 'bsa':
@@ -181,13 +174,20 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     pass
                                 case 'pex':
                                     pass
-                                case '':
-                                    pass
-                                    # TODO: CEL\TOP creator
                                 case _:
 
-                                    if 'TEXBSI' in self.file_name:
+                                    if 'TEXBSI' in file_name:
                                         pass
+                                    elif 'TEXTURE' in file_name:
+                                        name = os.path.basename(file_name).replace('.', '_')
+
+                                        with open(file_name, 'rb') as tex:
+                                            tex.seek(218)
+                                            tex_data = tex.read()
+                                            x = int(numpy.sqrt(len(tex_data))/2)
+
+                                        bmp_save(x, x, 16, os.path.join(self.out_dir, name), tex_data)
+
                                     else:
                                         print(localize.not_correct_file.replace('%%', 'Bethesda Game'))
 
@@ -211,6 +211,9 @@ class UnpackerMain(MainWindow, QuickOpen):
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Build Engine'))
 
+                        case '_CelTop':
+                            print(f'{localize.work_in_progress}...')
+
                         case '_Chrome':
 
                             if ext in ("csb", "spb"):
@@ -230,24 +233,34 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_CryEngine':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+
                         case '_ExoPlanet':
                             self.proc = celestia.Celestia()
                             # TODO: Add Space Engine support
+
                         case '_FrostBite':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+
                         case '_Gamemaker':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+
                         case '_GAUP':
                             self.proc = qbms.Q_BMS()
                             self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+
                         case '_Glacier':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+
                         case '_Godot':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+
+                        case '_Infinity':
+                            self.proc = infinity_bif_key.BifKey()
+
                         case '_idTech':
 
                             if ext == 'wad':
@@ -301,6 +314,12 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_RenPy':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
+                        case '_Resident4':
+
+                            match ext:
+                                case 'argb':
+                                    self.proc = simple_image.ARGB2BMP()
+
                         case '_RPGMaker':
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')

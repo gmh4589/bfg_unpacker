@@ -141,7 +141,7 @@ class PhyreSave(Reaper):
                 dds = DDSCreator()
                 dds.dds_save(x, y, p, name, image_data)
             elif file_type == 'png' or file_type == 'gxt_png':
-                image_tools.png_save(x, y, p, name, image_data)
+                Image.frombytes(p.decode('utf-8')[:-1], (y, x), data).save(f'{name}.png')
             elif file_type == 'gxt':
                 image_tools.gxt_save(name, image_data)
 

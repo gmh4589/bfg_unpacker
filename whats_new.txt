@@ -1,4 +1,19 @@
 
+August 22, 2024
+
+ - List of manu "Archives", "Disc images" and "Game Engines" now create via database
+ - All old CSV tables was deleted from the program
+ - Now for unpacking files from games on Infinity Engine, you can select BIF or KEY files
+ - Separated function for Scimitar and Asura Engines was deleted
+ - Game base was updated
+
+August 21, 2024
+
+ - Added support to unpack archives from games by Remedy (Alan Wake, Alan Wakes American Nightmare, Quantum Break, Control)
+ - Fixed unpacking rarely compression methods in ZIP archives
+ - In function for BSA archives unpacking added support Nehrim, Enderal, Enreral SE, TES IV: Knights of the Nine
+ - Added support to unpack of the file ARCH3D.BSA from TES II: Daggerfall
+ - Game base was updated
 
 August 12, 2024
 

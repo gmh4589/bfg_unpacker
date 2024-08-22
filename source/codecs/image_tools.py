@@ -1,5 +1,4 @@
 import os
-from PIL import Image
 
 
 def bmp_save(x, y, b, name, image_data):
@@ -12,11 +11,6 @@ def bmp_save(x, y, b, name, image_data):
                        b.to_bytes(2, byteorder='little') + b'\x00\x00\x00\x00' +
                        len(image_data).to_bytes(4, byteorder='little') + (b'\x00' * 16) +
                        image_data)
-
-
-def png_save(x, y, codec, name, data):
-    codec = codec.decode('utf-8')[:-1]
-    Image.frombytes(codec, (y, x), data).save(f'{name}.png')
 
 
 def gxt_save(name, data):

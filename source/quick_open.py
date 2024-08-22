@@ -74,6 +74,9 @@ class QuickOpen(QProcessList):
                     self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\shadowofmordor.bms"
 
+                elif ext == "argb":
+                    self.proc = simple_image.ARGB2BMP()
+
                 elif ext == "ark":
                     # TODO: Add ARK, FreeARK archive and other
 
@@ -132,7 +135,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\BFP.bms"
 
                 elif ext in ("bif", "key"):
-                    self.proc = aurora_bif_key.BifKey()
+                    self.proc = infinity_bif_key.BifKey()
 
                 elif ext in ("big",):
                     # TODO: Lost: Via Domus, add from GAUP

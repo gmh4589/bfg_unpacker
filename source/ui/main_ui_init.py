@@ -7,6 +7,7 @@ from threading import Thread
 
 # import ffmpeg
 import pandas
+import sqlalchemy
 
 from PyQt6.QtCore import Qt, QItemSelectionModel
 from PyQt6.QtGui import QStandardItem, QIcon
@@ -215,23 +216,23 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 f'{translate.all_files} (*.*)', directory=self.setting['Main']['last_dir'])[0]))
             case 'C': btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
             case 'D': btn.clicked.connect(lambda: self.create_queue(func_name='_GAUP'))
-            case 'E': btn.clicked.connect(lambda: print('innosetup'))
+            case 'E': btn.clicked.connect(lambda: print('innosetup'))  # TODO: add support innosetup
             case 'F': btn.clicked.connect(self.ffmpeg_video)
             case 'G': btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_Unreal'], func_name='_Unreal'))
             case 'H': btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
             case 'I': btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
             case 'J': btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
             case 'K': btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
-            case 'L': btn.clicked.connect(lambda: print('cry engine'))
+            case 'L': btn.clicked.connect(lambda: print('cry engine'))  # TODO: add support cry engine
             case 'M': btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
             case 'N': btn.clicked.connect(self.wwise_tools)
             case 'O': btn.clicked.connect(self.ps_audio_tools)
             case 'P': btn.clicked.connect(self.nConvert)
-            case 'Q': btn.clicked.connect(lambda: print('red engine'))
-            case 'R': btn.clicked.connect(lambda: print('godot'))
-            case 'S': btn.clicked.connect(lambda: print('rpg maker'))
-            case 'T': btn.clicked.connect(lambda: print('renpy'))
-            case 'U': btn.clicked.connect(lambda: print('unigen'))
+            case 'Q': btn.clicked.connect(lambda: print('red engine'))  # TODO: add support red engine
+            case 'R': btn.clicked.connect(lambda: print('godot'))  # TODO: add support godot
+            case 'S': btn.clicked.connect(lambda: print('rpg maker'))  # TODO: add support rpg maker
+            case 'T': btn.clicked.connect(lambda: print('renpy'))  # TODO: add support renpy
+            case 'U': btn.clicked.connect(lambda: print('unigen'))  # TODO: add support unigen
             case 'V': btn.clicked.connect(self.raw2dds)
             case 'W': btn.clicked.connect(self.raw2atrac)
             case 'X': btn.clicked.connect(self.raw2wav)
@@ -315,12 +316,19 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
     # Наполняет списком меню "Архивы", "Образы дисков" и "Игровые Движки".
     def archive_list_create(self):
-        archivesList = pandas.read_csv('./game_list/archives_list.csv', delimiter='\t')
-        archivesList = archivesList.sort_values(by='Archives Name', key=lambda x: x.str.lower()).reset_index(drop=True)
+
+        engine = sqlalchemy.create_engine("sqlite:///game_base.db")
+
+        with engine.connect() as conn:
+            metadata = sqlalchemy.MetaData()
+            archives_list = sqlalchemy.Table('archives_list', metadata, autoload_with=engine)
+            table = sqlalchemy.Table(archives_list, metadata, autoload_with=engine)
+            query = sqlalchemy.select(table)
+            archivesList = pandas.read_sql_query(query, conn)
 
         if self.setting['Main']['group_arch'] == '2':
-            abc = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
-                               if archivesList['Index'][n] not in (3, 5, 4) and archivesList['Archives Name'][n][0]
+            abc = sorted(list({archivesList['ArchivesName'][n][0].upper() for n in range(len(archivesList))
+                               if archivesList['Index'][n] not in (3, 5, 4) and archivesList['ArchivesName'][n][0]
                                not in '0123456789'}), key=lambda x: x)
             self.archive_list = {'0-9': self.menu_archives.addMenu('0-9')}
 
@@ -328,8 +336,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 self.archive_list[liter] = self.menu_archives.addMenu(liter)
 
         if self.setting['Main']['group_ge'] == '2':
-            abc2 = sorted(list({archivesList['Archives Name'][n][0].upper() for n in range(len(archivesList))
-                                if archivesList['Index'][n] == 4 and archivesList['Archives Name'][n][0]
+            abc2 = sorted(list({archivesList['ArchivesName'][n][0].upper() for n in range(len(archivesList))
+                                if archivesList['Index'][n] == 4 and archivesList['ArchivesName'][n][0]
                                 not in '0123456789'}), key=lambda x: x)
             self.engine_list = {'0-9': self.menu_game_engines.addMenu('0-9')}
 
@@ -339,34 +347,34 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         for n in range(len(archivesList)):
 
             if archivesList['Index'][n] == 3:
-                self.menu_disk_images.addAction(archivesList['Archives Name'][n])
+                self.menu_disk_images.addAction(archivesList['ArchivesName'][n])
             elif archivesList['Index'][n] == 4:
 
                 if self.setting['Main']['group_ge'] == '2':
-                    liter = archivesList['Archives Name'][n][0].upper()
+                    liter = archivesList['ArchivesName'][n][0].upper()
 
                     if liter in '0123456789':
-                        self.engine_list['0-9'].addAction(archivesList['Archives Name'][n])
+                        self.engine_list['0-9'].addAction(archivesList['ArchivesName'][n])
                     else:
-                        self.engine_list[liter].addAction(archivesList['Archives Name'][n])
+                        self.engine_list[liter].addAction(archivesList['ArchivesName'][n])
 
                 else:
-                    self.menu_game_engines.addAction(archivesList['Archives Name'][n])
+                    self.menu_game_engines.addAction(archivesList['ArchivesName'][n])
 
             elif archivesList['Index'][n] == 5:
-                self.menu_installers.addAction(archivesList['Archives Name'][n])
+                self.menu_installers.addAction(archivesList['ArchivesName'][n])
             else:
 
                 if self.setting['Main']['group_arch'] == '2':
-                    liter = archivesList['Archives Name'][n][0].upper()
+                    liter = archivesList['ArchivesName'][n][0].upper()
 
                     if liter in '0123456789':
-                        self.archive_list['0-9'].addAction(archivesList['Archives Name'][n])
+                        self.archive_list['0-9'].addAction(archivesList['ArchivesName'][n])
                     else:
-                        self.archive_list[liter].addAction(archivesList['Archives Name'][n])
+                        self.archive_list[liter].addAction(archivesList['ArchivesName'][n])
 
                 else:
-                    self.menu_archives.addAction(archivesList['Archives Name'][n])
+                    self.menu_archives.addAction(archivesList['ArchivesName'][n])
 
     def flc(self, items):
         self.comboBox_gameList.items = items

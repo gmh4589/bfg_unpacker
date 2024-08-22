@@ -27,11 +27,9 @@ class BethesdaArchive(Reaper):
                 return
 
             version = int.from_bytes(bsa_file.read(4), byteorder="little")
-
             step = 4 if version == 105 else 0
             folder_list_start = int.from_bytes(bsa_file.read(4), byteorder="little")
             flags = int.from_bytes(bsa_file.read(4), byteorder="little")
-
             directory_names = bool(flags & 0x1)
             file_names = bool(flags & 0x2)
             compressed = bool(flags & 0x4)
@@ -216,7 +214,6 @@ class OldBSA(Reaper):
 
                 with open(os.path.join(self.output_folder, f"{name}"), 'wb') as nf:
                     nf.write(data)
-
 
         self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
 
