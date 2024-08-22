@@ -141,7 +141,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_Aurora':
 
                             if ext in ('erf', 'rim'):
-                                self.proc = aurora_engine.ERFUnpacker()
+                                self.proc = a.ERFUnpacker()
 
                             elif ext == 'dzip':
                                 # TODO: Need test!!!

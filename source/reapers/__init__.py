@@ -1,5 +1,5 @@
 
-from source.reapers import (afs, arx_fatalis,
+from source.reapers import (afs, arx_fatalis, aurora_engine,
                             ba2_archives, bsa_archives,
                             celestia, chrome_engine,
                             doom_wad,
