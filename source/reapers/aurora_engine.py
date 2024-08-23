@@ -70,9 +70,7 @@ class ERFUnpacker(Reaper):
                             newFile.write(data)
 
                         f.seek(c, 0)
-                        print(f"{j}/{file_count} {fName}")
-                        self.update_signal.emit(int(100 / file_count * (j + 1)), f'{j + 1}/{file_count}',
-                                                f'{localize.saving} - {fName}...', False)
+                        self.update_pb(file_count, j, fName)
 
                 elif magic == b'RIM ':
 
@@ -91,10 +89,7 @@ class ERFUnpacker(Reaper):
                             iNewFile.write(data)
 
                         f.seek(c)
-                        print(f"{i + 1}/{file_count} {rName}")
-                        ic(rName)
-                        self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
-                                                f'{localize.saving} - {rName}...', False)
+                        self.update_pb(file_count, i, rName)
 
             elif ver == b'V2.0':  # Version 2
                 f.seek(16, 0)
@@ -113,10 +108,7 @@ class ERFUnpacker(Reaper):
                         iNewFile.write(data)
 
                     f.seek(c)
-                    print(f"{i + 1}/{file_count} {rName}")
-                    ic(rName)
-                    self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
-                                            f'{localize.saving} - {rName}...', False)
+                    self.update_pb(file_count, i, rName)
 
             elif ver == b'V3.0':  # Version 3
                 # TODO: Need Tests!!!
@@ -165,11 +157,8 @@ class ERFUnpacker(Reaper):
                         file_out.write(write_data)
 
                     f.seek(this)
-                    print(f"{i + 1}/{file_count} {name}")
-                    self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i + 1}/{file_count}',
-                                            f'{localize.saving} - {name}...', False)
+                    self.update_pb(file_count, i, name)
 
             else:
                 print(localize.not_correct_file.replace('%%', 'BioWare Engines'))
 
-            self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

@@ -86,8 +86,4 @@ class QPAKExtractor(Reaper):
                         pak_file.seek(offset)
                         new_file.write(pak_file.read(size))
 
-                    print(f"{i}/{len(file_list)} {name}")
-                    self.update_signal.emit(int(100 / len(file_list) * i), f'{i}/{len(file_list)}',
-                                            f'{localize.saving} - {name}...', False)
-
-        self.update_signal.emit(100, f'{len(file_list)}/{len(file_list)}', localize.done, True)
+                    self.update_pb(len(file_list), i, name)

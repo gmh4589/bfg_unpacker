@@ -19,18 +19,13 @@ class VPKExtractor(Reaper):
         file_count = len(dir_pak)
 
         for name in dir_pak:
-            i += 1
             pak_file = dir_pak.get_file(name)
             path = os.path.join(self.output_folder, name)
             ic(path)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             pak_file.save(path)
-
-            print(f'{i}/{file_count}: {localize.saving} - {name}...')
-            self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
-                                    f'{localize.saving} - {name}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+            self.update_pb(file_count, i, name)
+            i += 1
 
 
 class VPKPacker(Reaper):

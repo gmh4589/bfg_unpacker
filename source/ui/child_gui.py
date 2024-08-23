@@ -21,7 +21,7 @@ class ChildUIWindow(QDialog):
         super().__init__()
 
         self.setting = configparser.ConfigParser()
-        self.setting.read('./setting.ini')
+        self.setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
         apply_stylesheet(self, theme=f'{style}.xml')
         self.style = style
         self.setWindowTitle(gui_name)

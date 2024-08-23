@@ -145,9 +145,7 @@ class PhyreSave(Reaper):
             elif file_type == 'gxt':
                 image_tools.gxt_save(name, image_data)
 
-            print(f'{localize.saving} - {name}.{file_type}')
-            ic(name, file_type)
-            self.update_signal.emit(100, '', localize.done, True)
+            self.update_pb(1, 0, name)
 
     def phyre_save(self):
         ext = self.file_name.split('.')[-1]

@@ -48,12 +48,7 @@ class SenBook(Reaper):
             with open(newFile, 'wb') as file:
                 file.write(data)
 
-            print(f'{j + 1}/{file_count} - {newFile}_{j}')
-            ic(newFile, j)
-            self.update_signal.emit(int(100 / file_count * (j + 1)), f'{j + 1}/{file_count}',
-                                    f'{localize.saving} - {newFile}_{j}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+            self.update_pb(file_count, j, newFile)
 
 
 class SenBookSave(Reaper):
@@ -96,14 +91,18 @@ class SenBookSave(Reaper):
 
             f.write(list1 + b'\x00')
 
-            for file in fileList:
+            for i, file in enumerate(fileList):
+
                 with open(self.file_name + '/' + file, 'rb') as readF:
                     readData = readF.read()
+
                 f.write(readData)
+                self.update_pb(len(fileList), i, file)
 
-            print(f'{localize.saving} - {j + 1}/{contOff}')
-            ic(localize.saving)
-            self.update_signal.emit(int(100 / contOff * (j + 1)), f'{j + 1}/{contOff}',
-                                    f'{localize.saving} - {j + 1}/{contOff}...', False)
 
-        self.update_signal.emit(100, f'{contOff}/{contOff}', localize.done, True)
+        #     print(f'{localize.saving} - {j + 1}/{contOff}')
+        #     ic(localize.saving)
+        #     self.update_signal.emit(int(100 / contOff * (j + 1)), f'{j + 1}/{contOff}',
+        #                             f'{localize.saving} - {j + 1}/{contOff}...', False)
+        #
+        # self.update_signal.emit(100, f'{contOff}/{contOff}', localize.done, True)

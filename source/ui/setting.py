@@ -1,3 +1,5 @@
+import os
+
 import pandas
 import sqlalchemy
 from PyQt6.QtCore import QRect, QMetaObject, QCoreApplication
@@ -16,7 +18,7 @@ class SettingWindow(QDialog):
         super().__init__()
         apply_stylesheet(self, theme=f'{style}.xml')
         self.setting = configparser.ConfigParser()
-        self.setting.read('./setting.ini')
+        self.setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
         engine = sqlalchemy.create_engine("sqlite:///game_base.db")
 
@@ -151,7 +153,7 @@ class SettingWindow(QDialog):
             self.setting.set('Main', 'out_path', out_path)
             self.setting.set('Main', 'last_dir', out_path)
 
-            with open('./setting.ini', "w") as config_file:
+            with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
                 self.setting.write(config_file)
 
     def apply_setting(self, style):
@@ -167,7 +169,7 @@ class SettingWindow(QDialog):
         self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
         self.setting.set('Main', 'theme', style)
 
-        with open('./setting.ini', "w") as config_file:
+        with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
             self.setting.write(config_file)
 
         self.cancel_button.setText(translate.close)

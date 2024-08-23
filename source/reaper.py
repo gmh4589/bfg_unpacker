@@ -62,6 +62,15 @@ class Reaper(QThread, Setting):
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
 
+    def update_pb(self, file_count, current_file, file_name):
+        ic(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
+        print(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
+
+        self.update_signal.emit(int(100 / file_count * current_file),
+                                f'{current_file + 1}/{file_count}',
+                                f'{localize.saving} - {file_name}...',
+                                True if current_file + 1 == file_count else False)
+
     @abstractmethod
     def run(self):
         pass
@@ -147,11 +156,11 @@ after_dot = {'_Asura':
                  "ERF Files (*.erf)|BIF Files (*.bif)|RIM Files (*.rim)|DZIP files (*.dzip)|",
              '_Bethesda':
                  'All Bethesda Game Files (*.bsa; *.ba2; *.esp; *.esm; *.esl; *.esx; *.snd; *.pex; '
-                 'TEXBSI.*;*.omod;*.fomod; *.mnf)|Bethesda Softwork Archives (*.bsa; *.ba2)|'
+                 'TEXBSI.*; TEXTURE.*; *.omod; *.fomod; *.mnf)|Bethesda Softwork Archives (*.bsa; *.ba2)|'
                  'Plugin and master files (*.esp; *.esm; *.esl)|Decompressed plugin files (*.esx)|'
-                 'TESO Data files (*.mnf)|Daggerfall sound archives (*.snd)|'
-                 'Compiled Papyrus Scripts (*.pex)|Redgaurd Textures Archives (texbsi.*)|'
-                 'Nexus Mod Files (*.omod;*.fomod)|Textures Archives (*textures*)|'
+                 'TESO Data files (*.mnf)|SND sound archives (*.snd)|'
+                 'Compiled Papyrus Scripts (*.pex)|Redgaurd Textures (texbsi.*)|Arena Textures (texture.*)|'
+                 'Nexus Mod Files (*.omod; *.fomod)|Textures Archives (*textures*)|'
                  'Meshes Archives (*mesh*)|Audio Archives (*audio*; *sound*; *voice*)|'
                  'Scripts Archives (*misc*; *script*)|Main Archives (*main*)|'
                  'Animations Archives (*animation*)|',
@@ -162,7 +171,7 @@ after_dot = {'_Asura':
              '_Chromium':
                  'PAK Files (*.pak)|',
              '_Construct':
-                 'Construct Engine Files (*.exe;*.dll;;*.pak)|',
+                 'Construct Engine Files (*.exe; *.dll; *.pak)|',
              '_CryEngine':
                  'PAK Files (*.pak)|',
              '_Flash':

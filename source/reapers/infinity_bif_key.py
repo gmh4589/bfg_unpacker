@@ -49,8 +49,4 @@ class BifKey(Reaper):
                         new_file.write(dat)
 
                 file.seek(here + 4)
-                print(f'{i}/{file_count}: {localize.saving} - {i}.{ext}...')
-                self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
-                                        f'{localize.saving} - {i}.{ext}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+                self.update_pb(file_count, i, f"{i}.{ext}")

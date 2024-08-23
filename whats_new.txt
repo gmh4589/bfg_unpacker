@@ -1,4 +1,14 @@
 
+August 23, 2024
+
+ - Added support SND files from TES II: Daggerfall and AES Legend Battlespire
+ - Transferring data to the progress bar when processing files and displaying messages and logs now works through a separate method
+ - The settings file now save into the folder C:\Users\%user_name%\AppData\Roaming\bfg_unpacker
+ - Fixed crush after change buttons in upper menu
+ - Fixed None folder creation into program root, in which saved unpacked files after first run
+ - Added option to restore broken settings to default after errors
+ - Game base was updated
+
 August 22, 2024
 
  - List of manu "Archives", "Disc images" and "Game Engines" now create via database

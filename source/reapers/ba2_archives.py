@@ -184,9 +184,4 @@ class BethesdaArchive(Reaper):
                     with open(full_path, 'wb') as new_file:
                         new_file.write(data)
 
-                ic(file.name)
-                print(f'{k + 1}/{file_count}: {localize.saving} - {file.name}...')
-                self.update_signal.emit(int(100 / file_count * k), f'{k + 1}/{file_count}',
-                                        f'{localize.saving} - {file.name}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+                self.update_pb(file_count, k, file.name)

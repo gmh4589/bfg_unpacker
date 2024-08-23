@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         else:
             self.setting.set(section, key, value)
 
-        with open('./setting.ini', "w") as cf:
+        with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as cf:
             self.setting.write(cf)
 
     def append_text(self, text):
@@ -241,7 +241,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
-        self.setting.read('./setting.ini')
+        self.setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
         alpha = ['A']
 
         for j in range(1, 13):

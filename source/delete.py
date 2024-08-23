@@ -12,7 +12,7 @@ class DeleteThread(Reaper):
     @file_reaper
     def run(self):
         setting = configparser.ConfigParser()
-        setting.read('./setting.ini')
+        setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
         of = setting['Main']['out_path']
         not_deleted = []
         deleting_list = os.listdir(of)

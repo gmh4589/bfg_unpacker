@@ -1,10 +1,12 @@
 import configparser
+import os
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import *
 from qt_material import apply_stylesheet
 
 from source.ui import localize
+from source.ui.custom_ui import CustomDialog
 
 
 class CBWindow(QDialog):
@@ -49,29 +51,20 @@ class CBWindow(QDialog):
     def add_button(self, btn, number, letter):
         btn.clicked.connect(lambda *args, n=str(number), l=int(letter): self.save_button(n, l))
 
-    def show_message_box(self, text):
-        message_box = QMessageBox()
-        message_box.setWindowTitle(localize.message)
-        message_box.setText(f'{text}')
-        message_box.setIcon(QMessageBox.Information)
-        message_box.setStandardButtons(QMessageBox.Ok)
-        apply_stylesheet(message_box, theme=f'{self.style}.xml')
-        message_box.exec()
-
     def save_button(self, a, num):
 
         if a != '✖':
             setting = configparser.ConfigParser()
-            setting.read('./setting.ini')
+            setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
             buttons = [button for button in setting['Buttons'].values()]
 
             if a in buttons:
-                self.show_message_box(localize.has_already_been)
+                CustomDialog(text=f'{localize.has_already_been}').exec()
             else:
-                self.show_message_box(localize.successfully)
+                CustomDialog(text=f'{localize.successfully}').exec()
                 setting.set('Buttons', str(num), str(a))
 
-                with open('./setting.ini', "w") as config_file:
+                with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
                     setting.write(config_file)
         else:
             self.close()

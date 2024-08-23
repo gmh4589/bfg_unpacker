@@ -41,9 +41,4 @@ class WadExtractor(Reaper):
 
                 wad_file.seek(this_offset)
 
-                print(f"{i + 1}/{num_entries} {entry_name}")
-                ic(entry_name)
-                self.update_signal.emit(int(100 / num_entries * (i + 1)), f'{i + 1}/{num_entries}',
-                                        f'{localize.saving} - {entry_name}...', False)
-
-            self.update_signal.emit(100, f'{num_entries}/{num_entries}', localize.done, True)
+                self.update_pb(num_entries, i, entry_name)

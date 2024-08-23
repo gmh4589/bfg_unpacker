@@ -1,7 +1,6 @@
 import os
 from collections import namedtuple, Counter
 from io import BytesIO
-from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize

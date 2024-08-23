@@ -100,12 +100,8 @@ class Remedy(Reaper):
                 rmdp_data.seek(data_file.offset)
                 data = rmdp_data.read(data_file.size)
                 os.makedirs(os.path.dirname(data_file.name), exist_ok=True)
-                print(f'{i + 1}/{files_count}', f'{localize.saving} - {data_file.name}...')
-                ic(f'{i + 1}/{files_count}', f'{localize.saving} - {data_file.name}...')
-                self.update_signal.emit(int(100 / files_count * (i + 1)), f'{i + 1}/{files_count}',
-                                        f'{localize.saving} - {data_file.name}...', False)
 
                 with open(data_file.name, "wb") as nf:
                     nf.write(data)
 
-        self.update_signal.emit(100, f'{files_count}/{files_count}', localize.done, True)
+                self.update_pb(files_count, i, data_file.name)

@@ -50,11 +50,4 @@ class ARCExtractor(Reaper):
                     self.unzip(path, c_num, get_ext=True)
 
                 arc_file.seek(here)
-                ic(name)
-
-                print(f"{i + 1}/{file_count} {name}")
-                self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i}/{file_count}',
-                                        f'{localize.saving} - {name}...', False)
-
-        # os.remove(f"{self.output_folder}/ZLIB.dmp")
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+                self.update_pb(file_count, i, name)

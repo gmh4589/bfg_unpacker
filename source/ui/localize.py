@@ -5,8 +5,8 @@ import locale
 
 setting = configparser.ConfigParser()
 
-if os.path.exists('./setting.ini'):
-    setting.read('./setting.ini')
+if os.path.exists(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'):
+    setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
     lang = setting['Main']['lang']
 else:
     lang = locale.getdefaultlocale()[0].split('_')[0]

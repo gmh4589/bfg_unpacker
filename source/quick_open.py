@@ -17,6 +17,7 @@ class QuickOpen(QProcessList):
               'Попробуйте выбрать игру или тип файла вручную!')
 
     def find_reaper(self):
+        self.proc = qbms.Q_BMS()
 
         if self.file_list:
             fn = self.file_list.pop(0)
@@ -37,7 +38,6 @@ class QuickOpen(QProcessList):
                     self.proc = zip_archive.Zip()
 
                 elif ext == "aes":
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\coalescedaes.bms"
 
                 elif ext == "afs":
@@ -49,29 +49,24 @@ class QuickOpen(QProcessList):
 
                 # Check on UnArk support archive
                 elif ext in ("alz", "egg", "bh",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data\\wcx\\UnArkWCX.wcx'
 
                 elif ext in ("ara",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\batmanara.bms"
 
                 elif ext == "arc":
                     # TODO: The Incredible Hulk (2008)
 
                     if magic == b'ARC\x00':  # MT Framework
-                        # self.proc = qbms.Q_BMS()
                         # self.proc.script_name = "data\\scripts\\dmc4.bms"
                         self.proc = mt_arc.ARCExtractor()
                     else:
                         self.sorry()
 
                 elif ext in ("arcv",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\3dsarcv.bms"
 
                 elif ext in ("arch06",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\shadowofmordor.bms"
 
                 elif ext == "argb":
@@ -86,7 +81,6 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("arz",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\ironlorearz.bms"
 
                 # Check on Asura Engine game
@@ -98,40 +92,31 @@ class QuickOpen(QProcessList):
                     self.proc = unity.Unity()
 
                 elif ext in ("atd",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\ATD.bms"
 
                 elif ext in ("atg", "rcf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\atgcorecement.bms"
 
                 elif ext in ("azp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CloseCombat4AZP.bms"
 
                 elif ext in ("bcc",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\bccpsp.bms"
 
                 # Check on Dark Souls Engine game
                 elif ext in ("bdt", "bhd5",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\darksoul.bms"
 
                 elif ext in ("bf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\BF.bms"
 
                 elif ext in ("bfg",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\bigfishgames81.bms"
 
                 elif ext in ("bfl",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\ColinMcRaeRallyBFL.bms"
 
                 elif ext in ("bfp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\BFP.bms"
 
                 elif ext in ("bif", "key"):
@@ -155,7 +140,6 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("bkf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\bitsquidstreams.bms"
 
                 elif ext in ("blz",):
@@ -165,29 +149,24 @@ class QuickOpen(QProcessList):
                     self.proc.program_name = "blzpack.exe"
 
                 elif ext in ("bmb",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\privatedancerbmb.bms"
 
                 # Check on Wwise Audio
                 elif ext in ("bnk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\wwisebnk.bms"
 
                 elif ext in ("box",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\BOXLEMBOX.bms"
 
                 elif ext == "bundle":
                     # TODO: Red Engine (The Witcher 3), PayDay 2, Bionic Commando
 
                     if magic == b'POTA':  # The Witcher 3
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\Witcher3.bms"
                     else:
                         self.sorry()
 
                 elif ext in ("car",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CAR.bms"
 
                 elif ext in ("cat",):
@@ -199,16 +178,13 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("cfs",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\c9.bms"
 
                 elif ext in ("cgr",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\criticaldamage.bms"
 
                 # Check on Java class file
                 elif ext in ("class",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "\\data\\wcx\\JavaClassUnpacker.wcx"
 
                 elif ext in ("cmp",):  # TODO: Add from GAUP
@@ -218,7 +194,6 @@ class QuickOpen(QProcessList):
                     self.proc.program_name = "ddcmpa.exe"
 
                 elif ext in ("cnt",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CNTHiddenAndDangerous.bms"
 
                 elif ext == "coalesced":
@@ -230,20 +205,16 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("cpr",):  # TODO: Add from GAUP
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\coyoteconsole.bms"
 
                 elif ext in ("cps",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\kofxiiicps.bms"
 
                 elif ext in ("csa",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CSAGEEK.bms"
 
                 # Check on Chrome Engine game
                 elif ext in ("csb", "spb"):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data/scripts/dying_light.bms'
 
                 elif ext in ("csc",):
@@ -253,29 +224,23 @@ class QuickOpen(QProcessList):
                     self.proc.program_name = "scsextractor.exe"
 
                 elif ext in ("ctpk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\3dsarcv.bms"
 
                 elif ext in ("cxt",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CXTXFIR.bms"
 
                 elif ext in ("cub",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\enigmatis.bms"
 
                 elif ext in ("dag",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\DAGPKR3.bms"
 
                 elif ext == "dat":
                     # TODO: A Engine, Learning Company Games, Moto Racer 3, Dirt 5
 
                     if magic == b'GCAX':  # GCA Archive
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\wcx\\gca.wcx"
                     elif magic == b'ADAT':  # Anachronox
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\anachronox.bms"
                     elif magic == b'\x20\x00\x00\x00':  # TLOH
                         # TODO: Try how it's be work in the game TLOH
@@ -284,7 +249,6 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("data", "mini", "wd2"):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\asphyre.bms"
 
                 # Check on DGC archive
@@ -303,35 +267,27 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("dfl",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\drivingsimulator.bms"
 
                 elif ext in ("dlz",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\heroesphantasiadlz.bms"
 
                 elif ext in ("dpk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\darkeden.bms"
 
                 elif ext in ("dr",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\DRShowdownLegendsOfWrestling.bms"
 
                 elif ext in ("drg",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\drg2sbg.bms"
 
                 elif ext in ("drs",):  # TODO: Add from GAUP
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\DRS.bms"
 
                 elif ext in ("dv2",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\dv2.bms"
 
                 elif ext in ("dz",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\vector.bms"
 
                 # Check on Aurora Engine game
@@ -339,14 +295,12 @@ class QuickOpen(QProcessList):
                     self.proc = aurora_engine.ERFUnpacker()
 
                 elif ext in ("epc",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\doctorwho.bms"
 
                 elif ext in ("exo",):
                     print('TODO: Work in progress...')
 
                 elif ext in ("far",):  # TODO: Add from GAUP
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\djherofar.bms"
 
                 elif ext == "fat":
@@ -358,55 +312,43 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("flx",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CrusaderNoRemorseFLX.bms"
 
                 elif ext in ("fmf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\eafmf.bms"
 
                 # Check on Scimitar Engine game
                 elif ext in ("forge",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\scimitar.bms"
 
                 elif ext in ("frm",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\frmfonts.bms"
 
                 # Check on GCA archive
                 elif ext in ("gca",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "\\data\\wcx\\gca.wcx"
 
                 elif ext in ("gob",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\EACricket2004GOB.bms"
 
                 # Check on HA archive
                 elif ext in ("ha",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "\\data\\wcx\\HA.wcx"
 
                 elif ext in ("hal",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\HALAPUK.bms"
 
                 elif ext in ("hgpk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\10minspacestrategy.bms"
 
                 elif ext in ("hogg",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\hogg.bms"
 
                 elif ext in ("hpf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\HPFHMG.bms"
 
                 # Check on Hrust archive
                 elif ext in ("hrp", "hrip",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "\\data\\wcx\\inhrust.wcx"
 
                 elif ext == "img":
@@ -421,19 +363,15 @@ class QuickOpen(QProcessList):
                     print('TODO: Work in progress...')
 
                 elif ext in ("lgp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\FinalFantasy7LGP.bms"
 
                 elif ext in ("m4b",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\EscapeFromMonkeyIslandM4B.bms"
 
                 elif ext in ("mbx",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\HostileWatersMBX.bms"
 
                 elif ext in ("mfd",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\187rideordie.bms"
 
                 elif ext in ("mnf",):
@@ -443,15 +381,12 @@ class QuickOpen(QProcessList):
                     self.proc.program_name = "EsoExtractData.exe"
 
                 elif ext in ("mng",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\HostileWatersMNG.bms"
 
                 elif ext in ("mpk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\invizimals.bms"
 
                 elif ext in ("mse",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\3dsmax.bms"
 
                 elif ext in ("orc", "ork"):
@@ -461,7 +396,6 @@ class QuickOpen(QProcessList):
                     self.proc.program_name = "orkdec.exe"
 
                 elif ext in ("packed",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CastlevaniaLOS2.bms"
 
                 elif ext == "pac":
@@ -483,10 +417,8 @@ class QuickOpen(QProcessList):
                     elif magic == b'PACK':
 
                         if 'data.000.pak' in fn:  # 1242
-                            self.proc = qbms.Q_BMS()
                             self.proc.script_name = "data\\scripts\\1242.bms"
                         elif 'azangara' in fn.lower():  # Azangara
-                            self.proc = qbms.Q_BMS()
                             self.proc.script_name = "data\\scripts\\azangara.bms"
                         else:  # idTech 1+2
                             magic3 = int.from_bytes(magic3, 'little')
@@ -502,22 +434,16 @@ class QuickOpen(QProcessList):
                     elif magic == b'KPKA':  # RE Engine
                         pass
                     elif magic == b'SBPA':  # Arcania: Gothic 4
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\arcania.bms"
                     elif magic == b'PAK ':  # Risen
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\risen.bms"
                     elif magic == b'KCAP':
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\full_mojo.bms"
                     elif magic == b'TONG':
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\tongas.bms"
                     elif magic == b'PAK2':  # Alien: Isolation
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\alien_isolation.bms"
                     elif magic == b'PSCD':
-                        self.proc = qbms.Q_BMS()
                         self.proc.script_name = "data\\scripts\\sega_classics.bms"
 
                     elif magic == b'\x00' * 4:
@@ -529,7 +455,6 @@ class QuickOpen(QProcessList):
                         if head2 == b'\x00' * 4:  # Unreal Engine 4
                             self.proc = unreal.Unreal()
                         else:  # Alone in the Dark
-                            self.proc = qbms.Q_BMS()
                             self.proc.script_name = "data\\scripts\\alonedark.bms"
 
                     else:
@@ -547,11 +472,9 @@ class QuickOpen(QProcessList):
                     self.proc = phyre.PhyreSave()
 
                 elif ext in ("pig",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CityofHeroesPIG.bms"
 
                 elif ext in ("pix",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CloseCombat4PIX.bms"
 
                 elif ext == "pkg":
@@ -564,15 +487,12 @@ class QuickOpen(QProcessList):
                     #     self.sorry()
 
                 elif ext in ("pwf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\DeltaForceLandwarriorPWF.bms"
 
                 elif ext in ("rfa",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\battlefield2moderncombat.bms"
 
                 elif ext in ("rkv",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\rkv.bms"
 
                 elif ext in ('rmdp', 'packmeta'):
@@ -594,49 +514,39 @@ class QuickOpen(QProcessList):
                         print(f'{localize.work_in_progress}...')
 
                 elif ext in ("rpkg",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\hitman2016.bms"
 
                 elif ext in ("rsr",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\ImperialismIIRSR.bms"
 
                 elif ext in ("rzb",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\blur2rzb.bms"
 
                 elif ext in ("sab",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\justcause2sab.bms"
 
                 elif ext in ("scs",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\scsgames.bms"
 
                 elif ext in ("sh",):  # TODO: Add functions to unpack other file types
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\install4j.bms"
 
                 elif ext in ("shd",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\janeangel2.bms"
 
                 elif ext in ("sngw",):  # MT Framework Audio
                     print('TODO: Work in progress...')
 
                 elif ext in ("snd",):  # TODO: Add Daggerfall SND, SND from GAUP
-                    print('TODO: Work in progress...')
+                    self.proc = bsa_archives.DaggerSND()
 
                 elif ext in ("spf",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\jeannedarc.bms"
 
                 elif ext in ("ssp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\jasonstormspace.bms"
 
                 elif ext in ("stk", "itk",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\goblins.bms"
 
                 # Check on ShockWave Flash game
@@ -644,7 +554,6 @@ class QuickOpen(QProcessList):
                     print('TODO: Work in progress...')
 
                 elif ext in ("tab",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data\\scripts\\madmax.bms'
 
                 elif ext in ("tiger",):  # TODO: Add something else
@@ -674,14 +583,15 @@ class QuickOpen(QProcessList):
                     self.proc.map = '0'
 
                 elif ext in ("vce",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\HomeworldCataclysmVCE.bms"
+                
+                elif ext in ('vcpk',):
+                    self.proc.script_name = "data\\scripts\\fatal_frame.bms"                    
 
                 elif ext in ("vfs",):
                     self.proc = pathologic.MorUnpacker()
 
                 elif ext in ("voc",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\Lemmings2(VOC)VOC.bms"
 
                 elif ext in ("vpk", ):
@@ -692,27 +602,21 @@ class QuickOpen(QProcessList):
                     print('TODO: Work in progress...')
 
                 elif ext in ("wfp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\bloodyroar3wfp.bms"
 
                 elif ext in ("wrs",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\gamestudio.bms"
 
                 elif ext in ("xbp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\blitzgamesxbp.bms"
 
                 elif ext in ("xcd",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\darknessxcd.bms"
 
                 elif ext in ("xma",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\xma2wav.bms"
 
                 elif ext in ("xnb",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\xnb.bms"
 
                 elif ext == "xxx":
@@ -733,14 +637,12 @@ class QuickOpen(QProcessList):
                         self.sorry()
 
                 elif ext in ("zfs",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\CallToPower2ZFS.bms"
 
                 elif ext in ("zpl",):
                     self.proc = zpl2png.ZPL2PNG()
 
                 elif ext in ("zwp",):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = "data\\scripts\\DarkReign2ZWP.bms"
 
                 # Check on Bethesda game
@@ -753,7 +655,6 @@ class QuickOpen(QProcessList):
                         self.proc = bsa_archives.MorrowindBSA()
                     else:
                         self.proc = bsa_archives.OldBSA()
-                        # self.proc = qbms.Q_BMS()
                         # self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
                 elif ext in ('esl', 'esm', 'esp', 'esx', 'pex'):
                     # TODO: Add functions to unpack other file types
@@ -778,7 +679,6 @@ class QuickOpen(QProcessList):
                              'vtf', 'wd', 'wdt', 'wep', 'whd', 'wtn', 'xcr', 'xfs', 'xmb', 'xpk', 'xti', 'xwb'):
                     # TODO: Check NIF from here and maybe add NIF model from other game, check PAL, check PCK,
                     #  check RAW, check RES, check REZ, check VID and maybe add selector for video and VID from  here
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
 
                 # Check on idTech Engine game
@@ -799,7 +699,6 @@ class QuickOpen(QProcessList):
                 # Check on extension in Total Observer list
                 elif ext in ('s2ma', 'sc2', 'bsp', 'cache', 'etc', 'gcf', 'hdr', 'mim', 'mime', 'mpq', 'mpqe', 'msm',
                              'pbb', 'pst', 'udf', 'vbsp', 'vp', 'xzp'):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data\\wcx\\TotalObserver.wcx'
 
                 # Check on extension in SAU list
@@ -833,7 +732,6 @@ class QuickOpen(QProcessList):
 
                 # Check on X-Ray Engine game
                 elif ext in ('db0', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9'):
-                    self.proc = qbms.Q_BMS()
                     self.proc.script_name = 'data\\wcx\\stalker.wcx'
 
                 else:

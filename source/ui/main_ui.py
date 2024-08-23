@@ -356,9 +356,11 @@ class Ui_BFGUnpacker(Translate):
         self.download = True
         self.current_game = 0
         self.last_run = None
-        self.out_dir = self.setting['Main']['out_path'] if os.path.exists(self.setting['Main']['out_path']) else (
-            self.set_setting('Main', 'out_path',
-                             QFileDialog.getExistingDirectory(self, 'Select folder')))
+        self.out_dir = self.setting['Main']['out_path']
+
+        if not os.path.exists(self.out_dir) or self.out_dir == 'None':
+            self.out_dir = QFileDialog.getExistingDirectory(self, 'Select folder')
+            self.set_setting('Main', 'out_path', self.out_dir)
 
         self.pb = custom_ui.ProgressBar(self.setting["Main"]["theme"])
 

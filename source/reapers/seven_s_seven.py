@@ -51,10 +51,7 @@ class Seven(Reaper):
 
                 with open(path, 'wb') as newFile:
                     newFile.write(Data)
-                    print(f'{i}/{file_count} - {name}')
-                    ic(name)
-                    self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
-                                            f'{localize.saving} - {name}...', False)
+
+                self.update_pb(file_count, i, name)
 
         os.remove('./temp.dat')
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)

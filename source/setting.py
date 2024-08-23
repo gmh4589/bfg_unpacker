@@ -1,32 +1,70 @@
 import os
 import configparser
 import locale
-# from tkinter.filedialog import askdirectory
-# from icecream import ic
 
 
 class Setting:
-
+    setting_path = os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'
+    lng = locale.getdefaultlocale()[0].split('_')[0]
+    os.makedirs(os.path.dirname(setting_path), exist_ok=True)
     setting = configparser.ConfigParser()
-    # ic(locale.getlocale())
-    # ic(locale.getdefaultlocale()[0].split('_')[0])
-    # ic(locale.getdefaultlocale())
 
-    if not os.path.exists('./setting.ini'):
-        # root_dir = askdirectory(title='Select BFG Unpacker directory')
+    default_settings = {
+        'Main': {
+            'theme': 'default',
+            'lang': lng,
+            'group': 'name',
+            'last_dir': '',
+            'out_path': 'None',
+            'show_console': '0',
+            'subfolders': '2',
+            'group_ge': '2',
+            'group_arch': '2',
+            'disable_ic': 'True',
+            'load_bar': '2',
+            'trash': '0'
+        },
+        'Buttons': {
+            '1': 'B',
+            '2': 'C',
+            '3': 'D',
+            '4': 'E',
+            '5': 'F',
+            '6': 'G',
+            '7': 'H',
+            '8': 'I',
+            '9': 'J',
+            '10': 'K',
+            '11': 'L',
+            '12': 'M'
+        },
+        'Engines': {
+            'unreal': '0',
+            'unity': '0',
+            'rpg_maker': '0',
+            'game_maker': '0',
+            'godot': '0',
+            'renpy': '0',
+        }
+    }
+
+    if not os.path.exists(setting_path):
         setting.add_section('Main')
         setting.add_section('Buttons')
         setting.add_section('Engines')
         setting.set('Main', 'theme', 'default')
-        lng = locale.getdefaultlocale()[0].split('_')[0]
         setting.set('Main', 'lang', lng)
-        # setting.set('Main', 'root_dir', root_dir)
         setting.set('Main', 'group', 'name')
         setting.set('Main', 'last_dir', '')
-        setting.set('Main', 'out_path', '')
+        setting.set('Main', 'out_path', 'None')
         setting.set('Main', 'trash', '0')
         setting.set('Main', 'show_console', '0')
         setting.set('Main', 'subfolders', '2')
+        setting.set('Main', 'group_ge', '2')
+        setting.set('Main', 'group_arch', '2')
+        setting.set('Main', 'disable_ic', 'True')
+        setting.set('Main', 'load_bar', '2')
+        setting.set('Main', 'trash', '0')
         setting.set('Buttons', '1', 'B')
         setting.set('Buttons', '2', 'C')
         setting.set('Buttons', '3', 'D')
@@ -45,13 +83,24 @@ class Setting:
         setting.set('Engines', 'game_maker', '0')
         setting.set('Engines', 'godot', '0')
         setting.set('Engines', 'renpy', '0')
-        setting.set('Main', 'group_ge', '2')
-        setting.set('Main', 'group_arch', '2')
-        setting.set('Main', 'disable_ic', 'True')
-        setting.set('Main', 'load_bar', '2')
 
-        with open('./setting.ini', "w") as config_file:
+        with open(setting_path, "w") as config_file:
             setting.write(config_file)
 
     else:
-        setting.read('./setting.ini')
+        setting.read(setting_path)
+
+        for group, names in default_settings.items():
+
+            for name, default in names.items():
+
+                try:
+                    test = setting[group][name]
+                except KeyError:
+
+                    try:
+                        setting.add_section(group)
+                    except configparser.DuplicateSectionError:
+                        pass
+
+                    setting.set(group, name, default)

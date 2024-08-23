@@ -120,8 +120,4 @@ class RP6L(Reaper):
                 with open(f'{self.output_folder}/{fn}', "wb") as w:
                     w.write(out)
 
-            print(f'{i}/{file_count}: {localize.saving} - {fn}...')
-            self.update_signal.emit(int(100 / file_count * i), f'{i}/{file_count}',
-                                    f'{localize.saving} - {fn}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+            self.update_pb(file_count, i, fn)

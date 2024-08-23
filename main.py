@@ -1,7 +1,6 @@
 import os
 import sys
 
-import numpy
 # Это костыль, без него не работает сборка в екзешник
 from sqlalchemy.dialects.mysql.mariadb import *
 
@@ -15,8 +14,6 @@ from source.ui import localize, custom_ui
 from source.reaper import after_dot
 from source.reapers import *
 from source.delete import DeleteThread
-# from source.codecs.dds_tools import DDSCreator
-from source.codecs.image_tools import bmp_save
 
 
 class UnpackerMain(MainWindow, QuickOpen):
@@ -119,10 +116,9 @@ class UnpackerMain(MainWindow, QuickOpen):
                     with open(file_name, 'rb') as fff:
                         magic = fff.read(4)
                         magic2 = fff.read(4)
-                        magic3 = fff.read(4)
 
                 except PermissionError:
-                    magic, magic2, magic3 = b'', b'', b''
+                    magic, magic2 = b'', b''
 
                 if magic == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
@@ -132,8 +128,11 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_7x7':
                             self.proc = seven_s_seven.Seven()
 
-                        case '_7ZIP' | '_Chromium' | '_Construct' | '_Flash':
+                        case '_7ZIP':
                             self.proc = seven_zip.SevenZIP()
+
+                        case '_AFS':
+                            self.proc = afs.AFSExtractor()
 
                         case '_Arx':
                             self.proc = arx_fatalis.PakExtractor()
@@ -141,7 +140,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_Aurora':
 
                             if ext in ('erf', 'rim'):
-                                self.proc = a.ERFUnpacker()
+                                self.proc = aurora_engine.ERFUnpacker()
 
                             elif ext == 'dzip':
                                 # TODO: Need test!!!
@@ -171,7 +170,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 case 'esx':
                                     pass
                                 case 'snd':
-                                    pass
+                                    self.proc = bsa_archives.DaggerSND()
                                 case 'pex':
                                     pass
                                 case _:
@@ -179,15 +178,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     if 'TEXBSI' in file_name:
                                         pass
                                     elif 'TEXTURE' in file_name:
-                                        name = os.path.basename(file_name).replace('.', '_')
-
-                                        with open(file_name, 'rb') as tex:
-                                            tex.seek(218)
-                                            tex_data = tex.read()
-                                            x = int(numpy.sqrt(len(tex_data))/2)
-
-                                        bmp_save(x, x, 16, os.path.join(self.out_dir, name), tex_data)
-
+                                        self.proc = simple_image.ArenaTexture()
                                     else:
                                         print(localize.not_correct_file.replace('%%', 'Bethesda Game'))
 
@@ -315,10 +306,20 @@ class UnpackerMain(MainWindow, QuickOpen):
                             # TODO: Add functions to unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Resident4':
+                            self.proc = qbms.Q_BMS()
 
                             match ext:
+                                case 'afs':
+                                    self.proc = afs.AFSExtractor()
                                 case 'argb':
                                     self.proc = simple_image.ARGB2BMP()
+                                case 'dat' | 'gca':
+                                    self.proc.script_name = 'data/scripts/re4_ss_file.bms' if 'ss_' in file_name \
+                                        else 'data/wcx/gca.wcx'
+                                case 'h2z':
+                                    self.proc.script_name = 'data/scripts/re4_h2z_hiz'
+                                case 'lfs':
+                                    self.proc.script_name = 'data/scripts/re4.bms'
 
                         case '_RPGMaker':
                             # TODO: Add functions to unpack other file types

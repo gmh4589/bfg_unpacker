@@ -1,7 +1,8 @@
 import configparser
+import os
 
 setting = configparser.ConfigParser()
-setting.read('./setting.ini')
+setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
 try:
     zoom = float(setting['Main']['zoom'])

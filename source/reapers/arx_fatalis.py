@@ -50,12 +50,7 @@ class PakExtractor(Reaper):
                             if ext == 'bmp':
                                 self.unzip(path, 618)
 
-                            print(f"{current}/{all_files} {file['name']}")
-                            ic(file["name"])
-                            self.update_signal.emit(int(100 / all_files * current), f'{current}/{all_files}',
-                                                    f'{localize.saving} - {file["name"]}...', False)
-
-                    self.update_signal.emit(100, '', localize.done, True)
+                            self.update_pb(all_files, current, file['name'])
 
             else:
                 print(localize.not_correct_file.replace('%%', 'Arx Fatalis'),)

@@ -7,7 +7,7 @@ from icecream import ic
 from source.codecs.wav_list import wav_list
 
 setting = configparser.ConfigParser()
-setting.read('setting.ini')
+setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
 
 def wav_save(args: dict):

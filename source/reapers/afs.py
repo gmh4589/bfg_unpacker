@@ -37,8 +37,4 @@ class AFSExtractor(Reaper):
                     new_file.write(afs_file.read(size))
                     afs_file.seek(here)
 
-                print(f'{i}/{file_count}: {localize.saving} - {name}...')
-                self.update_signal.emit(int(100 / file_count * (i + 1)), f'{i}/{file_count}',
-                                        f'{localize.saving} - {name}...', False)
-
-        self.update_signal.emit(100, f'{file_count}/{file_count}', localize.done, True)
+                self.update_pb(file_count, i, name)

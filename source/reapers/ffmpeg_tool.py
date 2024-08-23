@@ -87,7 +87,8 @@ class Converter(Reaper):
             self.update_signal.emit(percent, '', f'{localize.convert} - {self.file_name}...', False)
 
             # Конечно, костыль, но работает...
-            if not self.is_file_in_use(): break
+            if not self.is_file_in_use():
+                break
             # TODO: Попытка обратиться к Popen.poll() приводит к зависанию процесса
             # if ff.poll() is not None: break
 
