@@ -1,4 +1,4 @@
-
+import configparser
 import threading
 from datetime import datetime
 import os
@@ -56,6 +56,8 @@ class Reaper(QThread, Setting):
     # output_folder = ''
     path_to_root = os.path.curdir
     com_type = None
+    setting = configparser.ConfigParser()
+    setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
     def __init__(self):
         super().__init__()
@@ -69,7 +71,7 @@ class Reaper(QThread, Setting):
         self.update_signal.emit(int(100 / file_count * current_file),
                                 f'{current_file + 1}/{file_count}',
                                 f'{localize.saving} - {file_name}...',
-                                True if current_file + 1 == file_count else False)
+                                True if current_file + 1 >= file_count else False)
 
     @abstractmethod
     def run(self):

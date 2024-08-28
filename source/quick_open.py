@@ -17,21 +17,22 @@ class QuickOpen(QProcessList):
               'Попробуйте выбрать игру или тип файла вручную!')
 
     def find_reaper(self):
-        self.proc = qbms.Q_BMS()
 
         if self.file_list:
             fn = self.file_list.pop(0)
             ic(fn)
 
             if os.path.exists(fn):
-                self.proc = None
+                self.proc = qbms.Q_BMS()
 
                 with open(fn, 'rb') as fff:
                     magic = fff.read(4)
                     magic2 = fff.read(4)
                     magic3 = fff.read(4)
 
-                ext = fn.split('.')[-1].lower()
+                # ext = fn.split('.')[-1].lower()
+                name, ext = os.path.basename(fn).lower().split('.')
+                ic(name, ext)
 
                 # Check on ZIP signature
                 if magic == b'PK\x03\x04':
@@ -79,6 +80,9 @@ class QuickOpen(QProcessList):
                         pass
                     else:
                         self.sorry()
+
+                elif ext in ("art",):
+                    self.proc = build_engine.ARTExtractor()
 
                 elif ext in ("arz",):
                     self.proc.script_name = "data\\scripts\\ironlorearz.bms"
@@ -331,7 +335,10 @@ class QuickOpen(QProcessList):
                 elif ext in ("gob",):
                     self.proc.script_name = "data\\scripts\\EACricket2004GOB.bms"
 
-                # Check on HA archive
+                elif ext in ("grp",):
+                    self.proc = build_engine.GRPExtractor()
+
+                # TODO: Check on HA archive
                 elif ext in ("ha",):
                     self.proc.script_name = "\\data\\wcx\\HA.wcx"
 
@@ -492,6 +499,9 @@ class QuickOpen(QProcessList):
                 elif ext in ("rfa",):
                     self.proc.script_name = "data\\scripts\\battlefield2moderncombat.bms"
 
+                elif ext in ("rff",):
+                    self.proc = build_engine.RFFExtractor()
+
                 elif ext in ("rkv",):
                     self.proc.script_name = "data\\scripts\\rkv.bms"
 
@@ -502,10 +512,10 @@ class QuickOpen(QProcessList):
                 elif ext in ("rpa",):
                     self.sorry()
 
-                elif ext in ("rpf", ):
+                elif ext in ("rpf",):
                     self.proc = rdr2_audio.RDR2Audio()
 
-                elif ext in ("rpack", ):
+                elif ext in ("rpack",):
 
                     if magic == b'RP6L':
                         self.proc = chrome_engine.RP6L()
@@ -578,15 +588,15 @@ class QuickOpen(QProcessList):
                     print('TODO: Work in progress...')
 
                 # For video format don't contained audio
-                elif ext in ("usm", ):
+                elif ext in ("usm",):
                     self.proc = ffmpeg_tool.Converter()
                     self.proc.map = '0'
 
                 elif ext in ("vce",):
                     self.proc.script_name = "data\\scripts\\HomeworldCataclysmVCE.bms"
-                
+
                 elif ext in ('vcpk',):
-                    self.proc.script_name = "data\\scripts\\fatal_frame.bms"                    
+                    self.proc.script_name = "data\\scripts\\fatal_frame.bms"
 
                 elif ext in ("vfs",):
                     self.proc = pathologic.MorUnpacker()
@@ -594,7 +604,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("voc",):
                     self.proc.script_name = "data\\scripts\\Lemmings2(VOC)VOC.bms"
 
-                elif ext in ("vpk", ):
+                elif ext in ("vpk",):
                     self.proc = source_vpk.VPKExtractor()
 
                 # Check on RED Engine game
@@ -622,10 +632,10 @@ class QuickOpen(QProcessList):
                 elif ext == "xxx":
                     self.proc = unreal.Unreal()
 
-                elif ext in ("yz1", ):
+                elif ext in ("yz1",):
                     print('TODO: Work in progress...')
 
-                elif ext in ("yz2", ):
+                elif ext in ("yz2",):
                     print('TODO: Work in progress...')
 
                 elif ext in ("z",):
@@ -666,7 +676,7 @@ class QuickOpen(QProcessList):
                              'bank1sbk', 'bar', 'bbk', 'bf', 'bfs', 'bgx', 'bpa', 'bpk', 'bun', 'ceg', 'clz', 'cmo',
                              'cob', 'ctm', 'cts', 'cud', 'dbc', 'dbs', 'ddt', 'dirinfo', 'dta', 'dua', 'dun', 'dx1',
                              'dx2', 'dx3', 'ebm', 'editordata', 'elmares', 'emi', 'exp', 'ezd', 'ff', 'fpk', 'fra',
-                             'frame', 'fsh', 'fuk', 'gdp', 'gea', 'gfx', 'glb', 'grl', 'grp', 'gsc', 'gtr', 'h2o',
+                             'frame', 'fsh', 'fuk', 'gdp', 'gea', 'gfx', 'glb', 'grl', 'gsc', 'gtr', 'h2o',
                              'h4c', 'h4d', 'h4r', 'hak', 'his', 'hog', 'idx', 'ifx', 'ins', 'iwi', 'jap', 'jaz', 'jdr',
                              'jsr', 'jtr', 'lbx', 'lgr', 'lgt', 'lmp', 'lod', 'lte', 'lud', 'lug', 'lut', 'lzc', 'map',
                              'md5', 'mdl', 'meg', 'mix', 'mjp', 'mjz', 'mod', 'msf', 'msk', 'mult', 'mus', 'nif', 'nmo',
@@ -735,12 +745,15 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = 'data\\wcx\\stalker.wcx'
 
                 else:
-                    self.sorry()
-                
+
+                    if name == 'texture':
+                        self.proc = simple_image.ArenaTexture()
+                    else:
+                        self.sorry()
+
                 if self.proc is not None:
                     result = self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...')
 
                     if result == 7:
                         self.proc = seven_zip.SevenZIP()
                         self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...')
-

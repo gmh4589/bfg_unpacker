@@ -450,7 +450,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                     else:
                         y = str(y)
 
-                except ValueError:
+                except (ValueError, TypeError):
                     y = translate.other
 
                 child = QStandardItem(name)

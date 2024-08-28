@@ -1,4 +1,12 @@
 
+August 28, 2024
+
+ - Added support for files from games on Build Engine (GRP, RFF, ART)
+ - Added an option to select a preferred image format for texture conversion in the settings menu (PNG, BMP, TGA, GIF)
+ - Fixed filling of the list of games when selecting sorting by year of release
+ - Added support for TEXTURE.* files from old games by Bethesda (TES I: Arena, TES II: Daggerfall, AESL Battlespire, TESA Redguard)
+ - Added support for searching file types by name to the QuickOpen function for files with the same name but different extensions
+
 August 23, 2024
 
  - Added support SND files from TES II: Daggerfall and AES Legend Battlespire
@@ -54,7 +62,7 @@ July 14, 2024
 
  - Game list now forming with SQL database
  - Zip methods list moved to codecs folder
- - Added native support BIF\KEY archives from Aurora Engine games
+ - Added native support BIF\KEY archives from Infinite Engine games
  - Added native support BSA\BA2 archives from Bethesda Game Studio games
  - Added native support PKG archives from Legend of Hero: Trails of Cold Steal game series
  - Fixed a bug where a filter was shown based on the extension of the previously selected file type

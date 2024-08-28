@@ -36,18 +36,6 @@ class QPAKExtractor(Reaper):
             entry_offset = int.from_bytes(pak_file.read(4), byteorder="little")
             long = int.from_bytes(pak_file.read(4), byteorder="little")
 
-            # if long % 576 != 0:
-            #     l2 = long % 64
-            #     version = 1 if l2 == 0 else 2
-            # else:
-            #     version = self.version
-            #     print(version)
-            #
-            # if not version:
-            #     # TODO: Localize text!!!
-            #     print('Enter valid version!')
-            #     return
-
             pak_file.seek(entry_offset)
             file_list = {}
             file_size = os.path.getsize(self.file_name)

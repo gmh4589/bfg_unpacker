@@ -20,9 +20,9 @@ class Setting:
             'subfolders': '2',
             'group_ge': '2',
             'group_arch': '2',
-            'disable_ic': 'True',
             'load_bar': '2',
-            'trash': '0'
+            'trash': '0',
+            'fav_format': 'png',
         },
         'Buttons': {
             '1': 'B',
@@ -62,9 +62,9 @@ class Setting:
         setting.set('Main', 'subfolders', '2')
         setting.set('Main', 'group_ge', '2')
         setting.set('Main', 'group_arch', '2')
-        setting.set('Main', 'disable_ic', 'True')
         setting.set('Main', 'load_bar', '2')
         setting.set('Main', 'trash', '0')
+        setting.set('Main', 'fav_format', 'png')
         setting.set('Buttons', '1', 'B')
         setting.set('Buttons', '2', 'C')
         setting.set('Buttons', '3', 'D')

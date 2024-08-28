@@ -1,7 +1,6 @@
 
 import os
 from PIL import Image
-from icecream import ic
 
 from source.codecs import image_tools
 from source.codecs.dds_tools import DDSCreator
@@ -141,7 +140,8 @@ class PhyreSave(Reaper):
                 dds = DDSCreator()
                 dds.dds_save(x, y, p, name, image_data)
             elif file_type == 'png' or file_type == 'gxt_png':
-                Image.frombytes(p.decode('utf-8')[:-1], (y, x), data).save(f'{name}.png')
+                picture = Image.frombytes(p.decode('utf-8')[:-1], (y, x), data)
+                picture.save(f"{name}.{self.setting['Main']['fav_format']}")
             elif file_type == 'gxt':
                 image_tools.gxt_save(name, image_data)
 

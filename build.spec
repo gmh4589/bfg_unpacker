@@ -5,7 +5,6 @@ block_cipher = None
 a = Analysis(['main.py'],
              pathex=['...'],
              binaries=[],
-             datas=[('./game_list/*.csv', './game_list')],
              hiddenimports=[],
              runtime_hooks=[],
              excludes=[],
@@ -25,7 +24,7 @@ exe = EXE(pyz,
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
-          console=True,
+          console=False,
           icon='data\\icons\\i.ico')
 
 coll = COLLECT(exe,

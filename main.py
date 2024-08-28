@@ -25,9 +25,6 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.script_name = ''
         self.file_list = []
 
-        if true_false(self.setting['Main']['disable_ic'].lower()):
-            ic.disable()
-
     def q_open(self):
         self.file_list = list(self.file_open())
         self.last_run = self.find_reaper
@@ -165,18 +162,23 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 case 'ba2':
                                     self.proc = ba2_archives.BethesdaArchive()
 
-                                case 'esp' | 'esm' | 'esl':
-                                    pass
-                                case 'esx':
-                                    pass
+                                case 'esp' | 'esm' | 'esl':  # TODO: Надо ли?
+                                    print(f'{localize.work_in_progress}...')
+                                case 'esx':  # TODO: Надо ли?
+                                    print(f'{localize.work_in_progress}...')
                                 case 'snd':
                                     self.proc = bsa_archives.DaggerSND()
                                 case 'pex':
-                                    pass
+                                    # TODO: Add function for decompile Creation Engine Scripts
+                                    print(f'{localize.work_in_progress}...')
+                                case 'mnf':
+                                    # TODO: Add function for support TESO (maybe move from here)
+                                    print(f'{localize.work_in_progress}...')
                                 case _:
 
                                     if 'TEXBSI' in file_name:
-                                        pass
+                                        # TODO: Add function for convert to image
+                                        print(f'{localize.work_in_progress}...')
                                     elif 'TEXTURE' in file_name:
                                         self.proc = simple_image.ArenaTexture()
                                     else:
@@ -185,20 +187,15 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_Build':
 
                             if ext == 'grp':
-                                self.proc = qbms.Q_BMS()
-                                self.proc.script_name = 'data/wcx/gaup_pro.wcx'
+                                self.proc = build_engine.GRPExtractor()
                             elif ext == 'art':
-                                # TODO: Add functions to unpack other file types
-                                # TODO: '\data\art2tga.exe'
-                                print(f'{localize.work_in_progress}...')
-                            elif ext == 'tga':
-                                # TODO: Add functions to unpack other file types
+                                self.proc = build_engine.ARTExtractor()
+                            elif ext == 'tga':  # TODO: Надо ли?
+                                # TODO: Add functions for unpack other file types
                                 # TODO: '\data\tga2art.exe'
                                 print(f'{localize.work_in_progress}...')
                             elif ext == 'rff':
-                                # TODO: Add functions to unpack other file types
-                                # TODO: _DosBox('', 'barf.exe ', 1, ' -x ', $sFileName)
-                                print(f'{localize.work_in_progress}...')
+                                self.proc = build_engine.RFFExtractor()
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Build Engine'))
 
@@ -215,14 +212,14 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 if magic == b'RP6L':
                                     self.proc = chrome_engine.RP6L()
                                 else:
-                                    # TODO: Add functions to unpack other file types
+                                    # TODO: Add functions for unpack other file types
                                     print(f'{localize.work_in_progress}...')
 
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Chrome Engine'))
 
                         case '_CryEngine':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
 
                         case '_ExoPlanet':
@@ -230,11 +227,11 @@ class UnpackerMain(MainWindow, QuickOpen):
                             # TODO: Add Space Engine support
 
                         case '_FrostBite':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
 
                         case '_Gamemaker':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
 
                         case '_GAUP':
@@ -242,11 +239,11 @@ class UnpackerMain(MainWindow, QuickOpen):
                             self.proc.script_name = 'data/wcx/gaup_pro.wcx'
 
                         case '_Glacier':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
 
                         case '_Godot':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
 
                         case '_Infinity':
@@ -267,7 +264,7 @@ class UnpackerMain(MainWindow, QuickOpen):
 
                                 self.proc = quake_pak.QPAKExtractor(version)
                             else:
-                                # TODO: Add functions to unpack other file types
+                                # TODO: Add functions for unpack other file types
                                 print(localize.not_correct_file.replace('%%', 'idTech Engine'))
                                 print(f'{localize.work_in_progress}...')
 
@@ -287,23 +284,23 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_MTFramework':
                             self.proc = mt_arc.ARCExtractor()
                         case '_OOAM':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_OtherPRG':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_RDR':
                             self.proc = rdr2_audio.RDR2Audio()
                         case '_RedEngine':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_REEngine':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Remedy':
                             self.proc = remedy.Remedy()
                         case '_RenPy':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Resident4':
                             self.proc = qbms.Q_BMS()
@@ -322,10 +319,10 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     self.proc.script_name = 'data/scripts/re4.bms'
 
                         case '_RPGMaker':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_SAU':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Sen':
 
@@ -342,7 +339,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     if magic == b'\x20\x00\x00\x00':
                                         self.proc = sen_book.SenBook()
                                     else:
-                                        # TODO: Add functions to unpack other file types
+                                        # TODO: Add functions for unpack other file types
                                         print(f'{localize.work_in_progress}...')
 
                             elif os.path.isdir(file_name):
@@ -352,7 +349,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     self.proc.COMPRESSED = self.checkBox_ZipData.isChecked()
 
                             else:
-                                # TODO: Add functions to unpack other file types
+                                # TODO: Add functions for unpack other file types
                                 print(f'{localize.work_in_progress}...')
 
                         case '_Source':
@@ -369,17 +366,17 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     self.proc.VERSION = version
 
                             else:
-                                # TODO: Add functions to unpack other file types
+                                # TODO: Add functions for unpack other file types
                                 print(f'{localize.work_in_progress}...')
 
                         case '_TellTale':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Total':
                             self.proc = qbms.Q_BMS()
                             self.proc.script_name = 'data/wcx/TotalObserver.wcx'
                         case '_Unigene':
-                            # TODO: Add functions to unpack other file types
+                            # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_Unity':
                             self.proc = unity.Unity()
@@ -448,15 +445,6 @@ class UnpackerMain(MainWindow, QuickOpen):
             self.q_connect(DeleteThread(), header=f'{localize.deleting}...')
         else:
             print(localize.empty_folder)
-
-
-def true_false(boo):
-    try:
-        b1 = bool(int(boo))
-    except ValueError:
-        b1 = True if boo.lower() == 'true' else False
-
-    return b1
 
 
 class QuickUnpack(QMainWindow, QuickOpen):

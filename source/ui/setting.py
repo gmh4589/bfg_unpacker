@@ -3,7 +3,7 @@ import os
 import pandas
 import sqlalchemy
 from PyQt6.QtCore import QRect, QMetaObject, QCoreApplication
-from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import *
 import configparser
 from qt_material import apply_stylesheet
@@ -44,8 +44,7 @@ class SettingWindow(QDialog):
         self.font.setPointSize(8)
         self.centralwidget.setFont(self.font)
         self.label_engines = QLabel(self.centralwidget)
-        self.label_engines.setGeometry(
-            QRect(10, 10, 150, 20))
+        self.label_engines.setGeometry(QRect(10, 10, 150, 20))
         self.label_sort = QLabel(self.centralwidget)
         self.label_sort.setGeometry(QRect(160, 10, 150, 20))
         self.groupBox = QGroupBox(self.centralwidget)
@@ -93,19 +92,34 @@ class SettingWindow(QDialog):
 
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QRect(160, 30, 130, 60))
-        self.radioButton = QRadioButton(self.groupBox_2)
-        self.radioButton.setFont(self.font)
-        self.radioButton.setGeometry(QRect(10, 10, 100, 20))
-        self.radioButton_2 = QRadioButton(self.groupBox_2)
-        self.radioButton_2.setFont(self.font)
-        self.radioButton_2.setGeometry(QRect(10, 35, 100, 20))
-        self.checkBox_7 = QCheckBox(self.centralwidget)
-        self.checkBox_7.setFont(self.font)
-        self.checkBox_7.setGeometry(QRect(10, 220, 200, 20))
+        self.sort_by_names = QRadioButton(self.groupBox_2)
+        self.sort_by_names.setFont(self.font)
+        self.sort_by_names.setGeometry(QRect(10, 10, 100, 20))
+        self.sort_by_years = QRadioButton(self.groupBox_2)
+        self.sort_by_years.setFont(self.font)
+        self.sort_by_years.setGeometry(QRect(10, 35, 100, 20))
+        self.context_menu = QCheckBox(self.centralwidget)
+        self.context_menu.setFont(self.font)
+        self.context_menu.setGeometry(QRect(10, 200, 150, 40))
         self.load_bar = QCheckBox(self.centralwidget)
         self.load_bar.setFont(self.font)
         self.load_bar.setGeometry(QRect(10, 240, 200, 20))
         self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
+
+        # Favorite image format
+        filter_model = QStandardItemModel()
+
+        for item in ['png', 'bmp', 'tga', 'gif']:
+            filter_model.appendRow(QStandardItem(item))
+
+        self.fav_image_label = QLabel(self.centralwidget)
+        self.fav_image_label.setFont(self.font)
+        self.fav_image_label.setGeometry(QRect(160, 210, 120, 20))
+        self.fav_image_drop = QComboBox(self.centralwidget)
+        self.fav_image_drop.setFont(self.font)
+        self.fav_image_drop.setGeometry(QRect(160, 240, 120, 20))
+        self.fav_image_drop.setModel(filter_model)
+        self.fav_image_drop.setCurrentText(self.setting['Main']['fav_format'])
 
         self.label_alpha_group = QLabel(self.centralwidget)
         self.label_alpha_group.setGeometry(QRect(160, 100, 120, 30))
@@ -133,9 +147,9 @@ class SettingWindow(QDialog):
         self.cancel_button.setGeometry(QRect(155, 310,  135, 25))
 
         if self.setting['Main']['group'] == 'name':
-            self.radioButton.setChecked(True)
+            self.sort_by_names.setChecked(True)
         else:
-            self.radioButton_2.setChecked(True)
+            self.sort_by_years.setChecked(True)
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
@@ -163,10 +177,11 @@ class SettingWindow(QDialog):
         self.setting.set('Engines', 'game_maker', "2" if self.gamemaker_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'godot', "2" if self.godot_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'renpy', "2" if self.renpy_checkBox.isChecked() else "0")
-        self.setting.set('Main', 'group', "name" if self.radioButton.isChecked() else "year")
+        self.setting.set('Main', 'group', "name" if self.sort_by_names.isChecked() else "year")
         self.setting.set('Main', 'group_arch', "2" if self.arch_checkbox.isChecked() else "0")
         self.setting.set('Main', 'group_ge', "2" if self.ge_checkbox.isChecked() else "0")
         self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
+        self.setting.set('Main', 'fav_format', self.fav_image_drop.currentText())
         self.setting.set('Main', 'theme', style)
 
         with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
@@ -185,9 +200,9 @@ class SettingWindow(QDialog):
         self.renpy_checkBox.setText(_translate("MainWindow", f"RenPy ({self.renpy_list})"))
         self.godot_checkBox.setText(_translate("MainWindow", f"Godot ({self.godot_list})"))
 
-        self.radioButton.setText(_translate("MainWindow", translate.by_name))
-        self.radioButton_2.setText(_translate("MainWindow", translate.by_years))
-        self.checkBox_7.setText(_translate("MainWindow", translate.context_menu))
+        self.sort_by_names.setText(_translate("MainWindow", translate.by_name))
+        self.sort_by_years.setText(_translate("MainWindow", translate.by_years))
+        self.context_menu.setText(_translate("MainWindow", translate.context_menu))
         self.load_bar.setText(_translate("MainWindow", translate.load_bar))
         self.create_theme.setText(_translate("MainWindow", translate.create_theme))
         self.out_folder.setText(_translate("MainWindow", translate.out_folder))
@@ -198,3 +213,4 @@ class SettingWindow(QDialog):
         self.label_alpha_group.setText(_translate("MainWindow", f'{translate.group_by} {translate.alphabet}:'))
         self.ge_checkbox.setText(_translate("MainMenu", translate.game_engines))
         self.arch_checkbox.setText(_translate("MainMenu", translate.archives))
+        self.fav_image_label.setText(_translate("MainMenu", translate.fav_image_format))
