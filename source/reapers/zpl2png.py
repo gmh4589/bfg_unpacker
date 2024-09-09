@@ -10,14 +10,18 @@ from source.ui import localize
 
 class ZPL2PNG(Reaper):
 
+    def __init__(self, width=58, height=90):
+        super().__init__()
+        self.width = width
+        self.height = height
+
     @file_reaper
     def run(self):
 
         with open(self.file_name, 'r', encoding='utf-8') as zpl_file:
             zpl = zpl_file.read()
 
-        # TODO: Добавить ввод размера этикетки
-        url = f'http://api.labelary.com/v1/printers/8dpmm/labels/{round(58 / 25.4, 2)}x{round(90 / 25.4, 2)}/0/'
+        url = f'http://api.labelary.com/v1/printers/8dpmm/labels/{round(self.width / 25.4, 2)}x{round(self.height / 25.4, 2)}/0/'
         files = {'file': zpl}
         headers = {'Accept': 'image/png'}
         response = requests.post(url, headers=headers, files=files, stream=True)

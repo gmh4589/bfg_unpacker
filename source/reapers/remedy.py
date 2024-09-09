@@ -1,9 +1,7 @@
 
 import os
-from icecream import ic
 
 from source.reaper import Reaper, file_reaper
-from source.ui import localize
 from collections import namedtuple
 
 
@@ -88,7 +86,9 @@ class Remedy(Reaper):
                 offset = int.from_bytes(bin_data.read(8), byteorder=byteorder)
                 size = int.from_bytes(bin_data.read(8), byteorder=byteorder)
 
-                full_name = os.path.join(self.output_folder, files[i])
+                # full_name = os.path.join(self.output_folder, files[i])
+                full_name = f"{self.output_folder}\\{files[i]}"
+
                 file_data = NameData(full_name, offset, size)
                 name_data.append(file_data)
 

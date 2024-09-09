@@ -77,9 +77,10 @@ class UnpackerMain(MainWindow, QuickOpen):
         except IndexError:
             pass
 
-    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name=''):
+    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name='', **kwargs):
         self.func_name = func_name
         self.script_name = script_name
+        self.args = kwargs
 
         if type(ext_list) is float:
             ext_list = ''
@@ -141,8 +142,7 @@ class UnpackerMain(MainWindow, QuickOpen):
 
                             elif ext == 'dzip':
                                 # TODO: Need test!!!
-                                self.proc = other_prg.OtherProg()
-                                self.proc.program_name = "gibbed\\Gibbed.RED.Unpack.exe"
+                                self.proc = other_prg.OtherProg(program_name="gibbed\\Gibbed.RED.Unpack.exe")
 
                             else:
                                 print(localize.not_correct_file.replace('%%', 'Aurora Engine'))
@@ -200,7 +200,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 print(localize.not_correct_file.replace('%%', 'Build Engine'))
 
                         case '_CelTop':
-                            print(f'{localize.work_in_progress}...')
+                            self.proc = cel_top.CelTop()
 
                         case '_Chrome':
 
@@ -249,6 +249,13 @@ class UnpackerMain(MainWindow, QuickOpen):
                         case '_Infinity':
                             self.proc = infinity_bif_key.BifKey()
 
+                        case '_Innosetup':
+                            self.proc = other_prg.OtherProg(
+                                program_name='tools\\innounp.exe',
+                                first_arg=f' -x -d"{self.out_dir}"',
+                                percent_type='random'
+                            )
+
                         case '_idTech':
 
                             if ext == 'wad':
@@ -287,13 +294,23 @@ class UnpackerMain(MainWindow, QuickOpen):
                             # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
                         case '_OtherPRG':
-                            # TODO: Add functions for unpack other file types
-                            print(f'{localize.work_in_progress}...')
+                            self.proc = other_prg.OtherProg(program_name=self.script_name)
                         case '_RDR':
                             self.proc = rdr2_audio.RDR2Audio()
                         case '_RedEngine':
-                            # TODO: Add functions for unpack other file types
-                            print(f'{localize.work_in_progress}...')
+
+                            if ext == 'cache':
+
+                                if 'texture' in file_name:
+                                    self.proc = witcher_3.TextureCache()
+
+                            elif ext == 'w3speech':
+                                self.proc = witcher_3.SpeechUnpacker()
+                            elif ext == 'bundle':
+                                self.proc = witcher_3.BundleUnpack()
+                            else:
+                                # TODO: Add functions for unpack other file types
+                                print(f'{localize.work_in_progress}...')
                         case '_REEngine':
                             # TODO: Add functions for unpack other file types
                             print(f'{localize.work_in_progress}...')
@@ -356,6 +373,8 @@ class UnpackerMain(MainWindow, QuickOpen):
 
                             if ext == 'vpk':
                                 self.proc = source_vpk.VPKExtractor()
+                            elif ext in ('bsp', 'pak', ):
+                                self.proc.script_name = 'data/wcx/TotalObserver.wcx'
                             elif os.path.isdir(file_name):
                                 version, ok = QInputDialog.getInt(self,
                                                                   title='WARNING', label='Select a version:',
@@ -416,8 +435,7 @@ class UnpackerMain(MainWindow, QuickOpen):
                                     new_empty_folder = f"{empty}_{a}"
                                     a += 1
 
-                            self.proc = other_prg.OtherProg()
-                            self.proc.percent_type = '50'
+                            self.proc = other_prg.OtherProg(percent_type='50')
 
                             if ext in ('iso', 'wbfs'):
                                 self.proc.program_name = 'wit\\wit.exe'
@@ -429,7 +447,13 @@ class UnpackerMain(MainWindow, QuickOpen):
                                 self.proc.second_arg = f'"{self.out_dir}\\{new_empty_folder}"'
 
                         case '_ZPL':
-                            self.proc = zpl2png.ZPL2PNG()
+                            # TODO: Localize text
+                            width, ok1 = QInputDialog.getInt(self, 'WARNING', 'Enter a width (mm):', min=1, max=2000)
+                            height, ok2 = QInputDialog.getInt(self, 'WARNING', 'Enter a height (mm):', min=1, max=2000)
+
+                            if width and ok1 and height and ok2:
+                                self.proc = zpl2png.ZPL2PNG(width, height)
+
                         case '_Zaglushka':
                             print(f'{localize.work_in_progress}...')
                         case _:

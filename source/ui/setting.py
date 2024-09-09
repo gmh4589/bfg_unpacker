@@ -1,4 +1,5 @@
 import os
+import winreg
 
 import pandas
 import sqlalchemy
@@ -10,6 +11,7 @@ from qt_material import apply_stylesheet
 
 import source.ui.localize as translate
 from source.ui import theme_creator
+from source.ui.custom_ui import CustomDialog
 
 
 class SettingWindow(QDialog):
@@ -101,10 +103,12 @@ class SettingWindow(QDialog):
         self.context_menu = QCheckBox(self.centralwidget)
         self.context_menu.setFont(self.font)
         self.context_menu.setGeometry(QRect(10, 200, 150, 40))
+        self.context_menu.setChecked(bool(int(self.setting['Main']['context_menu'])))
         self.load_bar = QCheckBox(self.centralwidget)
         self.load_bar.setFont(self.font)
         self.load_bar.setGeometry(QRect(10, 240, 200, 20))
         self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
+        self.context_changed = self.context_menu.isChecked()
 
         # Favorite image format
         filter_model = QStandardItemModel()
@@ -183,6 +187,30 @@ class SettingWindow(QDialog):
         self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
         self.setting.set('Main', 'fav_format', self.fav_image_drop.currentText())
         self.setting.set('Main', 'theme', style)
+
+        if self.context_menu.isChecked() != self.context_changed:
+
+            try:
+                if self.context_menu.isChecked():
+                    script_dir = os.path.dirname(os.path.abspath(__file__)).replace(r"\_internal\source\ui", "")
+
+                    with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp') as key:
+                        winreg.SetValueEx(key, '', 0, winreg.REG_SZ, 'Open with BFG Unpacker')
+                        winreg.SetValueEx(key, 'Icon', 0, winreg.REG_SZ, f'{script_dir}\\data\\icons\\i.ico, 0')
+
+                    with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp\command') as key:
+                        winreg.SetValueEx(key, '', 0, winreg.REG_SZ, f'"{script_dir}\\bfg_unpacker.exe" "%1"')
+
+                else:
+                    winreg.DeleteKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp\command')
+                    winreg.DeleteKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp')
+
+                self.setting.set('Main', 'context_menu', "2" if self.context_menu.isChecked() else "0")
+
+            except PermissionError:
+                CustomDialog(title='WARNING!', text='To aplay setting run program as admin!').exec()
+            except FileNotFoundError:
+                self.setting.set('Main', 'context_menu', "0")
 
         with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
             self.setting.write(config_file)

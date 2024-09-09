@@ -1,4 +1,3 @@
-
 import importlib
 import json
 import os
@@ -210,34 +209,61 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
     def add_btn_action(self, btn, action=''):
 
         match action:
-            case 'A': btn.clicked.connect(self.q_open)
-            case 'B': btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
-                self, translate.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
-                f'{translate.all_files} (*.*)', directory=self.setting['Main']['last_dir'])[0]))
-            case 'C': btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
-            case 'D': btn.clicked.connect(lambda: self.create_queue(func_name='_GAUP'))
-            case 'E': btn.clicked.connect(lambda: print('innosetup'))  # TODO: add support innosetup
-            case 'F': btn.clicked.connect(self.ffmpeg_video)
-            case 'G': btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_Unreal'], func_name='_Unreal'))
-            case 'H': btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
-            case 'I': btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
-            case 'J': btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
-            case 'K': btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
-            case 'L': btn.clicked.connect(lambda: print('cry engine'))  # TODO: add support cry engine
-            case 'M': btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
-            case 'N': btn.clicked.connect(self.wwise_tools)
-            case 'O': btn.clicked.connect(self.ps_audio_tools)
-            case 'P': btn.clicked.connect(self.nConvert)
-            case 'Q': btn.clicked.connect(lambda: print('red engine'))  # TODO: add support red engine
-            case 'R': btn.clicked.connect(lambda: print('godot'))  # TODO: add support godot
-            case 'S': btn.clicked.connect(lambda: print('rpg maker'))  # TODO: add support rpg maker
-            case 'T': btn.clicked.connect(lambda: print('renpy'))  # TODO: add support renpy
-            case 'U': btn.clicked.connect(lambda: print('unigen'))  # TODO: add support unigen
-            case 'V': btn.clicked.connect(self.raw2dds)
-            case 'W': btn.clicked.connect(self.raw2atrac)
-            case 'X': btn.clicked.connect(self.raw2wav)
-            case 'Y': btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
-            case 'Z': btn.clicked.connect(self.empty_out)
+            case 'A':
+                btn.clicked.connect(self.q_open)
+            case 'B':
+                btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
+                    self, translate.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
+                                                      f'{translate.all_files} (*.*)',
+                    directory=self.setting['Main']['last_dir'])[0]))
+            case 'C':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
+            case 'D':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_GAUP'))
+            case 'E':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Innosetup', ext_list=after_dot['_Innosetup']))
+            case 'F':
+                btn.clicked.connect(self.ffmpeg_video)
+            case 'G':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Unreal', ext_list=after_dot['_Unreal']))
+            case 'H':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
+            case 'I':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
+            case 'J':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
+            case 'K':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
+            case 'L':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_CryEngine', ext_list=after_dot['_CryEngine']))
+            case 'M':
+                btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
+            case 'N':
+                btn.clicked.connect(self.wwise_tools)
+            case 'O':
+                btn.clicked.connect(self.ps_audio_tools)
+            case 'P':
+                btn.clicked.connect(self.nConvert)
+            case 'Q':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_RedEngine', ext_list=after_dot['_RedEngine']))
+            case 'R':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Godot', ext_list=after_dot['_Godot']))
+            case 'S':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_RPGMaker', ext_list=after_dot['_RPGMaker']))
+            case 'T':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_RenPy', ext_list=after_dot['_RenPy']))
+            case 'U':
+                btn.clicked.connect(lambda: self.create_queue(func_name='_Unigene', ext_list=after_dot['_Unigene']))
+            case 'V':
+                btn.clicked.connect(self.raw2dds)
+            case 'W':
+                btn.clicked.connect(self.raw2atrac)
+            case 'X':
+                btn.clicked.connect(self.raw2wav)
+            case 'Y':
+                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+            case 'Z':
+                btn.clicked.connect(self.empty_out)
 
     # Создаются кнопки в верхнем меню
     def buttons_create(self):
@@ -345,36 +371,51 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 self.engine_list[liter] = self.menu_game_engines.addMenu(liter)
 
         for n in range(len(archivesList)):
+            arch_name = archivesList['ArchivesName'][n]
+            func_name = archivesList['Function'][n]
+            ext_list = archivesList['ExtList'][n]
+            program_name = archivesList['ProgramName'][n]
+            unp_com1 = archivesList['Unpackcom1'][n]
+            unp_com2 = archivesList['Unpackcom2'][n]
+            pak_com = archivesList['Packcom'][n]
+            arch_move = archivesList['Archivemove'][n]
+            arch_ext = archivesList['ProgramName'][n]
+            ff = archivesList['ff'][n]
 
             if archivesList['Index'][n] == 3:
-                self.menu_disk_images.addAction(archivesList['ArchivesName'][n])
+                new_item = self.menu_disk_images.addAction(arch_name)
             elif archivesList['Index'][n] == 4:
 
                 if self.setting['Main']['group_ge'] == '2':
-                    liter = archivesList['ArchivesName'][n][0].upper()
+                    liter = arch_name[0].upper()
 
                     if liter in '0123456789':
-                        self.engine_list['0-9'].addAction(archivesList['ArchivesName'][n])
+                        new_item = self.engine_list['0-9'].addAction(arch_name)
                     else:
-                        self.engine_list[liter].addAction(archivesList['ArchivesName'][n])
+                        new_item = self.engine_list[liter].addAction(arch_name)
 
                 else:
-                    self.menu_game_engines.addAction(archivesList['ArchivesName'][n])
+                    new_item = self.menu_game_engines.addAction(arch_name)
 
             elif archivesList['Index'][n] == 5:
-                self.menu_installers.addAction(archivesList['ArchivesName'][n])
+                new_item = self.menu_installers.addAction(arch_name)
             else:
 
                 if self.setting['Main']['group_arch'] == '2':
-                    liter = archivesList['ArchivesName'][n][0].upper()
+                    liter = arch_name[0].upper()
 
                     if liter in '0123456789':
-                        self.archive_list['0-9'].addAction(archivesList['ArchivesName'][n])
+                        new_item = self.archive_list['0-9'].addAction(arch_name)
                     else:
-                        self.archive_list[liter].addAction(archivesList['ArchivesName'][n])
+                        new_item = self.archive_list[liter].addAction(arch_name)
 
                 else:
-                    self.menu_archives.addAction(archivesList['ArchivesName'][n])
+                    new_item = self.menu_archives.addAction(arch_name)
+
+            new_item.triggered.connect(lambda *args, func=func_name, ext=ext_list, prg=program_name, f_f=ff,
+                                              c1=unp_com1, c2=unp_com2, pak=pak_com, a_move=arch_move, a_ext=arch_ext:
+                                       self.create_queue(func_name=func, ext_list=ext, script_name=prg, ff=f_f,
+                                                         com1=c1, com2=c2, pak=pak, a_move=arch_move, a_ext=a_ext))
 
     def flc(self, items):
         self.comboBox_gameList.items = items
@@ -387,7 +428,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         self.comboBox_gameList.setModel(self.filter_model)
 
     def filter_list_create(self, items):
-        Thread(target=self.flc, daemon=True, args=(items, )).start()
+        Thread(target=self.flc, daemon=True, args=(items,)).start()
 
     # Создается список игр в три-вью
     def tree_view_create(self):

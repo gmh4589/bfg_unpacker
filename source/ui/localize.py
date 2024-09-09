@@ -4,6 +4,7 @@ import os
 import locale
 
 setting = configparser.ConfigParser()
+script_dir = os.path.dirname(os.path.abspath(__file__)).replace(r"\source\ui", "").replace(r'\_internal', '')
 
 if os.path.exists(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'):
     setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
@@ -11,10 +12,10 @@ if os.path.exists(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'):
 else:
     lang = locale.getdefaultlocale()[0].split('_')[0]
 
-if not os.path.exists(f'./data/local/{lang}.json'):
+if not os.path.exists(f'{script_dir}/data/local/{lang}.json'):
     lang = 'en'
 
-with open(f'./data/local/{lang}.json', 'r', encoding='utf-8') as json_file:
+with open(f'{script_dir}/data/local/{lang}.json', 'r', encoding='utf-8') as json_file:
     local = json.load(json_file)
 
 all_games = local['all_games']

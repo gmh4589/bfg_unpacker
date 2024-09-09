@@ -9,13 +9,6 @@ from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
-class HideWindow(QWidget):
-
-    def __init__(self):
-        super().__init__()
-        self.setGeometry(0, 0, 0, 0)
-
-
 class QPAKExtractor(Reaper):
 
     def __init__(self, version=0):

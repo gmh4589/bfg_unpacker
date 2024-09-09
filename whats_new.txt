@@ -1,4 +1,22 @@
 
+September 29, 2024
+
+ - Added support ATI1 and ATI2 DDS codecs
+ - Now is program can save cubemap textures
+ - When passing an unknown codec to the function of saving DDS files, a message with the name or identifier of the codec
+        is now displayed, previously when passing an unknown codec the program crashed
+ - Added support to unpack texture.cache, bundle and w3speech archives from The Witcher 3: Wild Hunt
+ - Added fields for entering width and height for ZPL to PNG convertor
+ - Added option for creation CEL\TOP files for TES III: Morrowind
+ - Game base was updated (added 500+ release years, remove doubles games)
+ - Added activity for all buttons in upper menu
+ - Fixed program crash after open same children menus
+ - Added option to unpack installer files created in InnoSetup
+ - Added activity to menu items in submenus "Archives", "Game Engines", "Disc Images"
+ - Little changed colors in "Matrix" theme, and original "Matrix" theme was renamed in "Potion"
+ - Added option to program call from Windows context menu
+ - Fixed saving same file from game Alan Wake, now all files saving in out folder
+
 August 28, 2024
 
  - Added support for files from games on Build Engine (GRP, RFF, ART)

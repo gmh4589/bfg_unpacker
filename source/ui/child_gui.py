@@ -86,13 +86,15 @@ class ChildUIWindow(QDialog):
 
     def upvote(self):
 
-        for j in range(len(self.label_list)):
+        if len(self.drops) == len(self.label_list):
 
-            if self.drops[j].currentText() == translate.other:
-                text = simpledialog.askstring("", "Enter value:")
-                ic(text)
-                self.drops[j].addItem(text)
-                self.drops[j].setCurrentText(text)
+            for j in range(len(self.label_list)):
+
+                if self.drops[j].currentText() == translate.other:
+                    text = simpledialog.askstring("", "Enter value:")
+                    ic(text)
+                    self.drops[j].addItem(text)
+                    self.drops[j].setCurrentText(text)
 
     def drop_action(self):
         selected_text = self.drops[self.item1].currentText()

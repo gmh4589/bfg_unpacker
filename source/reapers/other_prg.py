@@ -10,11 +10,21 @@ from source.ui import localize
 
 class OtherProg(Reaper):
 
-    def __init__(self):
+    def __init__(self,
+                 program_name='test.exe',
+                 percent_index=0,
+                 percent_type='int',
+                 percent_del='\\',
+                 name_index=1,
+                 first_arg='',
+                 second_arg='',
+                 splitter=' ',
+                 real_pb=True
+                 ):
         super().__init__()
-        self.program_name = 'test.exe'
-        self.percent_index = 0
-        self.percent_type = 'int'
+        self.program_name = program_name
+        self.percent_index = percent_index
+        self.percent_type = percent_type
 
         # Percent type:
         # int = real int digit
@@ -23,24 +33,29 @@ class OtherProg(Reaper):
         # 50 = all time 50 percent
         # else = random
 
-        self.percent_del = '\\'
-        self.name_index = 1
-        self.first_arg = ''
-        self.second_arg = ''
-        self.splitter = ' '
-        self.real_pb = True
+        self.percent_del = percent_del
+        self.name_index = name_index
+        self.first_arg = first_arg
+        self.second_arg = second_arg
+        self.splitter = splitter
+        self.real_pb = real_pb
 
     @file_reaper
     def run(self):
-        arguments = (f'"{self.path_to_root}data\\{self.program_name}" {self.first_arg} '
+        arguments = (f'"data\\{self.program_name}" {self.first_arg} '
                      f'"{self.file_name}" {self.second_arg}').replace('/', '\\')
-
-        prg = Popen(arguments, stdout=PIPE, stderr=PIPE, encoding='utf-8')
         ic(self.program_name)
         ic(self.first_arg)
         ic(self.file_name)
         ic(self.second_arg)
         ic(arguments)
+
+        try:
+            prg = Popen(arguments, stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore')
+        except FileNotFoundError:
+            self.update_signal.emit(100, '', localize.done, True)
+            print(f"File {self.program_name} don't exists in data folder!")
+            return
 
         if self.real_pb:
 
@@ -48,11 +63,16 @@ class OtherProg(Reaper):
                 self.update_signal.emit(50, '', f'{localize.saving} - {self.file_name}...', False)
 
             while True:
+
                 out = prg.stdout.readline().strip()
                 o = out.split(self.splitter)
                 percent = 0
-                ic(out)
+                print(out)
                 ic(prg.stderr.readline().strip())
+
+                if not out:
+                    prg.kill()
+                    break
 
                 try:
 
@@ -68,12 +88,9 @@ class OtherProg(Reaper):
                         percent += randint(1, 5) if percent <= 99 else 99
 
                     self.update_signal.emit(percent, '', f'{localize.saving} - {o[self.name_index]}...', False)
+
                 except (ValueError, IndexError):
                     pass
-
-                if not out:
-                    prg.kill()
-                    break
 
         elif self.real_pb is None:
             pass

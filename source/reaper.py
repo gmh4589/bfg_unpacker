@@ -1,4 +1,4 @@
-import configparser
+
 import threading
 from datetime import datetime
 import os
@@ -53,11 +53,8 @@ class Reaper(QThread, Setting):
     update_signal = pyqtSignal(int, str, str, bool)
 
     file_name = ''
-    # output_folder = ''
     path_to_root = os.path.curdir
     com_type = None
-    setting = configparser.ConfigParser()
-    setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
     def __init__(self):
         super().__init__()
@@ -197,6 +194,8 @@ after_dot = {'_Asura':
                  'Doomsday Engine Files (*.lib;*.pack)|Sin Gold SIN files (*.sin)|',
              '_Infinity':
                  'Infinity Engine Files (*.key; *.gob; *.lmp)|',
+             '_Innosetup':
+                 '_Innosetup Installer Files (*.exe)|',
              '_LithTech':
                  'LithTech Engine Files (*.rez; *.Arch*)|',
              '_MTFramework':

@@ -165,4 +165,3 @@ class ARTExtractor(Reaper):
                         image.save(new_image, transparency=255)
 
         self.update_pb(tiles_count, tiles_count, '')
-

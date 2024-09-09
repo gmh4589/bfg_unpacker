@@ -1,4 +1,5 @@
-import os.path
+import os
+from tkinter.messagebox import showinfo
 
 from PyQt6.QtWidgets import QInputDialog
 from icecream import ic
@@ -31,7 +32,9 @@ class QuickOpen(QProcessList):
                     magic3 = fff.read(4)
 
                 # ext = fn.split('.')[-1].lower()
-                name, ext = os.path.basename(fn).lower().split('.')
+                name_split = os.path.basename(fn).lower().split('.')
+                ext = name_split.pop(-1)
+                name = '.'.join(name_split)
                 ic(name, ext)
 
                 # Check on ZIP signature
@@ -48,8 +51,8 @@ class QuickOpen(QProcessList):
                     else:
                         self.sorry()
 
-                # Check on UnArk support archive
-                elif ext in ("alz", "egg", "bh",):
+                # Check on UnArc support archive
+                elif ext in ("alz", "egg", "bh", "ark"):
                     self.proc.script_name = 'data\\wcx\\UnArkWCX.wcx'
 
                 elif ext in ("ara",):
@@ -59,8 +62,9 @@ class QuickOpen(QProcessList):
                     # TODO: The Incredible Hulk (2008)
 
                     if magic == b'ARC\x00':  # MT Framework
-                        # self.proc.script_name = "data\\scripts\\dmc4.bms"
                         self.proc = mt_arc.ARCExtractor()
+                    if magic == b'ArC\x01':  # FreeARC Archive
+                        self.proc.script_name = "data\\wcx\\UnArkWCX.wcx"
                     else:
                         self.sorry()
 
@@ -73,13 +77,9 @@ class QuickOpen(QProcessList):
                 elif ext == "argb":
                     self.proc = simple_image.ARGB2BMP()
 
-                elif ext == "ark":
-                    # TODO: Add ARK, FreeARK archive and other
-
-                    if magic == b'':
-                        pass
-                    else:
-                        self.sorry()
+                elif ext in ("ark", "bh", "egg", "g"):
+                    # TODO: Add ARK archive and other
+                    self.proc.script_name = "data\\wcx\\UnArkWCX.wcx"
 
                 elif ext in ("art",):
                     self.proc = build_engine.ARTExtractor()
@@ -166,9 +166,15 @@ class QuickOpen(QProcessList):
                     # TODO: Red Engine (The Witcher 3), PayDay 2, Bionic Commando
 
                     if magic == b'POTA':  # The Witcher 3
-                        self.proc.script_name = "data\\scripts\\Witcher3.bms"
+                        # self.proc.script_name = "data\\scripts\\Witcher3.bms"
+                        self.proc = witcher_3.BundleUnpack()
                     else:
                         self.sorry()
+
+                elif ext == 'cache':
+                    # TODO: Add *.cache from total observer
+                    if name == 'texture':
+                        self.proc = witcher_3.TextureCache()
 
                 elif ext in ("car",):
                     self.proc.script_name = "data\\scripts\\CAR.bms"
@@ -608,8 +614,11 @@ class QuickOpen(QProcessList):
                     self.proc = source_vpk.VPKExtractor()
 
                 # Check on RED Engine game
-                elif ext in ("w3strings", "w3speech", "archive", "w2strings", "dzip"):
+                elif ext in ("w3strings", "archive", "w2strings", "dzip"):
                     print('TODO: Work in progress...')
+
+                elif ext in ("w3speech", ):
+                    self.proc = witcher_3.SpeechUnpacker()
 
                 elif ext in ("wfp",):
                     self.proc.script_name = "data\\scripts\\bloodyroar3wfp.bms"
@@ -650,7 +659,12 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\CallToPower2ZFS.bms"
 
                 elif ext in ("zpl",):
-                    self.proc = zpl2png.ZPL2PNG()
+                    # TODO: Localize text
+                    width, ok1 = QInputDialog.getInt(self, 'WARNING', 'Enter a width (mm):', min=1, max=2000)
+                    height, ok2 = QInputDialog.getInt(self, 'WARNING', 'Enter a height (mm):', min=1, max=2000)
+
+                    if width and ok1 and height and ok2:
+                        self.proc = zpl2png.ZPL2PNG(width, height)
 
                 elif ext in ("zwp",):
                     self.proc.script_name = "data\\scripts\\DarkReign2ZWP.bms"

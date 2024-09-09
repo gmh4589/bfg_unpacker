@@ -1,7 +1,7 @@
 
 from source.reapers import (afs, arx_fatalis, aurora_engine,
                             ba2_archives, bsa_archives, build_engine,
-                            celestia, chrome_engine,
+                            cel_top, celestia, chrome_engine,
                             doom_wad,
                             infinity_bif_key,
                             ffmpeg_tool,
@@ -13,4 +13,5 @@ from source.reapers import (afs, arx_fatalis, aurora_engine,
                             remedy, rdr2_audio,
                             sen_book, sen_pkg, seven_s_seven, seven_zip, simple_image, source_vpk,
                             ue3_injector, ue3_reaper, unity, unreal,
+                            witcher_3,
                             zip_archive, zip_scan, zpl2png)
