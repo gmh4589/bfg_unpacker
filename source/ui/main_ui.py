@@ -453,6 +453,8 @@ class Ui_BFGUnpacker(Translate):
             lambda: self.create_queue(func_name='_7ZIP'))
         self.actionGame_Archive_Unpacker_Plugin.triggered.connect(  # GAUP
             lambda: self.create_queue(func_name='_GAUP'))
+        self.actionSprite_and_Archive_Utility.triggered.connect(  # SAU
+            lambda: self.create_queue(func_name='_SAU'))
         self.actionTotal_Observer.triggered.connect(  # Total Observer
             lambda: self.create_queue(func_name='_Total'))
         self.exitAction.triggered.connect(self.close)

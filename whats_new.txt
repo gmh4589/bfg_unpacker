@@ -1,5 +1,17 @@
 
-September 29, 2024
+September 17, 2024
+
+ - Added support to unpack archives from "Of orc and human" game
+ - The game base was updated (added 500+ release years, remove doubles games)
+ - Double extensions in QuickOpen function was deleted
+ - Added support more games on idTech game engines series (Doom 3 BFG Edition, Doom (2016), Rage, The Evil Within and other)
+ - Added support for unpack and pack of files from Of orcs and human game
+ - Added support for unpack PAK files from Prey (2017)
+ - Added support for unpack PKG files from Limbo
+ - The function for selection unpacker is merged with QuickOpen
+ - Now, when typing in drop-down menus, the background color matches the selected theme
+
+September 09, 2024
 
  - Added support ATI1 and ATI2 DDS codecs
  - Now is program can save cubemap textures
@@ -8,7 +20,7 @@ September 29, 2024
  - Added support to unpack texture.cache, bundle and w3speech archives from The Witcher 3: Wild Hunt
  - Added fields for entering width and height for ZPL to PNG convertor
  - Added option for creation CEL\TOP files for TES III: Morrowind
- - Game base was updated (added 500+ release years, remove doubles games)
+ - The game base was updated (added 500+ release years, remove doubles games)
  - Added activity for all buttons in upper menu
  - Fixed program crash after open same children menus
  - Added option to unpack installer files created in InnoSetup

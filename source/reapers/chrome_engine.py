@@ -3,7 +3,6 @@ from icecream import ic
 import zlib
 import struct
 
-# from source.codecs.image_tools import dds_save
 from source.codecs.dds_tools import DDSCreator
 from source.reaper import Reaper, file_reaper
 from source.ui import localize

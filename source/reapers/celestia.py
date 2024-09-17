@@ -1,6 +1,5 @@
 import math
 import pandas
-from icecream import ic
 
 from datetime import datetime
 from source.reaper import Reaper, file_reaper

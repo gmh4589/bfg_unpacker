@@ -1,19 +1,17 @@
-
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt6.QtCore import QRect, QMetaObject
 from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QWidget, QProgressBar
 
 from qt_material import apply_stylesheet
+from source.setting import Setting
 from source.ui import localize
 
 
-class AutoCompleteComboBox(QComboBox):
+class AutoCompleteComboBox(QComboBox, Setting):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowIcon(QIcon('./data/icons/i.ico'))
-
         self.filter_model = QStandardItemModel()
         self.setEditable(True)
         self.completer = QCompleter(self)
@@ -22,8 +20,20 @@ class AutoCompleteComboBox(QComboBox):
         self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.line_edit = self.lineEdit()
         self.line_edit.textEdited.connect(self.on_text_edited)
+        self.setModel(self.filter_model)
 
     def on_text_edited(self, text):
+
+        with open(f'./data/themes/{self.setting["Main"]["theme"]}.xml', 'r') as style_sheet:
+            colors = [color.replace('</color>\n', '').split('">')[-1] for color in style_sheet.readlines()]
+
+        completer_popup = self.completer.popup()
+        completer_popup.setStyleSheet("QListView {"
+                                      "  background-color: " + colors[4] + ";"
+                                      "  color: " + colors[8] + ";"
+                                      "  border: 1px solid " + colors[6] + ";"
+                                      "}")
+
         self.filter_model.clear()
         self.filter_model.appendRow(QStandardItem(self.line_edit.text() + text
                                                   if text != self.line_edit.text() else self.line_edit.text()))
@@ -46,7 +56,6 @@ class CustomDialog(QDialog):
         super().__init__()
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         apply_stylesheet(self, theme=f'{style}.xml')
-
         self.setWindowTitle(title)
         self.layout = QVBoxLayout()
 
@@ -60,12 +69,9 @@ class CustomDialog(QDialog):
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-
         message = QLabel(text)
         self.layout.addWidget(message)
-
         self.layout.addWidget(self.buttonBox)
-
         self.setLayout(self.layout)
 
 

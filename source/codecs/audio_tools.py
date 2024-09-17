@@ -10,7 +10,7 @@ setting = configparser.ConfigParser()
 setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
 
-def wav_save(args: dict):
+def wav_save(**args):
     ic(args)
 
     name = args['file_name']
@@ -47,7 +47,7 @@ def wav_save(args: dict):
                         new_data)
 
 
-def atrac_save(args: dict):
+def atrac_save(**args):
     ic(args)
 
     name = args['file_name']
@@ -104,7 +104,7 @@ def atrac_save(args: dict):
 
 
 # TODO: Наличие сомнительно...
-def mp3_save(args: dict):
+def mp3_save(**args):
     ic(args)
 
     head = (b'\x54\x41\x47\x75\x6E\x6B\x6E\x6F\x77\x6E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'

@@ -76,8 +76,6 @@ class PKGExtractor(Reaper):
 
 class PKGPacker(Reaper):
 
-    COMPRESSED = True
-
     @staticmethod
     def compress_data(data, flag_byte):
         compressed_stream = BytesIO()

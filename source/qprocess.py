@@ -19,13 +19,14 @@ class QProcessList(Setting):
     def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
         self.nuke = nuke
         self.nuke.file_name = fn
+        subfolder = bool(int(self.setting['Main']['subfolders']))
         fp = f'{self.out_dir}\\{os.path.basename(fn).replace(".", "_")}'
         ic(fp)
 
         try:
-            self.nuke.output_folder = fp if self.checkBox_createSubfolders.isChecked() else self.out_dir
+            self.nuke.output_folder = fp if subfolder else self.out_dir
 
-            if self.checkBox_createSubfolders.isChecked():
+            if subfolder:
                 os.makedirs(fp, exist_ok=True)
 
         except AttributeError:

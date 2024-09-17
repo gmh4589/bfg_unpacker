@@ -1,4 +1,3 @@
-
 import threading
 from datetime import datetime
 import os
@@ -51,7 +50,7 @@ def file_reaper(func_name):
 
 class Reaper(QThread, Setting):
     update_signal = pyqtSignal(int, str, str, bool)
-
+    COMPRESSED = True
     file_name = ''
     path_to_root = os.path.curdir
     com_type = None
@@ -61,7 +60,7 @@ class Reaper(QThread, Setting):
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
 
-    def update_pb(self, file_count, current_file, file_name):
+    def update_pb(self, file_count: int, current_file: int, file_name: str):
         ic(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
         print(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
 
@@ -75,11 +74,17 @@ class Reaper(QThread, Setting):
         pass
 
     @staticmethod
-    def get_zip_method(method_name):
+    def get_zip_method(method_name: str) -> int:
         return next((key for key, value in zip_methods.items() if value == method_name), None)
 
-    def unzip(self, f_name: str, c_num=1, get_ext=False, test=False, encrypt=False, crypt_method='', crypt_key=''):
-        # TODO: Very slow working. Maybe upload as DLL?
+    def unzip(self, f_name: str,
+              c_num: int = 1,
+              get_ext: bool = False,
+              test: bool = False,
+              encrypt: bool = False,
+              crypt_method: str = '',
+              crypt_key='') -> None:
+        # TODO: Very slow working
         out_path = self.output_folder if test else os.environ['TEMP']
 
         if encrypt:
@@ -104,7 +109,10 @@ class Reaper(QThread, Setting):
                 with open(dump_file, 'rb') as dmp:
                     unzip_data = dmp.read()
 
-                os.remove(f_name)
+                try:
+                    os.remove(f_name)
+                except OSError:
+                    pass
 
                 if get_ext:
                     new_ext = self.get_ext(unzip_data[:4])
@@ -123,7 +131,7 @@ class Reaper(QThread, Setting):
             proc.wait()
 
     @staticmethod
-    def get_ext(index: bytes):
+    def get_ext(index: bytes) -> str:
         ext_list = {  # Image Formats
             b'DDS\x20': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
             # Audio Formats
@@ -185,11 +193,11 @@ after_dot = {'_Asura':
              '_Godot':
                  'Godot package files (*.pck; *.exe)|',
              '_idTech':
-                 'All idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.streamed;'
-                 '*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack;'
+                 'All idTech Resource File (*.wad;*.pak;*.pk3;*.pk4;*.pkz;*.*resource*;*.index;*.pindex;*.streamed;'
+                 '*.bimage;*.idwav;*.mega2;*.ptr;*.pages;*.vmtr;*.wl6;*.msf;*.xma;*.xpr;*.lib;*.pack;*.patch;'
                  '*.sin)|DOOM\\idTech 1 (*.wad)|Quake\\idTech 2 (*.pak)|idTech 3 (*.pk3)|idTech 4 (*.pk4)|'
-                 'idTech 5, 6 (*.*resource*; *.tangoresource; *.streamed;*.ptr;*.pages;*.vmtr;*.index;'
-                 '*.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|'
+                 'idTech 5, 6 (*.*resource*; *.tangoresource; *.streamed;*.ptr;*.pages;*.vmtr;*.index;*.pindex;'
+                 '*.patch; *.mega2)|Audio Files (*.idwav)|Textures Files (*.bimage)|Wolfenstin 3d Files (*.wl6)|'
                  'Rage Console Audio (*.msf; *.xma)|Quake 4 XBOX 360 Files (*.xpr)|'
                  'Doomsday Engine Files (*.lib;*.pack)|Sin Gold SIN files (*.sin)|',
              '_Infinity':

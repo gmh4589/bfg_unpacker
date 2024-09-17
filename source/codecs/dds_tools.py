@@ -94,8 +94,7 @@ class DDSCreator:
 
     def AYUV(self):
         self.codec = b'DX10'
-        self.codec_data = (b'\0' * 20) + b'\x08\x10@' + (
-                b'\0' * 17) + b'd' + (b'\0' * 3) + b'\x03' + (b'\0' * 7) + b'\x01' + (b'\0' * 7)
+        self.codec_data = (b'\0' * 20) + b'\x08\x10@' + (b'\0' * 17) + b'd' + (b'\0' * 3) + b'\x03' + (b'\0' * 7) + b'\x01' + (b'\0' * 7)
         self.depth = b'\x02'
         self.keys = b'\x0f'
         self.pixel_format = b'\x10'

@@ -1,6 +1,5 @@
 import os
 import zlib
-# from tkinter.messagebox import showinfo
 from collections import namedtuple
 
 from source.reaper import Reaper, file_reaper

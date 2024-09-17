@@ -13,17 +13,6 @@ class Unreal(Reaper):
         super().__init__()
         self.key = ''
 
-    @staticmethod
-    def string_replace(file_path, new_string, string_num):
-
-        with open(file_path, 'r', encoding='utf-8') as script:
-            lines = script.readlines()
-
-        lines[int(string_num)] = new_string
-
-        with open(file_path, 'w') as new:
-            new.writelines(lines)
-
     @file_reaper
     def run(self):
         size = 0
@@ -39,11 +28,19 @@ class Unreal(Reaper):
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
             case 'pak':
                 version = 4
-                self.string_replace(f"{self.path_to_root}data/scripts/unreal_tournament_4.bms",
-                                    f'set AES_KEY binary "{self.key}"', 11)
+
+                with open(f'{self.path_to_root}\\data\\scripts\\unreal_tournament_4.bms', 'r') as bms:
+                    script_data = bms.read()
+
+                    if self.key:
+                        script_data = script_data.replace('set AES_KEY binary ""', f'set AES_KEY binary "{self.key}"')
+
+                with open(f'{self.path_to_root}\\data\\scripts\\unreal_tournament_4_temp.bms', 'w') as temp_bms:
+                    temp_bms.write(script_data)
+
                 size = os.path.getsize(self.file_name)
                 unreal = Popen(f'{self.path_to_root}data/QuickBMS/quickbms.exe -K '
-                               f"{self.path_to_root}data/scripts/unreal_tournament_4.bms "
+                               f"{self.path_to_root}data/scripts/unreal_tournament_4_temp.bms "
                                f'"{self.file_name}" "{self.output_folder}"',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
             case _:

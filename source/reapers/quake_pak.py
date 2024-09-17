@@ -1,8 +1,5 @@
 
 import os
-from tkinter import simpledialog
-
-from PyQt6.QtWidgets import QInputDialog, QWidget
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper

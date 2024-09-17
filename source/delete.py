@@ -32,7 +32,7 @@ class DeleteThread(Reaper):
                 else:
                     os.remove(name) if os.path.isfile(name) else shutil.rmtree(name)
 
-            except (PermissionError, FileNotFoundError):
+            except (PermissionError, FileNotFoundError, OSError):
                 # send2trash(name)
                 not_deleted.append(name)
 

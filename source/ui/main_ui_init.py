@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 from threading import Thread
 
-# import ffmpeg
 import pandas
 import sqlalchemy
 
@@ -19,7 +18,7 @@ from qt_material import list_themes
 from source.reaper import after_dot
 from source.ui import (setting as setting_ui,
                        change_button_menu as cbm,
-                       localize as translate,
+                       localize,
                        child_gui_data)
 
 
@@ -78,11 +77,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         if self.show_favorites:
             self.filter_list_create(self.favorites)
             self.comboBox_gameList.items = self.favorites
-            self.btn_All_Favorite.setText(translate.fav_caps)
+            self.btn_All_Favorite.setText(localize.fav_caps)
         else:
             self.filter_list_create(self.names)
             self.comboBox_gameList.items = self.names
-            self.btn_All_Favorite.setText(translate.all_caps)
+            self.btn_All_Favorite.setText(localize.all_caps)
 
     def favorite_setting(self, action, item):
 
@@ -196,7 +195,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             for i, action in enumerate(contexts):
                 context = context_menu.addAction(action)
 
-                if action != translate.cancel:
+                if action != localize.cancel:
 
                     if isinstance(l_func, list):
                         context.triggered.connect(l_func[i])
@@ -213,8 +212,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 btn.clicked.connect(self.q_open)
             case 'B':
                 btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
-                    self, translate.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
-                                                      f'{translate.all_files} (*.*)',
+                    self, localize.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
+                                                      f'{localize.all_files} (*.*)',
                     directory=self.setting['Main']['last_dir'])[0]))
             case 'C':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
@@ -276,32 +275,32 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         alpha.append('Y')
         alpha.append('Z')
 
-        tool_tips = {'A': translate.quick_of,
-                     'B': translate.open_qbms,
-                     'C': translate.open_7z,
-                     'D': translate.open_gaup,
-                     'E': translate.open_inno,
-                     'F': translate.convert_ffmpeg,
-                     'G': translate.unpack_unreal,
-                     'H': translate.unpack_unity,
-                     'I': translate.unpack_idtech,
-                     'J': translate.unpack_source,
-                     'K': translate.unpack_creation,
-                     'L': translate.unpack_cry,
-                     'M': translate.convert_bink,
-                     'N': translate.convert_wwise,
-                     'O': translate.ps_audio_tool,
-                     'P': translate.convert_nconvert,
-                     'Q': translate.unpack_red,
-                     'R': translate.unpack_godot,
-                     'S': translate.unpack_rpgmaker,
-                     'T': translate.unpack_renpy,
-                     'U': translate.unpack_unigen,
-                     'V': translate.header_dds,
-                     'W': translate.header_atrac,
-                     'X': translate.header_wav,
-                     'Y': translate.run_setting,
-                     'Z': translate.empty_of}
+        tool_tips = {'A': localize.quick_of,
+                     'B': localize.open_qbms,
+                     'C': localize.open_7z,
+                     'D': localize.open_gaup,
+                     'E': localize.open_inno,
+                     'F': localize.convert_ffmpeg,
+                     'G': localize.unpack_unreal,
+                     'H': localize.unpack_unity,
+                     'I': localize.unpack_idtech,
+                     'J': localize.unpack_source,
+                     'K': localize.unpack_creation,
+                     'L': localize.unpack_cry,
+                     'M': localize.convert_bink,
+                     'N': localize.convert_wwise,
+                     'O': localize.ps_audio_tool,
+                     'P': localize.convert_nconvert,
+                     'Q': localize.unpack_red,
+                     'R': localize.unpack_godot,
+                     'S': localize.unpack_rpgmaker,
+                     'T': localize.unpack_renpy,
+                     'U': localize.unpack_unigen,
+                     'V': localize.header_dds,
+                     'W': localize.header_atrac,
+                     'X': localize.header_wav,
+                     'Y': localize.run_setting,
+                     'Z': localize.empty_of}
 
         for i in range(self.upperButtons.count()):
             item = self.upperButtons.itemAt(i)
@@ -323,11 +322,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 '}')
 
             if i not in (0, 13, 14, -1):
-                self.add_button(btn, contexts=[translate.change_button, translate.cancel],
+                self.add_button(btn, contexts=[localize.change_button, localize.cancel],
                                 l_func=(lambda *args, l=i:
                                         self.new_button(style=self.setting["Main"]["theme"], alpha=l)))
             elif i == 14:
-                self.add_button(btn, contexts=[translate.delete_to_trash, translate.full_delete, translate.cancel],
+                self.add_button(btn, contexts=[localize.delete_to_trash, localize.full_delete, localize.cancel],
                                 l_func=[lambda: self.set_setting('Main', 'trash', '1'),
                                         lambda: self.set_setting('Main', 'trash', '0')])
             else:
@@ -414,8 +413,9 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
             new_item.triggered.connect(lambda *args, func=func_name, ext=ext_list, prg=program_name, f_f=ff,
                                               c1=unp_com1, c2=unp_com2, pak=pak_com, a_move=arch_move, a_ext=arch_ext:
-                                       self.create_queue(func_name=func, ext_list=ext, script_name=prg, ff=f_f,
-                                                         com1=c1, com2=c2, pak=pak, a_move=arch_move, a_ext=a_ext))
+                                       self.create_queue(func_name=func, ext_list=ext, script_name=prg,
+                                                         # ff=f_f, com1=c1, com2=c2, pak=pak, a_move=arch_move, a_ext=a_ext
+                                                         ))
 
     def flc(self, items):
         self.comboBox_gameList.items = items
@@ -449,8 +449,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 self.parent_list[item] = new_parent
                 self.root_item.appendRow(new_parent)
 
-            new_parent = QStandardItem(translate.other)
-            self.parent_list[translate.other] = new_parent
+            new_parent = QStandardItem(localize.other)
+            self.parent_list[localize.other] = new_parent
             self.root_item.appendRow(new_parent)
 
             for name in self.names:
@@ -460,7 +460,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 elif name[0].upper() in self.abc:
                     literal = name[0].upper()
                 else:
-                    literal = translate.other
+                    literal = localize.other
 
                 child = QStandardItem(name)
                 child.setToolTip(name)
@@ -468,8 +468,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
         # Сортировка по годам
         else:
-            new_parent = QStandardItem(translate.other)
-            self.parent_list[translate.other] = new_parent
+            new_parent = QStandardItem(localize.other)
+            self.parent_list[localize.other] = new_parent
             self.root_item.appendRow(new_parent)
             old_games = QStandardItem('... - 1990')
             self.parent_list['... - 1990'] = old_games
@@ -492,7 +492,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                         y = str(y)
 
                 except (ValueError, TypeError):
-                    y = translate.other
+                    y = localize.other
 
                 child = QStandardItem(name)
                 child.setToolTip(name)
@@ -501,8 +501,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             self.root_item.appendRow(old_games)
 
         self.filter_list_create(self.names)
-        self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
-        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
+        self.model.setHeaderData(0, Qt.Orientation.Horizontal, localize.select_something)
+        self.all_games_count.setText(f'{localize.all_games} {self.all_games}')
 
     def change_theme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
@@ -512,8 +512,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
     def change_lang(self, lang):
         self.set_setting('Main', 'lang', lang)
         self.lang_list_create()
-        importlib.reload(translate)
+        importlib.reload(localize)
         self.buttons_create()
-        self.model.setHeaderData(0, Qt.Orientation.Horizontal, translate.select_something)
-        self.all_games_count.setText(f'{translate.all_games} {self.all_games}')
+        self.model.setHeaderData(0, Qt.Orientation.Horizontal, localize.select_something)
+        self.all_games_count.setText(f'{localize.all_games} {self.all_games}')
         self.retranslateUi()
