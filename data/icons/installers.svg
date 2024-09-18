@@ -6,7 +6,7 @@
    viewBox="0 0 50.000000 50.000000"
    preserveAspectRatio="xMidYMid meet"
    id="svg6"
-   sodipodi:docname="quick_open.svg"
+   sodipodi:docname="installers.svg"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -40,17 +40,31 @@
      id="g6"
      style="display:inline" />
   <rect
-     style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-dasharray:none"
-     id="rect1"
-     width="40.269428"
-     height="27.049227"
-     x="4.5227003"
-     y="13.133225"
-     rx="0.62603748"
-     ry="0.96404999" />
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-dasharray:none"
+     id="rect8"
+     width="38.616901"
+     height="14.350876"
+     x="6.0882502"
+     y="22.352575"
+     ry="1.4859003" />
   <path
-     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.00000006;stroke-dasharray:none"
-     d="M 6.6970753,14.43785 24.266026,27.310151 42.443802,14.002975 Z"
-     id="path2"
-     sodipodi:nodetypes="cccc" />
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-dasharray:none"
+     d="M 10.697926,14.785751 13.916,14.872726 V 4.8706002 l 4.174801,-0.086975 -0.17395,9.8281758 3.565975,-0.17395 -5.392451,6.6101 z"
+     id="path9" />
+  <rect
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-dasharray:none"
+     id="rect9"
+     width="12.00255"
+     height="1.91345"
+     x="9.1323757"
+     y="27.397127"
+     ry="0.956725" />
+  <rect
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-dasharray:none"
+     id="rect10"
+     width="2.0004251"
+     height="2.2613502"
+     x="38.18203"
+     y="25.657625"
+     ry="0.956725" />
 </svg>

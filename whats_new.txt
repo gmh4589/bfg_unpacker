@@ -1,4 +1,10 @@
 
+September 18, 2024 - 2.0.0 beta_2 version release
+
+ - Fixed icon showing in explorer's context menu
+ - Fixed program crash by try unpacking file from explorer's context menu
+ - The game base was updated (updated UE4 game list, added 200+ release years)
+
 September 17, 2024
 
  - Added support to unpack archives from "Of orc and human" game

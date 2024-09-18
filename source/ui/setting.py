@@ -196,7 +196,7 @@ class SettingWindow(QDialog):
 
                     with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp') as key:
                         winreg.SetValueEx(key, '', 0, winreg.REG_SZ, 'Open with BFG Unpacker')
-                        winreg.SetValueEx(key, 'Icon', 0, winreg.REG_SZ, f'{script_dir}\\data\\icons\\i.ico, 0')
+                        winreg.SetValueEx(key, 'Icon', 0, winreg.REG_SZ, f'{script_dir}\\data\\icons\\i.ico, 2')
 
                     with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, r'*\shell\BFGUnp\command') as key:
                         winreg.SetValueEx(key, '', 0, winreg.REG_SZ, f'"{script_dir}\\bfg_unpacker.exe" "%1"')

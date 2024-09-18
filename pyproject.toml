@@ -19,6 +19,7 @@ pyinstaller = "^6.4.0"
 sqlalchemy = "^2.0.31"
 pylint = "^3.2.5"
 ruff = "^0.5.0"
+beautifulsoup4 = "^4.12.3"
 
 
 [build-system]

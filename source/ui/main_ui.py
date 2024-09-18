@@ -352,6 +352,15 @@ class Ui_BFGUnpacker(Translate):
         self.menubar.addAction(self.menu_about.menuAction())
         self.setCentralWidget(self.centralwidget)
 
+        # Set icons
+        # self.menu_disk_images.setIcon(QIcon('./data/icons/disk_image.svg'))
+        # self.quickOpen.setIcon(QIcon('./data/icons/quick_open.svg'))
+        # self.consolesMenu.setIcon(QIcon('./data/icons/consoles.svg'))
+        # self.menu_archives.setIcon(QIcon('./data/icons/archives.svg'))
+        # self.menu_installers.setIcon(QIcon('./data/icons/installers.svg'))
+        # self.menu_game_engines.setIcon(QIcon('./data/icons/engines.svg'))
+        # self.videoConverters.setIcon(QIcon('./data/icons/video.svg'))
+
         self.all_games = 0
         self.download = True
         self.current_game = 0

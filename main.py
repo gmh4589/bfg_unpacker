@@ -15,6 +15,8 @@ from source.reaper import after_dot
 from source.reapers import *
 from source.delete import DeleteThread
 
+ic.disable()
+
 
 class UnpackerMain(MainWindow, QuickOpen):
 
@@ -117,6 +119,7 @@ class QuickUnpack(QMainWindow, QuickOpen):
         self.pb = custom_ui.ProgressBar(self.setting["Main"]["theme"])
         self.last_run = None
         self.file_list = [sys.argv[1], ]
+        self.func_name = None
         self.find_reaper()
 
 
