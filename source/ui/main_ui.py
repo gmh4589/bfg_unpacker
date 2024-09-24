@@ -436,6 +436,7 @@ class Ui_BFGUnpacker(Translate):
                                                                ext_list=f'CSO {translate.disc_image} (*.cso)|'))
         self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
                                                                 ext_list=f'CSO {translate.disc_image} (*.cso)|'))
+        self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM'))
         self.favorites = []
 
         if os.path.exists('favorites.ini'):

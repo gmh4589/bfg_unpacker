@@ -1,14 +1,33 @@
 
+September 24, 2024
+
+ - File header checking moved to separated method in Reaper class
+ - Added support to convert bimage textures from idTech games to DDS
+ - Now, when unpacking archives from games on idTech, BIMAGE textures are automatically converted to DDS
+ - Now, when unpacking archives from The Witcher 3, saving original XBM texture
+ - Classes for unpacking archives from Doom (2016) and Rage is merged to single class
+ - Added native support for unpack archives from idTech Engines games:
+       *.tangoresources, *.streamed из The Evil Within,
+       *.resources из DOOM 3: BFG Edition
+ - Logging option was changed
+ - vgm_streem utility has been integrated
+ - The reapers folder has been tidied up, unpackers have been divided into subfolders with engine or developer names,
+        all files containing more than one unpacker class have been split into several files
+ - Into settings menu was added options for convert textures from archives (if it support):
+        Can select next parameters:
+            - Save textures in original format only
+            - Save textures in convert format only
+            - Save original and convert textures
+
 September 18, 2024 - 2.0.0 beta_2 version release
 
  - Fixed icon showing in explorer's context menu
  - Fixed program crash by try unpacking file from explorer's context menu
- - The game base was updated (updated UE4 game list, added 200+ release years)
+ - The game base was updated (updated UE4 game list, added 200+ game release dates)
 
 September 17, 2024
 
- - Added support to unpack archives from "Of orc and human" game
- - The game base was updated (added 500+ release years, remove doubles games)
+ - The game base was updated (added 500+ game release dates, remove doubles games)
  - Double extensions in QuickOpen function was deleted
  - Added support more games on idTech game engines series (Doom 3 BFG Edition, Doom (2016), Rage, The Evil Within and other)
  - Added support for unpack and pack of files from Of orcs and human game
@@ -26,14 +45,14 @@ September 09, 2024
  - Added support to unpack texture.cache, bundle and w3speech archives from The Witcher 3: Wild Hunt
  - Added fields for entering width and height for ZPL to PNG convertor
  - Added option for creation CEL\TOP files for TES III: Morrowind
- - The game base was updated (added 500+ release years, remove doubles games)
+ - The game base was updated (added 500+ game release dates, remove doubles games)
  - Added activity for all buttons in upper menu
  - Fixed program crash after open same children menus
  - Added option to unpack installer files created in InnoSetup
  - Added activity to menu items in submenus "Archives", "Game Engines", "Disc Images"
  - Little changed colors in "Matrix" theme, and original "Matrix" theme was renamed in "Potion"
  - Added option to program call from Windows context menu
- - Fixed saving same file from game Alan Wake, now all files saving in out folder
+ - Fixed saving some file from game Alan Wake, now all files saving in out folder
 
 August 28, 2024
 
@@ -55,7 +74,7 @@ August 23, 2024
 
 August 22, 2024
 
- - List of manu "Archives", "Disc images" and "Game Engines" now create via database
+ - List of menu "Archives", "Disc images" and "Game Engines" now create via database
  - All old CSV tables was deleted from the program
  - Now for unpacking files from games on Infinity Engine, you can select BIF or KEY files
  - Separated function for Scimitar and Asura Engines was deleted
@@ -76,7 +95,7 @@ August 12, 2024
  - Fixed unpacking some BSA archives from TES IV: Oblivion, Fallout 3, Fallout NV, TES V: Skyrim LE,
         TES V Skyrim SE\AE, unpacking of which caused the program crash
  - Added support BSA archives from TES I: Arena, TES II: Daggerfall and AES Legend Battlespire, TES III: Morrowind
- - Fixed slow unpacking big BSA\BA2 archives (biggest 3 GB)
+ - Fixed slow unpacking big BSA\BA2 archives (3+ GB)
  - Functions for working with DDS files are placed in a separate class
 
 August 1, 2024

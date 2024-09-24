@@ -24,6 +24,7 @@ class Setting:
             'trash': '0',
             'fav_format': 'png',
             'context_menu': '2',
+            'save_original_images': '2',
         },
         'Buttons': {
             '1': 'B',
@@ -67,6 +68,7 @@ class Setting:
         setting.set('Main', 'trash', '0')
         setting.set('Main', 'fav_format', 'png')
         setting.set('Main', 'context_menu', "2")
+        setting.set('Main', 'save_original_images', "2")
         setting.set('Buttons', '1', 'B')
         setting.set('Buttons', '2', 'C')
         setting.set('Buttons', '3', 'D')

@@ -16,7 +16,7 @@ import source.ui.localize as translate
 class ChildUIWindow(QDialog):
 
     def __init__(self, label_list=None, action_list=None, default_list=None, action=None, style='',
-                 gui_name='test_child', ext_list='',  drop_a=False, item1=0, item2=1, combos=''):
+                 gui_name='test_child', ext_list='', drop_a=False, item1=0, item2=1, combos=''):
 
         super().__init__()
 
@@ -141,10 +141,10 @@ class ChildUIWindow(QDialog):
                                                                               self.drops[drop].currentText())
 
                         self.command_line = (self.command_line
-                                                .replace('%out_dir%', self.setting['Main']['out_path'])
-                                                .replace('%file_name%', file_name)
-                                                .replace('%out_name%', out_name)
-                                                .replace('/', '\\'))
+                                             .replace('%out_dir%', self.setting['Main']['out_path'])
+                                             .replace('%file_name%', file_name)
+                                             .replace('%out_name%', out_name)
+                                             .replace('/', '\\'))
 
                         print(f'Wait, file {file_name} being processed...')
                         ic(self.command_line)
@@ -157,9 +157,12 @@ class ChildUIWindow(QDialog):
                         for drop in range(len(self.drops)):
 
                             match self.drops[drop].currentText():
-                                case translate.yes: a = True
-                                case translate.no: a = False
-                                case _: a = self.drops[drop].currentText()
+                                case translate.yes:
+                                    a = True
+                                case translate.no:
+                                    a = False
+                                case _:
+                                    a = self.drops[drop].currentText()
 
                             args[self.label_list[drop].split(' ')[0]] = a
 

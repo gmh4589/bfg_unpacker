@@ -13,9 +13,7 @@ class OOMExtractor(Reaper):
         with open(self.file_name, "rb") as file:
             magic = file.read(4)
 
-            if magic != b'PSSG':
-                print(localize.not_correct_file)
-                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Of orc and human'), True)
+            if not self.magic([b'PSSG', ], magic, 'Of orc and human'):
                 return
 
             name = os.path.basename(self.file_name)

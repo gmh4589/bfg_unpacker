@@ -14,9 +14,7 @@ class Seven(Reaper):
         with open(self.file_name, 'rb') as file:
             magic = file.read(4)
 
-            if magic != b'\x37\xBD\x37\x4D':
-                print(localize.not_correct_file.replace('%%', '7x7'))
-                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', '7x7'), True)
+            if not self.magic([b'\x37\xBD\x37\x4D', ], magic, '7x7'):
                 return
 
             data = bytearray((byte ^ 0xf7) for byte in file.read())

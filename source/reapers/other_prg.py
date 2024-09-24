@@ -30,6 +30,7 @@ class OtherProg(Reaper):
         # l_first = left digit current, right digit all
         # r_first = right digit current, left digit all
         # 50 = all time 50 percent
+        # not = without progress bar
         # else = random
 
         self.percent_del = percent_del
@@ -50,10 +51,11 @@ class OtherProg(Reaper):
         ic(arguments)
         percent = 0
         pipe = None
+        prg = None
 
         try:
 
-            if self.run_type == 'Popen':
+            if self.run_type == 'popen':
                 prg = Popen(arguments, stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore')
             elif self.run_type == 'os.system':
                 os.system(arguments)
@@ -71,6 +73,9 @@ class OtherProg(Reaper):
 
         if self.percent_type == '50':
             self.update_signal.emit(50, '', f'{localize.saving} - {self.file_name}...', False)
+
+        elif self.percent_type == 'not':
+            self.update_signal.emit(100, '', f'{localize.saving} - {self.file_name}...', True)
 
         while True:
 

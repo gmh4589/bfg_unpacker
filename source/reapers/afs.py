@@ -3,7 +3,6 @@ import os
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
-from source.ui import localize
 
 
 class AFSExtractor(Reaper):
@@ -14,9 +13,7 @@ class AFSExtractor(Reaper):
         with open(self.file_name, "rb") as afs_file:
             magic = afs_file.read(4)
 
-            if magic != b'AFS\x00':
-                print(localize.not_correct_file.replace('%%', 'AFS'))
-                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'AFS'), True)
+            if not self.magic([b'AFS\x00', ], magic, 'AFS'):
                 return
 
             file_count = int.from_bytes(afs_file.read(4), byteorder="little")

@@ -124,5 +124,9 @@
     "dump_create": "Dump create",
     "filed_to_unzip": "Filed to unzip",
     "testing": "Testing",
-    "fav_image_format": "Save images as:"
+    "fav_image_format": "Save images as:",
+    "image_action": "Texture action:",
+    "only_original": "Original only",
+    "only_convert": "Convert to DDS",
+    "original_convert": "Original + DDS"
 }

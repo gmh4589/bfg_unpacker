@@ -5,10 +5,9 @@ import struct
 
 from source.codecs.dds_tools import DDSCreator
 from source.reaper import Reaper, file_reaper
-from source.ui import localize
 
 
-class RP6L(Reaper):
+class RP6L(Reaper, DDSCreator):
 
     @file_reaper
     def run(self):
@@ -16,9 +15,7 @@ class RP6L(Reaper):
         with open(self.file_name, "rb") as file:
             magic = file.read(4)
 
-            if magic != b"RP6L":
-                print(localize.not_correct_file.replace('%%', 'Chrome Engine'))
-                self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Chrome Engine'), True)
+            if not self.magic([b"RP6L", ], magic, 'Chrome Engine Archive'):
                 return
 
             file.seek(8, 1)
@@ -113,8 +110,7 @@ class RP6L(Reaper):
                 dxt = struct.unpack("I", out[12:16])[0]
                 codec = fmt[dxt]
                 data_file = out[152:]
-                dds = DDSCreator()
-                dds.dds_save(width, height, codec, f'{self.output_folder}/{fn}', data_file)
+                self.dds_save(width, height, codec, f'{self.output_folder}/{fn}', data_file)
             else:
                 with open(f'{self.output_folder}/{fn}', "wb") as w:
                     w.write(out)

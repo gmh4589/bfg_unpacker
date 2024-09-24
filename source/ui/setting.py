@@ -39,7 +39,7 @@ class SettingWindow(QDialog):
             self.rpgmaker_list = load_table('rpgmaker_list')
             self.godot_list = load_table('godot_list')
 
-        self.resize(300, 350)
+        self.resize(450, 280)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
@@ -49,9 +49,9 @@ class SettingWindow(QDialog):
         self.label_engines.setGeometry(QRect(10, 10, 150, 20))
         self.label_sort = QLabel(self.centralwidget)
         self.label_sort.setGeometry(QRect(160, 10, 150, 20))
-        self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QRect(10, 30, 145, 170))
-        self.widget = QWidget(self.groupBox)
+        self.engines_group = QGroupBox(self.centralwidget)
+        self.engines_group.setGeometry(QRect(10, 30, 145, 170))
+        self.widget = QWidget(self.engines_group)
         self.widget.setGeometry(QRect(10, 10, 130, 150))
         self.verticalLayout_2 = QVBoxLayout(self.widget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -92,23 +92,37 @@ class SettingWindow(QDialog):
         self.godot_checkBox.setChecked(bool(int(self.setting['Engines']['godot'])))
         self.verticalLayout_2.addWidget(self.godot_checkBox)
 
-        self.groupBox_2 = QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QRect(160, 30, 130, 60))
-        self.sort_by_names = QRadioButton(self.groupBox_2)
+        self.sort_group = QGroupBox(self.centralwidget)
+        self.sort_group.setGeometry(QRect(160, 30, 145, 60))
+        self.sort_by_names = QRadioButton(self.sort_group)
         self.sort_by_names.setFont(self.font)
         self.sort_by_names.setGeometry(QRect(10, 10, 100, 20))
-        self.sort_by_years = QRadioButton(self.groupBox_2)
+        self.sort_by_years = QRadioButton(self.sort_group)
         self.sort_by_years.setFont(self.font)
         self.sort_by_years.setGeometry(QRect(10, 35, 100, 20))
+
         self.context_menu = QCheckBox(self.centralwidget)
         self.context_menu.setFont(self.font)
         self.context_menu.setGeometry(QRect(10, 200, 150, 40))
         self.context_menu.setChecked(bool(int(self.setting['Main']['context_menu'])))
+        self.context_changed = self.context_menu.isChecked()
+
         self.load_bar = QCheckBox(self.centralwidget)
         self.load_bar.setFont(self.font)
-        self.load_bar.setGeometry(QRect(10, 240, 200, 20))
+        self.load_bar.setGeometry(QRect(160, 200, 150, 40))
         self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
-        self.context_changed = self.context_menu.isChecked()
+
+        self.label_alpha_group = QLabel(self.centralwidget)
+        self.label_alpha_group.setGeometry(QRect(160, 100, 120, 30))
+
+        self.group_box = QGroupBox(self.centralwidget)
+        self.group_box.setGeometry(QRect(160, 135, 145, 65))
+        self.arch_checkbox = QCheckBox(self.group_box)
+        self.arch_checkbox.setGeometry(QRect(10, 10, 120, 20))
+        self.arch_checkbox.setChecked(bool(int(self.setting['Main']['group_arch'])))
+        self.ge_checkbox = QCheckBox(self.group_box)
+        self.ge_checkbox.setGeometry(QRect(10, 35, 120, 20))
+        self.ge_checkbox.setChecked(bool(int(self.setting['Main']['group_ge'])))
 
         # Favorite image format
         filter_model = QStandardItemModel()
@@ -118,42 +132,53 @@ class SettingWindow(QDialog):
 
         self.fav_image_label = QLabel(self.centralwidget)
         self.fav_image_label.setFont(self.font)
-        self.fav_image_label.setGeometry(QRect(160, 210, 120, 20))
+        self.fav_image_label.setGeometry(QRect(315, 10, 120, 20))
         self.fav_image_drop = QComboBox(self.centralwidget)
         self.fav_image_drop.setFont(self.font)
-        self.fav_image_drop.setGeometry(QRect(160, 240, 120, 20))
+        self.fav_image_drop.setGeometry(QRect(315, 40, 120, 20))
         self.fav_image_drop.setModel(filter_model)
         self.fav_image_drop.setCurrentText(self.setting['Main']['fav_format'])
 
-        self.label_alpha_group = QLabel(self.centralwidget)
-        self.label_alpha_group.setGeometry(QRect(160, 100, 120, 30))
-
-        self.groupBox_3 = QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QRect(160, 135, 130, 60))
-        self.arch_checkbox = QCheckBox(self.groupBox_3)
-        self.arch_checkbox.setGeometry(QRect(10, 10, 120, 20))
-        self.arch_checkbox.setChecked(bool(int(self.setting['Main']['group_arch'])))
-        self.ge_checkbox = QCheckBox(self.groupBox_3)
-        self.ge_checkbox.setGeometry(QRect(10, 35, 120, 20))
-        self.ge_checkbox.setChecked(bool(int(self.setting['Main']['group_ge'])))
+        self.image_box_label = QLabel(self.centralwidget)
+        self.image_box_label.setFont(self.font)
+        self.image_box_label.setGeometry(QRect(315, 75, 120, 20))
+        self.image_box = QGroupBox(self.centralwidget)
+        self.image_box.setGeometry(QRect(315, 100, 125, 100))
+        self.save_original_only = QRadioButton(self.image_box)
+        self.save_original_only.setFont(self.font)
+        self.save_original_only.setGeometry(QRect(10, 15, 120, 20))
+        self.save_convert_only = QRadioButton(self.image_box)
+        self.save_convert_only.setFont(self.font)
+        self.save_convert_only.setGeometry(QRect(10, 40, 120, 20))
+        self.save_all = QRadioButton(self.image_box)
+        self.save_all.setFont(self.font)
+        self.save_all.setGeometry(QRect(10, 65, 120, 20))
 
         self.create_theme = QToolButton(self.centralwidget)
         self.create_theme.setFont(self.font)
-        self.create_theme.setGeometry(QRect(10, 280, 135, 25))
+        self.create_theme.setGeometry(QRect(300, 210, 135, 25))
         self.out_folder = QToolButton(self.centralwidget)
         self.out_folder.setFont(self.font)
-        self.out_folder.setGeometry(QRect(10, 310, 135, 25))
+        self.out_folder.setGeometry(QRect(10, 240, 135, 25))
         self.save_setting = QToolButton(self.centralwidget)
         self.save_setting.setFont(self.font)
-        self.save_setting.setGeometry(QRect(155, 280, 135, 25))
+        self.save_setting.setGeometry(QRect(155, 240, 135, 25))
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
-        self.cancel_button.setGeometry(QRect(155, 310,  135, 25))
+        self.cancel_button.setGeometry(QRect(300, 240,  135, 25))
 
         if self.setting['Main']['group'] == 'name':
             self.sort_by_names.setChecked(True)
         else:
             self.sort_by_years.setChecked(True)
+
+        match self.setting['Main']['save_original_images']:
+            case '0':
+                self.save_original_only.setChecked(True)
+            case '1':
+                self.save_convert_only.setChecked(True)
+            case '2':
+                self.save_all.setChecked(True)
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
@@ -175,6 +200,7 @@ class SettingWindow(QDialog):
                 self.setting.write(config_file)
 
     def apply_setting(self, style):
+
         self.setting.set('Engines', 'unreal', "2" if self.unreal_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'unity', "2" if self.unity_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'rpg_maker', "2" if self.rpg_checkBox.isChecked() else "0")
@@ -186,6 +212,8 @@ class SettingWindow(QDialog):
         self.setting.set('Main', 'group_ge', "2" if self.ge_checkbox.isChecked() else "0")
         self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
         self.setting.set('Main', 'fav_format', self.fav_image_drop.currentText())
+        self.setting.set('Main', 'save_original_images', ('0' if self.save_original_only.isChecked()
+                                                          else ('1' if self.save_convert_only.isChecked() else '2')))
         self.setting.set('Main', 'theme', style)
 
         if self.context_menu.isChecked() != self.context_changed:
@@ -242,3 +270,7 @@ class SettingWindow(QDialog):
         self.ge_checkbox.setText(_translate("MainMenu", translate.game_engines))
         self.arch_checkbox.setText(_translate("MainMenu", translate.archives))
         self.fav_image_label.setText(_translate("MainMenu", translate.fav_image_format))
+        self.image_box_label.setText(_translate("MainMenu", translate.image_action))
+        self.save_original_only.setText(_translate("MainMenu", translate.only_original))
+        self.save_convert_only.setText(_translate("MainMenu", translate.only_convert))
+        self.save_all.setText(_translate("MainMenu", translate.original_convert))

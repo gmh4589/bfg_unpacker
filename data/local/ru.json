@@ -124,5 +124,9 @@
     "dump_create": "Создан дамп",
     "filed_to_unzip": "Не удалось разжать",
     "testing": "Тестируется",
-    "fav_image_format": "Формат изображений:"
+    "fav_image_format": "Формат изображений:",
+    "image_action": "Сохранение текстур:",
+    "only_original": "Оригинал",
+    "only_convert": "Конверт. в DDS",
+    "original_convert": "Оригинал + DDS"
 }

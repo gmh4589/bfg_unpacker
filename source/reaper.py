@@ -1,17 +1,30 @@
 import threading
-from datetime import datetime
 import os
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
-
+from tkinter.messagebox import showinfo
 from icecream import ic
+from datetime import datetime
 
 from source.ui import localize
 from source.setting import Setting
 from source.codecs.zip_methods import zip_methods
 
-DEBUG = False
+DEBUG = False if os.path.exists('dev_tools') else True
+
+
+def logger(level: str, message: str, show: bool = False, messagebox: bool = False) -> None:
+
+    if show:
+        print(message)
+
+    with open('log.txt', 'a') as log:
+        log.write(f'{datetime.now()} - [{level}]: {message}\n')
+
+    if messagebox:
+        showinfo(title=level,
+                 message=message)
 
 
 def file_reaper(func_name):
@@ -35,15 +48,13 @@ def file_reaper(func_name):
         print(f'{localize.done}\n'
               f'{localize.duration} {end - start}')
 
-        with open('log.txt', 'a') as log:
-
-            if error is None:
-                log.write(f'Function: {function}\n'
-                          f'\tStart: {start}\tEnd: {end}\tDuration: {end - start}\n')
-            else:
-                print(f'ERROR IN {function}: {error}!!!')
-                log.write(f'Function: {function}\n'
-                          f'\tStart: {start}\tError: {error}\n')
+        if error is None:
+            logger(f'INFO',
+                   f'\n\tFunction: {function}\n\tStart: {start}\n\tEnd: {end}\n\tDuration: {end - start}\n')
+        else:
+            print(f'ERROR IN {function}: {error}!!!')
+            logger(f'ERROR',
+                   f'\n\tFunction: {function}\n\tStart: {start}\n\tError: {error}\n')
 
     return wrapper
 
@@ -73,10 +84,23 @@ class Reaper(QThread, Setting):
     def run(self):
         pass
 
+    def magic(self, magic: list, read_magic: bytes, message: str) -> bool:
+
+        for m in magic:
+
+            if m == read_magic:
+                return True
+
+        else:
+            print(localize.not_correct_file.replace('%%', message))
+            self.update_signal.emit(100, '', '', True)
+            return False
+
     @staticmethod
     def get_zip_method(method_name: str) -> int:
         return next((key for key, value in zip_methods.items() if value == method_name), None)
 
+    # TODO: Very slow working... 🐌
     def unzip(self, f_name: str,
               c_num: int = 1,
               get_ext: bool = False,
@@ -84,7 +108,7 @@ class Reaper(QThread, Setting):
               encrypt: bool = False,
               crypt_method: str = '',
               crypt_key='') -> None:
-        # TODO: Very slow working
+
         out_path = self.output_folder if test else os.environ['TEMP']
 
         if encrypt:

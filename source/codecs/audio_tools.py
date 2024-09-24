@@ -10,7 +10,7 @@ setting = configparser.ConfigParser()
 setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
 
 
-def wav_save(**args):
+def wav_save(args):
     ic(args)
 
     name = args['file_name']
