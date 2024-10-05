@@ -1,7 +1,8 @@
 import os
 from icecream import ic
 
-from source.reaper import Reaper, file_reaper, zip_methods
+from source.reaper import Reaper, file_reaper
+from source.codecs.zip_methods import zip_methods
 from source.ui import localize
 
 
@@ -11,11 +12,13 @@ class ZipScanner(Reaper):
     def run(self):
 
         size = os.path.getsize(self.file_name)
-        method_count = len(zip_methods)
+        method_dict = zip_methods.get_zip_list()
+        print(type(method_dict))
 
-        for i in zip_methods.keys():
+        method_count = len(method_dict)
+
+        for name, i in method_dict.items():
             self.unzip(f_name=self.file_name, c_num=i, test=True)
-            name = zip_methods[i]
             print(f'{localize.test_algorythm}: {name}')
             ic(f'{localize.test_algorythm}: {name}')
             test_file = os.path.join(self.output_folder, name + '.dmp')

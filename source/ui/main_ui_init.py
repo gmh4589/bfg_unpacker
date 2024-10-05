@@ -8,7 +8,7 @@ import pandas
 import sqlalchemy
 
 from PyQt6.QtCore import Qt, QItemSelectionModel
-from PyQt6.QtGui import QStandardItem, QIcon
+from PyQt6.QtGui import QStandardItem, QIcon, QFontDatabase
 from PyQt6.QtWidgets import *
 from icecream import ic
 
@@ -238,9 +238,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             case 'M':
                 btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
             case 'N':
-                btn.clicked.connect(self.wwise_tools)
+                # btn.clicked.connect(self.wwise_tools)
+                btn.clicked.connect(self.image_to_dds_nv)
             case 'O':
-                btn.clicked.connect(self.ps_audio_tools)
+                # btn.clicked.connect(self.ps_audio_tools)
+                btn.clicked.connect(self.image_to_dds_ms)
             case 'P':
                 btn.clicked.connect(self.nConvert)
             case 'Q':
@@ -274,6 +276,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
         alpha.append('Y')
         alpha.append('Z')
+
+        QFontDatabase.addApplicationFont('data/fonts/IconLib.otf')
 
         tool_tips = {'A': localize.quick_of,
                      'B': localize.open_qbms,
@@ -311,14 +315,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             btn.setToolTip(tool_tips[a])
             btn.setStyleSheet(
                 'QToolButton {'
-                "font-family: 'IconLib';"
+                f"font-family: IconLib;"
                 'border: 0px;'
                 'margin: 0px;'
                 'padding: 0px;'
                 'border-radius: 10px;'
-                f'height: 40px;'
-                f'width: 40px;'
-                f'font-size: 40px;'
+                'height: 40px;'
+                'width: 40px;'
+                'font-size: 40px;'
                 '}')
 
             if i not in (0, 13, 14, -1):

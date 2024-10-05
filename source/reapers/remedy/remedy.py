@@ -6,9 +6,6 @@ from collections import namedtuple
 
 
 class Remedy(Reaper):
-    # TODO:
-    #  Alan Wake Remastered - crash
-    #  Alan Wake 2 - new format of files
 
     @file_reaper
     def run(self):
@@ -48,8 +45,13 @@ class Remedy(Reaper):
             bin_data.seek(8 if ver > 2 else 0, 1)
             name_size = int.from_bytes(bin_data.read(4), byteorder=byteorder)
             ver = 10 if 'remastered' in self.file_name.lower() else ver
-            bin_data.seek(0x80 + folders_count * (48 if ver >= 8 else 28), 1)
-            file_data_start = bin_data.tell()
+
+            if ver == 10:
+                file_data_start = bin_size - name_size - (0x40 * files_count) + 8
+            else:
+                bin_data.seek(0x80 + folders_count * (48 if ver >= 8 else 28), 1)
+                file_data_start = bin_data.tell()
+
             bin_data.seek(bin_size - name_size)
             files_raw = [file.decode('utf-8', errors='ignore') for file in bin_data.read(name_size).split(b'\0')]
 
@@ -82,17 +84,16 @@ class Remedy(Reaper):
             bin_data.seek(file_data_start)
 
             for i in range(files_count):
+                here = hex(bin_data.tell())
                 bin_data.seek(32 if ver >= 8 else 20, 1)
                 offset = int.from_bytes(bin_data.read(8), byteorder=byteorder)
                 size = int.from_bytes(bin_data.read(8), byteorder=byteorder)
 
-                # full_name = os.path.join(self.output_folder, files[i])
                 full_name = f"{self.output_folder}\\{files[i]}"
+                name_data.append(NameData(full_name, offset, size))
 
-                file_data = NameData(full_name, offset, size)
-                name_data.append(file_data)
-
-                bin_data.seek(12 if ver >= 7 else 4, 1)
+                # bin_data.seek(12 if ver >= 7 else (16 if ver == 10 else 4), 1)
+                bin_data.seek(12 if ver in (7, 8, 9) else (16 if ver == 10 else 4), 1)
 
         with open(rmdp_file, 'rb') as rmdp_data:
 
@@ -104,4 +105,4 @@ class Remedy(Reaper):
                 with open(data_file.name, "wb") as nf:
                     nf.write(data)
 
-                self.update_pb(files_count, i, data_file.name)
+                self.update_pb(files_count, i + 1, data_file.name)

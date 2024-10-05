@@ -9,9 +9,7 @@ from source.ui import localize
 class Unreal(Reaper):
     # TODO: Need testing
 
-    def __init__(self):
-        super().__init__()
-        self.key = ''
+    key = ''
 
     @file_reaper
     def run(self):

@@ -59,9 +59,17 @@ class CBWindow(QDialog):
             buttons = [button for button in setting['Buttons'].values()]
 
             if a in buttons:
-                CustomDialog(text=f'{localize.has_already_been}').exec()
+                CustomDialog(
+                    title='INFO',
+                    style=self.style,
+                    text=f'{localize.has_already_been}'
+                ).exec()
             else:
-                CustomDialog(text=f'{localize.successfully}').exec()
+                CustomDialog(
+                    title='INFO',
+                    style=self.style,
+                    text=f'{localize.successfully}'
+                ).exec()
                 setting.set('Buttons', str(num), str(a))
 
                 with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:

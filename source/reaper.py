@@ -65,6 +65,7 @@ class Reaper(QThread, Setting):
     file_name = ''
     path_to_root = os.path.curdir
     com_type = None
+    new_ext = 'dat'
 
     def __init__(self):
         super().__init__()
@@ -84,7 +85,7 @@ class Reaper(QThread, Setting):
     def run(self):
         pass
 
-    def magic(self, magic: list, read_magic: bytes, message: str) -> bool:
+    def magic(self, magic: list, read_magic: bytes | int, message: str) -> bool:
 
         for m in magic:
 
@@ -95,10 +96,6 @@ class Reaper(QThread, Setting):
             print(localize.not_correct_file.replace('%%', message))
             self.update_signal.emit(100, '', '', True)
             return False
-
-    @staticmethod
-    def get_zip_method(method_name: str) -> int:
-        return next((key for key, value in zip_methods.items() if value == method_name), None)
 
     # TODO: Very slow working... 🐌
     def unzip(self, f_name: str,
@@ -119,7 +116,7 @@ class Reaper(QThread, Setting):
                       f'"{self.path_to_root}\\data\\QuickBMS\\encryption_scan.bms")" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")
         else:
-            dump_name = zip_methods[c_num] + '.dmp'
+            dump_name = zip_methods.get_zip_indexes()[c_num] + '.dmp'
             script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "{c_num}" '
                       f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")
@@ -139,8 +136,8 @@ class Reaper(QThread, Setting):
                     pass
 
                 if get_ext:
-                    new_ext = self.get_ext(unzip_data[:4])
-                    f_name = f_name.replace('dat', new_ext)
+                    self.new_ext = self.get_ext(unzip_data[:4])
+                    f_name = f_name.replace('dat', self.new_ext)
 
                 with open(f_name, 'wb') as out_f:
                     out_f.write(unzip_data)

@@ -5,8 +5,10 @@ from tkinter import ttk
 
 from source.setting import Setting
 from source.codecs import wav_list, audio_tools, image_tools
+from source.codecs.dds_tools import DDSCreator
 from source.ui import localize as translate, child_gui
-from source.reaper import zip_methods
+from source.codecs.zip_methods import zip_methods
+# from source.codecs.zip_methods_bak import zip_methods
 
 
 # Методы для создания и наполнения дочерних интерфейсов
@@ -110,7 +112,7 @@ class ChildGuiData(Setting):
                                 label_list=['Height', 'Width', 'Format', 'Offset'],
                                 action_list=[['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
                                              ['2', '4', '8', '12', '16', '24', '32', '48', '64', '96', '128', '256', '384', '512', '768', '1024', '1536', '2048', '3072', '4096', '8192', translate.other],
-                                             ['A8_UNORM', 'AYUV', 'B4G4R4A4_UNORM', 'B5G5R5A1_UNORM', 'B5G6R5_UNORM', 'B8G8R8A8_UNORM', 'B8G8R8A8_UNORM_SRGB', 'B8G8R8X8_UNORM', 'B8G8R8X8_UNORM_SRGB', 'BC1_UNORM', 'BC1_UNORM_SRGB', 'BC2_UNORM', 'BC2_UNORM_SRGB', 'BC3_UNORM', 'BC3_UNORM_SRGB', 'BC4_SNORM', 'BC4_UNORM', 'BC5_SNORM', 'BC5_UNORM', 'BC6H_SF16', 'BC6H_UF16', 'BC7_UNORM', 'BC7_UNORM_SRGB', 'G8R8_G8B8_UNORM', 'R10G10B10A2_UINT', 'R10G10B10A2_UNORM', 'R10G10B10_XR_BIAS_A2_UNORM', 'R11G11B10_FLOAT', 'R16G16B16A16_FLOAT', 'R16G16B16A16_SINT', 'R16G16B16A16_SNORM', 'R16G16B16A16_UINT', 'R16G16B16A16_UNORM', 'R16G16_FLOAT', 'R16G16_SINT', 'R16G16_SNORM', 'R16G16_UINT', 'R16G16_UNORM', 'R16_FLOAT', 'R16_SINT', 'R16_SNORM', 'R16_UINT', 'R16_UNORM', 'R32G32B32A32_FLOAT', 'R32G32B32A32_SINT', 'R32G32B32A32_UINT', 'R32G32B32_FLOAT', 'R32G32B32_SINT', 'R32G32B32_UINT', 'R32G32_FLOAT', 'R32G32_SINT', 'R32G32_UINT', 'R32_FLOAT', 'R32_SINT', 'R32_UINT', 'R8G8B8A8_SINT', 'R8G8B8A8_SNORM', 'R8G8B8A8_UINT', 'R8G8B8A8_UNORM', 'R8G8B8A8_UNORM_SRGB', 'R8G8_B8G8_UNORM', 'R8G8_SINT', 'R8G8_SNORM', 'R8G8_UINT', 'R8G8_UNORM', 'R8_SINT', 'R8_SNORM', 'R8_UINT', 'R8_UNORM', 'R9G9B9E5_SHAREDEXP', 'Y210', 'Y216', 'Y410', 'Y416', 'YUY2'],
+                                             DDSCreator.codec_list(),
                                              ['0', translate.other]],
                                 default_list=['512', '512', 'BC3_UNORM', '0']).exec()
 
@@ -141,6 +143,7 @@ class ChildGuiData(Setting):
                                        f'-file "%file_name%" -%action_0% '
                                        f'-output "%out_dir%\\%out_name%.dds"').exec()
 
+    # TODO: Нужна ли? VGM все это умеет
     def wwise_tools(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                 gui_name='Wwise Converter',
@@ -149,6 +152,7 @@ class ChildGuiData(Setting):
                                              ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
                                 default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec()
 
+    # TODO: Нужна ли? VGM все это умеет
     def xwm2wav(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                 gui_name='XWM/WAV Converter',
@@ -157,6 +161,7 @@ class ChildGuiData(Setting):
                                              ['wav', 'xwm']],
                                 default_list=['48000', 'wav']).exec()
 
+    # TODO: Нужна ли? VGM все это умеет
     def ps_audio_tools(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                 gui_name='PlayStation Audio Tools',
@@ -170,15 +175,16 @@ class ChildGuiData(Setting):
                                     'PS3': ['Atrac2WAV', 'WAV2Atrac', 'MSF2Atrac'],
                                     'PS4': ['Atrac2WAV', 'WAV2Atrac', 'SXD2Atrac'],
                                     'PSP': ['Atrac2WAV', 'WAV2Atrac'],
-                                    'PS Vita': ['Atrac2WAV', 'WAV2Atrac']
-                                }).exec()
+                                    'PS Vita': ['Atrac2WAV', 'WAV2Atrac']},
+                                action=audio_tools.ps_audio_tools).exec()
 
     def find_zip(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
                                 gui_name=translate.find_zip_method,
                                 label_list=[translate.zip_method],
                                 # action_list=[sorted(key for key in zip_methods.values())],
-                                action_list=[zip_methods],
+                                # action_list=[zip_methods],
+                                action_list=[zip_methods.get_zip_indexes()],
                                 default_list=['DEFLATE'],
                                 action=(f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "%action_0%" '
                                         f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '

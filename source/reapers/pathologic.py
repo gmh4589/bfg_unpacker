@@ -2,7 +2,6 @@
 import os
 
 from source.reaper import Reaper, file_reaper
-from source.ui import localize
 
 
 class MorUnpacker(Reaper):

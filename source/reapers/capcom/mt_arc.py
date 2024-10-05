@@ -1,8 +1,11 @@
 
 import os
+import zlib
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
+from source.reapers.capcom.tex import TEX2DDS
+from source.codecs.zip_methods import zip_methods
 
 
 class ARCExtractor(Reaper):
@@ -21,9 +24,10 @@ class ARCExtractor(Reaper):
 
             if version in (4, 8):
                 # 'unzip_dynamic'
-                c_num = 167
+                c_num = zip_methods.UNZIP_DYNAMIC
             elif version == 17:
-                ic('XMemDecompress 0x8000')  # TODO: WTF?
+                # TODO: Add support XMem
+                ic('XMemDecompress 0x8000')
                 c_num = 0
             else:
                 # 'zlib_noerror'
@@ -38,13 +42,29 @@ class ARCExtractor(Reaper):
                 here = arc_file.tell()
                 path = os.path.join(self.output_folder, name + '.dat')
                 os.makedirs(os.path.dirname(path), exist_ok=True)
+                arc_file.seek(offset)
+                data = arc_file.read(file_size)
+
+                if c_num == 1:
+                    data = zlib.decompress(data)
+                    self.new_ext = self.get_ext(data[:4])
+                    path = path.replace('.dat', f'.{self.new_ext}')
 
                 with open(path, 'wb') as new_file:
-                    arc_file.seek(offset)
-                    new_file.write(arc_file.read(file_size))
+                    new_file.write(data)
 
-                if c_num:
+                if c_num > 1:
                     self.unzip(path, c_num, get_ext=True)
+
+                if self.new_ext == 'tex' and self.setting['Main']['save_original_images'] in ['1', '2']:
+
+                    tex2dds = TEX2DDS()
+                    tex2dds.file_name = path.replace('.dat', '.tex')
+                    tex2dds.output_folder = os.path.dirname(path)
+                    tex2dds.run()
+
+                    if self.setting['Main']['save_original_images'] == '1':
+                        os.remove(path.replace('dat', 'tex'))
 
                 arc_file.seek(here)
                 self.update_pb(file_count, i, name)

@@ -1,4 +1,18 @@
 
+October 5, 2024
+
+ - Added support for unpack BA2 archives from Starfield
+ - Added support for unpack RMDP/BIN archives from Alan Wake Remastered
+ - Started work with Alan Wake 2 archives unpacker function
+ - Added DDS codec list get method, with it now forming list of codecs in all function working with DDS image format
+ - Now, shouldn't font install to showing icons on buttons in upper men
+ - Added option to convert TEX textures from games on MT Framework engine into DDS in time ARC archive unpacking
+ - Unpacking speed ARC archives from games on MT Framework engine has been increased
+ - Added support to saving KTX textures as images
+ - Started work with PAK archives unpacker from games on RE Engine by CAPCOM
+ - Added support to convert TEX textures from games on RE Engine by CAPCOM
+ - The dictionary with zip methods has been transformed to class
+
 September 24, 2024
 
  - File header checking moved to separated method in Reaper class

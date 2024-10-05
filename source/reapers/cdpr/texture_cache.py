@@ -103,7 +103,7 @@ class TextureCache(Reaper, DDSCreator):
                                   # mips=t_data.mips
                                   )
 
-                elif ext in ('xbm', 'png', 'texarray') and self.setting['Main']['save_original_images'] == '1':
-                    os.remove(full_name)
+                    if self.setting['Main']['save_original_images'] == '1':
+                        os.remove(full_name)
 
                 self.update_pb(file_count, i + 1, t_data.name)

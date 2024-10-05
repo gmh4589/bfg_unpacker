@@ -1,858 +1,870 @@
 
-zip_methods = {1: "ZLIB",
-               2: "DEFLATE",
-               3: "LZO1",
-               4: "LZO1A",
-               5: "LZO1B",
-               6: "LZO1C",
-               7: "LZO1F",
-               8: "LZO1X",
-               9: "LZO1Y",
-               10: "LZO1Z",
-               11: "LZO2A",
-               12: "LZSS",
-               13: "LZX",
-               14: "GZIP",
-               15: "EXPLODE",
-               16: "LZMA",
-               17: "LZMA_86HEAD",
-               18: "LZMA_86DEC",
-               19: "LZMA_86DECHEAD",
-               20: "LZMA_EFS",
-               21: "BZIP2",
-               22: "XMEMLZX",
-               23: "HEX",
-               24: "BASE64",
-               25: "UUENCODE",
-               26: "ASCII85",
-               27: "YENC",
-               28: "UNLZW",
-               29: "UNLZWX",
-               30: "LZXCAB",
-               31: "LZXCHM",
-               32: "RLEW",
-               33: "LZJB",
-               34: "SFL_BLOCK",
-               35: "SFL_RLE",
-               36: "SFL_NULLS",
-               37: "SFL_BITS",
-               38: "LZMA2",
-               39: "LZMA2_86HEAD",
-               40: "LZMA2_86DEC",
-               41: "LZMA2_86DECHEAD",
-               42: "NRV2b",
-               43: "NRV2d",
-               44: "NRV2e",
-               45: "HUFFBOH",
-               46: "UNCOMPRESS",
-               47: "DMC",
-               48: "LZH",
-               49: "LZARI",
-               50: "TONY",
-               51: "RLE7",
-               52: "RLE0",
-               53: "RLE",
-               54: "RLEA",
-               55: "BPE",
-               56: "QUICKLZ",
-               57: "Q3HUFF",
-               58: "UNMENG",
-               59: "LZ2K",
-               60: "DARKSECTOR",
-               61: "MSZH",
-               62: "UN49G",
-               63: "UNTHANDOR",
-               64: "DOOMHUFF",
-               65: "APLIB",
-               66: "TZAR_LZSS",
-               67: "LZF",
-               68: "CLZ77",
-               69: "LZRW1",
-               70: "DHUFF",
-               71: "FIN",
-               72: "LZAH",
-               73: "LZH12",
-               74: "LZH13",
-               75: "GRZIP",
-               76: "CKRLE",
-               77: "QUAD",
-               78: "BALZ",
-               79: "DEFLATE64",
-               80: "SHRINK",
-               81: "PPMDI",
-               82: "MULTIBASE",
-               83: "BRIEFLZ",
-               84: "PAQ6",
-               85: "SHCODEC",
-               86: "HSTEST1",
-               87: "HSTEST2",
-               88: "SIXPACK",
-               89: "ASHFORD",
-               90: "JCALG",
-               91: "JAM",
-               92: "LZHLIB",
-               93: "SRANK",
-               94: "ZZIP",
-               95: "SCPACK",
-               96: "RLE3",
-               97: "BPE2",
-               98: "BCL_HUF",
-               99: "BCL_LZ",
-               100: "BCL_RICE",
-               101: "BCL_RLE",
-               102: "BCL_SF",
-               103: "SCZ",
-               104: "SZIP",
-               105: "PPMDI_RAW",
-               106: "PPMDG",
-               107: "PPMDG_RAW",
-               108: "PPMDJ",
-               109: "PPMDJ_RAW",
-               110: "SR3C",
-               111: "HUFFMANLIB",
-               112: "SFASTPACKER",
-               113: "SFASTPACKER2",
-               114: "DK2",
-               115: "LZ77WII",
-               116: "LZ77WII_RAW10",
-               117: "DARKSTONE",
-               118: "SFL_BLOCK_CHUNKED",
-               119: "YUKE_BPE",
-               120: "STALKER_LZA",
-               121: "PRS_8ING",
-               122: "PUYO_CNX",
-               123: "PUYO_CXLZ",
-               124: "PUYO_LZ00",
-               125: "PUYO_LZ01",
-               126: "PUYO_LZSS",
-               127: "PUYO_ONZ",
-               128: "PUYO_PRS",
-               129: "FALCOM",
-               130: "CPK",
-               131: "BZIP2_FILE",
-               132: "LZ77WII_RAW11",
-               133: "LZ77WII_RAW30",
-               134: "LZ77WII_RAW20",
-               135: "PGLZ",
-               136: "SLZ",
-               137: "SLZ_01",
-               138: "SLZ_02",
-               139: "LZHL",
-               140: "D3101",
-               141: "SQUEEZE",
-               142: "LZRW3",
-               143: "TDCB_ahuff",
-               144: "TDCB_arith",
-               145: "TDCB_arith1",
-               146: "TDCB_arith1e",
-               147: "TDCB_arithn",
-               148: "TDCB_compand",
-               149: "TDCB_huff",
-               150: "TDCB_lzss",
-               151: "TDCB_lzw12",
-               152: "TDCB_lzw15v",
-               153: "TDCB_silence",
-               154: "RDC",
-               155: "ILZR",
-               156: "DMC2",
-               157: "diffcomp",
-               158: "LZR",
-               159: "LZS",
-               160: "LZS_BIG",
-               161: "COPY",
-               162: "MOHLZSS",
-               163: "MOHRLE",
-               164: "YAZ0",
-               165: "BYTE2HEX",
-               166: "UN434A",
-               167: "UNZIP_DYNAMIC",
-               168: "XXENCODE",
-               169: "GZPACK",
-               170: "ZLIB_NOERROR",
-               171: "DEFLATE_NOERROR",
-               172: "PPMDH",
-               173: "PPMDH_RAW",
-               174: "RNC",
-               175: "RNC_RAW",
-               176: "FITD",
-               177: "KENS_Nemesis",
-               178: "KENS_Kosinski",
-               179: "KENS_Kosinski_moduled",
-               180: "KENS_Enigma",
-               181: "KENS_Saxman",
-               182: "DRAGONBALLZ",
-               183: "NITROSDK",
-               184: "ZDAEMON",
-               185: "SKULLTAG",
-               186: "MSF",
-               187: "STARGUNNER",
-               188: "NTCOMPRESS",
-               189: "CRLE",
-               190: "CTW",
-               191: "DACT_DELTA",
-               192: "DACT_MZLIB2",
-               193: "DACT_MZLIB",
-               194: "DACT_RLE",
-               195: "DACT_SNIBBLE",
-               196: "DACT_TEXT",
-               197: "DACT_TEXTRLE",
-               198: "EXECUTE",
-               199: "LZ77_0",
-               200: "LZBSS",
-               201: "BPAQ0",
-               202: "LZPX",
-               203: "MAR_RLE",
-               204: "GDCM_RLE",
-               205: "LZMAT",
-               206: "DICT",
-               207: "REP",
-               208: "LZP",
-               209: "ELIAS_DELTA",
-               210: "ELIAS_GAMMA",
-               211: "ELIAS_OMEGA",
-               212: "PACKBITS",
-               213: "DARKSECTOR_NOCHUNKS",
-               214: "ENET",
-               215: "EDUKE32",
-               216: "XU4_RLE",
-               217: "RVL",
-               218: "LZFU",
-               219: "LZFU_RAW",
-               220: "XU4_LZW",
-               221: "HE3",
-               222: "IRIS",
-               223: "IRIS_HUFFMAN",
-               224: "IRIS_UO_HUFFMAN",
-               225: "NTFS",
-               226: "PDB",
-               227: "COMPRLIB_SPREAD",
-               228: "COMPRLIB_RLE1",
-               229: "COMPRLIB_RLE2",
-               230: "COMPRLIB_RLE3",
-               231: "COMPRLIB_RLE4",
-               232: "COMPRLIB_ARITH",
-               233: "COMPRLIB_SPLAY",
-               234: "CABEXTRACT",
-               235: "MRCI",
-               236: "HD2_01",
-               237: "HD2_08",
-               238: "HD2_01raw",
-               239: "RTL_LZNT1",
-               240: "RTL_XPRESS",
-               241: "RTL_XPRESS_HUFF",
-               242: "PRS",
-               243: "SEGA_LZ77",
-               244: "SAINT_SEYA",
-               245: "NTCOMPRESS30",
-               246: "NTCOMPRESS40",
-               247: "SLZ_03",
-               248: "YAKUZA",
-               249: "LZ4",
-               250: "SNAPPY",
-               251: "LUNAR_LZ1",
-               252: "LUNAR_LZ2",
-               253: "LUNAR_LZ3",
-               254: "LUNAR_LZ4",
-               255: "LUNAR_LZ5",
-               256: "LUNAR_LZ6",
-               257: "LUNAR_LZ7",
-               258: "LUNAR_LZ8",
-               259: "LUNAR_LZ9",
-               260: "LUNAR_LZ10",
-               261: "LUNAR_LZ11",
-               262: "LUNAR_LZ12",
-               263: "LUNAR_LZ13",
-               264: "LUNAR_LZ14",
-               265: "LUNAR_LZ15",
-               266: "LUNAR_LZ16",
-               267: "LUNAR_RLE1",
-               268: "LUNAR_RLE2",
-               269: "LUNAR_RLE3",
-               270: "LUNAR_RLE4",
-               271: "GOLDENSUN",
-               272: "LUMINOUSARC",
-               273: "LZV1",
-               274: "FASTLZAH",
-               275: "ZAX",
-               276: "SHRINKER",
-               277: "MMINI_HUFFMAN",
-               278: "MMINI_LZ1",
-               279: "MMINI",
-               280: "CLZW",
-               281: "LZHAM",
-               282: "LPAQ8",
-               283: "SEGA_LZS2",
-               284: "CALLDLL",
-               285: "WOLF",
-               286: "COREONLINE",
-               287: "MSZIP",
-               288: "QTM",
-               289: "MSLZSS",
-               290: "MSLZSS1",
-               291: "MSLZSS2",
-               292: "KWAJ",
-               293: "LZLIB",
-               294: "DFLT",
-               295: "LZMA_DYNAMIC",
-               296: "LZMA2_DYNAMIC",
-               297: "LZMA2_EFS",
-               298: "LZXCAB_DELTA",
-               299: "LZXCHM_DELTA",
-               300: "FFCE",
-               301: "SCUMMVM4",
-               302: "SCUMMVM5",
-               303: "SCUMMVM6",
-               304: "SCUMMVM7",
-               305: "SCUMMVM8",
-               306: "SCUMMVM9",
-               307: "SCUMMVM10",
-               308: "SCUMMVM11",
-               309: "SCUMMVM12",
-               310: "SCUMMVM13",
-               311: "SCUMMVM14",
-               312: "SCUMMVM15",
-               313: "SCUMMVM16",
-               314: "SCUMMVM17",
-               315: "SCUMMVM18",
-               316: "SCUMMVM19",
-               317: "SCUMMVM20",
-               318: "SCUMMVM21",
-               319: "SCUMMVM22",
-               320: "SCUMMVM23",
-               321: "SCUMMVM24",
-               322: "SCUMMVM25",
-               323: "SCUMMVM26",
-               324: "SCUMMVM27",
-               325: "SCUMMVM28",
-               326: "SCUMMVM29",
-               327: "SCUMMVM30",
-               328: "SCUMMVM31",
-               329: "SCUMMVM32",
-               330: "SCUMMVM33",
-               331: "SCUMMVM34",
-               332: "SCUMMVM35",
-               333: "SCUMMVM36",
-               334: "SCUMMVM37",
-               335: "SCUMMVM38",
-               336: "SCUMMVM39",
-               337: "SCUMMVM40",
-               338: "SCUMMVM41",
-               339: "SCUMMVM42",
-               340: "SCUMMVM43",
-               341: "SCUMMVM44",
-               342: "SCUMMVM45",
-               343: "SCUMMVM46",
-               344: "SCUMMVM47",
-               345: "SCUMMVM48",
-               346: "SCUMMVM49",
-               347: "SCUMMVM50",
-               348: "SCUMMVM51",
-               349: "SCUMMVM52",
-               350: "SCUMMVM53",
-               351: "LZS_UNZIP",
-               352: "LEGEND_OF_MANA",
-               353: "DIZZY",
-               354: "EDL1",
-               355: "EDL2",
-               356: "DUNGEON_KID",
-               357: "LUNAR_LZ17",
-               358: "LUNAR_LZ18",
-               359: "FRONTMISSION2",
-               360: "RLEINC1",
-               361: "RLEINC2",
-               362: "EVOLUTION",
-               363: "PUYO_LZ10",
-               364: "PUYO_LZ11",
-               365: "NISLZS",
-               366: "UNKNOWN1",
-               367: "UNKNOWN2",
-               368: "UNKNOWN3",
-               369: "UNKNOWN4",
-               370: "UNKNOWN5",
-               371: "UNKNOWN6",
-               372: "UNKNOWN7",
-               373: "UNKNOWN8",
-               374: "UNKNOWN9",
-               375: "UNKNOWN10",
-               376: "UNKNOWN11",
-               377: "UNKNOWN12",
-               378: "UNKNOWN13",
-               379: "UNKNOWN14",
-               380: "UNKNOWN15",
-               381: "UNKNOWN16",
-               382: "UNKNOWN17",
-               383: "UNKNOWN18",
-               384: "UNKNOWN19",
-               385: "BLACKDESERT",
-               386: "BLACKDESERT_RAW",
-               387: "PUCRUNCH",
-               388: "ZPAQ",
-               389: "ZYXEL_LZS",
-               390: "BLOSC",
-               391: "GIPFELI",
-               392: "CRUSH",
-               393: "YAPPY",
-               394: "LZG",
-               395: "DOBOZ",
-               396: "TORNADO",
-               397: "XPKSQSH",
-               398: "AMIGA_UNSQUASH",
-               399: "AMIGA_BYTEKILLER",
-               400: "AMIGA_FLASHSPEED",
-               401: "AMIGA_IAMICE",
-               402: "AMIGA_IAMATM",
-               403: "AMIGA_ISC1P",
-               404: "AMIGA_ISC2P",
-               405: "AMIGA_ISC3P",
-               406: "AMIGA_UPCOMP",
-               407: "AMIGA_UPHD",
-               408: "AMIGA_BYTEKILLER3",
-               409: "AMIGA_BYTEKILLER2",
-               410: "AMIGA_CRUNCHMANIA17b",
-               411: "AMIGA_POWERPACKER",
-               412: "AMIGA_STONECRACKER2",
-               413: "AMIGA_STONECRACKER3",
-               414: "AMIGA_STONECRACKER4",
-               415: "AMIGA_CRUNCHMASTER",
-               416: "AMIGA_CRUNCHMANIA",
-               417: "AMIGA_CRUNCHMANIAh",
-               418: "AMIGA_CRUNCHOMATIC",
-               419: "AMIGA_DISCOVERY",
-               420: "AMIGA_LIGHTPACK",
-               421: "AMIGA_MASTERCRUNCHER",
-               422: "AMIGA_MAXPACKER",
-               423: "AMIGA_MEGACRUNCHER",
-               424: "AMIGA_PACKIT",
-               425: "AMIGA_SPIKECRUNCHER",
-               426: "AMIGA_TETRAPACK",
-               427: "AMIGA_TIMEDECRUNCH",
-               428: "AMIGA_TRYIT",
-               429: "AMIGA_TUC",
-               430: "AMIGA_TURBOSQUEEZER61",
-               431: "AMIGA_TURBOSQUEEZER80",
-               432: "AMIGA_TURTLESMASHER",
-               433: "AMIGA_DMS",
-               434: "AMIGA_PACKFIRE",
-               435: "ALBA_BPE",
-               436: "ALBA_BPE2",
-               437: "FLZP",
-               438: "SR2",
-               439: "SR3",
-               440: "BPE2v3",
-               441: "BPE_ALT1",
-               442: "BPE_ALT2",
-               443: "CBPE",
-               444: "SCPACK0",
-               445: "LZMA_0",
-               446: "LZMA_86HEAD0",
-               447: "LZMA_86DEC0",
-               448: "LZMA_86DECHEAD0",
-               449: "LZMA_EFS0",
-               450: "LZMA2_0",
-               451: "LZMA2_86HEAD0",
-               452: "LZMA2_86DEC0",
-               453: "LZMA2_86DECHEAD0",
-               454: "LZMA2_EFS0",
-               455: "LZOVL",
-               456: "NITROSDK_DIFF8",
-               457: "NITROSDK_DIFF16",
-               458: "NITROSDK_HUFF8",
-               459: "NITROSDK_HUFF16",
-               460: "NITROSDK_LZ",
-               461: "NITROSDK_RL",
-               462: "QCMP",
-               463: "SPARSE",
-               464: "STORMHUFF",
-               465: "GZIP_STRICT",
-               466: "CT_HughesTransform",
-               467: "CT_LZ77",
-               468: "CT_ELSCoder",
-               469: "CT_RefPack",
-               470: "QFS",
-               471: "PXP",
-               472: "BOH",
-               473: "GRC",
-               474: "ZEN",
-               475: "LZHUFXR",
-               476: "FSE",
-               477: "FSE_RLE",
-               478: "ZSTD",
-               479: "CSC",
-               480: "RNCb",
-               481: "RNCb_RAW",
-               482: "RNCc_RAW",
-               483: "AZO",
-               484: "PP20",
-               485: "DS_BLZ",
-               486: "DS_HUF",
-               487: "DS_LZE",
-               488: "DS_LZS",
-               489: "DS_LZX",
-               490: "DS_RLE",
-               491: "FAB",
-               492: "LZ4F",
-               493: "PCLZFG",
-               494: "LZOO",
-               495: "DELZC",
-               496: "DEHUFF",
-               497: "HEATSHRINK",
-               498: "NEPTUNIA",
-               499: "SMAZ",
-               500: "LZFX",
-               501: "PITHY",
-               502: "ZLING",
-               503: "DENSITY",
-               504: "BROTLI",
-               505: "RLE32",
-               506: "RLE35",
-               507: "BSC",
-               508: "SHOCO",
-               509: "WFLZ",
-               510: "FASTARI",
-               511: "RLE_ORCOM",
-               512: "DICKY",
-               513: "SQUISH",
-               514: "LZNT1",
-               515: "XPRESS",
-               516: "XPRESS_HUFF",
-               517: "LZJODY",
-               518: "TRLE",
-               519: "SRLE",
-               520: "MRLE",
-               521: "LUNAR_LZ19",
-               522: "JCH",
-               523: "LZRW1KH",
-               524: "LZSS0",
-               525: "LHA_lz5",
-               526: "LHA_lzs",
-               527: "LHA_lh1",
-               528: "LHA_lh4",
-               529: "LHA_lh5",
-               530: "LHA_lh6",
-               531: "LHA_lh7",
-               532: "LHA_lhx",
-               533: "LHA_pm1",
-               534: "LHA_pm2",
-               535: "SQX1",
-               536: "MDIP_ARAD",
-               537: "MDIP_ARST",
-               538: "MDIP_DELTA",
-               539: "MDIP_FREQ",
-               540: "MDIP_HUFFMAN",
-               541: "MDIP_CANONICAL",
-               542: "MDIP_LZSS",
-               543: "MDIP_LZW",
-               544: "MDIP_RICE",
-               545: "MDIP_RLE",
-               546: "MDIP_VPACKBITS",
-               547: "BIZARRE",
-               548: "BIZARRE_SKIP",
-               549: "LZSSX",
-               550: "ASH",
-               551: "YAY0",
-               552: "DSTACKER",
-               553: "DSTACKER_SD3",
-               554: "DSTACKER_SD4",
-               555: "DBLSPACE",
-               556: "DBLSPACE_JM",
-               557: "XREFPACK",
-               558: "XREFPACK0",
-               559: "QCMP2",
-               560: "DEFLATEX",
-               561: "ZLIBX",
-               562: "LZRW1a",
-               563: "LZRW2",
-               564: "LZRW3a",
-               565: "LZRW5",
-               566: "LEGO_IXS",
-               567: "MCOMP",
-               568: "MCOMP0",
-               569: "MCOMP1",
-               570: "MCOMP2",
-               571: "MCOMP3",
-               572: "MCOMP4",
-               573: "MCOMP5",
-               574: "MCOMP6",
-               575: "MCOMP7",
-               576: "MCOMP8",
-               577: "MCOMP9",
-               578: "MCOMP10",
-               579: "MCOMP13",
-               580: "MCOMP14",
-               581: "MCOMP15",
-               582: "MCOMP16",
-               583: "MCOMP17",
-               584: "IROLZ",
-               585: "IROLZ2",
-               586: "UCLPACK",
-               587: "ACE",
-               588: "EA_COMP",
-               589: "EA_HUFF",
-               590: "EA_JDLZ",
-               591: "TORNADO_BYTE",
-               592: "TORNADO_BIT",
-               593: "TORNADO_HUF",
-               594: "TORNADO_ARI",
-               595: "LBALZSS1",
-               596: "LBALZSS2",
-               597: "DBPF",
-               598: "TITUS_LZW",
-               599: "TITUS_HUFFMAN",
-               600: "KB_LZW",
-               601: "KB_DOSLZW",
-               602: "CARMACK",
-               603: "MBASH",
-               604: "DDAVE",
-               605: "GOT",
-               606: "SKYROADS",
-               607: "ZONE66",
-               608: "EXEPACK",
-               609: "DE_LZW",
-               610: "JJRLE",
-               611: "K13RLE",
-               612: "SFRLC",
-               613: "WESTWOOD1",
-               614: "WESTWOOD3",
-               615: "WESTWOOD3b",
-               616: "WESTWOOD40",
-               617: "WESTWOOD80",
-               618: "PKWARE_DCL",
-               619: "TERSE",
-               620: "TERSE_SPACK_RAW",
-               621: "TERSE_PACK_RAW",
-               622: "REDUCE1",
-               623: "REDUCE2",
-               624: "REDUCE3",
-               625: "REDUCE4",
-               626: "LZW_ENGINE",
-               627: "LZW_BASH",
-               628: "LZW_EPFS",
-               629: "LZW_STELLAR7",
-               630: "ULTIMA6",
-               631: "LZ5",
-               632: "LZ5F",
-               633: "YALZ77",
-               634: "LZKN1",
-               635: "LZKN2",
-               636: "LZKN3",
-               637: "TFLZSS",
-               638: "SYNLZ1",
-               639: "SYNLZ1b",
-               640: "SYNLZ1partial",
-               641: "SYNLZ2",
-               642: "PPMZ2",
-               643: "OPENDARK",
-               644: "DSLZSS",
-               645: "KOF",
-               646: "KOF1",
-               647: "RFPK",
-               648: "WP16",
-               649: "LZ4_STREAM",
-               650: "OODLE",
-               651: "OODLE_LZH",
-               652: "OODLE_LZHLW",
-               653: "OODLE_LZNIB",
-               654: "OODLE_LZB16",
-               655: "OODLE_LZBLW",
-               656: "OODLE_LZNA",
-               657: "OODLE_BitKnit",
-               658: "OODLE_LZA",
-               659: "OODLE_LZQ1",
-               660: "OODLE_LZNIB2",
-               661: "SEGS",
-               662: "OODLE_Selkie",
-               663: "OODLE_Akkorokamui",
-               664: "ALZ",
-               665: "REVELATION_ONLINE",
-               666: "PS_LZ77",
-               667: "LZFSE",
-               668: "ZLE",
-               669: "KOF2",
-               670: "KOF3",
-               671: "HSQ",
-               672: "FACT5LZ",
-               673: "LZCAPTSU",
-               674: "TF3_RLE",
-               675: "WINIMPLODE",
-               676: "DZIP",
-               677: "DZIP_COMBUF",
-               678: "LBALZSS1X",
-               679: "LBALZSS2X",
-               680: "GHIREN",
-               681: "FALCOM_DIN",
-               682: "FALCOM_DIN1",
-               683: "FALCOM_DIN0",
-               684: "FALCOM_DINX",
-               685: "GLZA",
-               686: "M99CODER",
-               687: "LZ4X",
-               688: "TAIKO",
-               689: "LZ77EA_970",
-               690: "DRV3_SRD",
-               691: "RECET",
-               692: "LIZARD",
-               693: "MICROVISION",
-               694: "DR12AE",
-               695: "MSPACK",
-               696: "KONAMIAC",
-               697: "WOLF0",
-               698: "ARTSTATION",
-               699: "LEVEL5",
-               700: "ZENPXP",
-               701: "ZENPXP1",
-               702: "ZENPXP2",
-               703: "ZENPXP34",
-               704: "ZENPXPde",
-               705: "LIBLZS",
-               706: "SHREK",
-               707: "EA_MADDEN",
-               708: "NVCACHE",
-               709: "DE_HTML",
-               710: "HTML_EASY",
-               711: "JSON_VIEWER",
-               712: "XML_JSON_PARSER",
-               713: "OodleNetwork1UDP_State_Uncompact",
-               714: "OodleNetwork1_Shared_SetWindow",
-               715: "OodleNetwork1UDP_Decode",
-               716: "OodleNetwork1UDP_Encode",
-               717: "QCMP1",
-               718: "YKCMP",
-               719: "LZWAB",
-               720: "NCOMPRESS",
-               721: "SWZAP",
-               722: "MZX",
-               723: "LZRRV",
-               724: "BCM",
-               725: "ULZ",
-               726: "SLZ_ROF",
-               727: "LZ4X_NEW",
-               728: "COPY2",
-               729: "SLZ_03b",
-               730: "MPPC",
-               731: "MPPC_BIG",
-               732: "ALZSS",
-               733: "CLZ",
-               734: "GTC",
-               735: "ANCO",
-               736: "ANCO0",
-               737: "ANCO1",
-               738: "ANCO2",
-               739: "ANCO3",
-               740: "ANCO4",
-               741: "ANCO5",
-               742: "konami_lz77",
-               743: "vct_lzs",
-               744: "umesoft",
-               745: "systemaqua_catf",
-               746: "sogna",
-               747: "pac_ads",
-               748: "ail_lzs",
-               749: "agsi",
-               750: "foster_fa2",
-               751: "an21",
-               752: "arc_link",
-               753: "maika_bk",
-               754: "maika_mk2",
-               755: "propeller_mgr",
-               756: "qlie",
-               757: "avg32_seen",
-               758: "sas5_iar",
-               759: "seraphim_scn",
-               760: "ugos_det",
-               761: "aaru_fl4",
-               762: "inspire_ida",
-               763: "kurumi_mpk",
-               764: "dice_rlz",
-               765: "pulltop",
-               766: "vnsystem",
-               767: "QlzUnpack",
-               768: "umesoft_pk",
-               769: "tomcat_tcd",
-               770: "tail_pren",
-               771: "tail_crp0",
-               772: "tail_hp",
-               773: "tactics_arc",
-               774: "sviu_pkz",
-               775: "nekox_gpc",
-               776: "rec_arc",
-               777: "warc",
-               778: "warc10",
-               779: "warc_ylz",
-               780: "warc_huff",
-               781: "sh_him",
-               782: "pandora_pbx",
-               783: "origin_lz",
-               784: "origin_huffman",
-               785: "origin_rle",
-               786: "origin_alphav2",
-               787: "garbro_huffman",
-               788: "ankh_grp",
-               789: "ankh_hdj",
-               790: "caramelbox_arc3",
-               791: "caramelbox_arc4",
-               792: "circus_V1",
-               793: "circus_V2",
-               794: "circus_V3",
-               795: "cmvs_cpz",
-               796: "daisystem_pac",
-               797: "ethornell_bgi",
-               798: "fc01_mrg",
-               799: "fc01_mrg_quant",
-               800: "fc01_pak_lz",
-               801: "favorite_lzw",
-               802: "frontwing_rle",
-               803: "frontwing_huffman",
-               804: "g2_gcex",
-               805: "gss_arc",
-               806: "hypatia_mariel",
-               807: "interheart_fpk",
-               808: "kaguya_ari",
-               809: "kaguya_lin2",
-               810: "kaguya_link",
-               811: "kaguya_uf",
-               812: "kid_dat",
-               813: "lambda_lax",
-               814: "microvision_arc",
-               815: "moonhir_fpk",
-               816: "spack",
-               817: "azsys",
-               818: "dxlib",
-               819: "glibg",
-               820: "gamesystem_cmp",
-               821: "puremail",
-               822: "groover_pcg",
-               823: "mnp_mma",
-               824: "strikes_pck",
-               825: "SEGA_LZ77X",
-               826: "NEPTUNIA0",
-               827: "puff8",
-               828: "lzh8",
-               829: "romchu",
-               830: "okage",
-               831: "lzsd_of",
-               832: "lzsd_gfd",
-               833: "lzsd_gba2",
-               834: "pzz",
-               835: "SL01",
-               836: "rage_xfs",
-               837: "wangan1",
-               838: "wangan2",
-               839: "wangan3",
-               840: "wangan5",
-               841: "LZ48",
-               842: "exo_decrunch",
-               843: "exo_decrunch_new",
-               844: "bitbuster",
-               845: "lazy",
-               846: "nibrans",
-               847: "LZRS_ASOBO",
-               848: "lzrhys",
-               849: "lze",
-               850: "zx0",
-               851: "zx1",
-               852: "zx2",
-               853: "zx5",
-               854: "rzip",
-               855: "melt1",
-               856: "melt2"
-               }
+class zip_methods:
+    ZLIB = 1
+    DEFLATE = 2
+    LZO1 = 3
+    LZO1A = 4
+    LZO1B = 5
+    LZO1C = 6
+    LZO1F = 7
+    LZO1X = 8
+    LZO1Y = 9
+    LZO1Z = 10
+    LZO2A = 11
+    LZSS = 12
+    LZX = 13
+    GZIP = 14
+    EXPLODE = 15
+    LZMA = 16
+    LZMA_86HEAD = 17
+    LZMA_86DEC = 18
+    LZMA_86DECHEAD = 19
+    LZMA_EFS = 20
+    BZIP2 = 21
+    XMEMLZX = 22
+    HEX = 23
+    BASE64 = 24
+    UUENCODE = 25
+    ASCII85 = 26
+    YENC = 27
+    UNLZW = 28
+    UNLZWX = 29
+    LZXCAB = 30
+    LZXCHM = 31
+    RLEW = 32
+    LZJB = 33
+    SFL_BLOCK = 34
+    SFL_RLE = 35
+    SFL_NULLS = 36
+    SFL_BITS = 37
+    LZMA2 = 38
+    LZMA2_86HEAD = 39
+    LZMA2_86DEC = 40
+    LZMA2_86DECHEAD = 41
+    NRV2b = 42
+    NRV2d = 43
+    NRV2e = 44
+    HUFFBOH = 45
+    UNCOMPRESS = 46
+    DMC = 47
+    LZH = 48
+    LZARI = 49
+    TONY = 50
+    RLE7 = 51
+    RLE0 = 52
+    RLE = 53
+    RLEA = 54
+    BPE = 55
+    QUICKLZ = 56
+    Q3HUFF = 57
+    UNMENG = 58
+    LZ2K = 59
+    DARKSECTOR = 60
+    MSZH = 61
+    UN49G = 62
+    UNTHANDOR = 63
+    DOOMHUFF = 64
+    APLIB = 65
+    TZAR_LZSS = 66
+    LZF = 67
+    CLZ77 = 68
+    LZRW1 = 69
+    DHUFF = 70
+    FIN = 71
+    LZAH = 72
+    LZH12 = 73
+    LZH13 = 74
+    GRZIP = 75
+    CKRLE = 76
+    QUAD = 77
+    BALZ = 78
+    DEFLATE64 = 79
+    SHRINK = 80
+    PPMDI = 81
+    MULTIBASE = 82
+    BRIEFLZ = 83
+    PAQ6 = 84
+    SHCODEC = 85
+    HSTEST1 = 86
+    HSTEST2 = 87
+    SIXPACK = 88
+    ASHFORD = 89
+    JCALG = 90
+    JAM = 91
+    LZHLIB = 92
+    SRANK = 93
+    ZZIP = 94
+    SCPACK = 95
+    RLE3 = 96
+    BPE2 = 97
+    BCL_HUF = 98
+    BCL_LZ = 99
+    BCL_RICE = 100
+    BCL_RLE = 101
+    BCL_SF = 102
+    SCZ = 103
+    SZIP = 104
+    PPMDI_RAW = 105
+    PPMDG = 106
+    PPMDG_RAW = 107
+    PPMDJ = 108
+    PPMDJ_RAW = 109
+    SR3C = 110
+    HUFFMANLIB = 111
+    SFASTPACKER = 112
+    SFASTPACKER2 = 113
+    DK2 = 114
+    LZ77WII = 115
+    LZ77WII_RAW10 = 116
+    DARKSTONE = 117
+    SFL_BLOCK_CHUNKED = 118
+    YUKE_BPE = 119
+    STALKER_LZA = 120
+    PRS_8ING = 121
+    PUYO_CNX = 122
+    PUYO_CXLZ = 123
+    PUYO_LZ00 = 124
+    PUYO_LZ01 = 125
+    PUYO_LZSS = 126
+    PUYO_ONZ = 127
+    PUYO_PRS = 128
+    FALCOM = 129
+    CPK = 130
+    BZIP2_FILE = 131
+    LZ77WII_RAW11 = 132
+    LZ77WII_RAW30 = 133
+    LZ77WII_RAW20 = 134
+    PGLZ = 135
+    SLZ = 136
+    SLZ_01 = 137
+    SLZ_02 = 138
+    LZHL = 139
+    D3101 = 140
+    SQUEEZE = 141
+    LZRW3 = 142
+    TDCB_ahuff = 143
+    TDCB_arith = 144
+    TDCB_arith1 = 145
+    TDCB_arith1e = 146
+    TDCB_arithn = 147
+    TDCB_compand = 148
+    TDCB_huff = 149
+    TDCB_lzss = 150
+    TDCB_lzw12 = 151
+    TDCB_lzw15v = 152
+    TDCB_silence = 153
+    RDC = 154
+    ILZR = 155
+    DMC2 = 156
+    diffcomp = 157
+    LZR = 158
+    LZS = 159
+    LZS_BIG = 160
+    COPY = 161
+    MOHLZSS = 162
+    MOHRLE = 163
+    YAZ0 = 164
+    BYTE2HEX = 165
+    UN434A = 166
+    UNZIP_DYNAMIC = 167
+    XXENCODE = 168
+    GZPACK = 169
+    ZLIB_NOERROR = 170
+    DEFLATE_NOERROR = 171
+    PPMDH = 172
+    PPMDH_RAW = 173
+    RNC = 174
+    RNC_RAW = 175
+    FITD = 176
+    KENS_Nemesis = 177
+    KENS_Kosinski = 178
+    KENS_Kosinski_moduled = 179
+    KENS_Enigma = 180
+    KENS_Saxman = 181
+    DRAGONBALLZ = 182
+    NITROSDK = 183
+    ZDAEMON = 184
+    SKULLTAG = 185
+    MSF = 186
+    STARGUNNER = 187
+    NTCOMPRESS = 188
+    CRLE = 189
+    CTW = 190
+    DACT_DELTA = 191
+    DACT_MZLIB2 = 192
+    DACT_MZLIB = 193
+    DACT_RLE = 194
+    DACT_SNIBBLE = 195
+    DACT_TEXT = 196
+    DACT_TEXTRLE = 197
+    EXECUTE = 198
+    LZ77_0 = 199
+    LZBSS = 200
+    BPAQ0 = 201
+    LZPX = 202
+    MAR_RLE = 203
+    GDCM_RLE = 204
+    LZMAT = 205
+    DICT = 206
+    REP = 207
+    LZP = 208
+    ELIAS_DELTA = 209
+    ELIAS_GAMMA = 210
+    ELIAS_OMEGA = 211
+    PACKBITS = 212
+    DARKSECTOR_NOCHUNKS = 213
+    ENET = 214
+    EDUKE32 = 215
+    XU4_RLE = 216
+    RVL = 217
+    LZFU = 218
+    LZFU_RAW = 219
+    XU4_LZW = 220
+    HE3 = 221
+    IRIS = 222
+    IRIS_HUFFMAN = 223
+    IRIS_UO_HUFFMAN = 224
+    NTFS = 225
+    PDB = 226
+    COMPRLIB_SPREAD = 227
+    COMPRLIB_RLE1 = 228
+    COMPRLIB_RLE2 = 229
+    COMPRLIB_RLE3 = 230
+    COMPRLIB_RLE4 = 231
+    COMPRLIB_ARITH = 232
+    COMPRLIB_SPLAY = 233
+    CABEXTRACT = 234
+    MRCI = 235
+    HD2_01 = 236
+    HD2_08 = 237
+    HD2_01raw = 238
+    RTL_LZNT1 = 239
+    RTL_XPRESS = 240
+    RTL_XPRESS_HUFF = 241
+    PRS = 242
+    SEGA_LZ77 = 243
+    SAINT_SEYA = 244
+    NTCOMPRESS30 = 245
+    NTCOMPRESS40 = 246
+    SLZ_03 = 247
+    YAKUZA = 248
+    LZ4 = 249
+    SNAPPY = 250
+    LUNAR_LZ1 = 251
+    LUNAR_LZ2 = 252
+    LUNAR_LZ3 = 253
+    LUNAR_LZ4 = 254
+    LUNAR_LZ5 = 255
+    LUNAR_LZ6 = 256
+    LUNAR_LZ7 = 257
+    LUNAR_LZ8 = 258
+    LUNAR_LZ9 = 259
+    LUNAR_LZ10 = 260
+    LUNAR_LZ11 = 261
+    LUNAR_LZ12 = 262
+    LUNAR_LZ13 = 263
+    LUNAR_LZ14 = 264
+    LUNAR_LZ15 = 265
+    LUNAR_LZ16 = 266
+    LUNAR_RLE1 = 267
+    LUNAR_RLE2 = 268
+    LUNAR_RLE3 = 269
+    LUNAR_RLE4 = 270
+    GOLDENSUN = 271
+    LUMINOUSARC = 272
+    LZV1 = 273
+    FASTLZAH = 274
+    ZAX = 275
+    SHRINKER = 276
+    MMINI_HUFFMAN = 277
+    MMINI_LZ1 = 278
+    MMINI = 279
+    CLZW = 280
+    LZHAM = 281
+    LPAQ8 = 282
+    SEGA_LZS2 = 283
+    CALLDLL = 284
+    WOLF = 285
+    COREONLINE = 286
+    MSZIP = 287
+    QTM = 288
+    MSLZSS = 289
+    MSLZSS1 = 290
+    MSLZSS2 = 291
+    KWAJ = 292
+    LZLIB = 293
+    DFLT = 294
+    LZMA_DYNAMIC = 295
+    LZMA2_DYNAMIC = 296
+    LZMA2_EFS = 297
+    LZXCAB_DELTA = 298
+    LZXCHM_DELTA = 299
+    FFCE = 300
+    SCUMMVM4 = 301
+    SCUMMVM5 = 302
+    SCUMMVM6 = 303
+    SCUMMVM7 = 304
+    SCUMMVM8 = 305
+    SCUMMVM9 = 306
+    SCUMMVM10 = 307
+    SCUMMVM11 = 308
+    SCUMMVM12 = 309
+    SCUMMVM13 = 310
+    SCUMMVM14 = 311
+    SCUMMVM15 = 312
+    SCUMMVM16 = 313
+    SCUMMVM17 = 314
+    SCUMMVM18 = 315
+    SCUMMVM19 = 316
+    SCUMMVM20 = 317
+    SCUMMVM21 = 318
+    SCUMMVM22 = 319
+    SCUMMVM23 = 320
+    SCUMMVM24 = 321
+    SCUMMVM25 = 322
+    SCUMMVM26 = 323
+    SCUMMVM27 = 324
+    SCUMMVM28 = 325
+    SCUMMVM29 = 326
+    SCUMMVM30 = 327
+    SCUMMVM31 = 328
+    SCUMMVM32 = 329
+    SCUMMVM33 = 330
+    SCUMMVM34 = 331
+    SCUMMVM35 = 332
+    SCUMMVM36 = 333
+    SCUMMVM37 = 334
+    SCUMMVM38 = 335
+    SCUMMVM39 = 336
+    SCUMMVM40 = 337
+    SCUMMVM41 = 338
+    SCUMMVM42 = 339
+    SCUMMVM43 = 340
+    SCUMMVM44 = 341
+    SCUMMVM45 = 342
+    SCUMMVM46 = 343
+    SCUMMVM47 = 344
+    SCUMMVM48 = 345
+    SCUMMVM49 = 346
+    SCUMMVM50 = 347
+    SCUMMVM51 = 348
+    SCUMMVM52 = 349
+    SCUMMVM53 = 350
+    LZS_UNZIP = 351
+    LEGEND_OF_MANA = 352
+    DIZZY = 353
+    EDL1 = 354
+    EDL2 = 355
+    DUNGEON_KID = 356
+    LUNAR_LZ17 = 357
+    LUNAR_LZ18 = 358
+    FRONTMISSION2 = 359
+    RLEINC1 = 360
+    RLEINC2 = 361
+    EVOLUTION = 362
+    PUYO_LZ10 = 363
+    PUYO_LZ11 = 364
+    NISLZS = 365
+    UNKNOWN1 = 366
+    UNKNOWN2 = 367
+    UNKNOWN3 = 368
+    UNKNOWN4 = 369
+    UNKNOWN5 = 370
+    UNKNOWN6 = 371
+    UNKNOWN7 = 372
+    UNKNOWN8 = 373
+    UNKNOWN9 = 374
+    UNKNOWN10 = 375
+    UNKNOWN11 = 376
+    UNKNOWN12 = 377
+    UNKNOWN13 = 378
+    UNKNOWN14 = 379
+    UNKNOWN15 = 380
+    UNKNOWN16 = 381
+    UNKNOWN17 = 382
+    UNKNOWN18 = 383
+    UNKNOWN19 = 384
+    BLACKDESERT = 385
+    BLACKDESERT_RAW = 386
+    PUCRUNCH = 387
+    ZPAQ = 388
+    ZYXEL_LZS = 389
+    BLOSC = 390
+    GIPFELI = 391
+    CRUSH = 392
+    YAPPY = 393
+    LZG = 394
+    DOBOZ = 395
+    TORNADO = 396
+    XPKSQSH = 397
+    AMIGA_UNSQUASH = 398
+    AMIGA_BYTEKILLER = 399
+    AMIGA_FLASHSPEED = 400
+    AMIGA_IAMICE = 401
+    AMIGA_IAMATM = 402
+    AMIGA_ISC1P = 403
+    AMIGA_ISC2P = 404
+    AMIGA_ISC3P = 405
+    AMIGA_UPCOMP = 406
+    AMIGA_UPHD = 407
+    AMIGA_BYTEKILLER3 = 408
+    AMIGA_BYTEKILLER2 = 409
+    AMIGA_CRUNCHMANIA17b = 410
+    AMIGA_POWERPACKER = 411
+    AMIGA_STONECRACKER2 = 412
+    AMIGA_STONECRACKER3 = 413
+    AMIGA_STONECRACKER4 = 414
+    AMIGA_CRUNCHMASTER = 415
+    AMIGA_CRUNCHMANIA = 416
+    AMIGA_CRUNCHMANIAh = 417
+    AMIGA_CRUNCHOMATIC = 418
+    AMIGA_DISCOVERY = 419
+    AMIGA_LIGHTPACK = 420
+    AMIGA_MASTERCRUNCHER = 421
+    AMIGA_MAXPACKER = 422
+    AMIGA_MEGACRUNCHER = 423
+    AMIGA_PACKIT = 424
+    AMIGA_SPIKECRUNCHER = 425
+    AMIGA_TETRAPACK = 426
+    AMIGA_TIMEDECRUNCH = 427
+    AMIGA_TRYIT = 428
+    AMIGA_TUC = 429
+    AMIGA_TURBOSQUEEZER61 = 430
+    AMIGA_TURBOSQUEEZER80 = 431
+    AMIGA_TURTLESMASHER = 432
+    AMIGA_DMS = 433
+    AMIGA_PACKFIRE = 434
+    ALBA_BPE = 435
+    ALBA_BPE2 = 436
+    FLZP = 437
+    SR2 = 438
+    SR3 = 439
+    BPE2v3 = 440
+    BPE_ALT1 = 441
+    BPE_ALT2 = 442
+    CBPE = 443
+    SCPACK0 = 444
+    LZMA_0 = 445
+    LZMA_86HEAD0 = 446
+    LZMA_86DEC0 = 447
+    LZMA_86DECHEAD0 = 448
+    LZMA_EFS0 = 449
+    LZMA2_0 = 450
+    LZMA2_86HEAD0 = 451
+    LZMA2_86DEC0 = 452
+    LZMA2_86DECHEAD0 = 453
+    LZMA2_EFS0 = 454
+    LZOVL = 455
+    NITROSDK_DIFF8 = 456
+    NITROSDK_DIFF16 = 457
+    NITROSDK_HUFF8 = 458
+    NITROSDK_HUFF16 = 459
+    NITROSDK_LZ = 460
+    NITROSDK_RL = 461
+    QCMP = 462
+    SPARSE = 463
+    STORMHUFF = 464
+    GZIP_STRICT = 465
+    CT_HughesTransform = 466
+    CT_LZ77 = 467
+    CT_ELSCoder = 468
+    CT_RefPack = 469
+    QFS = 470
+    PXP = 471
+    BOH = 472
+    GRC = 473
+    ZEN = 474
+    LZHUFXR = 475
+    FSE = 476
+    FSE_RLE = 477
+    ZSTD = 478
+    CSC = 479
+    RNCb = 480
+    RNCb_RAW = 481
+    RNCc_RAW = 482
+    AZO = 483
+    PP20 = 484
+    DS_BLZ = 485
+    DS_HUF = 486
+    DS_LZE = 487
+    DS_LZS = 488
+    DS_LZX = 489
+    DS_RLE = 490
+    FAB = 491
+    LZ4F = 492
+    PCLZFG = 493
+    LZOO = 494
+    DELZC = 495
+    DEHUFF = 496
+    HEATSHRINK = 497
+    NEPTUNIA = 498
+    SMAZ = 499
+    LZFX = 500
+    PITHY = 501
+    ZLING = 502
+    DENSITY = 503
+    BROTLI = 504
+    RLE32 = 505
+    RLE35 = 506
+    BSC = 507
+    SHOCO = 508
+    WFLZ = 509
+    FASTARI = 510
+    RLE_ORCOM = 511
+    DICKY = 512
+    SQUISH = 513
+    LZNT1 = 514
+    XPRESS = 515
+    XPRESS_HUFF = 516
+    LZJODY = 517
+    TRLE = 518
+    SRLE = 519
+    MRLE = 520
+    LUNAR_LZ19 = 521
+    JCH = 522
+    LZRW1KH = 523
+    LZSS0 = 524
+    LHA_lz5 = 525
+    LHA_lzs = 526
+    LHA_lh1 = 527
+    LHA_lh4 = 528
+    LHA_lh5 = 529
+    LHA_lh6 = 530
+    LHA_lh7 = 531
+    LHA_lhx = 532
+    LHA_pm1 = 533
+    LHA_pm2 = 534
+    SQX1 = 535
+    MDIP_ARAD = 536
+    MDIP_ARST = 537
+    MDIP_DELTA = 538
+    MDIP_FREQ = 539
+    MDIP_HUFFMAN = 540
+    MDIP_CANONICAL = 541
+    MDIP_LZSS = 542
+    MDIP_LZW = 543
+    MDIP_RICE = 544
+    MDIP_RLE = 545
+    MDIP_VPACKBITS = 546
+    BIZARRE = 547
+    BIZARRE_SKIP = 548
+    LZSSX = 549
+    ASH = 550
+    YAY0 = 551
+    DSTACKER = 552
+    DSTACKER_SD3 = 553
+    DSTACKER_SD4 = 554
+    DBLSPACE = 555
+    DBLSPACE_JM = 556
+    XREFPACK = 557
+    XREFPACK0 = 558
+    QCMP2 = 559
+    DEFLATEX = 560
+    ZLIBX = 561
+    LZRW1a = 562
+    LZRW2 = 563
+    LZRW3a = 564
+    LZRW5 = 565
+    LEGO_IXS = 566
+    MCOMP = 567
+    MCOMP0 = 568
+    MCOMP1 = 569
+    MCOMP2 = 570
+    MCOMP3 = 571
+    MCOMP4 = 572
+    MCOMP5 = 573
+    MCOMP6 = 574
+    MCOMP7 = 575
+    MCOMP8 = 576
+    MCOMP9 = 577
+    MCOMP10 = 578
+    MCOMP13 = 579
+    MCOMP14 = 580
+    MCOMP15 = 581
+    MCOMP16 = 582
+    MCOMP17 = 583
+    IROLZ = 584
+    IROLZ2 = 585
+    UCLPACK = 586
+    ACE = 587
+    EA_COMP = 588
+    EA_HUFF = 589
+    EA_JDLZ = 590
+    TORNADO_BYTE = 591
+    TORNADO_BIT = 592
+    TORNADO_HUF = 593
+    TORNADO_ARI = 594
+    LBALZSS1 = 595
+    LBALZSS2 = 596
+    DBPF = 597
+    TITUS_LZW = 598
+    TITUS_HUFFMAN = 599
+    KB_LZW = 600
+    KB_DOSLZW = 601
+    CARMACK = 602
+    MBASH = 603
+    DDAVE = 604
+    GOT = 605
+    SKYROADS = 606
+    ZONE66 = 607
+    EXEPACK = 608
+    DE_LZW = 609
+    JJRLE = 610
+    K13RLE = 611
+    SFRLC = 612
+    WESTWOOD1 = 613
+    WESTWOOD3 = 614
+    WESTWOOD3b = 615
+    WESTWOOD40 = 616
+    WESTWOOD80 = 617
+    PKWARE_DCL = 618
+    TERSE = 619
+    TERSE_SPACK_RAW = 620
+    TERSE_PACK_RAW = 621
+    REDUCE1 = 622
+    REDUCE2 = 623
+    REDUCE3 = 624
+    REDUCE4 = 625
+    LZW_ENGINE = 626
+    LZW_BASH = 627
+    LZW_EPFS = 628
+    LZW_STELLAR7 = 629
+    ULTIMA6 = 630
+    LZ5 = 631
+    LZ5F = 632
+    YALZ77 = 633
+    LZKN1 = 634
+    LZKN2 = 635
+    LZKN3 = 636
+    TFLZSS = 637
+    SYNLZ1 = 638
+    SYNLZ1b = 639
+    SYNLZ1partial = 640
+    SYNLZ2 = 641
+    PPMZ2 = 642
+    OPENDARK = 643
+    DSLZSS = 644
+    KOF = 645
+    KOF1 = 646
+    RFPK = 647
+    WP16 = 648
+    LZ4_STREAM = 649
+    OODLE = 650
+    OODLE_LZH = 651
+    OODLE_LZHLW = 652
+    OODLE_LZNIB = 653
+    OODLE_LZB16 = 654
+    OODLE_LZBLW = 655
+    OODLE_LZNA = 656
+    OODLE_BitKnit = 657
+    OODLE_LZA = 658
+    OODLE_LZQ1 = 659
+    OODLE_LZNIB2 = 660
+    SEGS = 661
+    OODLE_Selkie = 662
+    OODLE_Akkorokamui = 663
+    ALZ = 664
+    REVELATION_ONLINE = 665
+    PS_LZ77 = 666
+    LZFSE = 667
+    ZLE = 668
+    KOF2 = 669
+    KOF3 = 670
+    HSQ = 671
+    FACT5LZ = 672
+    LZCAPTSU = 673
+    TF3_RLE = 674
+    WINIMPLODE = 675
+    DZIP = 676
+    DZIP_COMBUF = 677
+    LBALZSS1X = 678
+    LBALZSS2X = 679
+    GHIREN = 680
+    FALCOM_DIN = 681
+    FALCOM_DIN1 = 682
+    FALCOM_DIN0 = 683
+    FALCOM_DINX = 684
+    GLZA = 685
+    M99CODER = 686
+    LZ4X = 687
+    TAIKO = 688
+    LZ77EA_970 = 689
+    DRV3_SRD = 690
+    RECET = 691
+    LIZARD = 692
+    MICROVISION = 693
+    DR12AE = 694
+    MSPACK = 695
+    KONAMIAC = 696
+    WOLF0 = 697
+    ARTSTATION = 698
+    LEVEL5 = 699
+    ZENPXP = 700
+    ZENPXP1 = 701
+    ZENPXP2 = 702
+    ZENPXP34 = 703
+    ZENPXPde = 704
+    LIBLZS = 705
+    SHREK = 706
+    EA_MADDEN = 707
+    NVCACHE = 708
+    DE_HTML = 709
+    HTML_EASY = 710
+    JSON_VIEWER = 711
+    XML_JSON_PARSER = 712
+    OodleNetwork1UDP_State_Uncompact = 713
+    OodleNetwork1_Shared_SetWindow = 714
+    OodleNetwork1UDP_Decode = 715
+    OodleNetwork1UDP_Encode = 716
+    QCMP1 = 717
+    YKCMP = 718
+    LZWAB = 719
+    NCOMPRESS = 720
+    SWZAP = 721
+    MZX = 722
+    LZRRV = 723
+    BCM = 724
+    ULZ = 725
+    SLZ_ROF = 726
+    LZ4X_NEW = 727
+    COPY2 = 728
+    SLZ_03b = 729
+    MPPC = 730
+    MPPC_BIG = 731
+    ALZSS = 732
+    CLZ = 733
+    GTC = 734
+    ANCO = 735
+    ANCO0 = 736
+    ANCO1 = 737
+    ANCO2 = 738
+    ANCO3 = 739
+    ANCO4 = 740
+    ANCO5 = 741
+    konami_lz77 = 742
+    vct_lzs = 743
+    umesoft = 744
+    systemaqua_catf = 745
+    sogna = 746
+    pac_ads = 747
+    ail_lzs = 748
+    agsi = 749
+    foster_fa2 = 750
+    an21 = 751
+    arc_link = 752
+    maika_bk = 753
+    maika_mk2 = 754
+    propeller_mgr = 755
+    qlie = 756
+    avg32_seen = 757
+    sas5_iar = 758
+    seraphim_scn = 759
+    ugos_det = 760
+    aaru_fl4 = 761
+    inspire_ida = 762
+    kurumi_mpk = 763
+    dice_rlz = 764
+    pulltop = 765
+    vnsystem = 766
+    QlzUnpack = 767
+    umesoft_pk = 768
+    tomcat_tcd = 769
+    tail_pren = 770
+    tail_crp0 = 771
+    tail_hp = 772
+    tactics_arc = 773
+    sviu_pkz = 774
+    nekox_gpc = 775
+    rec_arc = 776
+    warc = 777
+    warc10 = 778
+    warc_ylz = 779
+    warc_huff = 780
+    sh_him = 781
+    pandora_pbx = 782
+    origin_lz = 783
+    origin_huffman = 784
+    origin_rle = 785
+    origin_alphav2 = 786
+    garbro_huffman = 787
+    ankh_grp = 788
+    ankh_hdj = 789
+    caramelbox_arc3 = 790
+    caramelbox_arc4 = 791
+    circus_V1 = 792
+    circus_V2 = 793
+    circus_V3 = 794
+    cmvs_cpz = 795
+    daisystem_pac = 796
+    ethornell_bgi = 797
+    fc01_mrg = 798
+    fc01_mrg_quant = 799
+    fc01_pak_lz = 800
+    favorite_lzw = 801
+    frontwing_rle = 802
+    frontwing_huffman = 803
+    g2_gcex = 804
+    gss_arc = 805
+    hypatia_mariel = 806
+    interheart_fpk = 807
+    kaguya_ari = 808
+    kaguya_lin2 = 809
+    kaguya_link = 810
+    kaguya_uf = 811
+    kid_dat = 812
+    lambda_lax = 813
+    microvision_arc = 814
+    moonhir_fpk = 815
+    spack = 816
+    azsys = 817
+    dxlib = 818
+    glibg = 819
+    gamesystem_cmp = 820
+    puremail = 821
+    groover_pcg = 822
+    mnp_mma = 823
+    strikes_pck = 824
+    SEGA_LZ77X = 825
+    NEPTUNIA0 = 826
+    puff8 = 827
+    lzh8 = 828
+    romchu = 829
+    okage = 830
+    lzsd_of = 831
+    lzsd_gfd = 832
+    lzsd_gba2 = 833
+    pzz = 834
+    SL01 = 835
+    rage_xfs = 836
+    wangan1 = 837
+    wangan2 = 838
+    wangan3 = 839
+    wangan5 = 840
+    LZ48 = 841
+    exo_decrunch = 842
+    exo_decrunch_new = 843
+    bitbuster = 844
+    lazy = 845
+    nibrans = 846
+    LZRS_ASOBO = 847
+    lzrhys = 848
+    lze = 849
+    zx0 = 850
+    zx1 = 851
+    zx2 = 852
+    zx5 = 853
+    rzip = 854
+    melt1 = 855
+    melt2 = 856
+
+    @classmethod
+    def get_zip_list(cls):
+        return {key: value for key, value in cls.__dict__.items() if isinstance(value, int)}
+
+    @classmethod
+    def get_zip_indexes(cls):
+        return {value: key for key, value in cls.__dict__.items() if isinstance(value, int)}
+
+    @classmethod
+    def get_zip_names(cls):
+        return [sorted(key for key, value in cls.__dict__.items() if isinstance(value, int))]

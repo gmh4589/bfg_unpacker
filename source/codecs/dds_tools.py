@@ -13,6 +13,17 @@ class DDSCreator:
         self.rgb = b''
         self.rgb_data = b''
 
+    @classmethod
+    def codec_list(cls):
+        codecs = []
+
+        for c in cls.__dict__.keys():
+
+            if '__' not in c and c.upper() == c:
+                codecs.append(c)
+
+        return codecs
+
     def dds_save(self, width, height, codec, name='', data=None, header=False,
                  cubemap=0, depth=1, mips=0):
 
@@ -27,17 +38,18 @@ class DDSCreator:
                    message=f'Unknown DDS type {codec}! In file {name}\n. File was save as B8G8R8A8_UNORM',
                    show=True)
 
-
             self.B8G8R8A8_UNORM()
 
         self.rgb_data = self.codec_data[:25]
         self.codec_data = self.codec_data[26:]
+        linear_size = max(width, height)
         header_data = (b'DDS\x20\x7C' + (b'\0' * 3) +
                        self.keys +
                        self.pixel_format +
                        self.depth + b'\x00' +
                        height.to_bytes(4, byteorder='little') +
-                       width.to_bytes(4, byteorder='little') * 2 +
+                       width.to_bytes(4, byteorder='little') +
+                       linear_size.to_bytes(4, byteorder='little') +
                        depth.to_bytes(4, byteorder='little') +
                        mips.to_bytes(4, byteorder='little') +
                        (b'\x00' * 44) + b'\x20' + (b'\0' * 3) +

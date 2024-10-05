@@ -1,12 +1,13 @@
 import os
 import zlib
-from icecream import ic
+# import lz4.frame
 from collections import namedtuple
-from source.ui.custom_ui import CustomDialog
+from tkinter.messagebox import showinfo
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 from source.codecs.dds_tools import DDSCreator
+from source.codecs.zip_methods import zip_methods
 
 
 class BethesdaArchive(Reaper):
@@ -69,9 +70,17 @@ class BethesdaArchive(Reaper):
                 case b'DX10':
                     offset_block_size = 4
                 case b'GNMF':
-                    CustomDialog(title='INFO',
-                                 text=f'Work in progress!').exec()
+                    showinfo(title='INFO',
+                             message=f'Work in progress!')
                     return
+
+            match version:
+                case 2:
+                    skip = 8
+                case 3:
+                    skip = 12
+                case _:
+                    skip = 0
 
             file_count = int.from_bytes(ba2.read(4), byteorder="little")
             file_names_list_offset = int.from_bytes(ba2.read(4), byteorder="little")
@@ -93,11 +102,11 @@ class BethesdaArchive(Reaper):
             DDSData = namedtuple('DDSData',
                                  ['x_size', 'y_size', 'mip_count', 'dds_format', 'flags', 'tiled'])
             dds_data = []
-            ba2.seek(8 if version == 2 else 0, 1)
+            ba2.seek(skip, 1)
 
             for j in range(file_count):
                 ba2.seek(0x10, 1)
-                mips = int.from_bytes(ba2.read(2), byteorder="big") - 1
+                parts = int.from_bytes(ba2.read(2), byteorder="big") - 1
                 dummy = int.from_bytes(ba2.read(2), byteorder="little")
 
                 if data_type == b'DX10':
@@ -118,7 +127,7 @@ class BethesdaArchive(Reaper):
 
                 if data_type == b'DX10':
 
-                    for z in range(mips):
+                    for z in range(parts):
                         ba2.seek(0x14, 1)
                         size += int.from_bytes(ba2.read(4), byteorder="little")
 
@@ -133,16 +142,28 @@ class BethesdaArchive(Reaper):
                 )
 
             for k, file in enumerate(files_data):
-                ic(file.offset)
                 ba2.seek(file.offset)
                 data = ba2.read(file.size)
                 folder_path = os.path.dirname(file.name)
-                full_path = f"{self.output_folder}\\{dds_data[k].dds_format}_{file.name}"
+                # full_path = f"{self.output_folder}\\{dds_data[k].dds_format}_{file.name}"
+                full_path = f"{self.output_folder}\\{file.name}"
                 os.makedirs(f'{self.output_folder}\\{folder_path}', exist_ok=True)
 
                 if data_type == b'DX10':
                     # self.unzip(full_path, 170)
-                    data = zlib.decompress(data)
+                    # Try, maybe Fallout 4/76 have version 3 with zlib
+                    if version == 2:  # For Fallout 4/76
+                        data = zlib.decompress(data)
+                    elif version == 3:  # For Starfield
+                        # data = lz4.frame.decompress(data)
+
+                        with open(full_path.lower(), 'wb') as tf:
+                            tf.write(data)
+
+                        self.unzip(full_path.lower(), zip_methods.LZ4)
+
+                        with open(full_path.lower(), 'rb') as tf:
+                            data = tf.read()
 
                     codec = codec_dict.get(dds_data[k].dds_format, f'Unknown codec - {dds_data[k].dds_format}')
                     dds = DDSCreator()
@@ -151,20 +172,20 @@ class BethesdaArchive(Reaper):
                                  codec,
                                  full_path.lower(),
                                  data,
-                                 mips=dds_data[k].mip_count
+                                 # mips=dds_data[k].mip_count
                                  )
 
                 else:
 
-                    if data[:2] in (b'\x78\x9C', b'\x48\xC7'):
+                    if data[:1] in (b'\x78', b'\x48'):
 
                         try:
                             data = zlib.decompress(data)
                         except zlib.error:
-                            # showinfo(title='INFO', message=f'Error in file {full_path}\n{data[:2]}')
+                            # showinfo(title='INFO', message=f'Error in file {full_path}\n{data[:1]}')
                             pass
 
                     with open(full_path, 'wb') as new_file:
                         new_file.write(data)
 
-                self.update_pb(file_count, k, file.name)
+                self.update_pb(file_count, k + 1, file.name)

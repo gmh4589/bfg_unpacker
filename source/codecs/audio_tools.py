@@ -47,7 +47,7 @@ def wav_save(args):
                         new_data)
 
 
-def atrac_save(**args):
+def atrac_save(args):
     ic(args)
 
     name = args['file_name']
@@ -104,7 +104,7 @@ def atrac_save(**args):
 
 
 # TODO: Наличие сомнительно...
-def mp3_save(**args):
+def mp3_save(args):
     ic(args)
 
     head = (b'\x54\x41\x47\x75\x6E\x6B\x6E\x6F\x77\x6E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
@@ -127,4 +127,26 @@ def mp3_save(**args):
 
     with open(new_name, 'wb') as new_audio:
         new_audio.write(head + new_data)
+
+
+def ps_audio_tools(args):
+    ic(args)
+
+    platform = args['Platform']
+    mode = args['Mode']
+    file_name = ['file_name']
+
+    match platform:
+        case 'PS2':
+            pass
+        case 'PS3':
+            pass
+        case 'PS4':
+            pass
+        case 'PSP':
+            pass
+        case 'PS Vita':
+            pass
+
+
 

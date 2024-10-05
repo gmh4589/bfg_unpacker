@@ -47,17 +47,21 @@ class AutoCompleteComboBox(QComboBox, Setting):
 
 
 class CustomDialog(QDialog):
+    returned_data = None
 
-    def __init__(self, title='Warning!',
-                 btnOK=True,
-                 btnCancel=False,
-                 text='',
-                 style='dark_orange'):
+    def __init__(self,
+                 text: str,
+                 title: str = 'Warning!',
+                 btnOK: bool = True,
+                 btnCancel: bool = False,
+                 combo: QComboBox = None,
+                 style: str = 'dark_orange') -> None:
         super().__init__()
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         apply_stylesheet(self, theme=f'{style}.xml')
         self.setWindowTitle(title)
         self.layout = QVBoxLayout()
+        self.combo = combo
 
         if btnOK and btnCancel:
             self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
@@ -69,10 +73,20 @@ class CustomDialog(QDialog):
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
+
         message = QLabel(text)
         self.layout.addWidget(message)
+
+        if combo is not None:
+            self.layout.addWidget(self.combo)
+            self.returned_data = self.combo.currentText()
+            self.combo.currentTextChanged.connect(self.return_selected)
+
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
+
+    def return_selected(self):
+        self.returned_data = self.combo.currentText()
 
 
 class ProgressBar(QDialog):

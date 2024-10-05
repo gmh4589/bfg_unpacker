@@ -1,11 +1,14 @@
 import os
+import shutil
 from subprocess import Popen
 
-from PyQt6.QtWidgets import QInputDialog
+from PyQt6.QtWidgets import QInputDialog, QComboBox
 from icecream import ic
 from source.qprocess import QProcessList
 from source.ui import localize
 from source.reapers import *
+from source.codecs.image_tools import ktx_save, gxt_save
+from source.ui.custom_ui import CustomDialog
 
 
 class QuickOpen(QProcessList):
@@ -74,7 +77,11 @@ class QuickOpen(QProcessList):
                         first_arg='./',
                         second_arg=f' "{fp if subfolder else self.out_dir}"')
 
-                elif self.func_name == '_VGM' or ext in ('bnk', ):
+                elif self.func_name == '_VGM' or ext in ('bnk', 'fsb', 'at3', 'at9', 'vag', 'wem', 'wav', 'lwav',
+                                                         'adpcm', 'ss2', 'pcm', 'aud', 'ogg', 'logg', 'sngw', 'ogg_',
+                                                         'bgm', 'aif', 'laif', 'aiff', 'laiff', 'aifc', 'laifc', 'afc',
+                                                         'xwb', 'xna', 'opus', 'lopus', 'ue4opus', 'xwma', 'xwm',
+                                                         'xma', 'wma', 'lwma', 'xopus', '9tav'):
                     self.proc = other_prg.OtherProg(
                         program_name='vgmstream\\vgmstream-cli.exe',
                         first_arg=f'-o "{fp if subfolder else self.out_dir}\\'
@@ -84,6 +91,15 @@ class QuickOpen(QProcessList):
                 elif self.func_name == '_7ZIP':
                     self.proc = seven_zip.SevenZIP()
 
+                elif self.func_name == '_REEngine':
+                    self.proc = re_engine.ReEngine()
+                    self.proc.game_file_list = self.script_name
+
+                elif self.func_name == '_Unreal4':
+                    self.proc = unreal.Unreal()
+                    self.proc.key = self.script_name
+
+                # A
                 elif ext == "aes":
                     self.proc.script_name = "data\\scripts\\coalescedaes.bms"
 
@@ -102,7 +118,7 @@ class QuickOpen(QProcessList):
 
                     if magic == b'ARC\x00':  # MT Framework
                         self.proc = mt_arc.ARCExtractor()
-                    if magic == b'ArC\x01':  # FreeARC Archive
+                    elif magic == b'ArC\x01':  # FreeARC Archive
                         self.proc.script_name = "data\\wcx\\UnArkWCX.wcx"
                     else:
                         self.proc = self.sorry()
@@ -138,6 +154,11 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("azp",):
                     self.proc.script_name = "data\\scripts\\CloseCombat4AZP.bms"
+
+                # B
+                # Check on Bethesda game
+                elif ext == 'ba2':
+                    self.proc = ba2_archives.BethesdaArchive()
 
                 elif ext in ("bcc",):
                     self.proc.script_name = "data\\scripts\\bccpsp.bms"
@@ -197,6 +218,15 @@ class QuickOpen(QProcessList):
                 elif ext in ("box",):
                     self.proc.script_name = "data\\scripts\\BOXLEMBOX.bms"
 
+                elif ext == 'bsa':
+                    if magic == b'BSA\0':
+                        self.proc = bsa_archives.BethesdaArchive()
+                    elif magic == b'\x00\x01\x00\x00':
+                        self.proc = morrowind.MorrowindBSA()
+                    else:
+                        self.proc = arena.OldBSA()
+                        # self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
+
                 elif ext == "bundle":
                     # TODO: Red Engine (The Witcher 3), PayDay 2, Bionic Commando
 
@@ -206,6 +236,7 @@ class QuickOpen(QProcessList):
                     else:
                         self.proc = self.sorry()
 
+                # C
                 elif ext == 'cache':
                     # TODO: Add *.cache from total observer
                     if name == 'texture':
@@ -277,6 +308,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("cub",):
                     self.proc.script_name = "data\\scripts\\enigmatis.bms"
 
+                # D
                 elif ext in ("dag",):
                     self.proc.script_name = "data\\scripts\\DAGPKR3.bms"
 
@@ -335,6 +367,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("dz",):
                     self.proc.script_name = "data\\scripts\\vector.bms"
 
+                # E
                 # Check on Aurora Engine game
                 elif ext in ("erf", "rim"):
                     self.proc = aurora_engine.ERFUnpacker()
@@ -345,6 +378,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("exo",):
                     self.proc = self.sorry()
 
+                # F
                 elif ext in ("far",):  # TODO: Add from GAUP
                     self.proc.script_name = "data\\scripts\\djherofar.bms"
 
@@ -369,6 +403,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("frm",):
                     self.proc.script_name = "data\\scripts\\frmfonts.bms"
 
+                # G
                 # Check on GCA archive
                 elif ext in ("gca",):
                     self.proc.script_name = "\\data\\wcx\\gca.wcx"
@@ -379,6 +414,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("grp",):
                     self.proc = grp.GRPExtractor()
 
+                # H
                 # TODO: Check on HA archive
                 elif ext in ("ha",):
                     self.proc.script_name = "\\data\\wcx\\HA.wcx"
@@ -399,6 +435,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("hrp", "hrip",):
                     self.proc.script_name = "\\data\\wcx\\inhrust.wcx"
 
+                # I
                 elif ext == 'idwav':
                     self.proc.script_name = 'data/scripts/idwav_to_wav.bms'
 
@@ -417,6 +454,15 @@ class QuickOpen(QProcessList):
                     elif magic == b'\x05SER':
                         self.proc = resources.Resources()
 
+                # J
+                # K
+                elif ext == 'ktx':
+                    img_name = f'\\{os.path.basename(fp).split(".")[0]}.{self.setting["Main"]["fav_format"]}'
+                    save_path = (fp if subfolder else self.out_dir) + img_name
+                    ktx_save(save_path, fn)
+                    self.proc = None
+
+                # L
                 elif ext == 'lip':
                     self.proc = of_orc_and_human.OGGPacker()
 
@@ -426,6 +472,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("lgp",):
                     self.proc.script_name = "data\\scripts\\FinalFantasy7LGP.bms"
 
+                # M
                 elif ext in ("m4b",):
                     self.proc.script_name = "data\\scripts\\EscapeFromMonkeyIslandM4B.bms"
 
@@ -456,12 +503,15 @@ class QuickOpen(QProcessList):
                 elif ext == 'msf':
                     self.proc.script_name = 'data/scripts/rage_idmsf.bms'
 
+                # N
+                # O
                 elif ext in ("orc", "ork"):
                     self.proc = other_prg.OtherProg()
                     self.proc.first_arg = ""
                     self.proc.second_arg = f'"{self.out_dir}'
                     self.proc.program_name = "orkdec.exe"
 
+                # P
                 elif ext in ("packed",):
                     self.proc.script_name = "data\\scripts\\CastlevaniaLOS2.bms"
 
@@ -502,7 +552,26 @@ class QuickOpen(QProcessList):
                             self.proc = quake_pak.QPAKExtractor(version)
 
                     elif magic == b'KPKA':  # RE Engine
-                        pass
+
+                        combo = QComboBox()
+                        game_list = [key for key in re_engine.game_list.keys()]
+                        combo.addItems(game_list)
+
+                        dial = CustomDialog(
+                            text='Select a game',
+                            btnCancel=True,
+                            combo=combo,
+                            style=self.setting['Main']['theme']
+                        )
+
+                        ok = dial.exec()
+
+                        if ok:
+                            self.proc = re_engine.ReEngine()
+                            self.proc.game = dial.returned_data
+                        else:
+                            self.proc = None
+
                     elif magic == b'SBPA':  # Arcania: Gothic 4
                         self.proc.script_name = "data\\scripts\\arcania.bms"
                     elif magic == b'PAK ':  # Risen
@@ -572,6 +641,8 @@ class QuickOpen(QProcessList):
                 elif ext in ("pwf",):
                     self.proc.script_name = "data\\scripts\\DeltaForceLandwarriorPWF.bms"
 
+                # Q
+                # R
                 elif ext == 'resources':
                     # TODO: Add support for Dishonored 2 and Wolfenstein 2
 
@@ -593,6 +664,9 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("rkv",):
                     self.proc.script_name = "data\\scripts\\rkv.bms"
+
+                elif ext in ('rmdtoc', 'rmdblob'):
+                    self.proc = aw2.AlanWake2()
 
                 elif ext in ('rmdp', 'packmeta'):
                     self.proc = remedy.Remedy()
@@ -625,6 +699,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("rzb",):
                     self.proc.script_name = "data\\scripts\\blur2rzb.bms"
 
+                # S
                 elif ext in ("sab",):
                     self.proc.script_name = "data\\scripts\\justcause2sab.bms"
 
@@ -675,11 +750,20 @@ class QuickOpen(QProcessList):
                 elif ext in ("swf",):
                     self.proc = self.sorry()
 
+                # T
                 elif ext in ("tab",):
                     self.proc.script_name = 'data\\scripts\\madmax.bms'
 
                 elif ext == 'tangoresource':
                     self.proc = tango.Tango()
+
+                elif ext == 'tex':
+
+                    if magic == b'TEX\0':
+                        self.proc = tex.TEX2DDS()
+                    elif magic == b'DDS ':
+                        shutil.move(fn, fn.replace('tex', 'dds'))
+                        self.proc = None
 
                 elif ext in ("tiger",):  # TODO: Add something else
                     self.proc = other_prg.OtherProg()
@@ -698,6 +782,7 @@ class QuickOpen(QProcessList):
                     else:
                         self.proc = self.sorry()
 
+                # U
                 # Check on Unigene Engine game
                 elif ext in ("ung",):
                     self.proc = self.sorry()
@@ -707,6 +792,7 @@ class QuickOpen(QProcessList):
                     self.proc = ffmpeg_tool.Converter()
                     self.proc.map = '0'
 
+                # V
                 elif ext in ("vce",):
                     self.proc.script_name = "data\\scripts\\HomeworldCataclysmVCE.bms"
 
@@ -722,6 +808,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("vpk",):
                     self.proc = source_vpk.VPKExtractor()
 
+                # W
                 # Check on RED Engine game
                 elif ext in ("w3strings", "archive", "w2strings", "dzip"):
                     self.proc = self.sorry()
@@ -742,6 +829,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("wrs",):
                     self.proc.script_name = "data\\scripts\\gamestudio.bms"
 
+                # X
                 elif ext in ("xbp",):
                     self.proc.script_name = "data\\scripts\\blitzgamesxbp.bms"
 
@@ -759,12 +847,14 @@ class QuickOpen(QProcessList):
                 elif ext == 'xpr':
                     self.proc.script_name = 'data/scripts/Quake_4_X360_xpr.bms'
 
+                # Y
                 elif ext in ("yz1",):
                     self.proc = self.sorry()
 
                 elif ext in ("yz2",):
                     self.proc = self.sorry()
 
+                # Z
                 elif ext in ("z",):
                     # TODO: Z Archive, LEGO Chess
 
@@ -787,17 +877,6 @@ class QuickOpen(QProcessList):
                 elif ext in ("zwp",):
                     self.proc.script_name = "data\\scripts\\DarkReign2ZWP.bms"
 
-                # Check on Bethesda game
-                elif ext == 'ba2':
-                    self.proc = ba2_archives.BethesdaArchive()
-                elif ext == 'bsa':
-                    if magic == b'BSA\0':
-                        self.proc = bsa_archives.BethesdaArchive()
-                    elif magic == b'\x00\x01\x00\x00':
-                        self.proc = morrowind.MorrowindBSA()
-                    else:
-                        self.proc = arena.OldBSA()
-                        # self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
                 elif ext in ('esl', 'esm', 'esp', 'esx', 'pex'):
                     # TODO: Add functions to unpack other file types
                     print(f'{localize.work_in_progress}...')
