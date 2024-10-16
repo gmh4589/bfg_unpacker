@@ -1,4 +1,4 @@
-import os.path
+import os
 from subprocess import Popen
 from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject
 from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
@@ -91,6 +91,7 @@ class ChildUIWindow(QDialog):
             for j in range(len(self.label_list)):
 
                 if self.drops[j].currentText() == translate.other:
+                    # TODO: TEXT!!!
                     text = simpledialog.askstring("", "Enter value:")
                     ic(text)
                     self.drops[j].addItem(text)
@@ -146,6 +147,7 @@ class ChildUIWindow(QDialog):
                                              .replace('%out_name%', out_name)
                                              .replace('/', '\\'))
 
+                        # TODO: TEXT!!!
                         print(f'Wait, file {file_name} being processed...')
                         ic(self.command_line)
                         Popen(self.command_line).wait()

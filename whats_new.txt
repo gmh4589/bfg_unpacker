@@ -1,4 +1,10 @@
 
+October 16, 2024
+
+ - Project migrate to Python 3.12
+ - A function to creating header for DDS files now is active
+ - In function to creating DDS files header added option to select mips count and save as cubemap texture
+
 October 5, 2024
 
  - Added support for unpack BA2 archives from Starfield

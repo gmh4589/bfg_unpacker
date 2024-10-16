@@ -7,7 +7,7 @@ from icecream import ic
 from source.qprocess import QProcessList
 from source.ui import localize
 from source.reapers import *
-from source.codecs.image_tools import ktx_save, gxt_save
+from source.codecs.image_tools import KTXConvert
 from source.ui.custom_ui import CustomDialog
 
 
@@ -414,6 +414,10 @@ class QuickOpen(QProcessList):
                 elif ext in ("grp",):
                     self.proc = grp.GRPExtractor()
 
+                elif ext in ("gxt",):
+                    self.proc = None
+                    os.system(f'data\\ps_tools\\vita\\GXTConvert.exe {fn}')
+
                 # H
                 # TODO: Check on HA archive
                 elif ext in ("ha",):
@@ -457,10 +461,7 @@ class QuickOpen(QProcessList):
                 # J
                 # K
                 elif ext == 'ktx':
-                    img_name = f'\\{os.path.basename(fp).split(".")[0]}.{self.setting["Main"]["fav_format"]}'
-                    save_path = (fp if subfolder else self.out_dir) + img_name
-                    ktx_save(save_path, fn)
-                    self.proc = None
+                    self.proc = KTXConvert()
 
                 # L
                 elif ext == 'lip':
