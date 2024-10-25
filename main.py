@@ -116,7 +116,7 @@ class QuickUnpack(QMainWindow, QuickOpen):
         super().__init__()
 
         self.is_stop = False
-        self.pb = custom_ui.ProgressBar(self.setting["Main"]["theme"])
+        self.pb = custom_ui.ProgressBar()
         self.last_run = None
         self.file_list = [sys.argv[1], ]
         self.func_name = None

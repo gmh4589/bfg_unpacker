@@ -21,6 +21,8 @@ pylint = "^3.2.5"
 ruff = "^0.5.0"
 beautifulsoup4 = "^4.12.3"
 lz4 = "^4.3.3"
+python-ffmpeg = "^2.0.12"
+acefile = "^0.6.12"
 
 
 [build-system]

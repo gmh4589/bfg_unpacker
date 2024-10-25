@@ -93,7 +93,7 @@
     "convert_ffmpeg": "Конвертировать видео с помощью FFMPEG",
     "convert_bink": "Конвертировать видео с помощью Bink",
     "convert_wwise": "Конвертировать аудио с помощью Wwise",
-    "convert_nconvert": "Конвертировать изображение с помощью  nConvert",
+    "convert_pillow": "Конвертировать изображение с помощью Pillow",
     "unpack_unreal": "Распаковать игру на Unreal Engine",
     "unpack_unity": "Распаковать игру на Unity Engine",
     "unpack_idtech": "Распаковать игру на idTech Engine",

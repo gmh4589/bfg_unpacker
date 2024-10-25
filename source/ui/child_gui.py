@@ -1,6 +1,6 @@
 import os
 from subprocess import Popen
-from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject
+from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject, QThread
 from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import *
 from tkinter import simpledialog
@@ -166,9 +166,9 @@ class ChildUIWindow(QDialog):
                                 case _:
                                     a = self.drops[drop].currentText()
 
-                            args[self.label_list[drop].split(' ')[0]] = a
+                            args[self.label_list[drop]] = a
 
-                        self.action(args)
+                        QThread(self.action(args)).run()
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate

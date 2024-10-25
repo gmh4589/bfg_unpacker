@@ -90,6 +90,7 @@ class PakExtractor(Reaper):
 
 
 class FATDecryptor:
+
     def __init__(self, key, raw_fat):
         self.key_str = key
         self.key_pos = 0

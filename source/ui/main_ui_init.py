@@ -244,7 +244,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 # btn.clicked.connect(self.ps_audio_tools)
                 btn.clicked.connect(self.image_to_dds_ms)
             case 'P':
-                btn.clicked.connect(self.nConvert)
+                btn.clicked.connect(self.pillow_conv)
             case 'Q':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_RedEngine', ext_list=after_dot['_RedEngine']))
             case 'R':
@@ -294,7 +294,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                      'M': localize.convert_bink,
                      'N': localize.convert_wwise,
                      'O': localize.ps_audio_tool,
-                     'P': localize.convert_nconvert,
+                     'P': localize.convert_pillow,
                      'Q': localize.unpack_red,
                      'R': localize.unpack_godot,
                      'S': localize.unpack_rpgmaker,

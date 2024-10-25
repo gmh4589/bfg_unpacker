@@ -93,7 +93,7 @@
     "convert_ffmpeg": "Convert video with FFMPEG",
     "convert_bink": "Bink video converter",
     "convert_wwise": "Wwise audio converter",
-    "convert_nconvert": "Convert images with nConvert",
+    "convert_pillow": "Convert images with Pillow",
     "unpack_unreal": "Unpack game on Unreal Engine",
     "unpack_unity": "Unpack game on Unity Engine",
     "unpack_idtech": "Unpack game on idTech Engine",

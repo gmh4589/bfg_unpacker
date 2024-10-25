@@ -1,4 +1,19 @@
 
+October 25, 2024
+
+ - When converting video via ffmpeg, the progress bar of the conversion process is now displayed correctly
+ - Added support to unpack ACE archives
+ - Added support to unpack DZIP archives
+ - Fixed unpacking some archives from Fallout 4, the textures from which were saved unreadable
+ - nconvert utility has been deleted. Reason: replaced with a similar in functionality library Pillow, which can save
+        and open images of almost all popular formats. And nconvert does not support some modern formats, but it does
+        support a bunch of rare and almost unused formats
+ - Added option to create cubemap textures
+ - Speed of unpacking BA2 archives from Starfield has been increased
+ - Fixed the ZeroDivisionError error that caused the program to crash if the number of files or the number of the
+        currently processed file were zero when processing archives
+ - Continue work with Alan Wake 2 unpacker
+
 October 16, 2024
 
  - Project migrate to Python 3.12

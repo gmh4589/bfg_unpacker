@@ -29,9 +29,9 @@ class AutoCompleteComboBox(QComboBox, Setting):
 
         completer_popup = self.completer.popup()
         completer_popup.setStyleSheet("QListView {"
-                                      "  background-color: " + colors[4] + ";"
-                                      "  color: " + colors[8] + ";"
-                                      "  border: 1px solid " + colors[6] + ";"
+                                      f"  background-color: {colors[4]};"
+                                      f"  color: {colors[8]};"
+                                      f"  border: 1px solid {colors[6]};"
                                       "}")
 
         self.filter_model.clear()
@@ -89,11 +89,12 @@ class CustomDialog(QDialog):
         self.returned_data = self.combo.currentText()
 
 
-class ProgressBar(QDialog):
+class ProgressBar(QDialog, Setting):
 
-    def __init__(self, style='dark_orange'):
+    def __init__(self):
         super().__init__()
-        apply_stylesheet(self, theme=f'{style}.xml')
+        theme = self.setting['Main']['theme']
+        apply_stylesheet(self, theme=f'{theme}.xml')
         self.resize(300, 130)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.setWindowTitle(f"{localize.wait}...")

@@ -1,10 +1,34 @@
 import os
-import psutil
-from icecream import ic
-from subprocess import Popen, PIPE
+import json
 
-from source.reaper import Reaper, file_reaper
+from PyQt6.QtCore import QThread
+from icecream import ic
+from ffmpeg import FFmpeg, Progress
+
+from source.reaper import Reaper, file_reaper, logger
+from source.qprocess import QProcessList
 from source.ui import localize
+
+
+def ffmpeg_conv(args: dict):
+
+    conv = Converter()
+    conv.format = args.get('Format', None)
+    conv.file_name = args.get('file_name', None)
+    conv.ab = args.get('Audio Bitrate', None)
+    conv.a_codec = args.get('Audio Codec', None)
+    conv.map = args.get('Audio Track', None)
+    conv.vf_scale = f"{args.get('Width', None)}:{args.get('High', None)}"
+    conv.vb = args.get('Video Bitrate', None)
+    conv.v_codec = args.get('Video Codec', None)
+    conv.frequency = args.get('Frequency', None)
+    conv.channels = args.get('Channels', None)
+    conv.speed = args.get('Speed', None)
+    conv.info_only = args.get('Info', None)
+    proc = QProcessList()
+    ic(conv.file_name)
+
+    QThread(proc.q_connect(conv, conv.file_name, header=f'{localize.convert}: {conv.file_name}...')).run()
 
 
 class Converter(Reaper):
@@ -18,77 +42,84 @@ class Converter(Reaper):
         self.ab = '192k'
         self.map = '1'
         self.format = 'mkv'
-
-    def is_file_in_use(self):
-        for process in psutil.process_iter(['pid', 'open_files']):
-
-            try:
-
-                for file_info in process.open_files():
-
-                    if os.path.abspath(file_info.path) == os.path.abspath(self.file_name):
-                        return True
-
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-
-        return False
+        self.frequency = '44100'
+        self.channels = '2'
+        self.speed = '1'
+        self.info_only = None
 
     @file_reaper
     def run(self):
-        out_path = f'{self.output_folder}\\{os.path.basename(self.file_name).split(".")[-2]}.{self.format}'
-        # media_info = ffmpeg.probe(self.file_name)
-        # dur = float(media_info['format']['duration'])
-        # ic(media_info)
-        # ic(dur)
+        out_path = f'{self.output_folder}\\{os.path.basename(self.file_name).split(".")[0]}.{self.format}'
+        ic(out_path)
+        probe = FFmpeg(executable='data\\ffmpeg\\ffprobe.exe').input(self.file_name, print_format="json", show_streams=None)
+        meta = json.loads(probe.execute())
+        ic(meta)
 
-        ar = (f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
-              f'-i "{self.file_name}" '
-              f'-vcodec {self.v_codec} '
-              f'-vb {self.vb} '
-              f'-vf scale="{self.vf_scale}" '
-              f'-acodec {self.a_codec} '
-              f'-ab {self.ab} '
-              f'-map 0:0 -map 0:{self.map} '
-              f'"{out_path}"')
+        if self.info_only is not None:
 
-        ic(ar)
+            for key, value in meta['streams'][0].items():
+                print(f"{key}: {value}")
+            
+            self.update_pb(1, 1, '')
+            return
 
-        if 'k' in self.ab:
-            ab = int(self.ab[:-1]) * 1000
-        elif 'M' in self.ab:
-            ab = int(self.ab[:-1]) * 1000000
+        frame_rate = int(meta['streams'][0]['r_frame_rate'].split('/')[0])
+
+        try:
+            duration = float(meta['streams'][0]['duration'])
+        except (KeyError, IndexError):
+
+            try:
+                duration = meta['streams'][0]['tags']['DURATION'].split(':')
+                duration = float(duration[0]) * 3600 + int(duration[1]) * 60 + float(duration[2])
+            except (KeyError, IndexError):
+                duration = 0
+
+        frames = int(frame_rate * duration)
+
+        ffmpeg = FFmpeg(executable='data\\ffmpeg\\ffmpeg.exe').option("y").input(self.file_name)
+
+        if self.v_codec is not None:
+            ffmpeg.output(
+                url=out_path,
+                # map=["0:0", f"1:{self.map}"],
+                options={"codec:v": self.v_codec,
+                         "vb": self.vb,
+                         "codec:a": self.a_codec,
+                         "ab": self.ab,
+                         "filter:v": f"scale={self.vf_scale}",
+                         "strict": '-2',
+                         }
+            )
+
+        elif self.a_codec is not None:
+            ffmpeg.output(
+                url=out_path,
+                options={"codec:a": self.a_codec,
+                         "ab": self.ab,
+                         "filter:a": f"asetrate={self.frequency} atempo={self.speed}",
+                         "strict": '-2',
+                         }
+            )
+
         else:
-            ab = int(self.ab)
+            ffmpeg.output(url=out_path)
 
-        if 'k' in self.vb:
-            vb = int(self.vb[:-1]) * 1000
-        elif 'M' in self.vb:
-            vb = int(self.vb[:-1]) * 1000000
-        else:
-            vb = int(self.vb)
+        @ffmpeg.on("stderr")
+        def on_stderr(line):
+            ic(line)
+            print(line)
+            logger('DEBUG', line)
 
-        # size = int(((ab + vb) * dur) / 8)
-        # ic(size)
+            if 'Conversion failed!' in line or 'error' in line.lower():
+                self.update_pb(frames, frames, out_path)
 
-        Popen(ar, stdout=PIPE, stderr=PIPE, encoding='utf-8')
+        @ffmpeg.on("progress")
+        def on_progress(progress: Progress):
+            self.update_pb(frames, progress.frame, out_path)
 
-        while True:
+        @ffmpeg.on("completed")
+        def on_completed():
+            self.update_pb(frames, frames, out_path)
 
-            # try:
-            #     new = os.path.getsize(out_path)
-            #     ic(new)
-            # except FileNotFoundError:
-            #     new = 0
-
-            # percent = int(100/size * new)
-            percent = 50
-            self.update_signal.emit(percent, '', f'{localize.convert} - {self.file_name}...', False)
-
-            # Конечно, костыль, но работает...
-            if not self.is_file_in_use():
-                break
-            # TODO: Попытка обратиться к Popen.poll() приводит к зависанию процесса
-            # if ff.poll() is not None: break
-
-        self.update_signal.emit(100, '', localize.done, True)
+        ffmpeg.execute()

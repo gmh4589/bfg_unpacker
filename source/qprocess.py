@@ -4,6 +4,7 @@ from icecream import ic
 
 from source.setting import Setting
 from source.ui import localize
+from source.ui.custom_ui import ProgressBar
 
 
 class QProcessList(Setting):
@@ -15,6 +16,8 @@ class QProcessList(Setting):
         self.out_dir = self.setting['Main']['out_path']
         self.proc = None
         self.nuke = None
+        self.last_run = None
+        self.pb = ProgressBar()
 
     def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
         self.nuke = nuke
@@ -32,7 +35,6 @@ class QProcessList(Setting):
         except AttributeError:
             pass
 
-        # self.pb.set_theme(self.setting["Main"]["theme"])
         self.pb.header.setText(self.get_short_text(header))
         self.pb.progressBar.setValue(0)
         self.pb.progress.setText('')

@@ -1,11 +1,10 @@
 import os
 import zlib
-# import lz4.frame
+import lz4.block as lz4
 from collections import namedtuple
 from tkinter.messagebox import showinfo
 
 from source.reaper import Reaper, file_reaper
-from source.ui import localize
 from source.codecs.dds_tools import DDSCreator
 from source.codecs.zip_methods import zip_methods
 
@@ -15,8 +14,8 @@ class BethesdaArchive(Reaper):
     #  Add all DDS codec support
     #  Add cubemap DDS support
     #  Add GNMF support
-    #  Fallout 4, Fallout 76 -> Don't work tiny TXT files from zipped animation archives
-    #  Starfield -> maybe use other compression method
+    #  Fallout 4, Fallout 76 -> Don't work tiny TXT files from zipped animation archives. Try it
+    #  Starfield need to try meshes and other archives types
 
     @file_reaper
     def run(self):
@@ -65,6 +64,7 @@ class BethesdaArchive(Reaper):
                 return
 
             match data_type:
+
                 case b'GNRL':
                     offset_block_size = 8
                 case b'DX10':
@@ -85,8 +85,6 @@ class BethesdaArchive(Reaper):
             file_count = int.from_bytes(ba2.read(4), byteorder="little")
             file_names_list_offset = int.from_bytes(ba2.read(4), byteorder="little")
             here = ba2.tell()
-
-            self.update_signal.emit(0, '', f'{localize.wait}...', False)
 
             ba2.seek(file_names_list_offset)
             file_names = []
@@ -128,10 +126,11 @@ class BethesdaArchive(Reaper):
                 if data_type == b'DX10':
 
                     for z in range(parts):
-                        ba2.seek(0x14, 1)
-                        size += int.from_bytes(ba2.read(4), byteorder="little")
+                        a = ba2.read(0x14)
+                        s = int.from_bytes(ba2.read(4), byteorder="little")
+                        size += s
 
-                    ba2.seek(8, 1)
+                    b = ba2.read(8)
 
                 files_data.append(
                     FilesData(
@@ -145,25 +144,27 @@ class BethesdaArchive(Reaper):
                 ba2.seek(file.offset)
                 data = ba2.read(file.size)
                 folder_path = os.path.dirname(file.name)
-                # full_path = f"{self.output_folder}\\{dds_data[k].dds_format}_{file.name}"
                 full_path = f"{self.output_folder}\\{file.name}"
                 os.makedirs(f'{self.output_folder}\\{folder_path}', exist_ok=True)
 
                 if data_type == b'DX10':
-                    # self.unzip(full_path, 170)
-                    # Try, maybe Fallout 4/76 have version 3 with zlib
-                    if version == 2:  # For Fallout 4/76
+
+                    if version == 3:  # For LZ4 compression
+
+                        try:
+                            data = lz4.decompress(data, file.size * 30)
+                        except lz4.LZ4BlockError:
+
+                            with open(full_path.lower(), 'wb') as tf:
+                                tf.write(data)
+
+                            self.unzip(full_path.lower(), zip_methods.LZ4)
+
+                            with open(full_path.lower(), 'rb') as tf:
+                                data = tf.read()
+
+                    else:  # For ZLIB compression
                         data = zlib.decompress(data)
-                    elif version == 3:  # For Starfield
-                        # data = lz4.frame.decompress(data)
-
-                        with open(full_path.lower(), 'wb') as tf:
-                            tf.write(data)
-
-                        self.unzip(full_path.lower(), zip_methods.LZ4)
-
-                        with open(full_path.lower(), 'rb') as tf:
-                            data = tf.read()
 
                     codec = codec_dict.get(dds_data[k].dds_format, f'Unknown codec - {dds_data[k].dds_format}')
                     dds = DDSCreator()
@@ -182,8 +183,7 @@ class BethesdaArchive(Reaper):
                         try:
                             data = zlib.decompress(data)
                         except zlib.error:
-                            # showinfo(title='INFO', message=f'Error in file {full_path}\n{data[:1]}')
-                            pass
+                            showinfo(title='INFO', message=f'Error in file {full_path}\n{data[:1]}')
 
                     with open(full_path, 'wb') as new_file:
                         new_file.write(data)

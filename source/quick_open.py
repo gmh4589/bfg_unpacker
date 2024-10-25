@@ -100,6 +100,9 @@ class QuickOpen(QProcessList):
                     self.proc.key = self.script_name
 
                 # A
+                elif ext == "ace":
+                    self.proc = unace.UnAce()
+
                 elif ext == "aes":
                     self.proc.script_name = "data\\scripts\\coalescedaes.bms"
 
@@ -364,8 +367,12 @@ class QuickOpen(QProcessList):
                 elif ext in ("dv2",):
                     self.proc.script_name = "data\\scripts\\dv2.bms"
 
-                elif ext in ("dz",):
-                    self.proc.script_name = "data\\scripts\\vector.bms"
+                elif ext in ("dz", "dzip"):
+
+                    if magic == b'DZ\x03\x00':
+                        self.proc = dzip.DZIPExtractor()
+                    else:
+                        self.proc.script_name = "data\\scripts\\vector.bms"
 
                 # E
                 # Check on Aurora Engine game
@@ -594,6 +601,10 @@ class QuickOpen(QProcessList):
 
                         if head2 == b'\x00' * 4:  # Unreal Engine 4
                             self.proc = unreal.Unreal()
+                        elif head2 in (b'\0\0\0\x0e', ):
+                            # TODO: Script can't saving file name, need to write inner unpacker.
+                            #  Names contains in BIN files
+                            self.proc.script_name = "data\\scripts\\alien_isolation.bms"
                         else:  # Alone in the Dark
                             self.proc.script_name = "data\\scripts\\alonedark.bms"
 

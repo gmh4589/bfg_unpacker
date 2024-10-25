@@ -23,8 +23,7 @@ def logger(level: str, message: str, show: bool = False, messagebox: bool = Fals
         log.write(f'{datetime.now()} - [{level}]: {message}\n')
 
     if messagebox:
-        showinfo(title=level,
-                 message=message)
+        showinfo(title=level, message=message)
 
 
 def file_reaper(func_name):
@@ -73,6 +72,12 @@ class Reaper(QThread, Setting):
         os.makedirs(self.output_folder, exist_ok=True)
 
     def update_pb(self, file_count: int, current_file: int, file_name: str):
+
+        if current_file == 0:
+            current_file = 1
+        elif file_count == 0:
+            file_count = 1
+
         ic(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
         print(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
 

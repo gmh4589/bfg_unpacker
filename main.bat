@@ -1,3 +1,3 @@
 chcp 1251
-python main.py
+python.exe main.py
 pause

@@ -10,7 +10,9 @@ from source.reapers.remedy      import remedy, aw2
 from source.reapers.rockstar    import rdr2_audio, rockstar_rpf
 from source.reapers.unreal      import unreal, ue3_reaper, ue3_injector, locres
 from source.reapers.valve       import source_vpk
-from source.reapers.zip         import seven_zip, zip_scan, zip_archive
+from source.reapers.zip         import (dzip, seven_zip, zip_scan, zip_archive,
+                                        unace
+                                        )
 
 from source.reapers import (afs, arx_fatalis,
                             celestia, chrome_engine,

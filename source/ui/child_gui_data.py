@@ -8,7 +8,7 @@ from source.codecs import wav_list, audio_tools, image_tools
 from source.codecs.dds_tools import DDSCreator
 from source.ui import localize, child_gui
 from source.codecs.zip_methods import zip_methods
-# from source.codecs.zip_methods_bak import zip_methods
+from source.reapers.ffmpeg_tool import ffmpeg_conv
 
 
 # Методы для создания и наполнения дочерних интерфейсов
@@ -27,15 +27,8 @@ class ChildGuiData(Setting):
                                              ['120', '144', '160', '192', '240', '256', '272', '288', '308', '320', '342', '360', '384', '400', '426', '480', '512', '540', '576', '600', '640', '720', '768', '800', '810', '854', '864', '900', '960', '1024', '1050', '1064', '1080', '1136', '1200', '1152', '1200', '1280', '1350', '1360', '1366', '1400', '1440', '1536', '1600', '1620', '1800', '1920', '2025', '2048', '2160', '2250', '2400', '2560', '2880', '3072', '3200', '3240', '3440', '3384', '3840', '4096', '4320', '4800', '5120', '5760', '6016', '6400', '7680', '8192', '8640', '10240', '10320', '15360', localize.other],
                                              ['0', '1', '2', '3', '4', '5', '6', localize.other]],
                                 default_list=['hevc', 'aac', '8M', '192k', 'mkv', '1920', '1080', '1'],
-                                action=f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
-                                       f'-i "%file_name%" '
-                                       f'-vcodec %action_0% '
-                                       f'-vb %action_2% '
-                                       f'-vf scale="%action_5%:%action_6%" '
-                                       f'-acodec %action_1% -strict -2 '
-                                       f'-ab %action_3% '
-                                       f'-map 0:0 -map 0:%action_7% '
-                                       f'-y "%out_dir%/%out_name%.%action_4%"').exec()
+                                action=ffmpeg_conv
+                                ).exec()
 
     def ffmpeg_audio(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -48,13 +41,14 @@ class ChildGuiData(Setting):
                                              ['mp3', localize.other],  # Codec list autocomplete
                                              ['aac', 'ac3', 'dts', 'flac', 'm4a', 'mka', 'mp2', 'mp3', 'ogg', 'opus', 'ra', 'tta', 'wav', 'wma', 'wv', localize.other]],
                                 default_list=['44100', '2', '128k', '1', 'mp3', 'mp3'],
-                                action=f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
-                                       f'-i "%file_name%" -vn '
-                                       f'-acodec %action_4% '
-                                       f'-ab %action_2% -strict -2 '
-                                       f"-af asetrate=%action_0% "
-                                       f"-af atempo=%action_3% "
-                                       f'-y "%out_dir%/%out_name%.%action_5%"',
+                                # action=f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
+                                #        f'-i "%file_name%" -vn '
+                                #        f'-acodec %action_4% '
+                                #        f'-ab %action_2% -strict -2 '
+                                #        f"-af asetrate=%action_0% "
+                                #        f"-af atempo=%action_3% "
+                                #        f'-y "%out_dir%/%out_name%.%action_5%"',
+                                action=ffmpeg_conv,
                                 drop_a=True, item1=5, item2=4,
                                 combos={
                                     'mka':  ['alac', 'aac', 'ac3', 'mp3', 'flac', 'libvorbis', 'opus', localize.other],
@@ -64,7 +58,8 @@ class ChildGuiData(Setting):
                                     'opus': ['opus', localize.other],
                                     'wav':  ['pcm_s24le', 'aac', 'ac3', 'adpcm_adx', 'adpcm_argo', 'adpcm_g722', 'adpcm_g726', 'adpcm_g726le', 'adpcm_ima_alp', 'adpcm_ima_amv', 'adpcm_ima_apm', 'adpcm_ima_qt', 'adpcm_ima_ssi', 'adpcm_ima_wav', 'adpcm_ima_ws', 'adpcm_ms', 'adpcm_swf', 'adpcm_yamaha', 'alac', 'amr_nb', 'aptx', 'aptx_hd', 'comfortnoise', 'dts', 'eac3', 'flac', 'g723_1', 'mlp', 'mp2', 'mp3', 'nellymoser', 'opus', 'pcm_alaw', 'pcm_dvd', 'pcm_f32be', 'pcm_f32le', 'pcm_f64be', 'pcm_f64le', 'pcm_mulaw', 'pcm_s16be', 'pcm_s16be_planar', 'pcm_s16le', 'pcm_s16le_planar', 'pcm_s24be', 'pcm_s24daud', 'pcm_s24le_planar', 'pcm_s32be', 'pcm_s32le', 'pcm_s32le_planar', 'pcm_s64be', 'pcm_s64le', 'pcm_s8', 'pcm_s8_planar', 'pcm_u16be', 'pcm_u16le', 'pcm_u24be', 'pcm_u24le', 'pcm_u32be', 'pcm_u32le', 'pcm_u8', 'pcm_vidc', 'ra_144', 'roq_dpcm', 's302m', 'sbc', 'sonic', 'sonicls', 'truehd', 'tta', 'libvorbis', 'wavpack', 'wmav1', 'wmav2', localize.other],
                                     'wma':  ['wmav1', 'wmav2', 'wmalossless', 'wmapro', 'wmavoice', localize.other],
-                                    'wv':   ['wavpack', localize.other]}).exec()
+                                    'wv':   ['wavpack', localize.other]}
+                                ).exec()
 
     def ffmpeg_image(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -72,9 +67,11 @@ class ChildGuiData(Setting):
                                 label_list=['Format'],
                                 action_list=[['apng', 'bmp', 'dpx', 'gif', 'jpg', 'pcx', 'pgm', 'pix', 'png', 'ppm', 'sgi', 'tga', 'tiff', 'xbm', 'xwd', localize.other]],
                                 default_list=['png'],
-                                action=f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
-                                       f'-i "%file_name%" '
-                                       f'-y "%out_dir%\\%out_name%.%action_0%"').exec()
+                                # action=f'"{self.path_to_root}\\data\\ffmpeg\\ffmpeg.exe" '
+                                #        f'-i "%file_name%" '
+                                #        f'-y "%out_dir%\\%out_name%.%action_0%"'
+                                action=ffmpeg_conv,
+                                ).exec()
 
     def raw2wav(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -87,7 +84,8 @@ class ChildGuiData(Setting):
                                              [key for key in sorted(wav_list.wav_list)],
                                              ['0', localize.other]],
                                 default_list=['48000', '2', '16', 'PCM', '0'],
-                                action=audio_tools.wav_save).exec()
+                                action=audio_tools.wav_save
+                                ).exec()
 
     def raw2atrac(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -104,7 +102,8 @@ class ChildGuiData(Setting):
                                         '6': ['192', '256', '320', '384', '512'],
                                         '8': ['384', '768']},
                                 default_list=['AT3', '2', '192', localize.no, '0'],
-                                action=audio_tools.atrac_save).exec()
+                                action=audio_tools.atrac_save
+                                ).exec()
 
     def raw2dds(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -117,14 +116,28 @@ class ChildGuiData(Setting):
                                              [str(x) for x in range(17)],
                                              [localize.no, localize.yes]],
                                 default_list=['512', '512', 'BC3_UNORM', '0', '0', localize.no],
-                                action=image_tools.dds_save).exec()
+                                action=image_tools.dds_save
+                                ).exec()
 
-    def nConvert(self):
+    # def nConvert(self):
+    #     child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
+    #                             gui_name='nConverter',
+    #                             label_list=['Format'],
+    #                             action_list=[['bmp', 'cur', 'dcx', 'dds', 'dib', 'dng', 'gif', 'jif', 'jpeg', 'pcd', 'pcx', 'pdf', 'png', 'psb', 'psd', 'raw', 'svg', 'tga', 'tiff', 'wbmp', '------', '2bp', '2d', '3fr', '411', 'a64', 'abmp', 'abr', 'abs', 'acc', 'ace', 'aces', 'acorn', 'adex', 'adt', 'afphoto', 'afx', 'ai', 'aim', 'aip', 'aipd', 'alias', 'ami', 'ani', 'anv', 'aphp', 'apx', 'arcib', 'arf', 'arn', 'art', 'artdir', 'arw', 'atk', 'att', 'aurora', 'avs', 'avw', 'az7', 'b16', 'b3d', 'bdr', 'bfli', 'bfx', 'bga', 'bias', 'bif', 'biorad', 'bip', 'bld', 'blp', 'bmc', 'bmg', 'bms', 'bmx', 'bob', 'bpr', 'brk', 'bsg', 'btn', 'bum', 'byusir', 'c4', 'cadc', 'cals', 'cam', 'can', 'car', 'cart', 'cat', 'cbmf', 'cdr', 'cdu', 'ce', 'ce1', 'cel', 'cft', 'cgm', 'che', 'cin', 'cip', 'ciph', 'cipt', 'cish', 'cism', 'cloe', 'clp', 'cmt', 'cmu', 'cmx', 'cncd', 'cnct', 'cp8', 'cpa', 'cpat', 'cpc', 'cpt', 'cr2', 'craw', 'crd', 'crg', 'crw', 'csv', 'ct', 'cut', 'cvp', 'cwg', 'd3d', 'dali', 'dbw', 'dcmp', 'dcpy', 'dcr', 'dd', 'degas', 'dicom', 'dkb', 'dol', 'doodle', 'dpx', 'drz', 'dsi', 'dta', 'dwg', 'dwg', 'ecc', 'efx', 'eidi', 'eif', 'emf', 'emz', 'epa', 'epi', 'eps', 'epsp', 'erf', 'esm', 'esmp', 'eyes', 'f96', 'face', 'fax', 'fbm', 'fcx', 'fff', 'fff', 'ffpg', 'fgs', 'fi', 'fit', 'fits', 'fli', 'fmag', 'fmap', 'fmf', 'fp2', 'fpg', 'fpr', 'fpt', 'fre', 'frm', 'frm2', 'fsh', 'fsy', 'ftf', 'fx3', 'fxs', 'g16', 'g3n', 'gaf', 'gbr', 'gcd', 'gem', 'geo', 'gfaray', 'gg', 'gicon', 'gig', 'gih', 'gm', 'gmf', 'god', 'gpat', 'gpb', 'grob', 'gun', 'hdri', 'hdru', 'hed', 'hf', 'hir', 'hpgl', 'hpi', 'hr', 'hru', 'hrz', 'hsi', 'hta', 'icb', 'icd', 'icl', 'icn', 'icns', 'ico', 'icon', 'iff', 'ifx', 'iim', 'iimg', 'ilab', 'im5', 'img', 'imgt', 'imi', 'imt', 'indd', 'info', 'ingr', 'ioca', 'ipg', 'ipl', 'ipl2', 'ipseq', 'iris', 'ish', 'iss', 'j6i', 'jbf', 'jbr', 'jig', 'jig2', 'jj', 'jls', 'jps', 'jtf', 'jxr', 'k25', 'k25b', 'kdc', 'kdc2', 'kfx', 'kntr', 'koa', 'kps', 'kqp', 'kro', 'kskn', 'lbm', 'lcel', 'lda', 'lff', 'lif', 'lsm', 'lss', 'lvp', 'lwi', 'm8', 'mac', 'mag', 'map', 'mbig', 'mdl', 'mef', 'mfrm', 'mgr', 'mh', 'miff', 'mil', 'mjpg', 'mkcf', 'mklg', 'mng', 'mon', 'mos', 'mph', 'mpo', 'mrc', 'mrf', 'mrw', 'msp', 'msx2', 'mtv', 'mtx', 'ncr', 'ncy', 'ncy', 'nef', 'neo', 'ngg', 'nifti', 'nist', 'nitf', 'nlm', 'nol', 'npm', 'nrw', 'nsr', 'oaz', 'ocp', 'of', 'ofx', 'ohir', 'oil', 'ols', 'orf', 'os2', 'otap', 'otb', 'p64', 'p7', 'pabx', 'palm', 'pam', 'pan', 'patps', 'pbm', 'pbt', 'pcl', 'pcp', 'pd', 'pdd', 'pds', 'pdx', 'pef', 'pegs', 'pfi', 'pfm', 'pfs', 'pgc', 'pgf', 'pgm', 'pi', 'pic', 'pict', 'pig', 'pixi', 'pixp', 'pld', 'pm', 'pm', 'pmg', 'pmp', 'pmsk', 'pnm', 'pp4', 'pp5', 'ppm', 'ppp', 'pps', 'ppt', 'prc', 'prf', 'prisms', 'prx', 'ps', 'psa', 'pseg', 'psf', 'psion3', 'psion5', 'psp', 'pspb', 'pspf', 'pspm', 'pspp', 'pspt', 'ptg', 'pwp', 'pxa', 'pxr', 'pzl', 'pzp', 'q0', 'qcad', 'qdv', 'qrt', 'qtif', 'rad', 'raf', 'ras', 'raw1', 'raw2', 'raw3', 'raw4', 'raw5', 'raw6', 'raw7', 'raw8', 'raw9', 'rawa', 'rawb', 'rawdvr', 'rawe', 'ray', 'rdc', 'rfa', 'rfax', 'ript', 'rix', 'rla', 'rlc2', 'rle', 'rp', 'rpm', 'rsb', 'rsrc', 'rw2', 'rwl', 'sar', 'sci', 'sct', 'sdg', 'sdt', 'sfax', 'sfw', 'sgi', 'sif', 'sir', 'sj1', 'skf', 'skn', 'skp', 'smp', 'soft', 'spc', 'spot', 'sps', 'spu', 'srf', 'srf2', 'srw', 'ssi', 'ssp', 'sst', 'st4', 'stad', 'star', 'stm', 'stw', 'stx', 'syj', 'synu', 'taac', 'tdi', 'tdim', 'teal', 'tg4', 'thmb', 'ti', 'til', 'tile', 'tim', 'tim2', 'tiny', 'tjp', 'tnl', 'trup', 'tsk', 'ttf', 'tub', 'txc', 'uni', 'upe4', 'upi', 'upst', 'uyvy', 'uyvyi', 'v', 'vda', 'vfx', 'vi', 'vicar', 'vid', 'vif', 'viff', 'vista', 'vit', 'vivid', 'vob', 'vort', 'vpb', 'wad', 'wal', 'wbc', 'wfx', 'winm', 'wmf', 'wmz', 'wpg', 'wrl', 'wzl', 'x3f', 'xar', 'xbm', 'xcf', 'xif', 'xim', 'xnf', 'xp0', 'xpm', 'xwd', 'xyz', 'yuv411', 'yuv422', 'yuv444', 'zbr', 'zmf', 'zxhob', 'zxscr', 'zxsna', 'zzrough', localize.other]],
+    #                             default_list=['png']
+    #                             ).exec()
+
+    def pillow_conv(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
-                                gui_name='nConverter',
+                                gui_name='Pillow Converter',
                                 label_list=['Format'],
-                                action_list=[['bmp', 'cur', 'dcx', 'dds', 'dib', 'dng', 'gif', 'jif', 'jpeg', 'pcd', 'pcx', 'pdf', 'png', 'psb', 'psd', 'raw', 'svg', 'tga', 'tiff', 'wbmp', '------', '2bp', '2d', '3fr', '411', 'a64', 'abmp', 'abr', 'abs', 'acc', 'ace', 'aces', 'acorn', 'adex', 'adt', 'afphoto', 'afx', 'ai', 'aim', 'aip', 'aipd', 'alias', 'ami', 'ani', 'anv', 'aphp', 'apx', 'arcib', 'arf', 'arn', 'art', 'artdir', 'arw', 'atk', 'att', 'aurora', 'avs', 'avw', 'az7', 'b16', 'b3d', 'bdr', 'bfli', 'bfx', 'bga', 'bias', 'bif', 'biorad', 'bip', 'bld', 'blp', 'bmc', 'bmg', 'bms', 'bmx', 'bob', 'bpr', 'brk', 'bsg', 'btn', 'bum', 'byusir', 'c4', 'cadc', 'cals', 'cam', 'can', 'car', 'cart', 'cat', 'cbmf', 'cdr', 'cdu', 'ce', 'ce1', 'cel', 'cft', 'cgm', 'che', 'cin', 'cip', 'ciph', 'cipt', 'cish', 'cism', 'cloe', 'clp', 'cmt', 'cmu', 'cmx', 'cncd', 'cnct', 'cp8', 'cpa', 'cpat', 'cpc', 'cpt', 'cr2', 'craw', 'crd', 'crg', 'crw', 'csv', 'ct', 'cut', 'cvp', 'cwg', 'd3d', 'dali', 'dbw', 'dcmp', 'dcpy', 'dcr', 'dd', 'degas', 'dicom', 'dkb', 'dol', 'doodle', 'dpx', 'drz', 'dsi', 'dta', 'dwg', 'dwg', 'ecc', 'efx', 'eidi', 'eif', 'emf', 'emz', 'epa', 'epi', 'eps', 'epsp', 'erf', 'esm', 'esmp', 'eyes', 'f96', 'face', 'fax', 'fbm', 'fcx', 'fff', 'fff', 'ffpg', 'fgs', 'fi', 'fit', 'fits', 'fli', 'fmag', 'fmap', 'fmf', 'fp2', 'fpg', 'fpr', 'fpt', 'fre', 'frm', 'frm2', 'fsh', 'fsy', 'ftf', 'fx3', 'fxs', 'g16', 'g3n', 'gaf', 'gbr', 'gcd', 'gem', 'geo', 'gfaray', 'gg', 'gicon', 'gig', 'gih', 'gm', 'gmf', 'god', 'gpat', 'gpb', 'grob', 'gun', 'hdri', 'hdru', 'hed', 'hf', 'hir', 'hpgl', 'hpi', 'hr', 'hru', 'hrz', 'hsi', 'hta', 'icb', 'icd', 'icl', 'icn', 'icns', 'ico', 'icon', 'iff', 'ifx', 'iim', 'iimg', 'ilab', 'im5', 'img', 'imgt', 'imi', 'imt', 'indd', 'info', 'ingr', 'ioca', 'ipg', 'ipl', 'ipl2', 'ipseq', 'iris', 'ish', 'iss', 'j6i', 'jbf', 'jbr', 'jig', 'jig2', 'jj', 'jls', 'jps', 'jtf', 'jxr', 'k25', 'k25b', 'kdc', 'kdc2', 'kfx', 'kntr', 'koa', 'kps', 'kqp', 'kro', 'kskn', 'lbm', 'lcel', 'lda', 'lff', 'lif', 'lsm', 'lss', 'lvp', 'lwi', 'm8', 'mac', 'mag', 'map', 'mbig', 'mdl', 'mef', 'mfrm', 'mgr', 'mh', 'miff', 'mil', 'mjpg', 'mkcf', 'mklg', 'mng', 'mon', 'mos', 'mph', 'mpo', 'mrc', 'mrf', 'mrw', 'msp', 'msx2', 'mtv', 'mtx', 'ncr', 'ncy', 'ncy', 'nef', 'neo', 'ngg', 'nifti', 'nist', 'nitf', 'nlm', 'nol', 'npm', 'nrw', 'nsr', 'oaz', 'ocp', 'of', 'ofx', 'ohir', 'oil', 'ols', 'orf', 'os2', 'otap', 'otb', 'p64', 'p7', 'pabx', 'palm', 'pam', 'pan', 'patps', 'pbm', 'pbt', 'pcl', 'pcp', 'pd', 'pdd', 'pds', 'pdx', 'pef', 'pegs', 'pfi', 'pfm', 'pfs', 'pgc', 'pgf', 'pgm', 'pi', 'pic', 'pict', 'pig', 'pixi', 'pixp', 'pld', 'pm', 'pm', 'pmg', 'pmp', 'pmsk', 'pnm', 'pp4', 'pp5', 'ppm', 'ppp', 'pps', 'ppt', 'prc', 'prf', 'prisms', 'prx', 'ps', 'psa', 'pseg', 'psf', 'psion3', 'psion5', 'psp', 'pspb', 'pspf', 'pspm', 'pspp', 'pspt', 'ptg', 'pwp', 'pxa', 'pxr', 'pzl', 'pzp', 'q0', 'qcad', 'qdv', 'qrt', 'qtif', 'rad', 'raf', 'ras', 'raw1', 'raw2', 'raw3', 'raw4', 'raw5', 'raw6', 'raw7', 'raw8', 'raw9', 'rawa', 'rawb', 'rawdvr', 'rawe', 'ray', 'rdc', 'rfa', 'rfax', 'ript', 'rix', 'rla', 'rlc2', 'rle', 'rp', 'rpm', 'rsb', 'rsrc', 'rw2', 'rwl', 'sar', 'sci', 'sct', 'sdg', 'sdt', 'sfax', 'sfw', 'sgi', 'sif', 'sir', 'sj1', 'skf', 'skn', 'skp', 'smp', 'soft', 'spc', 'spot', 'sps', 'spu', 'srf', 'srf2', 'srw', 'ssi', 'ssp', 'sst', 'st4', 'stad', 'star', 'stm', 'stw', 'stx', 'syj', 'synu', 'taac', 'tdi', 'tdim', 'teal', 'tg4', 'thmb', 'ti', 'til', 'tile', 'tim', 'tim2', 'tiny', 'tjp', 'tnl', 'trup', 'tsk', 'ttf', 'tub', 'txc', 'uni', 'upe4', 'upi', 'upst', 'uyvy', 'uyvyi', 'v', 'vda', 'vfx', 'vi', 'vicar', 'vid', 'vif', 'viff', 'vista', 'vit', 'vivid', 'vob', 'vort', 'vpb', 'wad', 'wal', 'wbc', 'wfx', 'winm', 'wmf', 'wmz', 'wpg', 'wrl', 'wzl', 'x3f', 'xar', 'xbm', 'xcf', 'xif', 'xim', 'xnf', 'xp0', 'xpm', 'xwd', 'xyz', 'yuv411', 'yuv422', 'yuv444', 'zbr', 'zmf', 'zxhob', 'zxscr', 'zxsna', 'zzrough', localize.other]],
-                                default_list=['png']).exec()
+                                # TODO: BLP - image from WOW, pillow support this, need try
+                                # TODO: for EPS need GhostScript
+                                # TODO: MSP, PALM can't write RGBA as ...
+                                action_list=[["bmp", "dds", "dib", "gif", "icns", "ico", "im", "jpeg", "jp2", "jpx", "pcx", "png", "apng", "ppm", "sgi", "tga", "tiff", "webp", "xbm", "pdf", localize.other]],
+                                default_list=['png'],
+                                action=image_tools.image_converter
+                                ).exec()
 
     def image_to_dds_ms(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -134,7 +147,8 @@ class ChildGuiData(Setting):
                                              {"texconv": 'PC', "xtexconv": 'Xbox One'}],
                                 default_list=['BC3_UNORM', 'PC'],
                                 action=f'"{self.path_to_root}\\data\\dds_tools\\%action_1%.exe" '
-                                       f'-f %action_0% -o "%out_dir%" "%file_name%"').exec()
+                                       f'-f %action_0% -o "%out_dir%" "%file_name%"'
+                                ).exec()
 
     def image_to_dds_nv(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -144,7 +158,8 @@ class ChildGuiData(Setting):
                                 default_list=['dxt5'],
                                 action=f'"{self.path_to_root}\\data\\dds_tools\\nvdxt.exe" '
                                        f'-file "%file_name%" -%action_0% '
-                                       f'-output "%out_dir%\\%out_name%.dds"').exec()
+                                       f'-output "%out_dir%\\%out_name%.dds"'
+                                ).exec()
 
     # TODO: Нужна ли? VGM все это умеет
     def wwise_tools(self):
@@ -153,7 +168,8 @@ class ChildGuiData(Setting):
                                 label_list=['Mode', 'Code book (only\nfor wwise2ogg)'],
                                 action_list=[['Wwise Unpacker', 'wwise2wav', 'wwise2ogg'],
                                              ['packed_codebooks_aoTuV_603.bin', 'packed_codebooks3.bin']],
-                                default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']).exec()
+                                default_list=['Wwise Unpacker', 'packed_codebooks_aoTuV_603.bin']
+                                ).exec()
 
     # TODO: Нужна ли? VGM все это умеет
     def xwm2wav(self):
@@ -162,7 +178,8 @@ class ChildGuiData(Setting):
                                 label_list=['Frequency', 'Format'],
                                 action_list=[['20000', '32000', '48000', '64000', '96000', '160000', '192000', localize.other],
                                              ['wav', 'xwm']],
-                                default_list=['48000', 'wav']).exec()
+                                default_list=['48000', 'wav']
+                                ).exec()
 
     # TODO: Нужна ли? VGM все это умеет
     def ps_audio_tools(self):
@@ -179,7 +196,8 @@ class ChildGuiData(Setting):
                                     'PS4': ['Atrac2WAV', 'WAV2Atrac', 'SXD2Atrac'],
                                     'PSP': ['Atrac2WAV', 'WAV2Atrac'],
                                     'PS Vita': ['Atrac2WAV', 'WAV2Atrac']},
-                                action=audio_tools.ps_audio_tools).exec()
+                                action=audio_tools.ps_audio_tools
+                                ).exec()
 
     def find_zip(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],
@@ -191,7 +209,8 @@ class ChildGuiData(Setting):
                                 default_list=['DEFLATE'],
                                 action=(f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "%action_0%" '
                                         f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
-                                        f'"%file_name%" "%out_dir%"').replace("/", "\\")).exec()
+                                        f'"%file_name%" "%out_dir%"').replace("/", "\\")
+                                ).exec()
 
     def pb_show(self):
 

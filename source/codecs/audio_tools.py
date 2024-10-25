@@ -47,7 +47,7 @@ def wav_save(args):
                         new_data)
 
 
-def atrac_save(**args):
+def atrac_save(args):
     ic(args)
 
     name = args['file_name']
