@@ -5,7 +5,6 @@ from collections import namedtuple
 from source.reaper import Reaper, file_reaper
 from source.codecs.dds_tools import DDSCreator
 from source.codecs.image_tools import BGR2RGB
-from source.ui import localize
 
 
 class TextureCache(Reaper, DDSCreator):

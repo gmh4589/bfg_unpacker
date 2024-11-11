@@ -16,7 +16,7 @@ def wav_save(args):
     name = args['file_name']
     sample_rate = args['Frequency']
     channels = args['Channels']
-    bps = args['Bit'] if 'Bit' in args.keys() else 0
+    bps = args['Bit'] if 'Bit' in args.__keys() else 0
     codec = wav_list[args['Format']]['hex']
     ic(codec)
     bitrate = int((int(sample_rate) * int(bps) * int(channels)) / 8)

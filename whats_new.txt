@@ -1,4 +1,13 @@
 
+November 11, 2024
+
+ - Fixed saving same textures from Starfield, which saved empty or broken
+ - Added new options for new actions in other_prg function
+ - Added support for unpack DZIP archives from The Witcher 2
+ - Added inner unpacker for PAK archives from Alien: Isolation
+ - The game base was updated (removed doubles and other)
+ - Fixed program crash, if select cubemap creation function and don't select files
+
 October 25, 2024
 
  - When converting video via ffmpeg, the progress bar of the conversion process is now displayed correctly

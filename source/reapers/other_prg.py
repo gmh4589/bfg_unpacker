@@ -42,6 +42,15 @@ class OtherProg(Reaper):
 
     @file_reaper
     def run(self):
+        self.first_arg = (self.first_arg
+                          .replace('%out_dir%', self.output_folder)
+                          .replace('%full_file_name%', self.file_name)
+                          .replace('%file_name%', os.path.basename(self.file_name)))
+        self.second_arg = (self.second_arg
+                           .replace('%out_dir%', self.output_folder)
+                           .replace('%full_file_name%', self.file_name)
+                           .replace('%file_name%', os.path.basename(self.file_name)))
+
         arguments = (f'"data\\{self.program_name}" {self.first_arg} '
                      f'"{self.file_name}" {self.second_arg}').replace('/', '\\')
         ic(self.program_name)

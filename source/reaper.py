@@ -173,7 +173,7 @@ class Reaper(QThread, Setting):
         except (IndexError, KeyError):
 
             try:
-                return index[:3].decode('utf-8').lower()
+                return index[:3].decode('ascii').lower()
             except UnicodeDecodeError:
                 return 'dat'
 

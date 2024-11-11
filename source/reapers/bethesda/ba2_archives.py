@@ -96,7 +96,7 @@ class BethesdaArchive(Reaper):
             ba2.seek(here)
             FilesData = namedtuple('FilesData',
                                    ['name', 'offset', 'size'])
-            files_data = []
+
             DDSData = namedtuple('DDSData',
                                  ['x_size', 'y_size', 'mip_count', 'dds_format', 'flags', 'tiled'])
             dds_data = []
@@ -105,7 +105,7 @@ class BethesdaArchive(Reaper):
             for j in range(file_count):
                 ba2.seek(0x10, 1)
                 parts = int.from_bytes(ba2.read(2), byteorder="big") - 1
-                dummy = int.from_bytes(ba2.read(2), byteorder="little")
+                ba2.seek(2, 1)
 
                 if data_type == b'DX10':
                     dds_data.append(
@@ -121,26 +121,30 @@ class BethesdaArchive(Reaper):
 
                 offset = int.from_bytes(ba2.read(4), byteorder="little")
                 ba2.seek(offset_block_size, 1)
+                zzz = hex(ba2.tell())
                 size = int.from_bytes(ba2.read(4), byteorder="little")
+
+                if size == 0:
+                    size = int.from_bytes(ba2.read(4), byteorder="little")
+                    zzz = 0
 
                 if data_type == b'DX10':
 
                     for z in range(parts):
-                        a = ba2.read(0x14)
+                        ba2.seek(0x14, 1)
                         s = int.from_bytes(ba2.read(4), byteorder="little")
                         size += s
 
-                    b = ba2.read(8)
+                    ba2.seek(4 if zzz == 0 else 8, 1)
 
-                files_data.append(
-                    FilesData(
-                        file_names[j],
-                        offset,
-                        size
-                    )
+                file = FilesData(
+                    file_names[j],
+                    offset,
+                    size
                 )
 
-            for k, file in enumerate(files_data):
+                here = ba2.tell()
+
                 ba2.seek(file.offset)
                 data = ba2.read(file.size)
                 folder_path = os.path.dirname(file.name)
@@ -166,10 +170,10 @@ class BethesdaArchive(Reaper):
                     else:  # For ZLIB compression
                         data = zlib.decompress(data)
 
-                    codec = codec_dict.get(dds_data[k].dds_format, f'Unknown codec - {dds_data[k].dds_format}')
+                    codec = codec_dict.get(dds_data[j].dds_format, f'Unknown codec - {dds_data[j].dds_format}')
                     dds = DDSCreator()
-                    dds.dds_save(dds_data[k].y_size,
-                                 dds_data[k].x_size,
+                    dds.dds_save(dds_data[j].y_size,
+                                 dds_data[j].x_size,
                                  codec,
                                  full_path.lower(),
                                  data,
@@ -188,4 +192,5 @@ class BethesdaArchive(Reaper):
                     with open(full_path, 'wb') as new_file:
                         new_file.write(data)
 
-                self.update_pb(file_count, k + 1, file.name)
+                self.update_pb(file_count, j + 1, file.name)
+                ba2.seek(here)

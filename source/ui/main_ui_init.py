@@ -351,8 +351,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         with engine.connect() as conn:
             metadata = sqlalchemy.MetaData()
             archives_list = sqlalchemy.Table('archives_list', metadata, autoload_with=engine)
-            table = sqlalchemy.Table(archives_list, metadata, autoload_with=engine)
-            query = sqlalchemy.select(table)
+            # table = sqlalchemy.Table(archives_list, metadata, autoload_with=engine)
+            query = sqlalchemy.select(archives_list).where(archives_list.c.skip == 0)
             archivesList = pandas.read_sql_query(query, conn)
 
         if self.setting['Main']['group_arch'] == '2':

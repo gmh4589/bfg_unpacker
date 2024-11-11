@@ -60,7 +60,7 @@ class Converter(Reaper):
             for key, value in meta['streams'][0].items():
                 print(f"{key}: {value}")
             
-            self.update_pb(1, 1, '')
+            self.update_pb(1, 1, self.file_name)
             return
 
         frame_rate = int(meta['streams'][0]['r_frame_rate'].split('/')[0])
@@ -76,7 +76,6 @@ class Converter(Reaper):
                 duration = 0
 
         frames = int(frame_rate * duration)
-
         ffmpeg = FFmpeg(executable='data\\ffmpeg\\ffmpeg.exe').option("y").input(self.file_name)
 
         if self.v_codec is not None:

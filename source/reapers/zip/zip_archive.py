@@ -153,7 +153,7 @@ class Zip(Reaper):
                         os.makedirs(path, exist_ok=True)
                     else:
                         output_code = self.write_file(path, compress_method, compressed_data)
-                        # ic(f"Output code: {output_code}")
+                        ic(f"Output code: {output_code}")
 
                 elif magic in (b'PK\x07\x08', ):
                     data.seek(12, 1)

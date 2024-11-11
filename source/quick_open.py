@@ -211,9 +211,10 @@ class QuickOpen(QProcessList):
 
                 elif ext in ("blz",):
                     self.proc = other_prg.OtherProg()
-                    self.proc.first_arg = ""
-                    self.proc.second_arg = f'"{self.out_dir}'
-                    self.proc.program_name = "blzpack.exe"
+                    self.proc.first_arg = 'd'
+                    self.proc.second_arg = '%out_dir%\\%file_name%'
+                    self.proc.program_name = 'tools\\blzpack.exe'
+                    self.proc.percent_type = 'not'
 
                 elif ext in ("bmb",):
                     self.proc.script_name = "data\\scripts\\privatedancerbmb.bms"
@@ -222,6 +223,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\BOXLEMBOX.bms"
 
                 elif ext == 'bsa':
+
                     if magic == b'BSA\0':
                         self.proc = bsa_archives.BethesdaArchive()
                     elif magic == b'\x00\x01\x00\x00':
@@ -335,8 +337,9 @@ class QuickOpen(QProcessList):
                 elif ext in ("dgc", "dgca",):
                     self.proc = other_prg.OtherProg()
                     self.proc.first_arg = "e"
-                    self.proc.second_arg = f'"{self.out_dir}'
-                    self.proc.program_name = "dgcac.exe"
+                    self.proc.second_arg = '"%out_dir%"'
+                    self.proc.splitter = ","
+                    self.proc.program_name = "tools\\dgcac.exe"
 
                 elif ext == "dir":
                     # TODO: Add from GAUP and other
@@ -371,6 +374,8 @@ class QuickOpen(QProcessList):
 
                     if magic == b'DZ\x03\x00':
                         self.proc = dzip.DZIPExtractor()
+                    elif magic == b'DZIP':  # Witcher 2 DZIP
+                        self.proc = w2dzip.Witcher2DZIP()
                     else:
                         self.proc.script_name = "data\\scripts\\vector.bms"
 
@@ -509,7 +514,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\3dsmax.bms"
 
                 elif ext == 'msf':
-                    self.proc.script_name = 'data/scripts/rage_idmsf.bms'
+                    self.proc.script_name = 'data\\scripts\\rage_idmsf.bms'
 
                 # N
                 # O
@@ -562,7 +567,7 @@ class QuickOpen(QProcessList):
                     elif magic == b'KPKA':  # RE Engine
 
                         combo = QComboBox()
-                        game_list = [key for key in re_engine.game_list.keys()]
+                        game_list = [key for key in re_engine.game_list.__keys()]
                         combo.addItems(game_list)
 
                         dial = CustomDialog(
@@ -589,7 +594,8 @@ class QuickOpen(QProcessList):
                     elif magic == b'TONG':
                         self.proc.script_name = "data\\scripts\\tongas.bms"
                     elif magic == b'PAK2':  # Alien: Isolation
-                        self.proc.script_name = "data\\scripts\\alien_isolation.bms"
+                        # self.proc.script_name = "data\\scripts\\alien_isolation.bms"
+                        self.proc = isolation.AlienIsolation()
                     elif magic == b'PSCD':
                         self.proc.script_name = "data\\scripts\\sega_classics.bms"
 
@@ -605,6 +611,7 @@ class QuickOpen(QProcessList):
                             # TODO: Script can't saving file name, need to write inner unpacker.
                             #  Names contains in BIN files
                             self.proc.script_name = "data\\scripts\\alien_isolation.bms"
+                            # self.proc = isolation.AlienIsolation()
                         else:  # Alone in the Dark
                             self.proc.script_name = "data\\scripts\\alonedark.bms"
 
@@ -618,7 +625,7 @@ class QuickOpen(QProcessList):
                             self.proc = arx_fatalis.PakExtractor()
                         else:
                             fn = fn.replace("/", "\\")
-                            Popen(f'data/tools/PreyConvert.exe {fn}').wait()
+                            Popen(f'data\\tools\\PreyConvert.exe {fn}').wait()
 
                             fn = fn.replace('pak', 'zip')
                             self.proc = zip_archive.Zip()
@@ -659,12 +666,7 @@ class QuickOpen(QProcessList):
                     # TODO: Add support for Dishonored 2 and Wolfenstein 2
 
                     if magic == b'\xD0\x00\x00\x0D':
-                        # self.proc.script_name = 'data/scripts/doom3BFG.bms'
                         self.proc = doom3_resources.Doom3BFG()
-                    # elif magic == b'\x22\x94\xAB\xCD':
-                    #     self.proc = id_tech.RageResources()
-                    # elif magic == b'\x05SER':
-                    #     self.proc = id_tech.Doom2016()
                     else:
                         self.proc = resources.Resources()
 
@@ -678,7 +680,8 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\rkv.bms"
 
                 elif ext in ('rmdtoc', 'rmdblob'):
-                    self.proc = aw2.AlanWake2()
+                    # self.proc = aw2.AlanWake2()
+                    print(f'{localize.work_in_progress}...')
 
                 elif ext in ('rmdp', 'packmeta'):
                     self.proc = remedy.Remedy()
@@ -731,7 +734,7 @@ class QuickOpen(QProcessList):
                 elif ext in ("sngw",):  # MT Framework Audio
                     self.proc = self.sorry()
 
-                elif ext in ("snd",):  # TODO: Add Daggerfall SND, SND from GAUP
+                elif ext in ("snd",):  # TODO: SND from GAUP
                     self.proc = dagger.DaggerSND()
 
                 elif ext in ("spf",):
@@ -744,6 +747,7 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = "data\\scripts\\goblins.bms"
 
                 elif ext == 'streamed':
+                    # TODO: Try streamed from other idTech games
 
                     if magic == b'\x23\x94\xAB\xCD':
                         self.proc = streamed.Streamed()
@@ -758,7 +762,7 @@ class QuickOpen(QProcessList):
                     # else:
                     #     self.proc.script_name = 'data/scripts/rage.bms'
 
-                # Check on ShockWave Flash game
+                # TODO: Check on ShockWave Flash game
                 elif ext in ("swf",):
                     self.proc = self.sorry()
 
@@ -924,7 +928,7 @@ class QuickOpen(QProcessList):
                     else:
                         self.proc = doom_wad.WadExtractor()
 
-                # Check on RPG Maker game
+                # TODO: Check on RPG Maker game
                 elif ext in ('rgss2a', 'rgss3a', 'rgssad', 'rpgmvm', 'rpgmvo', 'rpgmvp'):
                     self.proc = self.sorry()
 
@@ -933,7 +937,7 @@ class QuickOpen(QProcessList):
                              'pbb', 'pst', 'udf', 'vbsp', 'vp', 'xzp'):
                     self.proc.script_name = 'data\\wcx\\TotalObserver.wcx'
 
-                # Check on extension in SAU list
+                # TODO: Check on extension in SAU list
                 elif ext in ('4pp', 'bdx', 'brig', 'c', 'cam', 'cc', 'chr', 'dbi', 'df2', 'epf', 'fan',
                              'gor', 'group', 'hrs', 'ilb', 'jun', 'jus', 'maa', 'mul', 'nds', 'p00',
                              'p10', 'p99', 'rm', 'tgw', 'tlb', 'uop', 'vsr', 'war', 'wdb', 'xua', 'xub',

@@ -126,6 +126,10 @@ def BGR2RGB(data: bytes, color_order: str) -> bytes:
 
 def create_cubemap():
     path = askdirectory()
+
+    if not path:
+        return
+
     file_list = os.listdir(path)
     codecs = []
     widths = set()
