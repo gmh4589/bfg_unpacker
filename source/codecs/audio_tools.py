@@ -16,7 +16,7 @@ def wav_save(args):
     name = args['file_name']
     sample_rate = args['Frequency']
     channels = args['Channels']
-    bps = args['Bit'] if 'Bit' in args.__keys() else 0
+    bps = args['Bit'] if 'Bit' in args.keys() else 0
     codec = wav_list[args['Format']]['hex']
     ic(codec)
     bitrate = int((int(sample_rate) * int(bps) * int(channels)) / 8)
@@ -24,7 +24,7 @@ def wav_save(args):
     offset = args['Offset']
 
     out_name = os.path.basename(name).split('.')[0]
-    new_name = f"{setting['Main']['out_path']}\\{out_name}.wav"
+    new_name = args['new_name'] if 'new_name' in args.keys() else f"{setting['Main']['out_path']}\\{out_name}.wav"
     print('Saved:', new_name)
 
     with open(name, 'rb') as data_file:

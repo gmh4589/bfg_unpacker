@@ -37,7 +37,7 @@ def dds_save(args):
         width=int(args['Width']),
         height=int(args['Height']),
         codec=args['Format'],
-        mips=int(args['Mip']),
+        mips=int(args['Mip count']),
         cubemap=cubemap,
         name=new_name,
         data=dds_data
@@ -61,6 +61,9 @@ class KTXConvert(Reaper):
         new_image.save(self.output_folder)
         self.update_pb(1, 1, self.file_name)
 
+
+def qoi_converter():
+    pass
 
 def image_converter(args: dict):
     conv = ImageConverter()

@@ -1,4 +1,17 @@
 
+January 27, 2025
+
+ - Added support for unpack archives from games on Unreal Engine 5
+ - Unpacking archives from games on Unreal Engines 4 and 5 now using via "repak" utility
+ - QuickOpen function now work via database
+ - Fixed same bugs, which is going to crash or freezing the program
+ - vgmsream utility was updated to r1980 version
+ - Updated game base (added 50+ игр on UE4 and UE5)
+ - Now unpacking files via 7Zip showing actual progress in progress bar
+ - Fixed progress bar friezing by unpacking multiple files via vgmsream
+ - Reading data streams from external utilities now working via separate threads, for boosting the unpacking process
+        and prevents freezes, and also allows you to display more relevant data in the progress bar
+
 November 11, 2024
 
  - Fixed saving same textures from Starfield, which saved empty or broken

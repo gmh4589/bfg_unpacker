@@ -47,6 +47,15 @@ class AlanWake2(Reaper):
             temp_file = self.output_folder + '\\file_list.dat'
 
             with open(temp_file, 'wb') as fl:
+                # fl.write(data_stream.read(0x100000))
+                #
+                # while True:
+                #     b = data_stream.read(1)
+                #
+                #     if b != b'\0':
+                #         fl.write(b)
+                #         break
+
                 fl.write(data_stream.read())
 
             data_stream.seek(file_list_start)

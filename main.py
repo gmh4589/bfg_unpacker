@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QApplication, QMainWindow
 from icecream import ic
 
 from source.quick_open import QuickOpen
+# from source.quick_open_bak import QuickOpen
 from source.ui.main_ui_init import MainWindow
 from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui

@@ -52,8 +52,8 @@ class CustomDialog(QDialog):
     def __init__(self,
                  text: str,
                  title: str = 'Warning!',
-                 btnOK: bool = True,
-                 btnCancel: bool = False,
+                 btn_ok: bool = True,
+                 btn_cancel: bool = False,
                  combo: QComboBox = None,
                  style: str = 'dark_orange') -> None:
         super().__init__()
@@ -63,12 +63,12 @@ class CustomDialog(QDialog):
         self.layout = QVBoxLayout()
         self.combo = combo
 
-        if btnOK and btnCancel:
+        if btn_ok and btn_cancel:
             self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                               QDialogButtonBox.StandardButton.Cancel)
-        elif btnOK:
+        elif btn_ok:
             self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
-        elif btnCancel:
+        elif btn_cancel:
             self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
 
         self.buttonBox.accepted.connect(self.accept)

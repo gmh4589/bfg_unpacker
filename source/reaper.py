@@ -1,11 +1,13 @@
 import threading
 import os
+import shutil
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
 from tkinter.messagebox import showinfo
 from icecream import ic
 from datetime import datetime
+from pathlib import Path
 
 from source.ui import localize
 from source.setting import Setting
@@ -70,14 +72,29 @@ class Reaper(QThread, Setting):
         super().__init__()
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
+        self.out = ''
+        self.err = ''
+        self.output = []
+        self.end = False
+
+    @staticmethod
+    def folderSize(path, was_files=0):
+        fsize = 0
+        numfile = 0
+        iteration = 0
+        for file in Path(path).rglob('*'):
+
+            if os.path.isfile(file):
+                fsize += os.path.getsize(file)
+                numfile += 1
+            iteration += 1
+
+        return fsize, numfile - was_files, iteration
 
     def update_pb(self, file_count: int, current_file: int, file_name: str):
 
-        if current_file == 0:
-            current_file = 1
-        elif file_count == 0:
-            file_count = 1
-
+        file_count = 1 if file_count == 0 else file_count
+        current_file = 1 if current_file == 0 else current_file
         ic(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
         print(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
 
@@ -177,6 +194,60 @@ class Reaper(QThread, Setting):
             except UnicodeDecodeError:
                 return 'dat'
 
+
+class OutReader:
+
+    def __init__(self):
+        self.out = ''
+        self.err = ''
+        self.output = []
+        self.end = False
+
+    def sim_reader(self, prg):
+
+        while True:
+            self.out = prg.stdout.read()
+
+            if self.out:
+                ic(self.out)
+
+            if self.end:
+                break
+
+    def sim_e_reader(self, prg):
+
+        while True:
+            self.err = prg.stderr.read()
+
+            if self.err:
+                ic(self.err)
+
+            if self.end:
+                break
+
+    def out_reader(self, prg, splitter=' '):
+
+        while True:
+            self.out = prg.stdout.readline().strip()
+            self.output = self.out.split(splitter)
+
+            if self.out:
+                ic(self.out)
+
+            if self.end:
+                break
+
+    def err_reader(self, prg):
+
+        while True:
+            self.err = prg.stderr.readline().strip()
+
+            if self.err:
+                ic(self.err)
+                print(self.err)
+
+            if self.end:
+                break
 
 after_dot = {'_Asura':
                  'All Asura Engine File (*.asr;*.pc;*.hdr;*.ru;*.en;*.fr;*.it;*.ge;*.sp;*.pl;*.cz;*.gui)|'

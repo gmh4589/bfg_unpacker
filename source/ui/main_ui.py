@@ -258,9 +258,8 @@ class Ui_BFGUnpacker(Translate):
         self.action_Settings = QWidgetAction(self)
         self.action_About = QWidgetAction(self)
         self.action7z_Archiver = QWidgetAction(self)
-        self.actionGame_Archive_Unpacker_Plugin = QWidgetAction(self)
+        self.actionGAUP = QWidgetAction(self)
         self.actionTotal_Observer = QWidgetAction(self)
-        self.actionSprite_and_Archive_Utility = QWidgetAction(self)
         self.actionZlib_Deflate = QWidgetAction(self)
         self.actionLZ4 = QWidgetAction(self)
         self.actionWAV = QWidgetAction(self)
@@ -269,19 +268,13 @@ class Ui_BFGUnpacker(Translate):
         self.actionArchiveScanner = QWidgetAction(self)
         self.actionFindZipMethod = QWidgetAction(self)
         self.actionFFMPEG_Video_Converter = QWidgetAction(self)
-        # self.actionRad_Video_Tools = QWidgetAction(self)
         self.actionMedia_Info = QWidgetAction(self)
         self.actionFFMPEG_Sound_Converter = QWidgetAction(self)
         self.actionVGM_Stream_Tools = QWidgetAction(self)
-        # self.actionFSBext = QWidgetAction(self)
-        self.actionToWAV = QWidgetAction(self)
+        # self.actionToWAV = QWidgetAction(self)
         self.actionRAW_to_WAV = QWidgetAction(self)
         self.actionRAW_to_Atrac = QWidgetAction(self)
-        # self.actionRAW_to_MP3 = QWidgetAction(self)
-        # self.actionPlayStation_Audio_Converter = QWidgetAction(self)
-        # self.actionXWM_WAV_Audio_Converter = QWidgetAction(self)
         self.actionFFMPEG_Image_Converter = QWidgetAction(self)
-        # self.actionWwise_Converter = QWidgetAction(self)
         self.actionSAU = QWidgetAction(self)
         self.action_pillow = QWidgetAction(self)
         self.actionImage_to_DDS_Microsoft = QWidgetAction(self)
@@ -291,9 +284,9 @@ class Ui_BFGUnpacker(Translate):
         self.actionICO_Icon_Splitter = QWidgetAction(self)
         self.create_theme = QWidgetAction(self)
         self.unpackWith.addAction(self.action7z_Archiver)
-        self.unpackWith.addAction(self.actionGame_Archive_Unpacker_Plugin)
+        self.unpackWith.addAction(self.actionGAUP)
         self.unpackWith.addAction(self.actionTotal_Observer)
-        self.unpackWith.addAction(self.actionSprite_and_Archive_Utility)
+        self.unpackWith.addAction(self.actionSAU)
         self.zippedFormats.addAction(self.actionZlib_Deflate)
         self.zippedFormats.addAction(self.actionLZ4)
         self.formatSearch.addAction(self.actionWAV)
@@ -313,18 +306,12 @@ class Ui_BFGUnpacker(Translate):
         self.menu.addSeparator()
         self.menu.addAction(self.exitAction)
         self.videoConverters.addAction(self.actionFFMPEG_Video_Converter)
-        # self.videoConverters.addAction(self.actionRad_Video_Tools)
         self.videoConverters.addAction(self.actionMedia_Info)
         self.audioConverters.addAction(self.actionFFMPEG_Sound_Converter)
         self.audioConverters.addAction(self.actionVGM_Stream_Tools)
-        # self.audioConverters.addAction(self.actionFSBext)
-        self.audioConverters.addAction(self.actionToWAV)
+        # self.audioConverters.addAction(self.actionToWAV)
         self.audioConverters.addAction(self.actionRAW_to_WAV)
         self.audioConverters.addAction(self.actionRAW_to_Atrac)
-        # self.audioConverters.addAction(self.actionRAW_to_MP3)
-        # self.audioConverters.addAction(self.actionPlayStation_Audio_Converter)
-        # self.audioConverters.addAction(self.actionXWM_WAV_Audio_Converter)
-        # self.audioConverters.addAction(self.actionWwise_Converter)
         self.imageConverters.addAction(self.actionFFMPEG_Image_Converter)
         self.imageConverters.addAction(self.actionSAU)
         self.imageConverters.addAction(self.action_pillow)
@@ -353,15 +340,6 @@ class Ui_BFGUnpacker(Translate):
         self.menubar.addAction(self.menu_about.menuAction())
         self.setCentralWidget(self.centralwidget)
 
-        # Set icons
-        # self.menu_disk_images.setIcon(QIcon('./data/icons/disk_image.svg'))
-        # self.quickOpen.setIcon(QIcon('./data/icons/quick_open.svg'))
-        # self.consolesMenu.setIcon(QIcon('./data/icons/consoles.svg'))
-        # self.menu_archives.setIcon(QIcon('./data/icons/archives.svg'))
-        # self.menu_installers.setIcon(QIcon('./data/icons/installers.svg'))
-        # self.menu_game_engines.setIcon(QIcon('./data/icons/engines.svg'))
-        # self.videoConverters.setIcon(QIcon('./data/icons/video.svg'))
-
         self.download = True
         self.current_game = 0
         self.last_run = None
@@ -377,8 +355,9 @@ class Ui_BFGUnpacker(Translate):
         with engine.connect() as conn:
             metadata = sqlalchemy.MetaData()
             game_list_table = sqlalchemy.Table('game_list', metadata, autoload_with=engine)
-            game_list_query = sqlalchemy.select(game_list_table)
-            self.mainList = pandas.read_sql_query(game_list_query, conn)
+            reapers_table = sqlalchemy.Table('ext_list', metadata, autoload_with=engine)
+            self.mainList = pandas.read_sql_query(sqlalchemy.select(game_list_table), conn)
+            self.reapers_table = pandas.read_sql_query(sqlalchemy.select(reapers_table), conn)
 
             def load_table(table_name):
                 table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
@@ -423,11 +402,13 @@ class Ui_BFGUnpacker(Translate):
         self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
                                                                 ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs)|'))
         self.wiiWDF.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                ext_list=f'Wii WDF, WIA, CISO {localize.disc_image} (*.wdf; *.wia; *.ciso)|'))
+                                                                ext_list=f'Wii WDF, WIA, CISO {localize.disc_image} '
+                                                                         f'(*.wdf; *.wia; *.ciso)|'))
         self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
                                                                 ext_list=f'Game Cube {localize.disc_image} (*.ciso)|'))
         self.game_cubeISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                      ext_list=f'Game Cube {localize.disc_image} (*.iso)|'))
+                                                                      ext_list=f'Game Cube {localize.disc_image} '
+                                                                               f'(*.iso)|'))
         self.gcCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
                                                                ext_list=f'CSO {localize.disc_image} (*.cso)|'))
         self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
@@ -456,8 +437,8 @@ class Ui_BFGUnpacker(Translate):
         self.actionArchiveScanner.triggered.connect(self.find_zip_method)
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.action7z_Archiver.triggered.connect(lambda: self.create_queue(func_name='_7ZIP'))
-        self.actionGame_Archive_Unpacker_Plugin.triggered.connect(lambda: self.create_queue(func_name='_GAUP'))
-        self.actionSprite_and_Archive_Utility.triggered.connect(lambda: self.create_queue(func_name='_SAU'))
+        self.actionGAUP.triggered.connect(lambda: self.create_queue(func_name='_GAUP'))
+        self.actionSAU.triggered.connect(lambda: self.create_queue(func_name='_SAU'))
         self.actionTotal_Observer.triggered.connect(lambda: self.create_queue(func_name='_Total'))
         self.actionMedia_Info.triggered.connect(lambda: ffmpeg_conv({'Info': True,
                                                                      'file_name': QFileDialog.getOpenFileNames(self, caption=localize.open_file,
@@ -493,13 +474,9 @@ class Ui_BFGUnpacker(Translate):
         self.actionImage_to_DDS_Microsoft.triggered.connect(self.image_to_dds_ms)
         self.actionImage_to_DDS_nVidia.triggered.connect(self.image_to_dds_nv)
         self.actionDDS_Header_Generator.triggered.connect(self.raw2dds)
-        # self.actionXWM_WAV_Audio_Converter.triggered.connect(self.xwm2wav)
-        # self.actionWwise_Converter.triggered.connect(self.wwise_tools)
-        # self.actionPlayStation_Audio_Converter.triggered.connect(self.ps_audio_tools)
         self.actionFindZipMethod.triggered.connect(self.find_zip)
         self.actionCubeMap_Creator.triggered.connect(create_cubemap)
 
         self.download = False
 
         self.retranslateUi()
-        # QMetaObject.connectSlotsByName(self)

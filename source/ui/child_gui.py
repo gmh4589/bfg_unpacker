@@ -30,7 +30,6 @@ class ChildUIWindow(QDialog):
         h = drop_c * 40 + 10 if drop_c > 1 else 90
         self.action = action
         self.action_list = action_list
-        self.command_line = ''
         self.ext_list = ext_list
         self.resize(400, h)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
@@ -112,6 +111,7 @@ class ChildUIWindow(QDialog):
 
         file_names = QFileDialog.getOpenFileNames(self, translate.open_file, filter=f,
                                                   directory=self.setting['Main']['last_dir'])[0]
+
         if file_names:
 
             for file_name in file_names:
@@ -122,12 +122,13 @@ class ChildUIWindow(QDialog):
     def run_p(self):
 
         if self.action:
-            self.command_line = self.action
+            fl = self.file_open()
 
-            for file_name in self.file_open():
+            for file_name in fl:
 
                 if file_name:
                     out_name = os.path.basename(file_name).split('.')[0]
+                    file_name = file_name.replace('/', '\\')
 
                     if self.outer:
 
@@ -135,23 +136,23 @@ class ChildUIWindow(QDialog):
 
                             if type(self.action_list[drop]) is dict:
                                 rev_list = {v: str(k) for k, v in self.action_list[drop].items()}
-                                self.command_line = self.command_line.replace(f'%action_{drop}%',
-                                                                              rev_list[self.drops[drop].currentText()])
+                                self.action = self.action.replace(f'%action_{drop}%',
+                                                                  rev_list[self.drops[drop].currentText()])
                             else:
-                                self.command_line = self.command_line.replace(f'%action_{drop}%',
-                                                                              self.drops[drop].currentText())
+                                self.action = self.action.replace(f'%action_{drop}%',
+                                                                  self.drops[drop].currentText())
 
-                        self.command_line = (self.command_line
-                                             .replace('%out_dir%', self.setting['Main']['out_path'])
-                                             .replace('%file_name%', file_name)
-                                             .replace('%out_name%', out_name)
-                                             .replace('/', '\\'))
+                        self.action = (self.action
+                                       .replace('%out_dir%', self.setting['Main']['out_path'])
+                                       .replace('%file_name%', file_name)
+                                       .replace('%out_name%', out_name)
+                                       )
 
                         # TODO: TEXT!!!
                         print(f'Wait, file {file_name} being processed...')
-                        ic(self.command_line)
-                        Popen(self.command_line).wait()
-                        self.command_line = ''
+
+                        Popen(self.action).wait()
+                        self.action = self.action.replace(file_name, '%file_name%')
 
                     else:
                         args = {'file_name': file_name}

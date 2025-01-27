@@ -1,13 +1,15 @@
 
 import os
 from subprocess import Popen, PIPE
+from threading import Thread
+
 from icecream import ic
 
-from source.reaper import Reaper, file_reaper
+from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 
 
-class Q_BMS(Reaper):
+class Q_BMS(Reaper, OutReader):
 
     def __init__(self):
         super().__init__()
@@ -26,25 +28,18 @@ class Q_BMS(Reaper):
         ic(script)
         bms = Popen(script, stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
-        while True:
+        Thread(target=self.out_reader, args=[bms,], daemon=True).start()
+        Thread(target=self.err_reader, args=[bms,], daemon=True).start()
+
+        while bms.poll() is None:
 
             try:
-                out = bms.stdout.readline().strip()
-            except UnicodeDecodeError:
-                continue
-
-            o = out.split(' ')
-
-            try:
-                percent = int(100 / size * int(o[0], 16))
-                print(f"{percent}% {o[-1]}")
-                ic(o[-1])
-                self.update_signal.emit(percent, '', f'{localize.saving} - {o[-1]}...', False)
+                percent = int(100 / size * int(self.output[0], 16))
+                print(f"{percent}% {self.output[-1]}")
+                ic(self.output[-1])
+                self.update_signal.emit(percent, '', f'{localize.saving} - {self.output[-1]}...', False)
             except (ValueError, IndexError):
-                print(out)
+                print(self.out)
 
-            if not out:
-                bms.kill()
-                break
-
+        self.end = True
         self.update_signal.emit(100, '', localize.done, True)

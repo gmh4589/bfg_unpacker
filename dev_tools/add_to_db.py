@@ -29,6 +29,7 @@ game_list = Table('game_list', metadata,
                   Column('release_year', String),
                   Column('func_name', String),
                   Column('ext_list', String),
+                  Column('script_name', String),
                   extend_existing=True)
 
 with open('ue4_list.txt', 'r') as ue4:
@@ -41,7 +42,8 @@ for i, t in enumerate(table_data):
     ins = game_list.insert().values(game_name=name.strip(),
                                     release_year=release_year,
                                     func_name='_Unreal4',
-                                    ext_list=f'0x{hex_value}'
+                                    ext_list='Unreal Engine 4 Archives (*.pak)|Unreal Engine 4 Localization FIles (*.locres; *.txt)|',
+                                    script_name=f'0x{hex_value}'
                                     )
     conn.execute(ins)
 
