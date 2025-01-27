@@ -29,6 +29,7 @@ class Unreal(Reaper, OutReader):
     def run(self):
         size = 0
         ext = self.file_name.split('.')[-1]
+        percent = 0
 
         match ext:
             case 'umod':
@@ -40,7 +41,6 @@ class Unreal(Reaper, OutReader):
                                stdout=PIPE, stderr=PIPE, encoding='utf-8')
             case 'pak':
                 version = 4
-                percent = 0
                 unreal = Popen(f'"{self.path_to_root}/data/unreal_tools/ue4/repak.exe" '
                                f'{f"--aes-key {self.key} " if self.key else ""}'
                                f'unpack "{self.file_name}"',
@@ -76,7 +76,10 @@ class Unreal(Reaper, OutReader):
 
             elif version == 4:
                 sleep(randint(1, 3))
-                percent += randint(0, 2) if percent < 96 else 95
+
+                percent += randint(0, 2)
+                percent = 95 if percent > 95 else percent
+
                 self.update_signal.emit(percent, f'{percent} %',
                                         'Wait, unpacked in process...', False)
 
