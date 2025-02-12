@@ -2,7 +2,7 @@ import os
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 from source.ui import localize
 
 
@@ -12,7 +12,7 @@ class ZipScanner(Reaper):
     def run(self):
 
         size = os.path.getsize(self.file_name)
-        method_dict = zip_methods.get_zip_list()
+        method_dict = ZipMethods.codec_list()
         print(type(method_dict))
 
         method_count = len(method_dict)

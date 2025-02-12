@@ -5,7 +5,7 @@ from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 # TODO: Add support other compress codecs
 
@@ -57,61 +57,61 @@ class Zip(Reaper):
                 new_file.write(cd)
 
         if cm == 1:  # Shrink
-            self.unzip(path, zip_methods.SHRINK)
+            self.unzip(path, ZipMethods.SHRINK)
 
         elif cm == 2:  # reduce1
-            self.unzip(path, zip_methods.REDUCE1)
+            self.unzip(path, ZipMethods.REDUCE1)
 
         elif cm == 3:  # reduce2
-            self.unzip(path, zip_methods.REDUCE2)
+            self.unzip(path, ZipMethods.REDUCE2)
 
         elif cm == 4:  # reduce3
-            self.unzip(path, zip_methods.REDUCE3)
+            self.unzip(path, ZipMethods.REDUCE3)
 
         elif cm == 5:  # reduce4
-            self.unzip(path, zip_methods.REDUCE4)
+            self.unzip(path, ZipMethods.REDUCE4)
 
         elif cm == 6:  # Imploded
-            self.unzip(path, zip_methods.WINIMPLODE)
+            self.unzip(path, ZipMethods.WINIMPLODE)
 
         elif cm == 9:  # Deflate 64
-            self.unzip(path, zip_methods.DEFLATE64)
+            self.unzip(path, ZipMethods.DEFLATE64)
 
         elif cm in (10, 11, 13, 15, 17):  # PKWare
-            self.unzip(path, zip_methods.PKWARE_DCL)
+            self.unzip(path, ZipMethods.PKWARE_DCL)
 
         elif cm == 14:  # LZMA
-            self.unzip(path, zip_methods.LZMA_DYNAMIC)
+            self.unzip(path, ZipMethods.LZMA_DYNAMIC)
 
         elif cm == 15:  # Oodle
-            self.unzip(path, zip_methods.OODLE)
+            self.unzip(path, ZipMethods.OODLE)
 
         elif cm == 18:  # Terse
-            self.unzip(path, zip_methods.TERSE)
+            self.unzip(path, ZipMethods.TERSE)
 
         elif cm == 19:  # LZ77
-            self.unzip(path, zip_methods.LZ77_0)
+            self.unzip(path, ZipMethods.LZ77_0)
 
         elif cm in (20, 93):  # ZSTD
-            self.unzip(path, zip_methods.ZSTD)
+            self.unzip(path, ZipMethods.ZSTD)
 
         elif cm == 24:  # LZMA86_Dechead
-            self.unzip(path, zip_methods.LZMA_86DECHEAD)
+            self.unzip(path, ZipMethods.LZMA_86DECHEAD)
 
         elif cm == 28:  # LZ4F
-            self.unzip(path, zip_methods.LZ4F)
+            self.unzip(path, ZipMethods.LZ4F)
 
         elif cm == 64:  # darksector
-            self.unzip(path, zip_methods.DARKSECTOR)
+            self.unzip(path, ZipMethods.DARKSECTOR)
 
         elif cm == 95:  # LZMA2_EFS0
-            self.unzip(path, zip_methods.LZMA2_EFS0)
+            self.unzip(path, ZipMethods.LZMA2_EFS0)
 
         elif cm == 98:  # PPMD
-            self.unzip(path, zip_methods.PPMDI)
+            self.unzip(path, ZipMethods.PPMDI)
 
         elif cm == 99:  # LZFSE
-            self.unzip(path, zip_methods.LZFSE)
+            self.unzip(path, ZipMethods.LZFSE)
 
         elif cm in (0, 8, 12, 14):
             pass

@@ -3,7 +3,7 @@ import os
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class PakExtractor(Reaper):
@@ -48,7 +48,7 @@ class PakExtractor(Reaper):
                                 nf.write(new_file)
 
                             if ext == 'bmp':
-                                self.unzip(path, zip_methods.PKWARE_DCL)
+                                self.unzip(path, ZipMethods.PKWARE_DCL)
 
                             self.update_pb(all_files, current, file['name'])
 

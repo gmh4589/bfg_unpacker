@@ -8,32 +8,27 @@ class Rockstar(Reaper):
     def run(self):
 
         with open(self.file_name, "rb") as file:
-            magic = file.read(4)
+            magic = file.read(3)
 
-            if not self.magic([b'RPF0', b'RPF2', b'RPF3', b'RPF4', b'RPF6', b'RPF7', b'RPF8'], magic, 'Rockstar'):
+            if not self.magic([b'RPF'], magic, 'Rockstar'):
                 return
 
-            if magic == b'RPF0':
-                print('Rockstar Games Presents Table Tennis')
-                version = 0
-            elif magic == b'RPF2':
-                print('Grand Theft Auto IV')
-                version = 2
-            elif magic == b'RPF3':
-                print('Grand Theft Auto IV Audio & Midnight Club: Los Angeles')
-                version = 3
-            elif magic == b'RPF4':
-                print('Max Payne 3')
-                version = 4
-            elif magic == b'RPF6':
-                print('Red Dead Redemption')
-                version = 6
-            elif magic == b'RPF7':
-                print('Grand Theft Auto V')
-                version = 7
-            elif magic == b'RPF8':
-                print('Red Dead Redemption 2')
-                version = 8
+            version = int.from_bytes(file.read(1))
+            games = {
+                0: 'Rockstar Games Presents Table Tennis',
+                2: 'Grand Theft Auto IV',
+                3: 'Grand Theft Auto IV Audio or Midnight Club: Los Angeles',
+                4: 'Max Payne 3',
+                6: 'Red Dead Redemption',
+                7: 'Grand Theft Auto V',
+                8: 'Red Dead Redemption 2'
+            }
+
+            if version not in games.keys():
+                print(f'Unknown version - {version}')
+                return
+
+            print(f'Detected game - {games.get(version)}')
 
             if version == 0:
                 table_size = int.from_bytes(file.read(4), byteorder='big')

@@ -1,6 +1,6 @@
 import os
 
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 from source.reaper import Reaper, file_reaper
 
 
@@ -36,7 +36,7 @@ class Witcher2DZIP(Reaper):
                 with open(path, 'wb') as tf:
                     tf.write(zip_data[4:])
 
-                self.unzip(path, zip_methods.LZF)
+                self.unzip(path, ZipMethods.LZF)
 
                 dzip.seek(here)
                 self.update_pb(file_count, i + 1, name)

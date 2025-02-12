@@ -1,8 +1,8 @@
 
 import os
 import shutil
-# from send2trash import send2trash
 import configparser
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
@@ -27,13 +27,12 @@ class DeleteThread(Reaper):
 
             try:
                 if int(setting['Main']['trash']):
-                    # send2trash(name)  # TODO: ?????
-                    pass
+                    os.system(f'{self.path_to_root}\\data\\AutoIt3.exe '
+                              f'{self.path_to_root}\\data\\delete_to_trash.au3 "{name}"')
                 else:
                     os.remove(name) if os.path.isfile(name) else shutil.rmtree(name)
 
             except (PermissionError, FileNotFoundError, OSError):
-                # send2trash(name)
                 not_deleted.append(name)
 
         # TODO: Text!!!

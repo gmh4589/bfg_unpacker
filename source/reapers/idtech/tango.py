@@ -1,7 +1,7 @@
 import os
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class Tango(Reaper):
@@ -50,7 +50,7 @@ class Tango(Reaper):
                     nf.write(zip_data)
 
                 if zip_size != unzip_size:
-                    self.unzip(path, zip_methods.DEFLATE_NOERROR)
+                    self.unzip(path, ZipMethods.DEFLATE_NOERROR)
 
                 if self.setting['Main']['save_original_images'] in ['1', '2']:
 

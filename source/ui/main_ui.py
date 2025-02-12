@@ -398,7 +398,8 @@ class Ui_BFGUnpacker(Translate):
         self.fav_filter_model = QStandardItemModel()
 
         Thread(target=self.tree_view_create, daemon=True).start()
-        self.quickOpen.triggered.connect(self.q_open)
+        # self.quickOpen.triggered.connect(self.q_open)
+        self.quickOpen.triggered.connect(self.create_queue)
         self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
                                                                 ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs)|'))
         self.wiiWDF.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',

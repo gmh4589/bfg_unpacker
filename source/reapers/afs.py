@@ -22,10 +22,8 @@ class AFSExtractor(Reaper):
                 name = str(i).rjust(8, '0') + '.dat'
                 offset = int.from_bytes(afs_file.read(4), byteorder="little")
                 size = int.from_bytes(afs_file.read(4), byteorder="little")
-                ic(name)
 
                 path = os.path.join(self.output_folder, name)
-                ic(path)
                 os.makedirs(os.path.dirname(path), exist_ok=True)
 
                 with open(path, 'wb') as new_file:

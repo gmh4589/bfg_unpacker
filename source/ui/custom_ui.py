@@ -91,22 +91,27 @@ class CustomDialog(QDialog):
 
 class ProgressBar(QDialog, Setting):
 
-    def __init__(self):
+    def __init__(self, maximum=100):
         super().__init__()
         theme = self.setting['Main']['theme']
         apply_stylesheet(self, theme=f'{theme}.xml')
         self.resize(300, 130)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.setWindowTitle(f"{localize.wait}...")
-        self.centralwidget = QWidget(self)
-        self.progressBar = QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QRect(10, 40, 270, 30))
-        self.header = QLabel(self.centralwidget)
+        # self.centralwidget = QWidget(self)
+
+        self.header = QLabel(self)
         self.header.setGeometry(QRect(10, 10, 280, 20))
-        self.progress = QLabel(self.centralwidget)
+
+        self.progressBar = QProgressBar(self, minimum=0, maximum=maximum)
+        self.progressBar.setGeometry(QRect(10, 40, 270, 30))
+
+        self.progress = QLabel(self)
         self.progress.setGeometry(QRect(10, 80, 100, 20))
-        self.status = QLabel(self.centralwidget)
+
+        self.status = QLabel(self)
         self.status.setGeometry(QRect(10, 100, 500, 20))
+
         self.is_stop = False
         QMetaObject.connectSlotsByName(self)
 

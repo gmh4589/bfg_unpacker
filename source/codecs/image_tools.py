@@ -1,5 +1,6 @@
 import os
 import configparser
+import numpy as np
 from PIL import Image
 from PyQt6.QtCore import QThread
 from icecream import ic
@@ -63,7 +64,9 @@ class KTXConvert(Reaper):
 
 
 def qoi_converter():
+    # TODO: Write it!
     pass
+
 
 def image_converter(args: dict):
     conv = ImageConverter()
@@ -77,8 +80,6 @@ def image_converter(args: dict):
 
 class ImageConverter(Reaper):
     out_format = 'png'
-    dds = False
-    pixel_format = 'DXT3'
 
     @file_reaper
     def run(self):
@@ -125,6 +126,30 @@ def BGR2RGB(data: bytes, color_order: str) -> bytes:
 
     new_data = [item for sublist in (zip(r, g, b, a) if 'A' in color_order else zip(r, g, b)) for item in sublist]
     return bytes(new_data)
+
+
+def convert_16_to_32bit(data, width, height):
+    # Create an empty array for the 32-bit RGBA data
+    rgba_32bit = np.zeros((height, width, 4), dtype=np.uint8)
+
+    # Iterate over each pixel
+    for i in range(height):
+
+        for j in range(width):
+            # Read 2 bytes (16 bits) for each pixel
+            pixel_index = (i * width + j) * 2
+            pixel_data = int.from_bytes(data[pixel_index:pixel_index + 2], byteorder='big')
+
+            # Extract 4 bits per channel and scale to 8 bits
+            r = (pixel_data >> 12) & 0x0F
+            g = (pixel_data >> 8) & 0x0F
+            b = (pixel_data >> 4) & 0x0F
+            a = pixel_data & 0x0F
+
+            # Scale 4-bit values to 8-bit values
+            rgba_32bit[i, j] = [r * 17, g * 17, b * 17, a * 17]
+
+    return rgba_32bit
 
 
 def create_cubemap():
@@ -183,3 +208,24 @@ def create_cubemap():
 
         with open(new_name, 'wb') as new_dds:
             new_dds.write(head[:0x71] + b'\xFE' + head[0x72:] + body)
+
+
+class TGACreator:
+
+    def __init__(self, width, height, bpp, bpc, image_data):
+        self.width = width
+        self.height = height
+        self.bpp = bpp
+        self.bpc = bpc
+        self.image_data = image_data
+
+    def tga_save(self, name):
+
+        with open(name, 'wb') as tga:
+            tga.write(b'\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+            tga.write(self.width.to_bytes(2, byteorder='little'))
+            tga.write(self.height.to_bytes(2, byteorder='little'))
+            tga.write(self.bpp.to_bytes(1, byteorder='little'))
+            tga.write(self.bpc.to_bytes(1, byteorder='little'))
+            tga.write(self.image_data)
+

@@ -823,14 +823,15 @@ QToolBox::tab:hover {
 /*  QProgressBar  */
 
 QProgressBar {
-  border-radius: 0;
   background-color: {{secondaryLightColor}};
   text-align: center;
   color: transparent;
+  border-radius: 6px;
 }
 
 QProgressBar::chunk {
   background-color: {{primaryColor}};
+  border-radius: 6px;
 }
 
 /*  ------------------------------------------------------------------------  */

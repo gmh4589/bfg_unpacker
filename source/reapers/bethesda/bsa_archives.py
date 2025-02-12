@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class BethesdaArchive(Reaper):
@@ -116,7 +116,7 @@ class BethesdaArchive(Reaper):
                 if compressed:
 
                     if version in (103, 104):  # 103 - Oblivion, 104 - Skyrim LE, Fallout 3, Fallout NV
-                        codec = zip_methods.ZLIB_NOERROR
+                        codec = ZipMethods.ZLIB_NOERROR
                         here = bsa_file.tell()
 
                         if embed_names:
@@ -139,7 +139,7 @@ class BethesdaArchive(Reaper):
                                 error = True
 
                     elif version == 105:
-                        codec = zip_methods.LZ4
+                        codec = ZipMethods.LZ4
                         here = bsa_file.tell()
 
                         if ext in ('dds', 'png'):

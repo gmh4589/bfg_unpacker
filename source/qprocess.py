@@ -17,9 +17,12 @@ class QProcessList(Setting):
         self.proc = None
         self.nuke = None
         self.last_run = None
-        self.pb = ProgressBar()
+        self.pb = None
+        self.maximum = 100
 
-    def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...'):
+    def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...', maximum=100):
+        self.pb = ProgressBar(maximum=maximum)
+        self.maximum = maximum
         self.nuke = nuke
         self.nuke.file_name = fn
         subfolder = bool(int(self.setting['Main']['subfolders']))
@@ -41,6 +44,7 @@ class QProcessList(Setting):
         self.pb.status.setText('')
         self.pb.is_stop = False
         self.pb.show()
+
         self.nuke.update_signal.connect(self.update_progress)
 
         if self.last_run is not None:
@@ -64,7 +68,6 @@ class QProcessList(Setting):
             self.nuke.terminate()
 
         if process_done:
-
             self.pb.close()
 
         else:

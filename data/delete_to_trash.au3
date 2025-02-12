@@ -1,0 +1,2 @@
+
+FileRecycle($CmdLine[1])

@@ -40,24 +40,24 @@ class TextureCache(Reaper, DDSCreator):
             for i in range(file_count):
                 texture_data.append(
                     TextureData(
-                        w3cache.read(4),  # Hash sum
-                        w3cache.read(4),  # Offset to file name
+                        w3cache.read(4),                                             # Hash sum
+                        w3cache.read(4),                                             # Offset to file name
                         int.from_bytes(w3cache.read(4), byteorder='little') * 4096,  # Offset to file start
-                        int.from_bytes(w3cache.read(4), byteorder='little'),  # Zipped size
-                        int.from_bytes(w3cache.read(4), byteorder='little'),  # Unzipped size
-                        int.from_bytes(w3cache.read(4), byteorder='little'),  # Bit per pixel
-                        int.from_bytes(w3cache.read(2), byteorder='little'),  # Image width
-                        int.from_bytes(w3cache.read(2), byteorder='little'),  # Image height
-                        int.from_bytes(w3cache.read(2), byteorder='little'),  # Mips count
-                        int.from_bytes(w3cache.read(2), byteorder='little'),  # Is cubemap, texture or array
-                        int.from_bytes(w3cache.read(4), byteorder='little'),  # Offset in chunks block
-                        int.from_bytes(w3cache.read(4), byteorder='little'),  # Chunks count
-                        w3cache.read(4),  # Dummy
-                        w3cache.read(4),  # Dummy
-                        int.from_bytes(w3cache.read(1)),  # Texture codec
-                        True if int.from_bytes(w3cache.read(1)) == 3 else False,  # Is cubemap
-                        w3cache.read(2),  # Dummy
-                        names[i]  # File name
+                        int.from_bytes(w3cache.read(4), byteorder='little'),         # Zipped size
+                        int.from_bytes(w3cache.read(4), byteorder='little'),         # Unzipped size
+                        int.from_bytes(w3cache.read(4), byteorder='little'),         # Bit per pixel
+                        int.from_bytes(w3cache.read(2), byteorder='little'),         # Image width
+                        int.from_bytes(w3cache.read(2), byteorder='little'),         # Image height
+                        int.from_bytes(w3cache.read(2), byteorder='little'),         # Mips count
+                        int.from_bytes(w3cache.read(2), byteorder='little'),         # Is cubemap, texture or array
+                        int.from_bytes(w3cache.read(4), byteorder='little'),         # Offset in chunks block
+                        int.from_bytes(w3cache.read(4), byteorder='little'),         # Chunks count
+                        w3cache.read(4),                                             # Dummy
+                        w3cache.read(4),                                             # Dummy
+                        int.from_bytes(w3cache.read(1)),                             # Texture codec
+                        True if int.from_bytes(w3cache.read(1)) == 3 else False,     # Is cubemap
+                        w3cache.read(2),                                             # Dummy
+                        names[i]                                                     # File name
                     )
                 )
 
@@ -71,7 +71,6 @@ class TextureCache(Reaper, DDSCreator):
                 # ic(t_data)
                 os.makedirs(os.path.dirname(full_name), exist_ok=True)
 
-                # for _ in range(chunks_count):
                 w3cache.seek(t_data.chunks_offset)
                 zip_size = int.from_bytes(w3cache.read(4), byteorder='little')
                 unzip_size = int.from_bytes(w3cache.read(4), byteorder='little')

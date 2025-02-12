@@ -4,7 +4,8 @@ import math
 import os
 from icecream import ic
 
-from source.codecs.wav_list import wav_list
+# from source.codecs.wav_list import wav_list
+from source.codecs.wav_list import WavList
 
 setting = configparser.ConfigParser()
 setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
@@ -17,7 +18,8 @@ def wav_save(args):
     sample_rate = args['Frequency']
     channels = args['Channels']
     bps = args['Bit'] if 'Bit' in args.keys() else 0
-    codec = wav_list[args['Format']]['hex']
+    # codec = wav_list[args['Format']]['hex']
+    codec = WavList.__dict__[args['Format']]
     ic(codec)
     bitrate = int((int(sample_rate) * int(bps) * int(channels)) / 8)
     block_align = int(int(bps) * int(channels) / 8)

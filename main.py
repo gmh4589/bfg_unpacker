@@ -1,5 +1,7 @@
 import os
 import sys
+from threading import Thread
+from time import sleep
 
 # Это костыль, без него не работает сборка в екзешник
 from sqlalchemy.dialects.mysql.mariadb import *
@@ -8,7 +10,7 @@ from PyQt6.QtWidgets import QFileDialog, QApplication, QMainWindow
 from icecream import ic
 
 from source.quick_open import QuickOpen
-# from source.quick_open_bak import QuickOpen
+# from source.quick_open_old import QuickOpen
 from source.ui.main_ui_init import MainWindow
 from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui
@@ -28,10 +30,10 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.script_name = ''
         self.file_list = []
 
-    def q_open(self):
-        self.file_list = list(self.file_open())
-        self.last_run = self.find_reaper
-        self.find_reaper()
+    # def q_open(self):
+    #     self.file_list = list(self.file_open())
+    #     self.last_run = self.find_reaper
+    #     self.find_reaper()
 
     def file_open(self, ext_list='', select_folder=False, more_one=False):
 
@@ -95,13 +97,13 @@ class UnpackerMain(MainWindow, QuickOpen):
         for _ in self.file_list:
             self.find_reaper()
 
-    def find_zip_method(self):
+        self.last_run = None
 
+    def find_zip_method(self):
         file_n = ''.join(self.file_open(more_one=True))
 
         if file_n:
-            self.proc = zip_scan.ZipScanner()
-            self.q_connect(self.proc, file_n, header=f'{localize.file}: {file_n}...')
+            self.q_connect(zip_scan.ZipScanner(), file_n, header=f'{localize.file}: {file_n}...')
 
     def empty_out(self):
 

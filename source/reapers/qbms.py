@@ -35,8 +35,8 @@ class Q_BMS(Reaper, OutReader):
 
             try:
                 percent = int(100 / size * int(self.output[0], 16))
-                print(f"{percent}% {self.output[-1]}")
-                ic(self.output[-1])
+                # print(f"{percent}% {self.output[-1]}")
+                # ic(self.output[-1])
                 self.update_signal.emit(percent, '', f'{localize.saving} - {self.output[-1]}...', False)
             except (ValueError, IndexError):
                 print(self.out)

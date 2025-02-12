@@ -209,12 +209,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
         match action:
             case 'A':
-                btn.clicked.connect(self.q_open)
+                # btn.clicked.connect(self.q_open)
+                btn.clicked.connect(self.create_queue)
             case 'B':
                 btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
-                    self, localize.open_file, filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
-                                                      f'{localize.all_files} (*.*)',
-                    directory=self.setting['Main']['last_dir'])[0]))
+                                                              self, localize.open_file,
+                                                              filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
+                                                              f'{localize.all_files} (*.*)',
+                                                              directory=self.setting['Main']['last_dir'])[0]))
             case 'C':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
             case 'D':

@@ -1,5 +1,4 @@
 import os
-from time import sleep
 
 from icecream import ic
 
@@ -32,6 +31,7 @@ class QuickOpen(QProcessList):
         return obj()
 
     def find_reaper(self):
+        maximum = 100
 
         if self.file_list:
             fn = self.file_list.pop(0)
@@ -70,7 +70,7 @@ class QuickOpen(QProcessList):
                 # TODO: ktx
                 # TODO: lfs
                 # TODO: pac Add PAC from GAUP and other
-                # TODO pack YZ2 from RE4HD
+                # TODO: pack YZ2 from RE4HD
                 # TODO: pak Sacred, Necrovision, Painkiller
                 # TODO: pak idTech2 (QUAKE)
                 # TODO: pak ReEngine file list
@@ -81,7 +81,7 @@ class QuickOpen(QProcessList):
                 # TODO: Add support for Sin
                 # TODO: SND from GAUP
                 # TODO: Add function to replace extension
-                # TODO: Add Frosbite Engine Support
+                # TODO: Add Frostbite Engine Support
                 # TODO: txt Lumia Saga, Simple text
                 # TODO: Check on Unigene Engine game
                 # TODO: Check on RED Engine game "w3strings", "archive", "w2strings", "dzip"
@@ -114,11 +114,8 @@ class QuickOpen(QProcessList):
                     self.proc = unity.Unity()
 
                 elif self.func_name == '_Innosetup':
-                    self.proc = other_prg.OtherProg(
-                        program_name='tools\\innounp.exe',
-                        first_arg=f' -x -d"{fp if subfolder else self.out_dir}"',
-                        percent_type='random',
-                        run_type='command_line')
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = f'data\\tools\\innounp.exe -x -d"{fp if subfolder else self.out_dir}" "%full_file_name%"'
 
                 elif self.func_name == '_CelTop':
                     self.proc = cel_top.CelTop()
@@ -132,22 +129,18 @@ class QuickOpen(QProcessList):
                     self.proc.script_name = 'data\\wcx\\gaup_pro.wcx'
 
                 elif self.func_name == '_SAU':
-                    self.proc = other_prg.OtherProg(
-                        program_name='tools\\sau.exe',
-                        first_arg='./',
-                        second_arg=f' "{fp if subfolder else self.out_dir}"')
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = 'sau'
 
                 elif self.func_name == '_VGM' or ext in ('bnk', 'fsb', 'at3', 'at9', 'vag', 'wem', 'wav', 'lwav',
                                                          'adpcm', 'ss2', 'pcm', 'aud', 'ogg', 'logg', 'sngw', 'ogg_',
                                                          'bgm', 'aif', 'laif', 'aiff', 'laiff', 'aifc', 'laifc', 'afc',
                                                          'xwb', 'xna', 'opus', 'lopus', 'ue4opus', 'xwma', 'xwm', 'wav',
-                                                         'xma', 'wma', 'lwma', 'xopus', '9tav'):
-                    sleep(1)
-                    self.proc = other_prg.OtherProg(
-                        program_name='vgmstream\\vgmstream-cli.exe',
-                        first_arg=f'-o "{fp if subfolder else self.out_dir}\\'
-                                  f'{os.path.basename(fn).replace(ext, "wav")}"',
-                        percent_type='not')
+                                                         'xma', 'wma', 'lwma', 'xopus', '9tav', 'vag'):
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = (f'data\\vgmstream\\vgmstream-cli.exe -o '
+                                             f'"{fp if subfolder else self.out_dir}\\{os.path.basename(fn).lower().replace(ext, "wav")}" '
+                                             f'"%full_file_name%"')
 
                 elif self.func_name == '_7ZIP':
                     self.proc = seven_zip.SevenZIP()
@@ -189,10 +182,10 @@ class QuickOpen(QProcessList):
 
                             for c, v in check_list.items():
 
-                                if self.reapers_table[c][k] == v:
-                                    weights[keys.index(k)] += 1
-                                elif self.reapers_table[c][k] == '*' or self.reapers_table[c][k] == -1:
+                                if self.reapers_table[c][k] == '*' or self.reapers_table[c][k] == -1:
                                     pass
+                                elif self.reapers_table[c][k] == v:
+                                    weights[keys.index(k)] += 1
                                 else:
                                     weights[keys.index(k)] -= 1
 
@@ -213,13 +206,11 @@ class QuickOpen(QProcessList):
                                 self.proc[-1].script_name = self.reapers_table['script'][k]
 
                 if self.proc is not None:
+                    maximum = 0 if 'other_prg' in str(self.proc) else 100
+                    ic(self.proc, maximum)
 
                     def proc(prc):
-                        result = self.q_connect(prc, fn, header=f'{localize.unpacking}: {fn}...')
-
-                        if result == 7:
-                            self.proc = seven_zip.SevenZIP()
-                            self.q_connect(prc, fn, header=f'{localize.unpacking}: {fn}...')
+                        self.q_connect(prc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
 
                     if isinstance(self.proc, list):
 

@@ -1,6 +1,22 @@
 
-beta 3
-January 27, 2025
+February 2, 2025
+
+ - Added native support for unpack DAT archives from the game Arcanum: Of Steamworks and Magick Obscura
+ - Added native support for unpack CACHE archives from the game The Witcher 2: Assassins of Kings
+ - Added native support for unpack PAK archives from the game Sacred Gold
+ - Added native support for unpack PACK, LFS and YZ2 archives from the game Resident Evil 4 HD Remaster
+ - Added native support for unpack BIN\000 archives from the game 007 Legend
+ - Added support for unpack FreeArc archives and installers
+ - Codecs list for WAV and class for zipping methods was reworked to dataclass, common methods was moved to separated class
+ - Fixed bug with progress bar showing in compiled version of the program
+ - Fixed removing files to trashcan
+ - Added function to saving image in TGA format
+ - Added function to converting 16-bit images to 32-bit
+ - In "Quick Open" function added support for unpacking files from few new formats
+ - Progress bars have been given rounded edges to better match the overall design style of the program interface
+ - Instead fake progress bar, now showing undefined progress bar
+
+January 27, 2025 - 2.0.0 beta_3 version release
 
  - Added support for unpack archives from games on Unreal Engine 5
  - Unpacking archives from games on Unreal Engines 4 and 5 now using via "repak" utility

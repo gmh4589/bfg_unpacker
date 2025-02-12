@@ -7,7 +7,7 @@ from source.setting import Setting
 from source.codecs import wav_list, audio_tools, image_tools
 from source.codecs.dds_tools import DDSCreator
 from source.ui import localize, child_gui
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 from source.reapers.ffmpeg_tool import ffmpeg_conv
 
 
@@ -81,7 +81,7 @@ class ChildGuiData(Setting):
                                               '96000', '192000', '384000', localize.other],
                                              ['1', '2', '3', '4', '5', '6', '7', '8', localize.other],
                                              ['8', '12', '16', '24', '32', '48', '64', '96', '128', localize.other],
-                                             [key for key in sorted(wav_list.wav_list)],
+                                             sorted(wav_list.WavList.codec_list()),
                                              ['0', localize.other]],
                                 default_list=['48000', '2', '16', 'PCM', '0'],
                                 action=audio_tools.wav_save
@@ -205,7 +205,7 @@ class ChildGuiData(Setting):
                                 label_list=[localize.zip_method],
                                 # action_list=[sorted(key for key in zip_methods.values())],
                                 # action_list=[zip_methods],
-                                action_list=[zip_methods.get_zip_indexes()],
+                                action_list=[ZipMethods.codec_indexes()],
                                 default_list=['DEFLATE'],
                                 action=(f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "%action_0%" '
                                         f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '

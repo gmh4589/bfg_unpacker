@@ -6,7 +6,7 @@ from tkinter.messagebox import showinfo
 
 from source.reaper import Reaper, file_reaper
 from source.codecs.dds_tools import DDSCreator
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class BethesdaArchive(Reaper):
@@ -162,7 +162,7 @@ class BethesdaArchive(Reaper):
                             with open(full_path.lower(), 'wb') as tf:
                                 tf.write(data)
 
-                            self.unzip(full_path.lower(), zip_methods.LZ4)
+                            self.unzip(full_path.lower(), ZipMethods.LZ4)
 
                             with open(full_path.lower(), 'rb') as tf:
                                 data = tf.read()

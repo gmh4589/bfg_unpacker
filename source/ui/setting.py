@@ -236,7 +236,7 @@ class SettingWindow(QDialog):
                 self.setting.set('Main', 'context_menu', "2" if self.context_menu.isChecked() else "0")
 
             except PermissionError:
-                CustomDialog(title='WARNING!', text='To aplay setting run program as admin!').exec()
+                CustomDialog(text='To aplay setting run program as admin!').exec()
             except FileNotFoundError:
                 self.setting.set('Main', 'context_menu', "0")
 

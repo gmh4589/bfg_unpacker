@@ -5,7 +5,7 @@ from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.reapers.capcom.tex import TEX2DDS
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class ARCExtractor(Reaper):
@@ -24,7 +24,7 @@ class ARCExtractor(Reaper):
 
             if version in (4, 8):
                 # 'unzip_dynamic'
-                c_num = zip_methods.UNZIP_DYNAMIC
+                c_num = ZipMethods.UNZIP_DYNAMIC
             elif version == 17:
                 # TODO: Add support XMem
                 ic('XMemDecompress 0x8000')

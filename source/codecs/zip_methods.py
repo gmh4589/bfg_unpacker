@@ -1,5 +1,9 @@
+from dataclasses import dataclass
+from source.codecs.codec_tools import Codec
 
-class zip_methods:
+
+@dataclass
+class ZipMethods(Codec):
     ZLIB = 1
     DEFLATE = 2
     LZO1 = 3
@@ -856,15 +860,3 @@ class zip_methods:
     rzip = 854
     melt1 = 855
     melt2 = 856
-
-    @classmethod
-    def get_zip_list(cls):
-        return {key: value for key, value in cls.__dict__.items() if isinstance(value, int)}
-
-    @classmethod
-    def get_zip_indexes(cls):
-        return {value: key for key, value in cls.__dict__.items() if isinstance(value, int)}
-
-    @classmethod
-    def get_zip_names(cls):
-        return [sorted(key for key, value in cls.__dict__.items() if isinstance(value, int))]

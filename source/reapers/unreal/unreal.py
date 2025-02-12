@@ -38,20 +38,19 @@ class Unreal(Reaper, OutReader):
                 unreal = Popen(f'{self.path_to_root}data/QuickBMS/quickbms.exe -K '
                                f"{self.path_to_root}data/scripts/unreal_umod.bms "
                                f'"{self.file_name}" "{self.output_folder}"',
-                               stdout=PIPE, stderr=PIPE, encoding='utf-8')
+                               stdout=PIPE, stderr=PIPE, encoding='utf-8', shell=False)
             case 'pak':
                 version = 4
                 unreal = Popen(f'"{self.path_to_root}/data/unreal_tools/ue4/repak.exe" '
                                f'{f"--aes-key {self.key} " if self.key else ""}'
                                f'unpack "{self.file_name}"',
-                               stdout=PIPE, stderr=PIPE, encoding='utf-8'
-                               )
+                               stdout=PIPE, stderr=PIPE, encoding='utf-8', shell=False)
 
             case _:
                 version = 3
                 unreal = Popen(f'{self.path_to_root}/data/unreal_tools/ue3/extract.exe '
                                f'-extract -out="{self.output_folder}" "{self.file_name}" ',
-                               stdout=PIPE, stderr=PIPE, encoding='utf-8')
+                               stdout=PIPE, stderr=PIPE, encoding='utf-8', shell=False)
 
         Thread(target=self.out_reader, args=[unreal,], daemon=True).start()
         Thread(target=self.err_reader, args=[unreal,], daemon=True).start()

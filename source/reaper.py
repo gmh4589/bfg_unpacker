@@ -1,6 +1,5 @@
 import threading
 import os
-import shutil
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
@@ -11,7 +10,7 @@ from pathlib import Path
 
 from source.ui import localize
 from source.setting import Setting
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 DEBUG = False if os.path.exists('dev_tools') else True
 
@@ -64,7 +63,8 @@ class Reaper(QThread, Setting):
     update_signal = pyqtSignal(int, str, str, bool)
     COMPRESSED = True
     file_name = ''
-    path_to_root = os.path.curdir
+    # path_to_root = os.path.curdir
+    path_to_root = os.path.dirname(os.path.abspath(f"{os.path.curdir}\\game_base.db"))
     com_type = None
     new_ext = 'dat'
 
@@ -79,29 +79,32 @@ class Reaper(QThread, Setting):
 
     @staticmethod
     def folderSize(path, was_files=0):
-        fsize = 0
+        file_size = 0
         numfile = 0
         iteration = 0
+
         for file in Path(path).rglob('*'):
 
             if os.path.isfile(file):
-                fsize += os.path.getsize(file)
+                file_size += os.path.getsize(file)
                 numfile += 1
+
             iteration += 1
 
-        return fsize, numfile - was_files, iteration
+        return file_size, numfile - was_files, iteration
 
     def update_pb(self, file_count: int, current_file: int, file_name: str):
 
         file_count = 1 if file_count == 0 else file_count
         current_file = 1 if current_file == 0 else current_file
-        ic(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
-        print(f'{current_file}/{file_count}: {localize.saving} - {file_name}...')
+        ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
+        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
+        is_ending = True if current_file + 1 >= file_count else False
 
         self.update_signal.emit(int(100 / file_count * current_file),
-                                f'{current_file + 1}/{file_count}',
+                                f'{current_file + 1}\\{file_count}',
                                 f'{localize.saving} - {file_name}...',
-                                True if current_file + 1 >= file_count else False)
+                                is_ending)
 
     @abstractmethod
     def run(self):
@@ -129,6 +132,7 @@ class Reaper(QThread, Setting):
               crypt_key='') -> None:
 
         out_path = self.output_folder if test else os.environ['TEMP']
+        file_size = os.path.getsize(out_path)
 
         if encrypt:
             # TODO: Need tests
@@ -138,14 +142,15 @@ class Reaper(QThread, Setting):
                       f'"{self.path_to_root}\\data\\QuickBMS\\encryption_scan.bms")" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")
         else:
-            dump_name = zip_methods.get_zip_indexes()[c_num] + '.dmp'
+            dump_name = ZipMethods.codec_indexes()[c_num] + '.dmp'
             script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "{c_num}" '
                       f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
                       f'"{f_name}" "{out_path}"').replace("/", "\\")
 
+        dump_file = os.path.join(out_path, dump_name)
+
         if not test:
             Popen(script).wait()
-            dump_file = os.path.join(out_path, dump_name)
 
             try:
 
@@ -173,16 +178,43 @@ class Reaper(QThread, Setting):
             threading.Timer(10, proc.terminate).start()
             proc.wait()
 
+            try:
+                dump_size = os.path.getsize(dump_file)
+
+                if dump_size <= file_size:
+                    os.remove(dump_file)
+                else:
+
+                    with open(dump_file, 'rb') as df:
+                        bt = df.read(1)
+                        dt = df.read()
+
+                    btc = dt.count(bt) + 1
+
+                    if btc == dump_size:
+                        os.remove(dump_file)
+            except FileNotFoundError:
+                pass
+
+
     @staticmethod
     def get_ext(index: bytes) -> str:
-        ext_list = {  # Image Formats
-            b'DDS\x20': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
+        ext_list = {
+            # Image Formats
+            b'DDS ': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
+            b'\0\0\x02\0': 'tga', b'\0\0\x0a\0': 'tga',
             # Audio Formats
-            b'RIFF': 'wav', b'RIFX': 'wav', b'OggS': 'ogg',
+            b'RIFF': 'wav', b'RIFX': 'wav', b'OggS': 'ogg', b'ID3\x04': 'mp3',
             # Archive Formats
             b'PK\x03\x04': 'zip',
             # Document formats
-            b'\x25PDF': 'pdf',
+            b'\x25PDF': 'pdf', b'<?xm': 'xml',
+            # Video formats
+            b'BIKi': 'bik', b'BIKb': 'bik', b'SMK2': 'smk', b'BIK2': 'bk2',
+            # 3D formats
+            b'BLEN': 'blend',
+            # Programs
+            b'MZ\x90\x00': 'exe',
         }
 
         try:
@@ -190,8 +222,14 @@ class Reaper(QThread, Setting):
         except (IndexError, KeyError):
 
             try:
-                return index[:3].decode('ascii').lower()
-            except UnicodeDecodeError:
+                ext = index[:3].decode('utf-8').lower()
+
+                with open(os.path.join(os.environ['TEMP'], f'test.{ext}'), 'wb'):
+                    pass
+
+                return ext
+
+            except (UnicodeDecodeError, ValueError, OSError):
                 return 'dat'
 
 
@@ -202,34 +240,18 @@ class OutReader:
         self.err = ''
         self.output = []
         self.end = False
-
-    def sim_reader(self, prg):
-
-        while True:
-            self.out = prg.stdout.read()
-
-            if self.out:
-                ic(self.out)
-
-            if self.end:
-                break
-
-    def sim_e_reader(self, prg):
-
-        while True:
-            self.err = prg.stderr.read()
-
-            if self.err:
-                ic(self.err)
-
-            if self.end:
-                break
+        self.pr_out = ''
+        self.pr_err = ''
 
     def out_reader(self, prg, splitter=' '):
+        self.pr_out = ''
 
         while True:
-            self.out = prg.stdout.readline().strip()
-            self.output = self.out.split(splitter)
+            d = prg.stdout.readline().strip()
+
+            self.out = d
+            self.output = d.split(splitter)
+            self.pr_out = d
 
             if self.out:
                 ic(self.out)
@@ -238,13 +260,16 @@ class OutReader:
                 break
 
     def err_reader(self, prg):
+        self.pr_err = ''
 
         while True:
-            self.err = prg.stderr.readline().strip()
+            d = prg.stderr.readline().strip()
+
+            self.err = d
+            self.pr_err = d
 
             if self.err:
                 ic(self.err)
-                print(self.err)
 
             if self.end:
                 break

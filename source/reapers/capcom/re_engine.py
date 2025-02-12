@@ -3,7 +3,7 @@ import zlib
 from collections import namedtuple
 
 from source.reaper import Reaper, file_reaper
-from source.codecs.zip_methods import zip_methods
+from source.codecs.zip_methods import ZipMethods
 
 
 class ReEngine(Reaper):
@@ -71,7 +71,7 @@ class ReEngine(Reaper):
                 with open(path, 'wb') as new_file:
                     new_file.write(file.read(file_info.zip_size))
 
-                self.unzip(path, zip_methods.DEFLATE_NOERROR)
+                self.unzip(path, ZipMethods.DEFLATE_NOERROR)
 
                 self.update_pb(file_count, j + 1, file_name)
 
