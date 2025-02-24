@@ -1,7 +1,5 @@
 import os
 import sys
-from threading import Thread
-from time import sleep
 
 # Это костыль, без него не работает сборка в екзешник
 from sqlalchemy.dialects.mysql.mariadb import *

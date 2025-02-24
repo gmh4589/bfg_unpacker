@@ -1,4 +1,12 @@
 
+February 24, 2025
+
+ - Added support for unpack disc images and archives from game consoles (Xbox (Original, 360),
+        Sega (Saturn, Dreamcast), Sony (PlayStation 3, 4) and others)
+ - Fixed program crash by try open files from games on NorthLight Engine by Remedy
+ - Fixed program crash by try open any archives and disc images by 7zip
+ - "Quick Open" function now can detect 600+ files format
+
 February 2, 2025
 
  - Added native support for unpack DAT archives from the game Arcanum: Of Steamworks and Magick Obscura

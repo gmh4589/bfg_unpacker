@@ -4,6 +4,8 @@ import os
 from source.reaper import Reaper, file_reaper
 from collections import namedtuple
 
+from source.ui import localize
+
 
 class Remedy(Reaper):
 
@@ -18,6 +20,11 @@ class Remedy(Reaper):
         bin_file = f'{only_name}.bin'
         rmdp_file = f'{only_name}.rmdp'
         bin_size = os.path.getsize(bin_file)
+
+        if not os.path.exists(bin_file) or not os.path.exists(rmdp_file):
+            print(localize.not_correct_file.replace('%%', 'NorthLight Engine'))
+            self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'NorthLight Engine'), True)
+            return
 
         with open(bin_file, 'rb') as bin_data:
             byteorder_id = bin_data.read(1)

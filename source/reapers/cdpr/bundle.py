@@ -15,7 +15,7 @@ class BundleUnpack(Reaper):
             magic = bundle.read(8)
 
             if magic != b'POTATO70':
-                print(localize.not_correct_file)
+                print(localize.not_correct_file.replace('%%', 'Red Engine'))
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Red Engine'), True)
                 return
 

@@ -40,3 +40,7 @@ class Rockstar(Reaper):
                 file.seek(4)
                 encrypt = int.from_bytes(file.read(4), byteorder='big')
 
+            elif version == 6:
+                pass
+
+

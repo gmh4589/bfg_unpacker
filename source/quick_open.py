@@ -31,7 +31,6 @@ class QuickOpen(QProcessList):
         return obj()
 
     def find_reaper(self):
-        maximum = 100
 
         if self.file_list:
             fn = self.file_list.pop(0)
@@ -132,18 +131,22 @@ class QuickOpen(QProcessList):
                     self.proc = other_prg.OtherProg()
                     self.proc.script_name = 'sau'
 
-                elif self.func_name == '_VGM' or ext in ('bnk', 'fsb', 'at3', 'at9', 'vag', 'wem', 'wav', 'lwav',
-                                                         'adpcm', 'ss2', 'pcm', 'aud', 'ogg', 'logg', 'sngw', 'ogg_',
-                                                         'bgm', 'aif', 'laif', 'aiff', 'laiff', 'aifc', 'laifc', 'afc',
-                                                         'xwb', 'xna', 'opus', 'lopus', 'ue4opus', 'xwma', 'xwm', 'wav',
-                                                         'xma', 'wma', 'lwma', 'xopus', '9tav', 'vag'):
+                elif self.func_name == '_VGM' or ext in ('9tav', 'adpcm', 'afc', 'aif', 'aifc', 'aiff', 'at3', 'at9',
+                                                         'aud', 'bgm', 'bnk', 'fsb', 'laif', 'laifc', 'laiff', 'logg',
+                                                         'lopus', 'lwav', 'lwma', 'ogg', 'ogg_', 'opus', 'pcm', 'sngw',
+                                                         'ss2', 'ue4opus', 'vag', 'wav', 'wem', 'wma', 'xma', 'xna',
+                                                         'xopus', 'xvag', 'xwb', 'xwm', 'xwma', ):
                     self.proc = other_prg.OtherProg()
-                    self.proc.script_name = (f'data\\vgmstream\\vgmstream-cli.exe -o '
-                                             f'"{fp if subfolder else self.out_dir}\\{os.path.basename(fn).lower().replace(ext, "wav")}" '
-                                             f'"%full_file_name%"')
+                    self.proc.script_name = (
+                        f'data\\vgmstream\\vgmstream-cli.exe -o '
+                        f'"{fp if subfolder else self.out_dir}\\{os.path.basename(fn).lower().replace(ext, "wav")}" '
+                        f'"%full_file_name%"'
+                    )
 
                 elif self.func_name == '_7ZIP':
-                    self.proc = seven_zip.SevenZIP()
+                    # self.proc = seven_zip.SevenZIP()
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = f'data\\7zip\\7z.exe x -o"%out_dir%" "%full_file_name%"'
 
                 elif self.func_name == '_REEngine':
                     self.proc = re_engine.ReEngine()
@@ -155,6 +158,36 @@ class QuickOpen(QProcessList):
                 elif self.func_name == '_Unreal4':
                     self.proc = unreal.Unreal()
                     self.proc.key = self.script_name
+
+                elif self.func_name == '_Wii_iso':
+                    self.proc = other_prg.OtherProg()
+
+                    try:
+                        with open(fn, 'rb') as fff:
+                            fff.seek(0x20 if ext == 'iso' else 0x220)
+                            name = fff.read(0x40).strip(b'\0').decode('utf-8')
+                    except UnicodeDecodeError:
+                        self.proc = None
+                        print('Not valid GameCube or Wii file')
+
+                    self.proc.script_name = f'data\\wit\\wit.exe X "%full_file_name%" -d "%out_dir%\\{name}"'
+
+                elif self.func_name == '_XISO':
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = 'data\\tools\\extract-xiso.exe -d "%out_dir%" -x "%full_file_name%"'
+
+                elif self.func_name == '_PS3_PKG':
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = 'data\\ps_tools\\ps3\\ps3p_pkg_ripper.exe -o "%out_dir%" "%full_file_name%"'
+
+                elif self.func_name == '_PS4_PKG':
+                    self.proc = qbms.Q_BMS()
+                    self.proc.script_name = "data\\scripts\\pkg_cnt.bms"
+
+                elif self.func_name == '_PS3_PSARC':
+                    self.proc = other_prg.OtherProg()
+                    self.proc.script_name = 'data\\ps_tools\\ps3\\psarc.exe extract --input="%full_file_name%" --to="%out_dir%"' \
+                        if magic3 == b'zlib' else 'data\\ps_tools\\ps3\\psarc.exe extract --lzma --input="%full_file_name%" --to="%out_dir%"'
 
                 else:
                     lst = list(self.reapers_table['ext'])
@@ -206,7 +239,9 @@ class QuickOpen(QProcessList):
                                 self.proc[-1].script_name = self.reapers_table['script'][k]
 
                 if self.proc is not None:
-                    maximum = 0 if 'other_prg' in str(self.proc) else 100
+                    without_pb = ('_Innosetup', '_CelTop', '_Total', '_GAUP', '_SAU', '_VGM', '_7ZIP', '_Wii_iso', '_XISO', '_PS3_PKG', '_PS3_PSARC')
+                    maximum = 0 if ('other_prg' in str(self.proc)
+                                    or 'seven' in str(self.proc)) or self.func_name in without_pb else 100
                     ic(self.proc, maximum)
 
                     def proc(prc):

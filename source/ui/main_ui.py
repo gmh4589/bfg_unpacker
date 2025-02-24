@@ -100,10 +100,10 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuPlayStation_3 = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_3.menuAction())
-        self.ps3PsarcZlib = QWidgetAction(self.menuPlayStation_3)
-        self.menuPlayStation_3.addAction(self.ps3PsarcZlib)
-        self.ps3PsarcLzma = QWidgetAction(self.menuPlayStation_3)
-        self.menuPlayStation_3.addAction(self.ps3PsarcLzma)
+        self.ps3_pkg = QWidgetAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3_pkg)
+        self.ps3_psarc = QWidgetAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3_psarc)
         self.ps3XWS = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3XWS)
         self.ps3_atrac2wav = QWidgetAction(self.menuPlayStation_3)
@@ -112,6 +112,8 @@ class Ui_BFGUnpacker(Translate):
         self.menuPlayStation_3.addAction(self.ps3_wav2atrac)
         self.msf2atrac = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.msf2atrac)
+        self.xvag2wav = QWidgetAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.xvag2wav)
 
         self.menuPlayStation_4 = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPlayStation_4.menuAction())
@@ -124,8 +126,8 @@ class Ui_BFGUnpacker(Translate):
         self.sxd2atrac = QWidgetAction(self.menuPlayStation_4)
         self.menuPlayStation_4.addAction(self.sxd2atrac)
 
-        self.menuPlayStation_5 = QMenu(self.menuSony)
-        self.menuSony.addAction(self.menuPlayStation_5.menuAction())
+        # self.menuPlayStation_5 = QMenu(self.menuSony)
+        # self.menuSony.addAction(self.menuPlayStation_5.menuAction())
 
         self.menuPSP = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPSP.menuAction())
@@ -163,12 +165,13 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuXBox_360 = QMenu(self.menuMicrosoft)
         self.menuMicrosoft.addAction(self.menuXBox_360.menuAction())
+        self.menuXBox_360.addAction(self.xboxISO)
 
-        self.menuXBox_One = QMenu(self.menuMicrosoft)
-        self.menuMicrosoft.addAction(self.menuXBox_One.menuAction())
+        # self.menuXBox_One = QMenu(self.menuMicrosoft)
+        # self.menuMicrosoft.addAction(self.menuXBox_One.menuAction())
 
-        self.menuXBox_Series = QMenu(self.menuMicrosoft)
-        self.menuMicrosoft.addAction(self.menuXBox_Series.menuAction())
+        # self.menuXBox_Series = QMenu(self.menuMicrosoft)
+        # self.menuMicrosoft.addAction(self.menuXBox_Series.menuAction())
 
         self.consolesMenu.addAction(self.menuMicrosoft.menuAction())
 
@@ -177,27 +180,29 @@ class Ui_BFGUnpacker(Translate):
 
         self.menuGameCube = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuGameCube.menuAction())
-        self.game_cubeISO = QWidgetAction(self.menuGameCube)
         self.gcCISO = QWidgetAction(self.menuGameCube)
         self.gcCSO = QWidgetAction(self.menuGameCube)
         self.menuGameCube.addAction(self.gcCSO)
-        self.menuGameCube.addAction(self.game_cubeISO)
+        # self.game_cubeISO = QWidgetAction(self.menuGameCube)
+        # self.menuGameCube.addAction(self.game_cubeISO)
         self.menuGameCube.addAction(self.gcCISO)
 
         self.menuWii = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuWii.menuAction())
         self.wiiISO = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiISO)
-        self.wiiWDF = QWidgetAction(self.menuWii)
-        self.menuWii.addAction(self.wiiWDF)
+        # self.wiiWDF = QWidgetAction(self.menuWii)
+        # self.menuWii.addAction(self.wiiWDF)
 
         self.menuWii_U = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuWii_U.menuAction())
+        self.wii_wua_zar = QWidgetAction(self.menuWii)
+        self.menuWii_U.addAction(self.wii_wua_zar)
 
-        self.menuSwitch = QMenu(self.menuNintendo)
-        self.menuNintendo.addAction(self.menuSwitch.menuAction())
-        self.switchNSP = QWidgetAction(self.menuSwitch)
-        self.menuSwitch.addAction(self.switchNSP)
+        # self.menuSwitch = QMenu(self.menuNintendo)
+        # self.menuNintendo.addAction(self.menuSwitch.menuAction())
+        # self.switchNSP = QWidgetAction(self.menuSwitch)
+        # self.menuSwitch.addAction(self.switchNSP)
 
         self.menuClassic_Consoles = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuClassic_Consoles.menuAction())
@@ -218,11 +223,13 @@ class Ui_BFGUnpacker(Translate):
         self.dreamcastGDI = QWidgetAction(self.menuDreamcast)
         self.menuDreamcast.addAction(self.dreamcastGDI)
 
-        self.menuMegaDrive = QMenu(self.menuSega)
-        self.menuSega.addAction(self.menuMegaDrive.menuAction())
+        # self.menuMegaDrive = QMenu(self.menuSega)
+        # self.menuSega.addAction(self.menuMegaDrive.menuAction())
 
         self.menuSaturn = QMenu(self.menuSega)
         self.menuSega.addAction(self.menuSaturn.menuAction())
+        self.saturn_images = QWidgetAction(self.menuSaturn)
+        self.menuSaturn.addAction(self.saturn_images)
 
         self.menuSegaOther = QMenu(self.menuSega)
         self.menuSega.addAction(self.menuSegaOther.menuAction())
@@ -400,21 +407,24 @@ class Ui_BFGUnpacker(Translate):
         Thread(target=self.tree_view_create, daemon=True).start()
         # self.quickOpen.triggered.connect(self.q_open)
         self.quickOpen.triggered.connect(self.create_queue)
-        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs)|'))
-        self.wiiWDF.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                ext_list=f'Wii WDF, WIA, CISO {localize.disc_image} '
-                                                                         f'(*.wdf; *.wia; *.ciso)|'))
-        self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                ext_list=f'Game Cube {localize.disc_image} (*.ciso)|'))
-        self.game_cubeISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso',
-                                                                      ext_list=f'Game Cube {localize.disc_image} '
-                                                                               f'(*.iso)|'))
-        self.gcCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
-                                                               ext_list=f'CSO {localize.disc_image} (*.cso)|'))
-        self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP',
-                                                                ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
+        self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso)|'))
+        self.wii_wua_zar.triggered.connect(lambda: self.create_queue(ext_list=f'Wii U {localize.disc_image} (*.wua; *.zar)|'))
+        self.gcCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.xboxISO.triggered.connect(lambda: self.create_queue(func_name='_XISO', ext_list=f'Xbox ISO {localize.disc_image} (*.iso; *.xiso)|'))
+        self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.dreamcastGDI.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CDI\\GDI {localize.disc_image} (*.cdi; *.gdi)|'))
+        self.saturn_images.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'BIN, CUE, ISO {localize.disc_image} (*.bin; *.cue; *.iso)|'))
+        self.ps3_pkg.triggered.connect(lambda: self.create_queue(func_name='_PS3_PKG', ext_list=f'PS PKG {localize.archives} (*.pkg)|'))
+        self.ps4PKG_CNT.triggered.connect(lambda: self.create_queue(func_name='_PS4_PKG', ext_list=f'PS4 PKG {localize.archives} (*.pkg)|'))
+        self.ps3_psarc.triggered.connect(lambda: self.create_queue(func_name='_PS3_PSARC', ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|'))
         self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM'))
+        self.vag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS2 VAG Audio File (*.vag)|'))
+        self.xvag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS2 XVAG Audio File (*.vag; *.xvag)|'))
+        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
         self.favorites = []
 
         if os.path.exists('favorites.ini'):
