@@ -71,6 +71,6 @@ class QProcessList(Setting):
             self.pb.close()
 
         else:
-            self.pb.progressBar.setValue(pb_value)
+            self.pb.progressBar.setValue(pb_value if pb_value > 5 else 5)
             self.pb.progress.setText(self.get_short_text(p_text))
             self.pb.status.setText(self.get_short_text(info))

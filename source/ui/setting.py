@@ -200,7 +200,6 @@ class SettingWindow(QDialog):
                 self.setting.write(config_file)
 
     def apply_setting(self, style):
-
         self.setting.set('Engines', 'unreal', "2" if self.unreal_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'unity', "2" if self.unity_checkBox.isChecked() else "0")
         self.setting.set('Engines', 'rpg_maker', "2" if self.rpg_checkBox.isChecked() else "0")

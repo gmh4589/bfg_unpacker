@@ -7,7 +7,7 @@ from source.reapers.cdpr        import bundle, texture_cache, w2dzip, w3speech, 
 from source.reapers.idtech      import bimage, doom3_resources, doom_wad, idwav, quake_pak, resources, streamed, tango
 from source.reapers.images      import zpl2png
 from source.reapers.phyre       import phyre, sen_pkg, sen_book
-from source.reapers.remedy      import remedy, aw2
+from source.reapers.remedy      import remedy, aw2, max_payne
 from source.reapers.rockstar    import rdr2_audio, rockstar_rpf
 from source.reapers.unreal      import unreal, ue3_reaper, ue3_injector, locres
 from source.reapers.valve       import source_vpk
@@ -19,10 +19,10 @@ from source.reapers import (afs, arx_fatalis, arcanum_dat,
                             celestia, chrome_engine,
                             ffmpeg_tool,
                             isolation,
-                            legend_007, limbo,
+                            limbo,
                             other_prg, of_orc_and_human,
                             pathologic,
-                            sacred,
+                            sacred, splitter,
                             qbms,
                             seven_s_seven, scs_truck_sym,
                             unity)

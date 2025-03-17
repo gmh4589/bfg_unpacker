@@ -1,4 +1,14 @@
 
+Mart 17, 2025
+
+ - Added Splitter function, for pipping files in archives by header
+ - Fixed saving any textures from BSA archives from TES V: Skyrim and Enderal: Forgotten Stories, witch saved broken
+ - Fixed error with opened many files, witch caused program crash
+ - Added native support for unpack PSK archives from Mafia Remake
+ - Added native support for unpack RMDTOC\RMDBLOB archives from Alan Wake 2
+ - Added native support for unpack RAS archives from Max Payne and Max Payne 2
+ - At low values, less than 5%, the edges of the progress bar are now also rounded
+
 February 24, 2025
 
  - Added support for unpack disc images and archives from game consoles (Xbox (Original, 360),

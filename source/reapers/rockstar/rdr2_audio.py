@@ -1,10 +1,10 @@
 
 import os
-
 from source.reaper import Reaper, file_reaper
 
 
 class RDR2Audio(Reaper):
+    #TODO Move to splitter
 
     @file_reaper
     def run(self):

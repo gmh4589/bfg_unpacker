@@ -107,7 +107,7 @@ class ProgressBar(QDialog, Setting):
         self.progressBar.setGeometry(QRect(10, 40, 270, 30))
 
         self.progress = QLabel(self)
-        self.progress.setGeometry(QRect(10, 80, 100, 20))
+        self.progress.setGeometry(QRect(10, 80, 500, 20))
 
         self.status = QLabel(self)
         self.status.setGeometry(QRect(10, 100, 500, 20))

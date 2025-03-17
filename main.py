@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import QFileDialog, QApplication, QMainWindow
 from icecream import ic
 
 from source.quick_open import QuickOpen
-# from source.quick_open_old import QuickOpen
 from source.ui.main_ui_init import MainWindow
 from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui
@@ -27,11 +26,6 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.func_name = ''
         self.script_name = ''
         self.file_list = []
-
-    # def q_open(self):
-    #     self.file_list = list(self.file_open())
-    #     self.last_run = self.find_reaper
-    #     self.find_reaper()
 
     def file_open(self, ext_list='', select_folder=False, more_one=False):
 
@@ -91,11 +85,7 @@ class UnpackerMain(MainWindow, QuickOpen):
         ic(ext_list)
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
         self.last_run = self.find_reaper
-
-        for _ in self.file_list:
-            self.find_reaper()
-
-        self.last_run = None
+        self.find_reaper()
 
     def find_zip_method(self):
         file_n = ''.join(self.file_open(more_one=True))

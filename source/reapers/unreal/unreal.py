@@ -15,9 +15,11 @@ class Unreal(Reaper, OutReader):
     # TODO: Need testing:
     #  Unreal Engine 1 - need to test;
     #  Unreal Engine 2 - need to test;
-    #  Unreal Engine 3 - is working (tested on Dishonored);
-    #  Unreal Engine 4 - is working;
-    #  Unreal Engine 5 - need to test;
+    #  Unreal Engine 3 - is working (tested on Dishonored, Silent Hill DP);
+    #  Unreal Engine 4 - is working (tested on Star Wars Jedi: Survival);
+    #  Unreal Engine 5 - is working (tested on Silent Hill 2 Remake);
+
+    # TODO: Need to translate text
 
     key = ''
     output = []
@@ -49,7 +51,7 @@ class Unreal(Reaper, OutReader):
             case _:
                 version = 3
                 unreal = Popen(f'{self.path_to_root}/data/unreal_tools/ue3/extract.exe '
-                               f'-extract -out="{self.output_folder}" "{self.file_name}" ',
+                               f'-extract -out="{self.output_folder}" "{self.file_name}"',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8', shell=False)
 
         Thread(target=self.out_reader, args=[unreal,], daemon=True).start()

@@ -2,6 +2,7 @@ import os
 import io
 import lz4.block as lz4
 from collections import namedtuple
+
 from source.reaper import Reaper, file_reaper
 
 
@@ -9,8 +10,14 @@ class AlanWake2(Reaper):
 
     @file_reaper
     def run(self):
-        only_name = self.file_name.split('.')[0]
+        only_name = self.file_name.split('.')[0].split('-0')[0]
         toc_file = f'{only_name}.rmdtoc'
+        toc_base_name = os.path.basename(toc_file)
+        print(toc_file)
+
+        if not os.path.exists(toc_file):
+            self.update_pb(100, 100, f"File {toc_base_name} do not exist or unavailable!")
+            return
 
         with (open(toc_file, "rb") as toc):
             magic = toc.read(4)
@@ -21,8 +28,8 @@ class AlanWake2(Reaper):
                 return
 
             in_dir = os.path.dirname(self.file_name)
-
-            toc.seek(0x10)
+            list_data_offset = int.from_bytes(toc.read(4), byteorder="little")
+            list_blocks = int.from_bytes(toc.read(4), byteorder="little") / 0x10
             blob_offset = int.from_bytes(toc.read(4), byteorder="little")
             blob_count = int.from_bytes(toc.read(4), byteorder="little")
             folder_list_offset = int.from_bytes(toc.read(4), byteorder="little")
@@ -40,121 +47,154 @@ class AlanWake2(Reaper):
             file_data_start = int.from_bytes(toc.read(4), byteorder="little")
             file_data_size = int.from_bytes(toc.read(4), byteorder="little")
 
-            toc.seek(0x1000)
-            file_datas = toc.read()
-            data_stream = io.BytesIO(lz4.decompress(file_datas, file_list_len * 20))
+            ZipBlocks = namedtuple('ZipBlocks',
+                                   ['dummy', 'offset', 'dummy3', 'size', 'zip_size'])
+            lz4_blocks = []
+            toc.seek(list_data_offset)
 
-            temp_file = self.output_folder + '\\file_list.dat'
+            for _ in range(int(list_blocks)):
+                lz4_blocks.append(
+                    ZipBlocks(
+                        int.from_bytes(toc.read(3), byteorder="little"),
+                        int.from_bytes(toc.read(4), byteorder="little"),
+                        int.from_bytes(toc.read(1), byteorder="little"),
+                        int.from_bytes(toc.read(4), byteorder="little"),
+                        int.from_bytes(toc.read(4), byteorder="little"),
+                    )
+                )
 
-            with open(temp_file, 'wb') as fl:
-                # fl.write(data_stream.read(0x100000))
-                #
-                # while True:
-                #     b = data_stream.read(1)
-                #
-                #     if b != b'\0':
-                #         fl.write(b)
-                #         break
+            blocks = b''
 
-                fl.write(data_stream.read())
+            for i, block in enumerate(lz4_blocks):
+                toc.seek(block.offset)
+                data = toc.read(block.zip_size)
+                decompress_data = lz4.decompress(data, block.size)
+                blocks += decompress_data
 
-            data_stream.seek(file_list_start)
-            file_list_stream = io.BytesIO(data_stream.read(file_list_len))
+            data_stream = io.BytesIO(blocks)
 
-            # BLOB data block reading
-            data_stream.seek(blob_offset)
+            BlobList = namedtuple('BlobList',
+                                  ['offset', 'size', 'hash'])
             blob_list = []
+            data_stream.seek(blob_offset)
 
             for _ in range(blob_count):
-                b_name_offset = int.from_bytes(data_stream.read(4), byteorder="little")
-                b_name_size = int.from_bytes(data_stream.read(4), byteorder="little")
-                b_hash = data_stream.read(8)
-                file_list_stream.seek(b_name_offset)
-                blob_list.append(file_list_stream.read(b_name_size)
-                                 .decode('utf-8', errors='ignore')
-                                 .replace('../pc', in_dir))
+                blob_list.append(
+                    BlobList(
+                        int.from_bytes(data_stream.read(4), byteorder="little") + file_list_start,  # Offset
+                        int.from_bytes(data_stream.read(4), byteorder="little"),                    # Size
+                        int.from_bytes(data_stream.read(8), byteorder="little")                     # Hash
+                    )
+                )
 
-            # Folder data block reading
             data_stream.seek(folder_list_offset)
+            FolderList = namedtuple('FolderList',
+                                    ['tree_level', 'folder_index', 'folders_in_folder', 'file_index',
+                                     'files_in_folder', 'fol_name_offset', 'fol_name_size'])
             folder_list = []
 
             for _ in range(folder_count):
-                tree_level = int.from_bytes(data_stream.read(4), byteorder="little")
-                folder_index = int.from_bytes(data_stream.read(4), byteorder="little")
-                folders_in_folder = int.from_bytes(data_stream.read(4), byteorder="little")
-                file_index = int.from_bytes(data_stream.read(4), byteorder="little")
-                files_in_folder = int.from_bytes(data_stream.read(4), byteorder="little")
-                fol_name_offset = int.from_bytes(data_stream.read(4), byteorder="little")
-                fol_name_size = int.from_bytes(data_stream.read(4), byteorder="little")
-                file_list_stream.seek(fol_name_offset)
-                fol_name = file_list_stream.read(fol_name_size).decode('utf-8', errors='ignore')
-                folder_list.append(fol_name)
+                folder_list.append(
+                    FolderList(
+                        tree_level=int.from_bytes(data_stream.read(4), byteorder="little"),
+                        folder_index=int.from_bytes(data_stream.read(4), byteorder="little"),
+                        folders_in_folder=int.from_bytes(data_stream.read(4), byteorder="little"),
+                        file_index=int.from_bytes(data_stream.read(4), byteorder="little"),
+                        files_in_folder=int.from_bytes(data_stream.read(4), byteorder="little"),
+                        fol_name_offset=int.from_bytes(data_stream.read(4), byteorder="little") + file_list_start,
+                        fol_name_size=int.from_bytes(data_stream.read(4), byteorder="little")
+                    )
+                )
 
             data_stream.seek(file_list_offset)
-            dmkp_size = 0
+            FileList = namedtuple('FileList',
+                                    ['unk1', 'unk2', 'unk3', 'name_offset', 'name_long', 'unk4', 'unk5', 'unk6'])
             file_list = []
 
             for _ in range(file_count):
-                compression_data_offset = int.from_bytes(data_stream.read(4), byteorder="little")
-                compression_data_size = int.from_bytes(data_stream.read(4), byteorder="little")
-                file_hash = int.from_bytes(data_stream.read(4), byteorder="little")
-                name_offset = int.from_bytes(data_stream.read(4), byteorder="little")
-                name_long = int.from_bytes(data_stream.read(4), byteorder="little")
-                unzip_size = int.from_bytes(data_stream.read(4), byteorder="little")
-                pak_data_offset = int.from_bytes(data_stream.read(4), byteorder="little")
-                pak_data_size = int.from_bytes(data_stream.read(4), byteorder="little")
-                file_list_stream.seek(name_offset)
-                file_name = file_list_stream.read(name_long).decode('utf-8', errors='ignore')
-                file_list.append(file_name)
-                dmkp_size += pak_data_size
+                file_list.append(
+                    FileList(
+                        int.from_bytes(data_stream.read(4), byteorder="little"),
+                        int.from_bytes(data_stream.read(4), byteorder="little"),
+                        int.from_bytes(data_stream.read(4), byteorder="little"),
+                        int.from_bytes(data_stream.read(4), byteorder="little") + file_list_start,  # name_offset
+                        int.from_bytes(data_stream.read(4), byteorder="little"),                    # name_long
+                        int.from_bytes(data_stream.read(4), byteorder="little"),
+                        int.from_bytes(data_stream.read(4), byteorder="little"),
+                        int.from_bytes(data_stream.read(4), byteorder="little")
+                    )
+                )
+
+            blob_name_list = []
+            folder_name_list = []
+            file_name_list = []
+
+            for blob in blob_list:
+                o = blob.offset
+                s = blob.size
+                data_stream.seek(o)
+                n = data_stream.read(s)
+                blob_name_list.append(n.decode('utf-8').replace('../pc', in_dir))
+
+            for fol in folder_list:
+                fo = fol.fol_name_offset
+                fs = fol.fol_name_size
+                data_stream.seek(fo)
+                fn = data_stream.read(fs)
+                folder_name_list.append(fn)
+
+            for _, file in enumerate(file_list):
+                so = file.name_offset
+                sn = file.name_long
+                data_stream.seek(so)
+                name = data_stream.read(sn)
+                file_name_list.append(name.decode('utf-8'))
 
             Offsets = namedtuple('Offsets',
-                                 ['unk', 'vol', 'offset', 'size', 'zip_size'])
+                                 ['unk', 'vol', 'offset', 'unk2', 'size', 'zip_size'])
             offsets = []
 
-            # data_stream.seek(file_data_start + 0x174)
             data_stream.seek(file_data_start)
 
             for _ in range(file_count):
-                tfa = hex(data_stream.tell())
                 offsets.append(
                     Offsets(
                         int.from_bytes(data_stream.read(1), byteorder="little"),  # unk
                         int.from_bytes(data_stream.read(2), byteorder="little"),  # vol
-                        int.from_bytes(data_stream.read(5), byteorder="little"),  # offset
+                        int.from_bytes(data_stream.read(4), byteorder="little"),  # offset
+                        int.from_bytes(data_stream.read(1), byteorder="little"),  # unk2
                         int.from_bytes(data_stream.read(4), byteorder="little"),  # size
                         int.from_bytes(data_stream.read(4), byteorder="little")   # zip_size
                     )
                 )
 
-            # blob_list = [f'{only_name}-{str(i).rjust(3, "0")}.rmdblob' for i in range(blob_count)]
-            blob_list = sorted(blob_list)
-            print(blob_list)
-
-            blobs = [open(b, 'rb') for b in blob_list]
+            try:
+                blobs = [open(b, 'rb') for b in blob_name_list]
+            except (FileNotFoundError, FileExistsError, PermissionError):
+                self.update_pb(100, 100, f"Files {blob_name_list} do not exist or unavailable!")
+                return
 
             for i in range(file_count):
-                path = f"{self.output_folder}\\{file_list[i]}"
+                path = f"{self.output_folder}\\{file_name_list[i]}"
 
                 ol = offsets[i]
-                blobs[ol.vol - 1].seek(ol.offset)
-                file_data = blobs[ol.vol - 1].read(ol.size)
-                # os.makedirs(os.path.dirname(path), exist_ok=True)
+                vol = ol.vol
+                blobs[vol].seek(ol.offset)
 
-                try:
+                if ol.zip_size == 0:
+                    file_data = blobs[vol].read(ol.size)
+                else:
+                    file_data = blobs[vol].read(ol.zip_size)
 
-                    with open(path, 'wb') as nf:
-                        # nf.write(file_data.strip(b'\0'))
-                        nf.write(file_data)
+                    try:
+                        file_data = lz4.decompress(file_data, ol.size)
+                    except lz4.LZ4BlockError:
+                        pass
 
-                # TODO: УБРАТЬ КОСТЫЛИ!!!
-                except (OSError, ValueError):
-                    dat = self.get_ext(file_data[:4])
-                    path = f"{self.output_folder}\\{i}.{dat}"
+                os.makedirs(os.path.dirname(path), exist_ok=True)
 
-                    with open(path, 'wb') as nf:
-                        # nf.write(file_data.strip(b'\0'))
-                        nf.write(file_data)
+                with open(path, 'wb') as nf:
+                    nf.write(file_data)
 
                 self.update_pb(file_count, i + 1, path)
 

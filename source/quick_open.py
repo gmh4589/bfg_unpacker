@@ -38,6 +38,9 @@ class QuickOpen(QProcessList):
             fp = f'{self.out_dir}\\{os.path.basename(fn).replace(".", "_")}'
             ic(fn)
 
+            if len(self.file_list) == 0:
+                self.last_run = None
+
             if os.path.exists(fn):
                 self.proc = None
 
@@ -240,9 +243,21 @@ class QuickOpen(QProcessList):
 
                 if self.proc is not None:
                     without_pb = ('_Innosetup', '_CelTop', '_Total', '_GAUP', '_SAU', '_VGM', '_7ZIP', '_Wii_iso', '_XISO', '_PS3_PKG', '_PS3_PSARC')
-                    maximum = 0 if ('other_prg' in str(self.proc)
-                                    or 'seven' in str(self.proc)) or self.func_name in without_pb else 100
+                    maximum = 0 if (('other_prg' in str(self.proc)
+                                    or 'seven' in str(self.proc))
+                                    or self.func_name in without_pb
+                                    or (self.proc.script_name is not None
+                                        and 'wcx' in self.proc.script_name)) else 100
                     ic(self.proc, maximum)
+
+                    if 'splitter' in str(self.proc):
+                        param = self.proc.script_name.split(', ')
+
+                        self.proc.start_data = int(param[0])
+                        self.proc.header = int(param[1]).to_bytes(4, byteorder='little')
+                        self.proc.splitter = int(param[2]).to_bytes(4, byteorder='little')
+                        self.proc.file_type = param[3]
+                        self.proc.ext = param[4]
 
                     def proc(prc):
                         self.q_connect(prc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
