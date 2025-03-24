@@ -15,7 +15,7 @@ from icecream import ic
 import source.ui.main_ui as ui
 from qt_material import apply_stylesheet
 from qt_material import list_themes
-from source.reaper import after_dot
+from source.reapers.ext_list import after_dot
 from source.ui import (setting as setting_ui,
                        change_button_menu as cbm,
                        localize,
@@ -353,7 +353,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         with engine.connect() as conn:
             metadata = sqlalchemy.MetaData()
             archives_list = sqlalchemy.Table('archives_list', metadata, autoload_with=engine)
-            # table = sqlalchemy.Table(archives_list, metadata, autoload_with=engine)
             query = sqlalchemy.select(archives_list).where(archives_list.c.skip == 0)
             archivesList = pandas.read_sql_query(query, conn)
 
@@ -379,13 +378,8 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             arch_name = archivesList['ArchivesName'][n]
             func_name = archivesList['Function'][n]
             ext_list = archivesList['ExtList'][n]
-            program_name = archivesList['ProgramName'][n]
-            unp_com1 = archivesList['Unpackcom1'][n]
-            unp_com2 = archivesList['Unpackcom2'][n]
+            unp_com = archivesList['Unpackcom'][n]
             pak_com = archivesList['Packcom'][n]
-            arch_move = archivesList['Archivemove'][n]
-            arch_ext = archivesList['ProgramName'][n]
-            ff = archivesList['ff'][n]
 
             if archivesList['Index'][n] == 3:
                 new_item = self.menu_disk_images.addAction(arch_name)
@@ -417,11 +411,17 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 else:
                     new_item = self.menu_archives.addAction(arch_name)
 
-            new_item.triggered.connect(lambda *args, func=func_name, ext=ext_list, prg=program_name, f_f=ff,
-                                              c1=unp_com1, c2=unp_com2, pak=pak_com, a_move=arch_move, a_ext=arch_ext:
-                                       self.create_queue(func_name=func, ext_list=ext, script_name=prg,
-                                                         # ff=f_f, com1=c1, com2=c2, pak=pak, a_move=arch_move, a_ext=a_ext
-                                                         ))
+            new_item.triggered.connect(lambda *args, func=func_name, exts=ext_list, unpack_com=unp_com, pack_com=pak_com:
+                                       self.archive_execute(func_name=func, ext_list=exts, unpack_com=unpack_com, pack_com=pack_com))
+
+    def archive_execute(self, func_name, ext_list, unpack_com, pack_com):
+        packing = (True if self.checkBox_Reimport.isChecked() else False) if pack_com != 'not' else False
+        ic(self.checkBox_Reimport.isChecked())
+        self.func_name = func_name
+        self.script_name = pack_com if packing else unpack_com
+        self.file_list = list(self.file_open(ext_list, select_folder=True if packing else False))
+        self.last_run = self.find_reaper
+        self.find_reaper()
 
     def flc(self, items):
         self.comboBox_gameList.items = items

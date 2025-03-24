@@ -4,6 +4,7 @@ import lz4.block as lz4
 from collections import namedtuple
 
 from source.reaper import Reaper, file_reaper
+from source.ui import localize
 
 
 class AlanWake2(Reaper):
@@ -16,7 +17,7 @@ class AlanWake2(Reaper):
         print(toc_file)
 
         if not os.path.exists(toc_file):
-            self.update_pb(100, 100, f"File {toc_base_name} do not exist or unavailable!")
+            self.update_pb(100, 100, f"{localize.file} {toc_base_name} {localize.do_not_exist}!")
             return
 
         with (open(toc_file, "rb") as toc):

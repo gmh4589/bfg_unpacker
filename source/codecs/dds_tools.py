@@ -32,7 +32,6 @@ class DDSCreator:
         try:
             self.__getattribute__(codec)()
         except (TypeError, AttributeError):
-            # TODO: Text!!!
             logger(level='ATTENTION',
                    message=f'Unknown DDS type {codec}! In file {name}\n. File was save as B8G8R8A8_UNORM',
                    show=True)

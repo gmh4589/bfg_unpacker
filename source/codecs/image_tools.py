@@ -195,14 +195,14 @@ def create_cubemap():
 
     # TODO: Localize text
     if len(codecs) != 6:
-        print('В папке должно быть 6 файлов!!!')
+        print(localize.six_files_in_fol)
     elif codecs.count(codecs[0]) != 6:
-        print('Файлы должны иметь одинаковый формат!!!')
+        print(localize.one_format)
     elif (len(widths) != 1 and
           len(heights) != 1 and
           len(mips) != 1 and
           len(depths) != 1):
-        print('Файлы должны иметь одинаковые параметры!!!')
+        print(localize.one_param)
     else:
         new_name = f"{setting['Main']['out_path']}\\out.dds"
 

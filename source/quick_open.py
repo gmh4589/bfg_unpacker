@@ -4,7 +4,7 @@ from icecream import ic
 
 from source import reapers
 from source.qprocess import QProcessList
-from source.ui import localize
+from source.ui import localize, file_type_selector
 from source.reapers import *
 
 
@@ -12,10 +12,7 @@ class QuickOpen(QProcessList):
 
     @staticmethod
     def sorry():  # 😢
-
-        # TODO: Нужно локализовать текст!!!
-        print('Не удалось найти распаковщик автоматически!\n'
-              'Попробуйте выбрать игру или тип файла вручную!')
+        print(localize.not_find_unpacker)
         return None
 
     @classmethod
@@ -36,7 +33,7 @@ class QuickOpen(QProcessList):
             fn = self.file_list.pop(0)
             subfolder = bool(int(self.setting['Main']['subfolders']))
             fp = f'{self.out_dir}\\{os.path.basename(fn).replace(".", "_")}'
-            ic(fn)
+            ic(fn, self.script_name, self.func_name)
 
             if len(self.file_list) == 0:
                 self.last_run = None
@@ -114,6 +111,15 @@ class QuickOpen(QProcessList):
 
                 elif self.func_name == '_Unity':
                     self.proc = unity.Unity()
+
+                elif self.func_name == '_OtherPRG':
+                    self.proc = other_prg.OtherProg()
+
+                    if '%set_dir%' in self.script_name:
+                        self.proc.change_dir = os.path.dirname(fn) if self.checkBox_Reimport.isChecked() else (fp if subfolder else self.out_dir)
+                        self.script_name = self.script_name.replace('%set_dir%', '')
+
+                    self.proc.script_name = self.script_name
 
                 elif self.func_name == '_Innosetup':
                     self.proc = other_prg.OtherProg()
@@ -232,40 +238,53 @@ class QuickOpen(QProcessList):
                         ic(weights, keys)
 
                         if len(weights) == 1:
+
+                            if self.reapers_table['file_type'][keys[0]] is not None:
+                                print(f"{localize.file_type}: {self.reapers_table['file_type'][keys[0]]}")
+
                             self.proc = self.get_reaper(self.reapers_table['class_path'][keys[0]])
                             self.proc.script_name = self.reapers_table['script'][keys[0]]
                         else:
-                            self.proc = []
+                            self.proc = {}
 
                             for k in keys:
-                                self.proc.append(self.get_reaper(self.reapers_table['class_path'][k]))
-                                self.proc[-1].script_name = self.reapers_table['script'][k]
+                                self.proc[self.reapers_table['file_type'][k]] = [
+                                    self.get_reaper(self.reapers_table['class_path'][k]),
+                                    self.reapers_table['script'][k]
+                                ]
+                                # self.proc.append(self.get_reaper(self.reapers_table['class_path'][k]))
+                                # self.proc[-1].script_name = self.reapers_table['script'][k]
 
                 if self.proc is not None:
                     without_pb = ('_Innosetup', '_CelTop', '_Total', '_GAUP', '_SAU', '_VGM', '_7ZIP', '_Wii_iso', '_XISO', '_PS3_PKG', '_PS3_PSARC')
-                    maximum = 0 if (('other_prg' in str(self.proc)
-                                    or 'seven' in str(self.proc))
-                                    or self.func_name in without_pb
-                                    or (self.proc.script_name is not None
-                                        and 'wcx' in self.proc.script_name)) else 100
+
+                    try:
+                        maximum = 0 if (('other_prg' in str(self.proc)
+                                        or 'seven' in str(self.proc))
+                                        or self.func_name in without_pb
+                                        or (self.proc.script_name is not None
+                                            and 'wcx' in self.proc.script_name)) else 100
+                    except AttributeError:
+                        maximum = 100
+
                     ic(self.proc, maximum)
 
                     if 'splitter' in str(self.proc):
                         param = self.proc.script_name.split(', ')
-
                         self.proc.start_data = int(param[0])
                         self.proc.header = int(param[1]).to_bytes(4, byteorder='little')
                         self.proc.splitter = int(param[2]).to_bytes(4, byteorder='little')
                         self.proc.file_type = param[3]
                         self.proc.ext = param[4]
 
-                    def proc(prc):
-                        self.q_connect(prc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
-
-                    if isinstance(self.proc, list):
-
-                        for p in self.proc:
-                            proc(p)
+                    if isinstance(self.proc, dict):
+                        tp = file_type_selector.TypeSelector(self.proc)
+                        tp.exec()
+                        ic(tp.returned_data)
+                        proc_list = self.proc
+                        self.proc = proc_list[tp.returned_data][0]
+                        self.proc.script_name = proc_list[tp.returned_data][1]
+                        self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
 
                     else:
-                        proc(self.proc)
+                        self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)

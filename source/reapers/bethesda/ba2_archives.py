@@ -7,6 +7,7 @@ from tkinter.messagebox import showinfo
 from source.reaper import Reaper, file_reaper
 from source.codecs.dds_tools import DDSCreator
 from source.codecs.zip_methods import ZipMethods
+from source.ui.localize import info, work_in_progress, error_in_file
 
 
 class BethesdaArchive(Reaper):
@@ -70,8 +71,8 @@ class BethesdaArchive(Reaper):
                 case b'DX10':
                     offset_block_size = 4
                 case b'GNMF':
-                    showinfo(title='INFO',
-                             message=f'Work in progress!')
+                    showinfo(title=info,
+                             message=work_in_progress)
                     return
 
             match version:
@@ -187,7 +188,7 @@ class BethesdaArchive(Reaper):
                         try:
                             data = zlib.decompress(data)
                         except zlib.error:
-                            showinfo(title='INFO', message=f'Error in file {full_path}\n{data[:1]}')
+                            showinfo(title=info, message=f'{error_in_file} {full_path}\n{data[:1]}')
 
                     with open(full_path, 'wb') as new_file:
                         new_file.write(data)

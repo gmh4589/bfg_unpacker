@@ -1,5 +1,8 @@
 import os
 import io
+import struct
+
+
 from source.reaper import Reaper, file_reaper
 
 
@@ -15,7 +18,9 @@ class MaxPayne(Reaper):
             if not self.magic([b'RAS\0', ], magic, 'Max Payne Archive'):
                 return
 
-            key = int.from_bytes(file.read(4), byteorder="little")
+            # key = int.from_bytes(file.read(4), byteorder="little")
+            key = file.read(4)
+            key = struct.unpack('<i', key)[0]
 
             head_decrypted = self.ras_decrypt(bytearray(file.read(0x24)), key)
             file_count = int.from_bytes(head_decrypted[:4], byteorder="little")

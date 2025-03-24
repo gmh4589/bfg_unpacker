@@ -12,9 +12,19 @@ class OtherProg(Reaper, OutReader):
     def __init__(self):
         super().__init__()
         self.script_name = ''
+        self.change_dir = None
+        self.pr_err = ''
+        self.pr_out = ''
 
     @file_reaper
     def run(self):
+
+        if '%set_dir%' in self.script_name:
+            self.script_name = self.script_name.replace('%set_dir%', '')
+            self.change_dir = self.output_folder
+
+        if self.change_dir is not None:
+            os.chdir(self.change_dir)
 
         if self.script_name == 'sau':
             sau_path = os.path.abspath(f"{self.path_to_root}\\data\\tools\\sau.exe")
@@ -41,7 +51,7 @@ class OtherProg(Reaper, OutReader):
         ic(self.script_name)
 
         try:
-            prg = Popen(self.script_name, stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore', shell=False)
+            prg = Popen(self.script_name, stdout=PIPE, stderr=PIPE, stdin=PIPE, encoding='utf-8', errors='ignore', shell=False)
 
         except Exception as error:
             self.update_signal.emit(100, '', localize.done, True)
@@ -56,8 +66,17 @@ class OtherProg(Reaper, OutReader):
             try:
                 self.update_signal.emit(0, '', f'{".".join(self.output)}...', False)
 
-                if self.err:
+                if self.err and self.err != self.pr_err:
                     print(self.err)
+                    self.pr_err = self.err
+
+                if self.out and self.out != self.pr_out:
+                    print(self.out)
+                    self.pr_out = self.out
+
+                # if '(y/n)' in self.out:
+                #     prg.stdin.write('y\n')
+                #     prg.stdin.flush()
 
             except Exception as e:
                 ic(e)

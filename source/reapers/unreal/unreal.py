@@ -82,17 +82,17 @@ class Unreal(Reaper, OutReader):
                 percent = 95 if percent > 95 else percent
 
                 self.update_signal.emit(percent, f'{percent} %',
-                                        'Wait, unpacked in process...', False)
+                                        localize.wait, False)
 
         self.end = True
 
         if version == 4:
-            self.update_signal.emit(99, "99 %, almost done...", f'{localize.wait}, files is moving...', False)
+            self.update_signal.emit(99, f"99 %, {localize.almost_done}...", f'{localize.wait}, {localize.files_is_moving}...', False)
 
             try:
                 shutil.move(''.join(self.file_name.split('.')[:-1]), self.output_folder)
             except FileNotFoundError:
-                ic('Version of Unreal Engine 4 is not supported or wrong AES key')
-                print('Version of Unreal Engine 4 is not supported or wrong AES key')
+                ic(localize.wrong_ue4)
+                print(localize.wrong_ue4)
 
         self.update_signal.emit(100, '', localize.done, True)

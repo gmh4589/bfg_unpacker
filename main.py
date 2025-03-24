@@ -11,7 +11,7 @@ from source.quick_open import QuickOpen
 from source.ui.main_ui_init import MainWindow
 from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui
-from source.reaper import after_dot
+from source.reapers.ext_list import after_dot
 from source.reapers import *
 from source.delete import DeleteThread
 
@@ -61,8 +61,8 @@ class UnpackerMain(MainWindow, QuickOpen):
             data_string = self.mainList.loc[self.mainList['game_name'] == item.text()]
             self.func_name = data_string['func_name'].values[0]
             script_name = data_string['script_name'].values[0]
-            after_dot['Default'] = (data_string['ext_list'].values[0]
-                                    if data_string['ext_list'].values[0] != 'nan' else '')
+            after_dot['Default'] = (data_string['ext_list.py'].values[0]
+                                    if data_string['ext_list.py'].values[0] != 'nan' else '')
             ext_list = after_dot[self.func_name] if self.func_name in after_dot.keys() else after_dot['Default']
 
             if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop') or
@@ -78,7 +78,7 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.func_name = func_name
         self.script_name = script_name
 
-        if type(ext_list) is float:
+        if type(ext_list) is not str:
             ext_list = ''
 
         ext_list = f'{ext_list}{localize.all_files}(*.*)'

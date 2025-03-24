@@ -1,4 +1,16 @@
 
+Mart 24, 2025
+
+ - Fixed unpacking same files from Max Payne 2
+ - Added support for unpacking\packing ARC archives (1980-s old format)
+ - Fixed showing to the program output one message few time
+ - Localization was updated
+ - Added german localization
+ - Game base was updated
+ - Several minor bugs have been fixed, the structure of the program's source files has been optimized
+ - Now when automatically selecting a file type in the QuickOpen function, if more than one file type was received,
+        the program will show a drop-down menu with all possible file types for the selected file type in manual mode
+
 Mart 17, 2025
 
  - Added Splitter function, for pipping files in archives by header

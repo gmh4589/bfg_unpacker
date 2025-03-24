@@ -10,7 +10,7 @@ from qt_material import apply_stylesheet
 import configparser
 
 from source.ui.custom_ui import AutoCompleteComboBox
-import source.ui.localize as translate
+from source.ui import localize
 
 
 class ChildUIWindow(QDialog):
@@ -89,7 +89,7 @@ class ChildUIWindow(QDialog):
 
             for j in range(len(self.label_list)):
 
-                if self.drops[j].currentText() == translate.other:
+                if self.drops[j].currentText() == localize.other:
                     # TODO: TEXT!!!
                     text = simpledialog.askstring("", "Enter value:")
                     ic(text)
@@ -100,7 +100,7 @@ class ChildUIWindow(QDialog):
         selected_text = self.drops[self.item1].currentText()
         self.drops[self.item2].clear()
         ic(selected_text)
-        self.drops[self.item2].addItems(self.combos.get(selected_text, [selected_text, translate.other]))
+        self.drops[self.item2].addItems(self.combos.get(selected_text, [selected_text, localize.other]))
 
     def file_open(self):
 
@@ -109,7 +109,7 @@ class ChildUIWindow(QDialog):
         except AttributeError:
             f = ''
 
-        file_names = QFileDialog.getOpenFileNames(self, translate.open_file, filter=f,
+        file_names = QFileDialog.getOpenFileNames(self, localize.open_file, filter=f,
                                                   directory=self.setting['Main']['last_dir'])[0]
 
         if file_names:
@@ -148,8 +148,7 @@ class ChildUIWindow(QDialog):
                                        .replace('%out_name%', out_name)
                                        )
 
-                        # TODO: TEXT!!!
-                        print(f'Wait, file {file_name} being processed...')
+                        print(f'{localize.wait}, {localize.file} {file_name} {localize.is_process}...')
 
                         Popen(self.action).wait()
                         self.action = self.action.replace(file_name, '%file_name%')
@@ -160,9 +159,9 @@ class ChildUIWindow(QDialog):
                         for drop in range(len(self.drops)):
 
                             match self.drops[drop].currentText():
-                                case translate.yes:
+                                case localize.yes:
                                     a = True
-                                case translate.no:
+                                case localize.no:
                                     a = False
                                 case _:
                                     a = self.drops[drop].currentText()
@@ -173,5 +172,5 @@ class ChildUIWindow(QDialog):
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.ok_button.setText(_translate("MainWindow", translate.open_file))
-        self.cancel_button.setText(_translate("MainWindow", translate.cancel))
+        self.ok_button.setText(_translate("MainWindow", localize.open_file))
+        self.cancel_button.setText(_translate("MainWindow", localize.cancel))

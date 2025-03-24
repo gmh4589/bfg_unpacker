@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt6.QtCore import QRect, QMetaObject
-from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QWidget, QProgressBar
+from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QProgressBar
 
 from qt_material import apply_stylesheet
 from source.setting import Setting

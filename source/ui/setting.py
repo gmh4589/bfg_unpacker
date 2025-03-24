@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import *
 import configparser
 from qt_material import apply_stylesheet
 
-import source.ui.localize as translate
+from source.ui import localize
 from source.ui import theme_creator
 from source.ui.custom_ui import CustomDialog
 
@@ -189,7 +189,7 @@ class SettingWindow(QDialog):
         self.save_setting.clicked.connect(lambda: self.apply_setting(style))
 
     def select(self):
-        out_path = QFileDialog.getExistingDirectory(self, caption=translate.select_folder,
+        out_path = QFileDialog.getExistingDirectory(self, caption=localize.select_folder,
                                                     directory=self.setting['Main']['last_dir'])
 
         if out_path:
@@ -235,18 +235,18 @@ class SettingWindow(QDialog):
                 self.setting.set('Main', 'context_menu', "2" if self.context_menu.isChecked() else "0")
 
             except PermissionError:
-                CustomDialog(text='To aplay setting run program as admin!').exec()
+                CustomDialog(text=localize.run_as_admin).exec()
             except FileNotFoundError:
                 self.setting.set('Main', 'context_menu', "0")
 
         with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
             self.setting.write(config_file)
 
-        self.cancel_button.setText(translate.close)
+        self.cancel_button.setText(localize.close)
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", translate.settings))
+        self.setWindowTitle(_translate("MainWindow", localize.settings))
 
         self.unity_checkBox.setText(_translate("MainWindow", f"Unity ({self.unity_list})"))
         self.unreal_checkBox.setText(_translate("MainWindow", f"Unreal ({self.unreal_list})"))
@@ -255,21 +255,21 @@ class SettingWindow(QDialog):
         self.renpy_checkBox.setText(_translate("MainWindow", f"RenPy ({self.renpy_list})"))
         self.godot_checkBox.setText(_translate("MainWindow", f"Godot ({self.godot_list})"))
 
-        self.sort_by_names.setText(_translate("MainWindow", translate.by_name))
-        self.sort_by_years.setText(_translate("MainWindow", translate.by_years))
-        self.context_menu.setText(_translate("MainWindow", translate.context_menu))
-        self.load_bar.setText(_translate("MainWindow", translate.load_bar))
-        self.create_theme.setText(_translate("MainWindow", translate.create_theme))
-        self.out_folder.setText(_translate("MainWindow", translate.out_folder))
-        self.save_setting.setText(_translate("MainWindow", translate.apply))
-        self.cancel_button.setText(_translate("MainWindow", translate.cancel))
-        self.label_engines.setText(_translate("MainWindow", translate.show_on))
-        self.label_sort.setText(_translate("MainWindow", f'{translate.group_by}:'))
-        self.label_alpha_group.setText(_translate("MainWindow", f'{translate.group_by} {translate.alphabet}:'))
-        self.ge_checkbox.setText(_translate("MainMenu", translate.game_engines))
-        self.arch_checkbox.setText(_translate("MainMenu", translate.archives))
-        self.fav_image_label.setText(_translate("MainMenu", translate.fav_image_format))
-        self.image_box_label.setText(_translate("MainMenu", translate.image_action))
-        self.save_original_only.setText(_translate("MainMenu", translate.only_original))
-        self.save_convert_only.setText(_translate("MainMenu", translate.only_convert))
-        self.save_all.setText(_translate("MainMenu", translate.original_convert))
+        self.sort_by_names.setText(_translate("MainWindow", localize.by_name))
+        self.sort_by_years.setText(_translate("MainWindow", localize.by_years))
+        self.context_menu.setText(_translate("MainWindow", localize.context_menu))
+        self.load_bar.setText(_translate("MainWindow", localize.load_bar))
+        self.create_theme.setText(_translate("MainWindow", localize.create_theme))
+        self.out_folder.setText(_translate("MainWindow", localize.out_folder))
+        self.save_setting.setText(_translate("MainWindow", localize.apply))
+        self.cancel_button.setText(_translate("MainWindow", localize.cancel))
+        self.label_engines.setText(_translate("MainWindow", localize.show_on))
+        self.label_sort.setText(_translate("MainWindow", f'{localize.group_by}:'))
+        self.label_alpha_group.setText(_translate("MainWindow", f'{localize.group_by} {localize.alphabet}:'))
+        self.ge_checkbox.setText(_translate("MainMenu", localize.game_engines))
+        self.arch_checkbox.setText(_translate("MainMenu", localize.archives))
+        self.fav_image_label.setText(_translate("MainMenu", localize.fav_image_format))
+        self.image_box_label.setText(_translate("MainMenu", localize.image_action))
+        self.save_original_only.setText(_translate("MainMenu", localize.only_original))
+        self.save_convert_only.setText(_translate("MainMenu", localize.only_convert))
+        self.save_all.setText(_translate("MainMenu", localize.original_convert))

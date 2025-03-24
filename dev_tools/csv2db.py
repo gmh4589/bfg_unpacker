@@ -11,7 +11,7 @@ game_list = Table('game_list', metadata,
                   Column('game_name', String),
                   Column('release_year', String),
                   Column('func_name', String),
-                  Column('ext_list', String),
+                  Column('ext_list.py', String),
                   Column('script_name', String),
                   extend_existing=True)
 

@@ -353,7 +353,7 @@ class Ui_BFGUnpacker(Translate):
         self.out_dir = self.setting['Main']['out_path']
 
         if not os.path.exists(self.out_dir) or self.out_dir == 'None':
-            self.out_dir = QFileDialog.getExistingDirectory(self, 'Select folder')
+            self.out_dir = QFileDialog.getExistingDirectory(self, localize.select_folder)
             self.set_setting('Main', 'out_path', self.out_dir)
 
         # Game list creating via SQL database

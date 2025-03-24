@@ -13,6 +13,7 @@ from source.reapers.ffmpeg_tool import ffmpeg_conv
 
 # Методы для создания и наполнения дочерних интерфейсов
 class ChildGuiData(Setting):
+    # TODO: TEXT!!!
 
     def ffmpeg_video(self):
         child_gui.ChildUIWindow(style=self.setting["Main"]["theme"],

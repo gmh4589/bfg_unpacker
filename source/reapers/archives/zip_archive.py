@@ -169,8 +169,8 @@ class Zip(Reaper):
 
                 else:
                     ic(magic)
-                    self.update_signal.emit(100, '', 'Find data after EOF signature', True)
-                    print('Find data after EOF signature')
+                    self.update_signal.emit(100, '', localize.eof_data, True)
+                    print(localize.eof_data)
                     break
 
                 print(f"{localize.saving} - {file_name}...")

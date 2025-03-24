@@ -36,7 +36,6 @@ class DeleteThread(Reaper):
                 not_deleted.append(name)
 
         # TODO: Text!!!
-        msg = (f'Some files or folders ({len(not_deleted)}, {not_deleted}) '
-               f'could not deleted. ') if not_deleted else ''
+        msg = f'{localize.could_not_delete} ({len(not_deleted)}, {not_deleted})' if not_deleted else ''
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
         print(msg)

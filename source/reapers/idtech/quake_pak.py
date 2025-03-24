@@ -3,6 +3,7 @@ import os
 from icecream import ic
 
 from source.reaper import Reaper, file_reaper
+from source.ui.localize import invalid_version
 
 
 class QPAKExtractor(Reaper):
@@ -34,7 +35,7 @@ class QPAKExtractor(Reaper):
                     i = 0
                 except UnicodeDecodeError:
                     # TODO: Localize text!!!
-                    print('You select invalid version, select other version!')
+                    print(invalid_version)
                     i = -1
                     break
 
