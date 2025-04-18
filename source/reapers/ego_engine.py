@@ -4,33 +4,73 @@ import shutil
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
+from source.codecs.dds_tools import DDSCreator
 
 
 class OOMExtractor(Reaper):
 
     @file_reaper
     def run(self):
-        with open(self.file_name, "rb") as file:
+        with (open(self.file_name, "rb") as file):
             magic = file.read(4)
 
             if not self.magic([b'PSSG', ], magic, 'Of orc and human'):
                 return
 
-            name = os.path.basename(self.file_name)
-            file.seek(0x34E)
-            name_len = int.from_bytes(file.read(4), byteorder='big')
-            f_name = file.read(name_len).decode('utf-8', errors='ignore')
-            file.seek(4, 1)
-            ogg_long = int.from_bytes(file.read(4), byteorder='big')
-            file.seek(4, 1)
-            ogg_source = file.read(ogg_long)
-            lip_source = file.read()
+            file_size = int.from_bytes(file.read(4), byteorder='big')
+            file.seek(0xC, 1)
+            file_type_long = int.from_bytes(file.read(4), byteorder='big')
+            file_type = file.read(file_type_long).decode('utf-8')
+            name = ''
 
-            with open(os.path.join(self.output_folder, f_name), 'wb') as ogg_file:
-                ogg_file.write(ogg_source)
+            if file_type == 'AUDIODATA':
+                name = os.path.basename(self.file_name)
+                file.seek(0x34E)
+                name_len = int.from_bytes(file.read(4), byteorder='big')
+                f_name = file.read(name_len).decode('utf-8', errors='ignore')
+                file.seek(4, 1)
+                ogg_long = int.from_bytes(file.read(4), byteorder='big')
+                file.seek(4, 1)
+                ogg_source = file.read(ogg_long)
+                lip_source = file.read()
 
-            with open(os.path.join(self.output_folder, name + '.lip'), 'wb') as lip_file:
-                lip_file.write(lip_source)
+                with open(os.path.join(self.output_folder, f_name), 'wb') as ogg_file:
+                    ogg_file.write(ogg_source)
+
+                with open(os.path.join(self.output_folder, name + '.lip'), 'wb') as lip_file:
+                    lip_file.write(lip_source)
+
+            elif file_type == 'PSSGDATABASE':
+
+                codecs = {'dxt1': 'BC1_UNORM',
+                          'dxt3': 'BC2_UNORM',
+                          'dxt5': 'BC3_UNORM',
+                          'u8': 'A8_UNORM',
+                          'ui8x4': 'B8G8R8A8_UNORM'
+                          }
+
+                file.seek(0x279)
+                str_long = int.from_bytes(file.read(4), byteorder='big')
+                image_type = file.read(str_long).decode('utf-8')
+                step = 0x21 if image_type == 'CUBEMAPTEXTURE' else 0
+                file.seek(0x3A8 + step)
+                width = int.from_bytes(file.read(4), byteorder='big')
+                file.seek(0x3B4 + step)
+                height = int.from_bytes(file.read(4), byteorder='big')
+                file.seek(0x3C0 + step)
+                codec_long = int.from_bytes(file.read(4), byteorder='big')
+                codec = file.read(codec_long).decode('utf-8')
+                codec = codecs.get(codec, f'Unknown codec - {codec}')
+                file.seek(0x48C + codec_long + step)
+                file_name_long = int.from_bytes(file.read(4), byteorder='big')
+                name = file.read(file_name_long).decode('utf-8')
+                file.seek(0x33, 1)
+                image_data = file.read()
+                full_path = f'{self.output_folder}\\{name}'
+
+                dds = DDSCreator()
+                dds.dds_save(width, height, codec, full_path.lower(), image_data,
+                             cubemap = 254 if image_type == 'CUBEMAPTEXTURE' else 0)
 
             self.update_pb(1, 1, name)
 

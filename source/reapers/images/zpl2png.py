@@ -3,7 +3,6 @@ import requests
 import shutil
 from time import sleep
 from icecream import ic
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 

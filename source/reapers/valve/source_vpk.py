@@ -1,8 +1,6 @@
 import os
-
 import vpk
 from icecream import ic
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 

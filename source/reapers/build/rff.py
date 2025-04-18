@@ -2,7 +2,6 @@ import os
 from collections import namedtuple
 import numpy
 import io
-
 from source.reaper import Reaper, file_reaper
 # TODO: Add to archive creation support
 

@@ -1,7 +1,5 @@
-
 import os
 from PIL import Image
-
 from source.codecs import image_tools
 from source.codecs.dds_tools import DDSCreator
 from source.reaper import Reaper, file_reaper

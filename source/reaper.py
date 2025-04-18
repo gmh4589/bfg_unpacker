@@ -201,20 +201,21 @@ class Reaper(QThread, Setting):
     def get_ext(index: bytes) -> str:
         ext_list = {
             # Image Formats
-            b'DDS ': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg',
-            b'\0\0\x02\0': 'tga', b'\0\0\x0a\0': 'tga',
+            b'DDS ': 'dds', b'\x89PNG': 'png', b'GIF8': 'gif', b'\xFF\xD8\xFF\xE0': 'jpg', b'\0\0\x02\0': 'tga', b'\0\0\x0a\0': 'tga',
             # Audio Formats
             b'RIFF': 'wav', b'RIFX': 'wav', b'OggS': 'ogg', b'ID3\x04': 'mp3',
             # Archive Formats
-            b'PK\x03\x04': 'zip',
+            b'PK\x03\x04': 'zip', b'7z\xBC\xAF': '7z',
             # Document formats
-            b'\x25PDF': 'pdf', b'<?xm': 'xml',
+            b'\x25PDF': 'pdf', b'<?xm': 'xml', b'JSON': 'json', b'json': 'json',
             # Video formats
             b'BIKi': 'bik', b'BIKb': 'bik', b'SMK2': 'smk', b'BIK2': 'bk2',
             # 3D formats
-            b'BLEN': 'blend',
+            b'BLEN': 'blend', b'STLB': 'stl', b'Kayd': 'fbx', b'ply\x0A': 'ply', b'glTF': 'glb',
             # Programs
             b'MZ\x90\x00': 'exe',
+            # Data Bases
+            b'SQLi': 'db',
         }
 
         try:
@@ -223,6 +224,13 @@ class Reaper(QThread, Setting):
 
             try:
                 ext = index[:3].decode('utf-8').lower()
+                black_list = '!@\'"#$;:%^&?*(),<>?\\/|{}[]=+    '
+
+                for s in black_list:
+
+                    if s in ext:
+                        ext = 'dat'
+                        break
 
                 with open(os.path.join(os.environ['TEMP'], f'test.{ext}'), 'wb'):
                     pass

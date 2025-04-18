@@ -2,9 +2,7 @@
 import os
 from subprocess import Popen, PIPE
 from threading import Thread
-
 from icecream import ic
-
 from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 

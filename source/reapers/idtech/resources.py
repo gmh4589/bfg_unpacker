@@ -1,10 +1,12 @@
 import os
+import zlib
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
 from source.codecs.zip_methods import ZipMethods
 
 
 # TODO: Very slow unpacking... 🐌
+# TODO: Crash on streamed.resources
 class Resources(Reaper):
     # For unpack *.index, *.pindex, *.resources, *.patch files from Doom (2016)
     # For unpack *.resources and *.patch files from Rage
@@ -78,6 +80,9 @@ class Resources(Reaper):
 
                 if zip_size != unzip_size:
                     self.unzip(path, ZipMethods.DEFLATE_NOERROR)
+
+                    with open(f"{path}.notzipped", 'wb') as nf:
+                        nf.write(zip_data)
 
                 if self.setting['Main']['save_original_images'] in ['1', '2']:
 

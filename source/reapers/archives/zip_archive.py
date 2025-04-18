@@ -2,7 +2,6 @@ import bz2
 import zlib
 import os
 from icecream import ic
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 from source.codecs.zip_methods import ZipMethods

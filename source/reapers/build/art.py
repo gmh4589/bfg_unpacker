@@ -1,7 +1,6 @@
 import os
 from tkinter.filedialog import askopenfilename
 from PIL import Image
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 # TODO: Add to archive creation support

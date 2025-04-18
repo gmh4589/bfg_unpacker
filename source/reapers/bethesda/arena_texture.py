@@ -2,7 +2,6 @@ import os
 import numpy
 from PIL import Image
 from tkinter.filedialog import askopenfilename
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 

@@ -90,8 +90,7 @@ class ChildUIWindow(QDialog):
             for j in range(len(self.label_list)):
 
                 if self.drops[j].currentText() == localize.other:
-                    # TODO: TEXT!!!
-                    text = simpledialog.askstring("", "Enter value:")
+                    text = simpledialog.askstring("", localize.enter_value)
                     ic(text)
                     self.drops[j].addItem(text)
                     self.drops[j].setCurrentText(text)

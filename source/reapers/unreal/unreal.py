@@ -4,9 +4,7 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from random import randint
 from time import sleep
-
 from icecream import ic
-
 from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 

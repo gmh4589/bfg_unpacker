@@ -1,3 +1,13 @@
+April 18, 2025
+
+ - Added new localization strings
+ - Game base was updated
+ - Unpacking PAK archives from games on idTech 2 Engine (Quake 2 Engine) was fixed and upgraded
+ - Added native support for unpack SIN archives from SiN
+ - Added native support for unpack sdmd2\sdpk2 archives from BRINK
+ - Added native support for unpack textures from games on Ego Engine
+ - Added native support for unpack PCKG archives from Mafia Remake
+ - Improved the function for automatic file extension detection
 
 Mart 24, 2025
 

@@ -2,7 +2,6 @@ import os
 import io
 import lz4.block as lz4
 from collections import namedtuple
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 

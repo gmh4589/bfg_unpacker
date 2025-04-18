@@ -1,9 +1,6 @@
-
 import os
-
 from source.reaper import Reaper, file_reaper
 from collections import namedtuple
-
 from source.ui import localize
 
 
@@ -37,7 +34,6 @@ class Remedy(Reaper):
             ver = int.from_bytes(bin_data.read(4), byteorder=byteorder)
 
             match ver:
-                # TODO: Alan Wake Remastered, Alan Wake 2
                 case 2:
                     print('Alan Wake')
                 case 7:
@@ -91,7 +87,7 @@ class Remedy(Reaper):
             bin_data.seek(file_data_start)
 
             for i in range(files_count):
-                here = hex(bin_data.tell())
+                # here = hex(bin_data.tell())
                 bin_data.seek(32 if ver >= 8 else 20, 1)
                 offset = int.from_bytes(bin_data.read(8), byteorder=byteorder)
                 size = int.from_bytes(bin_data.read(8), byteorder=byteorder)

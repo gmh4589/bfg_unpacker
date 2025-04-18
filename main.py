@@ -61,12 +61,12 @@ class UnpackerMain(MainWindow, QuickOpen):
             data_string = self.mainList.loc[self.mainList['game_name'] == item.text()]
             self.func_name = data_string['func_name'].values[0]
             script_name = data_string['script_name'].values[0]
-            after_dot['Default'] = (data_string['ext_list.py'].values[0]
-                                    if data_string['ext_list.py'].values[0] != 'nan' else '')
+            after_dot['Default'] = (data_string['ext_list'].values[0]
+                                    if data_string['ext_list'].values[0] != 'nan' else '')
             ext_list = after_dot[self.func_name] if self.func_name in after_dot.keys() else after_dot['Default']
 
-            if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop') or
-                    self.checkBox_Reimport.isChecked()):
+            if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop')
+                    or self.checkBox_Reimport.isChecked()):
                 select_folder = True
 
             self.create_queue(ext_list, select_folder, more_one, self.func_name, script_name)

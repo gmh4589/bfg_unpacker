@@ -35,7 +35,6 @@ class DeleteThread(Reaper):
             except (PermissionError, FileNotFoundError, OSError):
                 not_deleted.append(name)
 
-        # TODO: Text!!!
         msg = f'{localize.could_not_delete} ({len(not_deleted)}, {not_deleted})' if not_deleted else ''
         self.update_signal.emit(100, f'{all_items}/{all_items}', msg, True)
         print(msg)

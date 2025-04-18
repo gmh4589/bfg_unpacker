@@ -6,6 +6,7 @@ from source.codecs.dds_tools import DDSCreator
 
 class Bimage2DDS(Reaper, DDSCreator):
 
+    @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as bimage:

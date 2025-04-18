@@ -1,5 +1,4 @@
 import os
-
 from source.codecs.zip_methods import ZipMethods
 from source.reaper import Reaper, file_reaper
 

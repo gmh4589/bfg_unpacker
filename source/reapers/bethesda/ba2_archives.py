@@ -3,7 +3,6 @@ import zlib
 import lz4.block as lz4
 from collections import namedtuple
 from tkinter.messagebox import showinfo
-
 from source.reaper import Reaper, file_reaper
 from source.codecs.dds_tools import DDSCreator
 from source.codecs.zip_methods import ZipMethods

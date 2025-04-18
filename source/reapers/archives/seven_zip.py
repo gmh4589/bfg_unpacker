@@ -38,7 +38,6 @@
 
 from subprocess import Popen, PIPE
 from threading import Thread
-
 from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 

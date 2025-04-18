@@ -1,4 +1,3 @@
-import os
 from source.reaper import Reaper, file_reaper
 
 

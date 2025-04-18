@@ -41,8 +41,8 @@ class Doom3BFG(Reaper):
                         bimage2dds.output_folder = os.path.dirname(path)
                         bimage2dds.run()
 
-                if self.setting['Main']['save_original_images'] == '1':
-                    os.remove(path)
+                        if self.setting['Main']['save_original_images'] == '1':
+                            os.remove(path)
 
                 bfg.seek(here)
                 self.update_pb(file_count, i + 1, name)

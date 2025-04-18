@@ -1,13 +1,10 @@
 import os
 import zlib
 import lz4.frame
-
 from icecream import ic
 from collections import namedtuple
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-from source.ui.custom_ui import CustomDialog
 from source.codecs.zip_methods import ZipMethods
 
 

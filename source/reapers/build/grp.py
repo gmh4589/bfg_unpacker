@@ -1,7 +1,6 @@
 import os
 from icecream import ic
 from collections import namedtuple
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 # TODO: Add to archive creation support

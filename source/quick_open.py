@@ -49,16 +49,23 @@ class QuickOpen(QProcessList):
                 except (PermissionError, FileNotFoundError, FileExistsError):
                     magic1, magic2, magic3 = b'', b'', b''
 
-                name_split = os.path.basename(fn).lower().split('.')
-                ext = name_split.pop(-1)
-                name = '.'.join(name_split)
+                base_name = os.path.basename(fn)
+                name_split = base_name.lower().split('.')
+
+                if '.' in base_name:
+                    ext = name_split.pop(-1)
+                    name = '.'.join(name_split)
+                else:
+                    ext = '*'
+                    name = '*'
+
                 ic(name, ext)
                 # TODO: big Lost: Via Domus, add from GAUP
                 # TODO: Other prg
-                # TODO: bundle Red Engine (The Witcher 3), PayDay 2, Bionic Commando
+                # TODO: bundle PayDay 2, Bionic Commando
                 # TODO: bin Kyou Kara Maou - Hajimari no Tabi, Bratz, F1 2015, Mr. Driller G,
                 #  Fatal Frame\Project Zero, BIN disk image (7zip), BIN archive (?)
-                # TODO: Add *.cache from total observer
+                # TODO: Add *.cache from total observer (Source Engine)
                 # TODO: cat Add from GAUP and other
                 # TODO: coalesced from various Unreal Engine 3 games
                 # TODO: dat A Engine, Learning Company Games, Moto Racer 3, Dirt 5
@@ -69,8 +76,7 @@ class QuickOpen(QProcessList):
                 # TODO: ktx
                 # TODO: lfs
                 # TODO: pac Add PAC from GAUP and other
-                # TODO: pack YZ2 from RE4HD
-                # TODO: pak Sacred, Necrovision, Painkiller
+                # TODO: pak Necrovision, Painkiller
                 # TODO: pak idTech2 (QUAKE)
                 # TODO: pak ReEngine file list
                 # TODO: pak Arx Fatalis and Prey
@@ -195,8 +201,8 @@ class QuickOpen(QProcessList):
 
                 elif self.func_name == '_PS3_PSARC':
                     self.proc = other_prg.OtherProg()
-                    self.proc.script_name = 'data\\ps_tools\\ps3\\psarc.exe extract --input="%full_file_name%" --to="%out_dir%"' \
-                        if magic3 == b'zlib' else 'data\\ps_tools\\ps3\\psarc.exe extract --lzma --input="%full_file_name%" --to="%out_dir%"'
+                    self.proc.script_name = (f'data\\ps_tools\\ps3\\psarc.exe extract{" --lzma" if magic3 == b"zlib" else ""}'
+                                             ' --input="%full_file_name%" --to="%out_dir%"')
 
                 else:
                     lst = list(self.reapers_table['ext'])
@@ -219,14 +225,16 @@ class QuickOpen(QProcessList):
                         }
 
                         weights = [0 for _ in range(len(keys))]
+                        ic(check_list)
 
                         for k in keys:
 
                             for c, v in check_list.items():
+                                ic(v, self.reapers_table[c][k])
 
                                 if self.reapers_table[c][k] == '*' or self.reapers_table[c][k] == -1:
                                     pass
-                                elif self.reapers_table[c][k] == v:
+                                elif self.reapers_table[c][k] == v or (isinstance(v, str) and self.reapers_table[c][k] in v):
                                     weights[keys.index(k)] += 1
                                 else:
                                     weights[keys.index(k)] -= 1
@@ -252,15 +260,13 @@ class QuickOpen(QProcessList):
                                     self.get_reaper(self.reapers_table['class_path'][k]),
                                     self.reapers_table['script'][k]
                                 ]
-                                # self.proc.append(self.get_reaper(self.reapers_table['class_path'][k]))
-                                # self.proc[-1].script_name = self.reapers_table['script'][k]
 
                 if self.proc is not None:
                     without_pb = ('_Innosetup', '_CelTop', '_Total', '_GAUP', '_SAU', '_VGM', '_7ZIP', '_Wii_iso', '_XISO', '_PS3_PKG', '_PS3_PSARC')
 
                     try:
-                        maximum = 0 if (('other_prg' in str(self.proc)
-                                        or 'seven' in str(self.proc))
+                        maximum = 0 if ('other_prg' in str(self.proc)
+                                        # or 'seven' in str(self.proc))
                                         or self.func_name in without_pb
                                         or (self.proc.script_name is not None
                                             and 'wcx' in self.proc.script_name)) else 100
@@ -281,10 +287,12 @@ class QuickOpen(QProcessList):
                         tp = file_type_selector.TypeSelector(self.proc)
                         tp.exec()
                         ic(tp.returned_data)
-                        proc_list = self.proc
-                        self.proc = proc_list[tp.returned_data][0]
-                        self.proc.script_name = proc_list[tp.returned_data][1]
-                        self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
+                        
+                        if tp.returned_data is not None:
+                            proc_list = self.proc
+                            self.proc = proc_list[tp.returned_data][0]
+                            self.proc.script_name = proc_list[tp.returned_data][1]
+                            self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)
 
                     else:
                         self.q_connect(self.proc, fn, header=f'{localize.unpacking}: {fn}...', maximum=maximum)

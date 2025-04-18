@@ -146,5 +146,6 @@
   "not_find_unpacker": "Entpacker kann nicht automatisch gefunden werden!\nVersuchen Sie, ein Spiel oder einen Dateityp manuell auszuwählen!",
   "file_type": "Dateityp festgelegt als:",
   "tf_selector": "Dateityp auswählen",
-  "hand_select": "Der Dateityp konnte nicht ermittelt werden.\nBitte wählen Sie ihn manuell aus:"
+  "hand_select": "Der Dateityp konnte nicht ermittelt werden.\nBitte wählen Sie ihn manuell aus:",
+  "enter_value": "Wert eingeben:"
 }

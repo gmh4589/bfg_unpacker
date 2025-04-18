@@ -1,6 +1,5 @@
 import os
 from PIL import Image
-
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 from source.codecs import image_tools

@@ -143,8 +143,9 @@
     "is_process": "is process",
     "run_as_admin": "To aplay setting run program as admin!",
     "could_not_delete": "Some files or folders could not deleted",
-    "not_find_unpacker": "Could not find unpacker automatically!\\nTry to select game or file type manually!",
+    "not_find_unpacker": "Could not find unpacker automatically!\nTry to select game or file type manually!",
     "file_type": "File type defined as:",
     "tf_selector": "File Type Selector",
-    "hand_select": "The file type could not be determined,\nPlease select it manually:"
+    "hand_select": "The file type could not be determined,\nPlease select it manually:",
+    "enter_value": "Enter value:"
 }

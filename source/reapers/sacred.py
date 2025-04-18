@@ -1,9 +1,7 @@
 import os
 import zlib
 from collections import namedtuple
-
 from icecream import ic
-
 from source.codecs.dds_tools import DDSCreator
 from source.reaper import Reaper, file_reaper
 
