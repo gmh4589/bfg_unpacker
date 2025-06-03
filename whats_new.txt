@@ -1,3 +1,14 @@
+
+June 3, 2025
+
+ - Game base was updated
+ - Added native support for unpack index\resources and others file types from games on idTech 5
+        (Deathloop, Dishonored 2, Dishonored: Death of the Outsider, The Evil Within 2,
+         Wolfenstein: The New Order, Wolfenstein: The Old Blood)
+ - Now, almost all games on idTech 5 and idTech 6 worked throw single class
+ - Added support to convert Locres localization files from games on Unreal Engine 4 and 5 to JSON and back
+ - Added support to convert Strings localization files from games on Creation Engine в JSON and back
+
 April 18, 2025
 
  - Added new localization strings

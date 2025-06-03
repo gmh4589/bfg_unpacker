@@ -26,18 +26,14 @@ class SpeechUnpacker(Reaper):
                     int.from_bytes(speech.read(8), byteorder="little"),  # WAV Offset
                     int.from_bytes(speech.read(8), byteorder="little"),  # WAV Size
                     int.from_bytes(speech.read(8), byteorder="little"),  # SR2W Offset
-                    int.from_bytes(speech.read(8), byteorder="little")  # SR2W Size
+                    int.from_bytes(speech.read(8), byteorder="little")   # SR2W Size
                 ))
                 speech.seek(8, 1)
 
             for i, file in enumerate(file_data):
-                with open(os.path.join(self.output_folder, f"{i}.wav"), 'wb') as ls_file:
-                    speech.seek(file.wav_start)
-                    size = int.from_bytes(speech.read(4), byteorder="little")
-                    ls_file.write(speech.read(size))
-
-                with open(os.path.join(self.output_folder, f"{i}.sr2w"), 'wb') as ls_file:
-                    speech.seek(file.sr2w_start)
-                    ls_file.write(speech.read(file.sr2w_size))
-
+                speech.seek(file.wav_start)
+                size = int.from_bytes(speech.read(4), byteorder="little")
+                self.file_save(os.path.join(self.output_folder, f"{i}.wav"), speech.read(size))
+                speech.seek(file.sr2w_start)
+                self.file_save(os.path.join(self.output_folder, f"{i}.sr2w"), speech.read(file.sr2w_size))
                 self.update_pb(file_count, i + 1, f"{i}.wav, {i}.sr2w")

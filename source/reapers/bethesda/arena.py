@@ -29,7 +29,5 @@ class OldBSA(Reaper):
                 if "ARCH3D" in self.file_name:
                     name += '.3D'
 
+                self.file_save(os.path.join(self.output_folder, f"{name}"), data)
                 self.update_pb(file_count, i, name)
-
-                with open(os.path.join(self.output_folder, f"{name}"), 'wb') as nf:
-                    nf.write(data)

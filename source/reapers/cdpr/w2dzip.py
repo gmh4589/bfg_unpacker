@@ -27,15 +27,10 @@ class Witcher2DZIP(Reaper):
                 size = int.from_bytes(dzip.read(8), byteorder="little")
 
                 path = os.path.join(self.output_folder, name)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
                 here = dzip.tell()
                 dzip.seek(offset)
                 zip_data = dzip.read(size)
-
-                with open(path, 'wb') as tf:
-                    tf.write(zip_data[4:])
-
+                self.file_save(path, zip_data[4:])
                 self.unzip(path, ZipMethods.LZF)
-
                 dzip.seek(here)
                 self.update_pb(file_count, i + 1, name)

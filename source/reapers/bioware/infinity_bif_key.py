@@ -31,18 +31,11 @@ class BifKey(Reaper):
                 ext = self.get_ext(dat[:4]).strip()
 
                 path = os.path.join(self.output_folder, f"{i}.{ext}")
-                ic(path)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
 
                 try:
-
-                    with open(path, 'wb') as new_file:
-                        new_file.write(dat)
-
+                    self.file_save(path, dat)
                 except ValueError:
-
-                    with open(path.replace(ext, 'dat'), 'wb') as new_file:
-                        new_file.write(dat)
+                    self.file_save(path.replace(ext, 'dat'), dat)
 
                 file.seek(here + 4)
                 self.update_pb(file_count, i, f"{i}.{ext}")

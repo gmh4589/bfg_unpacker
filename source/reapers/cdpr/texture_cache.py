@@ -67,20 +67,14 @@ class TextureCache(Reaper, DDSCreator):
                 full_name = os.path.join(self.output_folder, t_data.name)
                 name, ext = os.path.basename(full_name).lower().split('.')
                 codec = codecs_dict.get(t_data.codec, f'Unknown codec - {t_data.codec}')
-                # ic(t_data)
-                os.makedirs(os.path.dirname(full_name), exist_ok=True)
 
                 w3cache.seek(t_data.chunks_offset)
                 zip_size = int.from_bytes(w3cache.read(4), byteorder='little')
                 unzip_size = int.from_bytes(w3cache.read(4), byteorder='little')
                 x = int.from_bytes(w3cache.read(1))
-                # chunk_zip = w3cache.read(t_data.zip_size)
                 chunk_zip = w3cache.read(zip_size)
                 chunk_data = zlib.decompress(chunk_zip)
-                # chunk_data += chunk_zip
-
-                with open(full_name, 'wb') as nf:
-                    nf.write(chunk_data)
+                self.file_save(full_name, chunk_data)
 
                 if ext in ('xbm', 'png', 'texarray') and self.setting['Main']['save_original_images'] in ['1', '2']:
                     cubemap = 254 if t_data.is_cubemap else 0

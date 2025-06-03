@@ -23,10 +23,7 @@ class W2Cache(Reaper):
                 ext = self.get_ext(magic)
                 path = os.path.join(self.output_folder, f"{i}.{ext}")
                 file.seek(8, 1)
-
-                with open(path, 'wb') as new_file:
-                    new_file.write(file.read(size))
-
+                self.file_save(path, file.read(size))
                 self.update_pb(file_count, i + 1, f"{i}.{ext}")
 
         self.update_signal.emit(100, '', localize.done, True)

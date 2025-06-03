@@ -1,5 +1,6 @@
 import threading
 import os
+import zlib
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
@@ -7,6 +8,7 @@ from tkinter.messagebox import showinfo
 from icecream import ic
 from datetime import datetime
 from pathlib import Path
+from tkinter.messagebox import askyesno
 
 from source.ui import localize
 from source.setting import Setting
@@ -72,10 +74,7 @@ class Reaper(QThread, Setting):
         super().__init__()
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
-        self.out = ''
-        self.err = ''
         self.output = []
-        self.end = False
 
     @staticmethod
     def folderSize(path, was_files=0):
@@ -98,7 +97,7 @@ class Reaper(QThread, Setting):
         file_count = 1 if file_count == 0 else file_count
         current_file = 1 if current_file == 0 else current_file
         ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
-        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
+        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
         is_ending = True if current_file + 1 >= file_count else False
 
         self.update_signal.emit(int(100 / file_count * current_file),
@@ -109,6 +108,22 @@ class Reaper(QThread, Setting):
     @abstractmethod
     def run(self):
         pass
+
+    @staticmethod
+    def multi_vol():
+        # TODO: Localized text
+        agree = askyesno(title=localize.message,
+                         message='Ресурсы в данной игре являются многотомным архивом.\n'
+                                 'Распаковка может занять много времени и потребовать\n'
+                                 'много места на вашем накопителе данных. Продолжить?')
+        return agree
+
+    @staticmethod
+    def file_save(path, data):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        with open(path, 'wb') as nf:
+            nf.write(data)
 
     def magic(self, magic: list, read_magic: bytes | int, message: str) -> bool:
 

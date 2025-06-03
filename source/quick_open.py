@@ -1,4 +1,5 @@
 import os
+import json
 
 from icecream import ic
 
@@ -110,6 +111,25 @@ class QuickOpen(QProcessList):
                 # Check on ZIP signature
                 if magic1 == b'PK\x03\x04':
                     self.proc = zip_archive.Zip()
+                
+                elif ext == 'json':
+                    
+                    with open(fn, 'r') as js:
+                        json_data = json.load(js)
+                    
+                    json_type = json_data.get('type', 'unknown')
+
+                    match json_type:
+                        case 'locres':
+                            self.proc = locres.TXT2Locres()
+                        case 'strings':
+                            self.proc = strings.TXT2Strings()
+                        case 'ilstrings':
+                            self.proc = strings.TXT2Strings()
+                        case 'dlstrings':
+                            self.proc = strings.TXT2Strings()
+                        case 'unknown':
+                            self.proc = None
 
                 elif self.func_name == '_QuickBMS':
                     self.proc = qbms.Q_BMS()
@@ -207,6 +227,7 @@ class QuickOpen(QProcessList):
                 else:
                     lst = list(self.reapers_table['ext'])
                     keys = [e for e in range(len(lst)) if lst[e] == ext]
+                    ic(len(keys))
 
                     if len(keys) == 1:
                         ic(self.reapers_table['class_path'][keys[0]], self.reapers_table['script'][keys[0]])

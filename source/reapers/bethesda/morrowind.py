@@ -41,11 +41,5 @@ class MorrowindBSA(Reaper):
             for i, name in enumerate(files_list):
                 bsa_file.seek(offsets[i] + here)
                 data = bsa_file.read(longs[i])
-                os.makedirs(os.path.join(self.output_folder, os.path.dirname(name)), exist_ok=True)
-
-                with open(os.path.join(self.output_folder, name), 'wb') as new_file:
-                    new_file.write(data)
-
+                self.file_save(os.path.join(self.output_folder, name), data)
                 self.update_pb(file_count, i, name)
-
-

@@ -26,15 +26,13 @@ class DZIPExtractor(Reaper):
                 dzip_file.seek(0x10, 1)
                 name = dzip_file.read(name_long).decode("utf-8").rstrip("\0").split(':')[-1]
                 path = self.output_folder + name
-                os.makedirs(os.path.dirname(path), exist_ok=True)
 
                 if zip_size > 0:
 
-                    with open(path, 'wb') as new_file:
-                        here = dzip_file.tell()
-                        dzip_file.seek(offset)
-                        decompress_data = zlib.decompress(dzip_file.read(zip_size))
-                        new_file.write(decompress_data)
-                        dzip_file.seek(here)
+                    here = dzip_file.tell()
+                    dzip_file.seek(offset)
+                    decompress_data = zlib.decompress(dzip_file.read(zip_size))
+                    self.file_save(path, decompress_data)
+                    dzip_file.seek(here)
 
                 self.update_pb(file_count, i + 1, path)

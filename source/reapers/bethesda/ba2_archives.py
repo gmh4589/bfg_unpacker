@@ -149,7 +149,6 @@ class BethesdaArchive(Reaper):
                 data = ba2.read(file.size)
                 folder_path = os.path.dirname(file.name)
                 full_path = f"{self.output_folder}\\{file.name}"
-                os.makedirs(f'{self.output_folder}\\{folder_path}', exist_ok=True)
 
                 if data_type == b'DX10':
 
@@ -158,10 +157,7 @@ class BethesdaArchive(Reaper):
                         try:
                             data = lz4.decompress(data, file.size * 30)
                         except lz4.LZ4BlockError:
-
-                            with open(full_path.lower(), 'wb') as tf:
-                                tf.write(data)
-
+                            self.file_save(full_path.lower(), data)
                             self.unzip(full_path.lower(), ZipMethods.LZ4)
 
                             with open(full_path.lower(), 'rb') as tf:
@@ -189,8 +185,7 @@ class BethesdaArchive(Reaper):
                         except zlib.error:
                             showinfo(title=info, message=f'{error_in_file} {full_path}\n{data[:1]}')
 
-                    with open(full_path, 'wb') as new_file:
-                        new_file.write(data)
+                    self.file_save(full_path, data)
 
                 self.update_pb(file_count, j + 1, file.name)
                 ba2.seek(here)

@@ -44,10 +44,7 @@ class Tango(Reaper):
                 here = tango.tell()
                 tango.seek(offset)
                 zip_data = tango.read(zip_size)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-
-                with open(path, 'wb') as nf:
-                    nf.write(zip_data)
+                self.file_save(path, zip_data)
 
                 if zip_size != unzip_size:
                     self.unzip(path, ZipMethods.DEFLATE_NOERROR)
@@ -60,10 +57,9 @@ class Tango(Reaper):
                         bimage2dds.output_folder = os.path.dirname(path)
                         bimage2dds.run()
 
-                if self.setting['Main']['save_original_images'] == '1':
-                    os.remove(path)
+                    if self.setting['Main']['save_original_images'] == '1':
+                        os.remove(path)
 
                 tango.seek(here)
                 self.update_pb(file_count, j + 1, name)
 
-            print(tango.tell())

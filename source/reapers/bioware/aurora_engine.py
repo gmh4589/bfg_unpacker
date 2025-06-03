@@ -50,7 +50,6 @@ class ERFUnpacker(Reaper):
                         file_name_array.append(f'{rName}.{ext}')
 
                     if erf_list != f.tell():
-                        print(localize.not_correct_file.replace('%%', 'BioWare Engines'))
                         self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'BioWare Engines'), True)
                         return
 
@@ -62,10 +61,7 @@ class ERFUnpacker(Reaper):
                         data = f.read(long)
                         fName = file_name_array[j]
                         ic(fName, offset, long)
-
-                        with open(os.path.join(self.output_folder, fName), 'wb') as newFile:
-                            newFile.write(data)
-
+                        self.file_save(os.path.join(self.output_folder, fName), data)
                         f.seek(c, 0)
                         self.update_pb(file_count, j, fName)
 
@@ -81,10 +77,7 @@ class ERFUnpacker(Reaper):
                         c = f.tell()
                         f.seek(offset)
                         data = f.read(long)
-
-                        with open(os.path.join(self.output_folder, rName), 'wb') as iNewFile:
-                            iNewFile.write(data)
-
+                        self.file_save(os.path.join(self.output_folder, rName), data)
                         f.seek(c)
                         self.update_pb(file_count, i, rName)
 
@@ -100,10 +93,7 @@ class ERFUnpacker(Reaper):
                     c = f.tell()
                     f.seek(offset)
                     data = f.read(long)
-
-                    with open(os.path.join(self.output_folder, rName), 'wb') as iNewFile:
-                        iNewFile.write(data)
-
+                    self.file_save(os.path.join(self.output_folder, rName), data)
                     f.seek(c)
                     self.update_pb(file_count, i, rName)
 
@@ -150,9 +140,7 @@ class ERFUnpacker(Reaper):
                     except (IndexError, UnicodeDecodeError):
                         name = f'unknown_{i}.{ext}'
 
-                    with open(f'{self.output_folder}\\{name}', 'wb') as file_out:
-                        file_out.write(write_data)
-
+                    self.file_save(f'{self.output_folder}\\{name}', write_data)
                     f.seek(this)
                     self.update_pb(file_count, i, name)
 

@@ -12,7 +12,7 @@ class Doom3BFG(Reaper):
         with open(self.file_name, "rb") as bfg:
             magic = bfg.read(4)
 
-            if not self.magic([b'\xD0\x00\x00\x0D', ], magic, 'idTech streamed'):
+            if not self.magic([b'\xD0\x00\x00\x0D', ], magic, 'idTech resources'):
                 return
 
             offset = int.from_bytes(bfg.read(4), byteorder="big")
@@ -26,9 +26,9 @@ class Doom3BFG(Reaper):
                 size = int.from_bytes(bfg.read(4), byteorder="big")
 
                 path = os.path.join(self.output_folder, name)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
                 here = bfg.tell()
                 bfg.seek(offset)
+
 
                 with open(path, 'wb') as new_file:
                     new_file.write(bfg.read(size))

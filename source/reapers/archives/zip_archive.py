@@ -38,7 +38,6 @@ class Zip(Reaper):
 
     def write_file(self, path, cm, cd):
         cm = int.from_bytes(cm, byteorder='little')
-
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
         with open(path, 'wb') as new_file:

@@ -69,5 +69,4 @@ class RFFExtractor(Reaper):
                 if k == file_count - 1:
                     return
 
-                with open(os.path.join(self.output_folder, file.name), 'wb') as new_file:
-                    new_file.write(rff_file.read(file.size))
+                self.file_save(os.path.join(self.output_folder, file.name), rff_file.read(file.size))

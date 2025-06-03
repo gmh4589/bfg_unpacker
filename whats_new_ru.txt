@@ -1,3 +1,14 @@
+
+03.06.2025
+
+ - Обновлена база игр
+ - Добавлена внутренняя поддержка распаковки index\resources и прочих архивов из игр на idTech 5
+        (Deathloop, Dishonored 2, Dishonored: Death of the Outsider, The Evil Within 2,
+         Wolfenstein: The New Order, Wolfenstein: The Old Blood)
+ - Теперь, распаковка большинства игр на idTech 5 и idTech 6 работает через один класс
+ - Добавлена поддержка конвертации Locres файлов локализаций из игр на Unreal Engine 4 и 5 в JSON и обратно
+ - Добавлена поддержка конвертации Strings файлов локализаций из игр на Creation Engine в JSON и обратно
+
 18.04.2025
 
  - Дополнена локализация

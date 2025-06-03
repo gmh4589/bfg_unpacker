@@ -5,6 +5,7 @@ from source.codecs.dds_tools import DDSCreator
 
 
 class Bimage2DDS(Reaper, DDSCreator):
+    # TODO: Add support other games
 
     @file_reaper
     def run(self):
@@ -13,16 +14,16 @@ class Bimage2DDS(Reaper, DDSCreator):
             magic = bimage.read(4)
 
             codecs = {
-                2: 'R9G9B9E5_SHAREDEXP',
-                3: 'B8G8R8A8_UNORM',
-                5: 'R8_UNORM',
-                6: 'R8G8_UNORM',
-                7: 'BC1_UNORM',
-                8: 'BC3_UNORM',
-                12: 'R16_UNORM',
-                0xA: 'BC1_UNORM',
-                0xB: 'BC3_UNORM',
-                0x17: 'BC7_UNORM'
+                2:      'R9G9B9E5_SHAREDEXP',
+                3:      'B8G8R8A8_UNORM',
+                5:      'R8_UNORM',
+                6:      'R8G8_UNORM',
+                7:      'BC1_UNORM',
+                8:      'BC3_UNORM',
+                12:     'R16_UNORM',
+                0xA:    'BC1_UNORM',
+                0xB:    'BC3_UNORM',
+                0x17:   'BC7_UNORM'
             }
 
             # DOOM 3 BFG Edition
@@ -45,6 +46,12 @@ class Bimage2DDS(Reaper, DDSCreator):
                     codec_start = 0x24
                     xy_start = 0x10
                     data_start = 0x42
+
+                # The Evil Within 2
+                # elif magic2 == b'BIM\x08':
+                #     codec_start = 0x18
+                #     xy_start = 0xB
+                #     data_start = 0x3e
 
                 else:
                     print(localize.not_correct_file.replace('%%', f"{int.from_bytes(magic, 'big')}"))

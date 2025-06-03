@@ -33,8 +33,5 @@ class GRPExtractor(Reaper):
             ic(file_list)
 
             for j, file in enumerate(file_list):
-
-                with open(os.path.join(self.output_folder, file.name), 'wb') as new_file:
-                    new_file.write(grp_file.read(file.size))
-
+                self.file_save(os.path.join(self.output_folder, file.name), grp_file.read(file.size))
                 self.update_pb(file_count, j + 1, file.name)

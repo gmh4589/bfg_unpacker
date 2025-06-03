@@ -37,12 +37,7 @@ class Re4Pack(Reaper):
                 file.seek(0xC, 1)
                 magic = file.read(4)
                 name = f"{i:04}.{self.get_ext(magic)}"
-
                 path = os.path.join(self.output_folder, name)
-                ic(path)
-
-                with open(path, 'wb') as new_file:
-                    new_file.write(magic + file.read(size))
-
+                self.file_save(path, magic + file.read(size))
                 self.update_pb(file_count, i + 1, name)
 

@@ -41,14 +41,11 @@ class BundleUnpack(Reaper):
 
             for j, file in enumerate(file_list):
                 bundle.seek(file.offset)
-                os.makedirs(os.path.join(self.output_folder, os.path.dirname(file.name)), exist_ok=True)
 
                 if file.zip_size == file.unzip_size:
                     data = bundle.read(file.unzip_size)
                 else:
                     data = zlib.decompress(bundle.read(file.zip_size))
 
-                with open(os.path.join(self.output_folder, file.name), 'wb') as nf:
-                    nf.write(data)
-
+                self.file_save(os.path.join(self.output_folder, file.name), data)
                 self.update_pb(file_count, j + 1, file.name)

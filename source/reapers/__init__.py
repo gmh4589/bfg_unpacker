@@ -1,10 +1,11 @@
 
-from source.reapers.bethesda    import bsa_archives, ba2_archives, arena, dagger, morrowind, cel_top, arena_texture
+from source.reapers.bethesda    import arena, arena_texture, ba2_archives, bsa_archives, cel_top, dagger, morrowind, strings
 from source.reapers.bioware     import aurora_engine, infinity_bif_key
 from source.reapers.build       import art, grp, rff
 from source.reapers.capcom      import mt_arc, argb, tex, re_engine, re4_pack
 from source.reapers.cdpr        import bundle, texture_cache, w2dzip, w3speech, w2cache
-from source.reapers.idtech      import bimage, brink, doom3_resources, doom_wad, idwav, quake_pak, resources, streamed, tango
+from source.reapers.idtech      import (bimage, brink, deathloop, doom3_resources, doom_wad, id_tech_7, idwav, quake_pak,
+                                        resources, streamed, tango, the_evil_within_2)
 from source.reapers.images      import zpl2png
 from source.reapers.phyre       import phyre, sen_pkg, sen_book
 from source.reapers.remedy      import remedy, aw2, max_payne

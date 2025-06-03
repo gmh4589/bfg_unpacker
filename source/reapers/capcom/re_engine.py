@@ -66,12 +66,8 @@ class ReEngine(Reaper):
                 path = os.path.join(self.output_folder, file_name)
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 file.seek(file_info.offset)
-
-                with open(path, 'wb') as new_file:
-                    new_file.write(file.read(file_info.zip_size))
-
+                self.file_save(path, file.read(file_info.zip_size))
                 self.unzip(path, ZipMethods.DEFLATE_NOERROR)
-
                 self.update_pb(file_count, j + 1, file_name)
 
 

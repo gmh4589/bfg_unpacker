@@ -81,7 +81,6 @@ class BethesdaArchive(Reaper):
 
                 folder_name_len = int.from_bytes(bsa_file.read(1), byteorder=byteorder)
                 folder_name = bsa_file.read(folder_name_len).rstrip(b'\x00').decode('utf-8', errors='ignore')
-                # os.makedirs(os.path.join(self.output_folder, folder_name), exist_ok=True)
 
                 for j in range(data.files_in_folder):
 
@@ -99,7 +98,6 @@ class BethesdaArchive(Reaper):
             for k, file_name in enumerate(files_list):
 
                 path = os.path.join(self.output_folder, file_data[k].folder_name, file_name)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
                 bsa_file.seek(file_data[k].file_offset + 4)
                 error = False
                 ext = file_name.split('.')[-1]
@@ -181,9 +179,7 @@ class BethesdaArchive(Reaper):
                 else:
                     unzip_data = bsa_file.read(file_data[k].file_size)
 
-                with open(path, 'wb') as new_file:
-                    new_file.write(unzip_data)
+                self.file_save(path, unzip_data)
 
                 if compressed and error:
                     self.unzip(path, codec)
-

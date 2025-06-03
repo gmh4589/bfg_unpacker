@@ -75,7 +75,6 @@ class Brink(Reaper):
                 tmp = int.from_bytes(sdpk_file.read(1), byteorder="big")
                 offset = int.from_bytes(sdpk_file.read(4), byteorder="big")
                 offset |= (tmp << 32)
-
                 file_names.append(FileNames(hash_val, compressed_block_index, uncompressed_size, offset))
 
             file_paths = {}
@@ -99,8 +98,5 @@ class Brink(Reaper):
                     print(e)
 
                 full_path = f"{self.output_folder}\\{file_names[i].hash_val}.{self.get_ext(data[:4])}"
-                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                self.file_save(full_path, data)
                 self.update_pb(len(file_names), i, full_path)
-
-                with open(full_path, 'wb') as nf:
-                    nf.write(data)

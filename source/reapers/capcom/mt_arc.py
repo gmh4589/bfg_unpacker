@@ -39,7 +39,6 @@ class ARCExtractor(Reaper):
                 offset = int.from_bytes(arc_file.read(4), byteorder="little")
                 here = arc_file.tell()
                 path = os.path.join(self.output_folder, name + '.dat')
-                os.makedirs(os.path.dirname(path), exist_ok=True)
                 arc_file.seek(offset)
                 data = arc_file.read(file_size)
 
@@ -48,8 +47,7 @@ class ARCExtractor(Reaper):
                     self.new_ext = self.get_ext(data[:4])
                     path = path.replace('.dat', f'.{self.new_ext}')
 
-                with open(path, 'wb') as new_file:
-                    new_file.write(data)
+                self.file_save(path, data), data
 
                 if c_num > 1:
                     self.unzip(path, c_num, get_ext=True)
