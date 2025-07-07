@@ -12,6 +12,13 @@ class Splitter(Reaper):
 
     @file_reaper
     def run(self):
+        
+        param = self.script_name.split(', ')
+        self.start_data = int(param[0])
+        self.header = int(param[1]).to_bytes(4, byteorder='little')
+        self.splitter = int(param[2]).to_bytes(4, byteorder='little')
+        self.file_type = param[3]
+        self.ext = param[4]
 
         ic(
             self.start_data,

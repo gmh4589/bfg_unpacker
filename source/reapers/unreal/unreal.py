@@ -9,7 +9,7 @@ from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 
 
-class Unreal(Reaper, OutReader):
+class Unreal(Reaper):
     # TODO: Need testing:
     #  Unreal Engine 1 - need to test;
     #  Unreal Engine 2 - need to test;
@@ -17,19 +17,14 @@ class Unreal(Reaper, OutReader):
     #  Unreal Engine 4 - is working (tested on Star Wars Jedi: Survival);
     #  Unreal Engine 5 - is working (tested on Silent Hill 2 Remake);
 
-    # TODO: Need to translate text
-
     key = ''
-    output = []
-    out = ''
-    err = ''
-    end = False
 
     @file_reaper
     def run(self):
         size = 0
         ext = self.file_name.split('.')[-1]
         percent = 0
+        out_reader = OutReader()
 
         match ext:
             case 'umod':
@@ -52,26 +47,26 @@ class Unreal(Reaper, OutReader):
                                f'-extract -out="{self.output_folder}" "{self.file_name}"',
                                stdout=PIPE, stderr=PIPE, encoding='utf-8', shell=False)
 
-        Thread(target=self.out_reader, args=[unreal,], daemon=True).start()
-        Thread(target=self.err_reader, args=[unreal,], daemon=True).start()
+        Thread(target=out_reader.out_reader, args=[unreal,], daemon=True).start()
+        Thread(target=out_reader.err_reader, args=[unreal,], daemon=True).start()
 
         while unreal.poll() is None:
 
             if version == 0:
 
                 try:
-                    percent = int((100 / size) * int(self.output[0], 16))
-                    print(f"{percent}% {self.output[-1]}")
-                    self.update_signal.emit(percent, '', f'{localize.saving} - {self.output[-1]}...', False)
+                    percent = int((100 / size) * int(out_reader.output[0], 16))
+                    print(f"{percent}% {out_reader.output[-1]}")
+                    self.update_signal.emit(percent, '', f'{localize.saving} - {out_reader.output[-1]}...', False)
                 except (ValueError, IndexError, ZeroDivisionError):
                     pass
 
             elif version == 3:
 
-                if len(self.output) == 3:
-                    current_f, all_f = self.output[1].split('/')
+                if len(out_reader.output) == 3:
+                    current_f, all_f = out_reader.output[1].split('/')
                     percent = int((100 / int(all_f)) * int(current_f))
-                    self.update_signal.emit(percent, f'{self.output[1]}', f'{localize.saving} - {self.output[1]}...', False)
+                    self.update_signal.emit(percent, f'{out_reader.output[1]}', f'{localize.saving} - {out_reader.output[1]}...', False)
 
             elif version == 4:
                 sleep(randint(1, 3))
@@ -82,7 +77,7 @@ class Unreal(Reaper, OutReader):
                 self.update_signal.emit(percent, f'{percent} %',
                                         localize.wait, False)
 
-        self.end = True
+        out_reader.end = True
 
         if version == 4:
             self.update_signal.emit(99, f"99 %, {localize.almost_done}...", f'{localize.wait}, {localize.files_is_moving}...', False)

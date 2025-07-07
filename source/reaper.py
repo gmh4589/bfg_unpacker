@@ -113,9 +113,7 @@ class Reaper(QThread, Setting):
     def multi_vol():
         # TODO: Localized text
         agree = askyesno(title=localize.message,
-                         message='Ресурсы в данной игре являются многотомным архивом.\n'
-                                 'Распаковка может занять много времени и потребовать\n'
-                                 'много места на вашем накопителе данных. Продолжить?')
+                         message=localize.multivol)
         return agree
 
     @staticmethod
@@ -259,6 +257,7 @@ class Reaper(QThread, Setting):
 class OutReader:
 
     def __init__(self):
+        super().__init__()
         self.out = ''
         self.err = ''
         self.output = []

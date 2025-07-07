@@ -15,7 +15,8 @@ from source.reapers.ext_list import after_dot
 from source.reapers import *
 from source.delete import DeleteThread
 
-ic.enable() if os.path.exists('dev_tools') else ic.disable()
+ic.enable()
+# ic.disable()
 
 
 class UnpackerMain(MainWindow, QuickOpen):

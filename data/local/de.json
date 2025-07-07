@@ -147,5 +147,6 @@
   "file_type": "Dateityp festgelegt als:",
   "tf_selector": "Dateityp auswählen",
   "hand_select": "Der Dateityp konnte nicht ermittelt werden.\nBitte wählen Sie ihn manuell aus:",
-  "enter_value": "Wert eingeben:"
+  "enter_value": "Wert eingeben:",
+  "multivol": "Die Daten in diesem Spiel sind ein mehrteiliges Archiv. Das Entpacken kann lange dauern und viel Speicherplatz auf Ihrer Festplatte beanspruchen. Fortfahren?"
 }

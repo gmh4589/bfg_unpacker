@@ -143,7 +143,7 @@ class AlanWake2(Reaper):
                 fn = data_stream.read(fs)
                 folder_name_list.append(fn)
 
-            for _, file in enumerate(file_list):
+            for file in file_list:
                 so = file.name_offset
                 sn = file.name_long
                 data_stream.seek(so)

@@ -7,7 +7,7 @@ from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 
 
-class OtherProg(Reaper, OutReader):
+class OtherProg(Reaper):
 
     def __init__(self):
         super().__init__()
@@ -18,6 +18,7 @@ class OtherProg(Reaper, OutReader):
 
     @file_reaper
     def run(self):
+        out_reader = OutReader()
 
         if '%set_dir%' in self.script_name:
             self.script_name = self.script_name.replace('%set_dir%', '')
@@ -58,21 +59,21 @@ class OtherProg(Reaper, OutReader):
             print(error)
             return
 
-        Thread(target=self.out_reader, args=[prg,], daemon=True).start()
-        Thread(target=self.err_reader, args=[prg,], daemon=True).start()
+        Thread(target=out_reader.out_reader, args=[prg,], daemon=True).start()
+        Thread(target=out_reader.err_reader, args=[prg,], daemon=True).start()
 
         while prg.poll() is None:
 
             try:
-                self.update_signal.emit(0, '', f'{".".join(self.output)}...', False)
+                self.update_signal.emit(0, '', f'{".".join(out_reader.output)}...', False)
 
-                if self.err and self.err != self.pr_err:
-                    print(self.err)
-                    self.pr_err = self.err
+                if out_reader.err and out_reader.err != self.pr_err:
+                    print(out_reader.err)
+                    self.pr_err = out_reader.err
 
-                if self.out and self.out != self.pr_out:
-                    print(self.out)
-                    self.pr_out = self.out
+                if out_reader.out and out_reader.out != self.pr_out:
+                    print(out_reader.out)
+                    self.pr_out = out_reader.out
 
                 # if '(y/n)' in self.out:
                 #     prg.stdin.write('y\n')
@@ -82,6 +83,6 @@ class OtherProg(Reaper, OutReader):
                 ic(e)
                 self.update_signal.emit(0, '', '', False)
 
-        self.end = True
+        out_reader.end = True
         self.update_signal.emit(0, '', '', True)
         os.chdir(self.path_to_root)

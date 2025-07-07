@@ -1,4 +1,15 @@
 
+July 7, 2025
+
+ - Game base was updated
+ - The method for file type selecting was separated on three diferent classes with Factory pattern
+ - Added native support for unpack RTX files from TES Adventures: Redguard
+ - Added native support for unpack TEXRPI files from TES Adventures: Redguard
+ - Native support for unpack TEXTURES.* files from TES II: Daggerfall and TES Adventures: Redguard has been updated and upgrated
+ - Added support for unpack ORK\ORC files from games by Black Hole Entertainment (for example, Might & Magic Heroes VI)
+       with orkdec utility by Luigi Auriemma
+ - Fixed crash when processing files via third-party utilities
+
 June 3, 2025
 
  - Game base was updated

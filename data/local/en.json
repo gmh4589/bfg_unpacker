@@ -147,5 +147,6 @@
     "file_type": "File type defined as:",
     "tf_selector": "File Type Selector",
     "hand_select": "The file type could not be determined,\nPlease select it manually:",
-    "enter_value": "Enter value:"
+    "enter_value": "Enter value:",
+    "multivol": "The data in this game is a multi-volume archive.\nUnpacking may take a long time\nand a lot of space on your disk. Continue?"
 }

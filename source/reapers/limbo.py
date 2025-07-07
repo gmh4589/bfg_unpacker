@@ -56,8 +56,6 @@ class LimboPKG(Reaper):
                     pass
 
                 if data:
-
-                    with open(path, 'wb') as new_file:
-                        new_file.write(data)
+                    self.file_save(path, data)
 
                 self.update_pb(file_count, j + 1, name)

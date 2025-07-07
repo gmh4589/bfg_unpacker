@@ -6,6 +6,7 @@ class Indiana(Reaper):
 
     @file_reaper
     def run(self):
+        # TODO: Пока это только заглушка
 
         with open(self.file_name, "rb") as res_file:
             magic = res_file.read(4)

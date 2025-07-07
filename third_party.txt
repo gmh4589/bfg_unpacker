@@ -48,6 +48,7 @@ Utility:
     ue3extract - https://www.gildor.org/down/47/umodel/extract.zip
     ue4repak -
     arc.exe - http://sourceforge.net/projects/arc/
+    orkdec.exe - https://aluigi.altervista.org/papers/orkdec.zip
 
 Total Commander Plugins:
     GAUP - https://wincmd.ru/plugring/gaup.html
