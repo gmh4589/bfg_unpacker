@@ -1,12 +1,13 @@
-import configparser
+
 import os
 
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QDialog, QToolButton, QWidget, QGridLayout
 from qt_material import apply_stylesheet
 
 from source.ui import localize
 from source.ui.custom_ui import CustomDialog
+from source.setting import setting, set_setting
 
 
 class CBWindow(QDialog):
@@ -35,9 +36,9 @@ class CBWindow(QDialog):
                 'margin: 0px;'
                 'padding: 0px;'
                 'border-radius: 10px;'
-                f'height: 40px;'
-                f'width: 40px;'
-                f'font-size: 40px;'
+                'height: 40px;'
+                'width: 40px;'
+                'font-size: 40px;'
                 '}')
             grid_layout.addWidget(button, row, col)
             self.add_button(button, liter, letter)
@@ -49,13 +50,11 @@ class CBWindow(QDialog):
                 row += 1
 
     def add_button(self, btn, number, letter):
-        btn.clicked.connect(lambda *args, n=str(number), l=int(letter): self.save_button(n, l))
+        btn.clicked.connect(lambda *args, n=str(number), literal=int(letter): self.save_button(n, literal))
 
     def save_button(self, a, num):
 
         if a != '✖':
-            setting = configparser.ConfigParser()
-            setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
             buttons = [button for button in setting['Buttons'].values()]
 
             if a in buttons:
@@ -70,7 +69,7 @@ class CBWindow(QDialog):
                     style=self.style,
                     text=f'{localize.successfully}'
                 ).exec()
-                setting.set('Buttons', str(num), str(a))
+                set_setting('Buttons', str(num), str(a))
 
                 with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as config_file:
                     setting.write(config_file)

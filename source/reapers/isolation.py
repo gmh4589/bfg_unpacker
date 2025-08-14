@@ -54,9 +54,10 @@ class AlienIsolation(Reaper):
                     file_data = []
 
                     for i in range(files_count):
-                        header = bin_file.read(4)
-                        unk1 = int.from_bytes(bin_file.read(4), byteorder="little")
-                        zeros = int.from_bytes(bin_file.read(4), byteorder="little")
+                        # header = bin_file.read(4)
+                        # unk1 = int.from_bytes(bin_file.read(4), byteorder="little")
+                        # zeros = int.from_bytes(bin_file.read(4), byteorder="little")
+                        bin_file.seek(12, 1)
                         file_size = int.from_bytes(bin_file.read(4), byteorder="little")
                         file_offset = int.from_bytes(bin_file.read(4), byteorder="little")
 

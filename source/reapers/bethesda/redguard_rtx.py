@@ -26,7 +26,10 @@ class RedguardRTX(Reaper):
                     name_long = int.from_bytes(rtx_file.read(4), byteorder="little")
                     name = rtx_file.read(name_long).decode('utf-8', errors='ignore')
                     long = file_long - name_long - 6
-                    if long < 0: break
+
+                    if long < 0: 
+                        break
+                    
                     data = rtx_file.read(file_long - name_long - 6)
                     text_file.write(name + '\n')
                     short_text = ''

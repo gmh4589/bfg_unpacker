@@ -1,4 +1,5 @@
 import os
+from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
 from source.codecs.zip_methods import ZipMethods
@@ -18,12 +19,13 @@ class Tango(Reaper):
 
             file_count = int.from_bytes(tango.read(4), 'big')
 
-            for i in range(file_count):
+            for _ in range(file_count):
                 name_long = int.from_bytes(tango.read(4), 'little')
                 file_name = tango.read(name_long).decode('utf-8', errors='ignore')
                 name2_long = int.from_bytes(tango.read(4), 'little')
                 file_name2 = tango.read(name2_long).decode('utf-8', errors='ignore')
                 hash_data = tango.read(4)
+                ic(file_name, file_name2, hash_data)
 
             list_offset = int.from_bytes(tango.read(4), 'big')
             tango.seek(list_offset + 12)

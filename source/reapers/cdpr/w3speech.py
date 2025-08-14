@@ -14,7 +14,8 @@ class SpeechUnpacker(Reaper):
             if not self.magic([b'CPSW', ], magic, 'Red Engine'):
                 return
 
-            version = int.from_bytes(speech.read(4), byteorder="little")
+            # version = int.from_bytes(speech.read(4), byteorder="little")
+            speech.seek(4, 1)
             file_count = len(speech.read().split(b'RIFF')) - 1
             speech.seek(0x14)
             FileData = namedtuple('FileData',

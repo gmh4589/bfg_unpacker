@@ -48,11 +48,12 @@ class PhyreSave(Reaper):
                     print(localize.unsupported_platform)
                     return
 
-                phyre.seek(72, 1)
-                baseHeaderSize = int.from_bytes(phyre.read(4), byteorder='little')
+                phyre.seek(76, 1)
+                # baseHeaderSize = int.from_bytes(phyre.read(4), byteorder='little')
                 varsCount = int.from_bytes(phyre.read(4), byteorder='little')
                 dirsCount = int.from_bytes(phyre.read(4), byteorder='little')
-                paramsCount = int.from_bytes(phyre.read(4), byteorder='little')
+                # paramsCount = int.from_bytes(phyre.read(4), byteorder='little')
+                phyre.seek(4, 1)
                 tableSize = int.from_bytes(phyre.read(4), byteorder='little')
                 stringTableOffset = size + metaSize - tableSize
                 phyre.seek(8, 1)
@@ -138,7 +139,7 @@ class PhyreSave(Reaper):
                 dds = DDSCreator()
                 dds.dds_save(x, y, p, name, image_data)
             elif file_type == 'png' or file_type == 'gxt_png':
-                picture = Image.frombytes(p.decode('utf-8')[:-1], (y, x), data)
+                picture = Image.frombytes(p.decode('utf-8')[:-1], (y, x), image)
                 picture.save(f"{name}.{self.setting['Main']['fav_format']}")
             elif file_type == 'gxt':
                 image_tools.gxt_save(name, image_data)

@@ -27,6 +27,7 @@ class Locres2TXT(Reaper):
             all_value = int.from_bytes(locres.read(4), 'little')
             block_count = int.from_bytes(locres.read(4), 'little')
             value_names_start = locres.tell()
+            ic(all_value)
 
             locres.seek(data_size, 0)
             string_count = int.from_bytes(locres.read(4), 'little')
@@ -52,9 +53,10 @@ class Locres2TXT(Reaper):
                 block_name_len = int.from_bytes(locres.read(4), 'little')
                 block_name = locres.read(block_name_len).decode('utf-8', errors='ignore').strip('\0')
                 block_strings = int.from_bytes(locres.read(4), 'little')
+                ic(block_hash)
                 sss = []
 
-                for j in range(block_strings):
+                for _ in range(block_strings):
 
                     try:
                         string_hash = int.from_bytes(locres.read(4), 'little')
@@ -63,6 +65,7 @@ class Locres2TXT(Reaper):
                         string_hash_2 = int.from_bytes(locres.read(4), 'little')
                         string_num = int.from_bytes(locres.read(4), 'little')
                         sss.append({string_data: {'original': strings[a], 'translate': strings[a]}})
+                        ic(string_hash, string_hash_2, string_num)
 
                         if (a + 1) % 1000 == 0:
                             self.update_pb(string_count, a + 1, string_data)

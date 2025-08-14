@@ -14,7 +14,8 @@ class Witcher2DZIP(Reaper):
             if not self.magic([b'DZIP', ], magic, 'DZIP'):
                 return
 
-            version = int.from_bytes(dzip.read(4), byteorder="little")
+            # version = int.from_bytes(dzip.read(4), byteorder="little")
+            dzip.seek(4, 1)
             file_count = int.from_bytes(dzip.read(4), byteorder="little")
             dzip.seek(0x10)
             dzip.seek(int.from_bytes(dzip.read(4), byteorder="little"))
@@ -22,7 +23,8 @@ class Witcher2DZIP(Reaper):
             for i in range(file_count):
                 name_len = int.from_bytes(dzip.read(2), byteorder="little")
                 name = dzip.read(name_len).decode("utf-8", errors="ignore").rstrip("\0")
-                hash_sum = int.from_bytes(dzip.read(16), byteorder="little")
+                # hash_sum = int.from_bytes(dzip.read(16), byteorder="little")
+                dzip.seek(4, 1)
                 offset = int.from_bytes(dzip.read(8), byteorder="little")
                 size = int.from_bytes(dzip.read(8), byteorder="little")
 

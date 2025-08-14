@@ -1,32 +1,29 @@
 
-import configparser
 import math
 import os
 from icecream import ic
 
 # from source.codecs.wav_list import wav_list
 from source.codecs.wav_list import WavList
-
-setting = configparser.ConfigParser()
-setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
+from source.setting import setting
 
 
-def wav_save(args):
-    ic(args)
+def wav_save(**kwargs):
+    ic(kwargs)
 
-    name = args['file_name']
-    sample_rate = args['Frequency']
-    channels = args['Channels']
-    bps = args['Bit'] if 'Bit' in args.keys() else 0
-    # codec = wav_list[args['Format']]['hex']
-    codec = WavList.__dict__[args['Format']]
+    name = kwargs['file_name']
+    sample_rate = kwargs['Frequency']
+    channels = kwargs['Channels']
+    bps = kwargs['Bit'] if 'Bit' in kwargs.keys() else 0
+    # codec = wav_list[kwargs['Format']]['hex']
+    codec = WavList.__dict__[kwargs['Format']]
     ic(codec)
     bitrate = int((int(sample_rate) * int(bps) * int(channels)) / 8)
     block_align = int(int(bps) * int(channels) / 8)
-    offset = args['Offset']
+    offset = kwargs['Offset']
 
     out_name = os.path.basename(name).split('.')[0]
-    new_name = args['new_name'] if 'new_name' in args.keys() else f"{setting['Main']['out_path']}\\{out_name}.wav"
+    new_name = kwargs['new_name'] if 'new_name' in kwargs.keys() else f"{setting['Main']['out_path']}\\{out_name}.wav"
     print('Saved:', new_name)
 
     with open(name, 'rb') as data_file:
@@ -49,15 +46,15 @@ def wav_save(args):
                         new_data)
 
 
-def atrac_save(args):
-    ic(args)
+def atrac_save(**kwargs):
+    ic(kwargs)
 
-    name = args['file_name']
-    channels = int(args['Channels'])
-    bitrate = int(args['Bitrate'])
-    loop = args['Loop']
-    offset = args['Offset']
-    ext = str(args['Format']).lower()
+    name = kwargs['file_name']
+    channels = int(kwargs['Channels'])
+    bitrate = int(kwargs['Bitrate'])
+    loop = kwargs['Loop']
+    offset = kwargs['Offset']
+    ext = str(kwargs['Format']).lower()
     chunk_size = 0x20 if bitrate in (72, 144) else 0x34
     codec = 0x270 if bitrate % 9 == 0 else 0xfffe
     c_arg = 1 if codec == 0x270 else 2
@@ -106,8 +103,8 @@ def atrac_save(args):
 
 
 # TODO: Наличие сомнительно...
-def mp3_save(args):
-    ic(args)
+def mp3_save(**kwargs):
+    ic(kwargs)
 
     head = (b'\x54\x41\x47\x75\x6E\x6B\x6E\x6F\x77\x6E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x75'
@@ -118,8 +115,8 @@ def mp3_save(args):
             b'\x6E\x6B\x6E\x6F\x77\x6E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 
-    name = args['file_name']
-    offset = args['Offset']
+    name = kwargs['file_name']
+    offset = kwargs['Offset']
     out_name = os.path.basename(name).split('.')[0]
     new_name = f"{setting['Main']['out_path']}\\{out_name}.mp3"
 
@@ -131,11 +128,12 @@ def mp3_save(args):
         new_audio.write(head + new_data)
 
 
-def ps_audio_tools(args):
-    ic(args)
+# TODO: Write it!
+def ps_audio_tools(**kwargs):
+    ic(kwargs)
 
-    platform = args['Platform']
-    mode = args['Mode']
+    platform = kwargs['Platform']
+    mode = kwargs['Mode']
     file_name = ['file_name']
 
     match platform:

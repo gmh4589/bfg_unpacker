@@ -1,6 +1,5 @@
 import threading
 import os
-import zlib
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
@@ -9,10 +8,12 @@ from icecream import ic
 from datetime import datetime
 from pathlib import Path
 from tkinter.messagebox import askyesno
+from threading import Thread
 
 from source.ui import localize
-from source.setting import Setting
+from source.setting import setting
 from source.codecs.zip_methods import ZipMethods
+from source.out_reader import OutReader
 
 DEBUG = False if os.path.exists('dev_tools') else True
 
@@ -29,11 +30,52 @@ def logger(level: str, message: str, show: bool = False, messagebox: bool = Fals
         showinfo(title=level, message=message)
 
 
+# class file_reaper:
+#     # TODO: DEBUG alwais work, even if DEBUG = False
+
+#     def __init__(self, func):
+#         self.func = func 
+
+#     def __get__(self, instance, owner):
+#         return lambda *args, **kwargs: self.__call__(instance, *args, **kwargs)
+
+#     def __call__(self, obj, *args, **kwargs):
+#         global DEBUG
+#         error = None
+#         function_name = str(self.func).split(" ")[1]
+#         start = datetime.now()
+
+#         try:
+#             if DEBUG:
+#                 try:
+#                     result = self.func(obj, *args, **kwargs)
+#                 except Exception as e:
+#                     error = e
+#                     result = None
+#             else:
+#                 result = self.func(obj, *args, **kwargs)
+#         except Exception as e:
+#             error = e
+#             result = None
+
+#         end = datetime.now()
+#         print(f'{localize.done}\n{localize.duration} {end - start}')
+
+#         if error is None:
+#             logger('INFO',
+#                    f'\n\tFunction: {function_name}\n\tStart: {start}\n\tEnd: {end}\n\tDuration: {end - start}\n')
+#         else:
+#             print(f'ERROR IN {function_name}: {error}!!!')
+#             logger('ERROR',
+#                    f'\n\tFunction: {function_name}\n\tStart: {start}\n\tError: {error}\n')
+
+#         return result
+
 def file_reaper(func_name):
 
     def wrapper(*args, **kwargs):
         error = None
-        function = str(func_name).split(" ")[1]
+        function = str(func_name)
         start = datetime.now()
 
         if DEBUG:
@@ -61,20 +103,37 @@ def file_reaper(func_name):
     return wrapper
 
 
-class Reaper(QThread, Setting):
-    update_signal = pyqtSignal(int, str, str, bool)
+class Reaper(QThread):
+    update_signal = pyqtSignal(int, str, str, bool) # progress, file count, message, isending
+    user_choice_signal = pyqtSignal(str, list, object) # header text, drop menu list, callback
     COMPRESSED = True
     file_name = ''
-    # path_to_root = os.path.curdir
     path_to_root = os.path.dirname(os.path.abspath(f"{os.path.curdir}\\game_base.db"))
     com_type = None
     new_ext = 'dat'
 
     def __init__(self):
         super().__init__()
+        self.setting = setting
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
-        self.output = []
+        
+    @abstractmethod
+    def run(self):
+        pass
+    
+    def update_pb(self, file_count: int, current_file: int, file_name: str):
+
+        file_count = 1 if file_count == 0 else file_count
+        current_file = 1 if current_file == 0 else current_file
+        ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
+        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
+        is_ending = True if current_file + 1 >= file_count else False
+
+        self.update_signal.emit(int(100 / file_count * current_file),
+                                f'{current_file + 1}\\{file_count}',
+                                f'{localize.saving} - {file_name}...',
+                                is_ending)
 
     @staticmethod
     def folderSize(path, was_files=0):
@@ -92,26 +151,8 @@ class Reaper(QThread, Setting):
 
         return file_size, numfile - was_files, iteration
 
-    def update_pb(self, file_count: int, current_file: int, file_name: str):
-
-        file_count = 1 if file_count == 0 else file_count
-        current_file = 1 if current_file == 0 else current_file
-        ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
-        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
-        is_ending = True if current_file + 1 >= file_count else False
-
-        self.update_signal.emit(int(100 / file_count * current_file),
-                                f'{current_file + 1}\\{file_count}',
-                                f'{localize.saving} - {file_name}...',
-                                is_ending)
-
-    @abstractmethod
-    def run(self):
-        pass
-
     @staticmethod
     def multi_vol():
-        # TODO: Localized text
         agree = askyesno(title=localize.message,
                          message=localize.multivol)
         return agree
@@ -134,6 +175,37 @@ class Reaper(QThread, Setting):
             print(localize.not_correct_file.replace('%%', message))
             self.update_signal.emit(100, '', '', True)
             return False
+    
+    def pipe_reader(self, prg, chang_dir: bool = False):
+        out_reader = OutReader()
+        pr_err = ''
+        pr_out = ''
+
+        Thread(target=out_reader.out_reader, args=[prg,], daemon=True).start()
+        Thread(target=out_reader.err_reader, args=[prg,], daemon=True).start()
+
+        while prg.poll() is None:
+
+            try:
+                self.update_signal.emit(0, '', f'{".".join(out_reader.output)}...', False)
+
+                if out_reader.err and out_reader.err != pr_err:
+                    print(out_reader.err)
+                    pr_err = out_reader.err
+
+                if out_reader.out and out_reader.out != pr_out:
+                    print(out_reader.out)
+                    pr_out = out_reader.out
+
+            except Exception as e:
+                ic(e)
+                self.update_signal.emit(0, '', '', False)
+
+        out_reader.end = True
+        self.update_signal.emit(0, '', '', True)
+
+        if chang_dir:
+            os.chdir(self.path_to_root)
 
     # TODO: Very slow working... 🐌
     def unzip(self, f_name: str,
@@ -209,7 +281,6 @@ class Reaper(QThread, Setting):
             except FileNotFoundError:
                 pass
 
-
     @staticmethod
     def get_ext(index: bytes) -> str:
         ext_list = {
@@ -220,16 +291,22 @@ class Reaper(QThread, Setting):
             # Archive Formats
             b'PK\x03\x04': 'zip', b'7z\xBC\xAF': '7z',
             # Document formats
-            b'\x25PDF': 'pdf', b'<?xm': 'xml', b'JSON': 'json', b'json': 'json',
+            b'\x25PDF': 'pdf', b'<?xm': 'xml', b'{\n  ': 'json', 
             # Video formats
-            b'BIKi': 'bik', b'BIKb': 'bik', b'SMK2': 'smk', b'BIK2': 'bk2',
+            b'BIKi': 'bik', b'BIKb': 'bik', b'SMK2': 'smk', b'BIK2': 'bk2', b'\0\0\x01\xBA': 'mpeg',
             # 3D formats
             b'BLEN': 'blend', b'STLB': 'stl', b'Kayd': 'fbx', b'ply\x0A': 'ply', b'glTF': 'glb',
             # Programs
-            b'MZ\x90\x00': 'exe',
+            b'MZ\x90\x00': 'exe', b'\xCB\x0D\x0D\x0A': 'pyc', b'\x7fELF': 'elf', b'PE\x00\x00': 'dll', b'LuaQ': 'luac',
             # Data Bases
             b'SQLi': 'db',
         }
+
+        if index[:2] == b'\x78\x9c':
+            return 'zlib'
+        
+        if index[:3] == b'\xEF\xBB\xBF':
+            return 'txt'
 
         try:
             return ext_list[index]
@@ -253,37 +330,3 @@ class Reaper(QThread, Setting):
             except (UnicodeDecodeError, ValueError, OSError):
                 return 'dat'
 
-
-class OutReader:
-
-    def __init__(self):
-        super().__init__()
-        self.out = ''
-        self.err = ''
-        self.output = []
-        self.end = False
-
-    def out_reader(self, prg, splitter=' '):
-
-        while True:
-            d = prg.stdout.readline().strip()
-            self.out = d
-            self.output = d.split(splitter)
-
-            if self.out:
-                ic(self.out)
-
-            if self.end:
-                break
-
-    def err_reader(self, prg):
-
-        while True:
-            d = prg.stderr.readline().strip()
-            self.err = d
-
-            if self.err:
-                ic(self.err)
-
-            if self.end:
-                break

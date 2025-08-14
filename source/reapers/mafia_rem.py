@@ -13,7 +13,8 @@ class PCKGUnpacker(Reaper):
             if not self.magic([b'PCKG', ], magic, 'Mafia Remake File'):
                 return
 
-            version = int.from_bytes(file.read(4), byteorder="little")
+            # version = int.from_bytes(file.read(4), byteorder="little")
+            file.seek(4, 1)
             file_count = int.from_bytes(file.read(4), byteorder="little")
             file.seek(4, 1)
             FileData = namedtuple('FilaData',

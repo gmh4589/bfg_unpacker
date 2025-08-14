@@ -44,4 +44,4 @@ class VPKPacker(Reaper):
         out_path = os.path.join(self.output_folder, archive_name + '_dir.vpk')
         print(out_path)
         new_vpk.save(out_path)
-        self.update_signal.emit(100, f'1/1', localize.done, True)
+        self.update_signal.emit(100, '1/1', localize.done, True)

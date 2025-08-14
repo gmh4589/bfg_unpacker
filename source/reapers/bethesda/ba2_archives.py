@@ -1,4 +1,4 @@
-import os
+
 import zlib
 import lz4.block as lz4
 from collections import namedtuple
@@ -147,7 +147,7 @@ class BethesdaArchive(Reaper):
 
                 ba2.seek(file.offset)
                 data = ba2.read(file.size)
-                folder_path = os.path.dirname(file.name)
+                # folder_path = os.path.dirname(file.name)
                 full_path = f"{self.output_folder}\\{file.name}"
 
                 if data_type == b'DX10':

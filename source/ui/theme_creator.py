@@ -1,22 +1,23 @@
 
 from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject
 from PyQt6.QtGui import QFont, QIcon
-from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QDialog, QToolButton, QPushButton, QWidget, QLabel, QVBoxLayout, QColorDialog, QInputDialog
 
 from qt_material import apply_stylesheet
 import xml.etree.ElementTree as XML_Parce
 
 import source.ui.localize as translate
+from source.setting import theme
 
 
 class ThemeCreateWindow(QDialog):
 
-    def __init__(self, style='dark_orange'):
+    def __init__(self):
         super().__init__()
-        apply_stylesheet(self, theme=f'{style}.xml')
+        apply_stylesheet(self, theme=f'{theme}.xml')
 
         try:
-            root = XML_Parce.parse(f'./data/themes/{style}.xml').getroot()
+            root = XML_Parce.parse(f'./data/themes/{theme}.xml').getroot()
         except FileNotFoundError:
             root = ''
 

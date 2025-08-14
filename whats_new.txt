@@ -1,4 +1,23 @@
 
+August 14, 2025
+
+ - Fixed quick run feature from context menu or command line
+ - Fixed program crash by converting a big pictures (200+ megapixels) via Pillow
+ - Added native support for unpack PCK archives from games on Godot Engine
+ - Added native support for conversion CTEX textures from games on Godot Engine
+ - In "Quick open" function added support games on RenPy Engine
+ - Added support for unpack TTARCH and TTARCH2 archives from games by TellTale via ttarchext utility
+ - Added native support for unpack  DAT archives from Fallout 1 and 2
+ - Fix bug with unpack some RFF archives from games on Build Engine
+ - Added support for unpack RGSSAD, RGSS2A, RGSS3A archives from games on RPG Maker via RPGMakerDecrypter-cli utility
+ - Started work with native unpacker for games on Hero Engine
+ - The program architecture has been reworked:
+       - Child\Parent classes rewrite as class exemplars, where it passible
+       - Game databese now loading via separate class
+       - Loading of the settings now don't use chians structure
+       - The program is now more modular and better scalable
+       - The source code of the programm was optimized and refacored
+
 July 7, 2025
 
  - Game base was updated

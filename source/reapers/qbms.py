@@ -7,7 +7,7 @@ from source.reaper import Reaper, file_reaper, OutReader
 from source.ui import localize
 
 
-class Q_BMS(Reaper, OutReader):
+class Q_BMS(Reaper):
 
     def __init__(self):
         super().__init__()
@@ -16,6 +16,7 @@ class Q_BMS(Reaper, OutReader):
 
     @file_reaper
     def run(self):
+        out_reader = OutReader()
 
         size = os.path.getsize(self.file_name)
         self.file_name = self.file_name.replace("/", "\\")
@@ -26,18 +27,18 @@ class Q_BMS(Reaper, OutReader):
         ic(script)
         bms = Popen(script, stdout=PIPE, stderr=PIPE, encoding='utf-8')
 
-        Thread(target=self.out_reader, args=[bms,], daemon=True).start()
-        Thread(target=self.err_reader, args=[bms,], daemon=True).start()
+        Thread(target=out_reader.out_reader, args=[bms,], daemon=True).start()
+        Thread(target=out_reader.err_reader, args=[bms,], daemon=True).start()
 
         while bms.poll() is None:
 
             try:
-                percent = int(100 / size * int(self.output[0], 16))
-                print(f"{percent}% {self.output[-1]}")
+                percent = int(100 / size * int(out_reader.output[0], 16))
+                # print(f"{percent}% {out_reader.output[-1]}")
                 # ic(self.output[-1])
-                self.update_signal.emit(percent, '', f'{localize.saving} - {self.output[-1]}...', False)
+                self.update_signal.emit(percent, '', f'{localize.saving} - {out_reader.output[-1]}...', False)
             except (ValueError, IndexError):
-                print(self.out)
+                print(out_reader.out)
 
-        self.end = True
+        out_reader.end = True
         self.update_signal.emit(100, '', localize.done, True)

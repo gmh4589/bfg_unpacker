@@ -2,35 +2,35 @@
 import os
 from icecream import ic
 
-from source.setting import Setting
+from PyQt6.QtWidgets import QComboBox, QDialog
+from PyQt6.QtCore import pyqtSlot
+
 from source.ui import localize
-from source.ui.custom_ui import ProgressBar
+from source.ui.custom_ui import ProgressBar, CustomDialog
 
 
-class QProcessList(Setting):
+class QProcessList:
 
     def __init__(self):
         super().__init__()
         self.file_name = ''
         self.head = b''
-        self.out_dir = self.setting['Main']['out_path']
         self.proc = None
         self.nuke = None
         self.last_run = None
         self.pb = None
         self.maximum = 100
 
-    def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...', maximum=100):
+    def q_connect(self, nuke, fn='', header=f'{localize.unpacking}...', maximum=100, out_dir='C:\\out', subfolder=True):
         self.pb = ProgressBar(maximum=maximum)
         self.maximum = maximum
         self.nuke = nuke
         self.nuke.file_name = fn
-        subfolder = bool(int(self.setting['Main']['subfolders']))
-        fp = f'{self.out_dir}\\{os.path.basename(fn).replace(".", "_")}'
+        fp = f'{out_dir}\\{os.path.basename(fn).replace(".", "_")}'
         ic(fp)
 
         try:
-            self.nuke.output_folder = fp if subfolder else self.out_dir
+            self.nuke.output_folder = fp if subfolder else out_dir
 
             if subfolder:
                 os.makedirs(fp, exist_ok=True)
@@ -46,6 +46,7 @@ class QProcessList(Setting):
         self.pb.show()
 
         self.nuke.update_signal.connect(self.update_progress)
+        self.nuke.user_choice_signal.connect(self.pb_user_choice)
 
         if self.last_run is not None:
             self.nuke.finished.connect(self.last_run)
@@ -61,7 +62,25 @@ class QProcessList(Setting):
             short_name = text
 
         return short_name
+    
+    @pyqtSlot(str, list, object)
+    def pb_user_choice(self, header_text, drop_list=None, callback=None):
+        
+        if callback:
+            if drop_list:
+                combo = QComboBox()
+                combo.addItems(drop_list)
+                dialog = CustomDialog(text=f"{header_text}:", title=header_text, btn_ok=True, btn_cancel=True, combo=combo)
+            else:
+                dialog = CustomDialog(text=f"{header_text}:", title=header_text, btn_ok=True, btn_cancel=True)
+            
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                result = dialog.get_selected()
+                callback(result)
+            else:
+                callback(None)
 
+    @pyqtSlot(int, str, str, bool)
     def update_progress(self, pb_value, p_text, info, process_done):
 
         if self.pb.is_stop:

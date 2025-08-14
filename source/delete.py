@@ -1,7 +1,6 @@
 
 import os
 import shutil
-import configparser
 
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -11,9 +10,7 @@ class DeleteThread(Reaper):
 
     @file_reaper
     def run(self):
-        setting = configparser.ConfigParser()
-        setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
-        of = setting['Main']['out_path']
+        of = self.setting['Main']['out_path']
         not_deleted = []
         deleting_list = os.listdir(of)
         all_items = len(deleting_list)
@@ -26,7 +23,7 @@ class DeleteThread(Reaper):
             self.update_signal.emit(percent if percent < 95 else 95, f'{i + 1}/{all_items}', info_text, False)
 
             try:
-                if int(setting['Main']['trash']):
+                if int(self.setting['Main']['trash']):
                     os.system(f'{self.path_to_root}\\data\\AutoIt3.exe '
                               f'{self.path_to_root}\\data\\delete_to_trash.au3 "{name}"')
                 else:

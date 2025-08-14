@@ -1,22 +1,23 @@
 import os
 import sys
 
-# Это костыль, без него не работает сборка в екзешник
-from sqlalchemy.dialects.mysql.mariadb import *
-
 from PyQt6.QtWidgets import QFileDialog, QApplication, QMainWindow
 from icecream import ic
+
+# Это костыль, без него не работает сборка в екзешник
+from sqlalchemy.dialects.mysql.mariadb import *
 
 from source.quick_open import QuickOpen
 from source.ui.main_ui_init import MainWindow
 from source.ui.custom_ui import PrintTo
 from source.ui import localize, custom_ui
 from source.reapers.ext_list import after_dot
-from source.reapers import *
+from source.reapers import zip_scan
 from source.delete import DeleteThread
+from source.db_connect import DatabaseConnect
+from source.setting import setting, set_setting
 
-ic.enable()
-# ic.disable()
+ic.enable() if os.path.exists('.vscode') else ic.disable()
 
 
 class UnpackerMain(MainWindow, QuickOpen):
@@ -27,6 +28,7 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.func_name = ''
         self.script_name = ''
         self.file_list = []
+        self.setting = setting
 
     def file_open(self, ext_list='', select_folder=False, more_one=False):
 
@@ -47,7 +49,7 @@ class UnpackerMain(MainWindow, QuickOpen):
             file_names = [QFileDialog.getExistingDirectory(self, caption=localize.select_folder,
                                                            directory=self.setting['Main']['last_dir']), '']
         if file_names:
-            self.set_setting('Main', 'last_dir', os.path.dirname(file_names[0]))
+            set_setting('Main', 'last_dir', os.path.dirname(file_names[0]))
             ic(file_names)
 
             for file_name in file_names:
@@ -75,7 +77,7 @@ class UnpackerMain(MainWindow, QuickOpen):
         except IndexError:
             pass
 
-    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name='', script_name=''):
+    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name=None, script_name=None):
         self.func_name = func_name
         self.script_name = script_name
 
@@ -92,12 +94,17 @@ class UnpackerMain(MainWindow, QuickOpen):
         file_n = ''.join(self.file_open(more_one=True))
 
         if file_n:
-            self.q_connect(zip_scan.ZipScanner(), file_n, header=f'{localize.file}: {file_n}...')
+            self.q_connect(zip_scan.ZipScanner(), file_n,
+                           header=f'{localize.file}: {file_n}...',
+                           out_dir=self.setting['Main']['out_path'],
+                           subfolder=bool(int(self.setting['Main']['subfolders'])))
 
     def empty_out(self):
 
         if os.listdir(self.out_dir):
-            self.q_connect(DeleteThread(), header=f'{localize.deleting}...')
+            self.q_connect(DeleteThread(),
+                           header=f'{localize.deleting}...',
+                           out_dir=self.setting['Main']['out_path'])
         else:
             print(localize.empty_folder)
 
@@ -106,7 +113,9 @@ class QuickUnpack(QMainWindow, QuickOpen):
 
     def __init__(self):
         super().__init__()
-
+        self.out_dir = setting['Main']['out_path']
+        db = DatabaseConnect()
+        self.reapers_table = db.get_table('ext_list')
         self.is_stop = False
         self.pb = custom_ui.ProgressBar()
         self.last_run = None
@@ -126,6 +135,6 @@ if __name__ == "__main__":
         app = QApplication(sys.argv)
         win = UnpackerMain()
         win.show()
-        win.raise_()
+        # win.raise_()
 
     sys.exit(app.exec())

@@ -1,5 +1,4 @@
 import os
-from icecream import ic
 from source.reaper import Reaper, file_reaper
 # TODO: Add The Witcher 1 support, try all games
 

@@ -55,12 +55,6 @@ class QPAKExtractor(Reaper):
 
                 i += 1
                 offset, size = value
-                path = os.path.join(self.output_folder, name)
-                ic(path)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-
-                with open(path, 'wb') as new_file:
-                    pak_file.seek(offset)
-                    new_file.write(pak_file.read(size))
-
+                pak_file.seek(offset)
+                self.file_save(os.path.join(self.output_folder, name), pak_file.read(size))
                 self.update_pb(len(file_list), i, name)

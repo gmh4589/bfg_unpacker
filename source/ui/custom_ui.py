@@ -1,14 +1,14 @@
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt6.QtCore import QRect, QMetaObject
-from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QProgressBar
+from PyQt6.QtWidgets import QComboBox, QCompleter, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QProgressBar, QWidget
 
 from qt_material import apply_stylesheet
-from source.setting import Setting
+from source.setting import theme
 from source.ui import localize
 
 
-class AutoCompleteComboBox(QComboBox, Setting):
+class AutoCompleteComboBox(QComboBox):
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,7 +24,7 @@ class AutoCompleteComboBox(QComboBox, Setting):
 
     def on_text_edited(self, text):
 
-        with open(f'./data/themes/{self.setting["Main"]["theme"]}.xml', 'r') as style_sheet:
+        with open(f'./data/themes/{theme}.xml', 'r') as style_sheet:
             colors = [color.replace('</color>\n', '').split('">')[-1] for color in style_sheet.readlines()]
 
         completer_popup = self.completer.popup()
@@ -54,18 +54,17 @@ class CustomDialog(QDialog):
                  title: str = 'Warning!',
                  btn_ok: bool = True,
                  btn_cancel: bool = False,
-                 combo: QComboBox = None,
-                 style: str = 'dark_orange') -> None:
+                 combo: QComboBox = None):
         super().__init__()
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
-        apply_stylesheet(self, theme=f'{style}.xml')
+        apply_stylesheet(self, theme=f'{theme}.xml')
         self.setWindowTitle(title)
         self.layout = QVBoxLayout()
         self.combo = combo
+        self.returned_data = 1
 
         if btn_ok and btn_cancel:
-            self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
-                                              QDialogButtonBox.StandardButton.Cancel)
+            self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         elif btn_ok:
             self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         elif btn_cancel:
@@ -79,21 +78,17 @@ class CustomDialog(QDialog):
 
         if combo is not None:
             self.layout.addWidget(self.combo)
-            self.returned_data = self.combo.currentText()
-            self.combo.currentTextChanged.connect(self.return_selected)
 
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
+    
+    def get_selected(self):
+        return self.combo.currentText()
 
-    def return_selected(self):
-        self.returned_data = self.combo.currentText()
-
-
-class ProgressBar(QDialog, Setting):
+class ProgressBar(QWidget):
 
     def __init__(self, maximum=100):
         super().__init__()
-        theme = self.setting['Main']['theme']
         apply_stylesheet(self, theme=f'{theme}.xml')
         self.resize(300, 130)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))

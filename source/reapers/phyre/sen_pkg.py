@@ -15,6 +15,10 @@ class PKGExtractor(Reaper):
 
         with open(self.file_name, 'rb') as pkg_read:
             magic = pkg_read.read(4)
+            # TODO: Try file headers
+            
+            if not self.magic([b'\0' * 4, b'\x00\x00\x81`', b'\xb1\x83\x81`'], magic, 'Phyre Engine PKG Archive'):
+                return
 
             file_count = int.from_bytes(pkg_read.read(4), byteorder='little')
             data_list = []

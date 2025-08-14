@@ -1,15 +1,15 @@
 import os
 from icecream import ic
-from source.reapers.bethesda.bsi import BSITexture
+from source.reapers.build.art import ARTExtractor
 
-new_reaper = BSITexture()
-path = r"I:\tests\esp\tesargog\Redguard\fxart"
+new_reaper = ARTExtractor()
+path = r"I:\tests\blood classic"
 file_list = os.listdir(path)
 
 
 for file in file_list:
 
-    if 'TEXBSI' in file:
+    if '.art' in file.lower():
         
         # try:
         ic(file)

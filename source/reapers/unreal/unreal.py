@@ -67,6 +67,7 @@ class Unreal(Reaper):
                     current_f, all_f = out_reader.output[1].split('/')
                     percent = int((100 / int(all_f)) * int(current_f))
                     self.update_signal.emit(percent, f'{out_reader.output[1]}', f'{localize.saving} - {out_reader.output[1]}...', False)
+                    # self.update_pb(all_f, current_f, out_reader.output[1])
 
             elif version == 4:
                 sleep(randint(1, 3))

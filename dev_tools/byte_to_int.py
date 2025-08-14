@@ -1,5 +1,5 @@
 
-bin_list = [b'\xFF\xFF\xFF\xFF', b'\xFF\xFF\xFF\x00']
+bin_list = [b'MES2', b'PES2']
 
 for b in bin_list:
     print(int.from_bytes(b, byteorder="little"))

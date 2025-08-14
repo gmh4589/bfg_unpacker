@@ -1,9 +1,8 @@
 import os
 from icecream import ic
 from subprocess import Popen, PIPE
-from threading import Thread
 
-from source.reaper import Reaper, file_reaper, OutReader
+from source.reaper import Reaper, file_reaper
 from source.ui import localize
 
 
@@ -13,12 +12,9 @@ class OtherProg(Reaper):
         super().__init__()
         self.script_name = ''
         self.change_dir = None
-        self.pr_err = ''
-        self.pr_out = ''
 
     @file_reaper
     def run(self):
-        out_reader = OutReader()
 
         if '%set_dir%' in self.script_name:
             self.script_name = self.script_name.replace('%set_dir%', '')
@@ -59,30 +55,4 @@ class OtherProg(Reaper):
             print(error)
             return
 
-        Thread(target=out_reader.out_reader, args=[prg,], daemon=True).start()
-        Thread(target=out_reader.err_reader, args=[prg,], daemon=True).start()
-
-        while prg.poll() is None:
-
-            try:
-                self.update_signal.emit(0, '', f'{".".join(out_reader.output)}...', False)
-
-                if out_reader.err and out_reader.err != self.pr_err:
-                    print(out_reader.err)
-                    self.pr_err = out_reader.err
-
-                if out_reader.out and out_reader.out != self.pr_out:
-                    print(out_reader.out)
-                    self.pr_out = out_reader.out
-
-                # if '(y/n)' in self.out:
-                #     prg.stdin.write('y\n')
-                #     prg.stdin.flush()
-
-            except Exception as e:
-                ic(e)
-                self.update_signal.emit(0, '', '', False)
-
-        out_reader.end = True
-        self.update_signal.emit(0, '', '', True)
-        os.chdir(self.path_to_root)
+        self.pipe_reader(prg, chang_dir=bool(self.change_dir))

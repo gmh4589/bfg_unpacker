@@ -1,8 +1,9 @@
 import os
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
-from source.reapers.idtech.bimage import Bimage2DDS
-from source.codecs.zip_methods import ZipMethods
+# from source.reapers.idtech.bimage import Bimage2DDS
+# from source.codecs.zip_methods import ZipMethods
 from source.ui import localize
 
 
@@ -31,8 +32,9 @@ class DeathLoop(Reaper):
             if not self.magic([b'SER', ], magic, 'DeathLoop'):
                 return -1
 
-            data_size = int.from_bytes(mrf.read(4), 'big')
-            mrf.seek(0x18, 1)
+            # data_size = int.from_bytes(mrf.read(4), 'big')
+            # mrf.seek(0x18, 1)
+            mrf.seek(0x1C, 1)
             file_count = int.from_bytes(mrf.read(4), 'big')
             open_archive = open(f"{folder_name}\\{archive_list[0]}", 'rb')
 
@@ -50,6 +52,7 @@ class DeathLoop(Reaper):
                 mrf.seek(0xC, 1)
                 archive_i = int.from_bytes(mrf.read(2), 'little')
                 path = f"{self.output_folder}\\{full_name}"
+                ic(index, file_type1, file_type2, zip_size)
 
                 try:
                     if archive_list[archive_i] not in open_archive.name:

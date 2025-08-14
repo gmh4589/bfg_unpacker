@@ -4,26 +4,25 @@ import os
 from datetime import datetime
 from threading import Thread
 
-import pandas
-import sqlalchemy
-
 from PyQt6.QtCore import Qt, QItemSelectionModel
 from PyQt6.QtGui import QStandardItem, QIcon, QFontDatabase
-from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QMainWindow, QMenu, QFileDialog, QToolButton
 from icecream import ic
 
-import source.ui.main_ui as ui
+from source.ui.main_ui import Ui_BFGUnpacker
 from qt_material import apply_stylesheet
 from qt_material import list_themes
 from source.reapers.ext_list import after_dot
-from source.ui import (setting as setting_ui,
-                       change_button_menu as cbm,
-                       localize,
-                       child_gui_data)
+from source.ui.loader import LoaderData
+from source.ui.setting import SettingWindow
+from source.ui.change_button_menu import CBWindow
+from source.db_connect import DatabaseConnect
+from source.ui import localize
+from source.setting import setting, set_setting
 
 
 # Методы для наполнения интерфейса данными
-class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
+class MainWindow(QMainWindow, Ui_BFGUnpacker):
 
     def __init__(self):
         super().__init__()
@@ -101,16 +100,6 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 for favorite in self.favorites:
                     fav.write(favorite + '\n')
 
-    def set_setting(self, section, key, value, remove=False):
-
-        if remove:
-            self.setting.remove_option(section, key)
-        else:
-            self.setting.set(section, key, value)
-
-        with open(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini', "w") as cf:
-            self.setting.write(cf)
-
     def append_text(self, text):
 
         if text.strip():
@@ -138,20 +127,20 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
         default_theme.triggered.connect(lambda *args, x='Default': self.change_theme(x))
         self.themes_list_2.addMenu(other_themes_submenu)
 
-        if self.setting["Main"]["theme"].lower() == 'default':
+        if self.theme == 'default':
             default_theme.setIcon(QIcon('./data/icons/checked.svg'))
 
         for theme in list_themes():
             theme_name = theme.split('.')[0]
 
-            if theme_name not in default_themes or theme_name == self.setting["Main"]["theme"]:
+            if theme_name not in default_themes or theme_name == self.theme:
                 new_theme = self.themes_list_2.addAction(theme_name.replace('_', ' ').title())
             else:
                 new_theme = other_themes_submenu.addAction(theme_name.replace('_', ' ').title())
 
             new_theme.triggered.connect(lambda *args, x=theme_name: self.change_theme(x))
 
-            if theme_name == self.setting["Main"]["theme"]:
+            if theme_name == self.theme:
                 new_theme.setIcon(QIcon('./data/icons/checked.svg'))
 
         self.themes_list_2.addMenu(other_themes_submenu)
@@ -172,14 +161,14 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
         for i, lang in enumerate(lang_list):
 
-            if lang_codes[i] in main_list or lang_codes[i] == self.setting["Main"]["lang"]:
+            if lang_codes[i] in main_list or lang_codes[i] == self.lang:
                 new_lang = self.action_Language.addAction(lang)
             else:
                 new_lang = other_submenu.addAction(lang)
 
             new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.change_lang(x))
 
-            if lang_codes[i] == self.setting["Main"]["lang"]:
+            if lang_codes[i] == self.lang:
                 new_lang.setIcon(QIcon('./data/icons/checked.svg'))
 
                 if lang_codes[i] not in main_list:
@@ -220,11 +209,11 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             case 'C':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
             case 'D':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_GAUP'))
+                btn.clicked.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
             case 'E':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_Innosetup', ext_list=after_dot['_Innosetup']))
             case 'F':
-                btn.clicked.connect(self.ffmpeg_video)
+                btn.clicked.connect(lambda: self.childs.ffmpeg_video())
             case 'G':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_Unreal', ext_list=after_dot['_Unreal']))
             case 'H':
@@ -232,7 +221,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             case 'I':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
             case 'J':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Total'))
+                btn.clicked.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\TotalObserver.wcx"))
             case 'K':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
             case 'L':
@@ -241,12 +230,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
                 btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
             case 'N':
                 # btn.clicked.connect(self.wwise_tools)
-                btn.clicked.connect(self.image_to_dds_nv)
+                btn.clicked.connect(lambda: self.childs.image_to_dds_nv())
             case 'O':
                 # btn.clicked.connect(self.ps_audio_tools)
-                btn.clicked.connect(self.image_to_dds_ms)
+                btn.clicked.connect(lambda: self.childs.image_to_dds_ms())
             case 'P':
-                btn.clicked.connect(self.pillow_conv)
+                btn.clicked.connect(lambda: self.childs.pillow_conv())
             case 'Q':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_RedEngine', ext_list=after_dot['_RedEngine']))
             case 'R':
@@ -258,13 +247,13 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             case 'U':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_Unigene', ext_list=after_dot['_Unigene']))
             case 'V':
-                btn.clicked.connect(self.raw2dds)
+                btn.clicked.connect(lambda: self.childs.raw2dds())
             case 'W':
-                btn.clicked.connect(self.raw2atrac)
+                btn.clicked.connect(lambda: self.childs.raw2atrac())
             case 'X':
-                btn.clicked.connect(self.raw2wav)
+                btn.clicked.connect(lambda: self.childs.raw2wav())
             case 'Y':
-                btn.clicked.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+                btn.clicked.connect(lambda: SettingWindow().exec())
             case 'Z':
                 btn.clicked.connect(self.empty_out)
 
@@ -317,7 +306,7 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             btn.setToolTip(tool_tips[a])
             btn.setStyleSheet(
                 'QToolButton {'
-                f"font-family: IconLib;"
+                'font-family: IconLib;'
                 'border: 0px;'
                 'margin: 0px;'
                 'padding: 0px;'
@@ -329,12 +318,12 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
 
             if i not in (0, 13, 14, -1):
                 self.add_button(btn, contexts=[localize.change_button, localize.cancel],
-                                l_func=(lambda *args, l=i:
-                                        self.new_button(style=self.setting["Main"]["theme"], alpha=l)))
+                                l_func=(lambda *args, literal=i:
+                                        self.new_button(style=self.theme, alpha=literal)))
             elif i == 14:
                 self.add_button(btn, contexts=[localize.delete_to_trash, localize.full_delete, localize.cancel],
-                                l_func=[lambda: self.set_setting('Main', 'trash', '1'),
-                                        lambda: self.set_setting('Main', 'trash', '0')])
+                                l_func=[lambda: set_setting('Main', 'trash', '1'),
+                                        lambda: set_setting('Main', 'trash', '0')])
             else:
                 self.add_button(btn)
 
@@ -342,38 +331,33 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
             self.upperButtons.addWidget(btn)
 
     def new_button(self, style, alpha):
-        cbm.CBWindow(style=style, letter=alpha).exec()
+        CBWindow(style=style, letter=alpha).exec()
         self.buttons_create()
 
     # Наполняет списком меню "Архивы", "Образы дисков" и "Игровые Движки".
     def archive_list_create(self):
+        
+        db = DatabaseConnect()
+        archivesList = db.get_table('archives_list', filter=True)
 
-        engine = sqlalchemy.create_engine("sqlite:///game_base.db")
-
-        with engine.connect() as conn:
-            metadata = sqlalchemy.MetaData()
-            archives_list = sqlalchemy.Table('archives_list', metadata, autoload_with=engine)
-            query = sqlalchemy.select(archives_list).where(archives_list.c.skip == 0)
-            archivesList = pandas.read_sql_query(query, conn)
-
-        if self.setting['Main']['group_arch'] == '2':
+        def create_literal_submenus(idx, menu_item):
             abc = sorted(list({archivesList['ArchivesName'][n][0].upper() for n in range(len(archivesList))
-                               if archivesList['Index'][n] not in (3, 5, 4) and archivesList['ArchivesName'][n][0]
-                               not in '0123456789'}), key=lambda x: x)
-            self.archive_list = {'0-9': self.menu_archives.addMenu('0-9')}
+                               if archivesList['Index'][n] == idx and archivesList['ArchivesName'][n][0] not in '0123456789'}), 
+                               key=lambda x: x)
+            items_list = {'0-9': menu_item.addMenu('0-9')}
 
             for liter in abc:
-                self.archive_list[liter] = self.menu_archives.addMenu(liter)
+                items_list[liter] = menu_item.addMenu(liter)
+            
+            return items_list
+
+        if self.setting['Main']['group_arch'] == '2':
+            self.archive_list = create_literal_submenus(1, self.menu_archives)
 
         if self.setting['Main']['group_ge'] == '2':
-            abc2 = sorted(list({archivesList['ArchivesName'][n][0].upper() for n in range(len(archivesList))
-                                if archivesList['Index'][n] == 4 and archivesList['ArchivesName'][n][0]
-                                not in '0123456789'}), key=lambda x: x)
-            self.engine_list = {'0-9': self.menu_game_engines.addMenu('0-9')}
+            self.engine_list = create_literal_submenus(4, self.menu_game_engines)
 
-            for liter in abc2:
-                self.engine_list[liter] = self.menu_game_engines.addMenu(liter)
-
+        # 1 = Archives, 3 = Disk images, 4 = Game Engines, 5 = Installers
         for n in range(len(archivesList)):
             arch_name = archivesList['ArchivesName'][n]
             func_name = archivesList['Function'][n]
@@ -436,90 +420,79 @@ class MainWindow(QMainWindow, ui.Ui_BFGUnpacker, child_gui_data.ChildGuiData):
     def filter_list_create(self, items):
         Thread(target=self.flc, daemon=True, args=(items,)).start()
 
+    def get_literal(self, name, year, sort_by_names, def_item):
+        literal = name[0].upper()
+
+        # Проверка на название, начинающиеся не с цифры и не с латиницы, либо год неизвестен
+        if (sort_by_names and literal not in self.abc + '0123456789') or (not sort_by_names and year == -1):
+            return localize.other
+        # Проверка на название, начинающиеся с цифры, либо игра выпущена до 1991 года
+        if (sort_by_names and literal in '0123456789') or (not sort_by_names and year <= 1990):
+            return def_item
+
+        # Возвращает букву либо год, если предыдущие условие не выполнены
+        return literal if sort_by_names else str(year)
+    
+    def create_parent_list(self, root, sort_by_names, default_item_name):
+        items_list = self.abc if sort_by_names else range(1991, datetime.now().year + 1)
+
+        default_parent = QStandardItem(default_item_name)
+        self.parent_list[default_item_name] = default_parent
+        root.appendRow(default_parent)
+
+        for item in items_list:
+            item = str(item)
+            new_parent = QStandardItem(item)
+            self.parent_list[item] = new_parent
+            root.appendRow(new_parent)
+        
+        other_parent = QStandardItem(localize.other)
+        self.parent_list[localize.other] = other_parent
+        root.appendRow(other_parent)
+
     # Создается список игр в три-вью
     def tree_view_create(self):
         self.mainList = self.mainList.sort_values(by='game_name', key=lambda x: x.str.lower()).reset_index(drop=True)
+        loader_data = LoaderData()
+        loader_data.all_games = len(self.mainList)
+        sort_by_names = self.setting['Main']['group'] == 'name'
+        default_item_name = '0-9' if sort_by_names else '... - 1990'
+        self.create_parent_list(self.root_item, sort_by_names, default_item_name)
 
         for _, row in self.mainList.iterrows():
             self.current_game += 1
+            name = row['game_name']
+            loader_data.current_game = self.current_game
+            loader_data.game_name = name
             self.names[row['game_name']] = row['release_year']
 
-        # Сортировка по имени
-        if self.setting['Main']['group'] == 'name':
-            new_parent = QStandardItem('0-9')
-            self.parent_list['0-9'] = new_parent
-            self.root_item.appendRow(new_parent)
+            try:
+                year = int(row['release_year'])
+            except (ValueError, TypeError):
+                year = -1
+            
+            new_lit = self.get_literal(name, year, sort_by_names, default_item_name)
 
-            for item in self.abc:
-                new_parent = QStandardItem(item)
-                self.parent_list[item] = new_parent
-                self.root_item.appendRow(new_parent)
-
-            new_parent = QStandardItem(localize.other)
-            self.parent_list[localize.other] = new_parent
-            self.root_item.appendRow(new_parent)
-
-            for name in self.names:
-
-                if name[0].upper() in '0123456789':
-                    literal = '0-9'
-                elif name[0].upper() in self.abc:
-                    literal = name[0].upper()
-                else:
-                    literal = localize.other
-
-                child = QStandardItem(name)
-                child.setToolTip(name)
-                self.parent_list[literal].appendRow(child)
-
-        # Сортировка по годам
-        else:
-            new_parent = QStandardItem(localize.other)
-            self.parent_list[localize.other] = new_parent
-            self.root_item.appendRow(new_parent)
-            old_games = QStandardItem('... - 1990')
-            self.parent_list['... - 1990'] = old_games
-            year_now = datetime.now().year
-
-            for i in range(year_now, 1990, -1):
-                item = str(i)
-                new_parent = QStandardItem(item)
-                self.parent_list[item] = new_parent
-                self.root_item.appendRow(new_parent)
-
-            for name in self.names:
-
-                try:
-                    y = int(self.names[name])
-
-                    if y < 1991:
-                        y = '... - 1990'
-                    else:
-                        y = str(y)
-
-                except (ValueError, TypeError):
-                    y = localize.other
-
-                child = QStandardItem(name)
-                child.setToolTip(name)
-                self.parent_list[y].appendRow(child)
-
-            self.root_item.appendRow(old_games)
+            child = QStandardItem(name)
+            child.setToolTip(name)
+            self.parent_list[new_lit].appendRow(child)
 
         self.filter_list_create(self.names)
         self.model.setHeaderData(0, Qt.Orientation.Horizontal, localize.select_something)
-        self.all_games_count.setText(f'{localize.all_games} {self.all_games}')
+        self.all_games_count.setText(f'{localize.all_games} {str(self.all_games)}')
 
     def change_theme(self, theme_name):
         apply_stylesheet(self, theme=f'{theme_name}.xml')
-        self.set_setting('Main', 'theme', theme_name)
+        set_setting('Main', 'theme', theme_name)
+        self.theme = setting['Main']['theme']
         self.themes_list_create()
 
     def change_lang(self, lang):
-        self.set_setting('Main', 'lang', lang)
-        self.lang_list_create()
+        set_setting('Main', 'lang', lang)
+        self.lang = setting['Main']['lang']
         importlib.reload(localize)
         self.buttons_create()
         self.model.setHeaderData(0, Qt.Orientation.Horizontal, localize.select_something)
         self.all_games_count.setText(f'{localize.all_games} {self.all_games}')
         self.retranslateUi()
+        self.lang_list_create()

@@ -1,3 +1,4 @@
+from icecream import ic
 from source.reaper import Reaper, file_reaper
 
 
@@ -32,12 +33,14 @@ class Rockstar(Reaper):
             if version == 0:
                 table_size = int.from_bytes(file.read(4), byteorder='big')
                 file_count = int.from_bytes(file.read(4), byteorder='big')
+                ic(table_size, file_count)
 
             elif version == 2:
                 table_size = int.from_bytes(file.read(4), byteorder='big')
                 file_count = int.from_bytes(file.read(4), byteorder='big')
                 file.seek(4)
                 encrypt = int.from_bytes(file.read(4), byteorder='big')
+                ic(table_size, file_count, encrypt)
 
             elif version == 6:
                 pass

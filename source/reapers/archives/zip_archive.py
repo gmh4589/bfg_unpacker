@@ -5,6 +5,7 @@ from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 from source.codecs.zip_methods import ZipMethods
+from source.codecs.oodle import OodleDecompress
 
 # TODO: Add support other compress codecs
 
@@ -50,6 +51,10 @@ class Zip(Reaper):
 
             elif cm == 12:  # BZIP2
                 new_file.write(bz2.decompress(cd))
+            
+            elif cm == 15: # Oodle
+                oodle = OodleDecompress('oo2core_8_win64.dll')
+                new_file.write(oodle.decompress(cd))
 
             else:
                 new_file.write(cd)
@@ -81,8 +86,8 @@ class Zip(Reaper):
         elif cm == 14:  # LZMA
             self.unzip(path, ZipMethods.LZMA_DYNAMIC)
 
-        elif cm == 15:  # Oodle
-            self.unzip(path, ZipMethods.OODLE)
+        # elif cm == 15:  # Oodle
+        #     self.unzip(path, ZipMethods.OODLE)
 
         elif cm == 18:  # Terse
             self.unzip(path, ZipMethods.TERSE)

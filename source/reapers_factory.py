@@ -5,16 +5,17 @@ import numpy as np
 
 from source.ui import localize
 from source import reapers
-from source.reapers import *
+from source.reapers import other_prg, re_engine, unreal, qbms, unity, cel_top, zip_archive, locres, strings
 from source.file_data import FileData
 
 
 class ReapersFactory:
 
-    def __init__(self, reapers_table, func_name):
+    def __init__(self, reapers_table, func_name='', script_name=''):
         self.reapers_table = reapers_table
         self.proc = None
         self.func_name = func_name
+        self.script_name = script_name
 
     @staticmethod
     def get_class(path):
@@ -86,7 +87,6 @@ class ReapersFactory:
     def get_reaper(self):
         lst = list(self.reapers_table['ext'])
         keys = [e for e in range(len(lst)) if lst[e] == self.file_data.ext]
-        # keys = [e for e in range(len(lst))]
         ic(len(keys))
 
         if len(keys) == 1:

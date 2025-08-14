@@ -1,5 +1,6 @@
 import os
 from collections import namedtuple
+from icecream import ic
 
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
@@ -45,6 +46,7 @@ class Resources(Reaper):
                 name_len = int.from_bytes(index_file.read(4), byteorder='little')
                 source_file = index_file.read(name_len).decode('utf-8')
                 dest_name_len = int.from_bytes(index_file.read(4), byteorder='little')
+                ic(file_type)
 
                 if dest_name_len:
                     dest_name = index_file.read(dest_name_len).decode('utf-8')

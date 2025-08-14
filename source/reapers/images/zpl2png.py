@@ -2,6 +2,7 @@ import os
 import requests
 import shutil
 from time import sleep
+
 from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -9,17 +10,39 @@ from source.ui import localize
 
 class ZPL2PNG(Reaper):
 
-    def __init__(self, width=58, height=90):
+    def __init__(self, width=None, height=None):
         super().__init__()
         self.width = width
         self.height = height
-
-    @file_reaper
+    
     def run(self):
 
-        with open(self.file_name, 'r', encoding='utf-8') as zpl_file:
+        if self.width is None and self.height is None:
+            self.get_size()
+
+    def get_size(self):
+        size_list = ['20x20', '30x20', '30x30', '43x25', '58x30', '58x40', '58x60', 
+                     '58x90', '75x120', '100x50', '100x72', '100x150', '150x50']
+        
+        def callback(selected_value):
+
+            if selected_value in size_list:
+                self.width, self.height = selected_value.split('x')
+                self.width = int(self.width)
+                self.height = int(self.height)
+                self.continue_run()
+            else:
+                self.update_signal.emit(100, '', localize.error, True)
+
+        self.user_choice_signal.emit('Select label size', size_list, callback)
+
+    @file_reaper
+    def continue_run(self):
+        
+        with open(self.file_name, 'r') as zpl_file:
             zpl = zpl_file.read()
 
+        ic(self.width, self.height)
         url = f'http://api.labelary.com/v1/printers/8dpmm/labels/{round(self.width / 25.4, 2)}x{round(self.height / 25.4, 2)}/0/'
         files = {'file': zpl}
         headers = {'Accept': 'image/png'}

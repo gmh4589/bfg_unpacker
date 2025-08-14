@@ -1,4 +1,4 @@
-import os
+
 import zlib
 
 from source.reaper import Reaper, file_reaper
@@ -42,12 +42,13 @@ class Brink(Reaper):
             if not self.magic([b'PSAR', ], magic, 'Brink'):
                 return
 
-            sdpk_file.seek(8)
-            compression_method = sdpk_file.read(4).decode('ascii')
+            sdpk_file.seek(12)
+            # compression_method = sdpk_file.read(4).decode('ascii')
             header_size = int.from_bytes(sdpk_file.read(4), byteorder="big") - 32
             entry_size = int.from_bytes(sdpk_file.read(4), byteorder="big")
             entry_count = int.from_bytes(sdpk_file.read(4), byteorder="big")
-            data_block_size = int.from_bytes(sdpk_file.read(4), byteorder="big")
+            # data_block_size = int.from_bytes(sdpk_file.read(4), byteorder="big")
+            sdpk_file.seek(4, 1)
             sizes_long = int.from_bytes(sdpk_file.read(4), byteorder="big")
             sizes = []
 

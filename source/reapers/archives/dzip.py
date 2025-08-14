@@ -1,4 +1,4 @@
-import os
+
 import zlib
 from source.reaper import Reaper, file_reaper
 

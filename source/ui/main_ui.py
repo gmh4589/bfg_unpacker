@@ -1,26 +1,33 @@
 import os
-
 from threading import Thread
 
 import pandas
-import sqlalchemy
 
 from PyQt6.QtCore import QRect, Qt
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QWidget, QWidgetAction, QToolButton, QTextBrowser, QLabel, QTreeView, QHBoxLayout, QCheckBox, QMenuBar, QMenu, QFileDialog
 
 from source.codecs.image_tools import create_cubemap
 from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
 from source.ui import setting as setting_ui, theme_creator, localize
-from source.reapers.ffmpeg_tool import ffmpeg_conv
+from source.ui.loader import Loader
+from source.ui.child_gui_data import ChildGuiData
+from source.setting import setting, theme, set_setting
+from source.db_connect import DatabaseConnect
+from source.qprocess import QProcessList
 
 
 class Ui_BFGUnpacker(Translate):
 
     def __init__(self):
         super().__init__()
+        self.setting = setting
+        self.theme = theme
+        self.lang = self.setting['Main']['lang']
+        self.childs = ChildGuiData()
+
         self.path_to_root = os.path.curdir
         self.centralwidget = QWidget(self)
         self.font = QFont()
@@ -126,9 +133,6 @@ class Ui_BFGUnpacker(Translate):
         self.sxd2atrac = QWidgetAction(self.menuPlayStation_4)
         self.menuPlayStation_4.addAction(self.sxd2atrac)
 
-        # self.menuPlayStation_5 = QMenu(self.menuSony)
-        # self.menuSony.addAction(self.menuPlayStation_5.menuAction())
-
         self.menuPSP = QMenu(self.menuSony)
         self.menuSony.addAction(self.menuPSP.menuAction())
         self.pspCSO = QWidgetAction(self.menuPSP)
@@ -167,12 +171,6 @@ class Ui_BFGUnpacker(Translate):
         self.menuMicrosoft.addAction(self.menuXBox_360.menuAction())
         self.menuXBox_360.addAction(self.xboxISO)
 
-        # self.menuXBox_One = QMenu(self.menuMicrosoft)
-        # self.menuMicrosoft.addAction(self.menuXBox_One.menuAction())
-
-        # self.menuXBox_Series = QMenu(self.menuMicrosoft)
-        # self.menuMicrosoft.addAction(self.menuXBox_Series.menuAction())
-
         self.consolesMenu.addAction(self.menuMicrosoft.menuAction())
 
         # Nintendo
@@ -183,26 +181,17 @@ class Ui_BFGUnpacker(Translate):
         self.gcCISO = QWidgetAction(self.menuGameCube)
         self.gcCSO = QWidgetAction(self.menuGameCube)
         self.menuGameCube.addAction(self.gcCSO)
-        # self.game_cubeISO = QWidgetAction(self.menuGameCube)
-        # self.menuGameCube.addAction(self.game_cubeISO)
         self.menuGameCube.addAction(self.gcCISO)
 
         self.menuWii = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuWii.menuAction())
         self.wiiISO = QWidgetAction(self.menuWii)
         self.menuWii.addAction(self.wiiISO)
-        # self.wiiWDF = QWidgetAction(self.menuWii)
-        # self.menuWii.addAction(self.wiiWDF)
 
         self.menuWii_U = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuWii_U.menuAction())
         self.wii_wua_zar = QWidgetAction(self.menuWii)
         self.menuWii_U.addAction(self.wii_wua_zar)
-
-        # self.menuSwitch = QMenu(self.menuNintendo)
-        # self.menuNintendo.addAction(self.menuSwitch.menuAction())
-        # self.switchNSP = QWidgetAction(self.menuSwitch)
-        # self.menuSwitch.addAction(self.switchNSP)
 
         self.menuClassic_Consoles = QMenu(self.menuNintendo)
         self.menuNintendo.addAction(self.menuClassic_Consoles.menuAction())
@@ -222,9 +211,6 @@ class Ui_BFGUnpacker(Translate):
         self.menuSega.addAction(self.menuDreamcast.menuAction())
         self.dreamcastGDI = QWidgetAction(self.menuDreamcast)
         self.menuDreamcast.addAction(self.dreamcastGDI)
-
-        # self.menuMegaDrive = QMenu(self.menuSega)
-        # self.menuSega.addAction(self.menuMegaDrive.menuAction())
 
         self.menuSaturn = QMenu(self.menuSega)
         self.menuSega.addAction(self.menuSaturn.menuAction())
@@ -278,7 +264,6 @@ class Ui_BFGUnpacker(Translate):
         self.actionMedia_Info = QWidgetAction(self)
         self.actionFFMPEG_Sound_Converter = QWidgetAction(self)
         self.actionVGM_Stream_Tools = QWidgetAction(self)
-        # self.actionToWAV = QWidgetAction(self)
         self.actionRAW_to_WAV = QWidgetAction(self)
         self.actionRAW_to_Atrac = QWidgetAction(self)
         self.actionFFMPEG_Image_Converter = QWidgetAction(self)
@@ -316,7 +301,6 @@ class Ui_BFGUnpacker(Translate):
         self.videoConverters.addAction(self.actionMedia_Info)
         self.audioConverters.addAction(self.actionFFMPEG_Sound_Converter)
         self.audioConverters.addAction(self.actionVGM_Stream_Tools)
-        # self.audioConverters.addAction(self.actionToWAV)
         self.audioConverters.addAction(self.actionRAW_to_WAV)
         self.audioConverters.addAction(self.actionRAW_to_Atrac)
         self.imageConverters.addAction(self.actionFFMPEG_Image_Converter)
@@ -354,40 +338,27 @@ class Ui_BFGUnpacker(Translate):
 
         if not os.path.exists(self.out_dir) or self.out_dir == 'None':
             self.out_dir = QFileDialog.getExistingDirectory(self, localize.select_folder)
-            self.set_setting('Main', 'out_path', self.out_dir)
+            set_setting('Main', 'out_path', self.out_dir)
 
-        # Game list creating via SQL database
-        engine = sqlalchemy.create_engine("sqlite:///game_base.db")
+        db = DatabaseConnect()
+        self.mainList = db.get_table('game_list')
+        self.reapers_table = db.get_table('ext_list')
+        engines = ['unity', 'unreal', 'renpy', 'game_maker', 'rpg_maker', 'godot']
 
-        with engine.connect() as conn:
-            metadata = sqlalchemy.MetaData()
-            game_list_table = sqlalchemy.Table('game_list', metadata, autoload_with=engine)
-            reapers_table = sqlalchemy.Table('ext_list', metadata, autoload_with=engine)
-            self.mainList = pandas.read_sql_query(sqlalchemy.select(game_list_table), conn)
-            self.reapers_table = pandas.read_sql_query(sqlalchemy.select(reapers_table), conn)
+        for engine in engines:
 
-            def load_table(table_name):
-                table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
-                query = sqlalchemy.select(table)
-                t_list = pandas.read_sql_query(query, conn)
-                self.mainList = pandas.concat([self.mainList, t_list], axis=0, ignore_index=True)
-
-            if int(self.setting['Engines']['unity']) > 0:
-                load_table('unity_list')
-            if int(self.setting['Engines']['unreal']) > 0:
-                load_table('unreal_list')
-            if int(self.setting['Engines']['renpy']) > 0:
-                load_table('renpy_list')
-            if int(self.setting['Engines']['game_maker']) > 0:
-                load_table('gamemaker_list')
-            if int(self.setting['Engines']['rpg_maker']) > 0:
-                load_table('rpgmaker_list')
-            if int(self.setting['Engines']['godot']) > 0:
-                load_table('godot_list')
+            if int(self.setting['Engines'][engine]) > 0:
+                engine_list = db.get_table(f"{engine.replace('_', '')}_list")
+                self.mainList = pandas.concat([self.mainList, engine_list], axis=0, ignore_index=True)
 
         self.all_games = len(self.mainList)
+
+        # TODO: White screen if run progress bar throw Qt, if run throw Tkinter - all okay
         if int(self.setting["Main"]["load_bar"]):
-            Thread(target=self.pb_show, daemon=True).start()
+            # Thread(target=pb_show, daemon=True).start()
+            loader = Loader()
+            loder_conn = QProcessList()
+            loder_conn.q_connect(loader, '', header=f'{localize.load_bar}...', maximum=100)
 
         self.names = {}
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
@@ -405,7 +376,6 @@ class Ui_BFGUnpacker(Translate):
         self.fav_filter_model = QStandardItemModel()
 
         Thread(target=self.tree_view_create, daemon=True).start()
-        # self.quickOpen.triggered.connect(self.q_open)
         self.quickOpen.triggered.connect(self.create_queue)
         self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
         self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso)|'))
@@ -419,12 +389,12 @@ class Ui_BFGUnpacker(Translate):
         self.ps4PKG_CNT.triggered.connect(lambda: self.create_queue(func_name='_PS4_PKG', ext_list=f'PS4 PKG {localize.archives} (*.pkg)|'))
         self.ps3_psarc.triggered.connect(lambda: self.create_queue(func_name='_PS3_PSARC', ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|'))
         self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM'))
-        self.vag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS2 VAG Audio File (*.vag)|'))
-        self.xvag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS2 XVAG Audio File (*.vag; *.xvag)|'))
-        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=f'PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.vag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS2 VAG Audio File (*.vag)|'))
+        self.xvag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS2 XVAG Audio File (*.vag; *.xvag)|'))
+        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
         self.favorites = []
 
         if os.path.exists('favorites.ini'):
@@ -448,44 +418,41 @@ class Ui_BFGUnpacker(Translate):
         self.actionArchiveScanner.triggered.connect(self.find_zip_method)
         self.gameList_treeView.clicked.connect(self.file_reaper)
         self.action7z_Archiver.triggered.connect(lambda: self.create_queue(func_name='_7ZIP'))
-        self.actionGAUP.triggered.connect(lambda: self.create_queue(func_name='_GAUP'))
+        self.actionGAUP.triggered.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
         self.actionSAU.triggered.connect(lambda: self.create_queue(func_name='_SAU'))
-        self.actionTotal_Observer.triggered.connect(lambda: self.create_queue(func_name='_Total'))
-        self.actionMedia_Info.triggered.connect(lambda: ffmpeg_conv({'Info': True,
-                                                                     'file_name': QFileDialog.getOpenFileNames(self, caption=localize.open_file,
-                                                                                                               directory=self.setting['Main']['last_dir'])[0][0]}))
+        self.actionTotal_Observer.triggered.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\TotalObserver.wcx"))
+        self.actionMedia_Info.triggered.connect(lambda: self.create_queue(func_name='_MediaInfo'))
         self.exitAction.triggered.connect(self.close)
         # Settings run
-        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow(style=self.setting["Main"]["theme"]).exec())
+        self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow().exec())
         # Theme creator run
-        self.create_theme.triggered.connect(lambda: theme_creator.ThemeCreateWindow(style=self.setting["Main"]["theme"]).exec())
+        self.create_theme.triggered.connect(lambda: theme_creator.ThemeCreateWindow().exec())
         # Set out folder
-        self.action_SelectOutPath.triggered.connect(lambda: self.set_setting('Main', 'out_path', self.file_open(select_folder=True)))
+        self.action_SelectOutPath.triggered.connect(
+            lambda: set_setting('Main', 'out_path', QFileDialog.getExistingDirectory(self, caption=localize.select_folder, directory=self.setting['Main']['last_dir'])))
 
         # Favorite block
         self.btn_All_Favorite.clicked.connect(lambda: self.all_favorites())  # All\favorite switch
-        self.toolButton_plus.clicked.connect(  # Add to favorite
-            lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))
-        self.toolButton_minus.clicked.connect(  # Delete from favorite
-            lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))
+        self.toolButton_plus.clicked.connect(lambda: self.favorite_setting(True, self.comboBox_gameList.currentText()))  # Add to favorite
+        self.toolButton_minus.clicked.connect(lambda: self.favorite_setting(False, self.comboBox_gameList.currentText()))  # Delete from favorite
         self.toolButton_Find.clicked.connect(lambda: self.find_item_in_treeview())  # Find game button
 
         # Create subfolders checkbox
         self.checkBox_createSubfolders.setChecked(bool(int(self.setting['Main']['subfolders'])))
         self.checkBox_createSubfolders.stateChanged.connect(
-            lambda: self.set_setting('Main', 'subfolders', "2" if self.checkBox_createSubfolders.isChecked() else "0"))
+            lambda: set_setting('Main', 'subfolders', "2" if self.checkBox_createSubfolders.isChecked() else "0"))
 
         # Converters with UI
-        self.actionFFMPEG_Video_Converter.triggered.connect(self.ffmpeg_video)
-        self.actionFFMPEG_Sound_Converter.triggered.connect(self.ffmpeg_audio)
-        self.actionRAW_to_WAV.triggered.connect(self.raw2wav)
-        self.actionRAW_to_Atrac.triggered.connect(self.raw2atrac)
-        self.actionFFMPEG_Image_Converter.triggered.connect(self.ffmpeg_image)
-        self.action_pillow.triggered.connect(self.pillow_conv)
-        self.actionImage_to_DDS_Microsoft.triggered.connect(self.image_to_dds_ms)
-        self.actionImage_to_DDS_nVidia.triggered.connect(self.image_to_dds_nv)
-        self.actionDDS_Header_Generator.triggered.connect(self.raw2dds)
-        self.actionFindZipMethod.triggered.connect(self.find_zip)
+        self.actionFFMPEG_Video_Converter.triggered.connect(lambda: self.childs.ffmpeg_video())
+        self.actionFFMPEG_Sound_Converter.triggered.connect(lambda: self.childs.ffmpeg_audio())
+        self.actionRAW_to_WAV.triggered.connect(lambda: self.childs.raw2wav())
+        self.actionRAW_to_Atrac.triggered.connect(lambda: self.childs.raw2atrac())
+        self.actionFFMPEG_Image_Converter.triggered.connect(lambda: self.childs.ffmpeg_image())
+        self.action_pillow.triggered.connect(lambda: self.childs.pillow_conv())
+        self.actionImage_to_DDS_Microsoft.triggered.connect(lambda: self.childs.image_to_dds_ms())
+        self.actionImage_to_DDS_nVidia.triggered.connect(lambda: self.childs.image_to_dds_nv())
+        self.actionDDS_Header_Generator.triggered.connect(lambda: self.childs.raw2dds())
+        self.actionFindZipMethod.triggered.connect(lambda: self.childs.find_zip())
         self.actionCubeMap_Creator.triggered.connect(create_cubemap)
 
         self.download = False

@@ -24,7 +24,8 @@ class Streamed(Reaper):
                 i = int.from_bytes(streamed.read(4), byteorder='big')
                 offset = int.from_bytes(streamed.read(4), byteorder='big')
                 zip_size = int.from_bytes(streamed.read(4), byteorder='big')
-                unzip_size = int.from_bytes(streamed.read(4), byteorder='big')
+                # unzip_size = int.from_bytes(streamed.read(4), byteorder='big')
+                streamed.seek(4, 1)
                 here = streamed.tell()
 
                 streamed.seek(offset)

@@ -12,7 +12,6 @@ class FileData:
     json_type: str
 
     def __init__(self, fn):
-        
         base_name = os.path.basename(fn)
         name_split = base_name.lower().split('.')
 
@@ -26,6 +25,7 @@ class FileData:
         if self.ext == 'json':
                 
             with open(fn, 'r') as js:
+
                 try:
                     json_data = json.load(js)
                 except (PermissionError, FileNotFoundError, FileExistsError, UnicodeDecodeError):

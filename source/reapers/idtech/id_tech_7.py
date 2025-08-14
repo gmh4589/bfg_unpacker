@@ -1,4 +1,4 @@
-import os
+
 from source.reaper import Reaper, file_reaper
 
 
@@ -14,16 +14,17 @@ class Indiana(Reaper):
             if not self.magic([b'IDCL', ], magic, 'idTech 7'):
                 return
 
-            version = int.from_bytes(res_file.read(4), byteorder="little")
-            hash_sum = int.from_bytes(res_file.read(8), byteorder="little")
-            res_file.seek(0x44)
+            # version = int.from_bytes(res_file.read(4), byteorder="little")
+            # hash_sum = int.from_bytes(res_file.read(8), byteorder="little")
+            # res_file.seek(0x44)
+            res_file.seek(0x50)
             file_data_start = int.from_bytes(res_file.read(8), byteorder="little")
             file_data_end = int.from_bytes(res_file.read(8), byteorder="little")
             res_file.seek(file_data_start)
             file_count = int.from_bytes(res_file.read(8), byteorder="little")
             names_offsets = []
 
-            for i in range(file_count):
+            for _ in range(file_count):
                 name_start = int.from_bytes(res_file.read(8), byteorder="little")
                 names_offsets.append(name_start)
 

@@ -2,32 +2,29 @@ import os
 from subprocess import Popen
 from PyQt6.QtCore import QRect, QCoreApplication, QMetaObject, QThread
 from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QDialog, QWidget, QToolButton, QLabel, QComboBox, QFileDialog
 from tkinter import simpledialog
 from icecream import ic
 
 from qt_material import apply_stylesheet
-import configparser
 
 from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui import localize
+from source.setting import setting, theme
 
 
 class ChildUIWindow(QDialog):
 
-    def __init__(self, label_list=None, action_list=None, default_list=None, action=None, style='',
+    def __init__(self, label_list=None, action_list=None, default_list=None, action=None, ok_run=None,
                  gui_name='test_child', ext_list='', drop_a=False, item1=0, item2=1, combos=''):
-
         super().__init__()
 
-        self.setting = configparser.ConfigParser()
-        self.setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
-        apply_stylesheet(self, theme=f'{style}.xml')
-        self.style = style
+        self.setting = setting
+        apply_stylesheet(self, theme=f'{theme}.xml')
         self.setWindowTitle(gui_name)
         self.label_list = label_list
-        drop_c = len(label_list)
-        h = drop_c * 40 + 10 if drop_c > 1 else 90
+        self.drop_c = len(self.label_list)
+        h = self.drop_c * 40 + 10 if self.drop_c > 1 else 90
         self.action = action
         self.action_list = action_list
         self.ext_list = ext_list
@@ -36,11 +33,6 @@ class ChildUIWindow(QDialog):
         self.centralwidget = QWidget(self)
         self.font = QFont()
         self.font.setPointSize(8)
-        self.ok_button = QToolButton(self.centralwidget)
-        self.ok_button.setFont(self.font)
-        self.ok_button.setGeometry(QRect(260, int((h / 2) - 40), 130, 30))
-        self.ok_button.clicked.connect(self.run_p)
-        self.ok_button.text()
         self.cancel_button = QToolButton(self.centralwidget)
         self.cancel_button.setFont(self.font)
         self.cancel_button.clicked.connect(self.close)
@@ -50,16 +42,28 @@ class ChildUIWindow(QDialog):
         self.combos = {} if not combos else combos
         self.item1 = item1
         self.item2 = item2
-        self.outer = True if type(self.action) is str or None else False
+        self.outer = type(self.action) is str or None
+        self.default_list = default_list
+        self.set_items()
+        
+        self.ok_button = QToolButton(self.centralwidget)
+        self.ok_button.setFont(self.font)
+        self.ok_button.setGeometry(QRect(260, int((h / 2) - 40), 130, 30))
+        self.ok_button.clicked.connect(self.run_p if ok_run is None else lambda *args, s=self.drops[0].currentText, c=self.close: ok_run(s, c))
+        self.ok_button.text()
+        self.retranslateUi()
+        # self.setCentralWidget(self.centralwidget)
+        QMetaObject.connectSlotsByName(self)
 
-        if label_list is not None:
+    def set_items(self):
+        if self.label_list is not None:
 
-            for x, label in enumerate(label_list):
+            for x, label in enumerate(self.label_list):
                 new_l = QLabel(self.centralwidget)
                 new_l.setGeometry(QRect(5, 40 * x + 10, 90, 30))
                 new_l.setText(f"{label}: ")
 
-            for i in range(drop_c):
+            for i in range(self.drop_c):
                 filter_model = QStandardItemModel()
                 al = sorted(self.action_list[i].values()) if type(self.action_list[i]) is dict else self.action_list[i]
 
@@ -75,13 +79,11 @@ class ChildUIWindow(QDialog):
                 self.drops[i].setGeometry(QRect(100, 40 * i + 10, 150, 30))
                 self.drops[i].currentTextChanged.connect(self.upvote)
                 self.drops[i].setModel(filter_model)
-                self.drops[i].setCurrentText(default_list[i])
+                self.drops[i].setCurrentText(self.default_list[i])
 
             if self.drop_a:
-                self.drops[item1].currentTextChanged.connect(self.drop_action)
+                self.drops[self.item1].currentTextChanged.connect(self.drop_action)
 
-            self.retranslateUi()
-            QMetaObject.connectSlotsByName(self)
 
     def upvote(self):
 
@@ -167,7 +169,7 @@ class ChildUIWindow(QDialog):
 
                             args[self.label_list[drop]] = a
 
-                        QThread(self.action(args)).run()
+                        QThread(self.action(**args)).run()
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate

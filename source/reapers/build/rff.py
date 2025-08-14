@@ -40,7 +40,7 @@ class RFFExtractor(Reaper):
                         fat[i] ^= (key >> 1)
                         key += 1
                     else:
-                        fat[i] ^= key
+                        fat[i] ^= key & 0xFF
                         key += (i & 1)
 
                 files_data = io.BytesIO(fat.tobytes())

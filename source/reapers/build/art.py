@@ -3,7 +3,7 @@ from tkinter.filedialog import askopenfilename
 from PIL import Image
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
-# TODO: Add to archive creation support
+# TODO: Something wrong with palette colors, need to check
 
 
 class ARTExtractor(Reaper):
@@ -13,14 +13,15 @@ class ARTExtractor(Reaper):
         palette_file = os.path.join(os.path.dirname(self.file_name), 'PALETTE.DAT')
 
         if not os.path.exists(palette_file):
-            palette_file = askopenfilename(filetypes=[("Palette files", "PALETTE.DAT")])
+            palette_file = askopenfilename(filetypes=[("Palette files", "*.PAL; *.DAT"), (localize.all_files, "*.*")],)
 
         if not palette_file:
             self.update_signal.emit(100, '', '', True)
             return
 
         with open(palette_file, "rb") as palette:
-            color_seq = sum([[int.from_bytes(palette.read(1)) * 4 for _ in range(3)] for i in range(256)], [])
+            # color_seq = sum([[int.from_bytes(palette.read(1)) * 4 for _ in range(3)] for i in range(256)], [])
+            color_seq = sum([[int.from_bytes(palette.read(1)) for _ in range(3)] for _ in range(256)], [])
 
         with open(self.file_name, "rb") as art_file:
             magic = art_file.read(4)

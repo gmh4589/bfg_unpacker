@@ -1,43 +1,32 @@
 import os
 import winreg
 
-import pandas
-import sqlalchemy
 from PyQt6.QtCore import QRect, QMetaObject, QCoreApplication
 from PyQt6.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import *
-import configparser
+from PyQt6.QtWidgets import QDialog, QWidget, QLabel, QGroupBox, QVBoxLayout, QCheckBox, QRadioButton, QComboBox, QToolButton, QFileDialog
 from qt_material import apply_stylesheet
 
 from source.ui import localize
 from source.ui import theme_creator
+from source.setting import setting, theme
 from source.ui.custom_ui import CustomDialog
+from source.db_connect import DatabaseConnect
 
 
 class SettingWindow(QDialog):
 
-    def __init__(self, style='dark_orange'):
+    def __init__(self):
         super().__init__()
-        apply_stylesheet(self, theme=f'{style}.xml')
-        self.setting = configparser.ConfigParser()
-        self.setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
+        apply_stylesheet(self, theme=f'{theme}.xml')
+        self.setting = setting
+        db = DatabaseConnect()
 
-        engine = sqlalchemy.create_engine("sqlite:///game_base.db")
-
-        with engine.connect() as conn:
-            metadata = sqlalchemy.MetaData()
-
-            def load_table(table_name):
-                table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
-                query = sqlalchemy.select(table)
-                return len(pandas.read_sql_query(query, conn))
-
-            self.unity_list = load_table('unity_list')
-            self.unreal_list = load_table('unreal_list')
-            self.renpy_list = load_table('renpy_list')
-            self.gamemaker_list = load_table('gamemaker_list')
-            self.rpgmaker_list = load_table('rpgmaker_list')
-            self.godot_list = load_table('godot_list')
+        self.unity_list = len(db.get_table('unity_list'))
+        self.unreal_list = len(db.get_table('unreal_list'))
+        self.renpy_list = len(db.get_table('renpy_list'))
+        self.gamemaker_list = len(db.get_table('gamemaker_list'))
+        self.rpgmaker_list = len(db.get_table('rpgmaker_list'))
+        self.godot_list = len(db.get_table('godot_list'))
 
         self.resize(450, 280)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
@@ -185,8 +174,8 @@ class SettingWindow(QDialog):
 
         self.out_folder.clicked.connect(self.select)
         self.cancel_button.clicked.connect(self.close)
-        self.create_theme.clicked.connect(lambda: theme_creator.ThemeCreateWindow(style=style).exec())
-        self.save_setting.clicked.connect(lambda: self.apply_setting(style))
+        self.create_theme.clicked.connect(lambda: theme_creator.ThemeCreateWindow().exec())
+        self.save_setting.clicked.connect(lambda: self.apply_setting(theme))
 
     def select(self):
         out_path = QFileDialog.getExistingDirectory(self, caption=localize.select_folder,
@@ -200,18 +189,18 @@ class SettingWindow(QDialog):
                 self.setting.write(config_file)
 
     def apply_setting(self, style):
-        self.setting.set('Engines', 'unreal', "2" if self.unreal_checkBox.isChecked() else "0")
-        self.setting.set('Engines', 'unity', "2" if self.unity_checkBox.isChecked() else "0")
-        self.setting.set('Engines', 'rpg_maker', "2" if self.rpg_checkBox.isChecked() else "0")
-        self.setting.set('Engines', 'game_maker', "2" if self.gamemaker_checkBox.isChecked() else "0")
-        self.setting.set('Engines', 'godot', "2" if self.godot_checkBox.isChecked() else "0")
-        self.setting.set('Engines', 'renpy', "2" if self.renpy_checkBox.isChecked() else "0")
-        self.setting.set('Main', 'group', "name" if self.sort_by_names.isChecked() else "year")
-        self.setting.set('Main', 'group_arch', "2" if self.arch_checkbox.isChecked() else "0")
-        self.setting.set('Main', 'group_ge', "2" if self.ge_checkbox.isChecked() else "0")
-        self.setting.set('Main', 'load_bar', "2" if self.load_bar.isChecked() else "0")
-        self.setting.set('Main', 'fav_format', self.fav_image_drop.currentText())
-        self.setting.set('Main', 'save_original_images', ('0' if self.save_original_only.isChecked()
+        self.setting.set('Engines', 'unreal',       "2" if self.unreal_checkBox.isChecked() else "0")
+        self.setting.set('Engines', 'unity',        "2" if self.unity_checkBox.isChecked() else "0")
+        self.setting.set('Engines', 'rpg_maker',    "2" if self.rpg_checkBox.isChecked() else "0")
+        self.setting.set('Engines', 'game_maker',   "2" if self.gamemaker_checkBox.isChecked() else "0")
+        self.setting.set('Engines', 'godot',        "2" if self.godot_checkBox.isChecked() else "0")
+        self.setting.set('Engines', 'renpy',        "2" if self.renpy_checkBox.isChecked() else "0")
+        self.setting.set('Main',    'group',        "name" if self.sort_by_names.isChecked() else "year")
+        self.setting.set('Main',    'group_arch',   "2" if self.arch_checkbox.isChecked() else "0")
+        self.setting.set('Main',    'group_ge',     "2" if self.ge_checkbox.isChecked() else "0")
+        self.setting.set('Main',    'load_bar',     "2" if self.load_bar.isChecked() else "0")
+        self.setting.set('Main',    'fav_format',   self.fav_image_drop.currentText())
+        self.setting.set('Main',    'save_original_images', ('0' if self.save_original_only.isChecked()
                                                           else ('1' if self.save_convert_only.isChecked() else '2')))
         self.setting.set('Main', 'theme', style)
 

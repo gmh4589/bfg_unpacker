@@ -1,16 +1,22 @@
-import configparser
+
 import json
 import os
 import locale
+# import configparser
 
-setting = configparser.ConfigParser()
+# setting = configparser.ConfigParser()
+
+# if os.path.exists(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'):
+#     setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
+#     lang = setting['Main']['lang']
+# else:
+#     lang = locale.getdefaultlocale()[0].split('_')[0]
+from source.setting import setting
+
+
+lang = setting['Main']['lang']
+
 script_dir = os.path.dirname(os.path.abspath(__file__)).replace(r"\source\ui", "").replace(r'\_internal', '')
-
-if os.path.exists(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini'):
-    setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
-    lang = setting['Main']['lang']
-else:
-    lang = locale.getdefaultlocale()[0].split('_')[0]
 
 if not os.path.exists(f'{script_dir}/data/local/{lang}.json'):
     lang = 'en'
@@ -166,3 +172,4 @@ tf_selector = local['tf_selector']
 hand_select = local['hand_select']
 enter_value = local['enter_value']
 multivol = local['multivol']
+big_image_error = local['big_image_error']

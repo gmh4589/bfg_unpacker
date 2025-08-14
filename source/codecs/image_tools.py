@@ -1,5 +1,4 @@
 import os
-import configparser
 import numpy as np
 from PIL import Image
 from PyQt6.QtCore import QThread
@@ -7,12 +6,12 @@ from icecream import ic
 from tkinter.filedialog import askdirectory
 
 from source.qprocess import QProcessList
-from source.reaper import Reaper, file_reaper
+from source.reapers.images.image_converter import ImageConverter
 from source.codecs.dds_tools import DDSCreator
 from source.ui import localize
+from source.setting import setting
 
-setting = configparser.ConfigParser()
-setting.read(os.getenv('APPDATA') + '\\bfg_unpacker\\setting.ini')
+Image.MAX_IMAGE_PIXELS = 500_000_000  # 500 megapixels max image size
 
 
 def gxt_save(name, data):
@@ -24,92 +23,39 @@ def gxt_save(name, data):
     os.system(f'./data/ps_tools/vita/GXTConvert.exe {name}')
 
 
-def dds_save(args):
+def dds_save(**kwargs):
 
-    with open(args['file_name'], 'rb') as df:
-        df.seek(int(args['Offset']))
+    with open(kwargs['file_name'], 'rb') as df:
+        df.seek(int(kwargs['Offset']))
         dds_data = df.read()
 
     dds = DDSCreator()
-    cubemap = 1 if args['Cubemap'] == localize.no else 0
-    out_name = os.path.basename(args['file_name']).split('.')[0]
+    cubemap = 1 if kwargs['Cubemap'] == localize.no else 0
+    out_name = os.path.basename(kwargs['file_name']).split('.')[0]
     new_name = f"{setting['Main']['out_path']}\\{out_name}.dds"
     dds.dds_save(
-        width=int(args['Width']),
-        height=int(args['Height']),
-        codec=args['Format'],
-        mips=int(args['Mip count']),
+        width=int(kwargs['Width']),
+        height=int(kwargs['Height']),
+        codec=kwargs['Format'],
+        mips=int(kwargs['Mip count']),
         cubemap=cubemap,
         name=new_name,
         data=dds_data
     )
 
 
-class KTXConvert(Reaper):
-
-    @file_reaper
-    def run(self) -> None:
-
-        with open(self.file_name, 'rb') as ktx_stream:
-            ktx_stream.seek(0x24)
-            width = int.from_bytes(ktx_stream.read(4), byteorder="little")
-            height = int.from_bytes(ktx_stream.read(4), byteorder="little")
-            ktx_stream.seek(0x60)
-            image_data = ktx_stream.read()
-
-        os.makedirs(os.path.dirname(self.output_folder), exist_ok=True)
-        new_image = Image.frombytes('RGBA', (width, height), image_data)
-        new_image.save(self.output_folder)
-        self.update_pb(1, 1, self.file_name)
-
-
-def qoi_converter():
-    # TODO: Write it!
-    pass
-
-
-def image_converter(args: dict):
+def image_converter(**kwargs):
     conv = ImageConverter()
-    conv.out_format = args.get('Format', 'png').lower()
-    conv.file_name = args.get('file_name', None)
+    conv.out_format = kwargs.get('Format', 'png').lower()
+    conv.file_name = kwargs.get('file_name', None)
     proc = QProcessList()
     ic(conv.file_name)
 
-    QThread(proc.q_connect(conv, conv.file_name, header=f'{localize.convert}: {conv.file_name}...')).run()
-
-
-class ImageConverter(Reaper):
-    out_format = 'png'
-
-    @file_reaper
-    def run(self):
-        # Full support:
-        # BLP, BMP, DDS, DIB, EPS, GIF, ICNS, ICO, IM, JPEG, JP2, JPX, MSP, PCX, PFM, PNG, APNG,
-        # PPM, SGI, SPI, TGA, TIFF, WEBP, XBM
-        # Read only:
-        # CUR, DCX, FITS, FLI, FLC, FPX, FTEX, GBR, GD, IMT, IPTC, NAA, MCIDAS, MIC, MPO, PCD,
-        # PIXAR, PSD, QOI, SUN, WAL, WMF, EMF, XPM
-        # Write only:
-        # PALM, PDF, XV
-
-        with open(self.file_name, "rb") as im_file:
-            ext = self.file_name.split('.')[-1]
-            file_name = os.path.basename(self.file_name).replace(ext, self.out_format)
-            image = Image.open(im_file)
-
-            if image.mode != 'RGBA':
-                image = image.convert('RGBA')
-
-            if self.out_format in ("jpeg", "j", "jfif", "jpe", "jpg"):
-                image = image.convert('YCbCr')
-            elif self.out_format == 'pcx':
-                image = image.convert('RGB')
-            elif self.out_format == 'xbm':
-                image = image.convert('1')
-
-            image.save(f"{self.output_folder}\\{file_name}")
-
-            self.update_pb(1, 1, file_name)
+    QThread(proc.q_connect(conv, conv.file_name,
+                           header=f'{localize.convert}: {conv.file_name}...',
+                           out_dir=setting['Main']['out_path'],
+                           subfolder=bool(int(setting['Main']['subfolders']))
+                           )).run()
 
 
 # For 24 and 32 bits
@@ -123,6 +69,7 @@ def BGR2RGB(data: bytes, color_order: str) -> bytes:
     r = [byte_array[d] for d in range(color_order.index('R'), len(byte_array), len(color_order))]
     g = [byte_array[e] for e in range(color_order.index('G'), len(byte_array), len(color_order))]
     b = [byte_array[f] for f in range(color_order.index('B'), len(byte_array), len(color_order))]
+    a = x if 'X' in color_order else a
 
     new_data = [item for sublist in (zip(r, g, b, a) if 'A' in color_order else zip(r, g, b)) for item in sublist]
     return bytes(new_data)
@@ -193,7 +140,6 @@ def create_cubemap():
                     temp.seek(start_read)
                     body += temp.read()
 
-    # TODO: Localize text
     if len(codecs) != 6:
         print(localize.six_files_in_fol)
     elif codecs.count(codecs[0]) != 6:

@@ -1,6 +1,5 @@
 import os
 import json
-
 from PyQt6.QtCore import QThread
 from icecream import ic
 from ffmpeg import FFmpeg, Progress
@@ -9,22 +8,21 @@ from source.reaper import Reaper, file_reaper, logger
 from source.qprocess import QProcessList
 from source.ui import localize
 
-
-def ffmpeg_conv(args: dict):
+def ffmpeg_conv(**kwargs):
 
     conv = Converter()
-    conv.format = args.get('Format', None)
-    conv.file_name = args.get('file_name', None)
-    conv.ab = args.get('Audio Bitrate', None)
-    conv.a_codec = args.get('Audio Codec', None)
-    conv.map = args.get('Audio Track', None)
-    conv.vf_scale = f"{args.get('Width', None)}:{args.get('High', None)}"
-    conv.vb = args.get('Video Bitrate', None)
-    conv.v_codec = args.get('Video Codec', None)
-    conv.frequency = args.get('Frequency', None)
-    conv.channels = args.get('Channels', None)
-    conv.speed = args.get('Speed', None)
-    conv.info_only = args.get('Info', None)
+    conv.format = kwargs.get('Format', None)
+    conv.file_name = kwargs.get('file_name', None)
+    conv.ab = kwargs.get('Audio Bitrate', None)
+    conv.a_codec = kwargs.get('Audio Codec', None)
+    conv.map = kwargs.get('Audio Track', None)
+    conv.vf_scale = f"{kwargs.get('Width', None)}:{kwargs.get('High', None)}"
+    conv.vb = kwargs.get('Video Bitrate', None)
+    conv.v_codec = kwargs.get('Video Codec', None)
+    conv.frequency = kwargs.get('Frequency', None)
+    conv.channels = kwargs.get('Channels', None)
+    conv.speed = kwargs.get('Speed', None)
+    conv.info_only = kwargs.get('Info', None)
     proc = QProcessList()
     ic(conv.file_name)
 

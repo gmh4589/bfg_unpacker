@@ -49,6 +49,9 @@ Utility:
     ue4repak -
     arc.exe - http://sourceforge.net/projects/arc/
     orkdec.exe - https://aluigi.altervista.org/papers/orkdec.zip
+    uniginex.exe - https://aluigi.altervista.org/papers/uniginex.zip
+    ttarchext.exe - https://aluigi.altervista.org/papers/ttarchext.zip
+    RPGMakerDecrypter-cli.exe - https://github.com/uuksu/RPGMakerDecrypter?tab=readme-ov-file
 
 Total Commander Plugins:
     GAUP - https://wincmd.ru/plugring/gaup.html

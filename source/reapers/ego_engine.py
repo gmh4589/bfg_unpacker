@@ -17,8 +17,8 @@ class OOMExtractor(Reaper):
             if not self.magic([b'PSSG', ], magic, 'Of orc and human'):
                 return
 
-            file_size = int.from_bytes(file.read(4), byteorder='big')
-            file.seek(0xC, 1)
+            # file_size = int.from_bytes(file.read(4), byteorder='big')
+            file.seek(0x10, 1)
             file_type_long = int.from_bytes(file.read(4), byteorder='big')
             file_type = file.read(file_type_long).decode('utf-8')
             name = ''
