@@ -14,14 +14,7 @@ class DDSCreator:
 
     @classmethod
     def codec_list(cls):
-        codecs = []
-
-        for c in cls.__dict__.keys():
-
-            if '__' not in c and c.upper() == c:
-                codecs.append(c)
-
-        return codecs
+        return [c for c in cls.__dict__.keys() if '__' not in c and c.upper() == c]
 
     def dds_save(self, width, height, codec, name='', data=None, header=False,
                  cubemap=0, depth=1, mips=0):
@@ -680,3 +673,4 @@ class DDSCreator:
         self.keys = b'\x0f'
         self.pixel_format = b'\x10'
         self.rgb = b'\x04' + (b'\0' * 3)
+
