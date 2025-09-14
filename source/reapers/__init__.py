@@ -1,5 +1,5 @@
 
-from source.reapers.archives    import dzip, seven_zip, zip_scan, zip_archive, unace   
+from source.reapers.archives    import dzip, seven_zip, zip_scan, zip_archive#, unace   
 from source.reapers.bethesda    import arena, arena_texture, ba2_archives, bsa_archives, bsi, cel_top, dagger, morrowind, redguard_rtx, strings, teso_mnf_dat
 from source.reapers.bioware     import aurora_engine, infinity_bif_key
 from source.reapers.build       import art, grp, rff
@@ -17,7 +17,7 @@ from source.reapers.valve       import source_vpk
 
 from source.reapers import (afs, arx_fatalis, arcanum_dat,
                             celestia, chrome_engine,
-                            gamemaker,
+                            gamemaker, grimrock,
                             ego_engine, ext_replace,
                             fallout, fallout2, ffmpeg_tool,
                             isolation,
@@ -29,4 +29,5 @@ from source.reapers import (afs, arx_fatalis, arcanum_dat,
                             telltale,
                             qbms,
                             seven_s_seven, scs_truck_sym,
-                            unity)
+                            unity,
+                            wasteland)

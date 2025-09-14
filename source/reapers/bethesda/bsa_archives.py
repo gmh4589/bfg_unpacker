@@ -12,7 +12,7 @@ class BethesdaArchive(Reaper):
     #  TODO:
     #   retry OBJ files,
     #   add x_mem support
-    #   retry Skyrim VR and Fallout 4 VR
+    #   retry with Skyrim VR
 
     @file_reaper
     def run(self):

@@ -1,10 +1,13 @@
-import os.path
+import os
+import io
+from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.codecs.dds_tools import DDSCreator
 from source.ui import localize
 
 
 class TEX2DDS(Reaper, DDSCreator):
+    # TODO: Brocken unzipping some textures from Code Veronica X
 
     @file_reaper
     def run(self):
@@ -32,64 +35,73 @@ class TEX2DDS(Reaper, DDSCreator):
 
             magic = tex.read(4)
             mips_count = 0
+            is_cubemap = 0
 
-            if not self.magic([b'TEX\x00', ], magic, 'ARC'):
+            if not self.magic([b'TEX\x00', b'\0XET', b'\0SFH', b'HFS\0'], magic, 'Capcom TEX Texture File'):
                 return
 
+            if magic in (b'\0SFH', b'HFS\0'):
+                tex.seek(0x10)
+                tex = io.BytesIO(tex.read())
+                magic = tex.read(4)
+            
             version = int.from_bytes(tex.read(1))
+            order = 'little' if magic == b'TEX\x00' else 'big'
 
-            if version in (0x9A, 0x9D):  # RE6, RE0, RE1R, RER, RER2
-                tex.seek(8)
-                f2 = int.from_bytes(tex.read(4), byteorder="little")
+            if version in (0x9A, 0x9D, 0x20, 0x60):  # RE6, RE0, RE1R, RER, RER2
+                tex.seek(3, 1)
+                f2 = int.from_bytes(tex.read(4), byteorder=order)
                 mips_count = f2 & 0x3f
                 width = (f2 >> 6) & 0x1fff
                 height = (f2 >> 19) & 0x1fff
 
-                # tex.seek(0xC)
-                t_count = int.from_bytes(tex.read(1))
+                is_cubemap = int.from_bytes(tex.read(1)) == 6
 
-                if t_count > 1:
-                    break_convert()
-                    return
+                tex.seek(1 if version in (0x20, 0x60) else 0, 1)
 
                 codec_n = int.from_bytes(tex.read(1))
                 codec = codec_list(codec_n)
 
-                tex.seek(0x10)
-                start_data = int.from_bytes(tex.read(4), byteorder="little")
+                tex.seek(0x10) if not is_cubemap else None
+                start_data = int.from_bytes(tex.read(4), byteorder=order) if not is_cubemap else 0x10C
+                ic(start_data)
                 tex.seek(start_data)
 
             elif version == 0x70:  # RE5
                 tex.seek(0xC)
-                width = int.from_bytes(tex.read(2), byteorder="little")
-                height = int.from_bytes(tex.read(2), byteorder="little")
+                width = int.from_bytes(tex.read(2), byteorder=order)
+                height = int.from_bytes(tex.read(2), byteorder=order)
                 tex.seek(0x14)
                 codec_n = tex.read(4)
                 codec = codec_list(codec_n)
                 tex.seek(0x28)
-                start_data = int.from_bytes(tex.read(4), byteorder="little")
+                start_data = int.from_bytes(tex.read(4), byteorder=order)
                 tex.seek(start_data)
 
             elif version == 0xB2:
                 tex.seek(8)
-                width = int.from_bytes(tex.read(2), byteorder="little")
-                height = int.from_bytes(tex.read(2), byteorder="little")
+                width = int.from_bytes(tex.read(2), byteorder=order)
+                height = int.from_bytes(tex.read(2), byteorder=order)
                 codec = 'BC7_UNORM'
                 tex.seek(0x30)
+            
+            elif version == 0x20:
+                pass
 
             else:
                 break_convert()
                 return
-
-            tex_data = tex.read()
+            
+            ic(version, width, height, codec, mips_count)
 
             self.dds_save(
                 width=width,
                 height=height,
                 codec=codec,
                 mips=mips_count,
-                name=os.path.join(self.output_folder, os.path.basename(tex.name).replace('tex', 'dds')),
-                data=tex_data
-            )
-
+                name=f"{self.output_folder}\\{os.path.basename(self.file_name).replace('tex', 'dds')}",
+                cubemap = 254 if is_cubemap else 0,
+                data=tex.read()
+                )
+            
         self.update_pb(1, 1, self.file_name)

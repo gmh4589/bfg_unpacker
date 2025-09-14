@@ -32,6 +32,7 @@ class VPKPacker(Reaper):
 
     @file_reaper
     def run(self):
+        # TODO: Add version select dialog
 
         # version = simpledialog.askinteger("", "Enter engine version (1 or 2):",
         #                                   minvalue=1, maxvalue=2)

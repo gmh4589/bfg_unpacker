@@ -1,4 +1,16 @@
 
+September 14, 2025
+
+ - Added native support for unpack MNF\DAT archives from The Elder Scrolls Online (does not work with all archives yet)
+ - Added native support for unpack BIN archives from Wasteland 1 Remastered
+ - Added native support for unpack DAT archives from Legend of Grimrock 1 and 2 (does not work unzipping and yet and files save without names)
+ - Added support for unzipping for files with Oodle algorithm compressed
+ - Upgrated and separeted to own class function for detected file extentions by file headers
+ - All codecs data for DDS formats now taking from database
+ - Into MT Framework engine unpacker added support for convert TEX cubmaps to DDS
+ - Into MT Framework engine unpacker added support for unpack archives from Resident Evil Code: Veronica X
+ - Game base was updated
+
 August 14, 2025
 
  - Fixed quick run feature from context menu or command line

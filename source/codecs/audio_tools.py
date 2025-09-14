@@ -3,7 +3,6 @@ import math
 import os
 from icecream import ic
 
-# from source.codecs.wav_list import wav_list
 from source.codecs.wav_list import WavList
 from source.setting import setting
 
@@ -15,7 +14,6 @@ def wav_save(**kwargs):
     sample_rate = kwargs['Frequency']
     channels = kwargs['Channels']
     bps = kwargs['Bit'] if 'Bit' in kwargs.keys() else 0
-    # codec = wav_list[kwargs['Format']]['hex']
     codec = WavList.__dict__[kwargs['Format']]
     ic(codec)
     bitrate = int((int(sample_rate) * int(bps) * int(channels)) / 8)

@@ -37,11 +37,6 @@ class AlanWake2(Reaper):
             file_list_offset = int.from_bytes(toc.read(4), byteorder="little")
             file_count = int.from_bytes(toc.read(4), byteorder="little")
             file_list_start = int.from_bytes(toc.read(4), byteorder="little")
-            # file_list_len = int.from_bytes(toc.read(4), byteorder="little")
-            # unk_offset = int.from_bytes(toc.read(4), byteorder="little")
-            # unk_size = int.from_bytes(toc.read(4), byteorder="little")
-            # dmkp_block_offset = int.from_bytes(toc.read(4), byteorder="little")
-            # dmkp_block_size = int.from_bytes(toc.read(4), byteorder="little")
             toc.seek(20, 1)
 
             toc.seek(0x10, 1)

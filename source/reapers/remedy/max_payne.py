@@ -52,15 +52,10 @@ class MaxPayne(Reaper):
                 file_name = files_stream.read(0x100).split(b'\0')[0]
                 name_long = len(file_name)
                 files_stream.seek(here2 + name_long + 1)
-                # unzip_size = int.from_bytes(files_stream.read(4), byteorder="little")
                 files_stream.seek(4, 1)
                 zip_size = int.from_bytes(files_stream.read(4), byteorder="little")
-                # hash_data = files_stream.read(4)
                 files_stream.seek(4, 1)
                 dir_index = int.from_bytes(files_stream.read(4), byteorder="little")
-                # encrypted = int.from_bytes(files_stream.read(4), byteorder="little")
-                # cr_method = int.from_bytes(files_stream.read(4), byteorder="little")
-                # date_time = files_stream.read(16)
                 files_stream.seek(24, 1)
 
                 file_name = file_name.decode('utf-8', errors='ignore')

@@ -10,6 +10,7 @@ from source.ui import localize
 
 
 class TesOnline(Reaper):
+    #TODO: Working only with single vollume archives. Add multivol archive support
     oodle_dec = OodleDecompress('oo2core_8_win64.dll')
 
     @file_reaper
@@ -37,9 +38,9 @@ class TesOnline(Reaper):
 
             unk1 = int.from_bytes(mnf_file.read(4), byteorder="little")
             data_size = int.from_bytes(mnf_file.read(4), byteorder="little")
-            data_blocks_count = int.from_bytes(mnf_file.read(2), byteorder="little")
-            unk3 = int.from_bytes(mnf_file.read(4), byteorder="little")
-            unk4 = int.from_bytes(mnf_file.read(4), byteorder="little")
+            data_blocks_count = int.from_bytes(mnf_file.read(2), byteorder="big")
+            unk3 = int.from_bytes(mnf_file.read(4), byteorder="big")
+            unk4 = int.from_bytes(mnf_file.read(4), byteorder="big")
             file_count = int.from_bytes(mnf_file.read(4), byteorder="big")
             VolData = namedtuple('VolData', ['file_count', 'file_io'])
             vol_data = []
@@ -50,7 +51,7 @@ class TesOnline(Reaper):
 
             file_data = []
 
-            for _ in range(3):
+            for _ in range(data_blocks_count):
                 ic(hex(mnf_file.tell()))
                 unzip_size = int.from_bytes(mnf_file.read(4), byteorder="big")
                 zip_size = int.from_bytes(mnf_file.read(4), byteorder="big")
@@ -60,10 +61,16 @@ class TesOnline(Reaper):
                     data = zlib.decompress(data)
                 
                 file_data.append(data)
-                # self.file_save(f"{self.output_folder}\\{_}.dat", data)
+                self.file_save(f"{self.output_folder}\\{_}.dat", data)
+            
+            if data_blocks_count == 0:
+
+                with open(f"{only_name}0000.dat", 'wb') as dat_file:
+                    dat_file.seek(0x12)
+                    file_data.append(dat_file.read())
             
             # Get files data
-            file_data_io = io.BytesIO(file_data[2])
+            file_data_io = io.BytesIO(file_data[-1])
             FileData = namedtuple("FileData",
                                   ['unzip_size', 'zip_size', 'hash', 'offset', 'vol_num', 'zip_method'])
             file_data = []
@@ -98,7 +105,7 @@ class TesOnline(Reaper):
                             data = self.oodle_dec.decompress(data, file.unzip_size)
 
                         fname = f"{str(cur_file).rjust(8, '0')}.{self.get_ext(data[0x1EF:0x1EF+4])}"
-                        self.file_save(f"{self.output_folder}\\{fname}_header", data[:0x1EF])
+                        # self.file_save(f"{self.output_folder}\\{fname}_header", data[:0x1EF])
                         self.file_save(f"{self.output_folder}\\{fname}", data[0x1EF:])
                         self.update_pb(file_count, cur_file, fname)
                 

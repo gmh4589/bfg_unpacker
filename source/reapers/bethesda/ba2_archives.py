@@ -16,6 +16,7 @@ class BethesdaArchive(Reaper):
     #  Add GNMF support
     #  Fallout 4, Fallout 76 -> Don't work tiny TXT files from zipped animation archives. Try it
     #  Starfield need to try meshes and other archives types
+    #  Try with Fallout 4 VR
 
     @file_reaper
     def run(self):
