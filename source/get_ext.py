@@ -1,5 +1,3 @@
-import os
-
 
 class GetExt:
     
@@ -42,6 +40,7 @@ class GetExt:
             b'\0XET': 'tex',
             b'GXT\0': 'gxt',
             b'\0TXG': 'gxt',
+            b'TIM2': 'tm2',
 
             # Audio Formats
             b'RIFF': 'wav', 
@@ -211,13 +210,3 @@ class GetExt:
                     break
 
             return ext
-
-# DEBUGGING
-# import random
-
-# for _ in range(1_000_000):
-#     a = bytes([random.randint(0, 255) for _ in range(4)])
-#     res = GetExt.get_ext(a)
-
-#     if res != 'dat':
-#         print(a, GetExt.get_ext(a))

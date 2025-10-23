@@ -10,13 +10,13 @@ from source.ui import localize
 
 class AutoCompleteComboBox(QComboBox):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, items = None):
         super().__init__(parent)
         self.filter_model = QStandardItemModel()
         self.setEditable(True)
         self.completer = QCompleter(self)
         self.setCompleter(self.completer)
-        self.items = []
+        self.items = items if items is not None else []
         self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.line_edit = self.lineEdit()
         self.line_edit.textEdited.connect(self.on_text_edited)
@@ -38,10 +38,13 @@ class AutoCompleteComboBox(QComboBox):
         self.filter_model.appendRow(QStandardItem(self.line_edit.text() + text
                                                   if text != self.line_edit.text() else self.line_edit.text()))
 
-        for item in self.items:
-
-            if self.line_edit.text().lower() in item.lower():
-                self.filter_model.appendRow(QStandardItem(item))
+        # for item in self.items:
+        #
+        #     if self.line_edit.text().lower() in item.lower():
+        #         self.filter_model.appendRow(QStandardItem(item))
+        text_value = self.line_edit.text().lower()
+        new_values = [val for val in self.items if text_value in val.lower()]
+        _ = [self.filter_model.appendRow(QStandardItem(item)) for item in new_values]
 
         self.setModel(self.filter_model)
 

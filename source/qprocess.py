@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSlot
 
 from source.ui import localize
 from source.ui.custom_ui import ProgressBar, CustomDialog
+from source.reaper import logger
 
 
 class QProcessList:
@@ -45,13 +46,18 @@ class QProcessList:
         self.pb.is_stop = False
         self.pb.show()
 
-        self.nuke.update_signal.connect(self.update_progress)
-        self.nuke.user_choice_signal.connect(self.pb_user_choice)
+        try:
+            self.nuke.update_signal.connect(self.update_progress)
+            self.nuke.user_choice_signal.connect(self.pb_user_choice)
 
-        if self.last_run is not None:
-            self.nuke.finished.connect(self.last_run)
+            if self.last_run is not None:
+                self.nuke.finished.connect(self.last_run)
 
-        self.nuke.start()
+            self.nuke.start()
+        except Exception as error:
+            logger(level='ERROR', 
+                   message=f'\t\nError by slot-siganl connection!\t\n{error}\t\n{self.nuke}!', 
+                   show=True)
 
     @staticmethod
     def get_short_text(text):

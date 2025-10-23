@@ -5,10 +5,12 @@ from source.reapers.bioware     import aurora_engine, infinity_bif_key
 from source.reapers.build       import art, grp, rff
 from source.reapers.capcom      import mt_arc, argb, tex, re_engine, re4_pack
 from source.reapers.cdpr        import bundle, texture_cache, w2dzip, w3speech, w2cache
+from source.reapers.fatal_frame import fatal_frame_1
 from source.reapers.godot       import godot_ctex, godot_pck
 from source.reapers.idtech      import (bimage, brink, deathloop, doom3_resources, doom_wad, id_tech_7, idwav, quake_pak,
                                         resources, streamed, tango, the_evil_within_2)
 from source.reapers.images      import image_converter, ktx_converter, zpl2png
+from source.reapers.konami      import sh_memories, sh4_the_room
 from source.reapers.phyre       import phyre, sen_pkg, sen_book
 from source.reapers.remedy      import remedy, aw2, max_payne
 from source.reapers.rockstar    import rockstar_rpf
@@ -22,7 +24,7 @@ from source.reapers import (afs, arx_fatalis, arcanum_dat,
                             fallout, fallout2, ffmpeg_tool,
                             isolation,
                             limbo,
-                            mafia_rem,
+                            mafia_rem, metro_2033,
                             other_prg,
                             pathologic,
                             sacred, splitter,

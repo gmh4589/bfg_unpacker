@@ -12,12 +12,12 @@
 #     @file_reaper
 #     def run(self):
 #         _, was_files, _ = self.folderSize(self.output_folder)
-#         os.system(f'{self.path_to_root}\\data\\7zip\\7z.exe l "{self.file_name}" >> 7z.temp.log')
+#         os.system(f'{self.path_to_root}\\data\\7zip\\7z.exe l "{self.file_name}" >> 7z.examples.log')
 #
-#         with open('7z.temp.log', 'r', encoding='utf-8') as f:
+#         with open('7z.examples.log', 'r', encoding='utf-8') as f:
 #             self.out = f.read()
 #
-#         os.remove('7z.temp.log')
+#         os.remove('7z.examples.log')
 #         current_file = 1
 #         files_count = int(self.out.split(' ')[-4])
 #

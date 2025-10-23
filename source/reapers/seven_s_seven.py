@@ -17,10 +17,10 @@ class Seven(Reaper):
 
             data = bytearray((byte ^ 0xf7) for byte in file.read())
 
-            with open('./temp.dat', 'wb') as new_file:
+            with open('./examples.dat', 'wb') as new_file:
                 new_file.write(magic + data)
 
-        with open('./temp.dat', 'rb') as f:
+        with open('./examples.dat', 'rb') as f:
             f.seek(9)
             file_list = {}
 
@@ -49,4 +49,4 @@ class Seven(Reaper):
 
                 self.update_pb(file_count, i, name)
 
-        os.remove('./temp.dat')
+        os.remove('./examples.dat')

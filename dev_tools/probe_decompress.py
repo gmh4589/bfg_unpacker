@@ -386,4 +386,4 @@ if __name__ == "__main__":
     #     print("Usage: python probe_decompress.py <input_file>")
     #     sys.exit(1)
     # main(sys.argv[1])
-    main(r"D:\out\grimrock_dat\00000001.dat")
+    main(r"D:\out\DataBr_pak\data\coj4characters.scr")
