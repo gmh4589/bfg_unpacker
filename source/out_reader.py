@@ -2,12 +2,14 @@ from icecream import ic
 
 class OutReader:
 
-    def __init__(self):
+    def __init__(self, out_print=True, err_print=True):
         super().__init__()
         self.out = ''
         self.err = ''
         self.output = []
         self.end = False
+        self.out_print = out_print
+        self.err_print = err_print
 
     def out_reader(self, prg, splitter=' '):
 
@@ -16,9 +18,8 @@ class OutReader:
             self.out = d
             self.output = d.split(splitter)
 
-            if self.out:
+            if self.out and self.out_print:
                 ic(self.out)
-                # print(self.out)
 
             if self.end:
                 break
@@ -29,9 +30,8 @@ class OutReader:
             d = prg.stderr.readline().strip()
             self.err = d
 
-            if self.err:
+            if self.err and self.err_print:
                 ic(self.err)
-                # print(self.err)
 
             if self.end:
                 break

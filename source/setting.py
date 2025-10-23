@@ -19,7 +19,7 @@ default_settings = {
         'subfolders': '2',
         'group_ge': '2',
         'group_arch': '2',
-        'load_bar': '2',
+        'load_bar': '0',
         'trash': '0',
         'fav_format': 'png',
         'context_menu': '2',
@@ -63,7 +63,7 @@ if not os.path.exists(setting_path):
     setting.set('Main', 'subfolders', '2')
     setting.set('Main', 'group_ge', '2')
     setting.set('Main', 'group_arch', '2')
-    setting.set('Main', 'load_bar', '2')
+    setting.set('Main', 'load_bar', '0')
     setting.set('Main', 'trash', '0')
     setting.set('Main', 'fav_format', 'png')
     setting.set('Main', 'context_menu', "2")

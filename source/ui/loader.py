@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from source.reaper import Reaper, file_reaper
-from source.setting import theme
+from source.setting import theme as theme_1
 from source.ui import localize
 
 class LoaderData:
@@ -38,7 +38,7 @@ class Loader(Reaper):
 
 def pb_show():
     loader = LoaderData()
-    theme = f'data/themes/{theme}.xml'
+    theme = f'data/themes/{theme_1}.xml'
 
     try:
         tree = ET.parse(theme)

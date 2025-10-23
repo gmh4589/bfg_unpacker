@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from threading import Thread
 
-from PyQt6.QtCore import Qt, QItemSelectionModel
+from PyQt6.QtCore import Qt, QItemSelectionModel, QRect
 from PyQt6.QtGui import QStandardItem, QIcon, QFontDatabase
 from PyQt6.QtWidgets import QMainWindow, QMenu, QFileDialog, QToolButton
 from icecream import ic
@@ -23,9 +23,10 @@ from source.setting import setting, set_setting
 
 # Методы для наполнения интерфейса данными
 class MainWindow(QMainWindow, Ui_BFGUnpacker):
+    db = DatabaseConnect()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def dragEnterEvent(event):
@@ -83,8 +84,9 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
             self.btn_All_Favorite.setText(localize.all_caps)
 
     def favorite_setting(self, action, item):
+        item = item.strip()
 
-        if item.strip() != '':
+        if item != '':
 
             if action:
 
@@ -336,9 +338,7 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
 
     # Наполняет списком меню "Архивы", "Образы дисков" и "Игровые Движки".
     def archive_list_create(self):
-        
-        db = DatabaseConnect()
-        archivesList = db.get_table('archives_list', filter=True)
+        archivesList = self.db.get_table('archives_list', filter=True)
 
         def create_literal_submenus(idx, menu_item):
             abc = sorted(list({archivesList['ArchivesName'][n][0].upper() for n in range(len(archivesList))
@@ -407,7 +407,7 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
         self.last_run = self.find_reaper
         self.find_reaper()
 
-    def flc(self, items):
+    def filter_list_create(self, items):
         self.comboBox_gameList.items = items
         self.filter_model.clear()
         self.filter_model.appendRow(QStandardItem(''))
@@ -416,9 +416,6 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
             self.filter_model.appendRow(QStandardItem(item))
 
         self.comboBox_gameList.setModel(self.filter_model)
-
-    def filter_list_create(self, items):
-        Thread(target=self.flc, daemon=True, args=(items,)).start()
 
     def get_literal(self, name, year, sort_by_names, def_item):
         literal = name[0].upper()

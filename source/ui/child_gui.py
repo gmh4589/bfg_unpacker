@@ -71,8 +71,8 @@ class ChildUIWindow(QDialog):
                     filter_model.appendRow(QStandardItem(item))
 
                 if len(al) > 100:
-                    self.drops.append(AutoCompleteComboBox(self.centralwidget))
-                    self.drops[i].items = al
+                    self.drops.append(AutoCompleteComboBox(self.centralwidget, items=al))
+                    # self.drops[i].items = al
                 else:
                     self.drops.append(QComboBox(self.centralwidget))
 

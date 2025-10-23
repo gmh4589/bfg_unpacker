@@ -5,7 +5,8 @@ import pandas
 
 from PyQt6.QtCore import QRect, Qt
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QWidget, QWidgetAction, QToolButton, QTextBrowser, QLabel, QTreeView, QHBoxLayout, QCheckBox, QMenuBar, QMenu, QFileDialog
+from PyQt6.QtWidgets import (QWidget, QWidgetAction, QToolButton, QTextBrowser, QLabel, QTreeView, QHBoxLayout,
+                             QCheckBox, QMenuBar, QMenu, QFileDialog)
 
 from source.codecs.image_tools import create_cubemap
 from source.ui.custom_ui import AutoCompleteComboBox

@@ -63,7 +63,7 @@ class PhyreSave(Reaper):
                 table = phyre.read(tableSize)
                 stringTable = [t.decode('utf-8') for t in table.split(b'\x00')][:-1]
 
-                with open('temp.dat', 'wb') as temp_file:
+                with open('examples.dat', 'wb') as temp_file:
                     temp_file.write(table)
 
                 phyre.seek(startTableDataStart)
@@ -72,7 +72,7 @@ class PhyreSave(Reaper):
 
                 def getName(o):
 
-                    with open('temp.dat', 'rb') as temp2:
+                    with open('examples.dat', 'rb') as temp2:
                         temp2.seek(o)
                         return temp2.read().split(b'\x00')[0].decode('utf-8')
 

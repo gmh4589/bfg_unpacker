@@ -1,13 +1,27 @@
 
+October 23, 2025 - 2.0.0 beta_4 version release
+
+ - Added native support for unpack IMG_BD.BIN archives from Fatal Frame (a.k.a. Project Zero),
+        does work only with textures files yet
+ - Added native support for unpack PAK archives from Dying Light 2
+ - Added native support for unpack ARC archives from Silent Hill: Shattered Memories
+ - Added native support for unpack BIN archives from Silent Hill 4: The Room (PC)
+ - Added native support for unpack UPK\VFS archives from Metro 2033
+ - ZIP archive unpacker has been rewrited. Added support for unpack ZIP archives, which have ZLIB\Deflate zipped files
+    without headers and without file sizes.
+ - In unpack via QuickBMS now showing progress bar with correct unpacking progress
+ - Class for saving DDS-textures has been rewrited. Now it working via database and it became shortest and easy to extend
+ - The program migrated to Python 3.13
+
 September 14, 2025
 
  - Added native support for unpack MNF\DAT archives from The Elder Scrolls Online (does not work with all archives yet)
  - Added native support for unpack BIN archives from Wasteland 1 Remastered
  - Added native support for unpack DAT archives from Legend of Grimrock 1 and 2 (does not work unzipping and yet and files save without names)
  - Added support for unzipping for files with Oodle algorithm compressed
- - Upgrated and separeted to own class function for detected file extentions by file headers
+ - Upgraded and separated to own class function for detected file extensions by file headers
  - All codecs data for DDS formats now taking from database
- - Into MT Framework engine unpacker added support for convert TEX cubmaps to DDS
+ - Into MT Framework engine unpacker added support for convert TEX cub-maps to DDS
  - Into MT Framework engine unpacker added support for unpack archives from Resident Evil Code: Veronica X
  - Game base was updated
 
@@ -25,10 +39,10 @@ August 14, 2025
  - Started work with native unpacker for games on Hero Engine
  - The program architecture has been reworked:
        - Child\Parent classes rewrite as class exemplars, where it passible
-       - Game databese now loading via separate class
+       - Game database now loading via separate class
        - Loading of the settings now don't use chians structure
        - The program is now more modular and better scalable
-       - The source code of the programm was optimized and refacored
+       - The source code of the program was optimized and refracted
 
 July 7, 2025
 

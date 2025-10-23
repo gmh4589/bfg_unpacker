@@ -46,7 +46,7 @@ class RFFExtractor(Reaper):
                 files_data = io.BytesIO(fat.tobytes())
                 file_list_len = len(fat)
 
-                with open('temp.dat', 'wb') as temp:
+                with open('examples.dat', 'wb') as temp:
                     temp.write(fat.tobytes())
 
             else:

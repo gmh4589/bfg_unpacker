@@ -169,7 +169,7 @@ class ChildGuiData:
                                 default_list=['48000', 'wav']
                                 ).exec()
 
-    # TODO: Нужна ли? VGM все это умеет
+    # TODO: Нужна ли? VGM все это умеет (VGM не умеет только переводить в VAG и Atrac)
     def ps_audio_tools(self):
         child_gui.ChildUIWindow(gui_name='PlayStation Audio Tools',
                                 label_list=['Platform', 'Mode'],

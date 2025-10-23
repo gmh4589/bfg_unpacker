@@ -118,6 +118,7 @@ class Reaper(QThread, GetExt):
         self.setting = setting
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
+        self.out_reader = None
         
     @abstractmethod
     def run(self):
@@ -145,8 +146,12 @@ class Reaper(QThread, GetExt):
         for file in Path(path).rglob('*'):
 
             if os.path.isfile(file):
-                file_size += os.path.getsize(file)
-                numfile += 1
+
+                try:
+                    file_size += os.path.getsize(file)
+                    numfile += 1
+                except (FileNotFoundError, FileExistsError):
+                    break
 
             iteration += 1
 
@@ -176,7 +181,12 @@ class Reaper(QThread, GetExt):
             print(localize.not_correct_file.replace('%%', message))
             self.update_signal.emit(100, '', '', True)
             return False
-    
+
+    def start_reader(self, proc, out_print=False):
+        self.out_reader = OutReader(out_print=out_print)
+        Thread(target=self.out_reader.out_reader, args=[proc,], daemon=True).start()
+        Thread(target=self.out_reader.err_reader, args=[proc,], daemon=True).start()
+
     def pipe_reader(self, prg, chang_dir: bool = False):
         out_reader = OutReader()
         pr_err = ''
