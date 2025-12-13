@@ -28,7 +28,8 @@ class SettingWindow(QDialog):
         self.rpgmaker_list = len(db.get_table('rpgmaker_list'))
         self.godot_list = len(db.get_table('godot_list'))
 
-        self.resize(450, 280)
+        self.setMinimumSize(450, 280)
+        self.setMaximumSize(450, 280)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
@@ -96,18 +97,36 @@ class SettingWindow(QDialog):
         self.context_menu.setChecked(bool(int(self.setting['Main']['context_menu'])))
         self.context_changed = self.context_menu.isChecked()
 
-        self.load_bar = QCheckBox(self.centralwidget)
-        self.load_bar.setFont(self.font)
-        self.load_bar.setGeometry(QRect(160, 200, 150, 40))
-        self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
+        # self.load_bar = QCheckBox(self.centralwidget)
+        # self.load_bar.setFont(self.font)
+        # self.load_bar.setGeometry(QRect(160, 200, 150, 40))
+        # self.load_bar.setChecked(bool(int(self.setting['Main']['load_bar'])))
 
+        # Oodle version selector
+        oodle_model = QStandardItemModel()
+        oodle_model.appendRow(QStandardItem('Auto'))
+        oodle_path = f"{os.getcwd()}\\data\\oodle"
+        oodle_list = [o for o in os.listdir(oodle_path) if 'oo2core_' in o]
+
+        for oodle in oodle_list:
+            oodle_model.appendRow(QStandardItem(oodle))
+
+        self.oodle_label = QLabel(self.centralwidget)
+        self.oodle_label.setGeometry(QRect(160, 180, 120, 30))
+        self.oodle_version = QComboBox(self.centralwidget)
+        self.oodle_version.setFont(self.font)
+        self.oodle_version.setGeometry(QRect(160, 210, 130, 25))  
+        self.oodle_version.setModel(oodle_model)    
+        self.oodle_version.setCurrentText(self.setting['Main']['oodle_version'])
+
+        # Group by alphabet for archives and game engines
         self.label_alpha_group = QLabel(self.centralwidget)
-        self.label_alpha_group.setGeometry(QRect(160, 100, 120, 30))
+        self.label_alpha_group.setGeometry(QRect(160, 90, 120, 30))
 
         self.group_box = QGroupBox(self.centralwidget)
-        self.group_box.setGeometry(QRect(160, 135, 145, 65))
+        self.group_box.setGeometry(QRect(160, 115, 145, 65))
         self.arch_checkbox = QCheckBox(self.group_box)
-        self.arch_checkbox.setGeometry(QRect(10, 10, 120, 20))
+        self.arch_checkbox.setGeometry(QRect(10, 10, 110, 20))
         self.arch_checkbox.setChecked(bool(int(self.setting['Main']['group_arch'])))
         self.ge_checkbox = QCheckBox(self.group_box)
         self.ge_checkbox.setGeometry(QRect(10, 35, 120, 20))
@@ -116,7 +135,7 @@ class SettingWindow(QDialog):
         # Favorite image format
         filter_model = QStandardItemModel()
 
-        for item in ['png', 'bmp', 'tga', 'gif']:
+        for item in ('png', 'bmp', 'tga', 'gif'):
             filter_model.appendRow(QStandardItem(item))
 
         self.fav_image_label = QLabel(self.centralwidget)
@@ -198,8 +217,9 @@ class SettingWindow(QDialog):
         self.setting.set('Main',    'group',        "name" if self.sort_by_names.isChecked() else "year")
         self.setting.set('Main',    'group_arch',   "2" if self.arch_checkbox.isChecked() else "0")
         self.setting.set('Main',    'group_ge',     "2" if self.ge_checkbox.isChecked() else "0")
-        self.setting.set('Main',    'load_bar',     "2" if self.load_bar.isChecked() else "0")
+        # self.setting.set('Main',    'load_bar',     "2" if self.load_bar.isChecked() else "0")
         self.setting.set('Main',    'fav_format',   self.fav_image_drop.currentText())
+        self.setting.set('Main',    'oodle_version',   self.oodle_version.currentText())
         self.setting.set('Main',    'save_original_images', ('0' if self.save_original_only.isChecked()
                                                           else ('1' if self.save_convert_only.isChecked() else '2')))
         self.setting.set('Main', 'theme', style)
@@ -247,7 +267,7 @@ class SettingWindow(QDialog):
         self.sort_by_names.setText(_translate("MainWindow", localize.by_name))
         self.sort_by_years.setText(_translate("MainWindow", localize.by_years))
         self.context_menu.setText(_translate("MainWindow", localize.context_menu))
-        self.load_bar.setText(_translate("MainWindow", localize.load_bar))
+        # self.load_bar.setText(_translate("MainWindow", localize.load_bar))
         self.create_theme.setText(_translate("MainWindow", localize.create_theme))
         self.out_folder.setText(_translate("MainWindow", localize.out_folder))
         self.save_setting.setText(_translate("MainWindow", localize.apply))
@@ -262,3 +282,4 @@ class SettingWindow(QDialog):
         self.save_original_only.setText(_translate("MainMenu", localize.only_original))
         self.save_convert_only.setText(_translate("MainMenu", localize.only_convert))
         self.save_all.setText(_translate("MainMenu", localize.original_convert))
+        self.oodle_label.setText(_translate("MainMenu", localize.oodle_version))

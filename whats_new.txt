@@ -1,5 +1,30 @@
 
-October 23, 2025 - 2.0.0 beta_4 version release
+January 20, 2026 - 2.0.0 beta_6 version release
+
+ - A size of theme creator menu and progress bar was fixed
+ - Added new themes: "Night City", "Deus Ex"
+ - Fixed work with multimedia files via ffmpeg
+ - Added support for unpack AFS2 archives, which uses in various japonese games, for example, some games by SEGA
+
+December 13, 2025 - 2.0.0 beta_6 version release
+
+- Games database was updated and optimized
+- Fixed bug with freezing the progress bar by unpacking via QuickBMS
+- Added native support for unpack SH4 and PAC archives from Silent Hill 4: The Room (PC)
+- Added native support games on idTech 4-8:
+       - Wolfenstein (2009) (*.spk)
+       - Wolfenstein II: The New Colossus (*.resources)
+       - Wolfenstein: Youngblood (*.resources)
+       - Indiana Jones And The Great Circle (*.resources)
+       - DOOM: The Dark Ages (*.resources)
+- Into the setting added option for select unpacker for files, wich compressed the Ooodle algorithm
+- Option for on\off the loading progress bar in setting menus was deleted. 
+      This is because it doesn't work correctly, and the program loads quite quickly.
+ - Now, if resize the program window, the widgets size correctly changing
+ - The size of children windows was fixed
+ - Fixed displaying codec list in DDS Header Generator
+
+October 23, 2025 - 2.0.0 beta_5 version release
 
  - Added native support for unpack IMG_BD.BIN archives from Fatal Frame (a.k.a. Project Zero),
         does work only with textures files yet

@@ -28,10 +28,8 @@ class Doom3BFG(Reaper):
                 path = os.path.join(self.output_folder, name)
                 here = bfg.tell()
                 bfg.seek(offset)
-
-
-                with open(path, 'wb') as new_file:
-                    new_file.write(bfg.read(size))
+                data = bfg.read(size)
+                self.file_save(path, data)
 
                 if self.setting['Main']['save_original_images'] in ['1', '2']:
 

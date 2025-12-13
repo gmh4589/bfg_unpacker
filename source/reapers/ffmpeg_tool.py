@@ -3,14 +3,15 @@ import json
 from PyQt6.QtCore import QThread
 from icecream import ic
 from ffmpeg import FFmpeg, Progress
+from ffmpeg.errors import FFmpegError
 
 from source.reaper import Reaper, file_reaper, logger
 from source.qprocess import QProcessList
 from source.ui import localize
+from source.setting import setting
 
 def ffmpeg_conv(**kwargs):
-
-    conv = Converter()
+    conv = Converter(stng=setting)
     conv.format = kwargs.get('Format', None)
     conv.file_name = kwargs.get('file_name', None)
     conv.ab = kwargs.get('Audio Bitrate', None)
@@ -31,8 +32,8 @@ def ffmpeg_conv(**kwargs):
 
 class Converter(Reaper):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, stng=setting):
+        super().__init__(stng=stng)
         self.v_codec = 'hevc'
         self.vb = '5M'
         self.vf_scale = '1920:1080'
@@ -47,12 +48,22 @@ class Converter(Reaper):
 
     @file_reaper
     def run(self):
-        out_path = f'{self.output_folder}\\{os.path.basename(self.file_name).split(".")[0]}.{self.format}'
-        ic(out_path)
-        probe = FFmpeg(executable='data\\ffmpeg\\ffprobe.exe').input(self.file_name, print_format="json", show_streams=None)
-        meta = json.loads(probe.execute())
-        ic(meta)
+        # out_path = f'{self.output_folder}\\{'.'.join(os.path.basename(self.file_name).split(".")[:-1])}.{self.format}'
+        out_path = f'{self.setting['Main']['out_path']}\\{os.path.basename(self.file_name).replace(".", "_")}\\{'.'.join(os.path.basename(self.file_name).split(".")[:-1])}.{self.format}'
 
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        ic(out_path)
+
+        try:
+            probe = FFmpeg(executable='data\\ffmpeg\\ffprobe.exe').input(self.file_name, print_format="json", show_streams=None)
+            meta = json.loads(probe.execute())
+            ic(meta)
+        except FFmpegError as e:
+            print(localize.unsuppoerted_ftype)
+            logger('ERROR', f"{localize.unsuppoerted_ftype} {str(e)}")
+            self.update_pb(1, 1, self.file_name)
+            return
+        
         if self.info_only is not None:
 
             for key, value in meta['streams'][0].items():
@@ -61,19 +72,20 @@ class Converter(Reaper):
             self.update_pb(1, 1, self.file_name)
             return
 
-        frame_rate = int(meta['streams'][0]['r_frame_rate'].split('/')[0])
-
         try:
             duration = float(meta['streams'][0]['duration'])
         except (KeyError, IndexError):
 
             try:
                 duration = meta['streams'][0]['tags']['DURATION'].split(':')
-                duration = float(duration[0]) * 3600 + int(duration[1]) * 60 + float(duration[2])
+                duration = int(duration[0]) * 3600 + int(duration[1]) * 60 + float(duration[2])
             except (KeyError, IndexError):
-                duration = 0
+                duration = 12 * 3600  # default 12 hours
 
-        frames = int(frame_rate * duration)
+        frame_rate = tuple(map(int, meta['streams'][0]['r_frame_rate'].split('/')))
+        frame_rate = frame_rate[0] / frame_rate[1]
+        frames = int(duration * frame_rate)
+
         ffmpeg = FFmpeg(executable='data\\ffmpeg\\ffmpeg.exe').option("y").input(self.file_name)
 
         if self.v_codec is not None:

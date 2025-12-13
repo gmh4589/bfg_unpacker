@@ -10,11 +10,12 @@ from source.ui import localize
 
 
 class TesOnline(Reaper):
-    #TODO: Working only with single vollume archives. Add multivol archive support
-    oodle_dec = OodleDecompress('oo2core_8_win64.dll')
-
+    #TODO: Working only with single volume archives. Add multivol archive support
+    
     @file_reaper
     def run(self):
+        oodle_lib = self.setting['Main']['oodle_version']
+        self.oodle_dec = OodleDecompress(oodle_lib if oodle_lib != 'Auto' else 'oo2core_9_win64.dll')
 
         with open(self.file_name, "rb") as mnf_file:
             magic = mnf_file.read(4)

@@ -24,6 +24,7 @@ default_settings = {
         'fav_format': 'png',
         'context_menu': '2',
         'save_original_images': '2',
+        'oodle_version': 'oo2core_8_win64.dll'
     },
     'Buttons': {
         '1': 'B',
@@ -68,6 +69,7 @@ if not os.path.exists(setting_path):
     setting.set('Main', 'fav_format', 'png')
     setting.set('Main', 'context_menu', "2")
     setting.set('Main', 'save_original_images', "2")
+    setting.set('Main', 'oodle_version', 'Auto')
     setting.set('Buttons', '1', 'B')
     setting.set('Buttons', '2', 'C')
     setting.set('Buttons', '3', 'D')

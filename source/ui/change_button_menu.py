@@ -15,7 +15,8 @@ class CBWindow(QDialog):
     def __init__(self, letter, style='dark_orange'):
         super().__init__()
         self.setWindowTitle("Change buttons")
-        self.resize(255, 255)
+        self.setMinimumSize(255, 255)
+        self.setMaximumSize(255, 255)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.style = style
         apply_stylesheet(self, theme=f'{style}.xml')

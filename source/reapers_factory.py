@@ -84,9 +84,20 @@ class ReapersFactory:
             print(f"{localize.file_type} {self.reapers_table['class_path'][idx]}")
             ic(f"{localize.file_type} {self.reapers_table['class_path'][idx]}")
 
+    def get_list(self, col_name, for_eqal):
+        lst = list(self.reapers_table[col_name])
+        result = [e for e in range(len(lst)) if lst[e] == for_eqal]
+        return result
+
     def get_reaper(self):
-        lst = list(self.reapers_table['ext'])
-        keys = [e for e in range(len(lst)) if lst[e] == self.file_data.ext]
+
+        keys = list(set(self.get_list('ext', self.file_data.ext)
+                        + self.get_list('file_name', self.file_data.file_name)
+                        + self.get_list('magic1', self.file_data.magic1)
+                        + self.get_list('magic2', self.file_data.magic2)
+                        + self.get_list('magic3', self.file_data.magic3)
+                   ))
+
         ic(len(keys))
 
         if len(keys) == 1:

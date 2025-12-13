@@ -93,7 +93,8 @@ class ProgressBar(QWidget):
     def __init__(self, maximum=100):
         super().__init__()
         apply_stylesheet(self, theme=f'{theme}.xml')
-        self.resize(300, 130)
+        self.setMinimumSize(300, 130)
+        self.setMaximumSize(300, 130)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.setWindowTitle(f"{localize.wait}...")
         # self.centralwidget = QWidget(self)

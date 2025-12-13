@@ -6,6 +6,19 @@ from source.codecs.dds_tools import DDSCreator
 
 class Bimage2DDS(Reaper, DDSCreator):
     # TODO: Add support other games
+    # The Evil Within 2
+    # Doom: The Dark Ages
+    # Indiana Jones and the Great Circle
+    # Wolfenstein: The New Order
+    # Wolfenstein: The Old Blood
+    # Dishonored 2
+    # Dishonored: Death of the Outsider
+    # Deathloop
+    # Wolfenstein II: The New Colossus
+    # DOOM VFR
+    # Wolfenstein: Youngblood
+    # Wolfenstein: Cyberpylot
+
 
     @file_reaper
     def run(self):
@@ -20,17 +33,28 @@ class Bimage2DDS(Reaper, DDSCreator):
                 6:      'R8G8_UNORM',
                 7:      'BC1_UNORM',
                 8:      'BC3_UNORM',
-                12:     'R16_UNORM',
+                9:      'BC4_UNORM',
                 0xA:    'BC1_UNORM',
                 0xB:    'BC3_UNORM',
+                0xC:    'R16_UNORM',
                 0x17:   'BC7_UNORM'
             }
 
             # DOOM 3 BFG Edition
             if magic == b'\0' * 4:
                 codec_start = 0x13
-                xy_start = 0x2c
+                x_start = 0x18
+                y_start = 0x1C
                 data_start = 0x38
+                order = 'big'
+
+            # DOOM: Eternal
+            elif magic == b'BIM\x15':
+                codec_start = 0x2D
+                x_start = 0x47
+                y_start = 0x4B
+                data_start = 0xF3
+                order = 'little'
 
             else:
                 magic2 = bimage.read(4)
@@ -38,14 +62,18 @@ class Bimage2DDS(Reaper, DDSCreator):
                 # DOOM (2016)
                 if magic2 == b'\x07MIB':
                     codec_start = 0x20
-                    xy_start = 0x32
+                    x_start = 0x32
+                    y_start = 0x36
                     data_start = 0x3e
+                    order = 'big'
 
                 # The Evil Within
                 elif magic2 == b'\x09MIB':
                     codec_start = 0x24
-                    xy_start = 0x10
+                    x_start = 0x10
+                    y_start = 0x14
                     data_start = 0x42
+                    order = 'big'
 
                 # The Evil Within 2
                 # elif magic2 == b'BIM\x08':
@@ -59,10 +87,11 @@ class Bimage2DDS(Reaper, DDSCreator):
                     return
 
             bimage.seek(codec_start)
-            codec = int.from_bytes(bimage.read(4), byteorder='little')
-            bimage.seek(xy_start)
-            image_width = int.from_bytes(bimage.read(4), byteorder='big')
-            image_height = int.from_bytes(bimage.read(4), byteorder='big')
+            codec = int.from_bytes(bimage.read(1))
+            bimage.seek(x_start)
+            image_width = int.from_bytes(bimage.read(4), byteorder=order)
+            bimage.seek(y_start)
+            image_height = int.from_bytes(bimage.read(4), byteorder=order)
             bimage.seek(data_start)
             image_data = bimage.read()
 

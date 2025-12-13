@@ -28,7 +28,8 @@ class ChildUIWindow(QDialog):
         self.action = action
         self.action_list = action_list
         self.ext_list = ext_list
-        self.resize(400, h)
+        self.setMinimumSize(400, h)
+        self.setMaximumSize(400, h)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()
@@ -128,8 +129,9 @@ class ChildUIWindow(QDialog):
             for file_name in fl:
 
                 if file_name:
-                    out_name = os.path.basename(file_name).split('.')[0]
+                    out_name = '.'.join(os.path.basename(file_name).split('.')[:-1])
                     file_name = file_name.replace('/', '\\')
+                    self.close()
 
                     if self.outer:
 
@@ -150,9 +152,7 @@ class ChildUIWindow(QDialog):
                                        )
 
                         print(f'{localize.wait}, {localize.file} {file_name} {localize.is_process}...')
-
                         Popen(self.action).wait()
-                        self.action = self.action.replace(file_name, '%file_name%')
 
                     else:
                         args = {'file_name': file_name}

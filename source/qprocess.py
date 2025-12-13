@@ -13,7 +13,6 @@ from source.reaper import logger
 class QProcessList:
 
     def __init__(self):
-        super().__init__()
         self.file_name = ''
         self.head = b''
         self.proc = None
@@ -69,7 +68,7 @@ class QProcessList:
 
         return short_name
     
-    @pyqtSlot(str, list, object)
+    # @pyqtSlot(str, list, object)
     def pb_user_choice(self, header_text, drop_list=None, callback=None):
         
         if callback:
@@ -86,7 +85,7 @@ class QProcessList:
             else:
                 callback(None)
 
-    @pyqtSlot(int, str, str, bool)
+    # @pyqtSlot(int, str, str, bool)
     def update_progress(self, pb_value, p_text, info, process_done):
 
         if self.pb.is_stop:

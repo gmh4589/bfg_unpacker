@@ -14,3 +14,4 @@ class EXTReplace(Reaper):
             file_data = f.read()
 
         self.file_save(out_path, file_data)
+        self.update_pb(1, 1, f"{base_name}.{ext2}")

@@ -8,7 +8,7 @@ from source.ui import localize
 class OodleDecompress:
 
     def __init__(self, dll_path: str):
-        self.dll_path = f"{os.getcwd()}\\data\\tools\\{dll_path}"
+        self.dll_path = f"{os.getcwd()}\\data\\oodle\\{dll_path}"
 
         if not os.path.exists(self.dll_path):
             print(f'{localize.not_correct_file} {dll_path}')
@@ -19,7 +19,7 @@ class OodleDecompress:
         output = create_string_buffer(output_size)
         zip_size = len(source_data)
 
-        if output_size == None:
+        if not output_size:
             output_size = zip_size * 20
 
         try:

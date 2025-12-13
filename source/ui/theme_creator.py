@@ -21,7 +21,8 @@ class ThemeCreateWindow(QDialog):
         except FileNotFoundError:
             root = ''
 
-        self.resize(270, 270)
+        self.setMinimumSize(270, 270)
+        self.setMaximumSize(270, 270)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()

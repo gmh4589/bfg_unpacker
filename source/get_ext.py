@@ -3,6 +3,10 @@ class GetExt:
     
     @staticmethod
     def get_ext(index: bytes) -> str:
+
+        if not index:
+            return
+
         ext_list = {
             # Image Formats
             b'DDS ': 'dds', 
@@ -41,6 +45,11 @@ class GetExt:
             b'GXT\0': 'gxt',
             b'\0TXG': 'gxt',
             b'TIM2': 'tm2',
+            b'\x07MIB': 'bimage', # DOOM (2016)
+            b'\x09MIB': 'bimage', # The Evil Within
+            b'BIM\x08': 'bimage', # The Evil Within 2
+            b'BIM\x15': 'bimage', # DOOM: Eternal
+            b'BIM\x1A': 'bimage', # DOOM: The Dark Ages
 
             # Audio Formats
             b'RIFF': 'wav', 
@@ -52,6 +61,7 @@ class GetExt:
             b'.snd': 'snd', 
             b'#!AM': 'amr', 
             b'#!SI': 'sil', 
+            b'\x30\xDE\x01\0': 'sdm',
 
             # Archive Formats
             b'PK\x03\x04': 'zip', 
@@ -139,58 +149,63 @@ class GetExt:
 
             # Game files
             b'-==-': 'utoc',
-            b'exte': 'gd'
+            b'exte': 'gd',
+            b'\x7B\x0D\x0A\x09': 'script',
 
         }
 
-        if index[:2] in (b'\x08\x1D', b'\x08\x5B', b'\x08\x99', b'\x08\xD7', b'\x18\x19', b'\x18\x57', b'\x18\x95', b'\x18\xD3', 
+        index_rev = index[::-1]
+        res = ext_list.get(index, None)
+        res_rev = ext_list.get(index_rev, None)
+
+        if res:
+            return res
+        elif res_rev:
+            return res_rev  
+
+        elif index[:2] in (b'\x08\x1D', b'\x08\x5B', b'\x08\x99', b'\x08\xD7', b'\x18\x19', b'\x18\x57', b'\x18\x95', b'\x18\xD3', 
                          b'\x28\x15', b'\x28\x53', b'\x28\x91', b'\x28\xCF', b'\x38\x11', b'\x38\x4F', b'\x38\x8D', b'\x38\xCB', 
                          b'\x48\x0D', b'\x48\x4B', b'\x48\x89', b'\x48\xC7', b'\x58\x09', b'\x58\x47', b'\x58\x85', b'\x58\xC3', 
                          b'\x68\x05', b'\x68\x43', b'\x68\x81', b'\x68\xDE', b'\x78\x01', b'\x78\x5E', b'\x78\x9C', b'\x78\xDA' 
                          b'\x78\x20', b'\x78\x7D', b'\x78\xBB', b'\x78\xF9', ):
             return 'zlib'
         
-        if index[:2] == b'\x1F\x8B':
+        elif index[:2] == b'\x1F\x8B':
             return 'gzip'
         
-        if index[:3] in (b'CWS', b'FWS'):
+        elif index[:3] in (b'CWS', b'FWS'):
             return 'swf'
         
-        if index[:3] in (b'\xEF\xBB\xBF', b'\x0E\xFE\xFF'):
+        elif index[:3] in (b'\xEF\xBB\xBF', b'\x0E\xFE\xFF'):
             return 'txt'
         
-        if index[:2] in (b'\xFF\xFE', b'\xFE\xFF'):
+        elif index[:2] in (b'\xFF\xFE', b'\xFE\xFF'):
             return 'txt'
         
-        if index[:3] in (b'\xFF\xFB', b'\xFF\xF2', b'\xFF\xF3'):
+        elif index[:3] in (b'\xFF\xFB', b'\xFF\xF2', b'\xFF\xF3'):
             return 'mp3'
         
-        if index[:3] == b'BZh':
+        elif index[:3] == b'BZh':
             return 'bz2'
         
-        if index[:3] == b'\x8C\x0A\x00':
+        elif index[:3] == b'\x8C\x0A\x00':
             return 'ucas'
         
-        if index[:3] == b'FLV':
+        elif index[:3] == b'FLV':
             return 'flv'
         
-        if index[:3] == b'ID3':
+        elif index[:3] == b'ID3':
             return 'mp3'
         
-        if index[:3] == b'NES':
+        elif index[:3] == b'NES':
             return 'nes'
         
-        if index[:2] == b'BM':
+        elif index[:2] == b'BM':
             return 'bmp'
-
-        index_rev = index[::-1]
-        res = ext_list.get(index, None)
-        res_rev = ext_list.get(index_rev, None)
         
-        if res:
-            return res
-        elif res_rev:
-            return res_rev  
+        elif index[:3] in (b'\x01\x80\xBB', b'\x02\x80\xBB'): 
+            return 'xmd'
+        
         else:
 
             if index[0] == 0:

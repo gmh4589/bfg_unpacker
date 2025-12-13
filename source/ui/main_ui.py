@@ -13,11 +13,9 @@ from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
 from source.ui import setting as setting_ui, theme_creator, localize
-from source.ui.loader import Loader
 from source.ui.child_gui_data import ChildGuiData
 from source.setting import setting, theme, set_setting
 from source.db_connect import DatabaseConnect
-from source.qprocess import QProcessList
 
 
 class Ui_BFGUnpacker(Translate):
@@ -28,6 +26,10 @@ class Ui_BFGUnpacker(Translate):
         self.theme = theme
         self.lang = self.setting['Main']['lang']
         self.childs = ChildGuiData()
+
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
+        self.setWindowTitle("BFGUnpacker")
+        self.setMinimumSize(600, 650)
 
         self.path_to_root = os.path.curdir
         self.centralwidget = QWidget(self)
@@ -44,7 +46,6 @@ class Ui_BFGUnpacker(Translate):
         self.toolButton_minus = QToolButton(self.centralwidget)
         self.toolButton_minus.setGeometry(QRect(485, 40, 30, 30))
         self.logWindow = QTextBrowser(self.centralwidget)
-        self.logWindow.setStyleSheet('QTextBrowser {font-size: 12px;}')
         self.logWindow.setGeometry(QRect(300, 80, 295, 520))
         self.all_games_count = QLabel(self.centralwidget)
         self.all_games_count.setGeometry(QRect(451, 603, 150, 20))
@@ -355,16 +356,13 @@ class Ui_BFGUnpacker(Translate):
         self.all_games = len(self.mainList)
 
         # TODO: White screen if run progress bar throw Qt, if run throw Tkinter - all okay
-        if int(self.setting["Main"]["load_bar"]):
-            # Thread(target=pb_show, daemon=True).start()
-            loader = Loader()
-            loder_conn = QProcessList()
-            loder_conn.q_connect(loader, '', header=f'{localize.load_bar}...', maximum=100)
+        # if int(self.setting["Main"]["load_bar"]):
+        #     # Thread(target=pb_show, daemon=True).start()
+        #     loader = Loader()
+        #     loder_conn = QProcessList()
+        #     loder_conn.q_connect(loader, '', header=f'{localize.load_bar}...', maximum=100)
 
         self.names = {}
-        self.setWindowIcon(QIcon('./data/icons/i.ico'))
-        self.setWindowTitle("BFGUnpacker")
-        self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.parent_list = {}
         self.lang_list_create()
@@ -375,8 +373,23 @@ class Ui_BFGUnpacker(Translate):
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
         self.fav_filter_model = QStandardItemModel()
+        img_path = '2077.png'
+
+        self.gameList_treeView.setStyleSheet(f"""
+            # background-image: url({img_path});
+            # background-attachment: fixed ;
+            # background-position: top left;
+        """)
+
+        self.logWindow.setStyleSheet(f"""
+            font-size: 12px;
+            # background-image: url({img_path});
+            # background-attachment: fixed ;
+            # background-position: top right;
+        """)
 
         Thread(target=self.tree_view_create, daemon=True).start()
+        
         self.quickOpen.triggered.connect(self.create_queue)
         self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
         self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso)|'))
@@ -396,6 +409,8 @@ class Ui_BFGUnpacker(Translate):
         self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
         self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
         self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.wav2vag.triggered.connect(lambda: self.create_queue(func_name='_WAV2VAG', ext_list='WAV Audio File (*.wav)|'))
+        
         self.favorites = []
 
         if os.path.exists('favorites.ini'):

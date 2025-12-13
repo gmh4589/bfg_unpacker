@@ -1,13 +1,14 @@
 import threading
 import os
+import io
+from functools import wraps
 from subprocess import Popen
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
-from tkinter.messagebox import showinfo
 from icecream import ic
 from datetime import datetime
 from pathlib import Path
-from tkinter.messagebox import askyesno
+from tkinter.messagebox import showinfo, askyesno
 from threading import Thread
 
 from source.ui import localize
@@ -16,7 +17,7 @@ from source.codecs.zip_methods import ZipMethods
 from source.out_reader import OutReader
 from source.get_ext import GetExt
 
-DEBUG = False if os.path.exists('dev_tools') else True
+DEBUG = False #if os.path.exists('dev_tools') else True
 
 
 def logger(level: str, message: str, show: bool = False, messagebox: bool = False) -> None:
@@ -74,6 +75,7 @@ def logger(level: str, message: str, show: bool = False, messagebox: bool = Fals
 
 def file_reaper(func_name):
 
+    @wraps(func_name)
     def wrapper(*args, **kwargs):
         error = None
         function = str(func_name)
@@ -113,9 +115,9 @@ class Reaper(QThread, GetExt):
     com_type = None
     new_ext = 'dat'
 
-    def __init__(self):
+    def __init__(self, stng=setting):
         super().__init__()
-        self.setting = setting
+        self.setting = stng
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
         self.out_reader = None
@@ -129,7 +131,7 @@ class Reaper(QThread, GetExt):
         file_count = 1 if file_count == 0 else file_count
         current_file = 1 if current_file == 0 else current_file
         ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
-        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
+        print(f'{current_file + 1}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
         is_ending = True if current_file + 1 >= file_count else False
 
         self.update_signal.emit(int(100 / file_count * current_file),
@@ -169,6 +171,24 @@ class Reaper(QThread, GetExt):
 
         with open(path, 'wb') as nf:
             nf.write(data)
+    
+    def get_name(self, file_io: io.BytesIO):
+        name = ''
+
+        while True:
+
+            sym = file_io.read(1)
+
+            if sym == b'\0':
+                break
+
+            try:
+                name += sym.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+
+        
+        return name
 
     def magic(self, magic: list, read_magic: bytes | int, message: str) -> bool:
 

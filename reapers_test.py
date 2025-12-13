@@ -1,22 +1,23 @@
 import os
 from icecream import ic
-from source.reapers.konami.sh4_the_room import BINExtractor
+from source.reapers.sega.awb import AFS2Extractor
 
-in_dir = r"C:\GOG\Silent Hill 4\data"
+in_dir = r"D:\SteamLibrary\steamapps\common\Bayonetta\data\bgm"
 
-new_reaper = BINExtractor()
+new_reaper = AFS2Extractor()
 path = in_dir
 file_list = os.listdir(path)
-mask='.bin'
-out_dir="D:\\out"
+mask = '.awb'
+out_dir="F:\\out"
+
 
 for file in file_list:
 
     if mask in file.lower():
-
+        base_name = os.path.splitext(os.path.basename(os.path.join(path, file)))[0]
         ic(file)
         new_reaper.file_name = os.path.join(path, file)
-        new_reaper.output_folder = out_dir
+        new_reaper.output_folder = f"{out_dir}\\{base_name}"
         new_reaper.run()
 
             

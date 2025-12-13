@@ -20,7 +20,7 @@ class Q_BMS(Reaper):
         while True:
             e = self.out_reader.err
 
-            if "files found" in e:
+            if "file" in e and "found" in e:
                 self.file_count = int(e.split(' ')[1])
                 self.out_reader.end = True
                 break
