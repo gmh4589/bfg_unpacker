@@ -44,6 +44,9 @@ class BSITexture(Reaper):
             img_count = 0
             palette_list = [p for p in os.listdir(in_path) if p.lower().endswith(('.pal', '.col'))]
 
+            if len(palette_list) > 1:
+                print('Found more 1 palette files. Files be save with all Found palettes')
+
             if zipped:
                 return
             else:

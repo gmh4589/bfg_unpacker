@@ -5,6 +5,7 @@ from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
 from source.codecs.zip_methods import ZipMethods
+from source.ui import localize
 
 
 class Resources(Reaper):
@@ -30,6 +31,10 @@ class Resources(Reaper):
                               ['index', 'dest_name', 'offset', 'unzip_size', 'zip_size'])
         file_list = []
 
+        if not os.path.exists(self.index_path):
+            print(f"{localize.not_correct_file} {self.index_path}!")
+            return
+
         with open(self.index_path, 'rb') as index_file:
 
             if not self.magic([self.index_header, ], index_file.read(4), self.game_name):
@@ -46,7 +51,7 @@ class Resources(Reaper):
                 name_len = int.from_bytes(index_file.read(4), byteorder='little')
                 source_file = index_file.read(name_len).decode('utf-8')
                 dest_name_len = int.from_bytes(index_file.read(4), byteorder='little')
-                ic(file_type)
+                # ic(file_type)
 
                 if dest_name_len:
                     dest_name = index_file.read(dest_name_len).decode('utf-8')

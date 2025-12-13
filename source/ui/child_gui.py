@@ -28,7 +28,8 @@ class ChildUIWindow(QDialog):
         self.action = action
         self.action_list = action_list
         self.ext_list = ext_list
-        self.resize(400, h)
+        self.setMinimumSize(400, h)
+        self.setMaximumSize(400, h)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
         self.centralwidget = QWidget(self)
         self.font = QFont()

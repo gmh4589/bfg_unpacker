@@ -21,7 +21,8 @@ class DDSCreator:
 
     @classmethod
     def codec_list(cls):
-        return [c for c in cls.__dict__.keys() if '__' not in c and c.upper() == c]
+        # return [c for c in cls.__dict__.keys() if '__' not in c and c.upper() == c]
+        return [c for c in cls.dds_table['codec_name']]
     
     def __set_data(self, codec, codec_data, depth, keys, pixel_format, rgb):
         self.codec = codec

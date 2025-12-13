@@ -13,11 +13,9 @@ from source.ui.custom_ui import AutoCompleteComboBox
 from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
 from source.ui import setting as setting_ui, theme_creator, localize
-from source.ui.loader import Loader
 from source.ui.child_gui_data import ChildGuiData
 from source.setting import setting, theme, set_setting
 from source.db_connect import DatabaseConnect
-from source.qprocess import QProcessList
 
 
 class Ui_BFGUnpacker(Translate):
@@ -28,6 +26,10 @@ class Ui_BFGUnpacker(Translate):
         self.theme = theme
         self.lang = self.setting['Main']['lang']
         self.childs = ChildGuiData()
+
+        self.setWindowIcon(QIcon('./data/icons/i.ico'))
+        self.setWindowTitle("BFGUnpacker")
+        self.setMinimumSize(600, 650)
 
         self.path_to_root = os.path.curdir
         self.centralwidget = QWidget(self)
@@ -355,16 +357,13 @@ class Ui_BFGUnpacker(Translate):
         self.all_games = len(self.mainList)
 
         # TODO: White screen if run progress bar throw Qt, if run throw Tkinter - all okay
-        if int(self.setting["Main"]["load_bar"]):
-            # Thread(target=pb_show, daemon=True).start()
-            loader = Loader()
-            loder_conn = QProcessList()
-            loder_conn.q_connect(loader, '', header=f'{localize.load_bar}...', maximum=100)
+        # if int(self.setting["Main"]["load_bar"]):
+        #     # Thread(target=pb_show, daemon=True).start()
+        #     loader = Loader()
+        #     loder_conn = QProcessList()
+        #     loder_conn.q_connect(loader, '', header=f'{localize.load_bar}...', maximum=100)
 
         self.names = {}
-        self.setWindowIcon(QIcon('./data/icons/i.ico'))
-        self.setWindowTitle("BFGUnpacker")
-        self.resize(600, 650)
         self.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.parent_list = {}
         self.lang_list_create()

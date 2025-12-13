@@ -2,7 +2,6 @@ import importlib
 import json
 import os
 from datetime import datetime
-from threading import Thread
 
 from PyQt6.QtCore import Qt, QItemSelectionModel, QRect
 from PyQt6.QtGui import QStandardItem, QIcon, QFontDatabase
@@ -493,3 +492,20 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
         self.all_games_count.setText(f'{localize.all_games} {self.all_games}')
         self.retranslateUi()
         self.lang_list_create()
+
+    def resizeEvent(self, event):
+        x = event.size().width()
+        y = event.size().height()
+
+        self.btn_All_Favorite.setGeometry(QRect(0, 40, 80, 30))
+        self.comboBox_gameList.setGeometry(QRect(80, 40, x - 255, 30))
+        self.toolButton_plus.setGeometry(QRect(x - 145, 40, 30, 30))
+        self.toolButton_minus.setGeometry(QRect(x - 115, 40, 30, 30))
+        self.toolButton_Find.setGeometry(QRect(x - 85, 40, 85, 30))
+        
+        self.gameList_treeView.setGeometry(QRect(0, 80, int(x / 2) - 5, y - 130))
+        self.logWindow.setGeometry(QRect(int(x / 2), 80, int(x / 2) - 5, y - 130))
+
+        self.all_games_count.setGeometry(QRect(x - 149, y - 47, 150, 20))
+        self.checkBoxes.setGeometry(QRect(10, y - 50, 451, 20))
+

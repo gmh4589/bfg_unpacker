@@ -1,7 +1,7 @@
 
 from source.reaper import Reaper, file_reaper
 import os
-from pprint import pprint
+from collections import namedtuple
 
 
 class BINExtractor(Reaper):
@@ -10,10 +10,6 @@ class BINExtractor(Reaper):
     def run(self):
 
         with open(self.file_name, "rb") as bin_file:
-            # magic = bin_file.read(4)
-            #
-            # if not self.magic([b'\x10\xFA\x00\x00'], magic, 'Silent Hill 4: The Room'):
-            #     return
 
             file_size = os.path.getsize(self.file_name)
             file_count = int.from_bytes(bin_file.read(4), byteorder="little")
@@ -31,21 +27,50 @@ class BINExtractor(Reaper):
                 self.file_save(path, data)
                 self.update_pb(file_count, i, path)
 
+      
+class SH4Extractor(Reaper):
 
-# sh4path = r"C:\GOG\Silent Hill 4\data"
-# headers = set()
-# headers2 = set()
-#
-# for file in os.listdir(sh4path):
-#
-#     with open(f"{sh4path}\\{file}", 'rb') as f:
-#         h = int.from_bytes(f.read(4), byteorder="little")
-#         h2 = int.from_bytes(f.read(4), byteorder="little")
-#         # print(file, h, h2)
-#         count = headers.add(h)
-#
-#         headers2.add(h2)
-#
-#
-# pprint([headers, len(headers)])
-# pprint([headers2, len(headers2)])
+    @file_reaper
+    def run(self):
+
+        with open(self.file_name, "rb") as sh4_file:
+            magic = sh4_file.read(4)
+
+            if not self.magic([b'SH4\0', b'SDPA'], magic, 'Silent Hill 4: The Room SH4 File'):
+                return
+            
+            file_count = int.from_bytes(sh4_file.read(4), byteorder="little")
+            FileDataSH4 = namedtuple('FileData', ['offset', 'size'])
+            FileDataPac = namedtuple('FileData', ['offset', 'size', 'nothing'])
+            file_data = []
+            base_name = os.path.splitext(os.path.basename(self.file_name))[0]
+
+            for _ in range(file_count):
+
+                if magic == b'SH4\0':
+                    file_data.append(
+                        FileDataSH4(
+                            int.from_bytes(sh4_file.read(4), byteorder="little"), # Offset
+                            int.from_bytes(sh4_file.read(4), byteorder="little")  # File Size
+                        )
+                    )
+                else:
+                    file_data.append(
+                        FileDataPac(
+                            int.from_bytes(sh4_file.read(4), byteorder="little"), # Offset
+                            int.from_bytes(sh4_file.read(4), byteorder="little"), # File Size
+                            int.from_bytes(sh4_file.read(4), byteorder="little")  # Nothing
+                        )
+                    )
+            
+            for i, file in enumerate(file_data):
+
+                if file.size:
+                    sh4_file.seek(file.offset)
+                    file_data = sh4_file.read(file.size)
+                    ext = self.get_ext(file_data[:4])
+                    file_name = f'{base_name}_{i}.{ext}'
+                    path = f'{self.output_folder}\\{file_name}'
+                    self.file_save(path, file_data)
+                    self.update_pb(file_count, i, file_name)
+
