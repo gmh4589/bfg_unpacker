@@ -149,7 +149,5 @@
   "hand_select": "Der Dateityp konnte nicht ermittelt werden.\nBitte wählen Sie ihn manuell aus:",
   "enter_value": "Wert eingeben:",
   "multivol": "Die Daten in diesem Spiel sind ein mehrteiliges Archiv. Das Entpacken kann lange dauern und viel Speicherplatz auf Ihrer Festplatte beanspruchen. Fortfahren?",
-  "big_image_error": "Die Konvertierung von Bildern mit mehr als 500 Megapixeln wird nicht unterstützt!",
-  "oodle_version": "Oodle Version:",
-  "unsuppoerted_ftype": "Nicht unterstützter Dateityp!"
+  "big_image_error": "Die Konvertierung von Bildern mit mehr als 500 Megapixeln wird nicht unterstützt!"
 }
