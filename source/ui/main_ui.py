@@ -16,6 +16,7 @@ from source.ui import setting as setting_ui, theme_creator, localize
 from source.ui.child_gui_data import ChildGuiData
 from source.setting import setting, theme, set_setting
 from source.db_connect import DatabaseConnect
+from source.reapers import ext_list
 
 
 class Ui_BFGUnpacker(Translate):
@@ -389,27 +390,41 @@ class Ui_BFGUnpacker(Translate):
         """)
 
         Thread(target=self.tree_view_create, daemon=True).start()
-        
+
         self.quickOpen.triggered.connect(self.create_queue)
-        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
-        self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_iso', ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso)|'))
+        
+        # Via 7ZIP unpacking
+        self.gcCSO.triggered.connect(lambda: self.create_queue(ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.pspCSO.triggered.connect(lambda: self.create_queue(ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.dreamcastGDI.triggered.connect(lambda: self.create_queue(ext_list=f'CDI\\GDI {localize.disc_image} (*.cdi; *.gdi)|'))
+        self.saturn_images.triggered.connect(lambda: self.create_queue(ext_list=f'BIN, CUE, ISO {localize.disc_image} (*.bin; *.cue; *.iso)|'))
+        
+        # Via VGM converter unpacking
+        self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=ext_list.after_dot['_VGMToolbox']))
+        self.vag2wav.triggered.connect(lambda: self.create_queue(ext_list='PS2 VAG Audio File (*.vag)|'))
+        self.xvag2wav.triggered.connect(lambda: self.create_queue(ext_list='PS2 XVAG Audio File (*.vag; *.xvag)|'))
+        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        
+        # Wii ISO disc images
+        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_ISO', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
+        self.gcCISO.triggered.connect(lambda: self.create_queue(ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso; *.gcm)|'))
         self.wii_wua_zar.triggered.connect(lambda: self.create_queue(ext_list=f'Wii U {localize.disc_image} (*.wua; *.zar)|'))
-        self.gcCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+
+        # XBOX Files
         self.xboxISO.triggered.connect(lambda: self.create_queue(func_name='_XISO', ext_list=f'Xbox ISO {localize.disc_image} (*.iso; *.xiso)|'))
-        self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CSO {localize.disc_image} (*.cso)|'))
-        self.dreamcastGDI.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'CDI\\GDI {localize.disc_image} (*.cdi; *.gdi)|'))
-        self.saturn_images.triggered.connect(lambda: self.create_queue(func_name='_7ZIP', ext_list=f'BIN, CUE, ISO {localize.disc_image} (*.bin; *.cue; *.iso)|'))
+
+        # PlayStation Files
+        self.ps1_xa.triggered.connect(lambda: self.create_queue(ext_list='PS1 XA Audio File (*.xa)|')) # What is it? Need to find info about it
+        self.wav2vag.triggered.connect(lambda: self.create_queue(func_name='_WAV2VAG', ext_list='WAV Audio File (*.wav)|'))
+        self.gxt2png.triggered.connect(lambda: self.create_queue(ext_list='PlayStation Vita GXT Image File (*.gxt)|'))
+        self.png2gxt.triggered.connect(lambda: self.create_queue(func_name='_PNG2GXT', ext_list='PNG Image File (*.tga)|'))
+
         self.ps3_pkg.triggered.connect(lambda: self.create_queue(func_name='_PS3_PKG', ext_list=f'PS PKG {localize.archives} (*.pkg)|'))
         self.ps4PKG_CNT.triggered.connect(lambda: self.create_queue(func_name='_PS4_PKG', ext_list=f'PS4 PKG {localize.archives} (*.pkg)|'))
         self.ps3_psarc.triggered.connect(lambda: self.create_queue(func_name='_PS3_PSARC', ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|'))
-        self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM'))
-        self.vag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS2 VAG Audio File (*.vag)|'))
-        self.xvag2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS2 XVAG Audio File (*.vag; *.xvag)|'))
-        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.wav2vag.triggered.connect(lambda: self.create_queue(func_name='_WAV2VAG', ext_list='WAV Audio File (*.wav)|'))
         
         self.favorites = []
 

@@ -1,5 +1,15 @@
 
-January 20, 2026 - 2.0.0 beta_6 version release
+Mart 17, 2026 - 2.0.0 beta_8 version release
+
+ - Game base was updated
+ - 600+ file formats was added for automatic file detector
+ - Added support for convert VAG to WAV and back
+ - Added support for unpack GCM disc images (GameCube)
+ - The file format list in dropbox menu by auto-detecting file types now sorted by alphabet
+ - Added support to convert GXT textures from platforms by Sony to PNG (PS Vita)
+ - Added support to convert TGA textures to GXT for platforms by Sony (PS Vita)
+
+January 20, 2026 - 2.0.0 beta_7 version release
 
  - A size of theme creator menu and progress bar was fixed
  - Added new themes: "Night City", "Deus Ex"

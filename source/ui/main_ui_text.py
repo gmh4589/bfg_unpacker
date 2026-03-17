@@ -29,7 +29,7 @@ class Translate:
         self.menuPSP.setTitle(_translate("BFGUnpacker", "PSP"))
         self.menuPlayStation_Vita.setTitle(_translate("BFGUnpacker", "PlayStation Vita"))
         self.gxt2png.setText(_translate("BFGUnpacker", f"{translate.convert} GXT2PNG"))
-        self.png2gxt.setText(_translate("BFGUnpacker", f"{translate.convert} PNG2GXT"))
+        self.png2gxt.setText(_translate("BFGUnpacker", f"{translate.convert} TGA2GXT"))
         self.psvPsarc.setText(_translate("BFGUnpacker", "PSARC Extractor"))
         self.ps1_xa.setText(_translate("BFGUnpacker", "PlayStation XA"))
         self.ps3_psarc.setText(_translate("BFGUnpacker", "PSARC Extractor"))

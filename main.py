@@ -77,7 +77,10 @@ class UnpackerMain(MainWindow, QuickOpen):
         except IndexError:
             pass
 
-    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name=None, script_name=None):
+    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name=None, 
+                     script_name=None, 
+                     find_reaper=None, script=None
+                     ):
         self.func_name = func_name
         self.script_name = script_name
 
@@ -88,7 +91,18 @@ class UnpackerMain(MainWindow, QuickOpen):
         ic(ext_list)
         self.file_list = list(self.file_open(ext_list, select_folder, more_one))
         self.last_run = self.find_reaper
+
+        # if find_reaper is None:
         self.find_reaper()
+        # else:
+
+        #     for fn in self.file_list:
+        #         find_reaper.script_name = script
+        #         self.q_connect(find_reaper, fn,
+        #                         header=f'{localize.unpacking}: {fn}...',
+        #                         maximum=100,
+        #                         out_dir=self.setting['Main']['out_path'],
+        #                         subfolder=bool(int(self.setting['Main']['subfolders'])))
 
     def find_zip_method(self):
         file_n = ''.join(self.file_open(more_one=True))

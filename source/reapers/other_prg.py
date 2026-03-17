@@ -8,9 +8,9 @@ from source.ui import localize
 
 class OtherProg(Reaper):
 
-    def __init__(self):
+    def __init__(self, script_name=''):
         super().__init__()
-        self.script_name = ''
+        self.script_name = script_name
         self.change_dir = None
 
     @file_reaper
@@ -32,18 +32,23 @@ class OtherProg(Reaper):
             ext = self.file_name.split('.')[-1]
 
             with open(self.file_name, 'rb') as fff:
-                fff.seek(0x20 if ext == 'iso' else 0x220)
+                fff.seek(0x20 if ext in ('iso', 'gcm') else 0x220)
                 name = fff.read(0x40).strip(b'\0').decode('utf-8')
 
-            self.script_name = f'data\\wit\\wit.exe X "%full_file_name%" -d "%out_dir%\\{name}"'
+            # data\wit\wit.exe X "%full_file_name%" -d "%out_dir%\nintendo_iso"
+            ic(name)
+            print(name)
+            self.script_name = f'data\\wit\\wit.exe X "{self.file_name}" -d "{self.output_folder}\\{name}"'
 
         else:
             self.script_name = f"{self.path_to_root}\\{self.script_name}"
             ic(self.script_name)
             self.script_name = (self.script_name
-                              .replace('%out_dir%', self.output_folder)
-                              .replace('%full_file_name%', self.file_name)
-                              .replace('%file_name%', os.path.basename(self.file_name)))
+                              .replace(r'%out_dir%', self.output_folder)
+                              .replace(r'%full_file_name%', self.file_name)
+                              .replace(r'%name_wxt%', os.path.splitext(os.path.basename(self.file_name))[0])
+                              .replace(r'%ext%', os.path.splitext(os.path.basename(self.file_name))[1])
+                              .replace(r'%file_name%', os.path.basename(self.file_name)))
 
         ic(self.script_name)
 

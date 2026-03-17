@@ -20,7 +20,7 @@ class FileData:
             self.file_name = '.'.join(name_split)
         else:
             self.ext = '*'
-            self.file_name = '*'
+            self.file_name = base_name
         
         if self.ext == 'json':
                 

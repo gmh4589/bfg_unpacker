@@ -1,5 +1,5 @@
 
-from source.reapers.archives    import dzip, seven_zip, zip_scan, zip_archive #, unace   
+from source.reapers.archives    import dzip, seven_zip, zip_scan, zip_archive, unace   
 from source.reapers.bethesda    import arena, arena_texture, ba2_archives, bsa_archives, bsi, cel_top, dagger, morrowind, redguard_rtx, strings, teso_mnf_dat
 from source.reapers.bioware     import aurora_engine, infinity_bif_key
 from source.reapers.build       import art, grp, rff
@@ -12,12 +12,12 @@ from source.reapers.idtech      import (bimage, brink, deathloop, doom3_resource
 from source.reapers.images      import image_converter, ktx_converter, zpl2png
 from source.reapers.konami      import sh_memories, sh4_the_room
 from source.reapers.metro       import metro_2033, metro_2033_redux
-from source.reapers.phyre       import phyre, sen_pkg, sen_book
+from source.reapers.phyre       import phyre_file, sen_pkg, sen_book
 from source.reapers.remedy      import remedy, aw2, max_payne
 from source.reapers.rockstar    import rockstar_rpf
 from source.reapers.sega        import afs, awb
 from source.reapers.unreal      import unreal, ue3_reaper, ue3_injector, locres
-from source.reapers.valve       import source_vpk                                     
+from source.reapers.valve       import source_vpk                                
 
 from source.reapers import (arx_fatalis, arcanum_dat,
                             celestia, chrome_engine,

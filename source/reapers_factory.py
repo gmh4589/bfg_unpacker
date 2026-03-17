@@ -5,7 +5,7 @@ import numpy as np
 
 from source.ui import localize
 from source import reapers
-from source.reapers import other_prg, re_engine, unreal, qbms, unity, cel_top, zip_archive, locres, strings
+from source.reapers import other_prg, re_engine, unreal, qbms, unity, cel_top, zip_archive, locres, strings, ext_list
 from source.file_data import FileData
 
 
@@ -41,9 +41,23 @@ class ReapersFactory:
                 '_CelTop': cel_top.CelTop(),
                 '_XISO': other_prg.OtherProg(),
                 '_OtherPRG': other_prg.OtherProg(),
+                '_Wii_ISO': other_prg.OtherProg(),
+                '_WAV2VAG': other_prg.OtherProg(),
+                '_PNG2GXT': other_prg.OtherProg(),
                 }
         
         return func_reapers.get(func_name, 'not_found')
+    
+    @staticmethod
+    def get_script_name(func_name):
+        
+        func_reapers = {
+                '_Wii_ISO': 'wit',
+                '_WAV2VAG': r'data\tools\vagpacker "%full_file_name%"',
+                '_PNG2GXT': r'data\ps_tools\vita\psp2gxt.exe -i "%full_file_name%" -o "%out_dir%\%name_wxt%.gxt"',
+                }
+        
+        return func_reapers.get(func_name, None)
 
     def calculate_weights(self, file_info, candidates):
         weights = {}
@@ -66,7 +80,7 @@ class ReapersFactory:
                 else:
                     weight -= 1
 
-            ic(func, idx, weight)
+            # ic(func, idx, weight)
             weights[idx] = weight
 
         max_value = max(weights.values())
@@ -92,10 +106,11 @@ class ReapersFactory:
     def get_reaper(self):
 
         keys = list(set(self.get_list('ext', self.file_data.ext)
-                        + self.get_list('file_name', self.file_data.file_name)
-                        + self.get_list('magic1', self.file_data.magic1)
-                        + self.get_list('magic2', self.file_data.magic2)
-                        + self.get_list('magic3', self.file_data.magic3)
+                        # + self.get_list('ext', '*')
+                        # + self.get_list('file_name', self.file_data.file_name)
+                        # + self.get_list('magic1', self.file_data.magic1)
+                        # + self.get_list('magic2', self.file_data.magic2)
+                        # + self.get_list('magic3', self.file_data.magic3)
                    ))
 
         ic(len(keys))
@@ -131,6 +146,7 @@ class ReapersFactory:
             self.proc = None
             self.file_data = FileData(fn)
             func_try = self.get_by_func(self.func_name)
+            self.script_name = self.get_script_name(self.func_name)
             ic(self.file_data)
 
             # Check on ZIP signature
@@ -157,33 +173,6 @@ class ReapersFactory:
 
                 self.proc.script_name = self.script_name.replace('%out_dir%', fp)
                 self.proc.key = self.script_name
-
-            # TODO: Maybe need to rewrite or remove
-            elif self.func_name == '_VGM' or self.file_data.ext in ('9tav', 'adpcm', 'afc', 'aif', 'aifc', 'aiff', 'at3', 'at9',
-                                                        'aud', 'bgm', 'bnk', 'fsb', 'laif', 'laifc', 'laiff', 'logg',
-                                                        'lopus', 'lwav', 'lwma', 'ogg', 'ogg_', 'opus', 'pcm', 'sngw',
-                                                        'ss2', 'ue4opus', 'vag', 'wav', 'wem', 'wma', 'xma', 'xna',
-                                                        'xopus', 'xvag', 'xwb', 'xwm', 'xwma', ):
-                self.proc = other_prg.OtherProg()
-                self.proc.script_name = (
-                    f'data\\vgmstream\\vgmstream-cli.exe -o '
-                    f'"{fp}\\{os.path.basename(fn).lower().replace(self.file_data.ext, "wav")}" '
-                    f'"%full_file_name%"'
-                )
-
-            # TODO: Maybe need to rewrite or remove
-            elif self.func_name == '_Wii_iso':
-                self.proc = other_prg.OtherProg()
-
-                try:
-                    with open(fn, 'rb') as fff:
-                        fff.seek(0x20 if self.file_data.ext == 'iso' else 0x220)
-                        name = fff.read(0x40).strip(b'\0').decode('utf-8')
-                except UnicodeDecodeError:
-                    self.proc = None
-                    print('Not valid GameCube or Wii file')
-
-                self.proc.script_name = f'data\\wit\\wit.exe X "%full_file_name%" -d "%out_dir%\\{name}"'
 
             else:
                 self.get_reaper()

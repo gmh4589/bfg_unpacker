@@ -7,10 +7,13 @@ from source.ui import localize
 
 class TypeSelector(QDialog):
 
-    def __init__(self, file_type_list):
+    def __init__(self, file_type_list: dict):
         super().__init__()
         self.setWindowTitle(localize.tf_selector)
         self.returned_data = None
+
+        if None in file_type_list.keys():
+            file_type_list.pop(None)
 
         self.resize(250, 120)
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
@@ -24,7 +27,7 @@ class TypeSelector(QDialog):
         self.label_selector.setText(localize.hand_select)
 
         self.file_type_selector = QComboBox(self.centralwidget)
-        self.file_type_selector.addItems(key for key, value in file_type_list.items())
+        self.file_type_selector.addItems(key for key in sorted(file_type_list.keys(), key=lambda item: item[0].lower()))
         self.file_type_selector.setGeometry(QRect(10, 40, 230, 30))
 
         self.ok_btn = QPushButton(self.centralwidget)
