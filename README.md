@@ -1,8 +1,6 @@
 # \# BFG Unpacker
 
-
-
-\[!\[Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg\_unpacker/total.svg)]()
+[!\[Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg\_unpacker/total.svg)]()
 
 
 
@@ -10,7 +8,7 @@ BFG Unpacker - this is a multifunctional tool for data mining, games research, g
 
 
 
-!\[Screenshot\_1](https://github.com/gmh4589/bfg\_unpacker/assets/41452060/cff20bb4-d735-4ff3-af86-bddb0660ff19)
+[!\[Screenshot\_1](https://github.com/gmh4589/bfg\_unpacker/assets/41452060/cff20bb4-d735-4ff3-af86-bddb0660ff19)
 
 
 
