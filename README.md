@@ -1,8 +1,11 @@
-# \# BFG Unpacker
-
-[!\[Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg\_unpacker/total.svg)]()
+\# BFG Unpacker
 
 
+[![Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg_unpacker/total.svg)]()
+
+To run source, download this archive: https://drive.google.com/file/d/1Z_1q9r-mx-WdNMy0YzNgaUU3B0p2KR-1/view?usp=sharing
+And unzip it into data directory
+![Screenshot_1](https://github.com/gmh4589/bfg_unpacker/assets/41452060/cff20bb4-d735-4ff3-af86-bddb0660ff19)
 
 BFG Unpacker - this is a multifunctional tool for data mining, games research, game modification creation and game translating. With BFG Unpacker you can archives unpacking, archives packing (for few formats), converting multimedia files (video and audio) from many specifical games formats to popular formats, disc images unpacking and converting, converting text from some games to JSON and back, and other. 
 
