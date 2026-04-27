@@ -1,13 +1,17 @@
-\# BFG Unpacker
+#### BFG Unpacker
 
 
 [![Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg_unpacker/total.svg)]()
+
+### [Download latest Python build](https://github.com/gmh4589/bfg_unpacker/releases/download/beta_7/bfg_unpacker_2.0.0_beta_7.7z)
+### [Download latest AutoIt build insatller (legacy version)](https://github.com/gmh4589/bfg_unpacker/releases/download/1.23.2/BFGUnpacker.exe)
+### [Download latest AutoIt build portatable (legacy version)](https://github.com/gmh4589/bfg_unpacker/releases/download/1.23.2/reliese_1.23.2.zip)
 
 ![Screenshot_1](https://github.com/gmh4589/bfg_unpacker/assets/41452060/cff20bb4-d735-4ff3-af86-bddb0660ff19)
 
 BFG Unpacker - this is a multifunctional tool for data mining, games research, game modification creation and game translating. With BFG Unpacker you can archives unpacking, archives packing (for few formats), converting multimedia files (video and audio) from many specifical games formats to popular formats, disc images unpacking and converting, converting text from some games to JSON and back, and other. 
 
-#### **FEATURES**
+### **FEATURES**
 
 
 
@@ -30,7 +34,7 @@ WARNING: Python version now in development, and any functions may don't working 
 
 
 
-#### **SOME HISTORY**
+### **SOME HISTORY**
 
 
 
@@ -42,7 +46,7 @@ And finally step - I started rewriting it with Python. As UI framework I was sel
 
 
 
-#### **HOW TO USE**
+### **HOW TO USE**
 
 
 
@@ -64,7 +68,7 @@ And unzip it into data directory
 
 
 
-#### **PLANES FOR FUTURE**
+### **PLANES FOR FUTURE**
 
 
 
