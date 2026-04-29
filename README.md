@@ -3,6 +3,7 @@
 
 ![Github All Releases](https://img.shields.io/github/downloads/gmh4589/bfg_unpacker/total.svg)
 
+![GitHub Downloads](https://img.shields.io/github/downloads/gmh4589/bfg_unpacker/total?logo=github&label=GitHub%20Downloads)
 
 ### [Download latest Python build](https://github.com/gmh4589/bfg_unpacker/releases/download/beta_7/bfg_unpacker_2.0.0_beta_7.7z)
 ### [Download latest AutoIt build insatller (legacy version)](https://github.com/gmh4589/bfg_unpacker/releases/download/1.23.2/BFGUnpacker.exe)
