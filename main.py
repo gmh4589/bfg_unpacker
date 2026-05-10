@@ -30,7 +30,8 @@ class UnpackerMain(MainWindow, QuickOpen):
         self.file_list = []
         self.setting = setting
 
-    def file_open(self, ext_list='', select_folder=False, more_one=False):
+    # File dialog with filters for file types, return generator of file names
+    def file_open(self, ext_list='', select_folder=False, only_one=False):
 
         if not select_folder:
 
@@ -39,11 +40,12 @@ class UnpackerMain(MainWindow, QuickOpen):
             except AttributeError:
                 f = ''
 
-            file_names = QFileDialog.getOpenFileNames(self, caption=localize.open_file, filter=f,
+            if only_one:
+                file_names = QFileDialog.getOpenFileName(self, caption=localize.open_file, filter=f,
                                                       directory=self.setting['Main']['last_dir'])[0]
-
-            if more_one and file_names:
-                file_names = [file_names[0], '']
+            else:
+                file_names = QFileDialog.getOpenFileNames(self, caption=localize.open_file, filter=f,
+                                                      directory=self.setting['Main']['last_dir'])[0]
 
         else:
             file_names = [QFileDialog.getExistingDirectory(self, caption=localize.select_folder,
@@ -57,55 +59,41 @@ class UnpackerMain(MainWindow, QuickOpen):
                 if file_name:
                     yield file_name
 
-    def file_reaper(self, index, select_folder=False, more_one=False):
+    # Call functions from treeview menu by game name or file type
+    def file_reaper(self, index):
 
         try:
             item = self.model.itemFromIndex(index)
             data_string = self.mainList.loc[self.mainList['game_name'] == item.text()]
-            self.func_name = data_string['func_name'].values[0]
+            func_name = data_string['func_name'].values[0]
             script_name = data_string['script_name'].values[0]
+            maximum = data_string['progress'].values[0]
             after_dot['Default'] = (data_string['ext_list'].values[0]
                                     if data_string['ext_list'].values[0] != 'nan' else '')
             ext_list = after_dot[self.func_name] if self.func_name in after_dot.keys() else after_dot['Default']
 
-            if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop')
-                    or self.checkBox_Reimport.isChecked()):
-                select_folder = True
-
-            self.create_queue(ext_list, select_folder, more_one, self.func_name, script_name)
+            select_folder = True if (self.func_name in ('_Unity', '_Frostbite2', '_Frostbite3', '_CelTop')
+                    or self.checkBox_Reimport.isChecked()) else False
+                
+            self.create_queue(ext_list=ext_list, select_folder=select_folder, func_name=func_name, script_name=script_name, maximum=maximum)
 
         except IndexError:
             pass
 
-    def create_queue(self, ext_list='', select_folder=False, more_one=False, func_name=None, 
-                     script_name=None, 
-                     find_reaper=None, script=None
-                     ):
-        self.func_name = func_name
-        self.script_name = script_name
+    # Create queue of files to unpack
+    def create_queue(self, ext_list='', select_folder=False, func_name=None, script_name=None, maximum=100):
 
         if type(ext_list) is not str:
             ext_list = ''
 
         ext_list = f'{ext_list}{localize.all_files}(*.*)'
         ic(ext_list)
-        self.file_list = list(self.file_open(ext_list, select_folder, more_one))
+        self.file_list = list(self.file_open(ext_list, select_folder))
         self.last_run = self.find_reaper
-
-        # if find_reaper is None:
-        self.find_reaper()
-        # else:
-
-        #     for fn in self.file_list:
-        #         find_reaper.script_name = script
-        #         self.q_connect(find_reaper, fn,
-        #                         header=f'{localize.unpacking}: {fn}...',
-        #                         maximum=100,
-        #                         out_dir=self.setting['Main']['out_path'],
-        #                         subfolder=bool(int(self.setting['Main']['subfolders'])))
+        self.find_reaper(func_name, script_name, maximum)
 
     def find_zip_method(self):
-        file_n = ''.join(self.file_open(more_one=True))
+        file_n = ''.join(self.file_open(only_one=True))
 
         if file_n:
             self.q_connect(zip_scan.ZipScanner(), file_n,

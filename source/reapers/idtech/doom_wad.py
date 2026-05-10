@@ -23,7 +23,7 @@ class WadExtractor(Reaper):
             for i in range(num_entries):
                 entry_offset = int.from_bytes(wad_file.read(4), byteorder="little")
                 entry_size = int.from_bytes(wad_file.read(4), byteorder="little")
-                entry_name = wad_file.read(8).decode("ascii").rstrip("\0")
+                entry_name = wad_file.read(8).decode("ascii", errors='ignore').rstrip("\0")
 
                 for sym in '\\?':
                     entry_name = entry_name.replace(sym, '_')

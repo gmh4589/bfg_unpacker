@@ -59,7 +59,7 @@ class ZipData:
 
 class Zip(Reaper):
     zip_data = ZipData()
-    oodle = OodleDecompress('oo2core_8_win64.dll')
+    oodle = OodleDecompress()
 
     def write_file(self):
         cd = self.zip_data.compressed_data
@@ -106,9 +106,6 @@ class Zip(Reaper):
 
         elif cm == 14:  # LZMA
             self.unzip(path, ZipMethods.LZMA_DYNAMIC)
-
-        # elif cm == 15:  # Oodle
-        #     self.unzip(path, ZipMethods.OODLE)
 
         elif cm == 18:  # Terse
             self.unzip(path, ZipMethods.TERSE)

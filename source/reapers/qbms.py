@@ -1,5 +1,6 @@
 
 from subprocess import Popen, PIPE
+from tkinter.filedialog import askopenfilename
 from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
@@ -48,9 +49,19 @@ class Q_BMS(Reaper):
     @file_reaper
     def run(self):
 
+        if not self.script_name:
+            self.script_name = askopenfilename(filetypes=[("BMS Scripts files", "*.bms *.txt *.wcx"), (localize.all_files, "*.*")],)
+
+        if not self.script_name:
+            # TODO: Translate text below!
+            print('You must select a file...')
+            self.update_signal.emit(100, '', 'You must select a file...', True)
+            return
+
         self.file_name = self.file_name.replace("/", "\\")
+        self.script_name = self.script_name if ':' in self.script_name else f"{self.path_to_root}\\{self.script_name}"
         script_test = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" {self.add} -l -Y '
-                  f'"{self.path_to_root}\\{self.script_name}" '
+                  f'"{self.script_name}" '
                   f'"{self.file_name}" "{self.output_folder}"').replace('/', '\\')
         script = script_test.replace(' -l ', ' ')
         ic(self.script_name)

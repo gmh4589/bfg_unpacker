@@ -5,7 +5,7 @@ from datetime import datetime
 
 from PyQt6.QtCore import Qt, QItemSelectionModel, QRect
 from PyQt6.QtGui import QStandardItem, QIcon, QFontDatabase
-from PyQt6.QtWidgets import QMainWindow, QMenu, QFileDialog, QToolButton
+from PyQt6.QtWidgets import QMainWindow, QMenu, QToolButton
 from icecream import ic
 
 from source.ui.main_ui import Ui_BFGUnpacker
@@ -20,6 +20,7 @@ from source.ui import localize
 from source.setting import setting, set_setting
 
 
+# TODO: Add function path to all create_queue methods call
 # Методы для наполнения интерфейса данными
 class MainWindow(QMainWindow, Ui_BFGUnpacker):
     db = DatabaseConnect()
@@ -199,54 +200,47 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
 
         match action:
             case 'A':
-                # btn.clicked.connect(self.q_open)
                 btn.clicked.connect(self.create_queue)
             case 'B':
-                btn.clicked.connect(lambda: self.create_queue(script_name=QFileDialog.getOpenFileName(
-                                                              self, localize.open_file,
-                                                              filter='QuickBMS Scripts (*.bms);;QuickBMS Scripts (*.txt);;'
-                                                              f'{localize.all_files} (*.*)',
-                                                              directory=self.setting['Main']['last_dir'])[0]))
+                btn.clicked.connect(lambda: self.create_queue(func_name='qbms.Q_BMS'))
             case 'C':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_7ZIP'))
+                btn.clicked.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP'))
             case 'D':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
+                btn.clicked.connect(lambda: self.create_queue(func_name='qbms.Q_BMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
             case 'E':
                 btn.clicked.connect(lambda: self.create_queue(func_name='_Innosetup', ext_list=after_dot['_Innosetup']))
             case 'F':
                 btn.clicked.connect(lambda: self.childs.ffmpeg_video())
             case 'G':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Unreal', ext_list=after_dot['_Unreal']))
+                btn.clicked.connect(lambda: self.create_queue(func_name='unreal.Unreal', ext_list=after_dot['_Unreal']))
             case 'H':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Unity', select_folder=True))
+                btn.clicked.connect(lambda: self.create_queue(func_name='unity.Unity', select_folder=True))
             case 'I':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_idTech', ext_list=after_dot['_idTech']))
+                btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_idTech']))
             case 'J':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\TotalObserver.wcx"))
+                btn.clicked.connect(lambda: self.create_queue(func_name='source_vpk.VPKExtractor', ext_list=after_dot['_Source']))
             case 'K':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Bethesda', ext_list=after_dot['_Bethesda']))
+                btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_Bethesda']))
             case 'L':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_CryEngine', ext_list=after_dot['_CryEngine']))
+                btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_CryEngine']))
             case 'M':
-                btn.clicked.connect(lambda: os.system('data\\rad_tools\\radvideo64.exe'))
+                btn.clicked.connect(lambda: self.childs.ffmpeg_audio())
             case 'N':
-                # btn.clicked.connect(self.wwise_tools)
                 btn.clicked.connect(lambda: self.childs.image_to_dds_nv())
             case 'O':
-                # btn.clicked.connect(self.ps_audio_tools)
                 btn.clicked.connect(lambda: self.childs.image_to_dds_ms())
             case 'P':
                 btn.clicked.connect(lambda: self.childs.pillow_conv())
             case 'Q':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_RedEngine', ext_list=after_dot['_RedEngine']))
+                btn.clicked.connect(lambda: self.create_queue(ext_list=after_dot['_RedEngine']))
             case 'R':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Godot', ext_list=after_dot['_Godot']))
+                btn.clicked.connect(lambda: self.create_queue(func_name='godot_pck.GodotPCK', ext_list=after_dot['_Godot']))
             case 'S':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_RPGMaker', ext_list=after_dot['_RPGMaker']))
+                btn.clicked.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', ext_list=after_dot['_RPGMaker'], script_name=r'data\tools\RPGMakerDecrypter-cli.exe -w "%full_file_name%" --output="%out_dir%"'))
             case 'T':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_RenPy', ext_list=after_dot['_RenPy']))
+                btn.clicked.connect(lambda: self.create_queue(func_name='qbms.Q_BMS', ext_list=after_dot['_RenPy'], script_name=r'data\scripts\rpa_renpy_nopython.bms'))
             case 'U':
-                btn.clicked.connect(lambda: self.create_queue(func_name='_Unigene', ext_list=after_dot['_Unigene']))
+                btn.clicked.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', ext_list=after_dot['_Unigene'], script_name=r'data\tools\uniginex.exe -o "%full_file_name%"  "%out_dir%" '))
             case 'V':
                 btn.clicked.connect(lambda: self.childs.raw2dds())
             case 'W':
@@ -283,7 +277,7 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
                      'J': localize.unpack_source,
                      'K': localize.unpack_creation,
                      'L': localize.unpack_cry,
-                     'M': localize.convert_bink,
+                     'M': localize.convert_ffmpeg,  # TODO: Add localizated text about FFMPEG Audio Convert
                      'N': localize.convert_wwise,
                      'O': localize.ps_audio_tool,
                      'P': localize.convert_pillow,

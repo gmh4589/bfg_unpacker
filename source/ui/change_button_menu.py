@@ -12,7 +12,7 @@ from source.setting import setting, set_setting
 
 class CBWindow(QDialog):
 
-    def __init__(self, letter, style='dark_orange'):
+    def __init__(self, letter, style=''):
         super().__init__()
         self.setWindowTitle("Change buttons")
         self.setMinimumSize(255, 255)

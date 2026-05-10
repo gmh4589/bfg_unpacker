@@ -16,7 +16,7 @@ from source.setting import setting, theme
 class ChildUIWindow(QDialog):
 
     def __init__(self, label_list=None, action_list=None, default_list=None, action=None, ok_run=None,
-                 gui_name='test_child', ext_list='', drop_a=False, item1=0, item2=1, combos=''):
+                 gui_name='test_child', ext_list='', drop_a=False, item1=0, item2=1, combos: str | dict=''):
         super().__init__()
 
         self.setting = setting

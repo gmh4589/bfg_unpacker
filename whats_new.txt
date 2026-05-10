@@ -1,4 +1,25 @@
 
+May 10, 2026 - 2.0.0 beta_9 version release
+
+ - Added new theme: "Night City 2"
+ - Fixed crash after German localize selected
+ - Fixed crash with multimedia files via ffmpeg
+ - Fixed work with Media Info function
+ - Media Info function now saving the results to a JSON file in the output folder
+ - Fixed crash when trying to call some functions from the top menu and tree view
+ - Progress bar by converting files via ffmpeg now always show correct status
+       and show duration of converted part to all duration
+ - Connection system with game list from database was reworked. Now, method for working with ever game\file type is writing in database
+ - Added native support for unpack CT3PACK.DAT archive from Clock Tower 3
+ - Added native support for convert 000 video from the game Silent Hill 3 to MPG and back
+ - Added native support for unpack CSB and SPB archives from games on Chrome Engine
+ - Added support for convert CHD disc images to BIN\CUE via utility chdman.exe by developers MAME emulator (use in games by SEGA, for example, Saturn and some arcade platforms)
+ - Fixed error with unpacking WAD files from games on Doom Engine from some consoles version
+ - Updated and upgrated file type auto-detected system
+ - WIT utility for working with GameCube and Wii was chanhed on DolphinTools
+ - RPGMakerDecrypter-cli.exe utility for working with archives from games on RPGMaker Engine was chanhed on rgsstool.py, witch was full inegrated into the program
+ - For CubeMap Creator function was created GUI with drag-and-drop option support
+
 Mart 17, 2026 - 2.0.0 beta_8 version release
 
  - Game base was updated

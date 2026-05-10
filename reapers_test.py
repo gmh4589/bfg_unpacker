@@ -1,15 +1,16 @@
 import os
 from icecream import ic
-from source.reapers.sega.awb import AFS2Extractor
+from source.reapers.capcom.re_engine import ReEngine
 
-in_dir = r"D:\SteamLibrary\steamapps\common\Bayonetta\data\bgm"
+in_dir = r"D:\SteamLibrary\steamapps\common\RE3"
 
-new_reaper = AFS2Extractor()
+new_reaper = ReEngine()
 path = in_dir
 file_list = os.listdir(path)
-mask = '.awb'
-out_dir="F:\\out"
+mask = 're_chunk_000.pak.patch_001.pak'
+out_dir="E:\\out"
 
+new_reaper.game_file_list = 'RE3_PC_Release.list'
 
 for file in file_list:
 

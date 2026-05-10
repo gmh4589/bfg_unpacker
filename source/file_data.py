@@ -1,4 +1,3 @@
-import json
 import os
 
 
@@ -22,17 +21,6 @@ class FileData:
             self.ext = '*'
             self.file_name = base_name
         
-        if self.ext == 'json':
-                
-            with open(fn, 'r') as js:
-
-                try:
-                    json_data = json.load(js)
-                except (PermissionError, FileNotFoundError, FileExistsError, UnicodeDecodeError):
-                    json_data = {}
-            
-            self.json_type = json_data.get('type', 'unknown')
-
         try:
 
             with open(fn, 'rb') as fff:

@@ -151,5 +151,12 @@
     "multivol": "The data in this game is a multi-volume archive.\nUnpacking may take a long time\nand a lot of space on your disk. Continue?",
     "big_image_error": "Converting of images biggest then 500 megapixels does not support!",
     "oodle_version": "Oodle version:",
-    "unsuppoerted_ftype": "Unsupported file type!"
+    "unsupported_ftype": "Unsupported file type!",
+    "offset": "Offset",
+    "clear": "clear",
+    "create": "create",
+    "six_images": "First you need to choose six images!",
+    "delete": "Delete",
+    "already_6": "You have already selected six images!",
+    "warning": "Warning"
 }

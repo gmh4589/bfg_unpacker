@@ -1,5 +1,7 @@
 import os
 import json
+from datetime import datetime
+
 from PyQt6.QtCore import QThread
 from icecream import ic
 from ffmpeg import FFmpeg, Progress
@@ -30,10 +32,18 @@ def ffmpeg_conv(**kwargs):
     QThread(proc.q_connect(conv, conv.file_name, header=f'{localize.convert}: {conv.file_name}...')).run()
 
 
-class Converter(Reaper):
+class ErrorMixin:
 
-    def __init__(self, stng=setting):
-        super().__init__(stng=stng)
+    def show_error(self, e):
+        print(localize.unsupported_ftype)
+        logger('ERROR', f"{localize.unsupported_ftype} {str(e)}")
+        self.update_pb(1, 1, self.file_name)
+
+
+class Converter(Reaper, ErrorMixin):
+
+    def __init__(self, stng=setting, *args, **kwargs):
+        super().__init__(stng=stng, *args, **kwargs)
         self.v_codec = 'hevc'
         self.vb = '5M'
         self.vf_scale = '1920:1080'
@@ -44,11 +54,17 @@ class Converter(Reaper):
         self.frequency = '44100'
         self.channels = '2'
         self.speed = '1'
-        self.info_only = None
+    
+    def get_seconds(self, time: str):
+        duration = time.split(':')
+
+        if len(duration) == 3:
+            return int(duration[0]) * 3600 + int(duration[1]) * 60 + float(duration[2])
+        elif len(duration) == 1:
+            return int(float(time))
 
     @file_reaper
     def run(self):
-        # out_path = f'{self.output_folder}\\{'.'.join(os.path.basename(self.file_name).split(".")[:-1])}.{self.format}'
         out_path = f'{self.setting['Main']['out_path']}\\{os.path.basename(self.file_name).replace(".", "_")}\\{'.'.join(os.path.basename(self.file_name).split(".")[:-1])}.{self.format}'
 
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
@@ -57,34 +73,32 @@ class Converter(Reaper):
         try:
             probe = FFmpeg(executable='data\\ffmpeg\\ffprobe.exe').input(self.file_name, print_format="json", show_streams=None)
             meta = json.loads(probe.execute())
-            ic(meta)
+            # ic(meta)
         except FFmpegError as e:
-            print(localize.unsuppoerted_ftype)
-            logger('ERROR', f"{localize.unsuppoerted_ftype} {str(e)}")
+            print(localize.unsupported_ftype)
+            logger('ERROR', f"{localize.unsupported_ftype} {str(e)}")
             self.update_pb(1, 1, self.file_name)
             return
-        
-        if self.info_only is not None:
+                
+        # Get duration for variuos variants
+        dur_list = []
+        lng_list = ['', '-eng', '-jap', '-rus', '-fra', '-deu', '-kor', '-tur', '-chn']
 
-            for key, value in meta['streams'][0].items():
-                print(f"{key}: {value}")
-            
-            self.update_pb(1, 1, self.file_name)
-            return
-
-        try:
-            duration = float(meta['streams'][0]['duration'])
-        except (KeyError, IndexError):
-
+        for i in range(10):
             try:
-                duration = meta['streams'][0]['tags']['DURATION'].split(':')
-                duration = int(duration[0]) * 3600 + int(duration[1]) * 60 + float(duration[2])
+                dur_list.append(self.get_seconds(str(meta['streams'][i].get('duration', '0'))))
             except (KeyError, IndexError):
-                duration = 12 * 3600  # default 12 hours
+                break
 
-        frame_rate = tuple(map(int, meta['streams'][0]['r_frame_rate'].split('/')))
-        frame_rate = frame_rate[0] / frame_rate[1]
-        frames = int(duration * frame_rate)
+        for lng in lng_list:
+            try:
+                dur_list.append(self.get_seconds(str(meta['streams'][0]['tags'].get(f'DURATION{lng}', '0'))))
+            except (KeyError, IndexError):
+                pass
+
+        dur_get = max(dur_list)
+        dur_default = 7200  # default 2 hours
+        duration = dur_get if dur_get > 0 else dur_default
 
         ffmpeg = FFmpeg(executable='data\\ffmpeg\\ffmpeg.exe').option("y").input(self.file_name)
 
@@ -121,14 +135,40 @@ class Converter(Reaper):
             logger('DEBUG', line)
 
             if 'Conversion failed!' in line or 'error' in line.lower():
-                self.update_pb(frames, frames, out_path)
+                self.update_pb(duration, duration, out_path)
 
         @ffmpeg.on("progress")
         def on_progress(progress: Progress):
-            self.update_pb(frames, progress.frame, out_path)
+            now = progress.time.seconds
+            self.update_ffmpeg(duration, now, progress)
 
         @ffmpeg.on("completed")
         def on_completed():
-            self.update_pb(frames, frames, out_path)
+            self.update_pb(duration, duration, out_path)
 
-        ffmpeg.execute()
+        try:
+            ffmpeg.execute()    
+        except FFmpegError as e:
+            self.show_error(e)
+
+
+class MediaInfo(Reaper, ErrorMixin):
+
+    def run(self):
+        out_path = f'{self.setting['Main']['out_path']}\\{os.path.basename(self.file_name).replace(".", "_")}\\{os.path.basename(self.file_name)}.media_info.json'
+        
+        try:
+            probe = FFmpeg(executable='data\\ffmpeg\\ffprobe.exe').input(self.file_name, print_format="json", show_streams=None)
+            meta = json.loads(probe.execute())
+        except FFmpegError as e:
+            self.show_error(e)
+            return
+        
+        with open(out_path, "w") as f:
+            json.dump(meta, f, indent=4)
+
+        for key, value in meta['streams'][0].items():
+            print(f"{key}: {value}")
+        
+        self.update_pb(1, 1, self.file_name)
+

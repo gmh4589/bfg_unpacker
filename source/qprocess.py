@@ -3,7 +3,7 @@ import os
 from icecream import ic
 
 from PyQt6.QtWidgets import QComboBox, QDialog
-from PyQt6.QtCore import pyqtSlot
+# from PyQt6.QtCore import pyqtSlot
 
 from source.ui import localize
 from source.ui.custom_ui import ProgressBar, CustomDialog

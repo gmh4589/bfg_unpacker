@@ -18,7 +18,7 @@ class BundleUnpack(Reaper):
                 self.update_signal.emit(100, '', localize.not_correct_file.replace('%%', 'Red Engine'), True)
                 return
 
-            bundle.seek(0x13c)
+            bundle.seek(0x10)
             first_file_offset = int.from_bytes(bundle.read(4), byteorder="little")
             file_count = int((first_file_offset - 32) / 320)
             bundle.seek(0x20)
@@ -41,11 +41,13 @@ class BundleUnpack(Reaper):
 
             for j, file in enumerate(file_list):
                 bundle.seek(file.offset)
+                data = bundle.read(file.zip_size)
 
-                if file.zip_size == file.unzip_size:
-                    data = bundle.read(file.unzip_size)
-                else:
-                    data = zlib.decompress(bundle.read(file.zip_size))
+                if file.zip_size != file.unzip_size:
+                    try:
+                        data = zlib.decompress(data)
+                    except zlib.error:
+                        pass
 
                 self.file_save(os.path.join(self.output_folder, file.name), data)
                 self.update_pb(file_count, j + 1, file.name)

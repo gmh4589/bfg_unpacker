@@ -24,7 +24,7 @@ default_settings = {
         'fav_format': 'png',
         'context_menu': '2',
         'save_original_images': '2',
-        'oodle_version': 'oo2core_8_win64.dll'
+        'oodle_version': 'Auto'
     },
     'Buttons': {
         '1': 'B',
@@ -111,6 +111,7 @@ else:
                 setting.set(group, name, default)
 
 theme = setting['Main']['theme']
+out_path = setting['Main']['out_path']
 
 def set_setting(group, key, value):
 

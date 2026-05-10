@@ -43,4 +43,4 @@ class GMUnpack(Reaper):
                     with open(f"{self.output_folder}/{chunk_name}/{that_chunk}.{chunk_name}", 'wb') as nf:
                         nf.write(file.read(chunk_size))
 
-                self.update_pb(file_size, file.tell(), 'name')
+                self.update_pb(file_size, file.tell(), chunk_name)

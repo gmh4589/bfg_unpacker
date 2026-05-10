@@ -45,7 +45,8 @@ class BSITexture(Reaper):
             palette_list = [p for p in os.listdir(in_path) if p.lower().endswith(('.pal', '.col'))]
 
             if len(palette_list) > 1:
-                print('Found more 1 palette files. Files be save with all Found palettes')
+                # TODO: Localize text below!
+                print('Found more 1 palette files. Files be save with all founded palettes')
 
             if zipped:
                 return

@@ -3,10 +3,11 @@ import os
 import io
 from functools import wraps
 from subprocess import Popen
+from datetime import datetime
+
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
 from icecream import ic
-from datetime import datetime
 from pathlib import Path
 from tkinter.messagebox import showinfo, askyesno
 from threading import Thread
@@ -114,6 +115,8 @@ class Reaper(QThread, GetExt):
     path_to_root = os.path.dirname(os.path.abspath(f"{os.path.curdir}\\game_base.db"))
     com_type = None
     new_ext = 'dat'
+    maximum = 100
+    script_name = None
 
     def __init__(self, stng=setting):
         super().__init__()
@@ -121,6 +124,8 @@ class Reaper(QThread, GetExt):
         self.output_folder = self.setting['Main']['out_path']
         os.makedirs(self.output_folder, exist_ok=True)
         self.out_reader = None
+        self.out_print = None
+        self.err_print = None
         
     @abstractmethod
     def run(self):
@@ -130,14 +135,26 @@ class Reaper(QThread, GetExt):
 
         file_count = 1 if file_count == 0 else file_count
         current_file = 1 if current_file == 0 else current_file
+
         ic(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...')
-        print(f'{current_file + 1}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
-        is_ending = True if current_file + 1 >= file_count else False
+        print(f'{current_file}\\{file_count}: {localize.saving} - {file_name}...'.replace('<font', ''))
 
         self.update_signal.emit(int(100 / file_count * current_file),
-                                f'{current_file + 1}\\{file_count}',
+                                f'{current_file}\\{file_count}',
                                 f'{localize.saving} - {file_name}...',
-                                is_ending)
+                                current_file + 1 >= file_count)
+        
+    def update_ffmpeg(self, duration: int, current_time: int, progress):
+            minutes, seconds = divmod(duration, 60)
+            hours, minutes = divmod(minutes, 60)
+            formatted_time = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+            p = int(100 / duration * current_time)
+            percent = p if p < 95 else 95
+            
+            self.update_signal.emit(percent, 
+                                    f"TIME: {str(progress.time).split('.')[0]}\\{formatted_time}", 
+                                    f"SPEED: {progress.speed} | FPS: {progress.fps}", 
+                                    False)
 
     @staticmethod
     def folderSize(path, was_files=0):

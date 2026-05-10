@@ -9,13 +9,12 @@ from source.codecs.oodle import OodleDecompress
 from source.ui import localize
 
 
+#TODO: Working only with single volume archives. Add multivol archive support
 class TesOnline(Reaper):
-    #TODO: Working only with single volume archives. Add multivol archive support
     
     @file_reaper
     def run(self):
-        oodle_lib = self.setting['Main']['oodle_version']
-        self.oodle_dec = OodleDecompress(oodle_lib if oodle_lib != 'Auto' else 'oo2core_9_win64.dll')
+        self.oodle_dec = OodleDecompress()
 
         with open(self.file_name, "rb") as mnf_file:
             magic = mnf_file.read(4)
@@ -106,7 +105,6 @@ class TesOnline(Reaper):
                             data = self.oodle_dec.decompress(data, file.unzip_size)
 
                         fname = f"{str(cur_file).rjust(8, '0')}.{self.get_ext(data[0x1EF:0x1EF+4])}"
-                        # self.file_save(f"{self.output_folder}\\{fname}_header", data[:0x1EF])
                         self.file_save(f"{self.output_folder}\\{fname}", data[0x1EF:])
                         self.update_pb(file_count, cur_file, fname)
                 

@@ -57,10 +57,11 @@ class CustomDialog(QDialog):
                  title: str = 'Warning!',
                  btn_ok: bool = True,
                  btn_cancel: bool = False,
+                 style: str = '',
                  combo: QComboBox = None):
         super().__init__()
         self.setWindowIcon(QIcon('./data/icons/i.ico'))
-        apply_stylesheet(self, theme=f'{theme}.xml')
+        apply_stylesheet(self, theme=f'{style}.xml')
         self.setWindowTitle(title)
         self.layout = QVBoxLayout()
         self.combo = combo

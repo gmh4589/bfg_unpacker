@@ -44,6 +44,10 @@ from source.ui import localize
 
 class SevenZIP(Reaper, OutReader):
 
+    def __init__(self):
+        super().__init__()
+        self.end = False
+
     @file_reaper
     def run(self):
         self.file_name = self.file_name.replace('/', '\\')

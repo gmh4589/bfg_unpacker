@@ -4,7 +4,6 @@ from icecream import ic
 from source.qprocess import QProcessList
 from source.ui import localize
 from source.ui.file_type_selector import TypeSelector
-from source import reapers
 from source.setting import setting
 from source.reapers_factory import ReapersFactory
 
@@ -21,20 +20,9 @@ class QuickOpen(QProcessList):
         print(msg)
         return None
 
-    @classmethod
-    def get_reaper(cls, path):
-        parts = path.split('.')
-        obj = reapers
-        ic(parts)
-
-        for part in parts:
-            ic(part)
-            obj = getattr(obj, part)
-
-        return obj()
-
-    def find_reaper(self):
-        self.factory = ReapersFactory(self.reapers_table, self.func_name, self.script_name)
+    def find_reaper(self, func_name=None, script_name=None, maximum=100):
+        factory = ReapersFactory(self.reapers_table, func_name, script_name)
+        ic(func_name, script_name)
         
         if self.file_list:
             fn = self.file_list.pop(0)
@@ -44,51 +32,65 @@ class QuickOpen(QProcessList):
             if len(self.file_list) == 0:
                 self.last_run = None
             
-            reaper_result = self.factory.find_reaper(fn, fp)
-            ic(reaper_result)
-
-            if reaper_result is not None:
-                without_pb = ('_OtherPRG', '_CelTop', '_Total', '_GAUP', '_VGM', '_Wii_iso', '_XISO', '_PS3_PKG', '_PS3_PSARC', '_MediaInfo')
+            if func_name is None:
+                reaper_result = factory.find_reaper(fn, fp) 
+            else: 
+                reaper_result = factory.get_class(func_name)
 
                 try:
-                    maximum = 0 if ('other_prg' in str(reaper_result) 
-                                    or self.func_name in without_pb
-                                    or (reaper_result.script_name is not None
-                                        and 'wcx' in reaper_result.script_name)) else 100
-                except AttributeError:
-                    maximum = 100
+                    reaper_result.script_name = script_name
+                    ic(type(reaper_result), reaper_result.__dict__)
+                    
+                    self.q_connect(nuke=reaper_result, fn=fn,
+                                header=f'{localize.unpacking}: {fn}...',
+                                maximum=maximum,
+                                out_dir=self.setting['Main']['out_path'],
+                                subfolder=bool(int(self.setting['Main']['subfolders'])))
+                    return
+                
+                except (AttributeError, IndexError):
+                    # TODO: Translate text below
+                    msg = f"Can't get function {func_name} or script {script_name}. Maybe error in database...\n We will try to detect file type automatly..."
+                    ic(msg)
+                    print(msg)
+                    reaper_result = factory.find_reaper(fn, fp)
 
-                ic(maximum, reaper_result)
+            ic(reaper_result)
 
-                if 'splitter' in str(reaper_result):
-                    param = reaper_result.script_name.split(', ')
-                    reaper_result.start_data = int(param[0])
-                    reaper_result.header = int(param[1]).to_bytes(4, byteorder='little')
-                    reaper_result.splitter = int(param[2]).to_bytes(4, byteorder='little')
-                    reaper_result.file_type = param[3]
-                    reaper_result.ext = param[4]
+            if reaper_result:
 
-                if isinstance(reaper_result, dict):
+                if len(reaper_result) > 1:
                     tp = TypeSelector(reaper_result)
                     tp.exec()
                     ic(tp.returned_data)
                     
                     if tp.returned_data is not None:
                         proc_list = reaper_result
-                        reaper_result = proc_list[tp.returned_data][0]
-                        reaper_result.script_name = proc_list[tp.returned_data][1]
-                        self.q_connect(reaper_result, fn,
-                                       header=f'{localize.unpacking}: {fn}...',
-                                       maximum=maximum,
-                                       out_dir=self.setting['Main']['out_path'],
-                                       subfolder=bool(int(self.setting['Main']['subfolders'])))
+                        reaper_result = {
+                            tp.returned_data: [
+                                proc_list[tp.returned_data][0], 
+                                proc_list[tp.returned_data][1],
+                                proc_list[tp.returned_data][2]
+                            ]
+                        }
 
-                else:
-                    self.q_connect(reaper_result, fn,
-                                   header=f'{localize.unpacking}: {fn}...',
-                                   maximum=maximum,
-                                   out_dir=self.setting['Main']['out_path'],
-                                   subfolder=bool(int(self.setting['Main']['subfolders'])))
+                    else:
+                        self.sorry()
+
+                ic(reaper_result)
+                proc_list = list(reaper_result.values())[0]
+                print(f"{localize.file_type} {list(reaper_result.keys())[0]}")
+
+                function = proc_list[0]
+                function.script_name = proc_list[1]
+                maximum = proc_list[2].item()
+                ic(type(function), function.__dict__)
+
+                self.q_connect(function, fn,
+                                header=f'{localize.unpacking}: {fn}...',
+                                maximum=maximum,
+                                out_dir=self.setting['Main']['out_path'],
+                                subfolder=bool(int(self.setting['Main']['subfolders'])))
 
             else:
                 self.sorry()

@@ -14,11 +14,13 @@ from source.ui.main_ui_text import Translate
 from PyQt6.QtGui import QStandardItemModel, QIcon
 from source.ui import setting as setting_ui, theme_creator, localize
 from source.ui.child_gui_data import ChildGuiData
+from source.ui.cube_map import CubeMapGUI
 from source.setting import setting, theme, set_setting
 from source.db_connect import DatabaseConnect
 from source.reapers import ext_list
 
 
+# TODO: Add function path to all create_queue methods call
 class Ui_BFGUnpacker(Translate):
 
     def __init__(self):
@@ -114,6 +116,8 @@ class Ui_BFGUnpacker(Translate):
         self.menuPlayStation_3.addAction(self.ps3_pkg)
         self.ps3_psarc = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3_psarc)
+        self.ps3_psarc_lzma = QWidgetAction(self.menuPlayStation_3)
+        self.menuPlayStation_3.addAction(self.ps3_psarc_lzma)
         self.ps3XWS = QWidgetAction(self.menuPlayStation_3)
         self.menuPlayStation_3.addAction(self.ps3XWS)
         self.ps3_atrac2wav = QWidgetAction(self.menuPlayStation_3)
@@ -219,6 +223,8 @@ class Ui_BFGUnpacker(Translate):
         self.menuSega.addAction(self.menuSaturn.menuAction())
         self.saturn_images = QWidgetAction(self.menuSaturn)
         self.menuSaturn.addAction(self.saturn_images)
+        self.saturn_chd = QWidgetAction(self.menuSaturn)
+        self.menuSaturn.addAction(self.saturn_chd)
 
         self.menuSegaOther = QMenu(self.menuSega)
         self.menuSega.addAction(self.menuSegaOther.menuAction())
@@ -374,57 +380,90 @@ class Ui_BFGUnpacker(Translate):
         self.show_favorites = False
         self.filter_model = QStandardItemModel()
         self.fav_filter_model = QStandardItemModel()
-        img_path = '2077.png'
-
-        self.gameList_treeView.setStyleSheet(f"""
-            # background-image: url({img_path});
-            # background-attachment: fixed ;
-            # background-position: top left;
-        """)
-
-        self.logWindow.setStyleSheet(f"""
-            font-size: 12px;
-            # background-image: url({img_path});
-            # background-attachment: fixed ;
-            # background-position: top right;
-        """)
 
         Thread(target=self.tree_view_create, daemon=True).start()
 
         self.quickOpen.triggered.connect(self.create_queue)
         
         # Via 7ZIP unpacking
-        self.gcCSO.triggered.connect(lambda: self.create_queue(ext_list=f'CSO {localize.disc_image} (*.cso)|'))
-        self.pspCSO.triggered.connect(lambda: self.create_queue(ext_list=f'CSO {localize.disc_image} (*.cso)|'))
-        self.dreamcastGDI.triggered.connect(lambda: self.create_queue(ext_list=f'CDI\\GDI {localize.disc_image} (*.cdi; *.gdi)|'))
-        self.saturn_images.triggered.connect(lambda: self.create_queue(ext_list=f'BIN, CUE, ISO {localize.disc_image} (*.bin; *.cue; *.iso)|'))
+        self.gcCSO.triggered.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP', 
+                                                               ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.pspCSO.triggered.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP', 
+                                                                ext_list=f'CSO {localize.disc_image} (*.cso)|'))
+        self.dreamcastGDI.triggered.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP', 
+                                                                      ext_list=f'CDI\\GDI {localize.disc_image} (*.cdi; *.gdi)|'))
+        self.saturn_images.triggered.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP', 
+                                                                       ext_list=f'BIN, CUE, ISO {localize.disc_image} (*.bin; *.cue; *.iso)|'))
         
         # Via VGM converter unpacking
-        self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='_VGM', ext_list=ext_list.after_dot['_VGMToolbox']))
-        self.vag2wav.triggered.connect(lambda: self.create_queue(ext_list='PS2 VAG Audio File (*.vag)|'))
-        self.xvag2wav.triggered.connect(lambda: self.create_queue(ext_list='PS2 XVAG Audio File (*.vag; *.xvag)|'))
-        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|'))
-        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|'))
+        self.actionVGM_Stream_Tools.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                                ext_list=ext_list.after_dot['_VGMToolbox'], 
+                                                                                script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.vag2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 ext_list='PS2 VAG Audio File (*.vag)|', 
+                                                                 script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.xvag2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                  ext_list='PS2 XVAG Audio File (*.vag; *.xvag)|', 
+                                                                  script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.ps3_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                       ext_list='PS3 Atrac Audio File (*.at3; *.at9; *.atrac)|', 
+                                                                       script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.ps4_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                       ext_list='PS4 Atrac Audio File (*.at3; *.at9; *.atrac)|', 
+                                                                       script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.psp_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                       ext_list='PSP Atrac Audio File (*.at3; *.at9; *.atrac)|', 
+                                                                       script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.psv_atrac2wav.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                       ext_list='PS Vita Atrac Audio File (*.at3; *.at9; *.atrac)|', 
+                                                                       script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"'))
+        self.ps1_xa.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                ext_list='PS1 XA Audio File (*.xa)|', 
+                                                                script_name=r'data\vgmstream\vgmstream-cli.exe -o "%out_dir%\%file_name%.wav" "%full_file_name%"')) 
         
-        # Wii ISO disc images
-        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='_Wii_ISO', ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
-        self.gcCISO.triggered.connect(lambda: self.create_queue(ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso; *.gcm)|'))
-        self.wii_wua_zar.triggered.connect(lambda: self.create_queue(ext_list=f'Wii U {localize.disc_image} (*.wua; *.zar)|'))
+        # Wii\GameCube ISO disc images
+        self.wiiISO.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                script_name=r'data\tools\dolphintool.exe extract -i "%full_file_name%" -o "%out_dir%"',
+                                                                ext_list=f'Wii {localize.disc_image} (*.iso; *.wbfs; *.wdf; *.wia; *.ciso)|'))
+        self.gcCISO.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                script_name=r'data\tools\dolphintool.exe extract -i "%full_file_name%" -o "%out_dir%"',
+                                                                ext_list=f'Game Cube {localize.disc_image} (*.ciso; *.iso; *.gcm)|'))
+        self.wii_wua_zar.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                     script_name=r'data\tools\zarchive.exe "%full_file_name%" "%out_dir%"',
+                                                                     ext_list=f'Wii U {localize.disc_image} (*.wua; *.zar)|'))
 
         # XBOX Files
-        self.xboxISO.triggered.connect(lambda: self.create_queue(func_name='_XISO', ext_list=f'Xbox ISO {localize.disc_image} (*.iso; *.xiso)|'))
+        self.xboxISO.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 script_name=r'data\tools\extract-xiso.exe -d "%out_dir%\%file_name%" -x "%full_file_name%"',
+                                                                 ext_list=f'Xbox ISO {localize.disc_image} (*.iso; *.xiso)|'))
 
         # PlayStation Files
-        self.ps1_xa.triggered.connect(lambda: self.create_queue(ext_list='PS1 XA Audio File (*.xa)|')) # What is it? Need to find info about it
-        self.wav2vag.triggered.connect(lambda: self.create_queue(func_name='_WAV2VAG', ext_list='WAV Audio File (*.wav)|'))
-        self.gxt2png.triggered.connect(lambda: self.create_queue(ext_list='PlayStation Vita GXT Image File (*.gxt)|'))
-        self.png2gxt.triggered.connect(lambda: self.create_queue(func_name='_PNG2GXT', ext_list='PNG Image File (*.tga)|'))
+        self.wav2vag.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 ext_list='WAV Audio File (*.wav)|', 
+                                                                 script_name=r'data\tools\vagpacker "%full_file_name%"'))
+        self.gxt2png.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 ext_list='PlayStation Vita GXT Image File (*.gxt)|', 
+                                                                 script_name=r'data\ps_tools\vita\gxtconvert.exe "%full_file_name%" --output "%out_dir%"'))
+        self.png2gxt.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 ext_list='TGA Image File (*.tga)|', 
+                                                                 script_name=r'data\ps_tools\vita\psp2gxt.exe -i "%full_file_name%" -o "%out_dir%\%name_wxt%.gxt"'))
+        self.ps3_pkg.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                 ext_list=f'PS PKG {localize.archives} (*.pkg)|', 
+                                                                 script_name=r'data\ps_tools\ps3\ps3p_pkg_ripper.exe -o "%out_dir%" "%full_file_name%"'))
+        self.ps4PKG_CNT.triggered.connect(lambda: self.create_queue(func_name='qbms.Q_BMS', 
+                                                                    ext_list=f'PS4 PKG {localize.archives} (*.pkg)|', 
+                                                                    script_name=r'data\scripts\pkg_cnt.bms'))
+        self.ps3_psarc.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                   ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|', 
+                                                                   script_name=r'data\ps_tools\ps3\psarc.exe extract --input="%full_file_name%" --to="%out_dir%"'))
+        self.ps3_psarc_lzma.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                        ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|', 
+                                                                        script_name=r'data\ps_tools\ps3\psarc.exe extract --lzma --input="%full_file_name%" --to="%out_dir%"'))
 
-        self.ps3_pkg.triggered.connect(lambda: self.create_queue(func_name='_PS3_PKG', ext_list=f'PS PKG {localize.archives} (*.pkg)|'))
-        self.ps4PKG_CNT.triggered.connect(lambda: self.create_queue(func_name='_PS4_PKG', ext_list=f'PS4 PKG {localize.archives} (*.pkg)|'))
-        self.ps3_psarc.triggered.connect(lambda: self.create_queue(func_name='_PS3_PSARC', ext_list=f'PS3 PSARC {localize.archives} (*.psarc)|'))
+        # SEGA Files 
+        self.saturn_chd.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', 
+                                                                    ext_list='CHD Disc Image (*.chd)|', 
+                                                                    script_name=r'data\tools\chdman.exe extractcd -i "%full_file_name%" -o "%out_dir%\%file_name%.cue"'))
         
         self.favorites = []
 
@@ -448,11 +487,11 @@ class Ui_BFGUnpacker(Translate):
         # Actions connected
         self.actionArchiveScanner.triggered.connect(self.find_zip_method)
         self.gameList_treeView.clicked.connect(self.file_reaper)
-        self.action7z_Archiver.triggered.connect(lambda: self.create_queue(func_name='_7ZIP'))
-        self.actionGAUP.triggered.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
-        self.actionSAU.triggered.connect(lambda: self.create_queue(func_name='_SAU'))
-        self.actionTotal_Observer.triggered.connect(lambda: self.create_queue(func_name='_QuickBMS', script_name=f"{self.path_to_root}\\data\\wcx\\TotalObserver.wcx"))
-        self.actionMedia_Info.triggered.connect(lambda: self.create_queue(func_name='_MediaInfo'))
+        self.action7z_Archiver.triggered.connect(lambda: self.create_queue(func_name='seven_zip.SevenZIP'))
+        self.actionGAUP.triggered.connect(lambda: self.create_queue(func_name='qbms.Q_BMS', script_name=f"{self.path_to_root}\\data\\wcx\\gaup_pro.wcx"))
+        self.actionSAU.triggered.connect(lambda: self.create_queue(func_name='other_prg.OtherProg', script_name='sau'))
+        self.actionTotal_Observer.triggered.connect(lambda: self.create_queue(func_name='qbms.Q_BMS', script_name=f"{self.path_to_root}\\data\\wcx\\TotalObserver.wcx"))
+        self.actionMedia_Info.triggered.connect(lambda: self.create_queue(func_name='ffmpeg_tool.MediaInfo'))
         self.exitAction.triggered.connect(self.close)
         # Settings run
         self.action_Settings.triggered.connect(lambda: setting_ui.SettingWindow().exec())
@@ -484,7 +523,8 @@ class Ui_BFGUnpacker(Translate):
         self.actionImage_to_DDS_nVidia.triggered.connect(lambda: self.childs.image_to_dds_nv())
         self.actionDDS_Header_Generator.triggered.connect(lambda: self.childs.raw2dds())
         self.actionFindZipMethod.triggered.connect(lambda: self.childs.find_zip())
-        self.actionCubeMap_Creator.triggered.connect(create_cubemap)
+        # self.actionCubeMap_Creator.triggered.connect(create_cubemap)
+        self.actionCubeMap_Creator.triggered.connect(lambda: CubeMapGUI().exec())
 
         self.download = False
 

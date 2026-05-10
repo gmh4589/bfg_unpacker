@@ -13,8 +13,7 @@ class IdReaper(Reaper):
 
     @file_reaper
     def run(self):
-        oodle_lib = self.setting['Main']['oodle_version']
-        oodle = OodleDecompress('oo2core_9_win64.dll' if oodle_lib == 'Auto' else oodle_lib)
+        oodle = OodleDecompress()
 
         with open(self.file_name, "rb") as res_file:
             magic = res_file.read(4)

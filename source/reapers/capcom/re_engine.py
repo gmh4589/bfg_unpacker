@@ -14,15 +14,15 @@ class ReEngine(Reaper):
 
         with open(self.file_name, "rb") as file:
             magic = file.read(4)
-            print(self.game, self.name, self.game_file_list)
+            print(self.game, self.game, self.game_file_list)
 
-            if not self.magic([b'KPKA', ], magic, 'DAT'):
+            if not self.magic([b'KPKA', ], magic, 'Capcom ReEngine PAK Archive'):
                 return
 
             version = int.from_bytes(file.read(4), byteorder="little")
             file_count = int.from_bytes(file.read(4), byteorder="little")
             FileList = namedtuple('FileList',
-                                  ['name_hash', 'offset', 'zip_size', 'unzip_size', 'unk'])
+                                  ['name_hash', 'offset', 'zip_size', 'unzip_size', 'index'])
             file_list = []
             
             if self.game is not None:
@@ -36,7 +36,7 @@ class ReEngine(Reaper):
             else:
                 file_name_list = []
 
-            print(self.game, self.name, self.game_file_list)
+            print(self.game, self.game, self.game_file_list)
 
             for i in range(file_count):
 
@@ -44,14 +44,14 @@ class ReEngine(Reaper):
                 offset = int.from_bytes(file.read(8), byteorder="little")
                 zip_size = int.from_bytes(file.read(8), byteorder="little")
                 unzip_size = int.from_bytes(file.read(8), byteorder="little")
-                unk = int.from_bytes(file.read(8), byteorder="little")
+                index = int.from_bytes(file.read(8), byteorder="little")
 
-                file_list.append(FileList(name_hash, offset, zip_size, unzip_size, unk))
+                file_list.append(FileList(name_hash, offset, zip_size, unzip_size, index))
 
             for j, file_info in enumerate(file_list):
 
                 try:
-                    file_name = file_name_list[j].strip()
+                    file_name = file_name_list[file_info.index].strip()
                     ext = file_name.split('.')[-1]
 
                     try:

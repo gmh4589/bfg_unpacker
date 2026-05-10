@@ -17,6 +17,9 @@ Python Libraries:
     LZ4 - https://pypi.org/project/lz4/
     psutil - https://pypi.org/project/psutil/
 
+Python Scripts:
+    rgsstool.py - https://gitlab.com/rgss/rgsstool/-/blob/master/rgsstool.py?ref_type=heads
+
 Utility:
     7zip archiver - https://www.7-zip.org/
     AssetStudio - https://github.com/Perfare/AssetStudio
@@ -29,7 +32,6 @@ Utility:
     QuickBMS - https://aluigi.altervista.org/quickbms.htm
     QuickBMS scripts - https://aluigi.altervista.org/quickbms_scripts.php
     vgmstream - https://github.com/vgmstream/vgmstream
-    WIT: Wiimms ISO Tools - https://wit.wiimm.de/
     innounp - https://sourceforge.net/projects/innounp/
     PreyConvert - https://forum.xen-tax.com/viewtopic.php@p=141244.html
     Sprite and Archive Utility - https://www.extractor.ru/ipb/index.php?showtopic=2300
@@ -51,7 +53,7 @@ Utility:
     orkdec.exe - https://aluigi.altervista.org/papers/orkdec.zip
     uniginex.exe - https://aluigi.altervista.org/papers/uniginex.zip
     ttarchext.exe - https://aluigi.altervista.org/papers/ttarchext.zip
-    RPGMakerDecrypter-cli.exe - https://github.com/uuksu/RPGMakerDecrypter?tab=readme-ov-file
+    DolphinTools.exe - https://dolphin-emu.org/?nocr=true
 
 Total Commander Plugins:
     GAUP - https://wincmd.ru/plugring/gaup.html
@@ -65,7 +67,6 @@ Total Commander Plugins:
     TotalObserver - https://wincmd.ru/plugring/totalobserver.html
     UnArkWCX - https://wincmd.ru/plugring/unark.html
     UnLZX - https://wincmd.ru/plugring/UnLZX.html
-    XBox ISO Plugin - https://wincmd.ru/plugring/xboxiso.html
 
 Lists:
     UE4 passwords - https://cs.rin.ru/forum/viewtopic.php?f=10&t=100672

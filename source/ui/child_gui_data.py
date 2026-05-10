@@ -188,11 +188,9 @@ class ChildGuiData:
 
     def find_zip(self):
         child_gui.ChildUIWindow(gui_name=localize.find_zip_method,
-                                label_list=[localize.zip_method],
-                                # action_list=[sorted(key for key in zip_methods.values())],
-                                # action_list=[zip_methods],
-                                action_list=[ZipMethods.codec_indexes()],
-                                default_list=['DEFLATE'],
+                                label_list=[localize.zip_method, localize.offset],
+                                action_list=[ZipMethods.codec_indexes(), ['0', localize.other]],
+                                default_list=['DEFLATE', '0'],
                                 action=(f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "%action_0%" '
                                         f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
                                         f'"%file_name%" "%out_dir%"').replace("/", "\\")
