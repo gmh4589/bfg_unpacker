@@ -6,7 +6,7 @@
 ![Current Release](https://img.shields.io/github/v/release/gmh4589/bfg_unpacker?label=Current%20Release)
 ![Current Prerelease](https://img.shields.io/github/v/release/gmh4589/bfg_unpacker?include_prereleases&label=Current%20Prerelease)
 
-### [Download latest Python build](https://github.com/gmh4589/bfg_unpacker/releases/download/beta_7/bfg_unpacker_2.0.0_beta_7.7z)
+### [Download latest Python build](https://img.shields.io/github/v/release/gmh4589/bfg_unpacker?label=Current%20Release)
 ### [Download latest AutoIt build insatller (legacy version)](https://github.com/gmh4589/bfg_unpacker/releases/download/1.23.2/BFGUnpacker.exe)
 ### [Download latest AutoIt build portatable (legacy version)](https://github.com/gmh4589/bfg_unpacker/releases/download/1.23.2/reliese_1.23.2.zip)
 
