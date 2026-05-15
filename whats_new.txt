@@ -1,4 +1,26 @@
 
+May 15, 2026 - 2.0.0 beta_9a version release
+
+ - Added localization for 15 languages (all translated via ChatGPT):
+    - Arabic
+    - Spanish
+    - French
+    - Indonesian
+    - Italianish
+    - Japanese
+    - Korean
+    - Polish
+    - Portugal
+    - Thai
+    - Tagalog
+    - Turkish
+    - Viet
+    - Chinese (simple writing)
+    - Chinese (traditional writing)
+ - Change the logic of localization download, now, if someone string not exist in localization file, be load english string
+ - Now the program full ready for users localizations. Localization files you can find here: data\local\*.json.
+ - Load in GIT some missing files for previous version of the program, with can't been to download
+
 May 10, 2026 - 2.0.0 beta_9 version release
 
  - Added new theme: "Night City 2"

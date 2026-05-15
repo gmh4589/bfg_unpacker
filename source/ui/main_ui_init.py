@@ -152,31 +152,17 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
         lang_files = [file for file in os.listdir(d) if file.endswith('.json')]
         lang_list = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_name'] for file in lang_files]
         lang_codes = [json.load(open(f'{d}{file}', 'r', encoding='utf-8'))['lang_code'] for file in lang_files]
-        main_list = ['ru', 'ua', 'pl', 'tr', 'de', 'it', 'fr', 'en', 'es', 'es_la',
-                     'pt_br', 'ar', 'jp', 'ko', 'id', 'zh', 'zh_tw', 'th', 'vn', 'fi']
 
         for action in self.action_Language.actions():
             self.action_Language.removeAction(action)
 
-        other_submenu = QMenu(self)
-        other_submenu.setTitle('...')
-
         for i, lang in enumerate(lang_list):
-
-            if lang_codes[i] in main_list or lang_codes[i] == self.lang:
-                new_lang = self.action_Language.addAction(lang)
-            else:
-                new_lang = other_submenu.addAction(lang)
+            new_lang = self.action_Language.addAction(lang)
 
             new_lang.triggered.connect(lambda *args, x=lang_codes[i]: self.change_lang(x))
 
             if lang_codes[i] == self.lang:
                 new_lang.setIcon(QIcon('./data/icons/checked.svg'))
-
-                if lang_codes[i] not in main_list:
-                    main_list.append(lang_codes[i])
-
-        self.action_Language.addMenu(other_submenu)
 
     def add_button(self, btn, l_func=None, contexts=None):
 

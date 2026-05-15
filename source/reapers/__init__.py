@@ -5,7 +5,7 @@ from source.reapers.bioware         import aurora_engine, infinity_bif_key
 from source.reapers.build           import art, grp, rff
 from source.reapers.capcom          import mt_arc, argb, tex, re_engine, re4_pack, clock_tower3
 from source.reapers.cdpr            import bundle, texture_cache, w2dzip, w3speech, w2cache
-from source.reapers.chrome_engine   import rpack, csb, spb
+from source.reapers.chrome_engine   import rpack, spb, csb
 from source.reapers.fatal_frame     import fatal_frame_1
 from source.reapers.godot           import godot_ctex, godot_pck
 from source.reapers.idtech          import (bimage, brink, deathloop, doom3_resources, doom_wad, id_tech_6_7, idwav, quake_pak,
