@@ -18,7 +18,7 @@ BFG Unpacker - this is a multifunctional tool for data mining, games research, g
 
 
 
-* Unpacking archives from lot of games (50.000+, include games on popular engines (Unreal, Unity, Godot and other))
+* Unpacking archives from lot of games (about 5.000 formats from 50.000+, include games on popular engines (Unreal, Unity, Godot and other))
 * Converting audio and video from lot of game formats to popular
 * Unpacking and converting non-game popular archives format (ZIP, 7Z, RAR and other)
 * Unpacking and converting disc images (ISO, BIN\\CUE, ISZ and other)
@@ -71,15 +71,23 @@ And unzip it into data directory
 
 
 
-### **PLANES FOR FUTURE**
+### **DEVELOPMENT STATUS**
 
 
 
-* Rewriting all legacy AutoIt function with Python
-* Making support for Noesis scripts
-* Adding support for installing users scripts and tools (with QuickBMS, Noesis, WSX, CLI-tools and native plugins)
-* Making sure to all function working correctly 
-* Adding support for many new games
+* ☑️ Rewriting all legacy AutoIt function with Python
+* ✍️ Making sure to all function working correctly
+* ✍️ Adding support for many new games
+* ▶️ Making sure to all pre-installed BMS-scripts working correctly
+* 💭 Making support for native plugins
+* 💭 Making support for Noesis scripts
+* 💭 Making native support for BMS scripts
+* 💭 Adding support for installing users scripts and tools (with QuickBMS, Noesis, WSX, CLI-tools and native plugins)
+
+  ☑️ - almost done
+  ✍️ - in active devolopment
+  ▶️ - just started
+  💭 - planes for future
 
 
 
