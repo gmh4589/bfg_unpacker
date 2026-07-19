@@ -1,5 +1,4 @@
 import os
-from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.ui.localize import invalid_version
 

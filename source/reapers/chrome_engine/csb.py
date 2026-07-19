@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-from icecream import ic
 from source.reaper import Reaper, file_reaper
 
 

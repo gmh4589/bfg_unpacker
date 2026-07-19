@@ -1,9 +1,10 @@
 import os
+from io import BytesIO
+import zlib
 from icecream import ic
 from collections import namedtuple
 
 from source.reaper import Reaper, file_reaper
-from source.codecs.zip_methods import ZipMethods
 
 
 class Within(Reaper):
@@ -16,7 +17,6 @@ class Within(Reaper):
         index_file = f"{dir_name}\\ptr\\{base_name.replace(ext, 'ptr')}" if 'ptr' not in self.file_name else self.file_name
         resources_file = self.file_name.replace('ptr', '') + 'pkr' if 'pkr' not in self.file_name else self.file_name
 
-        temp_file = f"{self.output_folder}\\{base_name}.tmp"
         ic(index_file)
 
         if not os.path.exists(index_file):
@@ -26,35 +26,34 @@ class Within(Reaper):
         with open(index_file, 'rb') as ix:
             ix.seek(0x10)
             zip_list = ix.read()
+            
+            obj = zlib.decompressobj(-15)
+            zip_list = obj.decompress(zip_list)
 
-        with open(temp_file, 'wb') as tf:
-            tf.write(zip_list)
-
-        self.unzip(temp_file, ZipMethods.DEFLATE_NOERROR)
+        nix = BytesIO(zip_list)
         FileList = namedtuple('FileList',
                               ['file_name', 'offset', 'zip_size', 'unzip_size'])
         file_list = []
 
-        with open(temp_file, 'rb') as nix:
-            file_count = int.from_bytes(nix.read(4), byteorder="little")
-            nix.seek(12)
-            step_count1 = int.from_bytes(nix.read(4), byteorder="little")
-            step_count2 = int.from_bytes(nix.read(4), byteorder="little")
-            nix.seek(step_count1 * 4 + step_count2 * 4, 1)
-            file_list_size = int.from_bytes(nix.read(4), byteorder="little")
-            nix.seek(4, 1)
-            fl = [name.decode('utf-8') for name in nix.read(file_list_size).split(b'\0')]
+        file_count = int.from_bytes(nix.read(4), byteorder="little")
+        nix.seek(12)
+        step_count1 = int.from_bytes(nix.read(4), byteorder="little")
+        step_count2 = int.from_bytes(nix.read(4), byteorder="little")
+        nix.seek(step_count1 * 4 + step_count2 * 4, 1)
+        file_list_size = int.from_bytes(nix.read(4), byteorder="little")
+        nix.seek(4, 1)
+        fl = [name.decode('utf-8') for name in nix.read(file_list_size).split(b'\0')]
 
-            for i in range(file_count):
-                file_list.append(
-                    FileList(
-                        fl[int.from_bytes(nix.read(4), byteorder="little")],
-                        int.from_bytes(nix.read(4), byteorder="little"),
-                        int.from_bytes(nix.read(4), byteorder="little"),
-                        int.from_bytes(nix.read(4), byteorder="little"))
-                )
+        for i in range(file_count):
+            file_list.append(
+                FileList(
+                    fl[int.from_bytes(nix.read(4), byteorder="little")],
+                    int.from_bytes(nix.read(4), byteorder="little"),
+                    int.from_bytes(nix.read(4), byteorder="little"),
+                    int.from_bytes(nix.read(4), byteorder="little"))
+            )
 
-            ic(file_list)
+        ic(file_list)
 
         with open(resources_file, "rb") as res_file:
             magic = res_file.read(4)
@@ -66,6 +65,11 @@ class Within(Reaper):
             for i, f in enumerate(file_list):
                 path = f"{self.output_folder}\\{f.file_name}"
                 res_file.seek(f.offset)
-                self.file_save(path, res_file.read(f.zip_size))
-                self.unzip(path, ZipMethods.DEFLATE_NOERROR)
+                data = res_file.read(f.zip_size)
+
+                if f.unzip_size > f.zip_size:
+                    obj = zlib.decompressobj(-15)
+                    data = obj.decompress(data)
+
+                self.file_save(path, data)
                 self.update_pb(file_count, i + 1, f.file_name)

@@ -1,7 +1,7 @@
 
 import json
 import os
-import locale
+# import locale
 # import configparser
 
 # setting = configparser.ConfigParser()
@@ -11,8 +11,8 @@ import locale
 #     lang = setting['Main']['lang']
 # else:
 #     lang = locale.getdefaultlocale()[0].split('_')[0]
-from source.setting import setting
 
+from source.setting import setting
 
 lang = setting['Main']['lang']
 

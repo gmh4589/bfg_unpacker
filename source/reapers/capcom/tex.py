@@ -8,14 +8,14 @@ from source.ui import localize
 
 class TEX2DDS(Reaper, DDSCreator):
     # TODO: Brocken unzipping some textures from Code Veronica X
-
+    
     @file_reaper
     def run(self):
 
         def codec_list(cdc):
 
             match cdc:
-                case 0x14 | 0x19 | b'DXT1':
+                case 0x13 | 0x14 | 0x19 | b'DXT1':
                     return 'BC1_UNORM'
                 case b'DXT3':
                     return 'BC2_UNORM'
@@ -27,12 +27,10 @@ class TEX2DDS(Reaper, DDSCreator):
                     return cdc
 
         def break_convert():
-
             print(localize.not_correct_file.replace('%%', 'MT Framework texture'))
             self.update_signal.emit(100, '', '', True)
 
         with open(self.file_name, 'rb') as tex:
-
             magic = tex.read(4)
             mips_count = 0
             is_cubemap = 0

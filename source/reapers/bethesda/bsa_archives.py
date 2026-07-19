@@ -65,7 +65,7 @@ class BethesdaArchive(Reaper):
 
             self.update_signal.emit(0, '', f'{localize.wait}...', False)
 
-            for i in range(folder_count):
+            for _ in range(folder_count):
                 name_hash = bsa_file.read(8)
                 files_in_folder = int.from_bytes(bsa_file.read(4), byteorder=byteorder)
                 bsa_file.seek(step, 1)
@@ -82,7 +82,7 @@ class BethesdaArchive(Reaper):
                 folder_name_len = int.from_bytes(bsa_file.read(1), byteorder=byteorder)
                 folder_name = bsa_file.read(folder_name_len).rstrip(b'\x00').decode('utf-8', errors='ignore')
 
-                for j in range(data.files_in_folder):
+                for _ in range(data.files_in_folder):
 
                     file_data.append(FileData(
                         folder_name=folder_name,

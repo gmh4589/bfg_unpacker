@@ -14,6 +14,7 @@ class Q_BMS(Reaper):
         self.add = '-K'
         self.file_count = None
         self.out_folder_count = 0
+        self.error = None
 
     def get_file_count(self, proc):
         self.start_reader(proc)
@@ -24,6 +25,11 @@ class Q_BMS(Reaper):
             if "file" in e and "found" in e:
                 self.file_count = int(e.split(' ')[1])
                 self.out_reader.end = True
+                break
+
+            if 'error' in e.lower():
+                self.out_reader.end = True
+                self.error = e
                 break
 
     def execute(self, proc):
@@ -43,11 +49,13 @@ class Q_BMS(Reaper):
                 self.update_pb(self.file_count, current_file, file_name)
                 prev_files = current_file
                 prev_name = file_name
+                print(self.out_reader.out)
 
         self.out_reader.end = True
 
     @file_reaper
     def run(self):
+        ic(self.script_name)
 
         if not self.script_name:
             self.script_name = askopenfilename(filetypes=[("BMS Scripts files", "*.bms *.txt *.wcx"), (localize.all_files, "*.*")],)
@@ -64,14 +72,16 @@ class Q_BMS(Reaper):
                   f'"{self.script_name}" '
                   f'"{self.file_name}" "{self.output_folder}"').replace('/', '\\')
         script = script_test.replace(' -l ', ' ')
-        ic(self.script_name)
         ic(script)
 
         bms_test = Popen(script_test, stdout=PIPE, stderr=PIPE, encoding='utf-8')
         self.get_file_count(bms_test)
 
-        self.out_folder_count = self.folderSize(self.output_folder)[1]
-        bms = Popen(script, stdout=PIPE, stderr=PIPE, encoding='utf-8')
-        self.execute(bms)
+        if self.error is None:
+            self.out_folder_count = self.folderSize(self.output_folder)[1]
+            bms = Popen(script, stdout=PIPE, stderr=PIPE, encoding='utf-8')
+            self.execute(bms)
+        else:
+            print(self.error)
 
         self.update_signal.emit(100, '', localize.done, True)

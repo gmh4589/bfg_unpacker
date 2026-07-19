@@ -20,6 +20,8 @@ class TellTale(Reaper):
             table = db.get_table('game_list', filter=True, column_name='func_name', value='_TellTale')
             # self.script_name = None
             self.get_index(table)
+        else:
+            self.continue_run()
 
     def get_index(self, tbl):
         game_names = tbl['game_name'].tolist()

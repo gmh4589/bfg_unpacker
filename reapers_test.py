@@ -1,16 +1,15 @@
 import os
 from icecream import ic
-from source.reapers.capcom.re_engine import ReEngine
+from source.reapers.idtech.doom_patch import Patch
 
-in_dir = r"D:\SteamLibrary\steamapps\common\RE3"
+in_dir = r"D:\SteamLibrary\steamapps\common\DOOM\base" 
 
-new_reaper = ReEngine()
+new_reaper = Patch()
 path = in_dir
 file_list = os.listdir(path)
-mask = 're_chunk_000.pak.patch_001.pak'
-out_dir="E:\\out"
+mask = ".patch"
+out_dir="D:\\out"
 
-new_reaper.game_file_list = 'RE3_PC_Release.list'
 
 for file in file_list:
 

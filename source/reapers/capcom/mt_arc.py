@@ -1,5 +1,7 @@
 import os
 import zlib
+from collections import namedtuple
+
 from icecream import ic
 from source.reaper import Reaper, file_reaper
 from source.reapers.capcom.tex import TEX2DDS
@@ -15,7 +17,7 @@ class ARCExtractor(Reaper):
             magic = arc_file.read(4)
             platform = 'pc'
 
-            if not self.magic([b'ARC\0', b'\0CRA', b'\0SFH'], magic, 'ARC'):
+            if not self.magic([b'ARC\0', b'\0CRA', b'\0SFH'], magic, 'MT Framework'):
                 return
 
             if magic == b'\0SFH':
@@ -27,47 +29,50 @@ class ARCExtractor(Reaper):
             version = int.from_bytes(arc_file.read(2), byteorder=order)
             file_count = int.from_bytes(arc_file.read(2), byteorder=order)
 
-            if version in (4, 8):
-                # 'unzip_dynamic'
-                c_num = ZipMethods.ZLIB_NOERROR
-            elif version == 17:
-                # TODO: Add support XMem
-                ic('XMemDecompress 0x8000')
-                c_num = 0
-            else:
-                # 'zlib_noerror'
-                c_num = 1
+            FileData = namedtuple('FileData',
+                                  ['name', 'type_hash', 'file_size', 'flags', 'offset'])
+            file_data = []
             
-            for i in range(file_count):
-                name = arc_file.read(64).decode("ascii").rstrip("\0")
-                type_hash = int.from_bytes(arc_file.read(4), byteorder=order)
-                file_size = int.from_bytes(arc_file.read(4), byteorder=order)
-                flags = arc_file.read(4)
-                offset = int.from_bytes(arc_file.read(4), byteorder=order)
-                here = arc_file.tell()
-                path = os.path.join(self.output_folder, name + '.dat')
-                arc_file.seek(offset if platform == 'pc' else offset + 0x10)
-                data = arc_file.read(file_size)
-                ic(offset, file_size)
+            for _ in range(file_count):
+                file_data.append(
+                    FileData(
+                        name = arc_file.read(64).decode("ascii").rstrip("\0"),
+                        type_hash = int.from_bytes(arc_file.read(4), byteorder=order),
+                        file_size = int.from_bytes(arc_file.read(4), byteorder=order),
+                        flags = arc_file.read(4),
+                        offset = int.from_bytes(arc_file.read(4), byteorder=order)
+                    )
+                )
 
-                if c_num == 1:
+            for i, f in enumerate(file_data):
+                arc_file.seek(f.offset if platform == 'pc' else f.offset + 0x10)
+                data = arc_file.read(f.file_size)
+
+                if version in (4, 8):
+
+                    try:
+                        obj = zlib.decompressobj(-15)
+                        data = obj.decompress(data)
+                    except zlib.error:
+                        data = self.smart_deflate(data)
+
+                elif version == 17:
+                    pass
+                else:
                     data = zlib.decompress(data)
-                    self.new_ext = self.get_ext(data[:4])
-                    path = path.replace('.dat', f'.{self.new_ext}')
+
+                ext = self.get_ext(data[:4])
+                path = f"{os.path.join(self.output_folder, f.name)}.{ext}"
 
                 self.file_save(path, data)
 
-                if c_num > 1:
-                    self.unzip(path, c_num, get_ext=True)
-
-                if self.new_ext == 'tex' and self.setting['Main']['save_original_images'] in ['1', '2']:
+                if ext == 'tex' and self.setting['Main']['save_original_images'] in ['1', '2']:
                     tex2dds = TEX2DDS()
-                    tex2dds.file_name = path.replace('.dat', '.tex')
+                    tex2dds.file_name = path
                     tex2dds.output_folder = os.path.dirname(path)
                     tex2dds.run()
 
                     if self.setting['Main']['save_original_images'] == '1':
                         os.remove(path.replace('dat', 'tex'))
 
-                arc_file.seek(here)
-                self.update_pb(file_count, i + 1, name)
+                self.update_pb(file_count, i + 1, f.name)

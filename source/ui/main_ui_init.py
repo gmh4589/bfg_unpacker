@@ -406,7 +406,7 @@ class MainWindow(QMainWindow, Ui_BFGUnpacker):
         if (sort_by_names and literal in '0123456789') or (not sort_by_names and year <= 1990):
             return def_item
 
-        # Возвращает букву либо год, если предыдущие условие не выполнены
+        # Возвращает букву либо год, если предыдущие условия не выполнены
         return literal if sort_by_names else str(year)
     
     def create_parent_list(self, root, sort_by_names, default_item_name):

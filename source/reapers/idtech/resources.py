@@ -1,6 +1,6 @@
 import os
 from collections import namedtuple
-from icecream import ic
+import zlib
 
 from source.reaper import Reaper, file_reaper
 from source.reapers.idtech.bimage import Bimage2DDS
@@ -79,10 +79,16 @@ class Resources(Reaper):
                     path = f"{self.output_folder}\\{f.dest_name}"
 
                     if f.zip_size or f.unzip_size:
-                        self.file_save(path, res_file.read(f.zip_size))
+                        data = res_file.read(f.zip_size)
 
-                        if f.zip_size != f.unzip_size and self.zip_algo is not None:
-                            self.unzip(path, self.zip_algo)
+                        if f.zip_size != f.unzip_size and self.zip_algo is not None and data:
+                            try:
+                                obj = zlib.decompressobj(-15)
+                                data = obj.decompress(data)
+                            except zlib.error:
+                                data = self.smart_deflate(data)
+
+                        self.file_save(path, data)
 
                         if self.setting['Main']['save_original_images'] in ['1', '2'] and 'bimage' in path:
                             bimage2dds = Bimage2DDS()
@@ -144,6 +150,7 @@ class Wolfenstein(Reaper):
 
 class Rage(Reaper):
     # For unpacking *.resource from Rage
+    # TODO: Add DLC Support
 
     def run(self):
 
@@ -173,14 +180,8 @@ class Doom2016(Reaper):
     def run(self):
         ext = self.file_name.split('.')[-1]
 
-        if ext in ('index', 'pindex'):
-            ext2 = 'patch' if os.path.exists(self.file_name.replace(ext, 'patch')) else 'resources'
-            resource_path = self.file_name.replace(ext, ext2)
-            index_path = self.file_name
-        else:
-            ext2 = 'index' if os.path.exists(self.file_name.replace(ext, 'index')) else 'pindex'
-            resource_path = self.file_name
-            index_path = self.file_name.replace(ext, ext2)
+        resource_path = self.file_name.replace(ext, 'resources')
+        index_path = self.file_name.replace(ext, 'index')
 
         game_name = 'Doom (2016)'
         resource_header = b'\x05SER'

@@ -17,7 +17,7 @@ from source.delete import DeleteThread
 from source.db_connect import DatabaseConnect
 from source.setting import setting, set_setting
 
-ic.enable() if os.path.exists('.vscode') else ic.disable()
+# ic.enable() if os.path.exists('.venv') else ic.disable()
 
 
 class UnpackerMain(MainWindow, QuickOpen):

@@ -1,5 +1,5 @@
 import os
-import io
+from io import BytesIO
 import lz4.block as lz4
 from collections import namedtuple
 from source.reaper import Reaper, file_reaper
@@ -68,7 +68,7 @@ class AlanWake2(Reaper):
                 decompress_data = lz4.decompress(data, block.size)
                 blocks += decompress_data
 
-            data_stream = io.BytesIO(blocks)
+            data_stream = BytesIO(blocks)
 
             BlobList = namedtuple('BlobList',
                                   ['offset', 'size', 'hash'])

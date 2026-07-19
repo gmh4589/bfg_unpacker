@@ -11,14 +11,15 @@ class OtherProg(Reaper):
     def __init__(self, script_name=''):
         super().__init__()
         self.script_name = script_name
-        self.change_dir = None
+        self.change_dir = False
 
     @file_reaper
     def run(self):
         ic(self.script_name)
 
         if self.script_name == 'sau':
-            sau_path = os.path.abspath(f"{self.path_to_root}\\data\\tools\\sau.exe")
+            self.change_dir = True
+            sau_path = os.path.abspath(f"{self.path_to_root}\\data\\tools\\sau\\sau.exe")
             os.chdir(os.path.dirname(self.file_name))
             self.script_name = f'{sau_path} ./{os.path.basename(self.file_name)} dir="{self.output_folder}"'
             
@@ -43,4 +44,7 @@ class OtherProg(Reaper):
             print(error)
             return
 
-        self.pipe_reader(prg, chang_dir=bool(self.change_dir))
+        self.pipe_reader(prg, chang_dir=self.change_dir)
+
+        if self.change_dir:
+            os.chdir(self.path_to_root)

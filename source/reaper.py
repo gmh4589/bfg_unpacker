@@ -1,9 +1,10 @@
-import threading
+import shutil
 import os
 import io
 from functools import wraps
 from subprocess import Popen
 from datetime import datetime
+import zlib
 
 from PyQt6.QtCore import QThread, pyqtSignal
 from abc import abstractmethod
@@ -18,7 +19,7 @@ from source.codecs.zip_methods import ZipMethods
 from source.out_reader import OutReader
 from source.get_ext import GetExt
 
-DEBUG = False #if os.path.exists('dev_tools') else True
+DEBUG = False
 
 
 def logger(level: str, message: str, show: bool = False, messagebox: bool = False) -> None:
@@ -32,47 +33,6 @@ def logger(level: str, message: str, show: bool = False, messagebox: bool = Fals
     if messagebox:
         showinfo(title=level, message=message)
 
-
-# class file_reaper:
-#     # TODO: DEBUG alwais work, even if DEBUG = False
-
-#     def __init__(self, func):
-#         self.func = func 
-
-#     def __get__(self, instance, owner):
-#         return lambda *args, **kwargs: self.__call__(instance, *args, **kwargs)
-
-#     def __call__(self, obj, *args, **kwargs):
-#         global DEBUG
-#         error = None
-#         function_name = str(self.func).split(" ")[1]
-#         start = datetime.now()
-
-#         try:
-#             if DEBUG:
-#                 try:
-#                     result = self.func(obj, *args, **kwargs)
-#                 except Exception as e:
-#                     error = e
-#                     result = None
-#             else:
-#                 result = self.func(obj, *args, **kwargs)
-#         except Exception as e:
-#             error = e
-#             result = None
-
-#         end = datetime.now()
-#         print(f'{localize.done}\n{localize.duration} {end - start}')
-
-#         if error is None:
-#             logger('INFO',
-#                    f'\n\tFunction: {function_name}\n\tStart: {start}\n\tEnd: {end}\n\tDuration: {end - start}\n')
-#         else:
-#             print(f'ERROR IN {function_name}: {error}!!!')
-#             logger('ERROR',
-#                    f'\n\tFunction: {function_name}\n\tStart: {start}\n\tError: {error}\n')
-
-#         return result
 
 def file_reaper(func_name):
 
@@ -252,81 +212,77 @@ class Reaper(QThread, GetExt):
         out_reader.end = True
         self.update_signal.emit(0, '', '', True)
 
-        if chang_dir:
-            os.chdir(self.path_to_root)
+    def smart_deflate(self, data: bytes) -> bytes:
+
+        # обычный zlib
+        try:
+            return zlib.decompress(data)
+        except zlib.error:
+            pass
+
+        # raw deflate
+        try:
+            return zlib.decompress(data, -15)
+        except zlib.error:
+            pass
+
+        # deflate noerror
+        try:
+            obj = zlib.decompressobj(-15)
+            return obj.decompress(data)
+        except zlib.error:
+            pass
+
+        # deflate noerror via QuickBMS
+        try:
+            temp_path = f"{os.environ['TEMP']}\\bfg_unpacker\\temp_file.dat"
+
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
+
+            with open(temp_path, 'wb') as tf:
+                tf.write(data)
+
+            return self.unzip(temp_path, ZipMethods.DEFLATE_NOERROR, file_move=False)
+
+        except (FileNotFoundError, PermissionError, OSError):
+            print("Unknown deflate format")
+            return data
+            # raise ValueError("Unknown deflate format")
+        
+    def encrypt(self, f_name: str, crypt_method: str, crypt_key: str | bytes | int,
+                get_ext: bool = False, test: bool = False):
+        out_path = self.output_folder if test else os.environ['TEMP']
+
+        # TODO: Need tests
+        dump_name = crypt_method + '_enc.dmp'
+        script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" '
+                  f'-o -a "{crypt_method}{" " + crypt_key if crypt_key else ""}" '
+                  f'"{self.path_to_root}\\data\\QuickBMS\\encryption_scan.bms")" '
+                  f'"{f_name}" "{out_path}"').replace("/", "\\")
 
     # TODO: Very slow working... 🐌
-    def unzip(self, f_name: str,
-              c_num: int = 1,
-              get_ext: bool = False,
-              test: bool = False,
-              encrypt: bool = False,
-              crypt_method: str = '',
-              crypt_key='') -> None:
+    def unzip(self, f_name: str, c_num: int = 1, file_move: bool = True, wait: bool = True):
+        out_path = f"{os.environ['TEMP']}\\bfg_unpacker\\{os.path.basename(f_name).replace('.', '_')}"
 
-        out_path = self.output_folder if test else os.environ['TEMP']
-        file_size = os.path.getsize(out_path)
+        if not os.path.exists(out_path):
+            os.makedirs(out_path)
 
-        if encrypt:
-            # TODO: Need tests
-            dump_name = crypt_method + '_enc.dmp'
-            script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" '
-                      f'-o -a "{crypt_method}{" " + crypt_key if crypt_key else ""}" '
-                      f'"{self.path_to_root}\\data\\QuickBMS\\encryption_scan.bms")" '
-                      f'"{f_name}" "{out_path}"').replace("/", "\\")
+        script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" '
+                  f'-o -a "{c_num}" '
+                  f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
+                  f'"{f_name}" "{out_path}"').replace("/", "\\")
+
+        dump_name = ZipMethods.codec_indexes()[c_num] + '.dmp'
+        dump_file = f"{out_path}\\{dump_name}"
+
+        Popen(script).wait() if wait else Popen(script).poll()
+
+        if file_move:
+            shutil.move(dump_file, f_name)
+            return None
         else:
-            dump_name = ZipMethods.codec_indexes()[c_num] + '.dmp'
-            script = (f'"{self.path_to_root}\\data\\QuickBMS\\quickbms.exe" -o -a "{c_num}" '
-                      f'"{self.path_to_root}\\data\\QuickBMS\\comtype_scan2.bms" '
-                      f'"{f_name}" "{out_path}"').replace("/", "\\")
 
-        dump_file = os.path.join(out_path, dump_name)
-
-        if not test:
-            Popen(script).wait()
-
-            try:
-
-                with open(dump_file, 'rb') as dmp:
-                    unzip_data = dmp.read()
-
-                try:
-                    os.remove(f_name)
-                except OSError:
-                    pass
-
-                if get_ext:
-                    self.new_ext = self.get_ext(unzip_data[:4])
-                    f_name = f_name.replace('dat', self.new_ext)
-
-                with open(f_name, 'wb') as out_f:
-                    out_f.write(unzip_data)
-
-            except (FileNotFoundError, PermissionError):
-                print(localize.filed_to_unzip)
-                ic(localize.filed_to_unzip)
-
-        else:
-            proc = Popen(script)
-            threading.Timer(10, proc.terminate).start()
-            proc.wait()
-
-            try:
-                dump_size = os.path.getsize(dump_file)
-
-                if dump_size <= file_size:
-                    os.remove(dump_file)
-                else:
-
-                    with open(dump_file, 'rb') as df:
-                        bt = df.read(1)
-                        dt = df.read()
-
-                    btc = dt.count(bt) + 1
-
-                    if btc == dump_size:
-                        os.remove(dump_file)
-                        
-            except FileNotFoundError:
-                pass
+            with open(dump_file, 'rb') as nf:
+                return nf.read()
 

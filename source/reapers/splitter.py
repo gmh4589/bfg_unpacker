@@ -4,11 +4,11 @@ from source.reaper import Reaper, file_reaper
 
 
 class Splitter(Reaper):
-    start_data = 0
-    header = b'\0\0\0\0'
-    splitter = b'\0\0\0\0'
-    file_type = 'Random Game'
-    ext = 'dat'
+    start_data: int = 0
+    header: bytes = b'\0\0\0\0'
+    splitter: bytes = b'\0\0\0\0'
+    file_type: str = 'Random Game'
+    ext: str = 'dat'
 
     @file_reaper
     def run(self):

@@ -1,4 +1,34 @@
 
+July 19, 2026 - 2.0.0 beta_10 version release
+
+Fixes:
+ - Fixed program freez if script BMS was ended with errors
+ - Fixed a crash error with The Evil Within *.tangoresources files unpack 
+ - Fixed a crash error with *.bif files unpack from games on Infinity\Aurora Engine
+ - Fixed path to sau.exe utility
+ - Fixed a crash error after use outern utilities, which need to change the working folder
+
+Added new file types support:
+ - Added native support for unpack *.hak archives from Neverwinter Nights 2
+ - Added native support for unpack *.dat archives from Anachronox
+ - Added native support for unpack *.adv archives from The Witcher
+ - Added native support for unpack *.vdf archives from Gothic 1 and Gothic II
+ - Added native support for unpack *.patch\*.pindex archives from DOOM (2016)
+ - Added native support for unpack *.snd, *.vid, *.lod archives from Heroes of Might and Magic 3 and Might & Magic 6-8
+
+Optimizations:
+ - Database was updated and upgrated
+ - Fuction for unpacking *.erf\*.rim from games by Bioware was updated and optimizated
+ - Unpacking archives from any games on MT Framework is now significantly faster (~x100).
+ - Unpacking archives from any games on idTech Engine 4-7 is now significantly faster (~x100).
+    Fix applaid to next games:
+      The Evil Within
+      The Evil Within 2
+      Wolfenstein: The Old Blood
+      Wolfenstein: The New Order
+      Rage
+      Doom (2016)
+
 May 15, 2026 - 2.0.0 beta_9a version release
 
  - Added localization for 15 languages (all translated via ChatGPT):
@@ -6,7 +36,7 @@ May 15, 2026 - 2.0.0 beta_9a version release
     - Spanish
     - French
     - Indonesian
-    - Italianish
+    - Italian
     - Japanese
     - Korean
     - Polish
@@ -23,24 +53,31 @@ May 15, 2026 - 2.0.0 beta_9a version release
 
 May 10, 2026 - 2.0.0 beta_9 version release
 
- - Added new theme: "Night City 2"
- - Fixed crash after German localize selected
- - Fixed crash with multimedia files via ffmpeg
- - Fixed work with Media Info function
- - Media Info function now saving the results to a JSON file in the output folder
- - Fixed crash when trying to call some functions from the top menu and tree view
- - Progress bar by converting files via ffmpeg now always show correct status
-       and show duration of converted part to all duration
- - Connection system with game list from database was reworked. Now, method for working with ever game\file type is writing in database
- - Added native support for unpack CT3PACK.DAT archive from Clock Tower 3
- - Added native support for convert 000 video from the game Silent Hill 3 to MPG and back
- - Added native support for unpack CSB and SPB archives from games on Chrome Engine
- - Added support for convert CHD disc images to BIN\CUE via utility chdman.exe by developers MAME emulator (use in games by SEGA, for example, Saturn and some arcade platforms)
- - Fixed error with unpacking WAD files from games on Doom Engine from some consoles version
- - Updated and upgrated file type auto-detected system
- - WIT utility for working with GameCube and Wii was chanhed on DolphinTools
- - RPGMakerDecrypter-cli.exe utility for working with archives from games on RPGMaker Engine was chanhed on rgsstool.py, witch was full inegrated into the program
- - For CubeMap Creator function was created GUI with drag-and-drop option support
+  Fixes:
+  - Fixed crash after German localize selected
+  - Fixed crash with multimedia files via ffmpeg
+  - Fixed work with Media Info function
+  - Fixed crash when trying to call some functions from the top menu and tree view
+  - Fixed error with unpacking WAD files from games on Doom Engine from some consoles version
+
+  New features:
+  - Added new theme: "Night City 2"
+  - Media Info function now saving the results to a JSON file in the output folder
+  - Progress bar by converting files via ffmpeg now always show correct status
+        and show duration of converted part to all duration
+  - For CubeMap Creator function was created GUI with drag-and-drop option support
+
+  Optimizations:
+  - Connection system with game list from database was reworked. Now, method for working with ever game\file type is writing in database
+  - Updated and upgraded file type auto-detected system
+  - WIT utility for working with GameCube and Wii was changed on DolphinTools
+  - RPGMakerDecrypter-cli.exe utility for working with archives from games on RPGMaker Engine was changed on rgsstool.py, witch was full inegrated into the program
+  
+  Added new file types support:
+  - Added native support for unpack CT3PACK.DAT archive from Clock Tower 3
+  - Added native support for convert 000 video from the game Silent Hill 3 to MPG and back
+  - Added native support for unpack CSB and SPB archives from games on Chrome Engine
+  - Added support for convert CHD disc images to BIN\CUE via utility chdman.exe by developers MAME emulator (use in games by SEGA, for example, Saturn and some arcade platforms)
 
 Mart 17, 2026 - 2.0.0 beta_8 version release
 
@@ -49,7 +86,7 @@ Mart 17, 2026 - 2.0.0 beta_8 version release
  - Added support for convert VAG to WAV and back
  - Added support for unpack GCM disc images (GameCube)
  - The file format list in dropbox menu by auto-detecting file types now sorted by alphabet
- - Added support to convert GXT textures from platforms by Sony to PNG (PS Vita)
+ - Added support to convert GXT textures from platforms by Sony to TGA (PS Vita)
  - Added support to convert TGA textures to GXT for platforms by Sony (PS Vita)
 
 January 20, 2026 - 2.0.0 beta_7 version release
@@ -57,7 +94,7 @@ January 20, 2026 - 2.0.0 beta_7 version release
  - A size of theme creator menu and progress bar was fixed
  - Added new themes: "Night City", "Deus Ex"
  - Fixed work with multimedia files via ffmpeg
- - Added support for unpack AFS2 archives, which uses in various japonese games, for example, some games by SEGA
+ - Added support for unpack AFS2 archives, which uses in various japanese games, for example, some games by SEGA
 
 December 13, 2025 - 2.0.0 beta_6 version release
 

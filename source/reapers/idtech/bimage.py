@@ -1,30 +1,58 @@
 import os
+from dataclasses import dataclass
+
 from source.reaper import Reaper, file_reaper
 from source.ui import localize
 from source.codecs.dds_tools import DDSCreator
 
+@dataclass
+class BimageStructure:
+    codec_start: int
+    x_start: int
+    y_start: int
+    data_start: int
+
 
 class Bimage2DDS(Reaper, DDSCreator):
     # TODO: Add support other games
-    # The Evil Within 2
-    # Doom: The Dark Ages
-    # Indiana Jones and the Great Circle
-    # Wolfenstein: The New Order
-    # Wolfenstein: The Old Blood
-    # Dishonored 2
-    # Dishonored: Death of the Outsider
-    # Deathloop
-    # Wolfenstein II: The New Colossus
-    # DOOM VFR
-    # Wolfenstein: Youngblood
-    # Wolfenstein: Cyberpylot
+    # ❌ DeathLoop
+    # ❌ Dishonored 2
+    # ❌ Dishonored: Death of the Outsider
+    # ✔️ DOOM 3: BFG Edition
+    # ✔️ DOOM (2016) 
+    # ❌ DOOM: Eternal
+    # ❌ Doom: The Dark Ages
+    # ❌ DOOM VFR
+    # ❌ Indiana Jones and the Great Circle
+    # ✔️ Rage 
+    # ✔️ The Evil Within
+    # ❌ The Evil Within 2
+    # ❌ Wolfenstein II: The New Colossus
+    # ❌ Wolfenstein: Cyberpylot
+    # ❌ Wolfenstein: The New Order
+    # ❌ Wolfenstein: The Old Blood
+    # ❌ Wolfenstein: Youngblood
 
 
     @file_reaper
     def run(self):
 
         with open(self.file_name, 'rb') as bimage:
-            magic = bimage.read(4)
+            magics = [bimage.read(4) for _ in range(4)]
+
+            for i, magic in enumerate(magics):
+
+                if b'BIM' in magic or b'MIB' in magic:
+                    version = bytearray(magic)
+                    offset = (i + 1) * 4
+                    break
+            
+            else:
+                print('Unsupported BIMAGE type...')
+                return
+
+            order = 'little' if version[0] == b'B' else 'big'
+            ver = version[-1] if order == 'little' else version[0]
 
             codecs = {
                 2:      'R9G9B9E5_SHAREDEXP',
@@ -40,59 +68,32 @@ class Bimage2DDS(Reaper, DDSCreator):
                 0x17:   'BC7_UNORM'
             }
 
-            # DOOM 3 BFG Edition
-            if magic == b'\0' * 4:
-                codec_start = 0x13
-                x_start = 0x18
-                y_start = 0x1C
-                data_start = 0x38
-                order = 'big'
+            match ver:
+                case 0x7: # DOOM (2016), Rage
+                    bim_struct = BimageStructure(0x18, 0x2A, 0x2E, 0x36)
+                # case 0x8: # The Evil Within 2
+                #     bim_struct = BimageStructure(0x18, 0xB, 0xF)
+                case 0x9: # The Evil Within
+                    bim_struct = BimageStructure(0x1C, 0x8, 0xC, 0x3A)
+                case 0xA: # DOOM 3 BFG Edition
+                    bim_struct = BimageStructure(0x7, 0xC, 0x20, 0x2C)
+                # case 0x16: # DOOM: Eternal
+                #     bim_struct = BimageStructure(0x2d, 0x47, 0x4b, 0xf3)
+                # case 0x1A: # DOOM: The Dark Ages
+                #     bim_struct = BimageStructure(0x2d, 0x47, 0x4b, 0x214)
 
-            # DOOM: Eternal
-            elif magic == b'BIM\x15':
-                codec_start = 0x2D
-                x_start = 0x47
-                y_start = 0x4B
-                data_start = 0xF3
-                order = 'little'
-
-            else:
-                magic2 = bimage.read(4)
-
-                # DOOM (2016)
-                if magic2 == b'\x07MIB':
-                    codec_start = 0x20
-                    x_start = 0x32
-                    y_start = 0x36
-                    data_start = 0x3e
-                    order = 'big'
-
-                # The Evil Within
-                elif magic2 == b'\x09MIB':
-                    codec_start = 0x24
-                    x_start = 0x10
-                    y_start = 0x14
-                    data_start = 0x42
-                    order = 'big'
-
-                # The Evil Within 2
-                # elif magic2 == b'BIM\x08':
-                #     codec_start = 0x18
-                #     xy_start = 0xB
-                #     data_start = 0x3e
-
-                else:
-                    print(localize.not_correct_file.replace('%%', f"{int.from_bytes(magic, 'big')}"))
-                    self.update_signal.emit(100, '', '', True)
+                case _:
+                    print('Unsupported BIMAGE type...')
                     return
 
-            bimage.seek(codec_start)
+
+            bimage.seek(bim_struct.codec_start + offset)
             codec = int.from_bytes(bimage.read(1))
-            bimage.seek(x_start)
+            bimage.seek(bim_struct.x_start + offset)
             image_width = int.from_bytes(bimage.read(4), byteorder=order)
-            bimage.seek(y_start)
+            bimage.seek(bim_struct.y_start + offset)
             image_height = int.from_bytes(bimage.read(4), byteorder=order)
-            bimage.seek(data_start)
+            bimage.seek(bim_struct.data_start + offset)
             image_data = bimage.read()
 
             dds_name = str(os.path.basename(self.file_name).replace('bimage', 'dds'))
