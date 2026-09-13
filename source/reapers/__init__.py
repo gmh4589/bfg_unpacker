@@ -7,7 +7,7 @@ from source.reapers.capcom          import mt_arc, argb, tex, re_engine, re4_pac
 from source.reapers.cdpr            import bundle, texture_cache, w2dzip, w3speech, w2cache
 from source.reapers.chrome_engine   import rpack, spb, csb
 from source.reapers.fallout         import fallout, fallout2
-from source.reapers.fatal_frame     import fatal_frame_1
+from source.reapers.fatal_frame     import fatal_frame_1, fatal_frame_2
 from source.reapers.godot           import godot_ctex, godot_pck
 from source.reapers.homm            import homm3, lod
 from source.reapers.idtech          import (anachronox, bimage, brink, deathloop, doom3_resources, doom_wad, doom_patch, id_tech_6_7, idwav, quake_pak,

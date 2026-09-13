@@ -1,4 +1,26 @@
 
+September 13, 2026 - 2.0.0 beta_11 release
+
+Utilities Update:
+ - 7zip was updated to version:  26.02   2026-06-25
+ - FFMPEG was updated to version:  8.1.2   2026-06-27
+ - VGM Tool was updated to version: r2117   2026-05-20
+ - Dolphin Tool was updated to version: 2606   2026-06-12
+
+Fixed bugs:
+ - Fixed crash by unpacking some games on isTech 6 and 7 after previous uodate:
+      Indiana Johnes and the Great Circle
+      Wolfenstein II: The New Colossus
+      Wolfenstein Youngblood
+ - Fixed crash by unpacking DZIP archives from The Witcher 2: Assassins of Kings
+ - Fixed an error, wich passed after press on "Cancel" button in select file type popup after call the quick 
+    open function, and the program any way try to unpack the file as type first from list from this popup
+ - Fixed crash befor unzipping standart ZIP archives
+
+Optimizations:
+ - Function for unpacking DZIP archives from The Witcher 2: Assassins of Kings was rewrited
+ - Function for file type auto detect was optimized and rewrited. List with file type parameters was changed on data class
+
 July 19, 2026 - 2.0.0 beta_10 version release
 
 Fixes:
@@ -18,7 +40,7 @@ Added new file types support:
 
 Optimizations:
  - Database was updated and upgrated
- - Fuction for unpacking *.erf\*.rim from games by Bioware was updated and optimizated
+ - Function for unpacking *.erf\*.rim from games by Bioware was updated and optimizated
  - Unpacking archives from any games on MT Framework is now significantly faster (~x100).
  - Unpacking archives from any games on idTech Engine 4-7 is now significantly faster (~x100).
     Fix applaid to next games:

@@ -7,6 +7,7 @@ class SpeechUnpacker(Reaper):
 
     @file_reaper
     def run(self):
+        # TODO: Add support to XBM texture to DDS convert
 
         with open(self.file_name, "rb") as speech:
             magic = speech.read(4)

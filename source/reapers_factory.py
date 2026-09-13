@@ -1,17 +1,29 @@
 import os
+from dataclasses import dataclass
+
 from icecream import ic
+import numpy as np
 
 from source.ui import localize
 from source import reapers
-from source.reapers import zip_archive, locres, strings
+from source.reapers import zip_archive
 from source.file_data import FileData
+from source.reaper import Reaper
+
+
+@dataclass
+class ProcList:
+    name: str
+    class_path: Reaper
+    script_path: str
+    progress_max: np.int64
 
 
 class ReapersFactory:
 
     def __init__(self, reapers_table, func_name='', script_name=''):
         self.reapers_table = reapers_table
-        self.proc = {}
+        self.proc = []
         self.func_name = func_name
         self.script_name = script_name
 
@@ -81,6 +93,7 @@ class ReapersFactory:
 
     def get_reaper(self):
 
+        # Закомментированные строки - это доп. параметры для тестирования БД
         keys = list(set(self.get_list('ext', self.file_data.ext)
                         # + self.get_list('file_name', self.file_data.file_name)
                         # + self.get_list('magic1', self.file_data.magic1)
@@ -101,22 +114,33 @@ class ReapersFactory:
             ic(weights)
 
             for k in weights:
-                self.proc[self.reapers_table['file_type'][k]] = [
-                    self.get_class(self.reapers_table['class_path'][k]),
-                    self.reapers_table['script'][k],
-                    self.reapers_table['progress'][k]
-                ]
+                self.proc.append(
+                    ProcList(
+                        self.reapers_table['file_type'][k],
+                        self.get_class(self.reapers_table['class_path'][k]),
+                        self.reapers_table['script'][k],
+                        self.reapers_table['progress'][k]
+                    )
+                )
 
-    def find_reaper(self, fn, fp=''):
+    def find_reaper(self, fn, fp='') -> dict:
 
         if os.path.exists(fn):
-            self.proc = {}
+            self.proc = []
             self.file_data = FileData(fn)
             ic(self.file_data)
 
             # Check on ZIP signature
             if self.file_data.magic1 == int.from_bytes(b'PK\x03\x04', 'little'):
-                self.proc = zip_archive.Zip()
+                # self.proc['ZIP Archive'] = [zip_archive.Zip(), None, np.int64(100)]
+                self.proc.append(
+                    ProcList(
+                        'ZIP Archive',
+                        zip_archive.Zip(),
+                        None,
+                        np.int64(100)
+                    )
+                )
             else:
                 self.get_reaper()
 

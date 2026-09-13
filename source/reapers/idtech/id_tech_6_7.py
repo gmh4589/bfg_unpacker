@@ -16,12 +16,12 @@ class ResourcesStruct:
     def __init__(self,
         file_data: object,
 
-        fco: int,   # 0x20
-        fll: int,   # 0x38
-        fls: int,   # 0x40
-        nix: int,   # 0x48
-        ffo: int,   # 0x68
-        offsets_table: int       # 0x78
+        fco: int,   # File count offset
+        fll: int,   # File list size
+        fls: int,   # File list start
+        nix: int,   # Name indexes list start
+        ffo: int,   # Data start
+        offsets_table: int       # Offsets start
                 ):
 
         def get_data(d, offset, long):
@@ -37,7 +37,6 @@ class ResourcesStruct:
 
 
 class IdReaper(Reaper):
-# TODO: oodle DLL crashes in randomly places with randomly files
 
     @file_reaper
     def run(self):
@@ -55,14 +54,13 @@ class IdReaper(Reaper):
 
             match version:
 
-                # Wolfenstein Series
+                # Wolfenstein II: The New Colossus and Wolfenstein Youngblood
                 case 0:
-                    res_struct = ResourcesStruct(0x28, 0x48, 0x68, 0x80)
+                    res_struct = ResourcesStruct(res_file, 0x30, 0x40, 0x48, 0x50, 0x70, 0x58)
 
                 # Indiana Jones and the Grand Circle
                 case 0x74:          
-                    res_struct = ResourcesStruct(0x24, 0x44, 0x64, 0x90)
-                    # res_struct = ResourcesStruct(res_file, 0x20, 0x38, 0x40, 0x48, 0x68, 0x50)
+                    res_struct = ResourcesStruct(res_file, 0x24, 0x3C, 0x44, 0x4C, 0x6C, 0x54)
 
                 # DOOM Eternal and DOOM: The Dark Ages
                 case 0xFFFFFFFF: 

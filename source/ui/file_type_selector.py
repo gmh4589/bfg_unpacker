@@ -4,15 +4,17 @@ from PyQt6.QtGui import QIcon, QFont
 from PyQt6.QtWidgets import QLabel, QWidget, QDialog, QComboBox, QPushButton
 
 from source.ui import localize
+from source.reapers_factory import ProcList
+
 
 class TypeSelector(QDialog):
 
-    def __init__(self, file_type_list: dict):
+    def __init__(self, file_type_list: ProcList):
         super().__init__()
         self.setWindowTitle(localize.tf_selector)
         self.returned_data = None
 
-        if None in file_type_list.keys():
+        if None in file_type_list:
             file_type_list.pop(None)
 
         self.resize(250, 120)
@@ -27,7 +29,7 @@ class TypeSelector(QDialog):
         self.label_selector.setText(localize.hand_select)
 
         self.file_type_selector = QComboBox(self.centralwidget)
-        self.file_type_selector.addItems(key for key in sorted(file_type_list.keys(), key=lambda item: item[0].lower()))
+        self.file_type_selector.addItems(item.name for item in file_type_list)
         self.file_type_selector.setGeometry(QRect(10, 40, 230, 30))
 
         self.ok_btn = QPushButton(self.centralwidget)
@@ -41,7 +43,7 @@ class TypeSelector(QDialog):
         self.cancel_btn.setText(localize.cancel)
 
     def ok_action(self):
-        file_type = self.file_type_selector.currentText()
+        file_type = self.file_type_selector.currentIndex()
         print(file_type)
         self.returned_data = file_type
         self.close()

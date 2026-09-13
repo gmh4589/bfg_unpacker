@@ -7,7 +7,10 @@ from source.codecs.image_tools import BGR2RGB
 
 
 class TextureCache(Reaper, DDSCreator):
-    # TODO: Add cubemap support - вроде добавлено, нужно тестить
+    # TODO: Add cubemap support 
+    # TODO: Unpacked JPEG is not readable
+    # TODO: W2CUBE - what is it? Maybe it a format of the cube-map textures too?
+    # TODO: texarray - what is it? Need to try research it
 
     @file_reaper
     def run(self):

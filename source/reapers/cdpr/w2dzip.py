@@ -1,4 +1,5 @@
-import os
+from icecream import ic
+from collections import namedtuple
 from source.codecs.zip_methods import ZipMethods
 from source.reaper import Reaper, file_reaper
 
@@ -14,25 +15,31 @@ class Witcher2DZIP(Reaper):
             if not self.magic([b'DZIP', ], magic, 'DZIP'):
                 return
 
-            # version = int.from_bytes(dzip.read(4), byteorder="little")
-            dzip.seek(4, 1)
+            ver = int.from_bytes(dzip.read(4), byteorder="little")
             file_count = int.from_bytes(dzip.read(4), byteorder="little")
-            dzip.seek(0x10)
-            dzip.seek(int.from_bytes(dzip.read(4), byteorder="little"))
+            dummy = int.from_bytes(dzip.read(4), byteorder="little")
+            file_list_start = int.from_bytes(dzip.read(8), byteorder="little")
+            dzip.seek(file_list_start)
 
-            for i in range(file_count):
-                name_len = int.from_bytes(dzip.read(2), byteorder="little")
-                name = dzip.read(name_len).decode("utf-8", errors="ignore").rstrip("\0")
-                # hash_sum = int.from_bytes(dzip.read(16), byteorder="little")
-                dzip.seek(4, 1)
-                offset = int.from_bytes(dzip.read(8), byteorder="little")
-                size = int.from_bytes(dzip.read(8), byteorder="little")
+            FileData = namedtuple('FileData', 
+                                  ['file_name', 'hash_sum', 'file_offset', 'file_size'])
+            file_data = []
 
-                path = os.path.join(self.output_folder, name)
-                here = dzip.tell()
-                dzip.seek(offset)
-                zip_data = dzip.read(size)
-                self.file_save(path, zip_data[4:])
-                self.unzip(path, ZipMethods.LZF)
-                dzip.seek(here)
-                self.update_pb(file_count, i + 1, name)
+            for _ in range(file_count):
+                long = int.from_bytes(dzip.read(2), byteorder="little")
+
+                file_data.append(
+                    FileData(
+                        dzip.read(long).strip().decode('utf-8', errors='ignore')[:-1],
+                        int.from_bytes(dzip.read(16), byteorder="little"),
+                        int.from_bytes(dzip.read(8), byteorder="little"),
+                        int.from_bytes(dzip.read(8), byteorder="little"),
+                    )
+                )
+
+            ic(file_data)
+
+            for i, file in enumerate(file_data):
+                dzip.seek(file.file_offset)
+                self.file_save(f"{self.output_folder}\\{file.file_name}", dzip.read(file.file_size))
+                self.update_pb(file_count, i + 1, file.file_name)
