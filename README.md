@@ -75,15 +75,16 @@ And unzip it into data directory
 
 
 
-* ☑️ Rewriting all legacy AutoIt function with Python
-* ✍️ Making sure to all function working correctly
+* ✅ Rewriting all legacy AutoIt function with Python
+* ☑️ Making sure to all function working correctly
 * ✍️ Adding support for many new games
 * ▶️ Making sure to all pre-installed BMS-scripts working correctly
-* 💭 Making support for native plugins
+* ▶️ Making support for native plugins
 * 💭 Making support for Noesis scripts
-* 💭 Making native support for BMS scripts
+* ▶️ Making native support for BMS scripts
 * 💭 Adding support for installing users scripts and tools (with QuickBMS, Noesis, WSX, CLI-tools and native plugins)
 
+  ✅ - done
   ☑️ - almost done
   ✍️ - in active devolopment
   ▶️ - just started
